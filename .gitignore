@@ -1,4 +1,6 @@
 **/.vs
+**/x64
+**/*.vcxproj.user
 *~
 *.obj
 *.exe
