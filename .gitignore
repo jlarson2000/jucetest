@@ -1,0 +1,8 @@
+**/.vs
+*~
+*.obj
+*.exe
+*.lib
+*.opt
+*.pdb
+*.opt
