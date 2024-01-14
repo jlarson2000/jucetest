@@ -595,6 +595,18 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MainMenu.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PopupTest.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SimpleMenu.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Trace.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>
     </ClCompile>
@@ -3023,6 +3035,18 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MainMenu.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PopupTest.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SimpleMenu.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace.h">
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
       <Filter>JUCE Modules\juce_audio_basics\audio_play_head</Filter>

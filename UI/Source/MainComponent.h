@@ -1,6 +1,9 @@
 #pragma once
 
 #include <JuceHeader.h>
+// #include "MainMenu.h"
+#include "SimpleMenu.h"
+#include "PopupTest.h"
 
 //==============================================================================
 /*
@@ -23,14 +26,19 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-private:
-    //==============================================================================
-    // Your private member variables go here...
+    // callbacks from the menu
+    void showPopup();
+    void closePopup();
+
+  private:
 
     juce::Label titleLabel;
     juce::Label anotherLabel;
 
-    class MenusDemo *testMenu;
+    // class MainMenu mainMenu;
+    class SimpleMenu mainMenu;
+
+    PopupTest popup;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

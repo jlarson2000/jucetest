@@ -9,6 +9,14 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
+    <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
+    <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
+    <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
+    <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
+    <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
+    <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
+    <FILE id="Ch8vpW" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
+    <FILE id="WtTznE" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
