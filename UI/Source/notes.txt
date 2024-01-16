@@ -1,0 +1,19 @@
+
+* Base Configuration Panel
+
+Test header at the top with divider line
+Close, Save/Cancel buttons at the bottom
+
+Central area, usually with tabs
+
+* Named Configuration Panel
+
+  Presets, Setups, MIDI Bindings 
+
+Selector for config name with names of existing objects
+New/Delete/Rename functions
+
+* Parameter Panel
+
+Various titled objects with a combo box or checkbox
+

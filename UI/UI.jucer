@@ -9,10 +9,18 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
+    <FILE id="qeSkvH" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ConfigPanel.cpp"/>
+    <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
+    <FILE id="U79qDT" name="ConfigPopup.cpp" compile="1" resource="0" file="Source/ConfigPopup.cpp"/>
+    <FILE id="L2aeBF" name="ConfigPopup.h" compile="0" resource="0" file="Source/ConfigPopup.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
     <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
+    <FILE id="xbAsdP" name="PresetPanel.cpp" compile="1" resource="0" file="Source/PresetPanel.cpp"/>
+    <FILE id="bW8cXR" name="PresetPanel.h" compile="0" resource="0" file="Source/PresetPanel.h"/>
+    <FILE id="kv3O43" name="SetupPanel.cpp" compile="1" resource="0" file="Source/SetupPanel.cpp"/>
+    <FILE id="kRTWDZ" name="SetupPanel.h" compile="0" resource="0" file="Source/SetupPanel.h"/>
     <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
     <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
     <FILE id="Ch8vpW" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>

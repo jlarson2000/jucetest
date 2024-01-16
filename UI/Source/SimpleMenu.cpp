@@ -183,12 +183,10 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
         {
             case menuOpenLoop:
             {
-                mainComponent->showPopup();
             }
             break;
             case menuOpenProject:
             {
-                mainComponent->closePopup();
             }
             break;
             case menuSaveLoop: break;
@@ -198,8 +196,16 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
             case menuReloadOSC: break;
             case menuExit: break;
 
-            case menuPresets: break;
-            case menuTrackSetups: break;
+            case menuPresets: {
+                mainComponent->showPresets();
+            }
+            break;
+            
+            case menuTrackSetups: {
+                mainComponent->showSetups();
+            }
+            break;
+                
             case menuGlobalParameters: break;
             case menuMIDIControl: break;
             case menuKeyboardControl: break;

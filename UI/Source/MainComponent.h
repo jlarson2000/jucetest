@@ -3,14 +3,15 @@
 #include <JuceHeader.h>
 // #include "MainMenu.h"
 #include "SimpleMenu.h"
-#include "PopupTest.h"
+//#include "PopupTest.h"
+#include "ConfigPopup.h"
 
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent
+class MainComponent  : public juce::AudioAppComponent, ConfigPopup::Listener
 {
 public:
     //==============================================================================
@@ -27,8 +28,11 @@ public:
     void resized() override;
 
     // callbacks from the menu
-    void showPopup();
-    void closePopup();
+    void showPresets();
+    void showSetups();
+
+    // callbacks from the popup
+    void configPopupClosed(ConfigPopup* p);
 
   private:
 
@@ -38,7 +42,8 @@ public:
     // class MainMenu mainMenu;
     class SimpleMenu mainMenu;
 
-    PopupTest popup;
-
+    PresetPopup presetPopup;
+    SetupPopup setupPopup;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

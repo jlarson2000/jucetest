@@ -1,0 +1,40 @@
+
+Config Header
+  displays title and border
+  no actions
+
+Config Footer
+  displays configurable buttons
+  forwards action to parent
+
+ConfigPanel
+  displays header/footer/content
+  forwards footer button to subclass for appropriate action
+  informs parent that it is done
+
+
+Wrapping the panel inside the Popup makes subclassing complicated
+
+to the popup, the panel has buttons, how it is structured internally doesn't matter
+
+what do we subclass, the panel or the popup?
+
+Nice to have popup just display the panel in a few ways but not care what it is
+  means this can't use automatic members
+
+class PresetPanel : ConfigPanel {"Presets", ButtonSave | ButtonCancel};
+
+ways of showing a configuration panel
+
+  dialog window
+    heavy weight, needs a modal wait loop
+
+  simple compoment
+    easiest, arbitrary position
+
+
+  slider
+    I guess like a simple component, just slides in and out
+
+yeah, keep the panel where the guts are and contain it in something
+

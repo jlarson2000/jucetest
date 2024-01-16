@@ -143,8 +143,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigPopup.cpp"/>
     <ClCompile Include="..\..\Source\MainMenu.cpp"/>
     <ClCompile Include="..\..\Source\PopupTest.cpp"/>
+    <ClCompile Include="..\..\Source\PresetPanel.cpp"/>
+    <ClCompile Include="..\..\Source\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp"/>
     <ClCompile Include="..\..\Source\Trace.cpp"/>
     <ClCompile Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -2410,8 +2414,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\ConfigPanel.h"/>
+    <ClInclude Include="..\..\Source\ConfigPopup.h"/>
     <ClInclude Include="..\..\Source\MainMenu.h"/>
     <ClInclude Include="..\..\Source\PopupTest.h"/>
+    <ClInclude Include="..\..\Source\PresetPanel.h"/>
+    <ClInclude Include="..\..\Source\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\SimpleMenu.h"/>
     <ClInclude Include="..\..\Source\Trace.h"/>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>

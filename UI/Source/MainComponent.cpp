@@ -28,11 +28,12 @@ MainComponent::MainComponent()
     mainMenu.setMainComponent(this);
     
     //addAndMakeVisible(popup);
-    addChildComponent(popup);
+    addChildComponent(presetPopup);
+    presetPopup.setListener(this);
     
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize (800, 600);
+    setSize (1000, 1000);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -54,7 +55,12 @@ MainComponent::~MainComponent()
     shutdownAudio();
 }
 
-//==============================================================================
+//////////////////////////////////////////////////////////////////////
+//
+// AudioAppComponent
+//
+//////////////////////////////////////////////////////////////////////
+
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     // This function will be called when the audio device is started, or when
@@ -85,17 +91,16 @@ void MainComponent::releaseResources()
     // For more details, see the help for AudioProcessor::releaseResources()
 }
 
-//==============================================================================
+//////////////////////////////////////////////////////////////////////
+//
+// Component
+//
+//////////////////////////////////////////////////////////////////////
+
 void MainComponent::paint (juce::Graphics& g)
 {
     // You can add your drawing code here!
     g.fillAll (juce::Colours::black);
-
-    /*
-    juce::Rectangle<int> r = titleLabel.getBounds();
-    g.setColour(juce::Colours::sandybrown);
-    g.drawRect(r);
-    */
 }
 
 void MainComponent::resized()
@@ -105,23 +110,44 @@ void MainComponent::resized()
     // update their positions.
     titleLabel.setBounds (10,  100, getWidth() - 20,  30);
     anotherLabel.setBounds (10,  130, getWidth() - 20,  30);
-    popup.center();
+    
+    // would prefer that we do this when it is opened?
+    presetPopup.center();
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Menu Callbacks
+//
 //////////////////////////////////////////////////////////////////////
 
 /**
  * Called by the menu when the popup is to be shown.
+ * I guess you can have more than one of these open at a time which
+ * isn't terrible, but since you can't move them, it could get confusing.
+ * Could simulate modal with a flag.
+ 
  */
-void MainComponent::showPopup()
+void MainComponent::showPresets()
 {
-    Trace("Show popup\n");
-    popup.setVisible(true);
+    presetPopup.setVisible(true);
 }
 
-void MainComponent::closePopup()
+void MainComponent::showSetups()
 {
-    Trace("Close popup\n");
-    popup.setVisible(false);
+    setupPopup.setVisible(true);
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Popup Listeners
+//
+//////////////////////////////////////////////////////////////////////
+
+void MainComponent::configPopupClosed(ConfigPopup* p)
+{
+    if (p == &presetPopup)
+      presetPopup.setVisible(false);
+    else if (p == &setupPopup)
+      setupPopup.setVisible(false);
+}

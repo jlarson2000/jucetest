@@ -595,10 +595,22 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigPanel.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigPopup.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MainMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PopupTest.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PresetPanel.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SetupPanel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp">
@@ -3036,10 +3048,22 @@
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigPanel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigPopup.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainMenu.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PopupTest.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PresetPanel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SetupPanel.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SimpleMenu.h">
