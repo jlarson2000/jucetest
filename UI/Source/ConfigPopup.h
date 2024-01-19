@@ -18,6 +18,7 @@
 
 #include "ConfigPanel.h"
 #include "PresetPanel.h"
+#include "SetupPanel.h"
 
 class ConfigPopup : public juce::Component, public ConfigPanel::Listener
 {

@@ -6,7 +6,7 @@
 
 #include <JuceHeader.h>
 
-#include "SetupPanel.h"
+#include "ConfigPanel.h"
 
 class SetupPanel : public ConfigPanel 
 {

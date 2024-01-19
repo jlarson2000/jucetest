@@ -604,6 +604,9 @@
     <ClCompile Include="..\..\Source\MainMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Parameters.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PopupTest.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -3055,6 +3058,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainMenu.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Parameters.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PopupTest.h">

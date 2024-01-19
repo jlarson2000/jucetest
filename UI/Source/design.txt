@@ -1,4 +1,95 @@
 
+static variables
+
+statics are generally considered bad for plugins because they last for the duration of the
+containing process, not the duration of the plugin
+
+they are available to multiple instances of the plugin which can be handy if careful
+in my case no one has multiple instances of Mobius, and even if they did, duplicating
+the statics is not a big deal
+
+statics containing large data structrures, like samples or wavetables make more sense
+
+Jules hates them because they are destructed after Juce deinitializes, for me
+this is not bad since I only ever use them for immutable data like parameter and function definitions
+
+Alternative is to define some kind of state object them in a member variable of the audio processor
+isntance and pass it down everywhere.  I don't like that.
+
+I guess a better alternative is to define it in a member variable, but then use a static
+pointer to that so it is destructed with the plugin and all the code that would reference
+that would be gone by then.
+
+
+Paramter high value
+  some parameters like track group numbers have a high value configured
+  as a track parameter
+  others like selected preset and setup can be extended
+
+  this requires access to the configuration objects to make the decision
+  currently passing down MobiusInterface* into the getters
+
+  option 1:
+    have a thread local point at the a root configuartion object
+  option 2:
+    have the Parameter objects be self contained and allow their high value
+    to be set
+      - kind of lean toward this
+
+  questions:
+    how locked in is the parameter description passed from the plugin to the host
+    can we change characteristics dynamically?
+
+
+----------------------------------------------------------------------
+
+Parameter Editing
+
+Can be mostly data driven
+Use a local model independent of Mobius model for development and testing
+
+Will closely parallel current Mobius classes
+  SystemConstant
+  Parameter
+  PresetParameter
+  etc.
+
+Work toward making this the new model
+Avoid Mobius dependencies
+Avoid UI dependencies
+
+Parameter
+
+  scope: global, preset, track
+  name: internal reference name
+  displayName: name to show in the UI
+  type: int, bool, enum, string
+
+
+names
+  internal names not necessary for the UI, but are for scripts
+  so keep them together
+
+dynamic
+  some parameters can change values and max ordinals
+  "preset" for example is a set of user defined names
+  "trackCount" is the number of tracks which is configurable
+
+  skip dynamic initially?
+
+values
+  need a modern way to hold typed values, ExValue replacement
+  modern way to initialize string arrays
+  
+enumerations
+  will have both an internal and display name
+    skip for now?
+  need a modern way to map between text names and numeric value
+  
+
+  
+----------------------------------------------------------------------
+
 Config Header
   displays title and border
   no actions

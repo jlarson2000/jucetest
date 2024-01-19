@@ -91,9 +91,13 @@ class ContentPanel : public juce::Component
     void resized() override;
     void paint (juce::Graphics& g) override;
 
+    void addTab(const char* name);
+    
   private:
 
     juce::GroupComponent group;
+    juce::TabbedComponent tabs;
+    int numTabs = 0;
 };
 
 class ConfigPanel : public juce::Component
@@ -122,6 +126,9 @@ class ConfigPanel : public juce::Component
     // callback from the footer buttons
     void buttonClicked(ConfigPanelButton button);
     
+    // builders
+    void addTab(const char* name);
+
   private:
 
     ConfigPanelHeader header;
@@ -129,6 +136,6 @@ class ConfigPanel : public juce::Component
     ContentPanel content;
     
     Listener* listener;
-    
+
 };
     

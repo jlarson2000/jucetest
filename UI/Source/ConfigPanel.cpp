@@ -63,7 +63,7 @@ ConfigPanelHeader::ConfigPanelHeader(const char* titleText)
     addAndMakeVisible (titleLabel);
     titleLabel.setFont (juce::Font (16.0f, juce::Font::bold));
     titleLabel.setText (titleText, juce::dontSendNotification);
-    titleLabel.setColour (juce::Label::textColourId, juce::Colours::lightgreen);
+    titleLabel.setColour (juce::Label::textColourId, juce::Colours::black);
     titleLabel.setJustificationType (juce::Justification::centred);
 }
 
@@ -177,10 +177,8 @@ void ConfigPanelFooter::buttonClicked(juce::Button* b)
 //
 //////////////////////////////////////////////////////////////////////
 
-ContentPanel::ContentPanel()
+ContentPanel::ContentPanel() : tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
 {
-    addAndMakeVisible(group);
-    group.setText("Stuff");
 }
 
 ContentPanel::~ContentPanel()
@@ -189,9 +187,36 @@ ContentPanel::~ContentPanel()
 
 void ContentPanel::resized()
 {
-    group.setBounds(getLocalBounds());
+    //group.setBounds(getLocalBounds());
+
+    // from the demo
+    // if (tabBarIndent > 0)
+    // getTabbedButtonBar().setBounds (getTabbedButtonBar().getBounds().withTrimmedLeft (tabBarIndent));
+    tabs.setBounds(getLocalBounds());
 }
 
 void ContentPanel::paint(juce::Graphics& g)
 {
 }
+
+void ContentPanel::addTab(const char* name)
+{
+    if (numTabs == 0) {
+        addAndMakeVisible(tabs);
+        tabs.setTabBarDepth (40);
+    }
+    numTabs++;
+        
+    tabs.addTab(name, juce::Colours::black, nullptr, false);
+}
+//////////////////////////////////////////////////////////////////////
+//
+// Subclass Builders
+//
+//////////////////////////////////////////////////////////////////////
+
+void ConfigPanel::addTab(const char* name)
+{
+    content.addTab(name);
+}
+

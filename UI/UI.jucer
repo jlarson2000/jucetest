@@ -15,6 +15,8 @@
     <FILE id="L2aeBF" name="ConfigPopup.h" compile="0" resource="0" file="Source/ConfigPopup.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
+    <FILE id="ors9hu" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
+    <FILE id="rPqtqz" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
     <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
     <FILE id="xbAsdP" name="PresetPanel.cpp" compile="1" resource="0" file="Source/PresetPanel.cpp"/>
