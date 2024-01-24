@@ -13,6 +13,8 @@
     <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
     <FILE id="U79qDT" name="ConfigPopup.cpp" compile="1" resource="0" file="Source/ConfigPopup.cpp"/>
     <FILE id="L2aeBF" name="ConfigPopup.h" compile="0" resource="0" file="Source/ConfigPopup.h"/>
+    <FILE id="hthmrW" name="Form.cpp" compile="1" resource="0" file="Source/Form.cpp"/>
+    <FILE id="Mzw5se" name="Form.h" compile="0" resource="0" file="Source/Form.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
     <FILE id="ors9hu" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>

@@ -4,5 +4,10 @@
  */
 #pragma once
 
+#include <string>
+#include <sstream>
+
 void Trace(const char* buf);
+void Trace(std::string* str);
+void Trace(std::ostringstream* os);
 
