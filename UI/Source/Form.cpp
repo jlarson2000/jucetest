@@ -87,6 +87,9 @@ void Field::renderString()
         renderType = RenderType::List;
         renderer = &listbox;
         listbox.setValues(allowedValues);
+
+        // needs much more work
+        preferredHeight = 30 * 3;
     }
     
 }
@@ -151,7 +154,10 @@ void Field::resized()
 {
     // do them all the same way for now, may want more control
     if (renderer != nullptr) {
-        renderer->setBounds(100, 0, getWidth() - 110, 40);
+        int height = getHeight();
+        if (height == 0)
+          height = 30;
+        renderer->setBounds(100, 0, getWidth() - 110, height);
     }
 }
 
@@ -192,7 +198,10 @@ void FieldSet::resized()
 
     for (int i = 0 ; i < fields.size() ; i++) {
         Field* f = fields[i];
-        f->setBounds(area.removeFromTop(50));
+        int height = f->getPreferredHeight();
+        if (height == 0)
+          height = 30;
+        f->setBounds(area.removeFromTop(height));
     }
 }
 

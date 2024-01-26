@@ -120,6 +120,14 @@ class Field : public juce::Component
     // only for FieldSet, should be a friend class?
     void render();
 
+    int getPreferredHeight() {
+        return preferredHeight;
+    }
+
+    void setPreferredHeight(int h) {
+        preferredHeight = h;
+    }
+        
     //
     // Juce interface
     //
@@ -156,6 +164,7 @@ class Field : public juce::Component
     // the component we chose to render the value
     juce::Component* renderer = nullptr;
 
+    int preferredHeight = 0;
 };
 
 /**
@@ -175,7 +184,5 @@ class FieldSet : public juce::Component {
     
   private:
 
-    // TODO: we could just use the child component list and downcast
-    // compare with std::vector
     juce::OwnedArray<Field> fields;
 };
