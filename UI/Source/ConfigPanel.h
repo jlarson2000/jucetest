@@ -129,11 +129,14 @@ class ConfigPanel : public juce::Component
     // builders
     void addTab(const char* name);
 
+  protected:
+    
+    ContentPanel content;
+
   private:
 
     ConfigPanelHeader header;
     ConfigPanelFooter footer;
-    ContentPanel content;
     
     Listener* listener;
 

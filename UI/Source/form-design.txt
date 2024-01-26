@@ -1,0 +1,99 @@
+
+Field
+  renders a single labeled value
+  selects component based on type
+  some fields may have user defined values and be of variable length
+    preset names, setup names
+
+RangeField
+  longer numeric field using a knob or slider
+
+MultiSelect
+  a parameter may have any number of a possible set of values
+  example: sustain functions
+  option 1
+    value list with individual item highlighting
+  option 2
+    dual panel with arrows to move values between them
+    a complex component that differs from others
+      wide and has a top label rather than a side label
+  option 3
+    checkbox grid
+    simpler and in some ways more obvious
+    limited height without scrolling
+    would work for sustain functions
+
+
+boolean
+  several options, checkbox, multiselect, toggle button
+  juce ToggleButton already has support for a label on the right
+  juce TextButton can be toggles with different text when selected
+  
+Form
+  organizes fields
+  can have multiple tab panels
+  may want to promote this to a higher level for tabs and
+  let forms just organize fields
+  fields can be single or dual columns
+  
+
+Field views
+  example: the track selection radios
+  selection changes the values displayed in a common set of fields
+
+Form Commands
+  buttons that can do things within the form without closing the form
+  example: track setup initialize, capture
+
+
+Form Tabs
+  most configuration forms will have several tab panels
+
+
+---
+
+Form Section
+  could draw a ring around a set of fields
+  could use to organize fields into columns?
+    more complex than we need
+
+Liking the notion of a simple block of vertical fields as a component,
+have this in other places like binding panels that are more complex than
+tabbed field sets
+
+User List
+  a list of values that are completely variable
+  example: script list
+  like a text area but with guided value selection
+    - currently use a file chooser
+  items can be selected and deleted
+
+---
+
+FieldPanel
+  a collection of usually simple fields arranged in one or more columns
+
+Object Editor
+  used to edit objects that can be of variable number and have names
+  has components for naming and renaming the object and selecting
+  one of the objects to be active
+  has button to delete the object
+
+  example: preset, setup, midi bindings
+
+  other parameter sets don't currently have multiple objects but could be nice
+    buttons, colors, etc.
+
+---
+
+Config Panel
+  title at the top, save/cancel buttons at the bottom, arbitrary content in the middle
+
+Juce TabbedComponent displays the tab bar and manages visibility of a content component
+
+Juce TabbedButtonBar can be used independently of TabbedComponent
+---
+
+Start with Field and FieldSet
+  alt: FieldGroup, FieldBlock, FieldPanel
+

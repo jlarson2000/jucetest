@@ -31,6 +31,9 @@ MainComponent::MainComponent()
     addChildComponent(presetPopup);
     presetPopup.setListener(this);
     
+    addChildComponent(setupPopup);
+    setupPopup.setListener(this);
+
     // Make sure you set the size of the component after
     // you add any child components.
     setSize (1000, 1000);
@@ -113,6 +116,7 @@ void MainComponent::resized()
     
     // would prefer that we do this when it is opened?
     presetPopup.center();
+    setupPopup.center();
 }
 
 //////////////////////////////////////////////////////////////////////

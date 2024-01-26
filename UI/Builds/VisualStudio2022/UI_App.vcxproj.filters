@@ -619,6 +619,9 @@
     <ClCompile Include="..\..\Source\SetupPanel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\SimpleListBox.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -3076,6 +3079,9 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SetupPanel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SimpleListBox.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SimpleMenu.h">

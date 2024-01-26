@@ -17,6 +17,6 @@ class SetupPanel : public ConfigPanel
 
   private:
 
-    Form form;
-
+    FieldSet fields;
+    
 };

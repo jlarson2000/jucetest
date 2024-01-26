@@ -193,6 +193,18 @@ void ContentPanel::resized()
     // if (tabBarIndent > 0)
     // getTabbedButtonBar().setBounds (getTabbedButtonBar().getBounds().withTrimmedLeft (tabBarIndent));
     tabs.setBounds(getLocalBounds());
+
+    // subclasses can toss whatever they want in here
+    // hmm, might be better to subclass the content panel?
+    // no, at the point of initial sizing, there will be no children
+    // have to do this later, doesn't Juce iterate over children automatically?
+    /*
+    const juce::Array <Component * > & children = getChildren();
+    for (int i = 0 ; i < children.size() ; i++) {
+        children[i]->setBounds(getLocalBounds());
+    }
+    */
+    
 }
 
 void ContentPanel::paint(juce::Graphics& g)
