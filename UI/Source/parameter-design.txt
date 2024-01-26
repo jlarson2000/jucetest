@@ -1,0 +1,28 @@
+
+extern Parameter SubCyclesParameter;
+
+  any need to get to these directly?
+
+
+std:vector<Parameter*> Paremeter::getParemeters()
+  static method returning a singleton vector
+  created as a side effect of Parameter construction?
+
+
+------------------------------
+
+
+MobiusConfig
+  Preset
+  Setup
+  ...
+
+Original data model for configuring the core engine
+
+Parameter...
+  original model for parameter definitions
+
+MobiusCore
+  new wrapper around old code
+  dynamically allocated and deleted by MainComponent
+
