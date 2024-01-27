@@ -1,0 +1,31 @@
+
+util/Trace
+  this wants a csect, either do that on our own or find
+  a way to push Juce/container down nhere
+
+util/Util
+
+AppException
+  see how widely used this is and find something new
+  it allocates memory and is dangerous for audio
+
+CopyString
+  almost all uses of this can be migrated to std::
+
+util/Vbuf
+  replace with std::
+  has some pointer arithmetic and doesn't use PTRDIFF
+
+model/Binding
+  Trigger contants are dynamically allocated!!
+  need to use static objects so they can be auto-destructed
+
+model/Preset
+  had to pull in MAX_RATE_STEP and MAX_BEND_STEP from Resampler
+  if the model is going to enforce these, they need to live there
+
+model/Parameter
+  lots of dynamic allocation
+  lots of references to core objects
+
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
@@ -19,6 +19,7 @@
 #include "Trace.h"
 #include "Vbuf.h"
 #include "XmlModel.h"
+
 #include "XomParser.h"
 
 /****************************************************************************

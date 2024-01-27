@@ -1,38 +1,48 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
  * ---------------------------------------------------------------------
  * 
+ * !! Critical section support has been commented out pending design of
+ * how to integgrate Juce for this
+ *
  * Trace utilities.
  * 
- * Trace records are accumulated in a global array.
- * In theory there could be thread synchronization problems, 
- * but in practice that would be rare as almost all trace messages
- * come from the interrupt thread.  I don't want to mess with
- * csects here, the only potential problem is loss of a message.
+ * This is used to send messages to the Windows debug output stream which
+ * is necessary since stdout is not accessible when running as a plugin.
+ * Stdout is also not visible when running under Visual Studio.
  *
- * The records are normally acumulated as a ring buffer with a head
+ * Mac doesn't have this, I've been just using stdout/stderr and doing most
+ * development on Windows.  With the addition of Juce it would be interesting
+ * to explore having a Juce window async window that could be used for this
+ * on both platforms.
+ *
+ * This is called from the audio interrupt and must be fast and not do
+ * anything dangerous like allocating dynamic memory.
+ *
+ * For both of these reasons trace records are normally simply accumulated
+ * in a global array which is then sent to the appropriate display method
+ * by another thread outside the interrupt.
+ *
+ * Adding trace records should be synchronized since records can be added
+ * by concurrent threads.  In practice there will only be one thread pulling
+ * records out of the queue.
+ *
+ * The records are acumulated as a ring buffer with a head
  * pointer advanced as trace messages are added, and a tail pointer advanced
- * as messages are displayed.  
+ * as messages are displayed.  This can be bypassed for testing purposes
+ * by setting the TracetoStdout flag.
+ *
  */
 
 #include <stdio.h>
 #include <stdarg.h>
 
-//#include <string.h>
-//#include <ctype.h>
-//#include <fcntl.h>
-//#include <string.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-
-// force WIN32
-//#ifdef _WIN32
-//#include <io.h>
+#ifdef _WIN32
+#include <io.h>
 #include <windows.h>
-//#endif
 
 // Used for CriticalSection, need to work on this
 // it was leaking

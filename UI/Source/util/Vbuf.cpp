@@ -1,9 +1,11 @@
- /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+/*
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
  * ---------------------------------------------------------------------
+ *
+ * This is extremely old code that can all be replaced with std:: at some point
  *
  * Yet another dynamic array with chunky resizing and pooling, because
  * the world just needed another.  This one has awareness of some
@@ -17,24 +19,15 @@
  * resulting string via the getBuffer() method, without having to worry
  * about termination.
  * 
+ * The interface makes it sounds like this maintains a reuse pool but
+ * that never happened.
  */
 
 #include <stdio.h>
 #include <string.h>
 
+#include "Util.h"
 #include "vbuf.h"
-
-// formerly in port.h, find a good home or something better 
-
-/**
- * PTRDIFF
- *
- * The usual macro for warning-free pointer differencing.
- */
-
-// #define PTRDIFF(start, end) (int)((unsigned long)end - (unsigned long) start)
-#define PTRDIFF(start, end) (int)((char*)end - (char*)start)
-
 
 /****************************************************************************
  * Vbuf::Vbuf
@@ -470,6 +463,7 @@ void Vbuf::prepend(const char *text)
 
 			// shift everything down
 			if (mPtr > mBuffer) {
+// !! pointer arithmetic
 				endpsn = (int)(mPtr - mBuffer) - 1;
 				for (i = endpsn ; i >= 0 ; i--)
 				 mBuffer[i + len] = mBuffer[i];

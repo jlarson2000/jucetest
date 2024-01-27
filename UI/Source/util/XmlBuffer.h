@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
  * ---------------------------------------------------------------------
  *
- * Utility for formatting XML text.
- *
+ * Utility for fmatting XML text with nice indentation.
+ * Might be something better by now in the libraries.
+ * Used by Mobius for configuration files.
  */
 
 #ifndef XML_BUFFER_H

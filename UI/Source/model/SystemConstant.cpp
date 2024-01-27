@@ -1,8 +1,23 @@
+/*
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * All rights reserved.
+ * See the LICENSE file for the full copyright and license declaration.
+ * 
+ * ---------------------------------------------------------------------
+ *
+ * Common superclass for various constant objects that are allocated
+ * during static initialization.  
+ *
+ */
 
-#include "../util/XmlBuffer.h"
+#include <stdio.h>
+#include <stdlib.h>
 
+#include "Util.h"
 #include "Trace.h"
-#include "Bindable.h"
+#include "MessageCatalog.h"
+
+#include "SystemConstant.h"
 
 /****************************************************************************
  *                                                                          *
@@ -46,10 +61,10 @@ SystemConstant::SystemConstant(const char* name, int key)
 
 PRIVATE void SystemConstant::init()
 {
-    mName = nullptr;
+    mName = NULL;
     mKey = 0;
     mDisplayName[0] = 0;
-    mHelp = nullptr;
+    mHelp = NULL;
 }
 
 SystemConstant::~SystemConstant()
@@ -103,7 +118,7 @@ const char* SystemConstant::getDisplayName()
  */
 void SystemConstant::setDisplayName(const char* name)
 {
-    if (name != nullptr)
+    if (name != NULL)
       CopyString(name, mDisplayName, sizeof(mDisplayName));
 }
 
@@ -114,7 +129,6 @@ void SystemConstant::setDisplayName(const char* name)
  * in order to switch languages you will have to bounce 
  * the host.
  */
-#if 0
 void SystemConstant::localize(MessageCatalog* cat)
 {
     if (mKey == 0) {
@@ -128,7 +142,7 @@ void SystemConstant::localize(MessageCatalog* cat)
     }
     else {
         const char* msg = cat->get(mKey);
-        if (msg != nullptr) {
+        if (msg != NULL) {
             setDisplayName(msg);
         }
         else {
@@ -137,7 +151,6 @@ void SystemConstant::localize(MessageCatalog* cat)
         }
     }
 }
-#endif
 
 /**
  * This is currently assumed to be static text so we don't have to 
@@ -154,118 +167,6 @@ const char* SystemConstant::getHelp()
     return mHelp;
 }
 
-/****************************************************************************
- *                                                                          *
- *   							   TARGETS                                  *
- *                                                                          *
- ****************************************************************************/
-
-Target* TargetFunction = new Target("function", "Function");
-Target* TargetParameter = new Target("parameter", "Parameter");
-Target* TargetSetup = new Target("setup", "Setup");
-Target* TargetPreset = new Target("preset", "Preset");
-Target* TargetBindings = new Target("bindings", "Bindings");
-Target* TargetUIControl = new Target("uiControl", "UI Control");
-Target* TargetUIConfig = new Target("uiConfig", "UI Config");
-Target* TargetScript = new Target("script", "Script");
-
-Target* Targets[] = {
-	TargetFunction,
-	TargetParameter,
-	TargetSetup,
-	TargetPreset,
-	TargetBindings,
-	TargetUIControl,
-	TargetUIConfig,
-	TargetScript,
-	nullptr
-};
- 
-Target::Target(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-}
-
-Target* Target::get(const char* name) 
-{
-	Target* found = nullptr;
-
-    // auto upgrade old bindings
-    if (StringEqual(name, "control"))
-      name = "parameter";
-
-	if (name != nullptr) {
-		for (int i = 0 ; Targets[i] != nullptr ; i++) {
-			Target* t = Targets[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-/****************************************************************************
- *                                                                          *
- *   							   BINDABLE                                 *
- *                                                                          *
- ****************************************************************************/
-
-#define ATT_NAME "name"
-#define ATT_NUMBER "number"
-
-Bindable::Bindable()
-{
-	mNumber	= 0;
-	mName	= nullptr;
-}
-
-Bindable::~Bindable()
-{
-	delete mName;
-}
-
-void Bindable::setNumber(int i)
-{
-	mNumber = i;
-}
-
-int Bindable::getNumber()
-{
-	return mNumber;
-}
-
-void Bindable::setName(const char* s)
-{
-	delete mName;
-	mName = CopyString(s);
-}
-
-const char* Bindable::getName()
-{
-	return mName;
-}
-
-void Bindable::clone(Bindable* src)
-{
-	setName(src->mName);
-	mNumber = src->mNumber;
-}
-
-void Bindable::toXmlCommon(XmlBuffer* b)
-{
-	// the number is transient on the way to generating a name, 
-	// but just in case we don't have a name, serialize it
-	if (mName != nullptr)
-	  b->addAttribute(ATT_NAME, mName);
-	else
-	  b->addAttribute(ATT_NUMBER, mNumber);
-}
-
-void Bindable::parseXmlCommon(XmlElement* e)
-{
-	setName(e->getAttribute(ATT_NAME));
-	setNumber(e->getIntAttribute(ATT_NUMBER));
-}
-
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

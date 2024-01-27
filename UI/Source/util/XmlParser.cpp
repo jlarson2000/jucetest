@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
@@ -14,11 +14,11 @@
 #include <ctype.h>
 #include <string.h>
  
-#include "Trace.h"
-#include "Vbuf.h"
-
 // for some ERR_ constants
 #include "Util.h"
+
+#include "Trace.h"
+#include "Vbuf.h"
 
 #include "XmlParser.h"
 

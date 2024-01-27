@@ -1,12 +1,15 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
  * ---------------------------------------------------------------------
+ *
+ * A very simple XML object model.  Used with the XML mini parser
+ * for fast instantiation of XML streams into C++ objects.
  * 
- * A simple memory model for parsed XML documents.
- * Conceptually similar to DOM but meets my simplicity standards.
+ * This is conceptually similar to DOM, but is simpler and less functional,
+ * which can be a good or bad thing depending on your point of view.  
  * 
  */
 
@@ -15,10 +18,8 @@
 #include <ctype.h>
 #include <string.h>
  
-#include "Trace.h"
-#include "Vbuf.h"
 #include "Util.h"
-
+#include "Vbuf.h"
 #include "XmlModel.h"
 
 /****************************************************************************

@@ -2,6 +2,12 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="UI\Source\util">
+      <UniqueIdentifier>{C6DA17FE-BCCA-2E0F-108F-1B75398A16D7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Source\model">
+      <UniqueIdentifier>{6A656BE1-788A-2827-D0DC-77E3F8A59D39}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source">
       <UniqueIdentifier>{988D8C19-5B53-959C-801A-611702F701DF}</UniqueIdentifier>
     </Filter>
@@ -589,14 +595,47 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\MessageCatalog.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\Trace.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\Util.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\Vbuf.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlBuffer.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlModel.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlParser.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XomParser.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\Binding.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\Parameter.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\Preset.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\SystemConstant.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\Bindable.cpp">
-      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp">
       <Filter>UI</Filter>
@@ -629,27 +668,6 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\Trace.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\Util.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\Vbuf.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\XmlBuffer.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\XmlModel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\XmlParser.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\util\XomParser.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3078,11 +3096,47 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\MessageCatalog.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\Trace.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\Util.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\Vbuf.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlBuffer.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlModel.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlParser.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XomParser.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Binding.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Messages.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Parameter.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Preset.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\SystemConstant.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\Bindable.h">
-      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ConfigPanel.h">
       <Filter>UI</Filter>
@@ -3115,27 +3169,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SimpleMenu.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\Trace.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\Util.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\Vbuf.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\XmlBuffer.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\XmlModel.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\XmlParser.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\util\XomParser.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">

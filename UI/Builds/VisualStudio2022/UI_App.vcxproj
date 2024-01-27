@@ -141,9 +141,20 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\MessageCatalog.cpp"/>
+    <ClCompile Include="..\..\Source\util\Trace.cpp"/>
+    <ClCompile Include="..\..\Source\util\Util.cpp"/>
+    <ClCompile Include="..\..\Source\util\Vbuf.cpp"/>
+    <ClCompile Include="..\..\Source\util\XmlBuffer.cpp"/>
+    <ClCompile Include="..\..\Source\util\XmlModel.cpp"/>
+    <ClCompile Include="..\..\Source\util\XmlParser.cpp"/>
+    <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
+    <ClCompile Include="..\..\Source\model\Binding.cpp"/>
+    <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
+    <ClCompile Include="..\..\Source\model\Preset.cpp"/>
+    <ClCompile Include="..\..\Source\model\SystemConstant.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\Bindable.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPopup.cpp"/>
     <ClCompile Include="..\..\Source\Form.cpp"/>
@@ -155,13 +166,6 @@
     <ClCompile Include="..\..\Source\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\SimpleListBox.cpp"/>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp"/>
-    <ClCompile Include="..\..\Source\util\Trace.cpp"/>
-    <ClCompile Include="..\..\Source\util\Util.cpp"/>
-    <ClCompile Include="..\..\Source\util\Vbuf.cpp"/>
-    <ClCompile Include="..\..\Source\util\XmlBuffer.cpp"/>
-    <ClCompile Include="..\..\Source\util\XmlModel.cpp"/>
-    <ClCompile Include="..\..\Source\util\XmlParser.cpp"/>
-    <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -2424,8 +2428,20 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\MessageCatalog.h"/>
+    <ClInclude Include="..\..\Source\util\Trace.h"/>
+    <ClInclude Include="..\..\Source\util\Util.h"/>
+    <ClInclude Include="..\..\Source\util\Vbuf.h"/>
+    <ClInclude Include="..\..\Source\util\XmlBuffer.h"/>
+    <ClInclude Include="..\..\Source\util\XmlModel.h"/>
+    <ClInclude Include="..\..\Source\util\XmlParser.h"/>
+    <ClInclude Include="..\..\Source\util\XomParser.h"/>
+    <ClInclude Include="..\..\Source\model\Binding.h"/>
+    <ClInclude Include="..\..\Source\model\Messages.h"/>
+    <ClInclude Include="..\..\Source\model\Parameter.h"/>
+    <ClInclude Include="..\..\Source\model\Preset.h"/>
+    <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\mobius\Bindable.h"/>
     <ClInclude Include="..\..\Source\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ConfigPopup.h"/>
     <ClInclude Include="..\..\Source\Form.h"/>
@@ -2437,13 +2453,6 @@
     <ClInclude Include="..\..\Source\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\SimpleListBox.h"/>
     <ClInclude Include="..\..\Source\SimpleMenu.h"/>
-    <ClInclude Include="..\..\Source\util\Trace.h"/>
-    <ClInclude Include="..\..\Source\util\Util.h"/>
-    <ClInclude Include="..\..\Source\util\Vbuf.h"/>
-    <ClInclude Include="..\..\Source\util\XmlBuffer.h"/>
-    <ClInclude Include="..\..\Source\util\XmlModel.h"/>
-    <ClInclude Include="..\..\Source\util\XmlParser.h"/>
-    <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\buffers\juce_AudioChannelSet.h"/>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\buffers\juce_AudioDataConverters.h"/>

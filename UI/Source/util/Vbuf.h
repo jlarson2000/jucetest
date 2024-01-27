@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
@@ -7,6 +7,8 @@
  *
  * Yet another dynamic array with chunky resizing and pooling, because
  * the world just needed another.
+ *
+ * To be replaced with std:: at some point
  *
  */
 

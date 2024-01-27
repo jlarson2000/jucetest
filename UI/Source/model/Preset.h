@@ -12,11 +12,7 @@
 #ifndef PRESET_H
 #define PRESET_H
 
-//  what is this for?
-//#include "Binding.h"
-
-#include "Bindable.h"
-
+#include "Binding.h"
 
 /****************************************************************************
  *                                                                          *

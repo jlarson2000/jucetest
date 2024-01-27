@@ -11,23 +11,24 @@
 
 //#include <stdio.h>
 //#include <stdlib.h>
-//#include <string.h>
+#include <string.h>
 //#include <math.h>
 
 #include "../util/Util.h"
 //#include "MidiUtil.h"
 #include "../util/XmlModel.h"
 #include "../util/XmlBuffer.h"
-//#include "Qwin.h"
 
+//#include "Qwin.h"
 //#include "Binding.h"
 //#include "Function.h"
 //#include "Mobius.h"
-//#include "Parameter.h"
 //#include "Resampler.h"
 //#include "Sample.h"
 //#include "Script.h"
 
+#include "Binding.h"
+#include "Parameter.h"
 #include "Preset.h"
 
 /****************************************************************************
@@ -43,6 +44,28 @@
 #define ATT_NUMBER "number"
 #define ATT_PROGRAM "program"
 #define ATT_CHANNEL "channel"
+
+//
+// Things formerly in other core files
+// Think about where to define various limits, if the model is going
+// to enforce them, then they need to go here
+//
+
+// formerly in Redampler.h
+/**
+ * Maximum rate step away from center.  
+ * This is just MAX_RATE_OCTAVE * 12
+ */
+#define MAX_RATE_STEP 48
+
+/**
+ * The maximum effectve semitone steps in one direction in the
+ * bend range.  Unlike step range, this is not adjustable without
+ * recalculating some a root each time.
+ *
+ * This must match the BEND_FACTOR below.
+ */
+#define MAX_BEND_STEP 12
 
 /****************************************************************************
  *                                                                          *

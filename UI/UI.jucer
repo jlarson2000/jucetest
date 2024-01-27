@@ -4,13 +4,45 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
+      <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
+        <FILE id="wRgzAZ" name="MessageCatalog.cpp" compile="1" resource="0"
+              file="Source/util/MessageCatalog.cpp"/>
+        <FILE id="pKGGeB" name="MessageCatalog.h" compile="0" resource="0"
+              file="Source/util/MessageCatalog.h"/>
+        <FILE id="kxfasO" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
+        <FILE id="JZyodG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
+        <FILE id="yz3ePc" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
+        <FILE id="N7aEkq" name="Util.h" compile="0" resource="0" file="Source/util/Util.h"/>
+        <FILE id="udcaId" name="Vbuf.cpp" compile="1" resource="0" file="Source/util/Vbuf.cpp"/>
+        <FILE id="XVkstu" name="Vbuf.h" compile="0" resource="0" file="Source/util/Vbuf.h"/>
+        <FILE id="uTm7Oi" name="XmlBuffer.cpp" compile="1" resource="0" file="Source/util/XmlBuffer.cpp"/>
+        <FILE id="LaPag0" name="XmlBuffer.h" compile="0" resource="0" file="Source/util/XmlBuffer.h"/>
+        <FILE id="Q3QHcI" name="XmlModel.cpp" compile="1" resource="0" file="Source/util/XmlModel.cpp"/>
+        <FILE id="UdU7Im" name="XmlModel.h" compile="0" resource="0" file="Source/util/XmlModel.h"/>
+        <FILE id="qcNqPB" name="XmlParser.cpp" compile="1" resource="0" file="Source/util/XmlParser.cpp"/>
+        <FILE id="voQV4p" name="XmlParser.h" compile="0" resource="0" file="Source/util/XmlParser.h"/>
+        <FILE id="GxiMwh" name="XomParser.cpp" compile="1" resource="0" file="Source/util/XomParser.cpp"/>
+        <FILE id="s5ZXBc" name="XomParser.h" compile="0" resource="0" file="Source/util/XomParser.h"/>
+      </GROUP>
+      <GROUP id="{35F5BDA4-4F12-7FE6-B25F-7B2965D913CF}" name="model">
+        <FILE id="DDTUb4" name="Binding.cpp" compile="1" resource="0" file="Source/model/Binding.cpp"/>
+        <FILE id="Kl8nMI" name="Binding.h" compile="0" resource="0" file="Source/model/Binding.h"/>
+        <FILE id="FZEt89" name="Messages.h" compile="0" resource="0" file="Source/model/Messages.h"/>
+        <FILE id="kSK1Zx" name="Parameter.cpp" compile="1" resource="0" file="Source/model/Parameter.cpp"/>
+        <FILE id="p3cTmf" name="Parameter.h" compile="0" resource="0" file="Source/model/Parameter.h"/>
+        <FILE id="pVDAsq" name="Preset.cpp" compile="1" resource="0" file="Source/model/Preset.cpp"/>
+        <FILE id="godsX2" name="Preset.h" compile="0" resource="0" file="Source/model/Preset.h"/>
+        <FILE id="vGfeWf" name="SystemConstant.cpp" compile="1" resource="0"
+              file="Source/model/SystemConstant.cpp"/>
+        <FILE id="JZYXKm" name="SystemConstant.h" compile="0" resource="0"
+              file="Source/model/SystemConstant.h"/>
+      </GROUP>
       <FILE id="YlAxvV" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yWDgXx" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
-    <FILE id="nipIWJ" name="Bindable.cpp" compile="1" resource="0" file="Source/mobius/Bindable.cpp"/>
-    <FILE id="qjL2Qp" name="Bindable.h" compile="0" resource="0" file="Source/mobius/Bindable.h"/>
     <FILE id="qeSkvH" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ConfigPanel.cpp"/>
     <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
     <FILE id="U79qDT" name="ConfigPopup.cpp" compile="1" resource="0" file="Source/ConfigPopup.cpp"/>
@@ -34,20 +66,6 @@
     <FILE id="qSagSe" name="SimpleListBox.h" compile="0" resource="0" file="Source/SimpleListBox.h"/>
     <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
     <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
-    <FILE id="iITdG6" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
-    <FILE id="qYnnaG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
-    <FILE id="XVYrwE" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
-    <FILE id="bx8vri" name="Util.h" compile="0" resource="0" file="Source/util/Util.h"/>
-    <FILE id="EqDwH7" name="Vbuf.cpp" compile="1" resource="0" file="Source/util/Vbuf.cpp"/>
-    <FILE id="mhQ8WO" name="Vbuf.h" compile="0" resource="0" file="Source/util/Vbuf.h"/>
-    <FILE id="pzS1MG" name="XmlBuffer.cpp" compile="1" resource="0" file="Source/util/XmlBuffer.cpp"/>
-    <FILE id="CSdJjL" name="XmlBuffer.h" compile="0" resource="0" file="Source/util/XmlBuffer.h"/>
-    <FILE id="Yc0jaV" name="XmlModel.cpp" compile="1" resource="0" file="Source/util/XmlModel.cpp"/>
-    <FILE id="UGdnAc" name="XmlModel.h" compile="0" resource="0" file="Source/util/XmlModel.h"/>
-    <FILE id="BEAr4E" name="XmlParser.cpp" compile="1" resource="0" file="Source/util/XmlParser.cpp"/>
-    <FILE id="xEp8rO" name="XmlParser.h" compile="0" resource="0" file="Source/util/XmlParser.h"/>
-    <FILE id="DDN1pE" name="XomParser.cpp" compile="1" resource="0" file="Source/util/XomParser.cpp"/>
-    <FILE id="Jg3yKO" name="XomParser.h" compile="0" resource="0" file="Source/util/XomParser.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

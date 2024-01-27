@@ -1,3 +1,49 @@
+Source Organization
+
+Utilities
+  various generic utilities for programming
+  much of this was OS portability that can be replaced with Juce
+    move to the container interface
+      critical sections, threads
+  some of this was before the widespread adoption of the standard library
+    can move to std:: in core but not Juce
+
+UI
+  all things related to Juce and display
+  file handling, other OS related resources
+  think of this as the "container", core Mobius should have very container access
+  and do it through a well defined interface
+
+External Control
+  closely related to the UI, non-GUI things that can cause Mobius to do things
+  MIDI, keyboard, plugin parameters, osc
+  most if not all is now provided by Juce
+
+Model
+  Mobius configuration to be edited by the UI
+    presets, setups, global config, bindings
+    UI specific configuration
+  Mobius state that can be observed and changed
+    parameters, controls
+  Things mobius can do
+    actions functions
+
+Core
+  implementation of Mobius functionality
+  all audio interupt code
+  tracks, loops, layers, audio buffers
+
+Juce organization
+  top-level: UI, container implementation
+  util
+  model, container interface
+  core
+  
+  
+  
+  
+
+----------------------------------------------------------------------
 
 static variables
 

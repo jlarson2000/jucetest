@@ -1,12 +1,24 @@
 /*
- * Various old utilities
- * Replace with std:: eventually
+ * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * All rights reserved.
+ * See the LICENSE file for the full copyright and license declaration.
+ * 
+ * ---------------------------------------------------------------------
+ * 
+ * Yet another collection of utilities.
+ *
  */
 
 #include <stdio.h>
 #include <string.h>
 
 #include "Util.h"
+
+//////////////////////////////////////////////////////////////////////
+//
+// String utilities
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Copy one string to a buffer with care.
@@ -18,8 +30,8 @@
  */
 void CopyString(const char* src, char* dest, int max)
 {
-	if (dest != NULL && max > 0) {
-		if (src == NULL) 
+	if (dest != nullptr && max > 0) {
+		if (src == nullptr) 
 		  strcpy(dest, "");
 		else {
 			int len = (int)strlen(src);
@@ -37,25 +49,16 @@ void CopyString(const char* src, char* dest, int max)
 /**
  * CopyString
  *
- * Arguments:
- *	src: string to copy
- *
- * Returns: copied string (allocated with new)
- *
- * Description: 
+ * Return a copy of a string allocated with new.
+ * Returns nullptr if nullptr is passed.
  * 
- * The one function that should be in everyone's damn C++ run time library.
- * Copies a null terminated string.  Uses the "new" operator to allocate
- * storage.  Returns NULL if a NULL pointer is passed.
- * 
- * strdup() doesn't handle NULL input pointers, and the result is supposed
+ * strdup() doesn't handle nullptr input pointers, and the result is supposed
  * to be freed with free() not the delete operator.  Many compilers don't
  * make a distinction between free() and delete, but that is not guarenteed.
  */
-
 char* CopyString(const char *src)
 {
-	char *copy = NULL;
+	char *copy = nullptr;
 	if (src) {
 		copy = new char[strlen(src) + 1];
 		if (copy)
@@ -64,13 +67,107 @@ char* CopyString(const char *src)
 	return copy;
 }
 
-/****************************************************************************
- *                                                                          *
- *   							  EXCEPTIONS                                *
- *                                                                          *
- ****************************************************************************/
+int LastIndexOf(const char* str, const char* substr)
+{
+	int index = -1;
 
-// needed by the Xml/Xom parser
+	// not a very smart search
+	if (str != NULL && substr != NULL) {
+		int len = strlen(str);
+		int sublen = strlen(substr);
+		int psn = len - sublen;
+		if (psn >= 0) {
+			while (psn >= 0 && strncmp(&str[psn], substr, sublen))
+			  psn--;
+			index = psn;
+		}
+	}
+	return index;
+}
+
+/**
+ * Case insensitive string comparison.
+ * Return true if the strings are equal.
+ */
+bool StringEqualNoCase(const char* s1, const char* s2)
+{	
+	bool equal = false;
+	
+	if (s1 == NULL) {
+		if (s2 == NULL)
+		  equal = true;
+	}
+	else if (s2 != NULL) {
+		int len = strlen(s1);
+		int len2 = strlen(s2);
+		if (len == len2) {
+			equal = true;
+			for (int i = 0 ; i < len ; i++) {
+				char ch = tolower(s1[i]);
+				char ch2 = tolower(s2[i]);
+				if (ch != ch2) {
+					equal = false;
+					break;
+				}
+			}
+		}
+
+	}
+	return equal;
+}
+
+/**
+ * Given a string of numbers, either whitespace or comma delimited, 
+ * parse it and build an array of ints.  Return the number of ints
+ * parsed.
+ */
+int ParseNumberString(const char* src, int* numbers, int max)
+{
+	char buffer[MAX_NUMBER_TOKEN + 1];
+	const char* ptr = src;
+	int parsed = 0;
+
+	if (src != NULL) {
+		while (*ptr != 0 && parsed < max) {
+			// skip whitespace
+			while (*ptr != 0 && isspace(*ptr) && !(*ptr == ',')) ptr++;
+
+			// isolate the number
+			char* psn = buffer;
+			for (int i = 0 ; *ptr != 0 && i < MAX_NUMBER_TOKEN ; i++) {
+				if (isspace(*ptr) || *ptr == ',') {
+					ptr++;
+					break;
+				}
+				else
+				  *psn++ = *ptr++;
+			}
+			*psn = 0;
+
+			if (strlen(buffer) > 0) {
+				int ival = atoi(buffer);
+				if (numbers != NULL)
+				  numbers[parsed] = ival;
+				parsed++;
+			}
+		}
+	}
+
+	return parsed;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Exceptions
+//
+// This was originally used by the XML parser, not sure how much it
+// has grown since then.
+//
+// Note that since this does dynamic allocation it is unsuitable for
+// use in the audio interrupt.  Need to replace this with something better
+// from the standard library.
+//
+//////////////////////////////////////////////////////////////////////
 
 AppException::AppException(const char *msg, bool nocopy)
 {
@@ -82,8 +179,8 @@ AppException::AppException(int c, const char *msg, bool nocopy)
 	mCode = c;
 	if (nocopy)
 	  mMessage = (char *)msg;
-	else if (msg == NULL) 
-	  mMessage = NULL;
+	else if (msg == nullptr) 
+	  mMessage = nullptr;
 	else {
 		// if this throws, then I guess its more important 
 		mMessage = new char[strlen(msg) + 1];
@@ -99,7 +196,7 @@ AppException::AppException(AppException &src)
 {
 	mCode = src.mCode;
 	mMessage = src.mMessage;
-	src.mMessage = NULL;
+	src.mMessage = nullptr;
 }
 
 AppException::~AppException(void)
@@ -113,6 +210,4 @@ void AppException::print(void)
 	  printf("ERROR %d : %s\n", mCode, mMessage);
 	else
 	  printf("ERROR %d\n", mCode);
-
 }
-
