@@ -21,6 +21,7 @@ class Parameter {
     } Scope;
 
     Parameter();
+    Parameter(const char* argName, const char* argDisplayName);
 	virtual ~Parameter();
 
     const char* getName() {
@@ -37,7 +38,9 @@ class Parameter {
     int getHigh() { return high; }
     int getValue() { return value; }
     
-  protected:
+    static std::vector<Parameter*> Parameters;
+
+//  protected:
 
     const char* name;
     const char* displayName;

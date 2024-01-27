@@ -5,22 +5,21 @@
 #include <sstream>
 
 #include "SetupPanel.h"
-#include "Trace.h"
+#include "qtrace.h"
 
 SetupPanel::SetupPanel() : ConfigPanel{"Track Setups", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
 {
     std::ostringstream ss;
     ss << "Creating SetupPanel\n";
-    Trace(&ss);
+    qtrace(&ss);
     
     fields.add(new Field("first", "First", Field::Type::Int));
     fields.add(new Field("second", "Second", Field::Type::String));
     fields.add(new Field("third", "Third", Field::Type::Bool));
 
     Field* combo = new Field("fourth", "Fourth", Field::Type::String);
-    // does this have to be terminated?
-    const char* values[] = {"one", "two", "three", nullptr};
-    combo->setAllowedValues(values);
+    juce::StringArray cvalues = {"a", "b", "c"};
+    combo->setAllowedValues(cvalues);
     fields.add(combo);
 
     Field* slider = new Field("fifth", "Fifth", Field::Type::Int);
@@ -37,8 +36,10 @@ SetupPanel::SetupPanel() : ConfigPanel{"Track Setups", ConfigPanelButton::Save |
 
     Field* list = new Field("seven", "Seventh", Field::Type::String);
     list->setMulti(true);
-    const char* lvalues[] = {"one", "two", "three", nullptr};
+    // const char* lvalues[] = {"one", "two", "three", nullptr};
+    juce::StringArray lvalues = {"one", "two", "three"};
     list->setAllowedValues(lvalues);
+
     fields.add(list);
 
     // At this point, the content component has already been sized
@@ -52,7 +53,7 @@ SetupPanel::~SetupPanel()
 {
     std::ostringstream ss;
     ss << "Deleting SetupPanel\n";
-    Trace(&ss);
+    qtrace(&ss);
 }
 
     

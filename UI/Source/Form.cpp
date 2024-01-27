@@ -5,7 +5,7 @@
 #include <JuceHeader.h>
 
 #include "Form.h"
-#include "Trace.h"
+#include "qtrace.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -26,7 +26,22 @@ Field::~Field()
 {
     std::ostringstream ss;
     ss << "Deleting field: " << name << "\n";
-    Trace(&ss);
+    qtrace(&ss);
+}
+
+void Field::setAllowedValues(const char** arg)
+{
+    allowedValues.clear();
+}
+
+void Field::addAllowedValue(const char* arg)
+{
+    allowedValues.add(arg);
+}
+
+void Field::setAllowedValues(juce::StringArray& src)
+{
+    allowedValues = src;
 }
 
 /**
@@ -55,7 +70,7 @@ void Field::render()
 
 void Field::renderString()
 {
-    if (allowedValues == nullptr) {
+    if (allowedValues.isEmpty()) {
         renderType = RenderType::Text;
         renderer = &textbox;
         
@@ -68,7 +83,7 @@ void Field::renderString()
         renderType = RenderType::Combo;
         renderer = &combobox;
         
-        for (int i = 0 ; allowedValues[i] != nullptr ; i++) {
+        for (int i = 0 ; i < allowedValues.size() ; i++) {
             // note that item ids must be non-zero
             combobox.addItem(allowedValues[i], i + 1);
         }
@@ -86,6 +101,7 @@ void Field::renderString()
     else {
         renderType = RenderType::List;
         renderer = &listbox;
+        //listbox.setListValues(allowedValues);
         listbox.setValues(allowedValues);
 
         // needs much more work

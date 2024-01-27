@@ -1,0 +1,12 @@
+
+Preset
+  going to need the XML parser
+
+XML
+  needs Vbuf
+
+everything needs Trace
+
+Trace needs csect from thread
+
+

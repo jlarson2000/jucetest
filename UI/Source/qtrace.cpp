@@ -32,17 +32,17 @@
 #include <windows.h>
 */
 
-void Trace(const char* str)
+void qtrace(const char* str)
 {
     OutputDebugString(str);
 }
 
-void Trace(std::string* s)
+void qtrace(std::string* s)
 {
-    Trace(s->c_str());
+    qtrace(s->c_str());
 }
 
-void Trace(std::ostringstream* os)
+void qtrace(std::ostringstream* os)
 {
-    Trace(os->str().c_str());
+    qtrace(os->str().c_str());
 }

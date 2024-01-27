@@ -2,11 +2,13 @@
  * Parameter definitions
  */
 
+#include <vector>
+
 #include "Parameters.h"
 
 Parameter::Parameter()
 {
-    name = nullptr;
+    name = "unknown";
     displayName = nullptr;
     type = TypeInt;
     scope = ScopeNone;
@@ -24,11 +26,27 @@ Parameter::Parameter()
     takesAction = false;
     control = false;
     zeroCenter = false;
+
+    // add to the global registry
+    Parameters.push_back(this);
+}
+
+Parameter::Parameter(const char* argName, const char* argDisplayName)
+{
+    name = argName;
+    displayName = argDisplayName;
 }
 
 Parameter::~Parameter()
 {
 }
+
+/**
+ * Global registry of parameters.
+ * Since these are all created statically don't need to worry
+ * about lifespan of the objects.
+ */
+std::vector<Parameter*> Parameter::Parameters;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -36,21 +54,28 @@ Parameter::~Parameter()
 //
 //////////////////////////////////////////////////////////////////////
 
-class SubCycleParameterType : public Parameter
+class PresetParameter : public Parameter 
 {
-
   public:
+    PresetParameter(const char* name, const char* displayName) :
+        Parameter(name, displayName) {
+        scope = ScopePreset;
+    }
+};
+
     
-	SubCycleParameterType() {
-        name = "subcycles";
-        displayName = "Sub Cyles";
+class SubCycleParameterType : public PresetParameter 
+{
+  public:
+	SubCycleParameterType() :
+        PresetParameter("subcycles", "Sub Cycles")
+    {
+        bindable = true;
         type = TypeInt;
         low = 1;
         high = 128;
         // addAlias("8thsPerCycle");
     }
-    
 };
 
-SubCycleParameterType SubCycleParameter;
-
+SubCycleParameterType SubCycleParamter;

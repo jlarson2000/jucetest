@@ -109,14 +109,13 @@ class Field : public juce::Component
      * TODO: needs a lot more work to have internal/display values
      * in a proper CC++ way
      */
-    void setAllowedValues(const char** a) {
-        allowedValues = a;
-    }
+    juce::StringArray getAllowdValues();
 
-    const char** getAllowedValues() {
-        return allowedValues;
-    }
-
+    // work on how we want to consistently define these
+    void setAllowedValues(const char** a);
+    void setAllowedValues(juce::StringArray& src);
+    void addAllowedValue(const char* a);
+    
     // only for FieldSet, should be a friend class?
     void render();
 
@@ -148,7 +147,8 @@ class Field : public juce::Component
     int min = 0;
     int max = 0;
     int size = 0;
-    const char** allowedValues = nullptr;
+
+    juce::StringArray allowedValues = {};
 
     // readable label, for booleans, we could make use of the built-in
     // labeling of ToggleButton

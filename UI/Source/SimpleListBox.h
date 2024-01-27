@@ -14,6 +14,8 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
     ~SimpleListBox();
 
     void setValues(const char** strings);
+    void setListValues(juce::StringArray& src);
+    void setValues(juce::StringArray& src);
     
     // juce::Component overrides
     

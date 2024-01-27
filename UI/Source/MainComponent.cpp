@@ -5,7 +5,7 @@
 
 #include "MainComponent.h"
 #include "MainMenu.h"
-#include "Trace.h"
+#include "qtrace.h"
 
 MainComponent::MainComponent()
 {

@@ -157,25 +157,25 @@ juce::PopupMenu SimpleMenu::getMenuForIndex (int menuIndex, const juce::String& 
  *
  * Yes, this would be a lot simpler if you don't need keyboard activation
  */
-#include "Trace.h"
+#include "qtrace.h"
 void SimpleMenu::menuItemSelected (int itemId, int menuId)
 {
     char buf[100];
     sprintf(buf, "Menu %d Item %d\n", menuId, itemId);
     // DBG(buf);
-    Trace(buf);
+    qtrace(buf);
 
     if (itemId >= MenuPresetOffset)
     {
         int preset = itemId - MenuPresetOffset;
         sprintf(buf, "Preset %d\n", preset);
-        Trace(buf);
+        qtrace(buf);
     }
     else if (itemId >= MenuSetupOffset)
     {
         int setup = itemId - MenuSetupOffset;
         sprintf(buf, "Setup %d\n", setup);
-        Trace(buf);
+        qtrace(buf);
     }
     else
     {
@@ -223,7 +223,7 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
             case menuRefreshUI: break;
                 //case menuAbout: break;
             default: {
-                Trace("Unknown menu item\n");
+                qtrace("Unknown menu item\n");
             }
             break;
         }

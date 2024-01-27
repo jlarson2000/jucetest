@@ -17,12 +17,14 @@
     <FILE id="Mzw5se" name="Form.h" compile="0" resource="0" file="Source/Form.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
-    <FILE id="ors9hu" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
-    <FILE id="rPqtqz" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
     <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
+    <FILE id="H13wlo" name="Preset.cpp" compile="1" resource="0" file="Source/mobius/Preset.cpp"/>
+    <FILE id="tDO7XV" name="Preset.h" compile="0" resource="0" file="Source/mobius/Preset.h"/>
     <FILE id="xbAsdP" name="PresetPanel.cpp" compile="1" resource="0" file="Source/PresetPanel.cpp"/>
     <FILE id="bW8cXR" name="PresetPanel.h" compile="0" resource="0" file="Source/PresetPanel.h"/>
+    <FILE id="o6JvQ9" name="qtrace.cpp" compile="1" resource="0" file="Source/qtrace.cpp"/>
+    <FILE id="nDz8r8" name="qtrace.h" compile="0" resource="0" file="Source/qtrace.h"/>
     <FILE id="kv3O43" name="SetupPanel.cpp" compile="1" resource="0" file="Source/SetupPanel.cpp"/>
     <FILE id="kRTWDZ" name="SetupPanel.h" compile="0" resource="0" file="Source/SetupPanel.h"/>
     <FILE id="ZbnOtS" name="SimpleListBox.cpp" compile="1" resource="0"
@@ -30,8 +32,20 @@
     <FILE id="qSagSe" name="SimpleListBox.h" compile="0" resource="0" file="Source/SimpleListBox.h"/>
     <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
     <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
-    <FILE id="Ch8vpW" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
-    <FILE id="WtTznE" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
+    <FILE id="iITdG6" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
+    <FILE id="qYnnaG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
+    <FILE id="XVYrwE" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
+    <FILE id="bx8vri" name="Util.h" compile="0" resource="0" file="Source/util/Util.h"/>
+    <FILE id="EqDwH7" name="Vbuf.cpp" compile="1" resource="0" file="Source/util/Vbuf.cpp"/>
+    <FILE id="mhQ8WO" name="Vbuf.h" compile="0" resource="0" file="Source/util/Vbuf.h"/>
+    <FILE id="pzS1MG" name="XmlBuffer.cpp" compile="1" resource="0" file="Source/util/XmlBuffer.cpp"/>
+    <FILE id="CSdJjL" name="XmlBuffer.h" compile="0" resource="0" file="Source/util/XmlBuffer.h"/>
+    <FILE id="Yc0jaV" name="XmlModel.cpp" compile="1" resource="0" file="Source/util/XmlModel.cpp"/>
+    <FILE id="UGdnAc" name="XmlModel.h" compile="0" resource="0" file="Source/util/XmlModel.h"/>
+    <FILE id="BEAr4E" name="XmlParser.cpp" compile="1" resource="0" file="Source/util/XmlParser.cpp"/>
+    <FILE id="xEp8rO" name="XmlParser.h" compile="0" resource="0" file="Source/util/XmlParser.h"/>
+    <FILE id="DDN1pE" name="XomParser.cpp" compile="1" resource="0" file="Source/util/XomParser.cpp"/>
+    <FILE id="Jg3yKO" name="XomParser.h" compile="0" resource="0" file="Source/util/XomParser.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

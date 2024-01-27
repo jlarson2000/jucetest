@@ -1,7 +1,7 @@
 #include <JuceHeader.h>
 
 #include "SimpleListBox.h"
-#include "Trace.h"
+#include "qtrace.h"
 
 SimpleListBox::SimpleListBox()
 {
@@ -33,6 +33,13 @@ void SimpleListBox::setValues(const char** strings) {
         }
     }
     
+    listBox.updateContent();
+}
+
+void SimpleListBox::setValues(juce::StringArray& src)
+{
+    // this copies
+    values = src;
     listBox.updateContent();
 }
 
@@ -76,8 +83,8 @@ void SimpleListBox::paintListBoxItem (int rowNumber, juce::Graphics& g,
    
     // g.drawText ("Row Number " + String (rowNumber + 1), 5, 0, width, height,
     // Justification::centredLeft, true);
-
-    g.drawText (values[rowNumber], 5, 0, width, height, juce::Justification::centredLeft, true);
+    juce::String s = values[rowNumber];
+    g.drawText (s, 5, 0, width, height, juce::Justification::centredLeft, true);
 }
 
 void SimpleListBox::selectedRowsChanged (int /*lastRowselected*/)

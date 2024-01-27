@@ -607,13 +607,16 @@
     <ClCompile Include="..\..\Source\MainMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Parameters.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\PopupTest.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\Preset.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PresetPanel.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\qtrace.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SetupPanel.cpp">
@@ -625,7 +628,25 @@
     <ClCompile Include="..\..\Source\SimpleMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Trace.cpp">
+    <ClCompile Include="..\..\Source\util\Trace.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\Util.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\Vbuf.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlBuffer.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlModel.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XmlParser.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\XomParser.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3069,13 +3090,16 @@
     <ClInclude Include="..\..\Source\MainMenu.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Parameters.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\PopupTest.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\Preset.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\PresetPanel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\qtrace.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SetupPanel.h">
@@ -3087,7 +3111,25 @@
     <ClInclude Include="..\..\Source\SimpleMenu.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Trace.h">
+    <ClInclude Include="..\..\Source\util\Trace.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\Util.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\Vbuf.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlBuffer.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlModel.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XmlParser.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\XomParser.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">
