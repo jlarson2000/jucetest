@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\Bindable.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPopup.cpp"/>
     <ClCompile Include="..\..\Source\Form.cpp"/>
@@ -2424,6 +2425,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\mobius\Bindable.h"/>
     <ClInclude Include="..\..\Source\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ConfigPopup.h"/>
     <ClInclude Include="..\..\Source\Form.h"/>

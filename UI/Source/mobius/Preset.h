@@ -15,6 +15,9 @@
 //  what is this for?
 //#include "Binding.h"
 
+#include "Bindable.h"
+
+
 /****************************************************************************
  *                                                                          *
  *                                  DEFAULTS                                *
@@ -158,7 +161,9 @@ class Preset : public Bindable {
     void setSustainFunctions(const char* s);
     const char* getSustainFunctions();
     void addSustainFunction(const char* name);
-    bool isSustainFunction(Function* f);
+
+    // reomved to avoid dependency
+    //    bool isSustainFunction(Function* f);
 
     //
     // Quantization

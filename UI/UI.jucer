@@ -9,6 +9,8 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
+    <FILE id="nipIWJ" name="Bindable.cpp" compile="1" resource="0" file="Source/mobius/Bindable.cpp"/>
+    <FILE id="qjL2Qp" name="Bindable.h" compile="0" resource="0" file="Source/mobius/Bindable.h"/>
     <FILE id="qeSkvH" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ConfigPanel.cpp"/>
     <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
     <FILE id="U79qDT" name="ConfigPopup.cpp" compile="1" resource="0" file="Source/ConfigPopup.cpp"/>

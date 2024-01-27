@@ -305,10 +305,12 @@ void Preset::addSustainFunction(const char* name)
  * Obviously not very efficient if the list can be long, but it 
  * shouldn't be.
  */
+#if 0
 bool Preset::isSustainFunction(Function* f)
 {
     return (IndexOf(mSustainFunctions, f->getName()) >= 0);
 }
+#endif
 
 void Preset::setMultiplyMode(MultiplyMode i) {
 	mMultiplyMode = i;

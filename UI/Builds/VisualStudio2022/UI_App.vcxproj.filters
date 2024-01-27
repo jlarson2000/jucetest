@@ -595,6 +595,9 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\Bindable.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -3077,6 +3080,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\Bindable.h">
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ConfigPanel.h">
       <Filter>UI</Filter>
