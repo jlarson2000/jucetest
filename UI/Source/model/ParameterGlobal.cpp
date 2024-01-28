@@ -54,9 +54,9 @@
 
 // we propagate some things to Track*
 // hide this for awhile and refactor
-#define HIDE_TRACK 1
-#define HIDE_EXPORT 1
-#define HIDE_MOBIUS 1
+#define HIDE_TRACK
+#define HIDE_EXPORT
+#define HIDE_MOBIUS
 
 /****************************************************************************
  *                                                                          *
@@ -230,11 +230,14 @@ class SetupNameParameterType : public GlobalParameter
   public:
 	SetupNameParameterType();
 
-	void setValue(Action* action);
 
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
     int getOrdinalValue(MobiusConfig* c);
+
+#ifndef HIDE_EXPORT
+	void setValue(Action* action);
+#endif
 
 #ifndef HIDE_MOBIUS
 	int getHigh(MobiusInterface* m);
@@ -289,6 +292,7 @@ void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
  * This is one of the rare overloads to get the Action so we
  * can check the trigger.
  */
+#ifndef HIDE_EXPORT
 void SetupNameParameterType::setValue(Action* action)
 {
 	Mobius* m = (Mobius*)action->mobius;
@@ -317,6 +321,7 @@ void SetupNameParameterType::setValue(Action* action)
         }
     }
 }
+#endif
 
 /**
  * !! The max can change as setups are added/removed.
@@ -374,7 +379,9 @@ class SetupNumberParameterType : public GlobalParameter
 
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif    
 };
 
 Parameter* SetupNumberParameter = new SetupNumberParameterType();
@@ -403,6 +410,7 @@ void SetupNumberParameterType::setValue(MobiusConfig* c, ExValue* value)
 {
 }
 
+#ifndef HIDE_EXPORT
 void SetupNumberParameterType::setValue(Action* action)
 {
     Mobius* m = action->mobius;
@@ -416,6 +424,7 @@ void SetupNumberParameterType::setValue(Action* action)
         m->setSetupInternal(index);
     }
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -528,7 +537,9 @@ class BindingsParameterType : public GlobalParameter
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
 
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif    
 };
 
 BindingsParameterType::BindingsParameterType() :
@@ -582,6 +593,7 @@ void BindingsParameterType::setValue(MobiusConfig* c, ExValue* value)
  * This is one of the rare overloads to get to the Action
  * so we can have side effects on Mobius.
  */
+#ifndef HIDE_EXPORT
 void BindingsParameterType::setValue(Action* action)
 {
     Mobius* m = (Mobius*)action->mobius;
@@ -603,6 +615,7 @@ void BindingsParameterType::setValue(Action* action)
         m->setOverlayBindings(b);
     }
 }
+#endif
 
 /**
  * !! The max can change as bindings are added/removed.
@@ -655,7 +668,9 @@ class FadeFramesParameterType : public GlobalParameter
 	FadeFramesParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 FadeFramesParameterType::FadeFramesParameterType() :
@@ -680,6 +695,7 @@ void FadeFramesParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we have to propagate it to the
  * AudioFade class.  
  */
+#ifndef HIDE_EXPORT
 void FadeFramesParameterType::setValue(Action* action)
 {
     int frames = action->arg.getInt();
@@ -691,6 +707,7 @@ void FadeFramesParameterType::setValue(Action* action)
 
     AudioFade::setRange(frames);
 }
+#endif
 
 Parameter* FadeFramesParameter = new FadeFramesParameterType();
 
@@ -706,7 +723,9 @@ class MaxSyncDriftParameterType : public GlobalParameter
 	MaxSyncDriftParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 MaxSyncDriftParameterType::MaxSyncDriftParameterType() :
@@ -737,6 +756,7 @@ void MaxSyncDriftParameterType::setValue(MobiusConfig* c, ExValue* value)
  * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
  * config just so they stay in sync though that isn't used.
  */
+#ifndef HIDE_EXPORT
 void MaxSyncDriftParameterType::setValue(Action* action)
 {
     int drift = action->arg.getInt();
@@ -752,6 +772,7 @@ void MaxSyncDriftParameterType::setValue(Action* action)
         sync->updateConfiguration(iconfig);
     }
 }
+#endif
 
 Parameter* MaxSyncDriftParameter = new MaxSyncDriftParameterType();
 
@@ -770,7 +791,10 @@ class DriftCheckPointParameterType : public GlobalParameter
 	DriftCheckPointParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
+    
 };
 
 const char* DRIFT_CHECK_POINT_NAMES[] = {
@@ -802,6 +826,7 @@ void DriftCheckPointParameterType::setValue(MobiusConfig* c, ExValue* value)
  * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
  * config just so they stay in sync though that isn't used.
  */
+#ifndef HIDE_EXPORT
 void DriftCheckPointParameterType::setValue(Action* action)
 {
     DriftCheckPoint dcp = (DriftCheckPoint)getEnum(&(action->arg));
@@ -817,6 +842,7 @@ void DriftCheckPointParameterType::setValue(Action* action)
         sync->updateConfiguration(iconfig);
     }
 }
+#endif
 
 Parameter* DriftCheckPointParameter = 
 new DriftCheckPointParameterType();
@@ -1039,7 +1065,9 @@ class TraceDebugLevelParameterType : public GlobalParameter
 	TraceDebugLevelParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 TraceDebugLevelParameterType::TraceDebugLevelParameterType() :
@@ -1064,6 +1092,7 @@ void TraceDebugLevelParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have meaning we need to propagate to the Trace 
  * global variables.
  */
+#ifndef HIDE_EXPORT
 void TraceDebugLevelParameterType::setValue(Action* action)
 {
     int level = action->arg.getInt();
@@ -1073,6 +1102,7 @@ void TraceDebugLevelParameterType::setValue(Action* action)
 
     TraceDebugLevel = level;
 }
+#endif
 
 Parameter* TraceDebugLevelParameter = new TraceDebugLevelParameterType();
 
@@ -1088,7 +1118,9 @@ class TracePrintLevelParameterType : public GlobalParameter
 	TracePrintLevelParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 TracePrintLevelParameterType::TracePrintLevelParameterType() :
@@ -1113,6 +1145,7 @@ void TracePrintLevelParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have meaning we need to propagate to the Trace 
  * global variables.
  */
+#ifndef HIDE_EXPORT
 void TracePrintLevelParameterType::setValue(Action* action)
 {
     int level = action->arg.getInt();
@@ -1122,6 +1155,7 @@ void TracePrintLevelParameterType::setValue(Action* action)
 
     TracePrintLevel = level;
 }
+#endif
 
 Parameter* TracePrintLevelParameter = new TracePrintLevelParameterType();
 
@@ -1190,7 +1224,9 @@ class AutoFeedbackReductionParameterType : public GlobalParameter
     AutoFeedbackReductionParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
     void setValue(Action* action);
+#endif
 };
 
 AutoFeedbackReductionParameterType::AutoFeedbackReductionParameterType() :
@@ -1216,6 +1252,7 @@ void AutoFeedbackReductionParameterType::setValue(MobiusConfig* c,
  * For this to have any meaning we have to propagate this to the
  * Loops via the Tracks.
  */
+#ifndef HIDE_EXPORT
 void AutoFeedbackReductionParameterType::setValue(Action* action)
 {
     bool afr = action->arg.getBool();
@@ -1228,14 +1265,13 @@ void AutoFeedbackReductionParameterType::setValue(Action* action)
     if (iconfig != NULL) {
         iconfig->setAutoFeedbackReduction(afr);
 
-#ifndef HIDE_TRACK
         for (int i = 0 ; i < m->getTrackCount() ; i++) {
             Track* t = m->getTrack(i);
             t->updateGlobalParameters(iconfig);
         }
     }
-#endif
 }
+#endif
 
 Parameter* AutoFeedbackReductionParameter = new AutoFeedbackReductionParameterType();
 
@@ -1284,7 +1320,9 @@ class MonitorAudioParameterType : public GlobalParameter
 	MonitorAudioParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
     void setValue(Action* action);
+#endif
 };
 
 MonitorAudioParameterType::MonitorAudioParameterType() :
@@ -1309,6 +1347,7 @@ void MonitorAudioParameterType::setValue(MobiusConfig* c, ExValue* value)
  * interrupt config where Track will look at it, and also 
  * to the Recorder.
  */
+#ifndef HIDE_EXPORT
 void MonitorAudioParameterType::setValue(Action* action)
 {
     bool monitor = action->arg.getBool();
@@ -1325,6 +1364,7 @@ void MonitorAudioParameterType::setValue(Action* action)
     if (rec != NULL)
       rec->setEcho(monitor);
 }
+#endif
 
 Parameter* MonitorAudioParameter = new MonitorAudioParameterType();
 
@@ -1439,7 +1479,9 @@ class IntegerWaveFileParameterType : public GlobalParameter
 	IntegerWaveFileParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 IntegerWaveFileParameterType::IntegerWaveFileParameterType() :
@@ -1463,6 +1505,7 @@ void IntegerWaveFileParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we have to propagate it to the
  * Audio class.  
  */
+#ifndef HIDE_EXPORT
 void IntegerWaveFileParameterType::setValue(Action* action)
 {
     bool isInt = action->arg.getBool();
@@ -1473,6 +1516,7 @@ void IntegerWaveFileParameterType::setValue(Action* action)
 
     Audio::setWriteFormatPCM(isInt);
 }
+#endif
 
 Parameter* IntegerWaveFileParameter = new IntegerWaveFileParameterType();
 
@@ -1488,8 +1532,10 @@ class AltFeedbackDisableParameterType : public GlobalParameter
 	AltFeedbackDisableParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_MOBIUS
 	void getValue(Mobius* m, ExValue* value);
 	void setValue(Mobius* m, ExValue* value);
+#endif
 };
 
 AltFeedbackDisableParameterType::AltFeedbackDisableParameterType() :
@@ -1612,7 +1658,9 @@ class MuteCancelFunctionsParameterType : public GlobalParameter
 	MuteCancelFunctionsParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 MuteCancelFunctionsParameterType::MuteCancelFunctionsParameterType() :
@@ -1647,6 +1695,7 @@ void MuteCancelFunctionsParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we have to propagate it to the
  * Funtion class.
  */
+#ifndef HIDE_EXPORT
 void MuteCancelFunctionsParameterType::setValue(Action* action)
 {
     // don't bother propagating to the interrupt
@@ -1662,6 +1711,7 @@ void MuteCancelFunctionsParameterType::setValue(Action* action)
     // sigh, not in MobiusInterface
     m->updateGlobalFunctionPreferences();
 }
+#endif
 
 Parameter* MuteCancelFunctionsParameter = 
 new MuteCancelFunctionsParameterType();
@@ -1678,7 +1728,9 @@ class ConfirmationFunctionsParameterType : public GlobalParameter
 	ConfirmationFunctionsParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 ConfirmationFunctionsParameterType::ConfirmationFunctionsParameterType() :
@@ -1713,6 +1765,7 @@ void ConfirmationFunctionsParameterType::setValue(MobiusConfig* c, ExValue* valu
  * For this to have any meaning we have to propagate it to the
  * Funtion class.
  */
+#ifndef HIDE_EXPORT
 void ConfirmationFunctionsParameterType::setValue(Action* action)
 {
     // don't bother propagating to the interrupt
@@ -1728,6 +1781,7 @@ void ConfirmationFunctionsParameterType::setValue(Action* action)
     // sigh, not in MobiusInterface
     m->updateGlobalFunctionPreferences();
 }
+#endif
 
 Parameter* ConfirmationFunctionsParameter = 
 new ConfirmationFunctionsParameterType();
@@ -1744,7 +1798,9 @@ class MidiRecordModeParameterType : public GlobalParameter
 	MidiRecordModeParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 const char* MIDI_RECORD_MODE_NAMES[] = {
@@ -1776,6 +1832,7 @@ void MidiRecordModeParameterType::setValue(MobiusConfig* c, ExValue* value)
  * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
  * config just so they stay in sync though that isn't used.
  */
+#ifndef HIDE_EXPORT
 void MidiRecordModeParameterType::setValue(Action* action)
 {
     MidiRecordMode mode = (MidiRecordMode)getEnum(&(action->arg));
@@ -1791,6 +1848,7 @@ void MidiRecordModeParameterType::setValue(Action* action)
         sync->updateConfiguration(iconfig);
     }
 }
+#endif
 
 Parameter* MidiRecordModeParameter = new MidiRecordModeParameterType();
 
@@ -2152,7 +2210,9 @@ class InputLatencyParameterType : public GlobalParameter
 	InputLatencyParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 InputLatencyParameterType::InputLatencyParameterType() :
@@ -2177,6 +2237,7 @@ void InputLatencyParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we have to propagate this to the
  * Streams and the Loops via the Tracks.
  */
+#ifndef HIDE_EXPORT
 void InputLatencyParameterType::setValue(Action* action)
 {
     int latency = action->arg.getInt();
@@ -2197,6 +2258,7 @@ void InputLatencyParameterType::setValue(Action* action)
     }
 #endif
 }
+#endif
 
 Parameter* InputLatencyParameter = new InputLatencyParameterType();
 
@@ -2212,7 +2274,9 @@ class OutputLatencyParameterType : public GlobalParameter
 	OutputLatencyParameterType();
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
 	void setValue(Action* action);
+#endif
 };
 
 OutputLatencyParameterType::OutputLatencyParameterType() :
@@ -2237,6 +2301,7 @@ void OutputLatencyParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we have to propagate this to the
  * Streams and Loops via the Tracks.
  */
+#ifndef HIDE_EXPORT
 void OutputLatencyParameterType::setValue(Action* action)
 {
     int latency = action->arg.getInt();
@@ -2248,14 +2313,13 @@ void OutputLatencyParameterType::setValue(Action* action)
     MobiusConfig* iconfig = m->getInterruptConfiguration();
     if (iconfig != NULL) {
         iconfig->setOutputLatency(latency);
-#ifndef HIDE_TRACK
         for (int i = 0 ; i < m->getTrackCount() ; i++) {
             Track* t = m->getTrack(i);
             t->updateGlobalParameters(iconfig);
         }
     }
-#endif    
 }
+#endif
 
 Parameter* OutputLatencyParameter = new OutputLatencyParameterType();
 
