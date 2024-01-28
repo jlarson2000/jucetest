@@ -595,7 +595,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\KeyCode.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\List.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\util\MessageCatalog.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\MidiUtil.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\Trace.cpp">
@@ -622,13 +631,37 @@
     <ClCompile Include="..\..\Source\model\Binding.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\ExValue.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\MobiusConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\OldBinding.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\Parameter.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ParameterPreset.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ParameterSetup.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\Preset.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\Setup.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\SystemConstant.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\UserVariable.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
@@ -650,9 +683,6 @@
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PopupTest.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\Preset.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PresetPanel.cpp">
@@ -3096,7 +3126,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\KeyCode.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\List.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\util\MessageCatalog.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\MidiUtil.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\Trace.h">
@@ -3123,7 +3162,16 @@
     <ClInclude Include="..\..\Source\model\Binding.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\model\ExValue.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\model\Messages.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\MobiusConfig.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\OldBinding.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Parameter.h">
@@ -3132,7 +3180,13 @@
     <ClInclude Include="..\..\Source\model\Preset.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\model\Setup.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\model\SystemConstant.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\UserVariable.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
@@ -3151,9 +3205,6 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PopupTest.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\Preset.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PresetPanel.h">

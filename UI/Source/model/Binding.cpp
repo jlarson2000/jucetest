@@ -16,18 +16,17 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "List.h"
-#include "XmlModel.h"
-#include "XmlBuffer.h"
-#include "XomParser.h"
+#include "../util/Util.h"
+#include "../util/Trace.h"
+#include "../util/MidiUtil.h"  // MidiNoteName
+#include "../util/KeyCode.h"   // GetKeyString
+#include "../util/XmlModel.h"
+#include "../util/XmlBuffer.h"
+#include "../util/XomParser.h"
 
-//#include "KeyCode.h"
-// for MidiNoteName
-//#include "MidiUtil.h"
+//#include "List.h"
 //#include "MidiEvent.h"
 //#include "MidiMap.h"
-
 //#include "Action.h"
 //#include "Event.h"
 //#include "Function.h"
@@ -48,45 +47,45 @@
 #define ATT_NAME "name"
 #define ATT_NUMBER "number"
 
-PUBLIC Bindable::Bindable()
+Bindable::Bindable()
 {
 	mNumber	= 0;
 	mName	= NULL;
 }
 
-PUBLIC Bindable::~Bindable()
+Bindable::~Bindable()
 {
 	delete mName;
 }
 
-PUBLIC void Bindable::setNumber(int i)
+void Bindable::setNumber(int i)
 {
 	mNumber = i;
 }
 
-PUBLIC int Bindable::getNumber()
+int Bindable::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC void Bindable::setName(const char* s)
+void Bindable::setName(const char* s)
 {
 	delete mName;
 	mName = CopyString(s);
 }
 
-PUBLIC const char* Bindable::getName()
+const char* Bindable::getName()
 {
 	return mName;
 }
 
-PUBLIC void Bindable::clone(Bindable* src)
+void Bindable::clone(Bindable* src)
 {
 	setName(src->mName);
 	mNumber = src->mNumber;
 }
 
-PUBLIC void Bindable::toXmlCommon(XmlBuffer* b)
+void Bindable::toXmlCommon(XmlBuffer* b)
 {
 	// the number is transient on the way to generating a name, 
 	// but just in case we don't have a name, serialize it
@@ -96,7 +95,7 @@ PUBLIC void Bindable::toXmlCommon(XmlBuffer* b)
 	  b->addAttribute(ATT_NUMBER, mNumber);
 }
 
-PUBLIC void Bindable::parseXmlCommon(XmlElement* e)
+void Bindable::parseXmlCommon(XmlElement* e)
 {
 	setName(e->getAttribute(ATT_NAME));
 	setNumber(e->getIntAttribute(ATT_NUMBER));
@@ -139,13 +138,13 @@ Trigger* Triggers[] = {
 	NULL
 };
 
-PUBLIC Trigger::Trigger(const char* name, const char* display, bool bindable) :
+Trigger::Trigger(const char* name, const char* display, bool bindable) :
     SystemConstant(name, display)
 {
     mBindable = bindable;
 }
 
-PUBLIC bool Trigger::isBindable()
+bool Trigger::isBindable()
 {
     return mBindable;
 }
@@ -192,7 +191,7 @@ TriggerMode* TriggerModes[] = {
 	NULL
 };
 
-PUBLIC TriggerMode::TriggerMode(const char* name, const char* display) :
+TriggerMode::TriggerMode(const char* name, const char* display) :
     SystemConstant(name, display)
 {
 }
@@ -239,7 +238,7 @@ Target* Targets[] = {
 	NULL
 };
  
-PUBLIC Target::Target(const char* name, const char* display) :
+Target::Target(const char* name, const char* display) :
     SystemConstant(name, display)
 {
 }
@@ -270,18 +269,18 @@ Target* Target::get(const char* name)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC UIControl::UIControl()
+UIControl::UIControl()
 {
     init();
 }
 
-PUBLIC UIControl::UIControl(const char* name, int key) :
+UIControl::UIControl(const char* name, int key) :
     SystemConstant(name, key)
 {
     init();
 }
 
-PRIVATE void UIControl::init() {
+void UIControl::init() {
 }
 
 /****************************************************************************
@@ -290,7 +289,7 @@ PRIVATE void UIControl::init() {
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC UIParameter::UIParameter(const char* name, int key) :
+UIParameter::UIParameter(const char* name, int key) :
     SystemConstant(name, key)
 {
 }
@@ -301,7 +300,7 @@ PUBLIC UIParameter::UIParameter(const char* name, int key) :
  *                                                                          *
  ****************************************************************************/
 
-PRIVATE void Binding::init()
+void Binding::init()
 {
 	mNext = NULL;
 
@@ -485,7 +484,7 @@ const char* Binding::getScope()
  * Tracks are expected to be identified with integers starting
  * from 1.  Groups are identified with upper case letters A-Z.
  */
-PRIVATE void Binding::parseScope()
+void Binding::parseScope()
 {
     mTrack = 0;
     mGroup = 0;
@@ -557,7 +556,7 @@ const char* Binding::getArgs()
 // Utilities
 //
 
-PUBLIC void Binding::getSummary(char* buffer)
+void Binding::getSummary(char* buffer)
 {
 	strcpy(buffer, "");
 
@@ -586,7 +585,7 @@ PUBLIC void Binding::getSummary(char* buffer)
 
 }
 
-PUBLIC void Binding::getMidiString(char* buffer, bool includeChannel)
+void Binding::getMidiString(char* buffer, bool includeChannel)
 {
 	strcpy(buffer, "");
 
@@ -617,7 +616,7 @@ PUBLIC void Binding::getMidiString(char* buffer, bool includeChannel)
 /**
  * Render a TriggerKey value as a readable string.
  */
-PUBLIC void Binding::getKeyString(char* buffer, int max)
+void Binding::getKeyString(char* buffer, int max)
 {
     strcpy(buffer, "");
 
@@ -769,25 +768,25 @@ void Binding::toXml(XmlBuffer* b)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC BindingConfig::BindingConfig()
+BindingConfig::BindingConfig()
 {
 	init();
 }
 
-PUBLIC void BindingConfig::init()
+void BindingConfig::init()
 {
 	mNext = NULL;
 	mName = NULL;
 	mBindings = NULL;
 }
 
-PUBLIC BindingConfig::BindingConfig(XmlElement* e)
+BindingConfig::BindingConfig(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC BindingConfig::~BindingConfig()
+BindingConfig::~BindingConfig()
 {
 	BindingConfig *el, *next;
 
@@ -800,37 +799,37 @@ PUBLIC BindingConfig::~BindingConfig()
 	}
 }
 
-PUBLIC Target* BindingConfig::getTarget()
+Target* BindingConfig::getTarget()
 {
 	return TargetBindings;
 }
 
-PUBLIC void BindingConfig::setNext(BindingConfig* c)
+void BindingConfig::setNext(BindingConfig* c)
 {
 	mNext = c;
 }
 
-PUBLIC BindingConfig* BindingConfig::getNext()
+BindingConfig* BindingConfig::getNext()
 {
 	return mNext;
 }
 
-PUBLIC Bindable* BindingConfig::getNextBindable()
+Bindable* BindingConfig::getNextBindable()
 {
 	return mNext;
 }
 
-PUBLIC Binding* BindingConfig::getBindings()
+Binding* BindingConfig::getBindings()
 {
 	return mBindings;
 }
 
-PUBLIC void BindingConfig::setBindings(Binding* b)
+void BindingConfig::setBindings(Binding* b)
 {
 	mBindings = b;
 }
 
-PUBLIC void BindingConfig::addBinding(Binding* b) 
+void BindingConfig::addBinding(Binding* b) 
 {
     if (b != NULL) {
         // keep them ordered
@@ -844,7 +843,7 @@ PUBLIC void BindingConfig::addBinding(Binding* b)
     }
 }
 
-PUBLIC void BindingConfig::removeBinding(Binding* b)
+void BindingConfig::removeBinding(Binding* b)
 {
     if (b != NULL) {
         Binding *prev = NULL;
@@ -873,7 +872,7 @@ PUBLIC void BindingConfig::removeBinding(Binding* b)
  * This is intended for upgrading old KeyBinding objects, once that
  * has passed we can delete this.
  */
-PUBLIC Binding* BindingConfig::getBinding(Trigger* trigger, int value)
+Binding* BindingConfig::getBinding(Trigger* trigger, int value)
 {
 	Binding* found = NULL;
 
@@ -919,7 +918,7 @@ void BindingConfig::toXml(XmlBuffer* b)
 	b->addEndTag(EL_BINDING_CONFIG);
 }
 
-PUBLIC BindingConfig* BindingConfig::clone()
+BindingConfig* BindingConfig::clone()
 {
 	BindingConfig* clone = new BindingConfig();
 

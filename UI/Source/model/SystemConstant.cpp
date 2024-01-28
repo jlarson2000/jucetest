@@ -13,9 +13,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Util.h"
-#include "Trace.h"
-#include "MessageCatalog.h"
+#include "../util/Util.h"
+#include "../util/Trace.h"
+#include "../util/MessageCatalog.h"
 
 #include "SystemConstant.h"
 
@@ -59,7 +59,7 @@ SystemConstant::SystemConstant(const char* name, int key)
     mKey = key;
 }
 
-PRIVATE void SystemConstant::init()
+void SystemConstant::init()
 {
     mName = NULL;
     mKey = 0;

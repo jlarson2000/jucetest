@@ -43,6 +43,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
+#endif
 
 // Used for CriticalSection, need to work on this
 // it was leaking

@@ -24,29 +24,29 @@
 
 #include "MessageCatalog.h"
 
-PUBLIC MessageCatalog::MessageCatalog()
+MessageCatalog::MessageCatalog()
 {
 	init();
 }
 
-PUBLIC MessageCatalog::MessageCatalog(const char* file)
+MessageCatalog::MessageCatalog(const char* file)
 {
 	init();
 	read(file);
 }
 
-PUBLIC void MessageCatalog::init()
+void MessageCatalog::init()
 {
 	mMessages = NULL;
 	mMessageCount = 0;
 }
 
-PUBLIC MessageCatalog::~MessageCatalog()
+MessageCatalog::~MessageCatalog()
 {
 	clear();
 }
 
-PUBLIC void MessageCatalog::clear()
+void MessageCatalog::clear()
 {
 	if (mMessages != NULL) {
 		for (int i = 0 ; i < mMessageCount ; i++)
@@ -57,7 +57,7 @@ PUBLIC void MessageCatalog::clear()
 	mMessageCount = 0;
 }
 
-PUBLIC const char* MessageCatalog::get(int index)
+const char* MessageCatalog::get(int index)
 {
 	const char* msg = "???";
 	if (index < mMessageCount)
@@ -66,7 +66,7 @@ PUBLIC const char* MessageCatalog::get(int index)
 }
 
 
-PUBLIC bool MessageCatalog::read(const char* file)
+bool MessageCatalog::read(const char* file)
 {
 	bool success = false;
 
@@ -90,7 +90,7 @@ PUBLIC bool MessageCatalog::read(const char* file)
 	return success;
 }
 
-PRIVATE int MessageCatalog::read(FILE* fp, char** messages)
+int MessageCatalog::read(FILE* fp, char** messages)
 {
 	int maxIndex = -1;
 	char line[1024];
@@ -125,7 +125,7 @@ PRIVATE int MessageCatalog::read(FILE* fp, char** messages)
 	return maxIndex;
 }
 
-PUBLIC void MessageCatalog::dump()
+void MessageCatalog::dump()
 {
 	if (mMessageCount == 0)
 	  printf("Catalog has no messages\n");

@@ -6,10 +6,16 @@
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
+        <FILE id="MOqVSP" name="KeyCode.cpp" compile="1" resource="0" file="Source/util/KeyCode.cpp"/>
+        <FILE id="mJWc8O" name="KeyCode.h" compile="0" resource="0" file="Source/util/KeyCode.h"/>
+        <FILE id="M50Qiq" name="List.cpp" compile="1" resource="0" file="Source/util/List.cpp"/>
+        <FILE id="aLSQtU" name="List.h" compile="0" resource="0" file="Source/util/List.h"/>
         <FILE id="wRgzAZ" name="MessageCatalog.cpp" compile="1" resource="0"
               file="Source/util/MessageCatalog.cpp"/>
         <FILE id="pKGGeB" name="MessageCatalog.h" compile="0" resource="0"
               file="Source/util/MessageCatalog.h"/>
+        <FILE id="gEdMSH" name="MidiUtil.cpp" compile="1" resource="0" file="Source/util/MidiUtil.cpp"/>
+        <FILE id="a2wHMK" name="MidiUtil.h" compile="0" resource="0" file="Source/util/MidiUtil.h"/>
         <FILE id="kxfasO" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
         <FILE id="JZyodG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
         <FILE id="yz3ePc" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
@@ -28,15 +34,33 @@
       <GROUP id="{35F5BDA4-4F12-7FE6-B25F-7B2965D913CF}" name="model">
         <FILE id="DDTUb4" name="Binding.cpp" compile="1" resource="0" file="Source/model/Binding.cpp"/>
         <FILE id="Kl8nMI" name="Binding.h" compile="0" resource="0" file="Source/model/Binding.h"/>
+        <FILE id="azEsBL" name="ExValue.cpp" compile="1" resource="0" file="Source/model/ExValue.cpp"/>
+        <FILE id="km0fDA" name="ExValue.h" compile="0" resource="0" file="Source/model/ExValue.h"/>
         <FILE id="FZEt89" name="Messages.h" compile="0" resource="0" file="Source/model/Messages.h"/>
+        <FILE id="w1kSSZ" name="MobiusConfig.cpp" compile="1" resource="0"
+              file="Source/model/MobiusConfig.cpp"/>
+        <FILE id="rrRIuQ" name="MobiusConfig.h" compile="0" resource="0" file="Source/model/MobiusConfig.h"/>
+        <FILE id="Yw4iNr" name="OldBinding.cpp" compile="1" resource="0" file="Source/model/OldBinding.cpp"/>
+        <FILE id="c2pqWD" name="OldBinding.h" compile="0" resource="0" file="Source/model/OldBinding.h"/>
         <FILE id="kSK1Zx" name="Parameter.cpp" compile="1" resource="0" file="Source/model/Parameter.cpp"/>
         <FILE id="p3cTmf" name="Parameter.h" compile="0" resource="0" file="Source/model/Parameter.h"/>
+        <FILE id="YvKxXs" name="ParameterGlobal.cpp" compile="1" resource="0"
+              file="Source/model/ParameterGlobal.cpp"/>
+        <FILE id="PRWMK1" name="ParameterPreset.cpp" compile="1" resource="0"
+              file="Source/model/ParameterPreset.cpp"/>
+        <FILE id="idYlzD" name="ParameterSetup.cpp" compile="1" resource="0"
+              file="Source/model/ParameterSetup.cpp"/>
         <FILE id="pVDAsq" name="Preset.cpp" compile="1" resource="0" file="Source/model/Preset.cpp"/>
         <FILE id="godsX2" name="Preset.h" compile="0" resource="0" file="Source/model/Preset.h"/>
+        <FILE id="OZh5wr" name="Setup.cpp" compile="1" resource="0" file="Source/model/Setup.cpp"/>
+        <FILE id="I3HQ2E" name="Setup.h" compile="0" resource="0" file="Source/model/Setup.h"/>
         <FILE id="vGfeWf" name="SystemConstant.cpp" compile="1" resource="0"
               file="Source/model/SystemConstant.cpp"/>
         <FILE id="JZYXKm" name="SystemConstant.h" compile="0" resource="0"
               file="Source/model/SystemConstant.h"/>
+        <FILE id="wa9W4M" name="UserVariable.cpp" compile="1" resource="0"
+              file="Source/model/UserVariable.cpp"/>
+        <FILE id="JU2prp" name="UserVariable.h" compile="0" resource="0" file="Source/model/UserVariable.h"/>
       </GROUP>
       <FILE id="YlAxvV" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yWDgXx" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
@@ -53,8 +77,6 @@
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
     <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
-    <FILE id="H13wlo" name="Preset.cpp" compile="1" resource="0" file="Source/mobius/Preset.cpp"/>
-    <FILE id="tDO7XV" name="Preset.h" compile="0" resource="0" file="Source/mobius/Preset.h"/>
     <FILE id="xbAsdP" name="PresetPanel.cpp" compile="1" resource="0" file="Source/PresetPanel.cpp"/>
     <FILE id="bW8cXR" name="PresetPanel.h" compile="0" resource="0" file="Source/PresetPanel.h"/>
     <FILE id="o6JvQ9" name="qtrace.cpp" compile="1" resource="0" file="Source/qtrace.cpp"/>

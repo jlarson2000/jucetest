@@ -141,7 +141,10 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\KeyCode.cpp"/>
+    <ClCompile Include="..\..\Source\util\List.cpp"/>
     <ClCompile Include="..\..\Source\util\MessageCatalog.cpp"/>
+    <ClCompile Include="..\..\Source\util\MidiUtil.cpp"/>
     <ClCompile Include="..\..\Source\util\Trace.cpp"/>
     <ClCompile Include="..\..\Source\util\Util.cpp"/>
     <ClCompile Include="..\..\Source\util\Vbuf.cpp"/>
@@ -150,9 +153,17 @@
     <ClCompile Include="..\..\Source\util\XmlParser.cpp"/>
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
+    <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
+    <ClCompile Include="..\..\Source\model\MobiusConfig.cpp"/>
+    <ClCompile Include="..\..\Source\model\OldBinding.cpp"/>
     <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
+    <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp"/>
+    <ClCompile Include="..\..\Source\model\ParameterPreset.cpp"/>
+    <ClCompile Include="..\..\Source\model\ParameterSetup.cpp"/>
     <ClCompile Include="..\..\Source\model\Preset.cpp"/>
+    <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\SystemConstant.cpp"/>
+    <ClCompile Include="..\..\Source\model\UserVariable.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
@@ -160,7 +171,6 @@
     <ClCompile Include="..\..\Source\Form.cpp"/>
     <ClCompile Include="..\..\Source\MainMenu.cpp"/>
     <ClCompile Include="..\..\Source\PopupTest.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\Preset.cpp"/>
     <ClCompile Include="..\..\Source\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\qtrace.cpp"/>
     <ClCompile Include="..\..\Source\SetupPanel.cpp"/>
@@ -2428,7 +2438,10 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\KeyCode.h"/>
+    <ClInclude Include="..\..\Source\util\List.h"/>
     <ClInclude Include="..\..\Source\util\MessageCatalog.h"/>
+    <ClInclude Include="..\..\Source\util\MidiUtil.h"/>
     <ClInclude Include="..\..\Source\util\Trace.h"/>
     <ClInclude Include="..\..\Source\util\Util.h"/>
     <ClInclude Include="..\..\Source\util\Vbuf.h"/>
@@ -2437,17 +2450,21 @@
     <ClInclude Include="..\..\Source\util\XmlParser.h"/>
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
+    <ClInclude Include="..\..\Source\model\ExValue.h"/>
     <ClInclude Include="..\..\Source\model\Messages.h"/>
+    <ClInclude Include="..\..\Source\model\MobiusConfig.h"/>
+    <ClInclude Include="..\..\Source\model\OldBinding.h"/>
     <ClInclude Include="..\..\Source\model\Parameter.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>
+    <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
+    <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ConfigPopup.h"/>
     <ClInclude Include="..\..\Source\Form.h"/>
     <ClInclude Include="..\..\Source\MainMenu.h"/>
     <ClInclude Include="..\..\Source\PopupTest.h"/>
-    <ClInclude Include="..\..\Source\mobius\Preset.h"/>
     <ClInclude Include="..\..\Source\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\qtrace.h"/>
     <ClInclude Include="..\..\Source\SetupPanel.h"/>

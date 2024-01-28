@@ -45,28 +45,6 @@
 #define ATT_PROGRAM "program"
 #define ATT_CHANNEL "channel"
 
-//
-// Things formerly in other core files
-// Think about where to define various limits, if the model is going
-// to enforce them, then they need to go here
-//
-
-// formerly in Redampler.h
-/**
- * Maximum rate step away from center.  
- * This is just MAX_RATE_OCTAVE * 12
- */
-#define MAX_RATE_STEP 48
-
-/**
- * The maximum effectve semitone steps in one direction in the
- * bend range.  Unlike step range, this is not adjustable without
- * recalculating some a root each time.
- *
- * This must match the BEND_FACTOR below.
- */
-#define MAX_BEND_STEP 12
-
 /****************************************************************************
  *                                                                          *
  *   								PRESET                                  *

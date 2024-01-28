@@ -10,7 +10,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "Util.h"
 
@@ -67,6 +69,17 @@ char* CopyString(const char *src)
 	return copy;
 }
 
+void AppendString(const char* src, char* dest, int max)
+{
+    if (src != NULL) {
+        int current = strlen(dest);
+        int neu = strlen(src);
+        int avail = max - 1;
+        if (avail > current + neu)
+          strcat(dest, src);
+    }
+}
+
 int LastIndexOf(const char* str, const char* substr)
 {
 	int index = -1;
@@ -103,6 +116,50 @@ bool StringEqualNoCase(const char* s1, const char* s2)
 		if (len == len2) {
 			equal = true;
 			for (int i = 0 ; i < len ; i++) {
+				char ch = tolower(s1[i]);
+				char ch2 = tolower(s2[i]);
+				if (ch != ch2) {
+					equal = false;
+					break;
+				}
+			}
+		}
+
+	}
+	return equal;
+}
+
+/**
+ * String comparison handling nulls.
+ */
+bool StringEqual(const char* s1, const char* s2)
+{	
+	bool equal = false;
+	
+	if (s1 == NULL) {
+		if (s2 == NULL)
+		  equal = true;
+	}
+	else if (s2 != NULL)
+	  equal = !strcmp(s1, s2);
+
+	return equal;
+}
+
+bool StringEqualNoCase(const char* s1, const char* s2, int max)
+{	
+	bool equal = false;
+	
+	if (s1 == NULL) {
+		if (s2 == NULL)
+		  equal = true;
+	}
+	else if (s2 != NULL) {
+		int len = strlen(s1);
+		int len2 = strlen(s2);
+        if (len >= max && len2 >= max) {
+			equal = true;
+			for (int i = 0 ; i < max ; i++) {
 				char ch = tolower(s1[i]);
 				char ch2 = tolower(s2[i]);
 				if (ch != ch2) {
@@ -154,6 +211,25 @@ int ParseNumberString(const char* src, int* numbers, int max)
 	}
 
 	return parsed;
+}
+
+bool StartsWithNoCase(const char* str, const char* prefix)
+{
+	bool startsWith = false;
+	if (str != NULL && prefix != NULL)
+        startsWith = StringEqualNoCase(str, prefix, strlen(prefix));
+	return startsWith;
+}
+
+/**
+ * Necessary because atoi() doesn't accept NULL arguments.
+ */
+int ToInt(const char* str)
+{
+	int value = 0;
+	if (str != NULL)
+	  value = atoi(str);
+	return value;
 }
 
 //////////////////////////////////////////////////////////////////////

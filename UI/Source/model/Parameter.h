@@ -53,7 +53,7 @@ typedef enum {
 
 class Parameter : public SystemConstant {
 
-    friend class Mobius;
+    //friend class Mobius;
 
   public:
 
@@ -104,7 +104,7 @@ class Parameter : public SystemConstant {
     // 
 
     int getLow();
-    virtual int getHigh(class MobiusInterface* m);
+    //virtual int getHigh(class MobiusInterface* m);
 
     /**
      * The maximum value used for bindings.
@@ -113,9 +113,8 @@ class Parameter : public SystemConstant {
      * to have some bounds for scaling MIDI CCs, this will default
      * to 127 and can be overridden.
      */
-    virtual int getBindingHigh(class MobiusInterface* m);
-
-	virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
+    //virtual int getBindingHigh(class MobiusInterface* m);
+	//virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
 
 	//
 	// Parameter value access
@@ -131,11 +130,11 @@ class Parameter : public SystemConstant {
     // Get or set the value at runtime
     //
 
-    virtual void getValue(class Export* exp, class ExValue* value);
-    virtual void setValue(class Action* action);
+    //virtual void getValue(class Export* exp, class ExValue* value);
+    //virtual void setValue(class Action* action);
 
     // maybe this can be a quality of the Export?
-    virtual int getOrdinalValue(class Export* exp);
+    //virtual int getOrdinalValue(class Export* exp);
 
 	//
 	// Coercion helpers
@@ -172,7 +171,7 @@ class Parameter : public SystemConstant {
 
     // internal use only
 
-    virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
+    //virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
 
 	//
 	// XML

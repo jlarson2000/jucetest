@@ -53,12 +53,19 @@
 
 void CopyString(const char* src, char* dest, int max);
 char* CopyString(const char *src);
+void AppendString(const char* src, char* dest, int max);
 
+bool StringEqual(const char* s1, const char* s2);
 bool StringEqualNoCase(const char* s1, const char* s2);
+bool StringEqualNoCase(const char* s1, const char* s2, int max);
 int LastIndexOf(const char* str, const char* substr);
+bool StartsWithNoCase(const char* str, const char* prefix);
 
 #define MAX_NUMBER_TOKEN 128
 int ParseNumberString(const char* src, int* numbers, int max);
+
+int ToInt(const char* str);
+
 
 //////////////////////////////////////////////////////////////////////
 //

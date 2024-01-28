@@ -28,4 +28,14 @@ model/Parameter
   lots of dynamic allocation
   lots of references to core objects
 
+Export
+  this seems like it is on the right track as far as the model but
+  it has encapsulation issues in the definition and implementation
+    requires Mobius among other things
 
+might be time to separate ParameterDefinition from ParameterRuntime
+
+util/KeyCode
+  ugly stuff, but relatively simple
+  should be a way to do this in Juce if not the standard libraries by now
+  
