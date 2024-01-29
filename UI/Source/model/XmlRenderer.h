@@ -50,9 +50,13 @@ class XmlRenderer {
     class StringList* parseStringList(class XmlElement* e);
     void renderList(class XmlBuffer* b, const char* elname, class StringList* list);
 
+    void parse(class XmlElement* e, class BindingConfig* c);
+    void render(class XmlBuffer* b, class BindingConfig* c);
+
     void render(class XmlBuffer* b, class Setup* s);
+    void parse(class XmlElement* b, class Setup* s);
+
     void render(class XmlBuffer* b, class ScriptConfig* s);
-    void render(class XmlBuffer* b, class BindingConfig* b);
-    void render(class XmlBuffer* b, class ControlSurfaceConfig* c);
+    void parse(class XmlElement* b, class ScriptConfig* s);
 
 };

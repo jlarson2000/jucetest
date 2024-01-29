@@ -1,3 +1,72 @@
+Configuration Model
+
+Independent classes that define operating and display characteristics
+Editable in the UI
+Can be serialized to XML for file storage
+Can be serialized to a UI specific DTO
+
+MobiusConfig
+  global paraeters
+  Preset
+    preset parameters
+  Setup
+    setup parameters, wait are these exposed as parameters?
+    SetupTrack
+      track parameters
+      UserVariables
+  BindingConfig
+    Binding
+  ScriptConfig
+    ScriptRef
+  SampleConfig
+    Sample
+
+Runtime model
+
+Most of the configuration model plus 
+  Mobius internal classes derived from the configuration model
+  Internal classes are not serialiable
+  
+  BindingCache
+    compiled from the BindingCconfig, resolves triggers and targets
+  ScriptCache
+    compiled from the ScriptConfig, contains compiled Scripts
+  Samplecache
+    compiled from the SampleConfig, contains loaded samples
+  OscCache
+    compiled from the OscConfig
+
+  where are host parameters, part of the BindingCache?
+
+Mobius Engine
+  divided into two parts
+    upper: code above the audio interrupt
+      handle configuration changes and build untime caches
+      responds to stimulus from the UI or triggers and schedules events
+       for the core
+      handles all dynamic memory management
+      maintains a thread for periodic maintenance
+        handles export of state
+      possible names: controller, monitor, executor,
+      
+    lower: code within the audio interrupt
+      possible names: core
+      may need to move MIDI handling down here the way Juce works
+      uses very few OS services
+        critical sections
+        midi output?
+        
+Communiation between the controller and core must be strictly controlled
+  very little code sharing
+  controller tells the core to do things with events
+  core tells the controller to do things with thread events
+  do scripts always run in the core?'
+
+
+
+
+
+----------------------------------------------------------------------
 Parameter
 
 Design is unfortunately mixed with model and implementation

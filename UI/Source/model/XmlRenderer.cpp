@@ -18,6 +18,7 @@
 #define HIDE_SAMPLES 1
 #define HIDE_UICONFIG 1
 #define HIDE_SAMPLES 1
+#define HIDE_OSC 1
 
 // necessary to get FILE* for XMlParser.h
 #include <stdio.h>
@@ -398,6 +399,10 @@ void XmlRenderer::parse(XmlElement* e, Preset* p)
 #define ATT_LOG_STATUS "logStatus"
 #define ATT_EDPISMS "edpisms"
 
+// obsolete element for MidiConfig objects that
+// should have been converted to BindingConfig by now
+#define EL_MIDI_CONFIG "MidiConfig"
+
 void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 {
 	// !! this really needs to be table driven like Preset parameters
@@ -488,15 +493,15 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 	  render(b, bc);
 
     // should have cleaned these up by now
-    if (mMidiConfigs != NULL) {
+    if (c->getMidiConfigs() != nullptr) {
         Trace(1, "Still have MidiConfigs!!\n");
-        //for (MidiConfig* mc = mMidiConfigs ; mc != NULL ; mc = mc->getNext())
-        //mc->toXml(b);
     }
 
+#if 0
     // never really implemented these
-	//for (ControlSurfaceConfig* cs = c->getControlSurfaces() ; cs != NULL ; cs = cs->getNext())
-    //render(b, cs);
+	for (ControlSurfaceConfig* cs = c->getControlSurfaces() ; cs != NULL ; cs = cs->getNext())
+      render(b, cs);
+#endif
 
 #ifndef HIDE_SAMPLES
 	if (mSamples != NULL)
@@ -616,20 +621,22 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 			c->addBindingConfig(bc);
 		}
 		else if (child->isName(EL_MIDI_CONFIG)) {
-			MidiConfig* mc = new MidiConfig();
-            parse(child, mc);
-			c->addMidiConfig(c);
+            // could handle this but they should have been
+            // ugpraded by now
+            Trace(1, "Configuration still has MidiConfig\n");
 		}
 		else if (child->isName(EL_SCRIPT_CONFIG)) {
 			ScriptConfig* sc = new ScriptConfig();
             parse(child, sc);
             c->setScriptConfig(sc);
 		}
+#if 0
 		else if (child->isName(EL_CONTROL_SURFACE)) {
 			ControlSurfaceConfig* cs = new ControlSurfaceConfig();
             parse(child, cs);
 			c->addControlSurface(cs);
 		}
+#endif        
 #ifndef HIDE_OSC        
 		else if (child->isName(EL_OSC_CONFIG)) {
 			setOscConfig(new OscConfig(child));
@@ -643,7 +650,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 		else if (child->isName(EL_FOCUS_LOCK_FUNCTIONS) ||
                  child->isName(EL_GROUP_FUNCTIONS)) {
             // changed the name in 1.43
-            c->setFocusLockfunctions(parseStringList(child));
+            c->setFocusLockFunctions(parseStringList(child));
 		}
 		else if (child->isName(EL_MUTE_CANCEL_FUNCTIONS)) {
             c->setMuteCancelFunctions(parseStringList(child));
@@ -692,6 +699,63 @@ StringList* XmlRenderer::parseStringList(XmlElement* e)
  */
 #define EL_BINDING_CONFIG "BindingConfig"
 
+void XmlRenderer::render(XmlBuffer* b, BindingConfig* c)
+{
+}
+
+void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// ScriptConfig
+//
+//////////////////////////////////////////////////////////////////////
+
+#define EL_SCRIPT_CONFIG "ScriptConfig"
+#define EL_SCRIPT_REF "ScripRef"
+#define ATT_FILE "file"
+
+/**
+ * XML Name for BindingConfig.
+ * Public so we can parse it in MobiusConfig.
+ */
+#define EL_BINDING_CONFIG "BindingConfig"
+
+void XmlRenderer::render(XmlBuffer* b, ScriptConfig* c)
+{
+    b->addStartTag(EL_SCRIPT_CONFIG);
+    b->incIndent();
+
+    for (ScriptRef* ref = c->getScripts() ; ref != NULL ; ref = ref->getNext()) {
+        b->addOpenStartTag(EL_SCRIPT_REF);
+        b->addAttribute(ATT_FILE, ref->getFile());
+        b->add("/>\n");
+    }
+
+    b->decIndent();
+    b->addEndTag(EL_SCRIPT_CONFIG);
+}
+
+void XmlRenderer::parse(XmlElement* e, ScriptConfig* c)
+{
+    ScriptRef* list = nullptr;
+    ScriptRef* last = nullptr;
+
+    for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
+         child = child->getNextElement()) {
+        ScriptRef* ref = new ScriptRef();
+        ref->setFile(child->getAttribute(ATT_FILE));
+        if (last == NULL)
+          list = ref;   
+        else
+          last->setNext(ref);
+        last = ref;
+    }
+
+    c->setScripts(list);
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -699,7 +763,21 @@ StringList* XmlRenderer::parseStringList(XmlElement* e)
 //
 //////////////////////////////////////////////////////////////////////
 
-void Setup::toXml(XmlBuffer* b, Setup* setup)
+#define EL_SETUP "Setup"
+
+#define EL_SETUP_TRACK "SetupTrack"
+#define EL_VARIABLES "Variables"
+
+#define ATT_BINDINGS "bindings"
+#define ATT_MIDI_CONFIG "midiConfig"
+
+#define ATT_NAME "name"
+#define ATT_ACTIVE "active"
+#define ATT_TRACK_GROUPS "trackGroups"
+#define ATT_RESETABLES "reset"
+#define ATT_ACTIVE "active"
+
+void Setup::render(XmlBuffer* b, Setup* setup)
 {
 	b->addOpenStartTag(EL_SETUP);
 
@@ -707,8 +785,8 @@ void Setup::toXml(XmlBuffer* b, Setup* setup)
 
     // these haven't been defined as Parameters, now that we're
     // doing that for the sync options could do these...
+    b->addAttribute(ATT_ACTIVE, setup->getActiveTrack());
     b->addAttribute(ATT_BINDINGS, setup->getBindings());
-    b->addAttribute(ATT_ACTIVE, setup->getActive());
     
     StringList* resettables = setup->getResetables();
 	if (resetables != NULL) {
@@ -716,13 +794,6 @@ void Setup::toXml(XmlBuffer* b, Setup* setup)
 		b->addAttribute(ATT_RESETABLES, csv);
 		delete csv;
 	}
-
-    // new sync options with Parameter interfaces
-	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
-        Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_SETUP && !p->transient)
-          p->toXml(b, this);
-    }
 
     render(b, BeatsPerBarParameter, setup->getBeatsPerBar());
     render(b, DefaultSyncSourceParameter, setup->getDefaultSyncSource());
@@ -747,11 +818,19 @@ void Setup::toXml(XmlBuffer* b, Setup* setup)
 	b->addEndTag(EL_SETUP, true);
 }
 
-void Setup::parseXml(XmlElement* e, Setup* setup)
+void Setup::parse(XmlElement* e, Setup* setup)
 {
 	parseBindable(e, setup);
 
 	setup->setActiveTrack(e->getIntAttribute(ATT_ACTIVE));
+
+    // recognize the old MidiConfig name, the MidiConfigs will
+    // have been upgraded to BindingConfigs by now
+    // ?? still need this
+    const char* bindings = e->getAttribute(ATT_BINDINGS);
+    if (bindings == NULL)
+      bindings = e->getAttribute(ATT_MIDI_CONFIG);
+	setup->setBindings(bindings);
 
 	const char* csv = e->getAttribute(ATT_RESETABLES);
 	if (csv != NULL)
@@ -770,19 +849,12 @@ void Setup::parseXml(XmlElement* e, Setup* setup)
     setup->setSlaveSyncUnit(parse(e, SlaveSyncUnitParameter));
     setup->setSpeedSyncAdjust(parse(e, SpeedSyncAdjustParameter));
 
-    // recognize the old MidiConfig name, the MidiConfigs will
-    // have been upgraded to BindingConfigs by now
-    // ?? still need this
-    const char* bindings = e->getAttribute(ATT_BINDINGS);
-    if (bindings == NULL)
-      bindings = e->getAttribute(ATT_MIDI_CONFIG);
-	setup->setBindings(bindings);
-
     SetupTrack* tracks = nullptr;
     SetupTrack* last = nullptr;
     
 	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
 		 child = child->getNextElement()) {
+        // todo: should verify the element name
 		SetupTrack* t = new SetupTrack();
         parse(child, t);
 		if (last == nullptr)
@@ -792,6 +864,126 @@ void Setup::parseXml(XmlElement* e, Setup* setup)
 		last = t;
 	}
     setup->setTracks(tracks);
+}
+
+void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
+{
+	b->addOpenStartTag(EL_SETUP_TRACK);
+
+    // in the old model, this was driven from Parameters
+    // in TRACK scope that did not have the transient flag set
+    // this was only InputPort, OutputPort, and PresetNumber
+
+    render(b, AltFeedbackLevelParameter, t->getAltFeedbackLevel());
+    render(b, AudioInputPortParameter, t->getAudioInputPort());
+    render(b, AudioOutputPortParameter, t->getAudioOutputPort());
+    render(b, FeedbackLevelParameter, t->getFeedbackLevel());
+    render(b, FocusParameter, t->getFocus());
+    render(b, GroupParameter, t->getGroup());
+    render(b, InputLevelParameter, t->getInputLevel());
+    render(b, MonoParameter, t->getMono());
+    render(b, OutputLevelParameter, t->getOutputLevel());
+    render(b, PanParameter, t->getPan());
+    render(b, PluginInputPortParameter, t->getPluginInputPort());
+    render(b, PluginOutputPortParameter, t->getPluginOutputPort());
+    render(b, SpeedBendParameter, t->getSpeedBend());
+    render(b, SpeedOctaveParameter, t->getSpeedOctave());
+    render(b, SpeedStepParameter, t->getSpeedStep());
+    render(b, TrackNameParameter, t->getTrackName());
+    render(b, PitchBendParameter, t->getPitchBend());
+    render(b, PitchOctaveParameter, t->getPitchOctave());
+    render(b, PitchStepParameter, t->getPitchStep());
+    render(b, TimeStretchParameter, t->getTimeStretch());
+    render(b, TrackPresetParameter, t->getTrackPreset());
+    render(b, TrackSyncUnitParameter, t->getTrackSyncUnit());
+    render(b, SyncSourceParameter, t->getSyncSource());
+
+    UserVariables* uv = setup->getUserVariables();
+    if (uv == nullptr) {
+        b->add("/>\n");
+    }
+    else {
+		b->add(">\n");
+		b->incIndent();
+
+        render(b, uv);
+
+		b->decIndent();
+		b->addEndTag(EL_SETUP_TRACK);
+	}
+}
+
+void XmlRenderer::parse(XmlElement* e, SetupTrack* t)
+{
+    // Parameters with SCOPE_TRACK can guide us
+	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
+        Parameter* p = Parameters[i];
+        if (p->scope == PARAM_SCOPE_TRACK && !p->transient)
+          p->parseXml(e, this);
+    }
+
+    t->setAltFeedbackLevel(parse(e, AltFeedbackLevelParameter));
+    t->setAudioInputPort(parse(e, AudioInputPortParameter));
+    t->setAudioOutputPort(parse(e, AudioOutputPortParameter));
+    t->setFeedbackLevel(parse(e, FeedbackLevelParameter));
+    t->setFocus(parse(e, FocusParameter));
+    t->setGroup(parse(e, GroupParameter));
+    t->setInputLevel(parse(e, InputLevelParameter));
+    t->setMono(parse(e, MonoParameter));
+    t->setOutputLevel(parse(e, OutputLevelParameter));
+    t->setPan(parse(e, PanParameter));
+    t->setPluginInputPort(parse(e, PluginInputPortParameter));
+    t->setPluginOutputPort(parse(e, PluginOutputPortParameter));
+    t->setSpeedBend(parse(e, SpeedBendParameter));
+    t->setSpeedOctave(parse(e, SpeedOctaveParameter));
+    t->setSpeedStep(parse(e, SpeedStepParameter));
+    t->setTrackName(parse(e, TrackNameParameter));
+    t->setPitchBend(parse(e, PitchBendParameter));
+    t->setPitchOctave(parse(e, PitchOctaveParameter));
+    t->setPitchStep(parse(e, PitchStepParameter));
+    t->setTimeStretch(parse(e, TimeStretchParameter));
+    t->setTrackPreset(parse(e, TrackPresetParameter));
+    t->setTrackSyncUnit(parse(e, TrackSyncUnitParameter));
+    t->setSyncSource(parse(e, SyncSourceParameter));
+
+    // should only have a single UserVariables 
+	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+		 child = child->getNextElement()) {
+
+		if (child->isName(EL_VARIABLES)) {
+            UserVariables* uv = new UserVariables();
+            parse(child, uv);
+            t->setUserVariables(uv);
+		}
+	}
+}
+
+#define EL_VARIABLES "Variables"
+
+void XmlRenderer::render(XmlBuffer* b, UserVariable* v)
+{
+	b->addOpenStartTag(EL_VARIABLE);
+
+	b->addAttribute(ATT_NAME, v->getName());
+
+	// note that we'll lose the type during serialization
+    ExValue v;
+    v->getValue(&v);
+	const char* value = v.getString();
+	if (value != NULL)
+	  b->addAttribute(ATT_VALUE, value);
+
+	b->add("/>\n");
+}
+
+void XmlRenderer::parseXml(XmlElement* e, UserVariable* v)
+{
+	v->setName(e->getAttribute(ATT_NAME));
+
+	// we don't save the type, so a round trip will always stringify
+    ExValue ev;
+    ev.setString(e->getAttribute(ATT_VALUE));
+	v->setValue(&ev);
 }
 
 //////////////////////////////////////////////////////////////////////
