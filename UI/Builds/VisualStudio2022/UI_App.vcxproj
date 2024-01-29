@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\FileUtil.cpp"/>
     <ClCompile Include="..\..\Source\util\KeyCode.cpp"/>
     <ClCompile Include="..\..\Source\util\List.cpp"/>
     <ClCompile Include="..\..\Source\util\MessageCatalog.cpp"/>
@@ -164,6 +165,7 @@
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\SystemConstant.cpp"/>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp"/>
+    <ClCompile Include="..\..\Source\model\XmlRenderer.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
@@ -2438,6 +2440,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\FileUtil.h"/>
     <ClInclude Include="..\..\Source\util\KeyCode.h"/>
     <ClInclude Include="..\..\Source\util\List.h"/>
     <ClInclude Include="..\..\Source\util\MessageCatalog.h"/>
@@ -2459,6 +2462,7 @@
     <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
+    <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\Source\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ConfigPopup.h"/>

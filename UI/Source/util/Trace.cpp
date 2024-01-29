@@ -40,6 +40,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+// why is this not defined?
+#define _WIN32 1
+
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
@@ -160,7 +163,7 @@ int TracePrintLevel = 1;
 /**
  * Trace records at this level or lower are sent to the debug output stream.
  */
-int TraceDebugLevel = 0;
+int TraceDebugLevel = 1;
 
 /**
  * When set, trace messages for both the print and debug streams

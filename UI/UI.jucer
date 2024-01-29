@@ -6,6 +6,8 @@
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
+        <FILE id="MCgODr" name="FileUtil.cpp" compile="1" resource="0" file="Source/util/FileUtil.cpp"/>
+        <FILE id="hbiDF8" name="FileUtil.h" compile="0" resource="0" file="Source/util/FileUtil.h"/>
         <FILE id="MOqVSP" name="KeyCode.cpp" compile="1" resource="0" file="Source/util/KeyCode.cpp"/>
         <FILE id="mJWc8O" name="KeyCode.h" compile="0" resource="0" file="Source/util/KeyCode.h"/>
         <FILE id="M50Qiq" name="List.cpp" compile="1" resource="0" file="Source/util/List.cpp"/>
@@ -61,6 +63,8 @@
         <FILE id="wa9W4M" name="UserVariable.cpp" compile="1" resource="0"
               file="Source/model/UserVariable.cpp"/>
         <FILE id="JU2prp" name="UserVariable.h" compile="0" resource="0" file="Source/model/UserVariable.h"/>
+        <FILE id="BDrDZa" name="XmlRenderer.cpp" compile="1" resource="0" file="Source/model/XmlRenderer.cpp"/>
+        <FILE id="lTQjDK" name="XmlRenderer.h" compile="0" resource="0" file="Source/model/XmlRenderer.h"/>
       </GROUP>
       <FILE id="YlAxvV" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yWDgXx" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

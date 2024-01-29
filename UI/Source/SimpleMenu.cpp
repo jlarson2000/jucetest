@@ -8,6 +8,8 @@
 #include "SimpleMenu.h"
 #include "MainComponent.h"
 
+#include "model/XmlRenderer.h"
+
 SimpleMenu::SimpleMenu()
 {
     // jsl - interesting, it has to use reset() and new() because the
@@ -206,7 +208,13 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
             }
             break;
                 
-            case menuGlobalParameters: break;
+            case menuGlobalParameters: {
+                XmlRenderer* r = new XmlRenderer();
+                r->test();
+                delete r;
+            }
+            break;
+                
             case menuMIDIControl: break;
             case menuKeyboardControl: break;
             case menuPluginParamters: break;

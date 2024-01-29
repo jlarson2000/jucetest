@@ -1,3 +1,70 @@
+Parameter
+
+Design is unfortunately mixed with model and implementation
+get/set values requires the associated object, e.g. Preset or MobiusConfig
+would be nice if this could be factored out
+
+since parameters must have unique names, flattening all this into a Map for
+use internally has nice properties
+
+don't like Xml rendering built in to the config objects, factor this out
+to an XmlRenderer
+  means we can have other serialization formats
+
+job 1: get config objects clean data models with no dependence on Parameter or XML
+  hmm, where would min/max value checking live?
+
+better to make this Parameter oriented or config object oriented?
+  parameters define a single point of definition independent of how
+  it is modeled, some values like preset parameters need to be track specific
+
+  track setup parameters are mostly track specific with some globals
+
+high and ordinals are overloaded to deal with values that have variable ranges
+ such as preset numbers and enumerations that need to be dealt with in bindings
+ and exported parameters as numeric values
+
+getOrdinalValue
+  - returns the numeric value for something that is an enumeration
+
+getOrdinalLabel
+  - returns the symbolic value for an ordinal
+
+The editor does not really need to redirect through Parameter, though it
+does encapsulate some of the logic about which field in an object to get/set
+
+A single point DTO transformer would do this, would be similar to XML transformation
+if you put that all in one place.  Hmm, this has some nice side effects
+
+The only tricky bits are parameters that don't have fixed properties
+  - max value for config object names
+  - things with max globally configured elsewhere
+  - could do this by dynamically modifying the Parameter object as things change
+    - hmm, liking this
+
+parameters with multiple values are annoying but this is really just a runtime thing
+not something for the editor
+  - exports and bindings would need this
+  - parameter could have a track array of values
+  - this would also be the place to put transient values from scripts rather than
+    modifying the internal config objects
+  - config objects are loaded and edited then "applied" to the parameters
+
+Liking this, it makes Parameter self contained with things orbiting it to get/set values
+
+multithreaded danger is things that have variable enumerations like preset names
+
+since this is almost all in binding and export, which will change anyway it doesn't
+impact the engine much
+  main difference is that the engine now needs to go to Parameter for operating state
+  not Preset/Setup, etc.
+  some danger with enum mismatch, the parameter value must be numeric and mapped to an enum
+  for code
+
+
+
+----------------------------------------------------------------------
+
 Source Organization
 
 Utilities

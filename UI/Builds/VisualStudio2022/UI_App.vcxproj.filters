@@ -595,6 +595,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\util\FileUtil.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\util\KeyCode.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
@@ -662,6 +665,9 @@
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\XmlRenderer.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
@@ -3126,6 +3132,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\util\FileUtil.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\util\KeyCode.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>
@@ -3187,6 +3196,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UserVariable.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\XmlRenderer.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
