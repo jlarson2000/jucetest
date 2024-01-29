@@ -1,0 +1,43 @@
+/****************************************************************************
+ *                                                                          *
+ *   							  UTILITIES                                 *
+ *                                                                          *
+ ****************************************************************************/
+
+int XmlGetEnum(XmlElement* e, const char *name, const char** names)
+{
+	int value = 0;
+	const char *attval = e->getAttribute(name);
+	if (attval != NULL) {
+		for (int i = 0 ; names[i] != NULL ; i++) {
+			if (!strcmp(attval, names[i])) {
+				value = i;
+				break;
+			}
+		}
+	}
+	return value;
+}
+
+int XmlGetEnum(const char* str, const char** names)
+{
+	int value = 0;
+	if (str != NULL) {
+		for (int i = 0 ; names[i] != NULL ; i++) {
+			if (!strcmp(str, names[i])) {
+				value = i;
+				break;
+			}
+		}
+	}
+	return value;
+}
+//////////////////////////////////////////////////////////////////////
+//
+// Utilities
+//
+//////////////////////////////////////////////////////////////////////
+
+extern int XmlGetEnum(class XmlElement* e, const char *name, const char** names);
+extern int XmlGetEnum(const char* str, const char** names);
+
