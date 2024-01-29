@@ -142,15 +142,6 @@
  */
 #define MIDI_COMMON_BINDINGS_NAME "Common Bindings"
 
-//////////////////////////////////////////////////////////////////////
-//
-// Utilities
-//
-//////////////////////////////////////////////////////////////////////
-
-extern int XmlGetEnum(class XmlElement* e, const char *name, const char** names);
-extern int XmlGetEnum(const char* str, const char** names);
-
 /****************************************************************************
  *                                                                          *
  *                                ENUMERATIONS                              *
@@ -206,107 +197,6 @@ typedef enum {
 
 } AudioSampleRate;
 
-/***************************************************************************
- *                                                                          *
- *                               SCRIPT CONFIG                              *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Represents a reference to a Script stored in a file.
- * A list of these is maintained in the ScriptConfig.
- * As of 1.31 mName may either be a file name or a directory name.
- * These are compiled into a ScriptSet with loaded Script objects, the
- * model separation is necessary to prevent race conditions with the
- * configuration UI and the audio interrupt evaluating Scripts.
- * 
- */
-class ScriptRef {
-
-  public:
-
-    ScriptRef();
-    ScriptRef(const char* file);
-    ScriptRef(class XmlElement* e);
-    ScriptRef(ScriptRef* src);
-	~ScriptRef();
-
-    void setNext(ScriptRef* def);
-    ScriptRef* getNext();
-
-    void setFile(const char* file);
-    const char* getFile();
-
-    void parseXml(class XmlElement* e);
-    void toXml(class XmlBuffer* b);
-
-  private:
-
-    void init();
-
-    ScriptRef* mNext;
-    char* mFile;
-
-};
-
-class ScriptConfig {
-
-  public:
-
-    ScriptConfig();
-    ScriptConfig(class XmlElement* e);
-    ~ScriptConfig();
-    ScriptConfig* clone();
-
-    ScriptRef* getScripts();
-	void setScripts(ScriptRef* refs);
-
-	void add(ScriptRef* ref);
-	void add(const char* file);
-    ScriptRef* get(const char* file);
-    bool isDifference(ScriptConfig* other);
-
-    void parseXml(class XmlElement* e);
-    void toXml(class XmlBuffer* b);
-
-  private:
-
-	void clear();
-
-    ScriptRef* mScripts;
-
-};
-
-/****************************************************************************
- *                                                                          *
- *   						CONTROL SURFACE CONFIG                          *
- *                                                                          *
- ****************************************************************************/
-
-class ControlSurfaceConfig {
-  public:
-
-	ControlSurfaceConfig();
-	ControlSurfaceConfig(class XmlElement* el);
-	~ControlSurfaceConfig();
-
-	void setNext(ControlSurfaceConfig* cs);
-	ControlSurfaceConfig* getNext();
-
-	void setName(const char* name);
-	const char* getName();
-  
-	void toXml(class XmlBuffer* b);
-
-  private:
-
-	void init();
-	void parseXml(class XmlElement* e);
-
-	ControlSurfaceConfig* mNext;
-	char* mName;
-};
-
 /****************************************************************************
  *                                                                          *
  *                               MOBIUS CONFIG                              *
@@ -319,7 +209,6 @@ class MobiusConfig {
 
     MobiusConfig();
     MobiusConfig(bool dflt);
-    MobiusConfig(const char *xml);
     ~MobiusConfig();
     
     const char* getError();
@@ -443,18 +332,18 @@ class MobiusConfig {
 	class BindingConfig* setOverlayBindingConfig(const char* name);
 	class BindingConfig* setOverlayBindingConfig(int index);
 
-	class MidiConfig* getMidiConfigs();
-    const char* getSelectedMidiConfig();
-    void clearMidiConfigs();
-	void addMidiConfig(class MidiConfig* p);
-    void setSelectedMidiConfig(const char* s);
-
     class ScriptConfig* getScriptConfig();
     void setScriptConfig(class ScriptConfig* c);
 
+    // experiment that never went anywhere
+#if 0
 	class ControlSurfaceConfig* getControlSurfaces();
 	void setControlSurfaces(ControlSurfaceConfig* cs);
 	void addControlSurface(ControlSurfaceConfig* cs);
+#endif
+    
+	void setSampleonfig(class SampleConfig* s);
+	class SampleConfig* getSampleCconfig();
 
 	class OscConfig* getOscConfig();
 	void setOscConfig(OscConfig* o);
@@ -465,11 +354,9 @@ class MobiusConfig {
 	void setQuickSave(const char* s);
 	const char* getQuickSave();
 
+    // !! this sees pretty important to bury down here
 	void generateNames();
 	
-	void setSamples(class Samples* s);
-	class Samples* getSamples();
-
 	void setFocusLockFunctions(class StringList* functions);
 	StringList* getFocusLockFunctions();
 
@@ -539,19 +426,14 @@ class MobiusConfig {
     void setNoPresetChanges(bool b);
     bool isNoPresetChanges();
 
-	char* toXml();
-	void toXml(class XmlBuffer* b);
-
   private:
 
 	void init();
-	void parseXml(const char *src);
-	void parseXml(class XmlElement* e);
     void generateNames(class Bindable* bindables, const char* prefix, 
                        const char* baseName);
 	
-    void numberThings(Bindable* things);
-    int countThings(Bindable* things);
+    void numberThings(class Bindable* things);
+    int countThings(class Bindable* things);
 
     char mError[256];
     bool mDefault;
@@ -618,16 +500,12 @@ class MobiusConfig {
 	class BindingConfig* mBindingConfigs;
 	class BindingConfig* mOverlayBindings;
 
-    // temporary until everyone has upgraded
-	class MidiConfig* mMidiConfigs;
-    const char* mSelectedMidiConfig;
-
     class ScriptConfig* mScriptConfig;
-
-	class ControlSurfaceConfig* mControlSurfaces;
+	class SampleConfig* mSampleConfig;
 	class OscConfig* mOscConfig;
     
-	class Samples* mSamples;
+
+	// class ControlSurfaceConfig* mControlSurfaces;
 
     /**
      * Sample rate for both input and output streams.

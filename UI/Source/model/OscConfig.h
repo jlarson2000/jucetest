@@ -7,12 +7,13 @@
  * 
  * Model for Mobius OSC configuration.
  *
+ * I removed a bundh of runtime classes, will need another file
+ * for those when the time comes.
  */
 
 #ifndef OSC_CONFIG_H
 #define OSC_CONFIG_H
 
-#include "WatchPoint.h"
 #include "OscInterface.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -29,12 +30,12 @@ class OscConfig {
   public:
 
 	OscConfig();
-	OscConfig(const char* xml);
-	OscConfig(XmlElement* e);
 	~OscConfig();
-    void toXml(XmlBuffer* b);
 
+    // what's this for, parsing?
+    // yes, think of a better way to handle this
     const char* getError();
+
 	int getInputPort();
 	void setInputPort(int i);
 	const char* getOutputHost();
@@ -48,7 +49,6 @@ class OscConfig {
   private:
 
     void init();
-    void parseXml(XmlElement* e);
 
 	/**
 	 * The default port on which we listen for OSC messages.
@@ -104,9 +104,7 @@ class OscBindingSet {
   public:
 
 	OscBindingSet();
-	OscBindingSet(XmlElement* e);
 	~OscBindingSet();
-	void toXml(class XmlBuffer* b);
 
 	void setNext(OscBindingSet* s);
 	OscBindingSet* getNext();
@@ -135,7 +133,6 @@ class OscBindingSet {
   private:
 
     void init();
-	void parseXml(class XmlElement* e);
 
 	/**
 	 * Chain link.
@@ -271,7 +268,6 @@ class OscWatcher {
   public:
 
     OscWatcher();
-    OscWatcher(class XmlElement* e);
     ~OscWatcher();
 
     OscWatcher* getNext();
@@ -286,12 +282,9 @@ class OscWatcher {
     int getTrack();
     void setTrack(int t);
 
-    void toXml(class XmlBuffer* b);
-
   private:
 
     void init();
-    void parseXml(class XmlElement* e);
 
     OscWatcher* mNext;
     char* mPath;

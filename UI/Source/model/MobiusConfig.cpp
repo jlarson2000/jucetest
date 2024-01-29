@@ -19,9 +19,6 @@
 #include "../util/Util.h"
 #include "../util/List.h"
 #include "../util/MidiUtil.h"
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
-#include "../util/XomParser.h"
 
 //#include "Qwin.h"
 
@@ -33,21 +30,16 @@
 //#include "Script.h"
 //#include "Setup.h"
 
-// add these later
-//#include "Sample.h"
-#define HIDE_SAMPLES
-
-#define HIDE_OSC
-//#include "OscConfig.h"
-
-#define HIDE_UICONFIG
-
 // temporary
-#include "OldBinding.h"
+//#include "OldBinding.h"
 
 #include "Binding.h"
 #include "Preset.h"
 #include "Setup.h"
+#include "ScriptConfig.h"
+#inlude "SampleConfig.h"
+#include "OscConfig.h"
+
 #include "MobiusConfig.h"
 
 // this does XML like I think it should
@@ -83,80 +75,6 @@
  */
 #define AUDIO_DEFAULT_FADE_FRAMES 128
 
-//////////////////////////////////////////////////////////////////////
-//
-// XML Constants
-//
-//////////////////////////////////////////////////////////////////////
-
-#define EL_CONFIG "MobiusConfig"
-#define ATT_LANGUAGE "language"
-#define ATT_SETUP "setup"
-#define ATT_MIDI_CONFIG "midiConfig"
-#define ATT_SUGGESTED_LATENCY "suggestedLatencyMsec"
-#define ATT_UI_CONFIG  "uiConfig"
-#define ATT_PLUGIN_PINS "pluginPins"
-#define ATT_PLUGIN_HOST_REWINDS "pluginHostRewinds"
-
-#define ATT_NO_SYNC_BEAT_ROUNDING "noSyncBeatRounding"
-
-#define ATT_OVERLAY_BINDINGS "overlayBindings"
-
-#define EL_FOCUS_LOCK_FUNCTIONS "FocusLockFunctions"
-// old name for FocusLockFunctions
-#define EL_GROUP_FUNCTIONS "GroupFunctions"
-#define EL_MUTE_CANCEL_FUNCTIONS "MuteCancelFunctions"
-#define EL_CONFIRMATION_FUNCTIONS "ConfirmationFunctions"
-#define EL_ALT_FEEDBACK_DISABLES "AltFeedbackDisables"
-#define EL_STRING "String"
-
-#define EL_SCRIPT_CONFIG "ScriptConfig"
-#define EL_SCRIPT_REF "ScripRef"
-#define ATT_FILE "file"
-
-#define EL_CONTROL_SURFACE "ControlSurface"
-#define ATT_NAME "name"
-
-#define EL_OSC_CONFIG "OscConfig"
-
-#define ATT_LOG_STATUS "logStatus"
-#define ATT_EDPISMS "edpisms"
-
-/****************************************************************************
- *                                                                          *
- *   							  UTILITIES                                 *
- *                                                                          *
- ****************************************************************************/
-
-int XmlGetEnum(XmlElement* e, const char *name, const char** names)
-{
-	int value = 0;
-	const char *attval = e->getAttribute(name);
-	if (attval != NULL) {
-		for (int i = 0 ; names[i] != NULL ; i++) {
-			if (!strcmp(attval, names[i])) {
-				value = i;
-				break;
-			}
-		}
-	}
-	return value;
-}
-
-int XmlGetEnum(const char* str, const char** names)
-{
-	int value = 0;
-	if (str != NULL) {
-		for (int i = 0 ; names[i] != NULL ; i++) {
-			if (!strcmp(str, names[i])) {
-				value = i;
-				break;
-			}
-		}
-	}
-	return value;
-}
-
 /****************************************************************************
  *                                                                          *
  *   								CONFIG                                  *
@@ -179,7 +97,6 @@ MobiusConfig::MobiusConfig(const char *xml)
 	init();
 	parseXml(xml);
 }
-
 
 void MobiusConfig::init()
 {
@@ -227,15 +144,10 @@ void MobiusConfig::init()
 	mMidiConfigs = NULL;
     mSelectedMidiConfig = NULL;
     mScriptConfig = NULL;
-	mControlSurfaces = NULL;
-#ifndef HIDE_OSC
+    mSampleConfig = nullptr;
 	mOscConfig = NULL;
-#endif    
-#ifdef HIDE_SAMPLES
-	mSamples = NULL;
-#endif
-    mSampleRate = SAMPLE_RATE_44100;
 
+    mSampleRate = SAMPLE_RATE_44100;
 	mMonitorAudio = false;
     mHostRewinds = false;
 	mPluginPins = DEFAULT_PLUGIN_PINS;
@@ -293,9 +205,7 @@ MobiusConfig::~MobiusConfig()
     delete mPluginMidiThrough;
     delete mAudioInput;
     delete mAudioOutput;
-#ifndef HIDE_UICONFIG
 	delete mUIConfig;
-#endif    
 	delete mQuickSave;
     delete mCustomMessageFile;
 	delete mUnitTests;
@@ -307,16 +217,9 @@ MobiusConfig::~MobiusConfig()
 	delete mPresets;
     delete mSetups;
     delete mBindingConfigs;
-    delete mMidiConfigs;
-    delete mSelectedMidiConfig;
     delete mScriptConfig;
-    delete mControlSurfaces;
-#ifndef HIDE_OSC
 	delete mOscConfig;
-#endif    
-#ifndef HIDE_SAMPLES
-	delete mSamples;
-#endif    
+	delete mSampleConfig;
 }
 
 bool MobiusConfig::isDefault()
@@ -324,6 +227,8 @@ bool MobiusConfig::isDefault()
     return mDefault;
 }
 
+/**
+ * 
 MobiusConfig* MobiusConfig::clone()
 {
     char* xml = toXml();
@@ -745,7 +650,7 @@ ControlSurfaceConfig* MobiusConfig::getControlSurfaces()
 }
 
 void MobiusConfig::setControlSurfaces(ControlSurfaceConfig* list)
-{
+v{
 	if (list != mControlSurfaces) {
 		delete mControlSurfaces;
 		mControlSurfaces = list;
@@ -826,20 +731,18 @@ const char* MobiusConfig::getUnitTests()
 	return mUnitTests;
 }
 
-#ifndef HIDE_SAMPLES
-void MobiusConfig::setSamples(Samples* s)
+void MobiusConfig::setSampleConfig(SampleConfig* s)
 {
-	if (mSamples != s) {
-		delete mSamples;
-		mSamples = s;
+	if (mSampleConfig != s) {
+		delete mSampleConfig;
+		mSampleConfig = s;
 	}
 }
 
-Samples* MobiusConfig::getSamples()
+SampleConfig* MobiusConfig::getSampleConfig()
 {
-	return mSamples;
+	return mSampleConfig;
 }
-#endif
 
 StringList* MobiusConfig::getFocusLockFunctions()
 {
@@ -1924,227 +1827,6 @@ void MobiusConfig::toXml(XmlBuffer* b)
 	b->addEndTag(EL_CONFIG);
 }
 
-/****************************************************************************
- *                                                                          *
- *                               SCRIPT CONFIG                              *
- *                                                                          *
- ****************************************************************************/
-
-ScriptConfig::ScriptConfig()
-{
-    mScripts = NULL;
-}
-
-ScriptConfig::ScriptConfig(XmlElement* e)
-{
-    mScripts = NULL;
-    parseXml(e);
-}
-
-ScriptConfig::~ScriptConfig()
-{
-	clear();
-}
-
-/**
- * Clone for difference detection.
- * All we really need are the original file names.
- */
-ScriptConfig* ScriptConfig::clone()
-{
-    ScriptConfig* clone = new ScriptConfig();
-    for (ScriptRef* s = mScripts ; s != NULL ; s = s->getNext()) {
-        ScriptRef* s2 = new ScriptRef(s);
-        clone->add(s2);
-    }
-    return clone;
-}
-
-void ScriptConfig::clear()
-{
-    ScriptRef* ref = NULL;
-    ScriptRef* next = NULL;
-    for (ref = mScripts ; ref != NULL ; ref = next) {
-        next = ref->getNext();
-        delete ref;
-    }
-	mScripts = NULL;
-}
-
-ScriptRef* ScriptConfig::getScripts()
-{
-    return mScripts;
-}
-
-void ScriptConfig::setScripts(ScriptRef* refs) 
-{
-	clear();
-	mScripts = refs;
-}
-
-void ScriptConfig::add(ScriptRef* neu) 
-{
-    ScriptRef* last = NULL;
-    for (last = mScripts ; last != NULL && last->getNext() != NULL ; 
-         last = last->getNext());
-
-	if (last == NULL)
-	  mScripts = neu;
-	else
-	  last->setNext(neu);
-}
-
-void ScriptConfig::add(const char* file) 
-{
-	add(new ScriptRef(file));
-}
-
-void ScriptConfig::toXml(XmlBuffer* b)
-{
-    b->addStartTag(EL_SCRIPT_CONFIG);
-    b->incIndent();
-
-    for (ScriptRef* ref = mScripts ; ref != NULL ; ref = ref->getNext())
-      ref->toXml(b);
-
-    b->decIndent();
-    b->addEndTag(EL_SCRIPT_CONFIG);
-}
-
-void ScriptConfig::parseXml(XmlElement* e)
-{
-    ScriptRef* last = NULL;
-    for (ScriptRef* ref = mScripts ; ref != NULL && ref->getNext() != NULL ; 
-         ref = ref->getNext());
-
-    for (XmlElement* child = e->getChildElement() ; child != NULL ; 
-         child = child->getNextElement()) {
-        ScriptRef* ref = new ScriptRef(child);
-        if (last == NULL)
-          mScripts = ref;   
-        else
-          last->setNext(ref);
-        last = ref;
-    }
-}
-
-/**
- * Utility for difference detection.
- */
-bool ScriptConfig::isDifference(ScriptConfig* other)
-{
-    bool difference = false;
-
-    int myCount = 0;
-    for (ScriptRef* s = mScripts ; s != NULL ; s = s->getNext())
-      myCount++;
-
-    int otherCount = 0;
-    if (other != NULL) {
-        for (ScriptRef* s = other->getScripts() ; s != NULL ; s = s->getNext())
-          otherCount++;
-    }
-
-    if (myCount != otherCount) {
-        difference = true;
-    }
-    else {
-        for (ScriptRef* s = mScripts ; s != NULL ; s = s->getNext()) {
-            ScriptRef* ref = other->get(s->getFile());
-            if (ref == NULL) {
-                difference = true;
-                break;
-            }
-        }
-    }
-    return difference;
-}
-
-ScriptRef* ScriptConfig::get(const char* file)
-{
-    ScriptRef* found = NULL;
-
-    for (ScriptRef* s = mScripts ; s != NULL ; s = s->getNext()) {
-        if (StringEqual(s->getFile(), file)) {
-            found = s;
-            break;
-        }
-    }
-    return found;
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// ScriptRef
-//
-//////////////////////////////////////////////////////////////////////
-
-ScriptRef::ScriptRef()
-{
-    init();
-}
-
-ScriptRef::ScriptRef(XmlElement* e)
-{
-    init();
-    parseXml(e);
-}
-
-ScriptRef::ScriptRef(const char* file)
-{
-    init();
-    setFile(file);
-}
-
-ScriptRef::ScriptRef(ScriptRef* src)
-{
-    init();
-    setFile(src->getFile());
-}
-
-void ScriptRef::init()
-{
-    mNext = NULL;
-    mFile = NULL;
-}
-
-ScriptRef::~ScriptRef()
-{
-	delete mFile;
-}
-
-void ScriptRef::setNext(ScriptRef* ref)
-{
-    mNext = ref;
-}
-
-ScriptRef* ScriptRef::getNext()
-{
-    return mNext;
-}
-
-void ScriptRef::setFile(const char* file)
-{
-    delete mFile;
-    mFile = CopyString(file);
-}
-
-const char* ScriptRef::getFile()
-{
-    return mFile;
-}
-
-void ScriptRef::toXml(XmlBuffer* b)
-{
-    b->addOpenStartTag(EL_SCRIPT_REF);
-    b->addAttribute(ATT_FILE, mFile);
-    b->add("/>\n");
-}
-
-void ScriptRef::parseXml(XmlElement* e)
-{
-    setFile(e->getAttribute(ATT_FILE));
-}
 
 //////////////////////////////////////////////////////////////////////
 //

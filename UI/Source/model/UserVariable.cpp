@@ -150,6 +150,17 @@ UserVariables::~UserVariables()
 	delete mVariables;
 }
 
+UserVariable* UserVariables::getVariables()
+{
+    return mVariables;
+}
+
+void UserVariables::setVariables(UserVariable* list)
+{
+    delete mVariables;
+    mVariables = list;
+}
+
 UserVariable* UserVariables::getVariable(const char* name)
 {
 	UserVariable* found = NULL;

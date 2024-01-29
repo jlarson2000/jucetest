@@ -84,6 +84,8 @@ void XmlBuffer::decIndent() {
 
 /**
  * Adds an attribute name and value to the buffer.
+ * null values are suppressed.  We don't distinguish between null
+ * and unspecified.
  * 
  * Performs any necessary escaping on the value.  This should
  * be used when you're building the XML for something, and

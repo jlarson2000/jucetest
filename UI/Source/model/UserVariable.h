@@ -71,8 +71,11 @@ class UserVariables {
 	UserVariables();
 	UserVariables(class XmlElement* e);
 	~UserVariables();
-	
-	UserVariable* getVariable(const char* name);
+
+    UserVariable* getVariables();
+    void setVarianles(UserVariable* list);
+
+    UserVariable* getVariable(const char* name);
 
 	void get(const char* name, class ExValue* value);
 	void set(const char* name, class ExValue* value);
