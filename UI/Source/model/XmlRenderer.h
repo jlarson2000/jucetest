@@ -26,9 +26,6 @@ class XmlRenderer {
     class MobiusConfig* parseMobiusConfig(const char* xml);
     char* render(class MobiusConfig* c);
     
-    class Preset* parsePreset(const char* xml);
-    char* render(class Preset* src);
-
     void test();
 
   private:

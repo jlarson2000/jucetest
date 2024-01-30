@@ -104,20 +104,6 @@ char* XmlRenderer::render(MobiusConfig* c)
     return xml;
 }
 
-// temporary for testing
-char* XmlRenderer::render(Preset* p)
-{
-	char* xml = nullptr;
-
-    // TODO: make this more like others and have a clear() so it can be reused
-    // and not dynamically allocated 
-    XmlBuffer* b = new XmlBuffer();
-    render(b, p);
-    xml = b->stealString();
-    delete b;
-    return xml;
-}
-
 MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
 {
     MobiusConfig* config = nullptr;
@@ -145,36 +131,6 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
 	delete parser;
 
     return config;
-}
-
-// temporary for testing
-Preset* XmlRenderer::parsePreset(const char* xml)
-{
-    Preset* preset = nullptr;
-	XomParser* parser = new XomParser();
-	XmlDocument* doc = parser->parse(xml);
-
-    if (doc == nullptr) {
-        Trace(1, "XmlRender: Parse error %s\n", parser->getError());
-    }
-    else {
-        XmlElement* e = doc->getChildElement();
-        if (e == nullptr) {
-            Trace(1, "XmlRender: Missing child element\n");
-        }
-        else if (!e->isName(EL_PRESET)) {
-            Trace(1, "XmlRenderer: Document is not a Preset: %s\n", e->getName());
-        }
-        else {
-            preset = new Preset();
-			parse(e, preset);
-        }
-    }
-
-    delete doc;
-	delete parser;
-
-    return preset;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1410,28 +1366,17 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
 
 void XmlRenderer::test()
 {
-    Preset* p = new Preset();
-    char* xml = render(p);
-    Trace(1, "%s\n", xml);
+    char* xml = ReadFile("c:/dev/jucetest/UI/Source/mobius.xml");
 
-    WriteFile("c:/dev/jucetest/UI/Source/test.xml", xml);
+    MobiusConfig* c = parseMobiusConfig(xml);
 
-    char* xml2 = ReadFile("c:/dev/jucetest/UI/Source/test.xml");
-    if (strcmp(xml, xml2)) {
-        Trace(1, "Strings differ\n");
-        WriteFile("c:/dev/jucetest/UI/Source/test-err.xml", xml2);
-    }
-
-    Preset* p2 = parsePreset(xml2);
-    if (p2 != nullptr) {
-        char* xml3 = render(p2);
-        WriteFile("c:/dev/jucetest/UI/Source/test2.xml", xml3);
-        delete xml3;
-    }
+    char* xml2 = render(c);
+    
+    WriteFile("c:/dev/jucetest/UI/Source/mobius2.xml", xml2);
 
     delete xml2;
     delete xml;
-    delete p;
+    delete c;
 }
 
 /****************************************************************************/

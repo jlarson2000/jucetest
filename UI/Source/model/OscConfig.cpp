@@ -13,6 +13,7 @@
 
 #include "../util/Util.h"
 
+#include "Binding.h"
 #include "OscConfig.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -218,6 +219,12 @@ void OscBindingSet::setOutputPort(int i)
 Binding* OscBindingSet::getBindings()
 {
 	return mBindings;
+}
+
+void OscBindingSet::setBindings(Binding* list)
+{
+    delete mBindings;
+    mBindings = list;
 }
 
 //////////////////////////////////////////////////////////////////////

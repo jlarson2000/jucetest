@@ -29,8 +29,6 @@
 #include "../util/Trace.h"
 //#include "List.h"
 //#include "MessageCatalog.h"
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
 
 //#include "Action.h"
 //#include "Audio.h"
@@ -48,8 +46,68 @@
 //#include "Script.h"
 //#include "Synchronizer.h"
 
+#include "ExValue.h"
 #include "Parameter.h"
 #include "Setup.h"
+
+// things from Resampler.h
+/**
+ * Maximum number of octaves of rate shift in one direction.
+ * It is important that we constraint this or else the intermediate
+ * buffers used for interpolation and decimation become extremely large.
+ *
+ * For decimation during up shifts the multiplication to the buffer is:
+ *
+ *   octave 1, multiplier 2
+ *   octave 2, multiplier 4
+ *   octave 3, multiplier 8
+ *   ocatve 4, multiplier 16
+ *
+ * So for a normal 256 frame interrupt buffer, we would need working
+ * buffers of 4096 frames, times the number of channels, so 8192 for stereo.
+ */
+#define MAX_RATE_OCTAVE 4
+
+/**
+ * Maximum rate step away from center.  
+ * This is just MAX_RATE_OCTAVE * 12
+ */
+#define MAX_RATE_STEP 48
+
+/**
+ * The maximum possible rate shift up.  This is also the multplier
+ * used for internal buffer sizes so that they are large enough
+ * to handle the maximum alloweable rate shift.
+ * 
+ * This is pow(2.0, MAX_RATE_OCTAVE) or 
+ * pow(SEMITONE_FACTOR, MAX_RATE_OCTAVE * 12)
+ */
+#define MAX_RATE_SHIFT 16
+
+/**
+ * The minimum possible rate shift down.
+ * This is 1 / MAX_RATE_SHIFT.
+ */
+#define MIN_RATE_SHIFT .0625f
+
+/**
+ * The rate/pitch bend range.
+ * This is currently fixed to have a range 16384 internal steps to match
+ * the MIDI pitch bend wheel.  We could make this higher but it would
+ * only be useful in scripts or OSC.  Maybe plugin paramter bindings.
+ */
+#define RATE_BEND_RANGE 16384
+#define MIN_RATE_BEND -8192
+#define MAX_RATE_BEND 8191
+
+/**
+ * The maximum effectve semitone steps in one direction in the
+ * bend range.  Unlike step range, this is not adjustable without
+ * recalculating some a root each time.
+ *
+ * This must match the BEND_FACTOR below.
+ */
+#define MAX_BEND_STEP 12
 
 /****************************************************************************
  *                                                                          *
@@ -75,15 +133,16 @@ class TrackParameter : public Parameter
     /**
      * Overload the Parameter versions and resolve to a Track.
      */
+#if 0
 	void getValue(Export* exp, ExValue* value);
 	void setValue(Action* action);
 	int getOrdinalValue(Export* exp);
-
+#endif
+    
 	virtual void getValue(SetupTrack* t, ExValue* value) = 0;
 	virtual void setValue(SetupTrack* t, ExValue* value) = 0;
 
 	//virtual int getOrdinalValue(Track* t) = 0;
-
 	//virtual void getValue(Track* t, ExValue* value) = 0;
 	//virtual void setValue(Track* t, ExValue* value);
 
@@ -103,35 +162,31 @@ void TrackParameter::setObjectValue(void* object, ExValue* value)
     return setValue((SetupTrack*)object, value);
 }
 
+#if 0
 /**
  * Default setter for an Action.  This does the common
  * work of extracting the resolved Track and converting
  * the value into a consistent ExValue.
  */
-/*
 void TrackParameter::setValue(Action* action)
 {
     Track* track = action->getResolvedTrack();
     if (track != nullptr)  
       setValue(track, &action->arg);
 }
-*/
 
 /**
  * This is almost always overloaded.
  */
-/*
 void TrackParameter::setValue(Track* t, ExValue* value)
 {
     Trace(1, "TrackParameter: %s not overloaded!\n", getName());
 }
-*/
 
 /**
  * Default getter for an Export.  This does the common
  * work of digging out the resolved Track.
  */
-/*
 void TrackParameter::getValue(Export* exp, ExValue* value)
 {
     Track* track = exp->getTrack();
@@ -149,7 +204,6 @@ int TrackParameter::getOrdinalValue(Export* exp)
 	  value = getOrdinalValue(track);
     return value;
 }
-*/
 
 /**
  * The Speed and Pitch parameters change latency so they must be scheduled
@@ -159,7 +213,7 @@ int TrackParameter::getOrdinalValue(Export* exp)
  * This is called to convert the parameter action into a function action
  * and invoke it.
  */
-PRIVATE void TrackParameter::doFunction(Action* action, Function* func)
+void TrackParameter::doFunction(Action* action, Function* func)
 {
     // this flag must be on for ScriptInterpreter
     if (!scheduled)
@@ -177,6 +231,7 @@ PRIVATE void TrackParameter::doFunction(Action* action, Function* func)
     Mobius* m = (Mobius*)action->mobius;
     m->doActionNow(action);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -215,7 +270,7 @@ void TrackNameParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setName(value->getString());
 }
 
-/*
+#if 0
 void TrackNameParameterType::getValue(Track* t, ExValue* value)
 {
 	value->setString(t->getName());
@@ -230,9 +285,9 @@ int TrackNameParameterType::getOrdinalValue(Track* t)
 {
     return -1;
 }
-*/
+#endif
 
-PUBLIC Parameter* TrackNameParameter = new TrackNameParameterType();
+Parameter* TrackNameParameter = new TrackNameParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -246,9 +301,9 @@ class FocusParameterType : public TrackParameter
 	FocusParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 FocusParameterType::FocusParameterType() :
@@ -270,6 +325,7 @@ void FocusParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setFocusLock(value->getBool());
 }
 
+#if 0
 void FocusParameterType::getValue(Track* t, ExValue* value)
 {
     value->setBool(t->isFocusLock());
@@ -284,8 +340,9 @@ int FocusParameterType::getOrdinalValue(Track* t)
 {
     return (int)t->isFocusLock();
 }
+#endif
 
-PUBLIC Parameter* FocusParameter = new FocusParameterType();
+Parameter* FocusParameter = new FocusParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -299,13 +356,14 @@ class GroupParameterType : public TrackParameter
 	GroupParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
 
-	int getHigh(MobiusInterface* m);
-	int getBindingHigh(MobiusInterface* m);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+    //int getOrdinalValue(Track* t);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+
+//	int getHigh(MobiusInterface* m);
+//	int getBindingHigh(MobiusInterface* m);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
 };
 
 GroupParameterType::GroupParameterType() :
@@ -326,6 +384,7 @@ void GroupParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setGroup(value->getInt());
 }
 
+#if 0
 int GroupParameterType::getOrdinalValue(Track* t)
 {
     return t->getGroup();
@@ -363,7 +422,7 @@ void GroupParameterType::setValue(Track* t, ExValue* value)
  * !! The max can change if the global parameters are edited.
  * Need to work out a way to convey that to ParameterEditor.
  */
-PUBLIC int GroupParameterType::getHigh(MobiusInterface* m)
+int GroupParameterType::getHigh(MobiusInterface* m)
 {
 	MobiusConfig* config = m->getConfiguration();
     int max = config->getTrackGroups();
@@ -375,7 +434,7 @@ PUBLIC int GroupParameterType::getHigh(MobiusInterface* m)
  * in case the config has zero, since we're TYPE_INT override
  * this so the default of 127 doesn't apply.
  */
-PUBLIC int GroupParameterType::getBindingHigh(MobiusInterface* m)
+int GroupParameterType::getBindingHigh(MobiusInterface* m)
 {
     return getHigh(m);
 }
@@ -383,7 +442,7 @@ PUBLIC int GroupParameterType::getBindingHigh(MobiusInterface* m)
 /**
  * Given an ordinal, map it into a display label.
  */
-PUBLIC void GroupParameterType::getOrdinalLabel(MobiusInterface* m, 
+void GroupParameterType::getOrdinalLabel(MobiusInterface* m, 
                                                 int i, ExValue* value)
 {
     if (i <= 0)
@@ -394,8 +453,9 @@ PUBLIC void GroupParameterType::getOrdinalLabel(MobiusInterface* m,
         value->setString(buf);
     }
 }
+#endif
 
-PUBLIC Parameter* GroupParameter = new GroupParameterType();
+Parameter* GroupParameter = new GroupParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -409,9 +469,9 @@ class MonoParameterType : public TrackParameter
 	MonoParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 MonoParameterType::MonoParameterType() :
@@ -431,6 +491,7 @@ void MonoParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setMono(value->getBool());
 }
 
+#if 0
 void MonoParameterType::getValue(Track* t, ExValue* value)
 {
     value->setBool(t->isMono());
@@ -446,8 +507,9 @@ int MonoParameterType::getOrdinalValue(Track* t)
 {
     return -1;
 }
+#endif
 
-PUBLIC Parameter* MonoParameter = new MonoParameterType();
+Parameter* MonoParameter = new MonoParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -463,9 +525,9 @@ class FeedbackLevelParameterType : public TrackParameter
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
 
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 FeedbackLevelParameterType::FeedbackLevelParameterType() :
@@ -488,6 +550,7 @@ void FeedbackLevelParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setFeedback(value->getInt());
 }
 
+#if 0
 void FeedbackLevelParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getFeedback());
@@ -504,8 +567,9 @@ int FeedbackLevelParameterType::getOrdinalValue(Track* t)
 {
     return t->getFeedback();
 }
+#endif
 
-PUBLIC Parameter* FeedbackLevelParameter = new FeedbackLevelParameterType();
+Parameter* FeedbackLevelParameter = new FeedbackLevelParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -521,9 +585,9 @@ class AltFeedbackLevelParameterType : public TrackParameter
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
 
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 AltFeedbackLevelParameterType::AltFeedbackLevelParameterType() :
@@ -546,6 +610,7 @@ void AltFeedbackLevelParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setAltFeedback(value->getInt());
 }
 
+#if 0
 void AltFeedbackLevelParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getAltFeedback());
@@ -562,8 +627,9 @@ int AltFeedbackLevelParameterType::getOrdinalValue(Track* t)
 {
     return t->getAltFeedback();
 }
+#endif
 
-PUBLIC Parameter* AltFeedbackLevelParameter = new AltFeedbackLevelParameterType();
+Parameter* AltFeedbackLevelParameter = new AltFeedbackLevelParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -577,9 +643,10 @@ class InputLevelParameterType : public TrackParameter
 	InputLevelParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 InputLevelParameterType::InputLevelParameterType() :
@@ -602,6 +669,7 @@ void InputLevelParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setInputLevel(value->getInt());
 }
 
+#if 0
 void InputLevelParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getInputLevel());
@@ -618,8 +686,9 @@ int InputLevelParameterType::getOrdinalValue(Track* t)
 {
     return t->getInputLevel();
 }
+#endif
 
-PUBLIC Parameter* InputLevelParameter = new InputLevelParameterType();
+Parameter* InputLevelParameter = new InputLevelParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -633,9 +702,10 @@ class OutputLevelParameterType : public TrackParameter
 	OutputLevelParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 OutputLevelParameterType::OutputLevelParameterType() :
@@ -658,6 +728,7 @@ void OutputLevelParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setOutputLevel(value->getInt());
 }
 
+#if 0
 void OutputLevelParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getOutputLevel());
@@ -674,8 +745,9 @@ int OutputLevelParameterType::getOrdinalValue(Track* t)
 {
     return t->getOutputLevel();
 }
+#endif
 
-PUBLIC Parameter* OutputLevelParameter = new OutputLevelParameterType();
+Parameter* OutputLevelParameter = new OutputLevelParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -689,9 +761,10 @@ class PanParameterType : public TrackParameter
 	PanParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
+//    int getOrdinalValue(Track* t);
 };
 
 PanParameterType::PanParameterType() :
@@ -718,6 +791,7 @@ void PanParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setPan(value->getInt());
 }
 
+#if 0
 void PanParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getPan());
@@ -734,8 +808,9 @@ int PanParameterType::getOrdinalValue(Track* t)
 {
     return t->getPan();
 }
+#endif
 
-PUBLIC Parameter* PanParameter = new PanParameterType();
+Parameter* PanParameter = new PanParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -752,9 +827,10 @@ class SpeedOctaveParameterType : public TrackParameter
 	SpeedOctaveParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-    void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//    void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 SpeedOctaveParameterType::SpeedOctaveParameterType() :
@@ -785,6 +861,7 @@ void SpeedOctaveParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setSpeedOctave(value->getInt());
 }
 
+#if 0
 void SpeedOctaveParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getSpeedOctave());
@@ -799,8 +876,9 @@ int SpeedOctaveParameterType::getOrdinalValue(Track* t)
 {
     return t->getSpeedOctave();
 }
+#endif
 
-PUBLIC Parameter* SpeedOctaveParameter = new SpeedOctaveParameterType();
+Parameter* SpeedOctaveParameter = new SpeedOctaveParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -814,9 +892,10 @@ class SpeedStepParameterType : public TrackParameter
 	SpeedStepParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-    void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//    void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 /**
@@ -858,6 +937,7 @@ void SpeedStepParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setSpeedStep(value->getInt());
 }
 
+#if 0
 void SpeedStepParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getSpeedStep());
@@ -872,8 +952,9 @@ int SpeedStepParameterType::getOrdinalValue(Track* t)
 {
     return t->getSpeedStep();
 }
+#endif
 
-PUBLIC Parameter* SpeedStepParameter = new SpeedStepParameterType();
+Parameter* SpeedStepParameter = new SpeedStepParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -887,9 +968,10 @@ class SpeedBendParameterType : public TrackParameter
 	SpeedBendParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 SpeedBendParameterType::SpeedBendParameterType() :
@@ -918,6 +1000,7 @@ void SpeedBendParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setSpeedBend(value->getInt());
 }
 
+#if 0
 void SpeedBendParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getSpeedBend());
@@ -932,8 +1015,9 @@ int SpeedBendParameterType::getOrdinalValue(Track* t)
 {
     return t->getSpeedBend();
 }
+#endif
 
-PUBLIC Parameter* SpeedBendParameter = new SpeedBendParameterType();
+Parameter* SpeedBendParameter = new SpeedBendParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -950,9 +1034,10 @@ class PitchOctaveParameterType : public TrackParameter
 	PitchOctaveParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 PitchOctaveParameterType::PitchOctaveParameterType() :
@@ -984,6 +1069,7 @@ void PitchOctaveParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setPitchOctave(value->getInt());
 }
 
+#if 0
 void PitchOctaveParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getPitchOctave());
@@ -998,8 +1084,9 @@ int PitchOctaveParameterType::getOrdinalValue(Track* t)
 {
     return t->getPitchOctave();
 }
+#endif
 
-PUBLIC Parameter* PitchOctaveParameter = new PitchOctaveParameterType();
+Parameter* PitchOctaveParameter = new PitchOctaveParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1013,9 +1100,10 @@ class PitchStepParameterType : public TrackParameter
 	PitchStepParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 /**
@@ -1056,6 +1144,7 @@ void PitchStepParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setPitchStep(value->getInt());
 }
 
+#if 0
 void PitchStepParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getPitchStep());
@@ -1070,8 +1159,9 @@ int PitchStepParameterType::getOrdinalValue(Track* t)
 {
     return t->getPitchStep();
 }
+#endif
 
-PUBLIC Parameter* PitchStepParameter = new PitchStepParameterType();
+Parameter* PitchStepParameter = new PitchStepParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1085,9 +1175,10 @@ class PitchBendParameterType : public TrackParameter
 	PitchBendParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 PitchBendParameterType::PitchBendParameterType() :
@@ -1116,6 +1207,7 @@ void PitchBendParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setPitchBend(value->getInt());
 }
 
+#if 0
 void PitchBendParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getPitchBend());
@@ -1130,8 +1222,9 @@ int PitchBendParameterType::getOrdinalValue(Track* t)
 {
     return t->getPitchBend();
 }
+#endif
 
-PUBLIC Parameter* PitchBendParameter = new PitchBendParameterType();
+Parameter* PitchBendParameter = new PitchBendParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1145,9 +1238,10 @@ class TimeStretchParameterType : public TrackParameter
 	TimeStretchParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
 TimeStretchParameterType::TimeStretchParameterType() :
@@ -1176,6 +1270,7 @@ void TimeStretchParameterType::setValue(SetupTrack* t, ExValue* value)
     //t->setTimeStretch(value->getInt());
 }
 
+#if 0
 void TimeStretchParameterType::getValue(Track* t, ExValue* value)
 {
     value->setInt(t->getTimeStretch());
@@ -1195,8 +1290,9 @@ int TimeStretchParameterType::getOrdinalValue(Track* t)
 {
     return t->getTimeStretch();
 }
+#endif
 
-PUBLIC Parameter* TimeStretchParameter = new TimeStretchParameterType();
+Parameter* TimeStretchParameter = new TimeStretchParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1210,16 +1306,16 @@ class TrackPresetParameterType : public TrackParameter
 	TrackPresetParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
 
-	int getHigh(MobiusInterface* m);
-	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//    int getOrdinalValue(Track* t);
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//	int getHigh(MobiusInterface* m);
+//	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
 
 };
 
-PUBLIC Parameter* TrackPresetParameter = new TrackPresetParameterType();
+Parameter* TrackPresetParameter = new TrackPresetParameterType();
 
 TrackPresetParameterType::TrackPresetParameterType() :
     // this must match the TargetPreset name
@@ -1244,6 +1340,7 @@ void TrackPresetParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setPreset(value->getString());
 }
 
+#if 0
 int TrackPresetParameterType::getOrdinalValue(Track* t)
 {
     Preset* p = t->getPreset();
@@ -1318,7 +1415,7 @@ void TrackPresetParameterType::setValue(Action* action)
  * !! The max can change as presets are added/removed.
  * Need to work out a way to convey that to ParameterEditor.
  */
-PUBLIC int TrackPresetParameterType::getHigh(MobiusInterface* m)
+int TrackPresetParameterType::getHigh(MobiusInterface* m)
 {
 	MobiusConfig* config = m->getConfiguration();
     int max = config->getPresetCount();
@@ -1330,7 +1427,7 @@ PUBLIC int TrackPresetParameterType::getHigh(MobiusInterface* m)
 /**
  * Given an ordinal, map it into a display label.
  */
-PUBLIC void TrackPresetParameterType::getOrdinalLabel(MobiusInterface* m,
+void TrackPresetParameterType::getOrdinalLabel(MobiusInterface* m,
 													  int i, ExValue* value)
 {
 	MobiusConfig* config = m->getConfiguration();
@@ -1340,6 +1437,7 @@ PUBLIC void TrackPresetParameterType::getOrdinalLabel(MobiusInterface* m,
 	else
 	  value->setString("???");
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1363,16 +1461,17 @@ class TrackPresetNumberParameterType : public TrackParameter
 	TrackPresetNumberParameterType();
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Action* action);
-    int getOrdinalValue(Track* t);
+
+	//void getValue(Track* t, ExValue* value);
+//	void setValue(Action* action);
+//    int getOrdinalValue(Track* t);
 };
 
-PUBLIC Parameter* TrackPresetNumberParameter = 
+Parameter* TrackPresetNumberParameter = 
 new TrackPresetNumberParameterType();
 
 TrackPresetNumberParameterType::TrackPresetNumberParameterType() :
-    TrackParameter("presetNumber", MSG_PARAM_TRACK_PRESET_NUMBER)
+     TrackParameter("presetNumber", MSG_PARAM_TRACK_PRESET_NUMBER)
 {
     // not bindable
 	type = TYPE_INT;
@@ -1394,6 +1493,7 @@ void TrackPresetNumberParameterType::setValue(SetupTrack* t, ExValue* value)
     Trace(1, "TrackPresetNumberParameterType::getValue!\n");
 }
 
+#if 0
 void TrackPresetNumberParameterType::getValue(Track* t, ExValue* value)
 {
 	value->setInt(t->getPreset()->getNumber());
@@ -1427,6 +1527,8 @@ int TrackPresetNumberParameterType::getOrdinalValue(Track* t)
     return v.getInt();
 }
 
+#endif
+
 //////////////////////////////////////////////////////////////////////
 //
 // SyncSource
@@ -1439,10 +1541,11 @@ class SyncSourceParameterType : public TrackParameter
 	SyncSourceParameterType();
 	void getValue(SetupTrack* s, ExValue* value);
 	void setValue(SetupTrack* s, ExValue* value);
-    int getOrdinalValue(Track* t);
-	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-    void getValue(Track* t, ExValue* value);
-    void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//    void getValue(Track* t, ExValue* value);
+//    void setValue(Track* t, ExValue* value);
 };
 
 const char* SYNC_SOURCE_NAMES[] = {
@@ -1478,6 +1581,7 @@ void SyncSourceParameterType::setValue(SetupTrack* s, ExValue* value)
 	s->setSyncSource((SyncSource)getEnum(value));
 }
 
+#if 0
 /**
  * Direct accessors actually just forward it to the SetupTrack.
  * SyncState will go back to the SetupTrack until it is locked after
@@ -1524,7 +1628,7 @@ void SyncSourceParameterType::setValue(Track* t, ExValue* value)
  * If the value is "default", we qualify it to show what the
  * default mode is.
  */
-PUBLIC void SyncSourceParameterType::getOrdinalLabel(MobiusInterface* m,
+void SyncSourceParameterType::getOrdinalLabel(MobiusInterface* m,
                                                      int i, ExValue* value)
 {
     // should always have these
@@ -1544,9 +1648,9 @@ PUBLIC void SyncSourceParameterType::getOrdinalLabel(MobiusInterface* m,
         }
 	}
 }
+#endif
 
-
-PUBLIC Parameter* SyncSourceParameter = 
+Parameter* SyncSourceParameter = 
 new SyncSourceParameterType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1561,10 +1665,11 @@ class TrackSyncUnitParameterType : public TrackParameter
 	TrackSyncUnitParameterType();
 	void getValue(SetupTrack* s, ExValue* value);
 	void setValue(SetupTrack* s, ExValue* value);
-    int getOrdinalValue(Track* t);
-	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-    void getValue(Track* t, ExValue* value);
-    void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//	void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//    void getValue(Track* t, ExValue* value);
+//    void setValue(Track* t, ExValue* value);
 };
 
 const char* TRACK_SYNC_UNIT_NAMES[] = {
@@ -1598,6 +1703,7 @@ void TrackSyncUnitParameterType::setValue(SetupTrack* s, ExValue* value)
 	s->setSyncTrackUnit((SyncTrackUnit)getEnum(value));
 }
 
+#if 0
 /**
  * Direct accessors actually just forward it to the SetupTrack.
  * SyncState will go back to the SetupTrack until it is locked after
@@ -1638,7 +1744,7 @@ void TrackSyncUnitParameterType::setValue(Track* t, ExValue* value)
  * If the value is "default", we qualify it to show what the
  * default mode is.
  */
-PUBLIC void TrackSyncUnitParameterType::getOrdinalLabel(MobiusInterface* m,
+void TrackSyncUnitParameterType::getOrdinalLabel(MobiusInterface* m,
                                                         int i, ExValue* value)
 {
     // should always have these
@@ -1658,8 +1764,9 @@ PUBLIC void TrackSyncUnitParameterType::getOrdinalLabel(MobiusInterface* m,
         }
 	}
 }
+#endif
 
-PUBLIC Parameter* TrackSyncUnitParameter = 
+Parameter* TrackSyncUnitParameter = 
 new TrackSyncUnitParameterType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1679,13 +1786,14 @@ class AudioInputPortParameterType : public TrackParameter
 {
   public:
 	AudioInputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+//    int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 AudioInputPortParameterType::AudioInputPortParameterType() :
@@ -1701,12 +1809,6 @@ AudioInputPortParameterType::AudioInputPortParameterType() :
     xmlAlias = "inputPort";
 }
 
-int AudioInputPortParameterType::getHigh(MobiusInterface* m)
-{
-    AudioStream* stream = m->getAudioStream();
-    return stream->getInputPorts();
-}
-
 void AudioInputPortParameterType::getValue(SetupTrack* t, ExValue* value)
 {
     value->setInt(t->getAudioInputPort());
@@ -1717,6 +1819,14 @@ void AudioInputPortParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setAudioInputPort(value->getInt());
 }
 
+#if 0
+
+int AudioInputPortParameterType::getHigh(MobiusInterface* m)
+{
+    AudioStream* stream = m->getAudioStream();
+    return stream->getInputPorts();
+}
+
 int AudioInputPortParameterType::getOrdinalValue(Track* t)
 {
     return t->getInputPort();
@@ -1725,7 +1835,7 @@ int AudioInputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void AudioInputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void AudioInputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                     int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -1742,8 +1852,9 @@ void AudioInputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setInputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* AudioInputPortParameter = new AudioInputPortParameterType();
+Parameter* AudioInputPortParameter = new AudioInputPortParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1762,13 +1873,14 @@ class AudioOutputPortParameterType : public TrackParameter
 {
   public:
 	AudioOutputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 AudioOutputPortParameterType::AudioOutputPortParameterType() :
@@ -1784,12 +1896,6 @@ AudioOutputPortParameterType::AudioOutputPortParameterType() :
     xmlAlias = "outputPort";
 }
 
-int AudioOutputPortParameterType::getHigh(MobiusInterface* m)
-{
-    AudioStream* stream = m->getAudioStream();
-    return stream->getOutputPorts();
-}
-
 void AudioOutputPortParameterType::getValue(SetupTrack* t, ExValue* value)
 {
     value->setInt(t->getAudioOutputPort());
@@ -1800,6 +1906,13 @@ void AudioOutputPortParameterType::setValue(SetupTrack* t, ExValue* value)
     t->setAudioOutputPort(value->getInt());
 }
 
+#if 0
+int AudioOutputPortParameterType::getHigh(MobiusInterface* m)
+{
+    AudioStream* stream = m->getAudioStream();
+    return stream->getOutputPorts();
+}
+
 int AudioOutputPortParameterType::getOrdinalValue(Track* t)
 {
     return t->getOutputPort();
@@ -1808,7 +1921,7 @@ int AudioOutputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void AudioOutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void AudioOutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                      int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -1825,8 +1938,9 @@ void AudioOutputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setOutputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* AudioOutputPortParameter = new AudioOutputPortParameterType();
+Parameter* AudioOutputPortParameter = new AudioOutputPortParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1843,13 +1957,14 @@ class PluginInputPortParameterType : public TrackParameter
 {
   public:
 	PluginInputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+    ///int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 PluginInputPortParameterType::PluginInputPortParameterType() :
@@ -1860,12 +1975,6 @@ PluginInputPortParameterType::PluginInputPortParameterType() :
     low = 1;
     high = 64;
     addAlias("vstInputPort");
-}
-
-int PluginInputPortParameterType::getHigh(MobiusInterface* m)
-{
-    MobiusConfig* config = m->getConfiguration();
-    return config->getPluginPorts();
 }
 
 void PluginInputPortParameterType::getValue(SetupTrack* t, ExValue* value)
@@ -1879,6 +1988,12 @@ void PluginInputPortParameterType::setValue(SetupTrack* t, ExValue* value)
 }
 
 // When running this is the same as InputPortParameterType
+#if 0
+int PluginInputPortParameterType::getHigh(MobiusInterface* m)
+{
+    MobiusConfig* config = m->getConfiguration();
+    return config->getPluginPorts();
+}
 
 int PluginInputPortParameterType::getOrdinalValue(Track* t)
 {
@@ -1888,7 +2003,7 @@ int PluginInputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void PluginInputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void PluginInputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                           int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -1905,8 +2020,9 @@ void PluginInputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setInputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* PluginInputPortParameter = new PluginInputPortParameterType();
+Parameter* PluginInputPortParameter = new PluginInputPortParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1923,13 +2039,14 @@ class PluginOutputPortParameterType : public TrackParameter
 {
   public:
 	PluginOutputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 PluginOutputPortParameterType::PluginOutputPortParameterType() :
@@ -1940,12 +2057,6 @@ PluginOutputPortParameterType::PluginOutputPortParameterType() :
     low = 1;
     high = 64;
     addAlias("vstOutputPort");
-}
-
-int PluginOutputPortParameterType::getHigh(MobiusInterface* m)
-{
-    MobiusConfig* config = m->getConfiguration();
-    return config->getPluginPorts();
 }
 
 void PluginOutputPortParameterType::getValue(SetupTrack* t, ExValue* value)
@@ -1959,6 +2070,12 @@ void PluginOutputPortParameterType::setValue(SetupTrack* t, ExValue* value)
 }
 
 // When running, this is the same as OutputPortParameterType
+#if 0
+int PluginOutputPortParameterType::getHigh(MobiusInterface* m)
+{
+    MobiusConfig* config = m->getConfiguration();
+    return config->getPluginPorts();
+}
 
 int PluginOutputPortParameterType::getOrdinalValue(Track* t)
 {
@@ -1968,7 +2085,7 @@ int PluginOutputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void PluginOutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void PluginOutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                            int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -1985,8 +2102,9 @@ void PluginOutputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setOutputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* PluginOutputPortParameter = 
+Parameter* PluginOutputPortParameter = 
 new PluginOutputPortParameterType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2008,13 +2126,14 @@ class InputPortParameterType : public TrackParameter
 {
   public:
 	InputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 /**
@@ -2031,6 +2150,20 @@ InputPortParameterType::InputPortParameterType() :
     transient = true;
 }
 
+void InputPortParameterType::getValue(SetupTrack* t, ExValue* value)
+{
+    // not supposed to be called
+    Trace(1, "InputPort::getValue\n");
+}
+
+void InputPortParameterType::setValue(SetupTrack* t, ExValue* value)
+{
+    // not supposed to be called
+    Trace(1, "InputPort::setValue\n");
+}
+
+// When running this is the same as InputPortParameterType
+#if 0
 /**
  * This is the reason we have this combo parameter.
  * It has a different upper bound depending on how we're running.
@@ -2051,20 +2184,6 @@ int InputPortParameterType::getHigh(MobiusInterface* m)
     return ports;
 }
 
-void InputPortParameterType::getValue(SetupTrack* t, ExValue* value)
-{
-    // not supposed to be called
-    Trace(1, "InputPort::getValue\n");
-}
-
-void InputPortParameterType::setValue(SetupTrack* t, ExValue* value)
-{
-    // not supposed to be called
-    Trace(1, "InputPort::setValue\n");
-}
-
-// When running this is the same as InputPortParameterType
-
 int InputPortParameterType::getOrdinalValue(Track* t)
 {
     return t->getInputPort();
@@ -2073,7 +2192,7 @@ int InputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void InputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void InputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                           int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -2090,8 +2209,9 @@ void InputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setInputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* InputPortParameter = new InputPortParameterType();
+Parameter* InputPortParameter = new InputPortParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2112,13 +2232,14 @@ class OutputPortParameterType : public TrackParameter
 {
   public:
 	OutputPortParameterType();
-	int getHigh(MobiusInterface* m);
+//	int getHigh(MobiusInterface* m);
 	void getValue(SetupTrack* t, ExValue* value);
 	void setValue(SetupTrack* t, ExValue* value);
-    int getOrdinalValue(Track* t);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
-	void getValue(Track* t, ExValue* value);
-	void setValue(Track* t, ExValue* value);
+
+    //int getOrdinalValue(Track* t);
+//    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+//	void getValue(Track* t, ExValue* value);
+//	void setValue(Track* t, ExValue* value);
 };
 
 OutputPortParameterType::OutputPortParameterType() :
@@ -2132,6 +2253,19 @@ OutputPortParameterType::OutputPortParameterType() :
     transient = true;
 }
 
+void OutputPortParameterType::getValue(SetupTrack* t, ExValue* value)
+{
+    // not supposed to be called
+    Trace(1, "OutputPort::getValue\n");
+}
+
+void OutputPortParameterType::setValue(SetupTrack* t, ExValue* value)
+{
+    // not supposed to be called
+    Trace(1, "OutputPort::setValue\n");
+}
+
+#if 0
 /**
  * This is the reason we have this combo parameter.
  * It has a different upper bound depending on how we're running.
@@ -2152,18 +2286,6 @@ int OutputPortParameterType::getHigh(MobiusInterface* m)
     return ports;
 }
 
-void OutputPortParameterType::getValue(SetupTrack* t, ExValue* value)
-{
-    // not supposed to be called
-    Trace(1, "OutputPort::getValue\n");
-}
-
-void OutputPortParameterType::setValue(SetupTrack* t, ExValue* value)
-{
-    // not supposed to be called
-    Trace(1, "OutputPort::setValue\n");
-}
-
 int OutputPortParameterType::getOrdinalValue(Track* t)
 {
     return t->getOutputPort();
@@ -2172,7 +2294,7 @@ int OutputPortParameterType::getOrdinalValue(Track* t)
 /**
  * These are zero based but we want to display them 1 based.
  */
-PUBLIC void OutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
+void OutputPortParameterType::getOrdinalLabel(MobiusInterface* m,
                                                            int i, ExValue* value)
 {
     value->setInt(i + 1);
@@ -2189,8 +2311,9 @@ void OutputPortParameterType::setValue(Track* t, ExValue* value)
     // Track will need to do some cross fading
     t->setOutputPort(value->getInt());
 }
+#endif
 
-PUBLIC Parameter* OutputPortParameter = new OutputPortParameterType();
+Parameter* OutputPortParameter = new OutputPortParameterType();
 
 /****************************************************************************/
 /****************************************************************************/

@@ -114,7 +114,7 @@ void PresetParameter::getObjectValue(void* object, ExValue* value)
 void PresetParameter::getValue(Export* exp, ExValue* value)
 {
     Track* track = exp->getTrack();
-    if (track != NULL)
+    if (track != nullptr)
 	  getValue(track->getPreset(), value);
     else {
         Trace(1, "PresetParameter:getValue track not resolved!\n");
@@ -127,7 +127,7 @@ int PresetParameter::getOrdinalValue(Export* exp)
     int value = -1;
 
     Track* track = exp->getTrack();
-    if (track != NULL)
+    if (track != nullptr)
       value = getOrdinalValue(track->getPreset());
     else 
       Trace(1, "PresetParameter:getOrdinalValue track not resolved!\n");
@@ -150,7 +150,7 @@ int PresetParameter::getOrdinalValue(Preset* p)
 void PresetParameter::setValue(Action* action)
 {
     Track* track = action->getResolvedTrack();
-    if (track != NULL)
+    if (track != nullptr)
       setValue(track->getPreset(), &(action->arg));
     else
       Trace(1, "PresetParameter:setValue track not resolved!\n");
@@ -218,7 +218,7 @@ class MultiplyModeParameterType : public PresetParameter
 };
 
 const char* MULTIPLY_MODE_NAMES[] = {
-	"normal", "simple", NULL
+	"normal", "simple", nullptr
 };
 
 int MULTIPLY_MODE_KEYS[] = {
@@ -283,7 +283,7 @@ class ShuffleModeParameterType : public PresetParameter
 };
 
 const char* SHUFFLE_MODE_NAMES[] = {
-	"reverse", "shift", "swap", "random", NULL
+	"reverse", "shift", "swap", "random", nullptr
 };
 
 int SHUFFLE_MODE_KEYS[] = {
@@ -375,7 +375,7 @@ class EmptyLoopActionParameterType : public PresetParameter
 };
 
 const char* EMPTY_LOOP_NAMES[] = {
-	"none", "record", "copy", "copyTime", NULL
+	"none", "record", "copy", "copyTime", nullptr
 };
 
 int EMPTY_LOOP_KEYS[] = {
@@ -480,7 +480,7 @@ class TrackLeaveActionParameterType : public PresetParameter
 };
 
 const char* TRACK_LEAVE_NAMES[] = {
-	"none", "cancel", "wait", NULL
+	"none", "cancel", "wait", nullptr
 };
 
 int TRACK_LEAVE_KEYS[] = {
@@ -579,7 +579,7 @@ class MuteModeParameterType : public PresetParameter
 };
 
 const char* MUTE_MODE_NAMES[] = {
-	"continue", "start", "pause", NULL
+	"continue", "start", "pause", nullptr
 };
 
 int MUTE_MODE_KEYS[] = {
@@ -636,7 +636,7 @@ class MuteCancelParameterType : public PresetParameter
 };
 
 const char* MUTE_CANCEL_NAMES[] = {
-	"never", "edit", "trigger", "effect", "custom", "always", NULL
+	"never", "edit", "trigger", "effect", "custom", "always", nullptr
 };
 
 int MUTE_CANCEL_KEYS[] = {
@@ -737,7 +737,7 @@ class QuantizeParameterType : public PresetParameter
 };
 
 const char* QUANTIZE_MODE_NAMES[] = {
-	"off", "subCycle", "cycle", "loop", NULL
+	"off", "subCycle", "cycle", "loop", nullptr
 };
 
 int QUANTIZE_MODE_KEYS[] = {
@@ -953,7 +953,7 @@ class SwitchLocationParameterType : public PresetParameter
 };
 
 const char* SWITCH_LOCATION_NAMES[] = {
-	"follow", "restore", "start", "random", NULL
+	"follow", "restore", "start", "random", nullptr
 };
 
 int SWITCH_LOCATION_KEYS[] = {
@@ -1047,7 +1047,7 @@ class SwitchDurationParameterType : public PresetParameter
 };
 
 const char* SWITCH_DURATION_NAMES[] = {
-	"permanent", "once", "onceReturn", "sustain", "sustainReturn", NULL
+	"permanent", "once", "onceReturn", "sustain", "sustainReturn", nullptr
 };
 
 int SWITCH_DURATION_KEYS[] = {
@@ -1102,7 +1102,7 @@ class SwitchQuantizeParameterType : public PresetParameter
 
 const char* SWITCH_QUANT_NAMES[] = {
 	"off", "subCycle", "cycle", "loop", 
-    "confirm", "confirmSubCycle", "confirmCycle", "confirmLoop", NULL
+    "confirm", "confirmSubCycle", "confirmCycle", "confirmLoop", nullptr
 };
 
 int SWITCH_QUANT_KEYS[] = {
@@ -1161,7 +1161,7 @@ class TimeCopyParameterType : public PresetParameter
 };
 
 const char* COPY_MODE_NAMES[] = {
-	"play", "overdub", "multiply", "insert", NULL
+	"play", "overdub", "multiply", "insert", nullptr
 };
 
 int COPY_MODE_KEYS[] = {
@@ -1832,7 +1832,7 @@ class SlipModeParameterType : public PresetParameter
 };
 
 const char* SLIP_MODE_NAMES[] = {
-	"subCycle", "cycle", "start", "relSubCycle", "relCycle", "time", NULL
+	"subCycle", "cycle", "start", "relSubCycle", "relCycle", "time", nullptr
 };
 
 int SLIP_MODE_KEYS[] = {
@@ -2078,7 +2078,7 @@ class RecordTransferParameterType : public PresetParameter
 };
 
 const char* RECORD_TRANSFER_NAMES[] = {
-	"off", "follow", NULL
+	"off", "follow", nullptr
 };
 
 int RECORD_TRANSFER_KEYS[] = {
@@ -2132,7 +2132,7 @@ class OverdubTransferParameterType : public PresetParameter
 };
 
 const char* MODE_TRANSFER_NAMES[] = {
-	"off", "follow", "restore", NULL
+	"off", "follow", "restore", nullptr
 };
 
 int MODE_TRANSFER_KEYS[] = {
@@ -2316,7 +2316,7 @@ class WindowSlideUnitParameterType : public PresetParameter
 };
 
 const char* WINDOW_SLIDE_NAMES[] = {
-	"loop", "cycle", "subcycle", "msec", "frame", NULL
+	"loop", "cycle", "subcycle", "msec", "frame", nullptr
 };
 
 int WINDOW_SLIDE_KEYS[] = {
@@ -2370,7 +2370,7 @@ class WindowEdgeUnitParameterType : public PresetParameter
 };
 
 const char* WINDOW_EDGE_NAMES[] = {
-	"loop", "cycle", "subcycle", "msec", "frame", NULL
+	"loop", "cycle", "subcycle", "msec", "frame", nullptr
 };
 
 int WINDOW_EDGE_KEYS[] = {
@@ -2572,7 +2572,7 @@ class InsertModeParameterType : public PresetParameter
 
 const char* INSERT_MODE_NAMES[] = {
 	"rehearse", "replace", "substitute", "halfspeed", "reverse",
-	"insert", "sustain", NULL
+	"insert", "sustain", nullptr
 };
 
 InsertModeParameterType::InsertModeParameterType() :
@@ -2616,7 +2616,7 @@ class InterfaceModeParameterType : public PresetParameter
 
 const char* INTERFACE_MODE_NAMES[] = {
 	"loop", "delay", "expert", "stutter", "in", "out",
-	"replace", "flip", NULL
+	"replace", "flip", nullptr
 };
 
 InterfaceModeParameterType::InterfaceModeParameterType() :
@@ -2661,7 +2661,7 @@ class LoopCopyParameterType : public PresetParameter
 };
 
 const char* LOOP_COPY_NAMES[] = {
-	"off", "timing", "sound", NULL
+	"off", "timing", "sound", nullptr
 };
 
 LoopCopyParameterType::LoopCopyParameterType() :
@@ -2723,7 +2723,7 @@ class OverdubModeParameterType : public PresetParameter
 };
 
 const char *OVERDUB_MODE_NAMES[] = {
-	"toggle", "sustain", "quantized", NULL
+	"toggle", "sustain", "quantized", nullptr
 };
 
 OverdubModeParameterType::OverdubModeParameterType() :
@@ -2770,7 +2770,7 @@ class RecordModeParameterType : public PresetParameter
 };
 
 const char* RECORD_MODE_NAMES[] = {
-	"toggle", "sustain", "safe", NULL
+	"toggle", "sustain", "safe", nullptr
 };
 
 RecordModeParameterType::RecordModeParameterType() :
@@ -2820,7 +2820,7 @@ class SamplerStyleParameterType : public PresetParameter
 };
 
 const char* SAMPLER_STYLE_NAMES[] = {
-	"run", "start", "once", "attack", "continuous", NULL
+	"run", "start", "once", "attack", "continuous", nullptr
 };
 
 SamplerStyleParameterType::SamplerStyleParameterType() :
@@ -2894,7 +2894,7 @@ class TrackCopyParameterType : public PresetParameter
 };
 
 const char* TRACK_COPY_NAMES[] = {
-	"off", "timing", "sound", NULL
+	"off", "timing", "sound", nullptr
 };
 
 TrackCopyParameterType::TrackCopyParameterType() :

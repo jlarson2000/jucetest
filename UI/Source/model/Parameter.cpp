@@ -60,7 +60,7 @@
 // Shared text for boolean values
 
 const char* BOOLEAN_VALUE_NAMES[] = {
-	"off", "on", NULL
+	"off", "on", nullptr
 };
 
 int BOOLEAN_VALUE_KEYS[] = {
@@ -68,7 +68,7 @@ int BOOLEAN_VALUE_KEYS[] = {
 };
 
 const char* BOOLEAN_VALUE_LABELS[] = {
-	NULL, NULL, NULL
+	nullptr, nullptr, nullptr
 };
 
 Parameter::Parameter()
@@ -100,13 +100,13 @@ void Parameter::init()
     zeroCenter = false;
     mDefault = 0;
 
-	values = NULL;
-	valueKeys = NULL;
-	valueLabels = NULL;
-    xmlAlias = NULL;
+	values = nullptr;
+	valueKeys = nullptr;
+	valueLabels = nullptr;
+    xmlAlias = nullptr;
 
 	for (int i = 0 ; i < MAX_PARAMETER_ALIAS ; i++)
-	  aliases[i] = NULL;
+	  aliases[i] = nullptr;
 }
 
 Parameter::~Parameter()
@@ -118,7 +118,7 @@ void Parameter::addAlias(const char* alias)
     bool added = false;
 
 	for (int i = 0 ; i < MAX_PARAMETER_ALIAS ; i++) {
-        if (aliases[i] == NULL) {
+        if (aliases[i] == nullptr) {
             aliases[i] = alias;
             added = true;
             break;
@@ -189,7 +189,7 @@ void Parameter::localize(MessageCatalog* cat)
 	}
 	else {
 		const char* msg = cat->get(key);
-		if (msg != NULL)
+		if (msg != nullptr)
 		  setDisplayName(msg);
 		else {
 			Trace(1, "No localization for parameter %s\n", getName());
@@ -197,21 +197,21 @@ void Parameter::localize(MessageCatalog* cat)
 		}
 	}
 
-	if (valueKeys != NULL) {
+	if (valueKeys != nullptr) {
 		// note that these will leak if we don't have something to flush them
-		if (valueLabels == NULL) {
+		if (valueLabels == nullptr) {
 			int count = 0;
 			while (valueKeys[count] != 0) count++;
 			valueLabels = allocLabelArray(count);
 		}
 		for (int i = 0 ; valueKeys[i] != 0 ; i++) {
 			const char* msg = cat->get(valueKeys[i]);
-			if (msg != NULL)
+			if (msg != nullptr)
 			  valueLabels[i] = msg;
 			else {
 				Trace(1, "No localization for parameter %s value %s\n", 
 					  getName(), values[i]);
-				if (valueLabels[i] == NULL)
+				if (valueLabels[i] == nullptr)
 				  valueLabels[i] = values[i];
 			}
 		}
@@ -226,7 +226,7 @@ const char** Parameter::allocLabelArray(int size)
 	int fullsize = size + 1; // leave a null terminator
 	const char** labels = new const char*[fullsize];
 	for (int i = 0 ; i < fullsize ; i++)
-	  labels[i] = NULL;
+	  labels[i] = nullptr;
 
 	return labels;
 }
@@ -254,8 +254,8 @@ int Parameter::getHigh(MobiusInterface* m)
     if (type == TYPE_BOOLEAN) {
         max = 1;
     }
-    else if (valueLabels != NULL) {
-        for ( ; valueLabels[max] != NULL ; max++);
+    else if (valueLabels != nullptr) {
+        for ( ; valueLabels[max] != nullptr ; max++);
         max--;
     }
 
@@ -283,7 +283,7 @@ int Parameter::getBindingHigh(MobiusInterface* m)
 void Parameter::getOrdinalLabel(MobiusInterface* m, 
                                        int i, ExValue* value)
 {
-	if (valueLabels != NULL) {
+	if (valueLabels != nullptr) {
 		value->setString(valueLabels[i]);
 	}
 	else if (type == TYPE_INT) {
@@ -348,18 +348,18 @@ void Parameter::parseXml(XmlElement* e, void* obj)
     const char* value = e->getAttribute(getName());
 
     // try the xml alias
-    if (value == NULL && xmlAlias != NULL)
+    if (value == nullptr && xmlAlias != nullptr)
       value = e->getAttribute(xmlAlias);
 
     // try regular aliases
-    if (value == NULL) {
+    if (value == nullptr) {
         for (int i = 0 ; i < MAX_PARAMETER_ALIAS ; i++) {
             const char* alias = aliases[i];
-            if (alias == NULL)
+            if (alias == nullptr)
               break;
             else {
                 value = e->getAttribute(alias);
-                if (value != NULL)
+                if (value != nullptr)
                   break;
             }
         }
@@ -370,7 +370,7 @@ void Parameter::parseXml(XmlElement* e, void* obj)
     // some upgraded values from older parameters like sampleStyle
     // that won't be in the XML yet.  And if deprecated setting to null
     // can have side effects we don't want.
-    if (value != NULL) {
+    if (value != nullptr) {
         ExValue v;
         v.setString(value);
         setObjectValue(obj, &v);
@@ -413,9 +413,9 @@ int Parameter::getEnumValue(const char *value)
 {
 	int ivalue = -1;
 
-	if (value != NULL) {
+	if (value != nullptr) {
 
-		for (int i = 0 ; values[i] != NULL ; i++) {
+		for (int i = 0 ; values[i] != nullptr ; i++) {
 			if (StringEqualNoCase(values[i], value)) {
 				ivalue = i;
 				break;
@@ -429,7 +429,7 @@ int Parameter::getEnumValue(const char *value)
             // might be safe to do this all the time but we'd have to 
             // carefully go through all the enums to make sure
             // there are no ambiguities.
-            for (int i = 0 ; values[i] != NULL ; i++) {
+            for (int i = 0 ; values[i] != nullptr ; i++) {
                 if (StartsWithNoCase(values[i], value)) {
                     ivalue = i;
                     break;
@@ -467,7 +467,7 @@ int Parameter::getControllerEnum(int value)
 
 	if (value >= 0 && value < 128) {
 		int max = 0;
-		for (max = 0 ; values[max] != NULL ; max++);
+		for (max = 0 ; values[max] != nullptr ; max++);
 
 		int unit = 128 / max;
 		ivalue = value / unit;
@@ -495,8 +495,8 @@ int Parameter::getEnum(ExValue *value)
 		int i = value->getInt();
 		if (i >= 0) {
 			int max = 0;
-			if (values != NULL)
-			  for (max = 0 ; values[max] != NULL ; max++);
+			if (values != nullptr)
+			  for (max = 0 ; values[max] != nullptr ; max++);
 
 			if (i < max)
 			  ivalue = i;
@@ -516,20 +516,20 @@ int Parameter::getEnum(ExValue *value)
 Parameter* Parameter::getParameter(Parameter** group, 
 										  const char* name)
 {
-	Parameter* found = NULL;
+	Parameter* found = nullptr;
 	
-	for (int i = 0 ; group[i] != NULL && found == NULL ; i++) {
+	for (int i = 0 ; group[i] != nullptr && found == nullptr ; i++) {
 		Parameter* p = group[i];
 		if (StringEqualNoCase(p->getName(), name))
 		  found = p;
 	}
 
-	if (found == NULL) {
+	if (found == nullptr) {
 		// not a name match, try aliases
-		for (int i = 0 ; group[i] != NULL && found == NULL ; i++) {
+		for (int i = 0 ; group[i] != nullptr && found == nullptr ; i++) {
 			Parameter* p = group[i];
 			for (int j = 0 ; 
-				 j < MAX_PARAMETER_ALIAS && p->aliases[j] != NULL ; 
+				 j < MAX_PARAMETER_ALIAS && p->aliases[j] != nullptr ; 
 				 j++) {
 				if (StringEqualNoCase(p->aliases[j], name)) {
 					found = p;
@@ -545,9 +545,9 @@ Parameter* Parameter::getParameter(Parameter** group,
 Parameter* Parameter::getParameterWithDisplayName(Parameter** group,
 														 const char* name)
 {
-	Parameter* found = NULL;
+	Parameter* found = nullptr;
 	
-	for (int i = 0 ; group[i] != NULL ; i++) {
+	for (int i = 0 ; group[i] != nullptr ; i++) {
 		Parameter* p = group[i];
 		if (StringEqualNoCase(p->getDisplayName(), name)) {
 			found = p;
@@ -597,8 +597,8 @@ void add(Parameter* p)
 	}
 	else {
 		Parameters[ParameterIndex++] = p;
-		// keep it NULL terminated
-		Parameters[ParameterIndex] = NULL;
+		// keep it nullptr terminated
+		Parameters[ParameterIndex] = nullptr;
 	}
 }
 
@@ -781,7 +781,7 @@ void Parameter::initParameters()
         add(UnitTestsParameter);
 
         // sanity check on scopes since they're critical
-        for (int i = 0 ; Parameters[i] != NULL ; i++) {
+        for (int i = 0 ; Parameters[i] != nullptr ; i++) {
             if (Parameters[i]->scope == PARAM_SCOPE_NONE) {
                 Trace(1, "Parameter %s has no scope!\n", 
                       Parameters[i]->getName());
@@ -797,13 +797,13 @@ void Parameter::localizeAll(MessageCatalog* cat)
 {
 	int i;
 
-	for (i = 0 ; Parameters[i] != NULL ; i++)
+	for (i = 0 ; Parameters[i] != nullptr ; i++)
 	  Parameters[i]->localize(cat);
 
 	// these are shared by all
-	for (i = 0 ; BOOLEAN_VALUE_NAMES[i] != NULL; i++) {
+	for (i = 0 ; BOOLEAN_VALUE_NAMES[i] != nullptr; i++) {
 		const char* msg = cat->get(BOOLEAN_VALUE_KEYS[i]);
-		if (msg == NULL)
+		if (msg == nullptr)
 		  msg = BOOLEAN_VALUE_NAMES[i];
 		BOOLEAN_VALUE_LABELS[i] = msg;
 	}
@@ -819,13 +819,13 @@ void Parameter::checkAmbiguousNames()
 {
 	int i;
 
-	for (i = 0 ; Parameters[i] != NULL ; i++) {
+	for (i = 0 ; Parameters[i] != nullptr ; i++) {
         Parameter* p = Parameters[i];
         const char** values = p->values;
-        if (values != NULL) {
-            for (int j = 0 ; values[j] != NULL ; j++) {
+        if (values != nullptr) {
+            for (int j = 0 ; values[j] != nullptr ; j++) {
                 Parameter* other = getParameter(values[j]);
-                if (other != NULL) {
+                if (other != nullptr) {
                     printf("WARNING: Ambiguous parameter name/value %s\n", values[j]);
 					fflush(stdout);
                 }
@@ -839,21 +839,21 @@ void Parameter::dumpFlags()
     int i;
 
     printf("*** Bindable ***\n");
-	for (i = 0 ; Parameters[i] != NULL ; i++) {
+	for (i = 0 ; Parameters[i] != nullptr ; i++) {
         Parameter* p = Parameters[i];
         if (p->bindable)
           printf("%s\n", p->getName());
     }
 
     printf("*** Hidden ***\n");
-	for (i = 0 ; Parameters[i] != NULL ; i++) {
+	for (i = 0 ; Parameters[i] != nullptr ; i++) {
         Parameter* p = Parameters[i];
         if (!p->bindable)
           printf("%s\n", p->getName());
     }
 
     printf("*** Deprecated ***\n");
-	for (i = 0 ; Parameters[i] != NULL ; i++) {
+	for (i = 0 ; Parameters[i] != nullptr ; i++) {
         Parameter* p = Parameters[i];
         if (p->deprecated)
           printf("%s\n", p->getName());
