@@ -256,6 +256,7 @@ extern Parameter* SlipModeParameter;
 extern Parameter* SlipTimeParameter;
 extern Parameter* SoundCopyParameter;
 extern Parameter* SubCycleParameter;
+extern class SubCycleParameterType SubCycleParameterTest;
 extern Parameter* SustainFunctionsParameter;
 extern Parameter* SwitchDurationParameter;
 extern Parameter* SwitchLocationParameter;

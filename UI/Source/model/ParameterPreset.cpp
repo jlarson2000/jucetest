@@ -201,6 +201,7 @@ void SubCycleParameterType::setValue(Preset* p, ExValue* value)
 }
 
 Parameter* SubCycleParameter = new SubCycleParameterType();
+SubCycleParameterType SubCycleParameterTest;
 
 //////////////////////////////////////////////////////////////////////
 //

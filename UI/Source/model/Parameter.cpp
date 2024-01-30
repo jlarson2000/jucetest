@@ -654,6 +654,7 @@ void Parameter::initParameters()
         add(SlipTimeParameter);
         add(SoundCopyParameter);
         add(SubCycleParameter);
+        add(&SubCycleParameterTest);
         add(SustainFunctionsParameter);
         add(SwitchDurationParameter);
         add(SwitchLocationParameter);
