@@ -20,21 +20,6 @@
 #include "../util/Trace.h"
 #include "../util/MidiUtil.h"  // MidiNoteName
 #include "../util/KeyCode.h"   // GetKeyString
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
-#include "../util/XomParser.h"
-
-//#include "List.h"
-//#include "MidiEvent.h"
-//#include "MidiMap.h"
-//#include "Action.h"
-//#include "Event.h"
-//#include "Function.h"
-//#include "Mobius.h"
-//#include "MobiusConfig.h"
-//#include "Parameter.h"
-//#include "Script.h"
-//#include "Track.h"
 
 #include "Binding.h"
 
@@ -50,7 +35,7 @@
 Bindable::Bindable()
 {
 	mNumber	= 0;
-	mName	= NULL;
+	mName	= nullptr;
 }
 
 Bindable::~Bindable()
@@ -83,22 +68,6 @@ void Bindable::clone(Bindable* src)
 {
 	setName(src->mName);
 	mNumber = src->mNumber;
-}
-
-void Bindable::toXmlCommon(XmlBuffer* b)
-{
-	// the number is transient on the way to generating a name, 
-	// but just in case we don't have a name, serialize it
-	if (mName != NULL)
-	  b->addAttribute(ATT_NAME, mName);
-	else
-	  b->addAttribute(ATT_NUMBER, mNumber);
-}
-
-void Bindable::parseXmlCommon(XmlElement* e)
-{
-	setName(e->getAttribute(ATT_NAME));
-	setNumber(e->getIntAttribute(ATT_NUMBER));
 }
 
 /****************************************************************************
@@ -135,7 +104,7 @@ Trigger* Triggers[] = {
 	TriggerHost,
 	TriggerOsc,
     TriggerUI,
-	NULL
+	nullptr
 };
 
 Trigger::Trigger(const char* name, const char* display, bool bindable) :
@@ -154,9 +123,9 @@ bool Trigger::isBindable()
  */
 Trigger* Trigger::get(const char* name) 
 {
-	Trigger* found = NULL;
-	if (name != NULL) {
-		for (int i = 0 ; Triggers[i] != NULL ; i++) {
+	Trigger* found = nullptr;
+	if (name != nullptr) {
+		for (int i = 0 ; Triggers[i] != nullptr ; i++) {
 			Trigger* t = Triggers[i];
 			if (!strcmp(t->getName(), name)) {
 				found = t;
@@ -188,7 +157,7 @@ TriggerMode* TriggerModes[] = {
     TriggerModeMomentary,
     TriggerModeToggle,
     TriggerModeXY,
-	NULL
+	nullptr
 };
 
 TriggerMode::TriggerMode(const char* name, const char* display) :
@@ -198,9 +167,9 @@ TriggerMode::TriggerMode(const char* name, const char* display) :
 
 TriggerMode* TriggerMode::get(const char* name) 
 {
-	TriggerMode* found = NULL;
-	if (name != NULL) {
-		for (int i = 0 ; TriggerModes[i] != NULL ; i++) {
+	TriggerMode* found = nullptr;
+	if (name != nullptr) {
+		for (int i = 0 ; TriggerModes[i] != nullptr ; i++) {
 			TriggerMode* t = TriggerModes[i];
 			if (!strcmp(t->getName(), name)) {
 				found = t;
@@ -235,7 +204,7 @@ Target* Targets[] = {
 	TargetUIControl,
 	TargetUIConfig,
 	TargetScript,
-	NULL
+	nullptr
 };
  
 Target::Target(const char* name, const char* display) :
@@ -245,14 +214,14 @@ Target::Target(const char* name, const char* display) :
 
 Target* Target::get(const char* name) 
 {
-	Target* found = NULL;
+	Target* found = nullptr;
 
     // auto upgrade old bindings
     if (StringEqual(name, "control"))
       name = "parameter";
 
-	if (name != NULL) {
-		for (int i = 0 ; Targets[i] != NULL ; i++) {
+	if (name != nullptr) {
+		for (int i = 0 ; Targets[i] != nullptr ; i++) {
 			Target* t = Targets[i];
 			if (!strcmp(t->getName(), name)) {
 				found = t;
@@ -302,38 +271,32 @@ UIParameter::UIParameter(const char* name, int key) :
 
 void Binding::init()
 {
-	mNext = NULL;
+	mNext = nullptr;
 
 	// trigger
-	mTrigger = NULL;
-    mTriggerMode = NULL;
-    mTriggerPath = NULL;
+	mTrigger = nullptr;
+    mTriggerMode = nullptr;
+    mTriggerPath = nullptr;
 	mValue = 0;
 	mChannel = 0;
 
 	// target
-    mTargetPath = NULL;
-	mTarget = NULL;
-	mName = NULL;
+    mTargetPath = nullptr;
+	mTarget = nullptr;
+	mName = nullptr;
 
 	// scope
-    mScope = NULL;
+    mScope = nullptr;
 	mTrack = 0;
 	mGroup = 0;
 
     // arguments
-	mArgs = NULL;
+	mArgs = nullptr;
 }
 
 Binding::Binding()
 {
 	init();
-}
-
-Binding::Binding(XmlElement* e)
-{
-	init();
-	parseXml(e);
 }
 
 Binding::~Binding()
@@ -346,9 +309,9 @@ Binding::~Binding()
     delete mScope;
 	delete mArgs;
 
-	for (el = mNext ; el != NULL ; el = next) {
+	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
-		el->setNext(NULL);
+		el->setNext(nullptr);
 		delete el;
 	}
 
@@ -489,7 +452,7 @@ void Binding::parseScope()
     mTrack = 0;
     mGroup = 0;
 
-    if (mScope != NULL) {
+    if (mScope != nullptr) {
         int len = strlen(mScope);
         if (len > 1) {
             // must be a number 
@@ -651,36 +614,6 @@ void Binding::getKeyString(char* buffer, int max)
 #define ATT_TRACK "track"
 #define ATT_GROUP "group"
 
-void Binding::parseXml(XmlElement* e) 
-{
-	// trigger
-	mTrigger = Trigger::get(e->getAttribute(ATT_TRIGGER));
-    mTriggerMode = TriggerMode::get(e->getAttribute(ATT_TRIGGER_TYPE));
-	mValue = e->getIntAttribute(ATT_VALUE);
-	mChannel = e->getIntAttribute(ATT_CHANNEL);
-
-    // upgrade old name to new
-    const char* path = e->getAttribute(ATT_TRIGGER_PATH);
-    if (path == NULL)
-      path = e->getAttribute(ATT_TRIGGER_VALUE);
-    setTriggerPath(path);
-
-	// target
-    setTargetPath(e->getAttribute(ATT_TARGET_PATH));
-	mTarget = Target::get(e->getAttribute(ATT_TARGET));
-	setName(e->getAttribute(ATT_NAME));
-
-	// scope
-    setScope(e->getAttribute(ATT_SCOPE));
-
-    // temporary backward compatibility
-    setTrack(e->getIntAttribute(ATT_TRACK));
-	setGroup(e->getIntAttribute(ATT_GROUP));
-
-    // arguments
-	setArgs(e->getAttribute(ATT_ARGS));
-}
-
 /**
  * Check to see if this object represents a valid binding.
  * Used during serialization to filter partially constructed bindings
@@ -690,7 +623,7 @@ bool Binding::isValid()
 {
 	bool valid = false;
 
-	if (mTrigger != NULL && mTarget != NULL && mName != NULL) {
+	if (mTrigger != nullptr && mTarget != nullptr && mName != nullptr) {
 		if (mTrigger == TriggerKey) {
 			// key must have a non-zero value
 			valid = (mValue > 0);
@@ -726,42 +659,6 @@ bool Binding::isValid()
 	return valid;
 }
 
-void Binding::toXml(XmlBuffer* b)
-{
-	if (isValid()) {
-		b->addOpenStartTag(EL_BINDING);
-
-		// it reads better to lead with the target
-        if (mTargetPath != NULL) {
-            b->addAttribute(ATT_TARGET_PATH, mTargetPath);
-        }
-        else {
-            b->addAttribute(ATT_SCOPE, mScope);
-            b->addAttribute(ATT_TARGET, mTarget->getName());
-            b->addAttribute(ATT_NAME, mName);
-        }
-
-        if (mTrigger != NULL)
-          b->addAttribute(ATT_TRIGGER, mTrigger->getName());
-
-        if (mTriggerMode != NULL)
-          b->addAttribute(ATT_TRIGGER_TYPE, mTriggerMode->getName());
-
-        // will have one of these but not both
-        b->addAttribute(ATT_TRIGGER_PATH, mTriggerPath);
-		b->addAttribute(ATT_VALUE, mValue);
-
-		if (mTrigger == TriggerNote ||
-			mTrigger == TriggerProgram ||
-			mTrigger == TriggerControl)
-		  b->addAttribute(ATT_CHANNEL, mChannel);
-
-		b->addAttribute(ATT_ARGS, mArgs);
-
-		b->add("/>\n");
-	}
-}
-
 /****************************************************************************
  *                                                                          *
  *   							BINDING CONFIG                              *
@@ -775,15 +672,9 @@ BindingConfig::BindingConfig()
 
 void BindingConfig::init()
 {
-	mNext = NULL;
-	mName = NULL;
-	mBindings = NULL;
-}
-
-BindingConfig::BindingConfig(XmlElement* e)
-{
-	init();
-	parseXml(e);
+	mNext = nullptr;
+	mName = nullptr;
+	mBindings = nullptr;
 }
 
 BindingConfig::~BindingConfig()
@@ -792,9 +683,9 @@ BindingConfig::~BindingConfig()
 
 	delete mBindings;
 
-	for (el = mNext ; el != NULL ; el = next) {
+	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
-		el->setNext(NULL);
+		el->setNext(nullptr);
 		delete el;
 	}
 }
@@ -831,12 +722,12 @@ void BindingConfig::setBindings(Binding* b)
 
 void BindingConfig::addBinding(Binding* b) 
 {
-    if (b != NULL) {
+    if (b != nullptr) {
         // keep them ordered
         Binding *prev;
-        for (prev = mBindings ; prev != NULL && prev->getNext() != NULL ; 
+        for (prev = mBindings ; prev != nullptr && prev->getNext() != nullptr ; 
              prev = prev->getNext());
-        if (prev == NULL)
+        if (prev == nullptr)
           mBindings = b;
         else
           prev->setNext(b);
@@ -845,25 +736,25 @@ void BindingConfig::addBinding(Binding* b)
 
 void BindingConfig::removeBinding(Binding* b)
 {
-    if (b != NULL) {
-        Binding *prev = NULL;
+    if (b != nullptr) {
+        Binding *prev = nullptr;
         Binding* el = mBindings;
     
-        for ( ; el != NULL && el != b ; el = el->getNext())
+        for ( ; el != nullptr && el != b ; el = el->getNext())
           prev = el;
 
         if (el == b) {
-            if (prev == NULL)
+            if (prev == nullptr)
               mBindings = b->getNext();
             else
               prev->setNext(b->getNext());
         }
         else {
-            // not on the list, should we still NULL out the next pointer?
+            // not on the list, should we still nullptr out the next pointer?
             Trace(1, "BindingConfig::removeBinding binding not found!\n");
         }
 
-        b->setNext(NULL);
+        b->setNext(nullptr);
     }
 }
 
@@ -874,9 +765,9 @@ void BindingConfig::removeBinding(Binding* b)
  */
 Binding* BindingConfig::getBinding(Trigger* trigger, int value)
 {
-	Binding* found = NULL;
+	Binding* found = nullptr;
 
-	for (Binding* b = mBindings ; b != NULL ; b = b->getNext()) {
+	for (Binding* b = mBindings ; b != nullptr ; b = b->getNext()) {
 		if (b->getTrigger() == trigger && b->getValue() == value) {
             found = b;
             break;
@@ -886,38 +777,8 @@ Binding* BindingConfig::getBinding(Trigger* trigger, int value)
 	return found;
 }
 
-void BindingConfig::parseXml(XmlElement* e)
-{
-	parseXmlCommon(e);
-
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
-		 child = child->getNextElement()) {
-
-		if (child->isName(EL_BINDING)) {
-			Binding* mb = new Binding(child);
-			// can't filter bogus functions yet, scripts aren't loaded
-			addBinding(mb);
-		}
-	}
-}
-
-void BindingConfig::toXml(XmlBuffer* b)
-{
-	b->addOpenStartTag(EL_BINDING_CONFIG);
-
-	// name, number
-	toXmlCommon(b);
-
-	b->add(">\n");
-	b->incIndent();
-
-	for (Binding* c = mBindings ; c != NULL ; c = c->getNext())
-	  c->toXml(b);
-
-	b->decIndent();
-	b->addEndTag(EL_BINDING_CONFIG);
-}
-
+// need to support this eventually
+#if 0
 BindingConfig* BindingConfig::clone()
 {
 	BindingConfig* clone = new BindingConfig();
@@ -928,7 +789,7 @@ BindingConfig* BindingConfig::clone()
 	delete b;
 	XomParser* p = new XomParser();
 	XmlDocument* d = p->parse(xml);
-	if (d != NULL) {
+	if (d != nullptr) {
 		XmlElement* e = d->getChildElement();
 		clone = new BindingConfig(e);
 		delete d;
@@ -943,7 +804,7 @@ BindingConfig* BindingConfig::clone()
 
 	return clone;
 }
-
+#endif
 
 /****************************************************************************/
 /****************************************************************************/

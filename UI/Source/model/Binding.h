@@ -334,9 +334,6 @@ class Bindable {
     virtual Bindable* getNextBindable() = 0;
 	virtual class Target* getTarget() = 0;
 
-	void toXmlCommon(class XmlBuffer* b);
-	void parseXmlCommon(class XmlElement* e);
-
   protected:
 
 	/**
@@ -403,7 +400,6 @@ class Binding {
   public:
 	
 	Binding();
-	Binding(class XmlElement* e);
 	virtual ~Binding();
 
 	void setNext(Binding* c);
@@ -471,8 +467,6 @@ class Binding {
 	void getSummary(char* buffer);
     void getMidiString(char* buffer, bool includeChannel);
     void getKeyString(char* buffer, int max);
-	void parseXml(class XmlElement* e);
-	void toXml(class XmlBuffer* b);
 
   private:
 
@@ -525,7 +519,6 @@ class BindingConfig : public Bindable {
   public:
 
 	BindingConfig();
-	BindingConfig(class XmlElement* e);
 	~BindingConfig();
 	BindingConfig* clone();
 
@@ -542,9 +535,6 @@ class BindingConfig : public Bindable {
 	void setBindings(Binding* b);
 
     Binding* getBinding(Trigger* trig, int value);
-
-	void parseXml(class XmlElement* e);
-	void toXml(class XmlBuffer* b);
 
   private:
 

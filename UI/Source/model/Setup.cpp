@@ -17,27 +17,17 @@
 
 #include "../util/Util.h"
 #include "../util/MidiUtil.h"
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
 
 // uses StringList for resettables
 #include "../util/List.h"
 
-//#include "Qwin.h"
+#include "Parameter.h"
 
 #include "Binding.h"
-
-//#include "Function.h"
-//#include "Mobius.h"
-#include "Parameter.h"
-//#include "Sample.h"
-//#include "Script.h"
-//#include "SyncState.h"
-//#include "Track.h"
-
 #include "ExValue.h"
 #include "Preset.h"
 #include "UserVariable.h"
+
 #include "Setup.h"
 
 /****************************************************************************
@@ -107,12 +97,6 @@ Setup::Setup()
 	init();
 }
 
-Setup::Setup(XmlElement* e)
-{
-	init();
-	parseXml(e);
-}
-
 Setup::~Setup()
 {
 	delete mTracks;
@@ -121,11 +105,11 @@ Setup::~Setup()
 
 void Setup::init()
 {
-	mNext = NULL;
-	mTracks = NULL;
+	mNext = nullptr;
+	mTracks = nullptr;
 	mActive = 0;
-	mResetables = NULL;
-	mBindings = NULL;
+	mResetables = nullptr;
+	mBindings = nullptr;
 
     initParameters();
 }
@@ -158,18 +142,18 @@ void Setup::reset(Preset* p)
 	mActive = 0;
 
     // need a default list of these?
-    setResetables(NULL);
+    setResetables(nullptr);
 
     // don't really care what the binding configs are
-	setBindings(NULL);
+	setBindings(nullptr);
 
     // start over with a new SetupTrack list
-    setTracks(NULL);
+    setTracks(nullptr);
 
     for (int i = 0 ; i < DEFAULT_TRACK_COUNT ; i++) {
         SetupTrack* t = getTrack(i);
         t->reset();
-        if (p != NULL)
+        if (p != nullptr)
           t->setPreset(p->getName());
     }
 
@@ -232,7 +216,7 @@ StringList* Setup::getResetables()
 
 bool Setup::isResetable(Parameter* p)
 {
-	return (mResetables != NULL && mResetables->indexOf((void*)p->getName()) >= 0);
+	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
 }
 
 SetupTrack* Setup::getTracks()
@@ -243,7 +227,7 @@ SetupTrack* Setup::getTracks()
 SetupTrack* Setup::stealTracks()
 {
 	SetupTrack* list = mTracks;
-	mTracks = NULL;
+	mTracks = nullptr;
 	return list;
 }
 
@@ -258,12 +242,12 @@ void Setup::setTracks(SetupTrack* list)
 SetupTrack* Setup::getTrack(int index)
 {
 	SetupTrack* track = mTracks;
-	SetupTrack* prev = NULL;
+	SetupTrack* prev = nullptr;
 
 	for (int i = 0 ; i <= index ; i++) {
-		if (track == NULL) {
+		if (track == nullptr) {
 			track = new SetupTrack();
-			if (prev == NULL)
+			if (prev == nullptr)
 			  mTracks = track;
 			else
 			  prev->setNext(track);
@@ -414,104 +398,21 @@ OutRealignMode Setup::getOutRealignMode() {
 	return mOutRealignMode;
 }
 
-/****************************************************************************
- *                                                                          *
- *                                 SETUP XML                                *
- *                                                                          *
- ****************************************************************************/
-
-char* Setup::toXml()
-{
-	char* xml = NULL;
-	XmlBuffer* b = new XmlBuffer();
-	toXml(b);
-	xml = b->stealString();
-	delete b;
-	return xml;
-}
-
-void Setup::toXml(XmlBuffer* b)
-{
-	b->addOpenStartTag(EL_SETUP);
-	// name, number
-	toXmlCommon(b);
-
-    // these haven't been defined as Parameters, now that we're
-    // doing that for the sync options could do these...
-    b->addAttribute(ATT_BINDINGS, mBindings);
-    b->addAttribute(ATT_ACTIVE, mActive);
-	if (mResetables != NULL) {
-		char* csv = mResetables->toCsv();
-		b->addAttribute(ATT_RESETABLES, csv);
-		delete csv;
-	}
-
-    // new sync options with Parameter interfaces
-	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
-        Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_SETUP && !p->transient)
-          p->toXml(b, this);
-    }
-
-	b->add(">\n");
-	b->incIndent();
-
-	for (SetupTrack* t = mTracks ; t != NULL ; t = t->getNext())
-	  t->toXml(b);
-
-	b->decIndent();
-	b->addEndTag(EL_SETUP, true);
-}
-
-void Setup::parseXml(XmlElement* e)
-{
-	SetupTrack* last = NULL;
-
-	parseXmlCommon(e);
-
-	setActiveTrack(e->getIntAttribute(ATT_ACTIVE));
-	const char* csv = e->getAttribute(ATT_RESETABLES);
-	if (csv != NULL)
-	  mResetables = new StringList(csv);
-
-    // recognize the old MidiConfig name, the MidiConfigs will
-    // have been upgraded to BindingConfigs by now
-    const char* bindings = e->getAttribute(ATT_BINDINGS);
-    if (bindings == NULL)
-      bindings = e->getAttribute(ATT_MIDI_CONFIG);
-	setBindings(bindings);
-
-    // new parameters 
-	for (int i = 0 ; Parameters[i] != NULL ; i++) {
-		Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_SETUP && !p->transient) {
-            p->parseXml(e, this);
-        }
-    }
-
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
-		 child = child->getNextElement()) {
-		SetupTrack* t = new SetupTrack(child);
-		if (last == NULL)
-		  mTracks = t;
-		else
-		  last->setNext(t);
-		last = t;
-	}
-}
-
+/**
+ * This one had a clone method that didn't use XML for some reason
+ */
 Setup* Setup::clone()
 {
 	Setup* clone = new Setup();
-	SetupTrack* tracks = NULL;
-	SetupTrack* last = NULL;
+	SetupTrack* tracks = nullptr;
+	SetupTrack* last = nullptr;
 
 	// name, number
 	clone->Bindable::clone(this);
 	
     // can leverage the Parameter list to do the clone
     // not as effiient but saves hard codeing them again
-	for (int i = 0 ; Parameters[i] != NULL ; i++) {
+	for (int i = 0 ; Parameters[i] != nullptr ; i++) {
 		Parameter* p = Parameters[i];
         if (p->scope == PARAM_SCOPE_SETUP) {
             ExValue value;
@@ -520,9 +421,9 @@ Setup* Setup::clone()
         }
     }
 
-	for (SetupTrack* t = mTracks ; t != NULL ; t = t->getNext()) {
+	for (SetupTrack* t = mTracks ; t != nullptr ; t = t->getNext()) {
 		SetupTrack* cloneTrack = t->clone();
-		if (tracks == NULL)
+		if (tracks == nullptr)
 		  tracks = cloneTrack;
 		else
 		  last->setNext(cloneTrack);
@@ -545,18 +446,12 @@ SetupTrack::SetupTrack()
 	init();
 }
 
-SetupTrack::SetupTrack(XmlElement* e)
-{
-	init();
-	parseXml(e);
-}
-
 void SetupTrack::init()
 {
-	mNext = NULL;
-    mName = NULL;
-	mPreset = NULL;
-	mVariables = NULL;
+	mNext = nullptr;
+    mName = nullptr;
+	mPreset = nullptr;
+	mVariables = nullptr;
 	reset();
 }
 
@@ -570,8 +465,8 @@ void SetupTrack::init()
  */
 void SetupTrack::reset()
 {
-	setPreset(NULL);
-    setName(NULL);
+	setPreset(nullptr);
+    setName(nullptr);
 	mFocusLock = false;
     mGroup = 0;
 	mInputLevel = 127;
@@ -638,9 +533,9 @@ SetupTrack::~SetupTrack()
 	delete mPreset;
 	delete mVariables;
 
-	for (el = mNext ; el != NULL ; el = next) {
+	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
-		el->setNext(NULL);
+		el->setNext(nullptr);
 		delete el;
 	}
 }
@@ -847,10 +742,21 @@ void SetupTrack::setSyncTrackUnit(SyncTrackUnit unit)
     mSyncTrackUnit = unit;
 }
 
+UserVariables* SetupTrack::getVariables()
+{
+    return mVariables;
+}
+
+void SetupTrack::setVariables(UserVariables* vars)
+{
+    delete mVariables;
+    mVariables = vars;
+}
+
 void SetupTrack::setVariable(const char* name, ExValue* value)
 {
-	if (name != NULL) {
-		if (mVariables == NULL)
+	if (name != nullptr) {
+		if (mVariables == nullptr)
 		  mVariables = new UserVariables();
 		mVariables->set(name, value);
 	}
@@ -859,54 +765,8 @@ void SetupTrack::setVariable(const char* name, ExValue* value)
 void SetupTrack::getVariable(const char* name, ExValue* value)
 {
 	value->setNull();
-	if (mVariables != NULL)
+	if (mVariables != nullptr)
 	  mVariables->get(name, value);
-}
-
-void SetupTrack::toXml(XmlBuffer* b)
-{
-    // TODO: Better to have a new Parameter scope so we can
-    // iterate like we do the others
-
-	b->addOpenStartTag(EL_SETUP_TRACK);
-
-    // Parameters with SCOPE_TRACK can guide us
-	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
-        Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_TRACK && !p->transient)
-          p->toXml(b, this);
-    }
-
-	if (mVariables == NULL)
-	  b->add("/>\n");
-	else {
-		b->add(">\n");
-		b->incIndent();
-
-		mVariables->toXml(b);
-
-		b->decIndent();
-		b->addEndTag(EL_SETUP_TRACK);
-	}
-}
-
-void SetupTrack::parseXml(XmlElement* e)
-{
-    // Parameters with SCOPE_TRACK can guide us
-	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
-        Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_TRACK && !p->transient)
-          p->parseXml(e, this);
-    }
-
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
-		 child = child->getNextElement()) {
-
-		if (child->isName(EL_VARIABLES)) {
-			delete mVariables;
-			mVariables = new UserVariables(child);
-		}
-	}
 }
 
 /****************************************************************************/

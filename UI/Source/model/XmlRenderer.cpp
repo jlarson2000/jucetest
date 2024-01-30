@@ -64,8 +64,9 @@
 #include "MobiusConfig.h"
 #include "Preset.h"
 #include "Setup.h"
+#include "UserVariable.h"
 #include "Binding.h"
-#include "ScriptConfig.h
+#include "ScriptConfig.h"
 #include "SampleConfig.h"
 #include "OscConfig.h"
 
@@ -79,7 +80,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#define EL_CONFIG "MobiusConfig"
+#define EL_MOBIUS_CONFIG "MobiusConfig"
+#define EL_PRESET "Preset"
 
 XmlRenderer::XmlRenderer()
 {
@@ -122,7 +124,7 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
 	XomParser* parser = new XomParser();
 	XmlDocument* doc = parser->parse(xml);
 
-    if (doc == NULL) {
+    if (doc == nullptr) {
         Trace(1, "XmlRender: Parse error %s\n", parser->getError());
     }
     else {
@@ -142,7 +144,7 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
     delete doc;
 	delete parser;
 
-    return preset;
+    return config;
 }
 
 // temporary for testing
@@ -152,7 +154,7 @@ Preset* XmlRenderer::parsePreset(const char* xml)
 	XomParser* parser = new XomParser();
 	XmlDocument* doc = parser->parse(xml);
 
-    if (doc == NULL) {
+    if (doc == nullptr) {
         Trace(1, "XmlRender: Parse error %s\n", parser->getError());
     }
     else {
@@ -285,11 +287,11 @@ StringList* XmlRenderer::parseStringList(XmlElement* e)
 {
     StringList* names = new StringList();
     for (XmlElement* child = e->getChildElement() ; 
-         child != NULL ; 
+         child != nullptr ; 
          child = child->getNextElement()) {
         // assumed to be <String>xxx</String>
         const char* name = child->getContent();
-        if (name != NULL) 
+        if (name != nullptr) 
           names->add(name);
     }
     return names;
@@ -321,7 +323,7 @@ void XmlRenderer::renderList(XmlBuffer* b, const char* elname, StringList* list)
 /**
  * For Bindables, add the name or number.
  */
-void XmlRenderer::addBindable(XmlBuffer* b, Bindable* bindable)
+void XmlRenderer::renderBindable(XmlBuffer* b, Bindable* bindable)
 {
     // old comments, what does this mean?
     // the number is transient on the way to generating a name, 
@@ -344,6 +346,10 @@ void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
 // MobiusConfig
 //
 //////////////////////////////////////////////////////////////////////
+
+#define EL_MOBIUS_CONFIG "MobiusConfig"
+#define EL_PRESET "Preset"
+#define EL_SETUP "Setup"
 
 #define ATT_LANGUAGE "language"
 #define ATT_SETUP "setup"
@@ -368,6 +374,8 @@ void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
 #define EL_SCRIPT_REF "ScripRef"
 #define ATT_FILE "file"
 
+#define EL_SAMPLE_CONFIG "SampleConfig"
+
 #define EL_CONTROL_SURFACE "ControlSurface"
 #define ATT_NAME "name"
 
@@ -382,7 +390,7 @@ void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
 
 void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 {
-	b->addOpenStartTag(EL_CONFIG);
+	b->addOpenStartTag(EL_MOBIUS_CONFIG);
 
     // never was a formal parameter, get rid of this
     b->addAttribute(ATT_LANGUAGE, c->getLanguage());
@@ -465,19 +473,14 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 	b->add(">\n");
 	b->incIndent();
 
-	for (Preset* p = c->getPresets() ; p != NULL ; p = p->getNext())
+	for (Preset* p = c->getPresets() ; p != nullptr ; p = p->getNext())
 	  render(b, p);
 
-	for (Setup* s = c->getSetups() ; s != NULL ; s = s->getNext())
+	for (Setup* s = c->getSetups() ; s != nullptr ; s = s->getNext())
 	  render(b, s);
 
-	for (BindingConfig* bc = c->getBindingConfigs() ; bc != NULL ; bc = bc->getNext())
+	for (BindingConfig* bc = c->getBindingConfigs() ; bc != nullptr ; bc = bc->getNext())
 	  render(b, bc);
-
-    // should have cleaned these up by now
-    if (c->getMidiConfigs() != nullptr) {
-        Trace(1, "Still have MidiConfigs!!\n");
-    }
 
 	if (c->getScriptConfig() != nullptr)
       render(b, c->getScriptConfig());
@@ -490,7 +493,7 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 
 #if 0
     // never really implemented these
-	for (ControlSurfaceConfig* cs = c->getControlSurfaces() ; cs != NULL ; cs = cs->getNext())
+	for (ControlSurfaceConfig* cs = c->getControlSurfaces() ; cs != nullptr ; cs = cs->getNext())
       render(b, cs);
 #endif
 
@@ -504,7 +507,7 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 
 	b->decIndent();
 
-	b->addEndTag(EL_CONFIG);
+	b->addEndTag(EL_MOBIUS_CONFIG);
 }
 
 void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
@@ -518,18 +521,18 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
     // c->setSelectedMidiConfig(e->getAttribute(ATT_MIDI_CONFIG));
     
 	c->setLanguage(e->getAttribute(ATT_LANGUAGE));
-	c->setMidiInput(parse(e, MidiInputParameter));
-	c->setMidiOutput(parse(e, MidiOutputParameter));
-	c->setMidiThrough(e->getAttribute(MidiThroughParameter->getName()));
-	c->setPluginMidiInput(parse(e, PluginMidiInputParameter));
-	c->setPluginMidiOutput(parse(e, PluginMidiOutputParameter));
-	c->setPluginMidiThrough(parse(e, PluginMidiThroughParameter));
-	c->setAudioInput(parse(e, AudioInputParameter));
-	c->setAudioOutput(parse(e, AudioOutputParameter));
+	c->setMidiInput(parseString(e, MidiInputParameter));
+	c->setMidiOutput(parseString(e, MidiOutputParameter));
+	c->setMidiThrough(parseString(e, MidiThroughParameter));
+	c->setPluginMidiInput(parseString(e, PluginMidiInputParameter));
+	c->setPluginMidiOutput(parseString(e, PluginMidiOutputParameter));
+	c->setPluginMidiThrough(parseString(e, PluginMidiThroughParameter));
+	c->setAudioInput(parseString(e, AudioInputParameter));
+	c->setAudioOutput(parseString(e, AudioOutputParameter));
 	c->setUIConfig(e->getAttribute(ATT_UI_CONFIG));
-	c->setQuickSave(parse(e, QuickSaveParameter));
-	c->setUnitTests(parse(e, UnitTestsParameter));
-	c->setCustomMessageFile(parse(e, CustomMessageFileParameter));
+	c->setQuickSave(parseString(e, QuickSaveParameter));
+	c->setUnitTests(parseString(e, UnitTestsParameter));
+	c->setCustomMessageFile(parseString(e, CustomMessageFileParameter));
 
 	c->setNoiseFloor(parse(e, NoiseFloorParameter));
 	c->setSuggestedLatencyMsec(e->getIntAttribute(ATT_SUGGESTED_LATENCY));
@@ -561,7 +564,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 
     c->setOscInputPort(parse(e, OscInputPortParameter));
     c->setOscOutputPort(parse(e, OscOutputPortParameter));
-    c->setOscOutputHost(parse(e, OscOutputHostParameter));
+    c->setOscOutputHost(parseString(e, OscOutputHostParameter));
     c->setOscTrace(parse(e, OscTraceParameter));
     c->setOscEnable(parse(e, OscEnableParameter));
 
@@ -577,7 +580,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
     // fade frames can no longer be set high so we don't bother exposing it
 	//setFadeFrames(e->getIntAttribute(FadeFramesParameter->getName()));
 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		if (child->isName(EL_PRESET)) {
@@ -653,14 +656,12 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 //
 //////////////////////////////////////////////////////////////////////
 
-#define EL_PRESET "Preset"
-
 void XmlRenderer::render(XmlBuffer* b, Preset* p)
 {
 	b->addOpenStartTag(EL_PRESET);
 
 	// name, number
-	addBindable(b, p);
+	renderBindable(b, p);
 	b->setAttributeNewline(true);
 
     render(b, AltFeedbackEnableParameter, p->isAltFeedbackEnable());
@@ -799,7 +800,7 @@ void XmlRenderer::parse(XmlElement* e, Preset* p)
 #define EL_SETUP_TRACK "SetupTrack"
 #define EL_VARIABLES "Variables"
 
-void Setup::render(XmlBuffer* b, Setup* setup)
+void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 {
 	b->addOpenStartTag(EL_SETUP);
 
@@ -812,37 +813,38 @@ void Setup::render(XmlBuffer* b, Setup* setup)
     
     // these are a csv while the function lists in MobiusConfig
     // are String lists, should be consistent, I'm liking csv for brevity
-    StringList* resettables = setup->getResetables();
-	if (resetables != NULL) {
+    StringList* resetables = setup->getResetables();
+	if (resetables != nullptr) {
 		char* csv = resetables->toCsv();
 		b->addAttribute(ATT_RESETABLES, csv);
 		delete csv;
 	}
 
     render(b, BeatsPerBarParameter, setup->getBeatsPerBar());
-    render(b, DefaultSyncSourceParameter, setup->getDefaultSyncSource());
-    render(b, DefaultTrackSyncUnitParameter, setup->getDefaultTrackSyncUnit());
-    render(b, ManualStartParameter, setup->getManualStart());
+    // why is the name pattern not followed here?
+    render(b, DefaultSyncSourceParameter, setup->getSyncSource());
+    render(b, DefaultTrackSyncUnitParameter, setup->getSyncTrackUnit());
+    render(b, ManualStartParameter, setup->isManualStart());
     render(b, MaxTempoParameter, setup->getMaxTempo());
     render(b, MinTempoParameter, setup->getMinTempo());
     render(b, MuteSyncModeParameter, setup->getMuteSyncMode());
     render(b, OutRealignModeParameter, setup->getOutRealignMode());
     render(b, RealignTimeParameter, setup->getRealignTime());
     render(b, ResizeSyncAdjustParameter, setup->getResizeSyncAdjust());
-    render(b, SlaveSyncUnitParameter, setup->getSlaveSyncUnit());
+    render(b, SlaveSyncUnitParameter, setup->getSyncUnit());
     render(b, SpeedSyncAdjustParameter, setup->getSpeedSyncAdjust());
 
     b->add(">\n");
 	b->incIndent();
 
-    for (SetupTrack* t = setup->getTracks() ; t != NULL ; t = t->getNext())
+    for (SetupTrack* t = setup->getTracks() ; t != nullptr ; t = t->getNext())
 	  render(b, t);
 
 	b->decIndent();
 	b->addEndTag(EL_SETUP, true);
 }
 
-void Setup::parse(XmlElement* e, Setup* setup)
+void XmlRenderer::parse(XmlElement* e, Setup* setup)
 {
 	parseBindable(e, setup);
 
@@ -852,17 +854,17 @@ void Setup::parse(XmlElement* e, Setup* setup)
     // have been upgraded to BindingConfigs by now
     // ?? still need this
     const char* bindings = e->getAttribute(ATT_BINDINGS);
-    if (bindings == NULL)
+    if (bindings == nullptr)
       bindings = e->getAttribute(ATT_MIDI_CONFIG);
 	setup->setBindings(bindings);
 
 	const char* csv = e->getAttribute(ATT_RESETABLES);
-	if (csv != NULL)
+	if (csv != nullptr)
 	  setup->setResetables(new StringList(csv));
     
     setup->setBeatsPerBar(parse(e, BeatsPerBarParameter));
-    setup->setDefaultSyncSource(parse(e, DefaultSyncSourceParameter));
-    setup->setDefaultTrackSyncUnit(parse(e, DefaultTrackSyncUnitParameter));
+    setup->setSyncSource((SyncSource)parse(e, DefaultSyncSourceParameter));
+    setup->setSyncTrackUnit((SyncTrackUnit)parse(e, DefaultTrackSyncUnitParameter));
     setup->setManualStart(parse(e, ManualStartParameter));
     setup->setMaxTempo(parse(e, MaxTempoParameter));
     setup->setMinTempo(parse(e, MinTempoParameter));
@@ -870,13 +872,13 @@ void Setup::parse(XmlElement* e, Setup* setup)
     setup->setOutRealignMode(parse(e, OutRealignModeParameter));
     setup->setRealignTime(parse(e, RealignTimeParameter));
     setup->setResizeSyncAdjust(parse(e, ResizeSyncAdjustParameter));
-    setup->setSlaveSyncUnit(parse(e, SlaveSyncUnitParameter));
+    setup->setSyncUnit((SyncUnit)parse(e, SlaveSyncUnitParameter));
     setup->setSpeedSyncAdjust(parse(e, SpeedSyncAdjustParameter));
 
     SetupTrack* tracks = nullptr;
     SetupTrack* last = nullptr;
     
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
         // todo: should verify the element name
 		SetupTrack* t = new SetupTrack();
@@ -897,32 +899,28 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
     // in the old model, this was driven from Parameters
     // in TRACK scope that did not have the transient flag set
     // this was only InputPort, OutputPort, and PresetNumber
-
-    render(b, AltFeedbackLevelParameter, t->getAltFeedbackLevel());
-    render(b, AudioInputPortParameter, t->getAudioInputPort());
-    render(b, AudioOutputPortParameter, t->getAudioOutputPort());
-    render(b, FeedbackLevelParameter, t->getFeedbackLevel());
-    render(b, FocusParameter, t->getFocus());
+    // actually there are a lot missing and not just ones with transient
+    
+    // what about name?
+    render(b, TrackPresetParameter, t->getPreset());
+    render(b, FocusParameter, t->isFocusLock());
+    render(b, MonoParameter, t->isMono());
     render(b, GroupParameter, t->getGroup());
     render(b, InputLevelParameter, t->getInputLevel());
-    render(b, MonoParameter, t->getMono());
     render(b, OutputLevelParameter, t->getOutputLevel());
+    render(b, FeedbackLevelParameter, t->getFeedback());
+    render(b, AltFeedbackLevelParameter, t->getAltFeedback());
     render(b, PanParameter, t->getPan());
+
+    render(b, AudioInputPortParameter, t->getAudioInputPort());
+    render(b, AudioOutputPortParameter, t->getAudioOutputPort());
     render(b, PluginInputPortParameter, t->getPluginInputPort());
     render(b, PluginOutputPortParameter, t->getPluginOutputPort());
-    render(b, SpeedBendParameter, t->getSpeedBend());
-    render(b, SpeedOctaveParameter, t->getSpeedOctave());
-    render(b, SpeedStepParameter, t->getSpeedStep());
-    render(b, TrackNameParameter, t->getTrackName());
-    render(b, PitchBendParameter, t->getPitchBend());
-    render(b, PitchOctaveParameter, t->getPitchOctave());
-    render(b, PitchStepParameter, t->getPitchStep());
-    render(b, TimeStretchParameter, t->getTimeStretch());
-    render(b, TrackPresetParameter, t->getTrackPreset());
-    render(b, TrackSyncUnitParameter, t->getTrackSyncUnit());
-    render(b, SyncSourceParameter, t->getSyncSource());
 
-    UserVariables* uv = setup->getUserVariables();
+    render(b, SyncSourceParameter, t->getSyncSource());
+    render(b, TrackSyncUnitParameter, t->getSyncTrackUnit());
+
+    UserVariables* uv = t->getVariables();
     if (uv == nullptr) {
         b->add("/>\n");
     }
@@ -939,60 +937,58 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
 
 void XmlRenderer::parse(XmlElement* e, SetupTrack* t)
 {
-    t->setAltFeedbackLevel(parse(e, AltFeedbackLevelParameter));
-    t->setAudioInputPort(parse(e, AudioInputPortParameter));
-    t->setAudioOutputPort(parse(e, AudioOutputPortParameter));
-    t->setFeedbackLevel(parse(e, FeedbackLevelParameter));
-    t->setFocus(parse(e, FocusParameter));
+    // what about name?
+    t->setPreset(parseString(e, TrackPresetParameter));
+    t->setFocusLock(parse(e, FocusParameter));
+    t->setMono(parse(e, MonoParameter));
     t->setGroup(parse(e, GroupParameter));
     t->setInputLevel(parse(e, InputLevelParameter));
-    t->setMono(parse(e, MonoParameter));
     t->setOutputLevel(parse(e, OutputLevelParameter));
+    t->setFeedback(parse(e, FeedbackLevelParameter));
+    t->setAltFeedback(parse(e, AltFeedbackLevelParameter));
     t->setPan(parse(e, PanParameter));
+
+    t->setAudioInputPort(parse(e, AudioInputPortParameter));
+    t->setAudioOutputPort(parse(e, AudioOutputPortParameter));
     t->setPluginInputPort(parse(e, PluginInputPortParameter));
     t->setPluginOutputPort(parse(e, PluginOutputPortParameter));
-    t->setSpeedBend(parse(e, SpeedBendParameter));
-    t->setSpeedOctave(parse(e, SpeedOctaveParameter));
-    t->setSpeedStep(parse(e, SpeedStepParameter));
-    t->setTrackName(parse(e, TrackNameParameter));
-    t->setPitchBend(parse(e, PitchBendParameter));
-    t->setPitchOctave(parse(e, PitchOctaveParameter));
-    t->setPitchStep(parse(e, PitchStepParameter));
-    t->setTimeStretch(parse(e, TimeStretchParameter));
-    t->setTrackPreset(parse(e, TrackPresetParameter));
-    t->setTrackSyncUnit(parse(e, TrackSyncUnitParameter));
-    t->setSyncSource(parse(e, SyncSourceParameter));
+
+    t->setSyncSource((SyncSource)parse(e, SyncSourceParameter));
+    t->setSyncTrackUnit((SyncTrackUnit)parse(e, TrackSyncUnitParameter));
 
     // should only have a single UserVariables 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		if (child->isName(EL_VARIABLES)) {
             UserVariables* uv = new UserVariables();
             parse(child, uv);
-            t->setUserVariables(uv);
+            t->setVariables(uv);
 		}
 	}
 }
 
 #define EL_VARIABLES "Variables"
+#define EL_VARIABLE "Variable"
+#define ATT_VALUE "value"
 
-void XmlRenderer::render(XmlBuffer* b, UserVariables* ccontainer)
+void XmlRenderer::render(XmlBuffer* b, UserVariables* container)
 {
 	b->addOpenStartTag(EL_VARIABLES);
     b->incIndent();
     
-    for (UserVariable* v = container->getVariables() ; v != NULL ; v = v->getNext()) {
+    for (UserVariable* v = container->getVariables() ; v != nullptr ; v = v->getNext()) {
 
         b->addOpenStartTag(EL_VARIABLE);
         b->addAttribute(ATT_NAME, v->getName());
 
         // note that we'll lose the type during serialization
-        ExValue v;
-        v->getValue(&v);
-        const char* value = v.getString();
-        if (value != NULL)
-            b->addAttribute(ATT_VALUE, value);
+        // gak this is ugly
+        ExValue exv;
+        v->getValue(&exv);
+        const char* value = exv.getString();
+        if (value != nullptr)
+          b->addAttribute(ATT_VALUE, value);
 
         b->add("/>\n");
     }
@@ -1015,9 +1011,9 @@ void XmlRenderer::parse(XmlElement* e, UserVariables* container)
         // we don't save the type, so a round trip will always stringify
         ExValue exv;
         exv.setString(e->getAttribute(ATT_VALUE));
-        v.set(&exv);
+        v->setValue(&exv);
         
-		if (last == NULL)
+		if (last == nullptr)
 		  list = v;
 		else
 		  last->setNext(v);
@@ -1034,18 +1030,33 @@ void XmlRenderer::parse(XmlElement* e, UserVariables* container)
 //////////////////////////////////////////////////////////////////////
 
 #define EL_BINDING_CONFIG "BindingConfig"
+#define EL_BINDING "Binding"
+
+#define ATT_DISPLAY_NAME "displayName"
+#define ATT_TRIGGER "trigger"
+#define ATT_VALUE "value"
+#define ATT_CHANNEL "channel"
+#define ATT_TRIGGER_VALUE "triggerValue"
+#define ATT_TRIGGER_PATH "triggerPath"
+#define ATT_TRIGGER_TYPE "triggerType"
+#define ATT_TARGET_PATH "targetPath"
+#define ATT_TARGET "target"
+#define ATT_ARGS "args"
+#define ATT_SCOPE "scope"
+#define ATT_TRACK "track"
+#define ATT_GROUP "group"
 
 void XmlRenderer::render(XmlBuffer* b, BindingConfig* c)
 {
 	b->addOpenStartTag(EL_BINDING_CONFIG);
 
 	// name, number
-	addBindable(b, c);
+	renderBindable(b, c);
 
 	b->add(">\n");
 	b->incIndent();
 
-	for (Binding* binding = c->getBindings ; binding != NULL ; binding = binding->getNext()) {
+	for (Binding* binding = c->getBindings() ; binding != nullptr ; binding = binding->getNext()) {
         if (binding->isValid()) {
             render(b, binding);
         }
@@ -1058,7 +1069,7 @@ void XmlRenderer::render(XmlBuffer* b, BindingConfig* c)
 /**
  * Note that Binding is shared by both BindingConfig and OscConfig
  */
-void XmlRenderer::render(XmlBuffer* b, Binding* b)
+void XmlRenderer::render(XmlBuffer* b, Binding* binding)
 {
     b->addOpenStartTag(EL_BINDING);
 
@@ -1076,12 +1087,12 @@ void XmlRenderer::render(XmlBuffer* b, Binding* b)
     }
 
     Trigger* trig = binding->getTrigger();
-    if (trig != NULL) {
+    if (trig != nullptr) {
         b->addAttribute(ATT_TRIGGER, trig->getName());
     }
 
     TriggerMode* tmode = binding->getTriggerMode();
-    if (tmode != NULL) {
+    if (tmode != nullptr) {
         b->addAttribute(ATT_TRIGGER_TYPE, tmode->getName());
     }
             
@@ -1102,7 +1113,7 @@ void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
 {
 	parseBindable(e, c);
 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		if (child->isName(EL_BINDING)) {
@@ -1119,31 +1130,31 @@ void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
 void XmlRenderer::parse(XmlElement* e, Binding* b)
 {
     // trigger
-    mb->setTrigger(Trigger::get(child->getAttribute(ATT_TRIGGER)));
-    mb->setTriggerMode(TriggerMode::get(child->getAttribute(ATT_TRIGGER_TYPE)));
-    mb->setValue(child->getIntAttribute(ATT_VALUE));
-    mb->setChannel(child->getIntAttribute(ATT_CHANNEL));
+    b->setTrigger(Trigger::get(e->getAttribute(ATT_TRIGGER)));
+    b->setTriggerMode(TriggerMode::get(e->getAttribute(ATT_TRIGGER_TYPE)));
+    b->setValue(e->getIntAttribute(ATT_VALUE));
+    b->setChannel(e->getIntAttribute(ATT_CHANNEL));
 
     // upgrade old name to new
-    const char* path = child->getAttribute(ATT_TRIGGER_PATH);
-    if (path == NULL)
-      path = child->getAttribute(ATT_TRIGGER_VALUE);
-    setTriggerPath(path);
+    const char* path = e->getAttribute(ATT_TRIGGER_PATH);
+    if (path == nullptr)
+      path = e->getAttribute(ATT_TRIGGER_VALUE);
+    b->setTriggerPath(path);
 
     // target
-    mb->setTargetPath(child->getAttribute(ATT_TARGET_PATH));
-    mb->setTarget(Target::get(child->getAttribute(ATT_TARGET)));
-    mb->set(child->getAttribute(ATT_NAME));;
+    b->setTargetPath(e->getAttribute(ATT_TARGET_PATH));
+    b->setTarget(Target::get(e->getAttribute(ATT_TARGET)));
+    b->setName(e->getAttribute(ATT_NAME));
 
     // scope
-    mb->setScope(child->getAttribute(ATT_SCOPE));
+    b->setScope(e->getAttribute(ATT_SCOPE));
 
     // temporary backward compatibility
-    mb->setTrack(child->getIntAttribute(ATT_TRACK));
-    mb->setGroup(child->getIntAttribute(ATT_GROUP));
+    b->setTrack(e->getIntAttribute(ATT_TRACK));
+    b->setGroup(e->getIntAttribute(ATT_GROUP));
 
     // arguments
-    mb->setArgs(child->getAttribute(ATT_ARGS));
+    b->setArgs(e->getAttribute(ATT_ARGS));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1161,7 +1172,7 @@ void XmlRenderer::render(XmlBuffer* b, ScriptConfig* c)
     b->addStartTag(EL_SCRIPT_CONFIG);
     b->incIndent();
 
-    for (ScriptRef* ref = c->getScripts() ; ref != NULL ; ref = ref->getNext()) {
+    for (ScriptRef* ref = c->getScripts() ; ref != nullptr ; ref = ref->getNext()) {
         b->addOpenStartTag(EL_SCRIPT_REF);
         b->addAttribute(ATT_FILE, ref->getFile());
         b->add("/>\n");
@@ -1180,7 +1191,7 @@ void XmlRenderer::parse(XmlElement* e, ScriptConfig* c)
          child = child->getNextElement()) {
         ScriptRef* ref = new ScriptRef();
         ref->setFile(child->getAttribute(ATT_FILE));
-        if (last == NULL)
+        if (last == nullptr)
           list = ref;   
         else
           last->setNext(ref);
@@ -1203,14 +1214,14 @@ void XmlRenderer::parse(XmlElement* e, ScriptConfig* c)
 #define ATT_LOOP "loop"
 #define ATT_CONCURRENT "concurrent"
 
-void XmlRender::render(XmlBuffer* b, SampleConfig* c)
+void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
 {
     // I changed the class name to SampleConfig but for backward
     // compatibility the element and class name were originally Samples
 	b->addStartTag(EL_SAMPLES);
 	b->incIndent();
 
-    for (Sample* s = c->getSamples() ; s != NULL ; s = s->getNext()) {
+    for (Sample* s = c->getSamples() ; s != nullptr ; s = s->getNext()) {
 
         b->addOpenStartTag(EL_SAMPLE);
         b->addAttribute(ATT_PATH, s->getFilename());
@@ -1229,17 +1240,17 @@ void XmlRenderer::parse(XmlElement* e, SampleConfig* c)
     Sample* samples = nullptr;
 	Sample* last = nullptr;
 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		Sample* s = new Sample();
 
         s->setFilename(e->getAttribute(ATT_PATH));
-        s->setsustin(e->getBoolAttribute(ATT_SUSTAIN));
+        s->setSustain(e->getBoolAttribute(ATT_SUSTAIN));
         s->setLoop(e->getBoolAttribute(ATT_LOOP));
         s->setConcurrent(e->getBoolAttribute(ATT_CONCURRENT));
 
-        if (last == NULL)
+        if (last == nullptr)
 		  samples = s;
 		else
 		  last->setNext(s);
@@ -1277,44 +1288,44 @@ void XmlRenderer::render(XmlBuffer* b, OscConfig* c)
 	b->add(">\n");
 	b->incIndent();
 
-    for (OscWatcher* w = c->getWatchers() ; w != NULL ; w = w->getNext()) {
-        w->toXml(b);
-    }
-    
-	for (OscBindingSet* set = c->getBindings() ; set != NULL ; set = set->getNext()) {
-        set->toXml(b);
+	for (OscBindingSet* set = c->getBindings() ; set != nullptr ; set = set->getNext()) {
+        render(b, set);
     }
 
+    for (OscWatcher* w = c->getWatchers() ; w != nullptr ; w = w->getNext()) {
+        render(b, w);
+    }
+    
 	b->decIndent();
 	b->addEndTag(EL_OSC_CONFIG);
 }
 
 void XmlRenderer::parse(XmlElement* e, OscConfig* c)
 {
-	OscBindingSet* last = NULL;
-    OscWatcher* lastWatcher = NULL;
+	OscBindingSet* lastBinding = nullptr;
+    OscWatcher* lastWatcher = nullptr;
 
 	c->setInputPort(e->getIntAttribute(ATT_INPUT_PORT));
 	c->setOutputPort(e->getIntAttribute(ATT_OUTPUT_PORT));
 	c->setOutputHost(e->getAttribute(ATT_OUTPUT_HOST));
 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		if (child->isName(EL_BINDING_SET)) {
 			OscBindingSet* b = new OscBindingSet();
-            if (last == null)
+            if (lastBinding == nullptr)
               c->setBindings(b);
             else
-              last->setNext(b);
-            last = b;
+              lastBinding->setNext(b);
+            lastBinding = b;
               
             parse(child, b);
 		}
         else if (child->isName(EL_WATCHER)) {
             OscWatcher* w = new OscWatcher();
-            if (lastWatcher == null)
-              c->setwatchers(w);
+            if (lastWatcher == nullptr)
+              c->setWatchers(w);
             else 
               lastWatcher->setNext(w);
             lastWatcher = w;
@@ -1339,7 +1350,7 @@ void XmlRenderer::render(XmlBuffer* b, OscBindingSet* obs)
         b->addEndTag(EL_COMMENTS);
     }
 
-	for (Binding* binding = obs->getBindings() ; binding != NULL ; 
+	for (Binding* binding = obs->getBindings() ; binding != nullptr ; 
 		 binding = binding->getNext())
       render(b, binding);
 
@@ -1349,28 +1360,28 @@ void XmlRenderer::render(XmlBuffer* b, OscBindingSet* obs)
 
 void XmlRenderer::parse(XmlElement* e, OscBindingSet* obs)
 {
-	Binding* last = NULL;
+	Binding* lastBinding = nullptr;
 
-	obe->setInputPort(e->getIntAttribute(ATT_INPUT_PORT));
-	obe->setOutputPort(e->getIntAttribute(ATT_OUTPUT_PORT));
-	obe->setOutputHost(e->getAttribute(ATT_OUTPUT_HOST));
-    obe->setName(e->getAttribute(ATT_NAME));
+	obs->setInputPort(e->getIntAttribute(ATT_INPUT_PORT));
+	obs->setOutputPort(e->getIntAttribute(ATT_OUTPUT_PORT));
+	obs->setOutputHost(e->getAttribute(ATT_OUTPUT_HOST));
+    obs->setName(e->getAttribute(ATT_NAME));
 
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
 
 		if (child->isName(EL_BINDING)) {
 			Binding* b = new Binding();
-            if (last == null)
-              obe->setBindings(b);
+            if (lastBinding == nullptr)
+              obs->setBindings(b);
             else
-              last->setNext(b);
-            last = b;
+              lastBinding->setNext(b);
+            lastBinding = b;
 
             parse(child, b);
 		}
         else if (child->isName(EL_COMMENTS)) {
-            obe->setComments(child->getContent());
+            obs->setComments(child->getContent());
         }
 	}
 }
@@ -1422,3 +1433,7 @@ void XmlRenderer::test()
     delete xml;
     delete p;
 }
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

@@ -11,6 +11,8 @@
  * and to be ported.
  */
 
+#include "../util/Util.h"
+
 #include "OscConfig.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -19,73 +21,85 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC OscConfig::OscConfig()
+OscConfig::OscConfig()
 {
 	init();
 }
 
-PRIVATE void OscConfig::init()
+void OscConfig::init()
 {
 	mInputPort = 0;
-	mOutputHost = NULL;
+	mOutputHost = nullptr;
 	mOutputPort = 0;
-	mBindings = NULL;
-    mWatchers = NULL;
+	mBindings = nullptr;
+    mWatchers = nullptr;
     // this is only for XML parsing, get rid of it
     mError[0] = 0;
 }
 
-PUBLIC OscConfig::~OscConfig()
+OscConfig::~OscConfig()
 {
 	delete mOutputHost;
 	delete mBindings;
     delete mWatchers;
 }
 
-PUBLIC const char* OscConfig::getError()
+const char* OscConfig::getError()
 {
-    return (mError[0] != 0) ? mError : NULL;
+    return (mError[0] != 0) ? mError : nullptr;
 }
 
-PUBLIC int OscConfig::getInputPort()
+int OscConfig::getInputPort()
 {
 	return mInputPort;
 }
 
-PUBLIC void OscConfig::setInputPort(int i)
+void OscConfig::setInputPort(int i)
 {
 	mInputPort = i;
 }
 
-PUBLIC const char* OscConfig::getOutputHost()
+const char* OscConfig::getOutputHost()
 {
 	return mOutputHost;
 }
 
-PUBLIC void OscConfig::setOutputHost(const char* s)
+void OscConfig::setOutputHost(const char* s)
 {
 	delete mOutputHost;
 	mOutputHost = CopyString(s);
 }
 
-PUBLIC int OscConfig::getOutputPort()
+int OscConfig::getOutputPort()
 {
 	return mOutputPort;
 }
 
-PUBLIC void OscConfig::setOutputPort(int i)
+void OscConfig::setOutputPort(int i)
 {
 	mOutputPort = i;
 }
 
-PUBLIC OscBindingSet* OscConfig::getBindings()
+OscBindingSet* OscConfig::getBindings()
 {
 	return mBindings;
 }
 
-PUBLIC OscWatcher* OscConfig::getWatchers()
+void OscConfig::setBindings(OscBindingSet* list)
+{
+    delete mBindings;
+    mBindings = list;
+}
+
+OscWatcher* OscConfig::getWatchers()
 {
     return mWatchers;
+}
+
+void OscConfig::setWatchers(OscWatcher* list)
+{
+    delete mWatchers;
+    mWatchers = list;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -94,24 +108,24 @@ PUBLIC OscWatcher* OscConfig::getWatchers()
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC OscBindingSet::OscBindingSet()
+OscBindingSet::OscBindingSet()
 {
 	init();
 }
 
-PRIVATE void OscBindingSet::init()
+void OscBindingSet::init()
 {
-	mNext = NULL;
-    mName = NULL;
-    mComments = NULL;
+	mNext = nullptr;
+    mName = nullptr;
+    mComments = nullptr;
     mActive = false;
 	mInputPort = 0;
-	mOutputHost = NULL;
+	mOutputHost = nullptr;
 	mOutputPort = 0;
-	mBindings = NULL;
+	mBindings = nullptr;
 }
 
-PUBLIC OscBindingSet::~OscBindingSet()
+OscBindingSet::~OscBindingSet()
 {
 	OscBindingSet *el, *next;
 
@@ -120,88 +134,88 @@ PUBLIC OscBindingSet::~OscBindingSet()
 	delete mOutputHost;
 	delete mBindings;
 
-	for (el = mNext ; el != NULL ; el = next) {
+	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
-		el->setNext(NULL);
+		el->setNext(nullptr);
 		delete el;
 	}
 }
 
-PUBLIC OscBindingSet* OscBindingSet::getNext()
+OscBindingSet* OscBindingSet::getNext()
 {
     return mNext;
 }
 
-PUBLIC void OscBindingSet::setNext(OscBindingSet* s)
+void OscBindingSet::setNext(OscBindingSet* s)
 {
     mNext = s;
 }
 
-PUBLIC const char* OscBindingSet::getName()
+const char* OscBindingSet::getName()
 {
     return mName;
 }
 
-PUBLIC void OscBindingSet::setName(const char* s)
+void OscBindingSet::setName(const char* s)
 {
     delete mName;
     mName = CopyString(s);
 }
 
-PUBLIC const char* OscBindingSet::getComments()
+const char* OscBindingSet::getComments()
 {
     return mComments;
 }
 
-PUBLIC void OscBindingSet::setComments(const char* s)
+void OscBindingSet::setComments(const char* s)
 {
     delete mComments;
     mComments = CopyString(s);
 }
 
-PUBLIC bool OscBindingSet::isActive()
+bool OscBindingSet::isActive()
 {
     // ignore the active flag for now until we have a UI
     return true;
 }
 
-PUBLIC void OscBindingSet::setActive(bool b)
+void OscBindingSet::setActive(bool b)
 {
     mActive = b;
 }
 
-PUBLIC int OscBindingSet::getInputPort()
+int OscBindingSet::getInputPort()
 {
 	return mInputPort;
 }
 
-PUBLIC void OscBindingSet::setInputPort(int i)
+void OscBindingSet::setInputPort(int i)
 {
 	mInputPort = i;
 }
 
-PUBLIC const char* OscBindingSet::getOutputHost()
+const char* OscBindingSet::getOutputHost()
 {
 	return mOutputHost;
 }
 
-PUBLIC void OscBindingSet::setOutputHost(const char* s)
+void OscBindingSet::setOutputHost(const char* s)
 {
 	delete mOutputHost;
 	mOutputHost = CopyString(s);
 }
 
-PUBLIC int OscBindingSet::getOutputPort()
+int OscBindingSet::getOutputPort()
 {
 	return mOutputPort;
 }
 
-PUBLIC void OscBindingSet::setOutputPort(int i)
+void OscBindingSet::setOutputPort(int i)
 {
 	mOutputPort = i;
 }
 
-PUBLIC Binding* OscBindingSet::getBindings()
+Binding* OscBindingSet::getBindings()
 {
 	return mBindings;
 }
@@ -212,70 +226,70 @@ PUBLIC Binding* OscBindingSet::getBindings()
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC OscWatcher::OscWatcher()
+OscWatcher::OscWatcher()
 {
     init();
 }
 
 void OscWatcher::init()
 {
-    mNext = NULL;
-    mPath = NULL;
-    mName = NULL;
+    mNext = nullptr;
+    mPath = nullptr;
+    mName = nullptr;
     mTrack = 0;
 }
 
-PUBLIC OscWatcher::~OscWatcher()
+OscWatcher::~OscWatcher()
 {
     delete mName;
     delete mPath;
     
 	OscWatcher *el, *next;
-	for (el = mNext ; el != NULL ; el = next) {
+	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
-		el->setNext(NULL);
+		el->setNext(nullptr);
 		delete el;
 	}
 }
 
-PUBLIC OscWatcher* OscWatcher::getNext()
+OscWatcher* OscWatcher::getNext()
 {
     return mNext;
 }
 
-PUBLIC void OscWatcher::setNext(OscWatcher* w)
+void OscWatcher::setNext(OscWatcher* w)
 {
     mNext = w;
 }
 
-PUBLIC const char* OscWatcher::getPath()
+const char* OscWatcher::getPath()
 {
     return mPath;
 }
 
-PUBLIC void OscWatcher::setPath(const char* path)
+void OscWatcher::setPath(const char* path)
 {
     delete mPath;
     mPath = CopyString(path);
 }
 
-PUBLIC const char* OscWatcher::getName()
+const char* OscWatcher::getName()
 {
     return mName;
 }
 
-PUBLIC void OscWatcher::setName(const char* name)
+void OscWatcher::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
 }
 
-PUBLIC int OscWatcher::getTrack()
+int OscWatcher::getTrack()
 {
     return mTrack;
 }
 
-PUBLIC void OscWatcher::setTrack(int t)
+void OscWatcher::setTrack(int t)
 {
     mTrack = t;
 }

@@ -640,7 +640,7 @@
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\model\OldBinding.cpp">
+    <ClCompile Include="..\..\Source\model\OscConfig.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\Parameter.cpp">
@@ -655,7 +655,16 @@
     <ClCompile Include="..\..\Source\model\ParameterSetup.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\ParameterTrack.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\Preset.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\SampleConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ScriptConfig.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\Setup.cpp">
@@ -3180,13 +3189,19 @@
     <ClInclude Include="..\..\Source\model\MobiusConfig.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\model\OldBinding.h">
+    <ClInclude Include="..\..\Source\model\OscConfig.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Parameter.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Preset.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\SampleConfig.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\ScriptConfig.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Setup.h">

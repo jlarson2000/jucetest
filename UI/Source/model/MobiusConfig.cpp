@@ -20,32 +20,14 @@
 #include "../util/List.h"
 #include "../util/MidiUtil.h"
 
-//#include "Qwin.h"
-
-//#include "Binding.h"
-//#include "Function.h"
-//#include "Mobius.h"
-//#include "Parameter.h"
-//#include "Resampler.h"
-//#include "Script.h"
-//#include "Setup.h"
-
-// temporary
-//#include "OldBinding.h"
-
 #include "Binding.h"
 #include "Preset.h"
 #include "Setup.h"
 #include "ScriptConfig.h"
-#inlude "SampleConfig.h"
+#include "SampleConfig.h"
 #include "OscConfig.h"
 
 #include "MobiusConfig.h"
-
-// this does XML like I think it should
-// don't have Parameter do the XML, do it in the object and reference
-// the Parameter for the names
-#include "Parameter.h"
 
 // defined down in Audio.h, think about where this should live
 
@@ -92,32 +74,24 @@ MobiusConfig::MobiusConfig(bool dflt)
     mDefault = dflt;
 }
 
-MobiusConfig::MobiusConfig(const char *xml)
-{
-	init();
-	parseXml(xml);
-}
-
 void MobiusConfig::init()
 {
     mError[0] = 0;
     mDefault = false;
-    mHistory = NULL;
-	mLanguage = NULL;
-	mMidiInput = NULL;
-	mMidiOutput = NULL;
-	mMidiThrough = NULL;
-	mPluginMidiInput = NULL;
-	mPluginMidiOutput = NULL;
-	mPluginMidiThrough = NULL;
-	mAudioInput = NULL;
-	mAudioOutput = NULL;
-#ifndef HIDE_UICONFIG
-	mUIConfig = NULL;
-#endif    
-	mQuickSave = NULL;
-    mCustomMessageFile = NULL;
-	mUnitTests = NULL;
+    mHistory = nullptr;
+	mLanguage = nullptr;
+	mMidiInput = nullptr;
+	mMidiOutput = nullptr;
+	mMidiThrough = nullptr;
+	mPluginMidiInput = nullptr;
+	mPluginMidiOutput = nullptr;
+	mPluginMidiThrough = nullptr;
+	mAudioInput = nullptr;
+	mAudioOutput = nullptr;
+	mUIConfig = nullptr;
+	mQuickSave = nullptr;
+    mCustomMessageFile = nullptr;
+	mUnitTests = nullptr;
 
 	mNoiseFloor = DEFAULT_NOISE_FLOOR;
 	mSuggestedLatency = 0;
@@ -130,22 +104,20 @@ void MobiusConfig::init()
     mMaxLoops = DEFAULT_MAX_LOOPS;
     mLongPress = DEFAULT_LONG_PRESS_MSECS;
 
-	mFocusLockFunctions = NULL;
-	mMuteCancelFunctions = NULL;
-	mConfirmationFunctions = NULL;
-	mAltFeedbackDisables = NULL;
+	mFocusLockFunctions = nullptr;
+	mMuteCancelFunctions = nullptr;
+	mConfirmationFunctions = nullptr;
+	mAltFeedbackDisables = nullptr;
 
-	mPresets = NULL;
-	mPreset = NULL;
-	mSetups = NULL;
-	mSetup = NULL;
-	mBindingConfigs = NULL;
-    mOverlayBindings = NULL;
-	mMidiConfigs = NULL;
-    mSelectedMidiConfig = NULL;
-    mScriptConfig = NULL;
+	mPresets = nullptr;
+	mPreset = nullptr;
+	mSetups = nullptr;
+	mSetup = nullptr;
+	mBindingConfigs = nullptr;
+    mOverlayBindings = nullptr;
+    mScriptConfig = nullptr;
     mSampleConfig = nullptr;
-	mOscConfig = NULL;
+	mOscConfig = nullptr;
 
     mSampleRate = SAMPLE_RATE_44100;
 	mMonitorAudio = false;
@@ -178,7 +150,7 @@ void MobiusConfig::init()
     mOscTrace = false;
     mOscInputPort = 7000;
     mOscOutputPort = 8000;
-    mOscOutputHost = NULL;
+    mOscOutputHost = nullptr;
 
     mNoSyncBeatRounding = false;
     mLogStatus = false;
@@ -190,9 +162,9 @@ MobiusConfig::~MobiusConfig()
 {
     // delete the history list if we have one
 	MobiusConfig *el, *next;
-	for (el = mHistory ; el != NULL ; el = next) {
+	for (el = mHistory ; el != nullptr ; el = next) {
 		next = el->getHistory();
-		el->setHistory(NULL);
+		el->setHistory(nullptr);
 		delete el;
 	}
 
@@ -227,8 +199,8 @@ bool MobiusConfig::isDefault()
     return mDefault;
 }
 
-/**
- * 
+// will need this eventually
+#if 0
 MobiusConfig* MobiusConfig::clone()
 {
     char* xml = toXml();
@@ -245,6 +217,7 @@ MobiusConfig* MobiusConfig::clone()
 
     return clone;
 }
+#endif
 
 void MobiusConfig::setHistory(MobiusConfig* config)
 {
@@ -259,7 +232,7 @@ MobiusConfig* MobiusConfig::getHistory()
 int MobiusConfig::getHistoryCount()
 {
     int count = 0;
-    for (MobiusConfig* c = this ; c != NULL ; c = c->getHistory())
+    for (MobiusConfig* c = this ; c != nullptr ; c = c->getHistory())
       count++;
     return count;
 }
@@ -270,14 +243,14 @@ int MobiusConfig::getHistoryCount()
 void MobiusConfig::numberThings(Bindable* things)
 {
 	int count = 0;
-	for (Bindable* b = things ; b != NULL ; b = b->getNextBindable())
+	for (Bindable* b = things ; b != nullptr ; b = b->getNextBindable())
 	  b->setNumber(count++);
 }
 
 int MobiusConfig::countThings(Bindable* things)
 {
     int count = 0;
-    for (Bindable* b = things ; b != NULL ; b = b->getNextBindable())
+    for (Bindable* b = things ; b != nullptr ; b = b->getNextBindable())
       count++;
     return count;
 }
@@ -631,7 +604,7 @@ DriftCheckPoint MobiusConfig::getDriftCheckPoint()
 
 ScriptConfig* MobiusConfig::getScriptConfig()
 {
-    if (mScriptConfig == NULL)
+    if (mScriptConfig == nullptr)
       mScriptConfig = new ScriptConfig();
     return mScriptConfig;
 }
@@ -644,33 +617,6 @@ void MobiusConfig::setScriptConfig(ScriptConfig* dc)
     }
 }
 
-ControlSurfaceConfig* MobiusConfig::getControlSurfaces()
-{
-    return mControlSurfaces;
-}
-
-void MobiusConfig::setControlSurfaces(ControlSurfaceConfig* list)
-v{
-	if (list != mControlSurfaces) {
-		delete mControlSurfaces;
-		mControlSurfaces = list;
-	}
-}
-
-void MobiusConfig::addControlSurface(ControlSurfaceConfig* cs)
-{
-	// keep them ordered
-	ControlSurfaceConfig *prev;
-	for (prev = mControlSurfaces ; prev != NULL && prev->getNext() != NULL ; 
-		 prev = prev->getNext());
-
-	if (prev == NULL)
-	  mControlSurfaces = cs;
-	else
-	  prev->setNext(cs);
-}
-
-#ifndef HIDE_OSC
 OscConfig* MobiusConfig::getOscConfig()
 {
 	return mOscConfig;
@@ -683,9 +629,7 @@ void MobiusConfig::setOscConfig(OscConfig* c)
 		mOscConfig = c;
 	}
 }
-#endif
 
-#ifndef HIDE_UICONFIG
 void MobiusConfig::setUIConfig(const char* s) 
 {
 	delete mUIConfig;
@@ -696,7 +640,6 @@ const char* MobiusConfig::getUIConfig()
 {
 	return mUIConfig;
 }
-#endif
 
 void MobiusConfig::setQuickSave(const char* s) 
 {
@@ -834,8 +777,8 @@ bool MobiusConfig::isGroupFocusLock() {
  */
 void MobiusConfig::generateNames()
 {
-    generateNames(mPresets, "Preset", NULL);
-    generateNames(mSetups, "Setup", NULL);
+    generateNames(mPresets, "Preset", nullptr);
+    generateNames(mSetups, "Setup", nullptr);
     generateNames(mBindingConfigs, "Bindings", MIDI_COMMON_BINDINGS_NAME);
 }
 
@@ -856,28 +799,28 @@ void MobiusConfig::generateNames(Bindable* bindables,
     char buf[128];
     int count = 1;
 
-	for (Bindable* b = bindables ; b != NULL ; b = b->getNextBindable()) {
+	for (Bindable* b = bindables ; b != nullptr ; b = b->getNextBindable()) {
         if (baseName && b == bindables) {
             // force the name of the first one
             if (!StringEqual(baseName, b->getName()))
               b->setName(baseName);
         }
-        else if (b->getName() == NULL) {
+        else if (b->getName() == nullptr) {
             Bindable* existing;
             do {
                 // search for name in use
-                existing = NULL;
+                existing = nullptr;
                 sprintf(buf, "%s %d", prefix, count);
-                for (Bindable* b2 = bindables ; b2 != NULL ; 
+                for (Bindable* b2 = bindables ; b2 != nullptr ; 
                      b2 = b2->getNextBindable()) {
                     if (StringEqual(buf, b2->getName())) {
                         existing = b2;
                         break;
                     }
                 }
-                if (existing != NULL)
+                if (existing != nullptr)
                   count++;
-            } while (existing != NULL);
+            } while (existing != nullptr);
 
             b->setName(buf);
         }
@@ -1012,15 +955,15 @@ void MobiusConfig::addPreset(Preset* p)
 
 	// keep them ordered
 	Preset *prev;
-	for (prev = mPresets ; prev != NULL && prev->getNext() != NULL ; 
+	for (prev = mPresets ; prev != nullptr && prev->getNext() != nullptr ; 
 		 prev = prev->getNext());
 
-	if (prev == NULL)
+	if (prev == nullptr)
 	  mPresets = p;
 	else
 	  prev->setNext(p);
 
-    if (mPreset == NULL)
+    if (mPreset == nullptr)
       mPreset = p;
 
 	numberThings(mPresets);
@@ -1032,16 +975,16 @@ void MobiusConfig::addPreset(Preset* p)
  */
 void MobiusConfig::removePreset(Preset* preset) 
 {
-	Preset* prev = NULL;
-	for (Preset* p = mPresets ; p != NULL ; p = p->getNext()) {
+	Preset* prev = nullptr;
+	for (Preset* p = mPresets ; p != nullptr ; p = p->getNext()) {
 		if (p != preset)
 		  prev = p;
 		else {
-			if (prev == NULL)
+			if (prev == nullptr)
 			  mPresets = p->getNext();
 			else 
 			  prev->setNext(p->getNext());
-			p->setNext(NULL);
+			p->setNext(nullptr);
 
 			if (p == mPreset)
 			  mPreset = mPresets;
@@ -1052,9 +995,9 @@ void MobiusConfig::removePreset(Preset* preset)
 
 Preset* MobiusConfig::getPreset(const char* name)
 {
-	Preset* found = NULL;
-	if (name != NULL) {
-		for (Preset* p = mPresets ; p != NULL ; p = p->getNext()) {
+	Preset* found = nullptr;
+	if (name != nullptr) {
+		for (Preset* p = mPresets ; p != nullptr ; p = p->getNext()) {
             if (StringEqualNoCase(name, p->getName())) {
 				found = p;
 				break;
@@ -1066,10 +1009,10 @@ Preset* MobiusConfig::getPreset(const char* name)
 
 Preset* MobiusConfig::getPreset(int index)
 {
-    Preset* found = NULL;
+    Preset* found = nullptr;
     int i = 0;
 
-    for (Preset* p = mPresets ; p != NULL ; p = p->getNext(), i++) {
+    for (Preset* p = mPresets ; p != nullptr ; p = p->getNext(), i++) {
         if (i == index) {
             found = p;
             break;
@@ -1083,7 +1026,7 @@ Preset* MobiusConfig::getPreset(int index)
  */
 Preset* MobiusConfig::getDefaultPreset()
 {
-    if (mPresets == NULL)
+    if (mPresets == nullptr)
       mPresets = new Preset("Default");
     return mPresets;
 }
@@ -1095,8 +1038,8 @@ Preset* MobiusConfig::getDefaultPreset()
  */
 Preset* MobiusConfig::getCurrentPreset()
 {
-	if (mPreset == NULL) {
-		if (mPresets == NULL)
+	if (mPreset == nullptr) {
+		if (mPresets == nullptr)
 		  mPresets = new Preset("Default");
 		mPreset = mPresets;
 	}
@@ -1108,11 +1051,11 @@ int MobiusConfig::getCurrentPresetIndex()
     int index = 0;
     int i = 0;
 
-	if (mPreset == NULL)
+	if (mPreset == nullptr)
 	  mPreset = mPresets;
 
     // don't need to do it this way if we can assume they're numbered!?
-    for (Preset* p = mPresets ; p != NULL ; p = p->getNext(), i++) {
+    for (Preset* p = mPresets ; p != nullptr ; p = p->getNext(), i++) {
         if (p == mPreset) {
             index = i;
             break;
@@ -1129,7 +1072,7 @@ void MobiusConfig::setCurrentPreset(Preset* p)
 Preset* MobiusConfig::setCurrentPreset(int index)
 {
     Preset* p = getPreset(index);
-    if (p != NULL) 
+    if (p != nullptr) 
 	  mPreset = p;
     return mPreset;
 }
@@ -1173,15 +1116,15 @@ void MobiusConfig::addSetup(Setup* p)
 
 	// keep them ordered
 	Setup *prev;
-	for (prev = mSetups ; prev != NULL && prev->getNext() != NULL ; 
+	for (prev = mSetups ; prev != nullptr && prev->getNext() != nullptr ; 
 		 prev = prev->getNext());
 
-	if (prev == NULL)
+	if (prev == nullptr)
 	  mSetups = p;
 	else
 	  prev->setNext(p);
 
-    if (mSetup == NULL)
+    if (mSetup == nullptr)
       mSetup = p;
 
     numberThings(mSetups);
@@ -1193,16 +1136,16 @@ void MobiusConfig::addSetup(Setup* p)
  */
 void MobiusConfig::removeSetup(Setup* preset) 
 {
-	Setup* prev = NULL;
-	for (Setup* p = mSetups ; p != NULL ; p = p->getNext()) {
+	Setup* prev = nullptr;
+	for (Setup* p = mSetups ; p != nullptr ; p = p->getNext()) {
 		if (p != preset)
 		  prev = p;
 		else {
-			if (prev == NULL)
+			if (prev == nullptr)
 			  mSetups = p->getNext();
 			else 
 			  prev->setNext(p->getNext());
-			p->setNext(NULL);
+			p->setNext(nullptr);
 
 			if (p == mSetup)
 			  mSetup = mSetups;
@@ -1213,9 +1156,9 @@ void MobiusConfig::removeSetup(Setup* preset)
 
 Setup* MobiusConfig::getSetup(const char* name)
 {
-	Setup* found = NULL;
-	if (name != NULL) {
-		for (Setup* p = mSetups ; p != NULL ; p = p->getNext()) {
+	Setup* found = nullptr;
+	if (name != nullptr) {
+		for (Setup* p = mSetups ; p != nullptr ; p = p->getNext()) {
 			if (StringEqualNoCase(name, p->getName())) {
 				found = p;
 				break;
@@ -1227,10 +1170,10 @@ Setup* MobiusConfig::getSetup(const char* name)
 
 Setup* MobiusConfig::getSetup(int index)
 {
-    Setup* found = NULL;
+    Setup* found = nullptr;
     int i = 0;
 
-    for (Setup* p = mSetups ; p != NULL ; p = p->getNext(), i++) {
+    for (Setup* p = mSetups ; p != nullptr ; p = p->getNext(), i++) {
         if (i == index) {
             found = p;
             break;
@@ -1244,8 +1187,8 @@ Setup* MobiusConfig::getSetup(int index)
  */
 Setup* MobiusConfig::getCurrentSetup()
 {
-	if (mSetup == NULL) {
-		if (mSetups == NULL)
+	if (mSetup == nullptr) {
+		if (mSetups == nullptr)
 		  mSetups = new Setup();
 		mSetup = mSetups;
 	}
@@ -1257,10 +1200,10 @@ int MobiusConfig::getCurrentSetupIndex()
     int index = 0;
     int i = 0;
 
-	if (mSetup == NULL)
+	if (mSetup == nullptr)
 	  mSetup = mSetups;
 
-    for (Setup* p = mSetups ; p != NULL ; p = p->getNext(), i++) {
+    for (Setup* p = mSetups ; p != nullptr ; p = p->getNext(), i++) {
         if (p == mSetup) {
             index = i;
             break;
@@ -1278,10 +1221,10 @@ int MobiusConfig::getCurrentSetupIndex()
  */
 void MobiusConfig::setCurrentSetup(Setup* p)
 {
-	if (p != NULL) {
+	if (p != nullptr) {
 		// these should be the same object, but make sure
  Setup* cur = getSetup(p->getName());
-		if (cur != NULL) 
+		if (cur != nullptr) 
 		  mSetup= cur;
 	}
 }
@@ -1289,7 +1232,7 @@ void MobiusConfig::setCurrentSetup(Setup* p)
 Setup* MobiusConfig::setCurrentSetup(int index)
 {
     Setup* p = getSetup(index);
-    if (p != NULL) 
+    if (p != nullptr) 
 	  mSetup = p;
     return mSetup;
 }
@@ -1332,9 +1275,9 @@ void MobiusConfig::addBindingConfig(BindingConfig* c)
 {
 	// keep them ordered
 	BindingConfig *prev;
-	for (prev = mBindingConfigs ; prev != NULL && prev->getNext() != NULL ; 
+	for (prev = mBindingConfigs ; prev != nullptr && prev->getNext() != nullptr ; 
 		 prev = prev->getNext());
-	if (prev == NULL)
+	if (prev == nullptr)
 	  mBindingConfigs = c;
 	else
 	  prev->setNext(c);
@@ -1348,12 +1291,12 @@ void MobiusConfig::addBindingConfig(BindingConfig* c)
  */
 void MobiusConfig::removeBindingConfig(BindingConfig* config) 
 {
-	BindingConfig* prev = NULL;
-	for (BindingConfig* p = mBindingConfigs ; p != NULL ; p = p->getNext()) {
+	BindingConfig* prev = nullptr;
+	for (BindingConfig* p = mBindingConfigs ; p != nullptr ; p = p->getNext()) {
 		if (p != config)
 		  prev = p;
 		else {
-			if (prev == NULL) {
+			if (prev == nullptr) {
                 // UI should have prevented this
                 Trace(1, "Removing base BindingConfig!!\n");
                 mBindingConfigs = p->getNext();
@@ -1361,10 +1304,10 @@ void MobiusConfig::removeBindingConfig(BindingConfig* config)
 			else 
 			  prev->setNext(p->getNext());
 
-			p->setNext(NULL);
+			p->setNext(nullptr);
 
 			if (p == mOverlayBindings)
-			  mOverlayBindings = NULL;
+			  mOverlayBindings = nullptr;
 		}
 	}
     numberThings(mBindingConfigs);
@@ -1372,13 +1315,13 @@ void MobiusConfig::removeBindingConfig(BindingConfig* config)
 
 BindingConfig* MobiusConfig::getBindingConfig(const char* name)
 {
-	BindingConfig* found = NULL;
-    if (name == NULL) {
+	BindingConfig* found = nullptr;
+    if (name == nullptr) {
         // always the base config
         found = mBindingConfigs;
     }
     else {
-		for (BindingConfig* p = mBindingConfigs ; p != NULL ; p = p->getNext()) {
+		for (BindingConfig* p = mBindingConfigs ; p != nullptr ; p = p->getNext()) {
 			if (StringEqualNoCase(name, p->getName())) {
 				found = p;
 				break;
@@ -1390,10 +1333,10 @@ BindingConfig* MobiusConfig::getBindingConfig(const char* name)
 
 BindingConfig* MobiusConfig::getBindingConfig(int index)
 {
-    BindingConfig* found = NULL;
+    BindingConfig* found = nullptr;
     int i = 0;
 
-    for (BindingConfig* c = mBindingConfigs ; c != NULL ; c = c->getNext(), i++) {
+    for (BindingConfig* c = mBindingConfigs ; c != nullptr ; c = c->getNext(), i++) {
         if (i == index) {
             found = c;
             break;
@@ -1407,7 +1350,7 @@ BindingConfig* MobiusConfig::getBindingConfig(int index)
  */
 BindingConfig* MobiusConfig::getBaseBindingConfig()
 {
-    if (mBindingConfigs == NULL)
+    if (mBindingConfigs == nullptr)
       mBindingConfigs = new BindingConfig();
 	return mBindingConfigs;
 }
@@ -1416,7 +1359,7 @@ BindingConfig* MobiusConfig::getOverlayBindingConfig()
 {
     // it is important this self-heal if it got corrupted
     if (mOverlayBindings == mBindingConfigs)
-      mOverlayBindings = NULL;
+      mOverlayBindings = nullptr;
 	return mOverlayBindings;
 }
 
@@ -1426,7 +1369,7 @@ int MobiusConfig::getOverlayBindingConfigIndex()
 
     int index = 0;
     int i = 0;
-    for (BindingConfig* b = mBindingConfigs ; b != NULL ; 
+    for (BindingConfig* b = mBindingConfigs ; b != nullptr ; 
          b = b->getNext(), i++) {
 
         if (b == overlay) {
@@ -1444,7 +1387,7 @@ void MobiusConfig::setOverlayBindingConfig(BindingConfig* b)
     // XML got screwed up or when processing dynamic Actions with a
     // bad overlay number
     if (b == mBindingConfigs)
-      mOverlayBindings = NULL;
+      mOverlayBindings = nullptr;
     else
       mOverlayBindings = b;
 }
@@ -1460,442 +1403,10 @@ BindingConfig* MobiusConfig::setOverlayBindingConfig(int index)
 {
     BindingConfig* b = getBindingConfig(index);
     // ignore invalid indexes, don't reset to the base?
-    if (b != NULL)
+    if (b != nullptr)
       setOverlayBindingConfig(b);
 
     return mOverlayBindings;
-}
-
-/****************************************************************************
- *                                                                          *
- *   								 XML                                    *
- *                                                                          *
- ****************************************************************************/
-
-void MobiusConfig::parseXml(const char *src) 
-{
-    mError[0] = 0;
-	XomParser* p = new XomParser();
-	XmlDocument* d = p->parse(src);
-    XmlElement* e = NULL;
-
-	if (d != NULL)
-      e = d->getChildElement();
-
-    if (e != NULL)
-      parseXml(e);
-    else {
-        // must have been a parse error
-        CopyString(p->getError(), mError, sizeof(mError));
-    }
-    delete d;
-	delete p;
-}
-
-/**
- * Return the error message if it is set.
- */
-const char* MobiusConfig::getError()
-{
-    return (mError[0] != 0) ? mError : NULL;
-}
-
-void MobiusConfig::parseXml(XmlElement* e)
-{
-    const char* setup = e->getAttribute(ATT_SETUP);
-	const char* bconfig = e->getAttribute(ATT_OVERLAY_BINDINGS);
-
-    // save this for upgrade
-    setSelectedMidiConfig(e->getAttribute(ATT_MIDI_CONFIG));
-
-	// !! need to start iterating over GlobalParameters to 
-	// automatic some of this
-
-	setLanguage(e->getAttribute(ATT_LANGUAGE));
-	setMidiInput(e->getAttribute(MidiInputParameter->getName()));
-	setMidiOutput(e->getAttribute(MidiOutputParameter->getName()));
-	setMidiThrough(e->getAttribute(MidiThroughParameter->getName()));
-	setPluginMidiInput(e->getAttribute(PluginMidiInputParameter->getName()));
-	setPluginMidiOutput(e->getAttribute(PluginMidiOutputParameter->getName()));
-	setPluginMidiThrough(e->getAttribute(PluginMidiThroughParameter->getName()));
-	setAudioInput(e->getAttribute(AudioInputParameter->getName()));
-	setAudioOutput(e->getAttribute(AudioOutputParameter->getName()));
-#ifndef HIDE_UICONFIG
-	setUIConfig(e->getAttribute(ATT_UI_CONFIG));
-#endif    
-	setQuickSave(e->getAttribute(QuickSaveParameter->getName()));
-	setUnitTests(e->getAttribute(UnitTestsParameter->getName()));
-	setCustomMessageFile(e->getAttribute(CustomMessageFileParameter->getName()));
-
-	setNoiseFloor(e->getIntAttribute(NoiseFloorParameter->getName()));
-	setSuggestedLatencyMsec(e->getIntAttribute(ATT_SUGGESTED_LATENCY));
-	setInputLatency(e->getIntAttribute(InputLatencyParameter->getName()));
-	setOutputLatency(e->getIntAttribute(OutputLatencyParameter->getName()));
-	setMaxSyncDrift(e->getIntAttribute(MaxSyncDriftParameter->getName()));
-	setTracks(e->getIntAttribute(TracksParameter->getName()));
-	setTrackGroups(e->getIntAttribute(TrackGroupsParameter->getName()));
-	setMaxLoops(e->getIntAttribute(MaxLoopsParameter->getName()));
-	setLongPress(e->getIntAttribute(LongPressParameter->getName()));
-
-	setMonitorAudio(e->getBoolAttribute(MonitorAudioParameter->getName()));
-	setHostRewinds(e->getBoolAttribute(ATT_PLUGIN_HOST_REWINDS));
-	setPluginPins(e->getIntAttribute(ATT_PLUGIN_PINS));
-	setAutoFeedbackReduction(e->getBoolAttribute(AutoFeedbackReductionParameter->getName()));
-    // don't allow this to be persisted any more, can only be set in scripts
-	//setIsolateOverdubs(e->getBoolAttribute(IsolateOverdubsParameter->getName()));
-	setIntegerWaveFile(e->getBoolAttribute(IntegerWaveFileParameter->getName()));
-	setSpreadRange(e->getIntAttribute(SpreadRangeParameter->getName()));
-	setTracePrintLevel(e->getIntAttribute(TracePrintLevelParameter->getName()));
-	setTraceDebugLevel(e->getIntAttribute(TraceDebugLevelParameter->getName()));
-	setSaveLayers(e->getBoolAttribute(SaveLayersParameter->getName()));
-	setDriftCheckPoint((DriftCheckPoint)XmlGetEnum(e, DriftCheckPointParameter->getName(), DriftCheckPointParameter->values));
-	setMidiRecordMode((MidiRecordMode)XmlGetEnum(e, MidiRecordModeParameter->getName(), MidiRecordModeParameter->values));
-    setDualPluginWindow(e->getBoolAttribute(DualPluginWindowParameter->getName()));
-    setMidiExport(e->getBoolAttribute(MidiExportParameter->getName()));
-    setHostMidiExport(e->getBoolAttribute(HostMidiExportParameter->getName()));
-
-    setOscInputPort(e->getIntAttribute(OscInputPortParameter->getName()));
-    setOscOutputPort(e->getIntAttribute(OscOutputPortParameter->getName()));
-    setOscOutputHost(e->getAttribute(OscOutputHostParameter->getName()));
-    setOscTrace(e->getBoolAttribute(OscTraceParameter->getName()));
-    setOscEnable(e->getBoolAttribute(OscEnableParameter->getName()));
-
-    // this isn't a parameter yet
-    setNoSyncBeatRounding(e->getBoolAttribute(ATT_NO_SYNC_BEAT_ROUNDING));
-    setLogStatus(e->getBoolAttribute(ATT_LOG_STATUS));
-
-    // not an official parameter yet
-    setEdpisms(e->getBoolAttribute(ATT_EDPISMS));
-
-	setSampleRate((AudioSampleRate)XmlGetEnum(e, SampleRateParameter->getName(), SampleRateParameter->values));
-
-    // fade frames can no longer be set high so we don't bother exposing it
-	//setFadeFrames(e->getIntAttribute(FadeFramesParameter->getName()));
-
-	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
-		 child = child->getNextElement()) {
-
-		if (child->isName(EL_PRESET)) {
-			Preset* p = new Preset(child);
-			addPreset(p);
-		}
-		else if (child->isName(EL_SETUP)) {
-			Setup* s = new Setup(child);
-			addSetup(s);
-		}
-		else if (child->isName(EL_BINDING_CONFIG)) {
-			BindingConfig* c = new BindingConfig(child);
-			addBindingConfig(c);
-		}
-		else if (child->isName(EL_MIDI_CONFIG)) {
-			MidiConfig* c = new MidiConfig(child);
-			addMidiConfig(c);
-		}
-		else if (child->isName(EL_SCRIPT_CONFIG)) {
-			mScriptConfig = new ScriptConfig(child);
-		}
-		else if (child->isName(EL_CONTROL_SURFACE)) {
-			ControlSurfaceConfig* cs = new ControlSurfaceConfig(child);
-			addControlSurface(cs);
-		}
-#ifndef HIDE_OSC        
-		else if (child->isName(EL_OSC_CONFIG)) {
-			setOscConfig(new OscConfig(child));
-		}
-#endif        
-#ifndef HIDE_SAMPLES
-		else if (child->isName(EL_SAMPLES)) {
-			mSamples = new Samples(child);
-        }
-#endif
-		else if (child->isName(EL_FOCUS_LOCK_FUNCTIONS) ||
-                 child->isName(EL_GROUP_FUNCTIONS)) {
-            // changed the name in 1.43
-			StringList* functions = new StringList();
-			for (XmlElement* gchild = child->getChildElement() ; 
-				 gchild != NULL ; 
-				 gchild = gchild->getNextElement()) {
-				// assumed to be <String>xxx</String>
-				const char* name = gchild->getContent();
-				if (name != NULL) 
-				  functions->add(name);
-			}
-			setFocusLockFunctions(functions);
-		}
-		else if (child->isName(EL_MUTE_CANCEL_FUNCTIONS)) {
-			StringList* functions = new StringList();
-			for (XmlElement* gchild = child->getChildElement() ; 
-				 gchild != NULL ; 
-				 gchild = gchild->getNextElement()) {
-				// assumed to be <String>xxx</String>
-				const char* name = gchild->getContent();
-				if (name != NULL) 
-				  functions->add(name);
-			}
-			setMuteCancelFunctions(functions);
-		}
-		else if (child->isName(EL_CONFIRMATION_FUNCTIONS)) {
-			StringList* functions = new StringList();
-			for (XmlElement* gchild = child->getChildElement() ; 
-				 gchild != NULL ; 
-				 gchild = gchild->getNextElement()) {
-				// assumed to be <String>xxx</String>
-				const char* name = gchild->getContent();
-				if (name != NULL) 
-				  functions->add(name);
-			}
-			setConfirmationFunctions(functions);
-		}
-		else if (child->isName(EL_ALT_FEEDBACK_DISABLES)) {
-			StringList* controls = new StringList();
-			for (XmlElement* gchild = child->getChildElement() ; 
-				 gchild != NULL ; 
-				 gchild = gchild->getNextElement()) {
-				// assumed to be <String>xxx</String>
-				const char* name = gchild->getContent();
-				if (name != NULL) 
-				  controls->add(name);
-			}
-			setAltFeedbackDisables(controls);
-		}
-	}
-
-	// have to wait until these are populated
-	setOverlayBindingConfig(bconfig);
-    setCurrentSetup(setup);
-}
-
-char* MobiusConfig::toXml()
-{
-	char* xml = NULL;
-	XmlBuffer* b = new XmlBuffer();
-	toXml(b);
-	xml = b->stealString();
-	delete b;
-	return xml;
-}
-
-void MobiusConfig::toXml(XmlBuffer* b)
-{
-	// !! this really needs to be table driven like Preset parameters
-
-	b->addOpenStartTag(EL_CONFIG);
-
-    b->addAttribute(ATT_LANGUAGE, mLanguage);
-    b->addAttribute(MidiInputParameter->getName(), mMidiInput);
-    b->addAttribute(MidiOutputParameter->getName(), mMidiOutput);
-    b->addAttribute(MidiThroughParameter->getName(), mMidiThrough);
-    b->addAttribute(PluginMidiInputParameter->getName(), mPluginMidiInput);
-    b->addAttribute(PluginMidiOutputParameter->getName(), mPluginMidiOutput);
-    b->addAttribute(PluginMidiThroughParameter->getName(), mPluginMidiThrough);
-    b->addAttribute(AudioInputParameter->getName(), mAudioInput);
-    b->addAttribute(AudioOutputParameter->getName(), mAudioOutput);
-	b->addAttribute(ATT_UI_CONFIG, mUIConfig);
-	b->addAttribute(QuickSaveParameter->getName(), mQuickSave);
-	b->addAttribute(CustomMessageFileParameter->getName(), mCustomMessageFile);
-	b->addAttribute(UnitTestsParameter->getName(), mUnitTests);
-
-    b->addAttribute(NoiseFloorParameter->getName(), mNoiseFloor);
-	b->addAttribute(ATT_SUGGESTED_LATENCY, mSuggestedLatency);
-	b->addAttribute(InputLatencyParameter->getName(), mInputLatency);
-	b->addAttribute(OutputLatencyParameter->getName(), mOutputLatency);
-    // don't bother saving this until it can have a more useful range
-	//b->addAttribute(FadeFramesParameter->getName(), mFadeFrames);
-	b->addAttribute(MaxSyncDriftParameter->getName(), mMaxSyncDrift);
-    b->addAttribute(TracksParameter->getName(), mTracks);
-    b->addAttribute(TrackGroupsParameter->getName(), mTrackGroups);
-    b->addAttribute(MaxLoopsParameter->getName(), mMaxLoops);
-	b->addAttribute(LongPressParameter->getName(), mLongPress);
-	b->addAttribute(MonitorAudioParameter->getName(), mMonitorAudio);
-	b->addAttribute(ATT_PLUGIN_HOST_REWINDS, mHostRewinds);
-	b->addAttribute(ATT_PLUGIN_PINS, mPluginPins);
-	b->addAttribute(AutoFeedbackReductionParameter->getName(), mAutoFeedbackReduction);
-    // don't allow this to be persisted any more, can only be set in scripts
-	//b->addAttribute(IsolateOverdubsParameter->getName(), mIsolateOverdubs);
-	b->addAttribute(IntegerWaveFileParameter->getName(), mIntegerWaveFile);
-	b->addAttribute(SpreadRangeParameter->getName(), mSpreadRange);
-	b->addAttribute(TracePrintLevelParameter->getName(), mTracePrintLevel);
-	b->addAttribute(TraceDebugLevelParameter->getName(), mTraceDebugLevel);
-	b->addAttribute(SaveLayersParameter->getName(), mSaveLayers);
-	b->addAttribute(DriftCheckPointParameter->getName(), DriftCheckPointParameter->values[mDriftCheckPoint]);
-	b->addAttribute(MidiRecordModeParameter->getName(), MidiRecordModeParameter->values[mMidiRecordMode]);
-	b->addAttribute(DualPluginWindowParameter->getName(), mDualPluginWindow);
-	b->addAttribute(MidiExportParameter->getName(), mMidiExport);
-	b->addAttribute(HostMidiExportParameter->getName(), mHostMidiExport);
-	b->addAttribute(GroupFocusLockParameter->getName(), mGroupFocusLock);
-
-    b->addAttribute(ATT_NO_SYNC_BEAT_ROUNDING, mNoSyncBeatRounding);
-    b->addAttribute(ATT_LOG_STATUS, mLogStatus);
-
-	b->addAttribute(OscInputPortParameter->getName(), mOscInputPort);
-	b->addAttribute(OscOutputPortParameter->getName(), mOscOutputPort);
-	b->addAttribute(OscOutputHostParameter->getName(), mOscOutputHost);
-    b->addAttribute(OscTraceParameter->getName(), mOscTrace);
-    b->addAttribute(OscEnableParameter->getName(), mOscEnable);
-
-	b->addAttribute(SampleRateParameter->getName(), SampleRateParameter->values[mSampleRate]);
-
-    // The setup is all we store, if the preset has been overridden
-    // this is not saved in the config.
-	if (mSetup != NULL)
-	  b->addAttribute(ATT_SETUP, mSetup->getName());
-
-    BindingConfig* overlay = getOverlayBindingConfig();
-	if (overlay != NULL)
-	  b->addAttribute(ATT_OVERLAY_BINDINGS, mOverlayBindings->getName());
-
-    // not an official Parameter yet
-    if (mEdpisms)
-      b->addAttribute(ATT_EDPISMS, "true");
-
-	b->add(">\n");
-	b->incIndent();
-
-	if (mScriptConfig != NULL)
-      mScriptConfig->toXml(b);
-
-	for (Preset* p = mPresets ; p != NULL ; p = p->getNext())
-	  p->toXml(b);
-
-	for (Setup* s = mSetups ; s != NULL ; s = s->getNext())
-	  s->toXml(b);
-
-	for (BindingConfig* c = mBindingConfigs ; c != NULL ; c = c->getNext())
-	  c->toXml(b);
-
-    // should have cleaned these up by now
-    if (mMidiConfigs != NULL) {
-        Trace(1, "Still have MidiConfigs!!\n");
-        for (MidiConfig* mc = mMidiConfigs ; mc != NULL ; mc = mc->getNext())
-          mc->toXml(b);
-    }
-
-	for (ControlSurfaceConfig* cs = mControlSurfaces ; cs != NULL ; cs = cs->getNext())
-	  cs->toXml(b);
-
-#ifndef HIDE_SAMPLES
-	if (mSamples != NULL)
-	  mSamples->toXml(b);
-#endif
-    
-	if (mFocusLockFunctions != NULL && mFocusLockFunctions->size() > 0) {
-		b->addStartTag(EL_FOCUS_LOCK_FUNCTIONS, true);
-		b->incIndent();
-		for (int i = 0 ; i < mFocusLockFunctions->size() ; i++) {
-			const char* name = mFocusLockFunctions->getString(i);
-			b->addElement(EL_STRING, name);
-		}
-		b->decIndent();
-		b->addEndTag(EL_FOCUS_LOCK_FUNCTIONS, true);
-	}		
-
-	if (mMuteCancelFunctions != NULL && mMuteCancelFunctions->size() > 0) {
-		b->addStartTag(EL_MUTE_CANCEL_FUNCTIONS, true);
-		b->incIndent();
-		for (int i = 0 ; i < mMuteCancelFunctions->size() ; i++) {
-			const char* name = mMuteCancelFunctions->getString(i);
-			b->addElement(EL_STRING, name);
-		}
-		b->decIndent();
-		b->addEndTag(EL_MUTE_CANCEL_FUNCTIONS, true);
-	}		
-
-	if (mConfirmationFunctions != NULL && mConfirmationFunctions->size() > 0) {
-		b->addStartTag(EL_CONFIRMATION_FUNCTIONS, true);
-		b->incIndent();
-		for (int i = 0 ; i < mConfirmationFunctions->size() ; i++) {
-			const char* name = mConfirmationFunctions->getString(i);
-			b->addElement(EL_STRING, name);
-		}
-		b->decIndent();
-		b->addEndTag(EL_CONFIRMATION_FUNCTIONS, true);
-	}		
-
-	if (mAltFeedbackDisables != NULL && mAltFeedbackDisables->size() > 0) {
-		b->addStartTag(EL_ALT_FEEDBACK_DISABLES, true);
-		b->incIndent();
-		for (int i = 0 ; i < mAltFeedbackDisables->size() ; i++) {
-			const char* name = mAltFeedbackDisables->getString(i);
-			b->addElement(EL_STRING, name);
-		}
-		b->decIndent();
-		b->addEndTag(EL_ALT_FEEDBACK_DISABLES, true);
-	}		
-
-	b->decIndent();
-
-	b->addEndTag(EL_CONFIG);
-}
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// Control Surface
-//
-//////////////////////////////////////////////////////////////////////
-
-ControlSurfaceConfig::ControlSurfaceConfig()
-{
-	init();
-}
-
-ControlSurfaceConfig::ControlSurfaceConfig(XmlElement* e)
-{
-	init();
-	parseXml(e);
-}
-
-void ControlSurfaceConfig::init()
-{
-	mNext = NULL;
-	mName = NULL;
-}
-
-ControlSurfaceConfig::~ControlSurfaceConfig()
-{
-	delete mName;
-
-    ControlSurfaceConfig* el;
-    ControlSurfaceConfig* next = NULL;
-
-    for (el = mNext ; el != NULL ; el = next) {
-        next = el->getNext();
-		el->setNext(NULL);
-        delete el;
-    }
-}
-
-ControlSurfaceConfig* ControlSurfaceConfig::getNext()
-{
-	return mNext;
-}
-
-void ControlSurfaceConfig::setNext(ControlSurfaceConfig* cs)
-{
-	mNext = cs;
-}
-
-const char* ControlSurfaceConfig::getName()
-{
-	return mName;
-}
-
-void ControlSurfaceConfig::setName(const char* s)
-{
-	delete mName;
-	mName = CopyString(s);
-}
-
-void ControlSurfaceConfig::parseXml(XmlElement* e)
-{
-    setName(e->getAttribute(ATT_NAME));
-}
-
-void ControlSurfaceConfig::toXml(XmlBuffer* b)
-{
-    b->addOpenStartTag(EL_CONTROL_SURFACE);
-    b->addAttribute(ATT_NAME, mName);
-    b->add("/>\n");
 }
 
 /****************************************************************************/

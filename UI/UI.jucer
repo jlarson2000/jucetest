@@ -42,8 +42,8 @@
         <FILE id="w1kSSZ" name="MobiusConfig.cpp" compile="1" resource="0"
               file="Source/model/MobiusConfig.cpp"/>
         <FILE id="rrRIuQ" name="MobiusConfig.h" compile="0" resource="0" file="Source/model/MobiusConfig.h"/>
-        <FILE id="Yw4iNr" name="OldBinding.cpp" compile="1" resource="0" file="Source/model/OldBinding.cpp"/>
-        <FILE id="c2pqWD" name="OldBinding.h" compile="0" resource="0" file="Source/model/OldBinding.h"/>
+        <FILE id="sWgU5q" name="OscConfig.cpp" compile="1" resource="0" file="Source/model/OscConfig.cpp"/>
+        <FILE id="RfFrrM" name="OscConfig.h" compile="0" resource="0" file="Source/model/OscConfig.h"/>
         <FILE id="kSK1Zx" name="Parameter.cpp" compile="1" resource="0" file="Source/model/Parameter.cpp"/>
         <FILE id="p3cTmf" name="Parameter.h" compile="0" resource="0" file="Source/model/Parameter.h"/>
         <FILE id="YvKxXs" name="ParameterGlobal.cpp" compile="1" resource="0"
@@ -52,8 +52,16 @@
               file="Source/model/ParameterPreset.cpp"/>
         <FILE id="idYlzD" name="ParameterSetup.cpp" compile="1" resource="0"
               file="Source/model/ParameterSetup.cpp"/>
+        <FILE id="Zuj5Fc" name="ParameterTrack.cpp" compile="1" resource="0"
+              file="Source/model/ParameterTrack.cpp"/>
         <FILE id="pVDAsq" name="Preset.cpp" compile="1" resource="0" file="Source/model/Preset.cpp"/>
         <FILE id="godsX2" name="Preset.h" compile="0" resource="0" file="Source/model/Preset.h"/>
+        <FILE id="gNzjgL" name="SampleConfig.cpp" compile="1" resource="0"
+              file="Source/model/SampleConfig.cpp"/>
+        <FILE id="ndteTZ" name="SampleConfig.h" compile="0" resource="0" file="Source/model/SampleConfig.h"/>
+        <FILE id="NQ5JrS" name="ScriptConfig.cpp" compile="1" resource="0"
+              file="Source/model/ScriptConfig.cpp"/>
+        <FILE id="rxHb7c" name="ScriptConfig.h" compile="0" resource="0" file="Source/model/ScriptConfig.h"/>
         <FILE id="OZh5wr" name="Setup.cpp" compile="1" resource="0" file="Source/model/Setup.cpp"/>
         <FILE id="I3HQ2E" name="Setup.h" compile="0" resource="0" file="Source/model/Setup.h"/>
         <FILE id="vGfeWf" name="SystemConstant.cpp" compile="1" resource="0"

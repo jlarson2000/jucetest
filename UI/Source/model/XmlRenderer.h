@@ -45,7 +45,7 @@ class XmlRenderer {
     class StringList* parseStringList(class XmlElement* e);
     void renderList(class XmlBuffer* b, const char* elname, class StringList* list);
 
-    void addBindable(class XmlBuffer* b, class Bindable* bindable);
+    void renderBindable(class XmlBuffer* b, class Bindable* bindable);
     void parseBindable(class XmlElement* e, class Bindable* b);
 
     // main objects
@@ -58,6 +58,12 @@ class XmlRenderer {
 
     void render(class XmlBuffer* b, class Setup* s);
     void parse(class XmlElement* b, class Setup* s);
+
+    void render(class XmlBuffer* b, class SetupTrack* t);
+    void parse(class XmlElement* b, class SetupTrack* t);
+
+    void render(class XmlBuffer* b, class UserVariables* container);
+    void parse(class XmlElement* e, class UserVariables* container);
 
     void parse(class XmlElement* e, class BindingConfig* c);
     void render(class XmlBuffer* b, class BindingConfig* c);

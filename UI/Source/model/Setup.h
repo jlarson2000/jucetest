@@ -22,11 +22,6 @@
  ****************************************************************************/
 
 /**
- * Root XML element name.
- */
-#define EL_SETUP "Setup"
-
-/**
  * A special name that may be used for the Bindings property that
  * means to cancel the current binding overlay.  Normally a NULL value
  * here means "preserve the current overlay".
@@ -155,7 +150,6 @@ class Setup : public Bindable {
   public:
 
     Setup();
-    Setup(class XmlElement* e);
     void reset(class Preset* p);
 	Setup* clone();
     ~Setup();
@@ -223,14 +217,10 @@ class Setup : public Bindable {
 	void setOutRealignMode(int i);
 	OutRealignMode getOutRealignMode();
 
-	char* toXml();
-	void toXml(XmlBuffer* b);
-
   private:
 
 	void init();
 	void initParameters();
-	void parseXml(XmlElement* e);
 
 	/**
 	 * Next setup in the chain.
@@ -347,7 +337,6 @@ class Setup : public Bindable {
  *                                                                          *
  ****************************************************************************/
 
-
 /**
  * The state of one track in a Setup.
  */
@@ -356,12 +345,12 @@ class SetupTrack {
   public:
 
 	SetupTrack();
-	SetupTrack(XmlElement* e);
 	~SetupTrack();
 	SetupTrack* clone();
 	void reset();
+
+    // will need to sort this out
 	//void capture(class MobiusState* state);
-	void toXml(XmlBuffer* b);
 
 	void setNext(SetupTrack* n);
 	SetupTrack* getNext();
@@ -413,12 +402,14 @@ class SetupTrack {
     SyncTrackUnit getSyncTrackUnit();
     void setSyncTrackUnit(SyncTrackUnit unit);
 
+    class UserVariables* getVariables();
+    void setVariables(UserVariables* vars);
+    
 	void setVariable(const char* name, class ExValue* value);
 	void getVariable(const char* name, class ExValue* value);
 
   private:
 
-	void parseXml(XmlElement* e);
 	void init();
 
 	SetupTrack* mNext;

@@ -12,12 +12,11 @@
  *
  */
 
-#ifndef SAMPLE_CONFIG_H
-#define SAMPLE_CONFIG_H
+#pragma once
 
 //////////////////////////////////////////////////////////////////////
 //
-// Samples
+// SampleConfig
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -31,20 +30,17 @@ class SampleConfig
   public:
 
 	SampleConfig();
-	SampleConfig(class XmlElement* e);
 	~SampleConfig();
 
 	void clear();
-	void add(Sample* s);
+	void add(class Sample* s);
 
 	Sample* getSamples();
-
-	void parseXml(class XmlElement* e);
-	void toXml(class XmlBuffer* b);
-
+    void setSamples(Sample* list);
+    
   private:
-
-	Sample* mSamples;
+    
+	class Sample* mSamples;
 	
 };
 
@@ -67,7 +63,6 @@ class Sample
 
 	Sample();
 	Sample(const char* file);
-	Sample(class XmlElement* e);
 	~Sample();
 
 	void setNext(Sample* s);
@@ -84,9 +79,6 @@ class Sample
 
     void setConcurrent(bool b);
     bool isConcurrent();
-
-	void parseXml(class XmlElement* e);
-	void toXml(class XmlBuffer* b);
 
   private:
 	
@@ -136,4 +128,3 @@ class Sample
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

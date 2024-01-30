@@ -334,16 +334,9 @@ class MobiusConfig {
 
     class ScriptConfig* getScriptConfig();
     void setScriptConfig(class ScriptConfig* c);
-
-    // experiment that never went anywhere
-#if 0
-	class ControlSurfaceConfig* getControlSurfaces();
-	void setControlSurfaces(ControlSurfaceConfig* cs);
-	void addControlSurface(ControlSurfaceConfig* cs);
-#endif
     
-	void setSampleonfig(class SampleConfig* s);
-	class SampleConfig* getSampleCconfig();
+	void setSampleConfig(class SampleConfig* s);
+	class SampleConfig* getSampleConfig();
 
 	class OscConfig* getOscConfig();
 	void setOscConfig(OscConfig* o);
@@ -629,6 +622,8 @@ class MobiusConfig {
      */
     bool mGroupFocusLock;
 
+
+    // why was this commented out?
 #if 0
     /**
      * Maximum number of LayerInfo structures returned in a MobiusState.

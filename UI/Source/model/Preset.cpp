@@ -9,41 +9,14 @@
  *
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <string.h>
-//#include <math.h>
 
 #include "../util/Util.h"
-//#include "MidiUtil.h"
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
-
-//#include "Qwin.h"
-//#include "Binding.h"
-//#include "Function.h"
-//#include "Mobius.h"
-//#include "Resampler.h"
-//#include "Sample.h"
-//#include "Script.h"
 
 #include "Binding.h"
 #include "Parameter.h"
+
 #include "Preset.h"
-
-/****************************************************************************
- *                                                                          *
- *                                 CONSTANTS                                *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * XML Constants
- */
-#define ATT_NAME "name"
-#define ATT_NUMBER "number"
-#define ATT_PROGRAM "program"
-#define ATT_CHANNEL "channel"
 
 /****************************************************************************
  *                                                                          *
@@ -60,12 +33,6 @@ Preset::Preset(const char* name)
 {
     init();
     setName(name);
-}
-
-Preset::Preset(XmlElement* e)
-{
-	init();
-	parseXml(e);
 }
 
 void Preset::init()
@@ -866,94 +833,6 @@ void Preset::setWindowEdgeAmount(int amount) {
 
 int Preset::getWindowEdgeAmount() {
 	return mWindowEdgeAmount;
-}
-
-/****************************************************************************
- *                                                                          *
- *   								 XML                                    *
- *                                                                          *
- ****************************************************************************/
-
-char* Preset::toXml()
-{
-	char* xml = nullptr;
-	XmlBuffer* b = new XmlBuffer();
-	toXml(b);
-
-	xml = b->stealString();
-	delete b;
-	return xml;
-}
-
-void Preset::toXml(XmlBuffer* b)
-{
-	b->addOpenStartTag(EL_PRESET);
-	// name, number
-	toXmlCommon(b);
-	b->setAttributeNewline(true);
-
-	for (int i = 0 ; Parameters[i] != nullptr ; i++)  {
-        Parameter* p = Parameters[i];
-        // don't write the ones marked deprecated, only read and convert
-        if (p->scope == PARAM_SCOPE_PRESET && !p->deprecated)
-          p->toXml(b, this);
-    }
-
-	b->add("/>\n");
-	b->setAttributeNewline(false);
-}
-
-void Preset::parseXml(XmlElement* e)
-{
-	parseXmlCommon(e);
-
-	for (int i = 0 ; Parameters[i] != nullptr ; i++) {
-		Parameter* p = Parameters[i];
-        if (p->scope == PARAM_SCOPE_PRESET) {
-            //Trace(2, "Parameter %s\n", p->name);
-            p->parseXml(e, this);
-        }
-    }
-
-    // auto upgrades
-
-    // InterfaceMode=Expert was the original way to enable
-    // secondary feedback, now we have a boolean
-    const char* str = e->getAttribute("interfaceMode");
-    if (StringEqualNoCase(str, "expert"))
-      mAltFeedbackEnable = true;
-
-    // RecordMode=Safe was the original way to set
-    // RecordResetsFeedback
-    str = e->getAttribute("recordMode");
-    if (StringEqualNoCase(str, "safe"))
-      mRecordResetsFeedback = true;
-    else if (StringEqualNoCase(str, "sustain"))
-      addSustainFunction("Record");
-
-    // OverdubMode=Quantized was the original way to set
-    // OverdubQuantized
-    str = e->getAttribute("overdubMode");
-    if (StringEqualNoCase(str, "quantized"))
-      mOverdubQuantized = true;
-    else if (StringEqualNoCase(str, "sustain"))
-      addSustainFunction("Overdub");
-
-    str = e->getAttribute("insertMode");
-    if (StringEqualNoCase(str, "sustain"))
-      addSustainFunction("Insert");
-}
-
-Preset* Preset::clone()
-{
-	Preset* clone = new Preset();
-	clone->copy(this);
-	
-	// these aren't cloned
-	clone->setName(getName());
-	clone->setNumber(getNumber());
-
-	return clone;
 }
 
 /****************************************************************************

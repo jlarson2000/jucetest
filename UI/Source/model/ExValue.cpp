@@ -26,7 +26,7 @@
 
 ExValueList::ExValueList()
 {
-    mOwner = NULL;
+    mOwner = nullptr;
 }
 
 /**
@@ -50,7 +50,7 @@ void ExValueList::deleteElement(void* o)
  */
 void* ExValueList::copyElement(void* src)
 {
-    if (src != NULL) {
+    if (src != nullptr) {
         ExValue* srcv = (ExValue*)src;
         if (srcv->getType() == EX_LIST) {
             ExValueList* childlist = srcv->getList();   
@@ -86,14 +86,14 @@ ExValueList* ExValueList::copy()
 
     for (int i = 0 ; i < size() ; i++) {
         ExValue* srcvalue = getValue(i);
-        if (srcvalue != NULL) {
+        if (srcvalue != nullptr) {
             ExValue* newvalue = new ExValue();
             neu->add(newvalue);
             if (srcvalue->getType() != EX_LIST)
               newvalue->set(srcvalue);
             else {
                 ExValueList* srclist = srcvalue->getList();
-                if (srclist != NULL)
+                if (srclist != nullptr)
                   newvalue->setOwnedList(srclist->copy());
             }
         }
@@ -108,7 +108,7 @@ ExValueList* ExValueList::copy()
  ****************************************************************************/
 
 /**
- * We don't have an explicit NULL right now.  
+ * We don't have an explicit nullptr right now.  
  * The default value is the empty string
  */
 ExValue::ExValue()
@@ -117,7 +117,7 @@ ExValue::ExValue()
 	mInt = 0;
 	mFloat = 0.0;
 	mBool = false;
-	mList = NULL;
+	mList = nullptr;
 	strcpy(mString, "");
 }
 
@@ -129,10 +129,10 @@ ExValue::~ExValue()
 
 void ExValue::releaseList()
 {
-    if (mList != NULL) {
+    if (mList != nullptr) {
         if (mList->getOwner() == this)
           delete mList;
-        mList = NULL;
+        mList = nullptr;
     }
 }
 
@@ -195,7 +195,7 @@ int ExValue::getInt()
  
 		case EX_LIST: {
 			ExValue* el = getList(0);
-			if (el != NULL)
+			if (el != nullptr)
 			  ival = el->getInt();
 			else
 			  ival = 0;
@@ -255,7 +255,7 @@ float ExValue::getFloat()
 
 		case EX_LIST: {
 			ExValue* el = getList(0);
-			if (el != NULL)
+			if (el != nullptr)
 			  fval = el->getFloat();
 			else
 			  fval = 0.0f;
@@ -304,7 +304,7 @@ bool ExValue::getBool()
 
 		case EX_LIST: {
 			ExValue* el = getList(0);
-			if (el != NULL)
+			if (el != nullptr)
 			  bval = el->getBool();
 			else
 			  bval = false;
@@ -351,7 +351,7 @@ const char* ExValue::getString()
 
 		case EX_LIST: {
 			ExValue* el = getList(0);
-			if (el != NULL)
+			if (el != nullptr)
 			  el->getString(mString, EX_MAX_STRING);
 			else
 			  strcpy(mString, "");
@@ -403,7 +403,7 @@ void ExValue::getString(char* buffer, int max)
             // in theory we should do all of them, just do the first
             // for debugging
 			ExValue* el = getList(0);
-			if (el != NULL)
+			if (el != nullptr)
 			  el->getString(buffer, max);
 			else
 			  strcpy(buffer, "");
@@ -433,8 +433,8 @@ void ExValue::addString(const char* src)
 
 ExValueList* ExValue::getList() 
 {
-	ExValueList* list = NULL;
-	ExValue* first = NULL;
+	ExValueList* list = nullptr;
+	ExValue* first = nullptr;
 
 	switch (mType) {
 
@@ -468,7 +468,7 @@ ExValueList* ExValue::getList()
 		break;
 	}
 
-	if (list == NULL && first != NULL) {
+	if (list == nullptr && first != nullptr) {
 		// it promotes so we can keep track of it
 		list = new ExValueList();
 		list->add(first);
@@ -483,7 +483,7 @@ ExValueList* ExValue::getList()
 ExValueList* ExValue::takeList()
 {
     ExValueList* list = getList();
-    if (list != NULL) {
+    if (list != nullptr) {
         if (list->getOwner() != this) {
             // we weren't the owner, I guess this could happen
             // with intermediate ExValues but it's worrisome that
@@ -491,8 +491,8 @@ ExValueList* ExValue::takeList()
             printf("WARNING: takeList with someone else's list\n");
             fflush(stdout);
         }
-        list->setOwner(NULL);
-        mList = NULL;
+        list->setOwner(nullptr);
+        mList = nullptr;
         mType = EX_STRING;
     }
     return list;
@@ -500,7 +500,7 @@ ExValueList* ExValue::takeList()
 
 void ExValue::setList(ExValueList* src)
 {
-    if (src == NULL) {
+    if (src == nullptr) {
         setNull();
     }
     else {
@@ -513,8 +513,8 @@ void ExValue::setList(ExValueList* src)
 
 void ExValue::setOwnedList(ExValueList* src)
 {
-    if (src != NULL) {
-        if (src->getOwner() != NULL) {
+    if (src != nullptr) {
+        if (src->getOwner() != nullptr) {
             printf("WARNING: setOwnedList called with already owned list\n");
             fflush(stdout);
         }
@@ -526,7 +526,7 @@ void ExValue::setOwnedList(ExValueList* src)
 void ExValue::set(ExValue* src, bool owned)
 {
     setNull();
-    if (src != NULL) {
+    if (src != nullptr) {
 		ExType otype = src->getType();
 		switch (otype) {
 			case EX_INT:
@@ -617,7 +617,7 @@ int ExValue::compare(ExValue* other)
 {
 	int retval = 0;
 	
-	if (other == NULL) {
+	if (other == nullptr) {
 		// assume we are always larger than nothing, though
 		// if we have the empty string, could consider both sides "null"?
 		retval = 1;
@@ -742,11 +742,11 @@ int ExValue::compareString(ExValue *other)
 	const char* myval = getString();
 	const char* oval = other->getString();
 
-	if (myval == NULL) {
-		if (oval != NULL)
+	if (myval == nullptr) {
+		if (oval != nullptr)
 		  retval = -1;
 	}
-	else if (oval == NULL)
+	else if (oval == nullptr)
 	  retval = 1;
 	else
 	  retval = strcmp(myval, oval);
@@ -759,14 +759,14 @@ void ExValue::toString(Vbuf* b)
     if (mType == EX_LIST) {
         // this is different than getString which is inconsistent and
         // I don't like, think more about toString and getString
-        if (mList == NULL)
+        if (mList == nullptr)
           b->add("null");
         else {
             b->add("[");    
             for (int i = 0 ; i < mList->size() ; i++) {
                 ExValue* el = mList->getValue(i);
                 if (i > 0) b->add(",");
-                if (el == NULL)
+                if (el == nullptr)
                   b->add("null");
                 else
                   el->toString(b);
@@ -810,8 +810,8 @@ void ExValue::dump()
  */
 ExValue* ExValue::getList(int index)
 {
-	ExValue* value = NULL;
-	if (mList != NULL)
+	ExValue* value = nullptr;
+	if (mList != nullptr)
 	  value = mList->getValue(index);
 	return value;
 }

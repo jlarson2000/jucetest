@@ -9,6 +9,8 @@
  *
  */
 
+#include "../util/Util.h"
+
 #include "SampleConfig.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -19,13 +21,7 @@
 
 SampleConfig::SampleConfig()
 {
-	mSamples = NULL;
-}
-
-SampleConfig::SampleConfig(XmlElement* e)
-{
-	mSamples = NULL;
-	parseXml(e);
+	mSamples = nullptr;
 }
 
 SampleConfig::~SampleConfig()
@@ -38,19 +34,25 @@ Sample* SampleConfig::getSamples()
 	return mSamples;
 }
 
+void SampleConfig::setSamples(Sample* list)
+{
+    delete mSamples;
+    mSamples = list;
+}
+
 void SampleConfig::clear()
 {
 	delete mSamples;
-	mSamples = NULL;
+	mSamples = nullptr;
 }
 
 void SampleConfig::add(Sample* neu)
 {
-	Sample* last = NULL;
-	for (Sample* s = mSamples ; s != NULL ; s = s->getNext())
+	Sample* last = nullptr;
+	for (Sample* s = mSamples ; s != nullptr ; s = s->getNext())
 	  last = s;
 
-	if (last == NULL)
+	if (last == nullptr)
 	  mSamples = neu;
 	else
 	  last->setNext(neu);
@@ -73,16 +75,10 @@ Sample::Sample(const char* file)
 	setFilename(file);
 }
 
-Sample::Sample(XmlElement* e)
-{
-	init();
-	parseXml(e);
-}
-
 void Sample::init()
 {
-	mNext = NULL;
-	mFilename = NULL;
+	mNext = nullptr;
+	mFilename = nullptr;
 	mSustain = false;
 	mLoop = false;
 	mConcurrent = false;
@@ -92,10 +88,10 @@ Sample::~Sample()
 {
 	delete mFilename;
 	
-    Sample* next = NULL;
-    for (Sample* s = mNext ; s != NULL ; s = next) {
+    Sample* next = nullptr;
+    for (Sample* s = mNext ; s != nullptr ; s = next) {
         next = s->getNext();
-		s->setNext(NULL);
+		s->setNext(nullptr);
         delete s;
     }
 }

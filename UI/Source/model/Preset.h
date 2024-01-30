@@ -120,11 +120,6 @@ class StepSequence {
  ****************************************************************************/
 
 /**
- * Root XML element.
- */
-#define EL_PRESET "Preset"
-
-/**
  * A collection of named parameters.
  * 
  * To make it easier to maintain copies of presets this class should
@@ -136,7 +131,6 @@ class Preset : public Bindable {
 
     Preset();
     Preset(const char* name);
-    Preset(class XmlElement* e);
     ~Preset();
 
 	void init();
@@ -499,15 +493,6 @@ class Preset : public Bindable {
 
     void setWindowEdgeAmount(int amount);
     int getWindowEdgeAmount();
-
-    //
-    // XML
-    //
-
-	char* toXml();
-	void toXml(class XmlBuffer* b);
-	void parseXml(const char *xml);
-	void parseXml(class XmlElement* e);
 
   private:
 

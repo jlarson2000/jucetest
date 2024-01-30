@@ -15,8 +15,6 @@
 // this is only for the embedded ExValue inside Variable
 #include "ExValue.h"
 
-#define EL_VARIABLES "Variables"
-
 /****************************************************************************
  *                                                                          *
  *   							   VARIABLE                                 *
@@ -34,7 +32,6 @@ class UserVariable {
   public:
 
 	UserVariable();
-	UserVariable(class XmlElement* e);
 	~UserVariable();
 
 	void setNext(UserVariable* v);
@@ -45,9 +42,6 @@ class UserVariable {
 
 	void setValue(class ExValue* value);
 	void getValue(class ExValue* value);
-
-	void toXml(class XmlBuffer* b);
-	void parseXml(class XmlElement* e);
 
   private:
 
@@ -69,11 +63,10 @@ class UserVariables {
   public:
 
 	UserVariables();
-	UserVariables(class XmlElement* e);
 	~UserVariables();
 
     UserVariable* getVariables();
-    void setVarianles(UserVariable* list);
+    void setVariables(UserVariable* list);
 
     UserVariable* getVariable(const char* name);
 
@@ -81,9 +74,6 @@ class UserVariables {
 	void set(const char* name, class ExValue* value);
 	bool isBound(const char* name);
     void reset();
-
-	void parseXml(XmlElement* e);
-	void toXml(XmlBuffer* b);
 
   private:
 

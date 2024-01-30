@@ -114,12 +114,12 @@ void SetupParameter::setObjectValue(void* obj, ExValue* value)
 /*
 Setup* SetupParameter::getTargetSetup(Mobius* m)
 {
-    Setup* target = NULL;
+    Setup* target = nullptr;
     MobiusConfig* iconfig = m->getInterruptConfiguration();
-    if (iconfig != NULL)
+    if (iconfig != nullptr)
       target = iconfig->getCurrentSetup();
 
-    if (target == NULL)
+    if (target == nullptr)
 		Trace(1, "SetupParameter: Unable to resolve setup!\n");
 
     return target;
@@ -128,7 +128,7 @@ Setup* SetupParameter::getTargetSetup(Mobius* m)
 void SetupParameter::getValue(Export* exp, ExValue* value)
 {
 	Setup* target = getTargetSetup(exp->getMobius());
-    if (target != NULL)
+    if (target != nullptr)
       getValue(target, value);
     else
       value->setNull();
@@ -138,7 +138,7 @@ int SetupParameter::getOrdinalValue(Export* exp)
 {
     int value = -1;
 	Setup* target = getTargetSetup(exp->getMobius());
-	if (target != NULL)
+	if (target != nullptr)
 	  value = getOrdinalValue(target);
     return value;
 }
@@ -158,7 +158,7 @@ int SetupParameter::getOrdinalValue(Setup* s)
 void SetupParameter::setValue(Action* action)
 {
 	Setup* target = getTargetSetup(action->mobius);
-    if (target != NULL)
+    if (target != nullptr)
       setValue(target, &(action->arg));
 }
 */
@@ -179,7 +179,7 @@ class DefaultSyncSourceParameterType : public SetupParameter
 };
 
 const char* DEFAULT_SYNC_SOURCE_NAMES[] = {
-	"none", "track", "out", "host", "midi", NULL
+	"none", "track", "out", "host", "midi", nullptr
 };
 
 int DEFAULT_SYNC_SOURCE_KEYS[] = {
@@ -244,7 +244,7 @@ class DefaultTrackSyncUnitParameterType : public SetupParameter
 };
 
 const char* DEFAULT_TRACK_SYNC_UNIT_NAMES[] = {
-	"subcycle", "cycle", "loop", NULL
+	"subcycle", "cycle", "loop", nullptr
 };
 
 int DEFAULT_TRACK_SYNC_UNIT_KEYS[] = {
@@ -307,7 +307,7 @@ class SlaveSyncUnitParameterType : public SetupParameter
 };
 
 const char* SYNC_UNIT_NAMES[] = {
-	"beat", "bar", NULL
+	"beat", "bar", nullptr
 };
 
 int SYNC_UNIT_KEYS[] = {
@@ -518,7 +518,7 @@ class MuteSyncModeParameterType : public SetupParameter
 };
 
 const char* MUTE_SYNC_NAMES[] = {
-	"transport", "transportClocks", "clocks", "none", NULL
+	"transport", "transportClocks", "clocks", "none", nullptr
 };
 
 int MUTE_SYNC_KEYS[] = {
@@ -571,7 +571,7 @@ class ResizeSyncAdjustParameterType : public SetupParameter
 };
 
 const char* SYNC_ADJUST_NAMES[] = {
-	"none", "tempo", NULL
+	"none", "tempo", nullptr
 };
 
 int SYNC_ADJUST_KEYS[] = {
@@ -665,7 +665,7 @@ class RealignTimeParameterType : public SetupParameter
 };
 
 const char* REALIGN_TIME_NAMES[] = {
-    "start", "bar", "beat", "now", NULL
+    "start", "bar", "beat", "now", nullptr
 };
 
 int REALIGN_TIME_KEYS[] = {
@@ -718,7 +718,7 @@ class OutRealignModeParameterType : public SetupParameter
 };
 
 const char* REALIGN_MODE_NAMES[] = {
-	"midiStart", "restart", NULL
+	"midiStart", "restart", nullptr
 };
 
 int REALIGN_MODE_KEYS[] = {

@@ -14,8 +14,6 @@
 #ifndef OSC_CONFIG_H
 #define OSC_CONFIG_H
 
-#include "OscInterface.h"
-
 //////////////////////////////////////////////////////////////////////
 //
 // OscConfig
@@ -44,7 +42,10 @@ class OscConfig {
 	void setOutputPort(int i);
 
 	class OscBindingSet* getBindings();
+    void setBindings(class OscBindingSet* list);
+    
     class OscWatcher* getWatchers();
+    void setWatchers(class OscWatcher* list);
 
   private:
 
@@ -125,10 +126,10 @@ class OscBindingSet {
 	int getOutputPort();
 	void setOutputPort(int i);
 
-	Binding* getBindings();
-	void setBindings(Binding* b);
-	void addBinding(Binding* c);
-	void removeBinding(Binding* c);
+	class Binding* getBindings();
+	void setBindings(class Binding* b);
+	void addBinding(class Binding* c);
+	void removeBinding(class Binding* c);
 
   private:
 
@@ -187,75 +188,6 @@ class OscBindingSet {
 	class Binding* mBindings;
 
 };
-	
-//////////////////////////////////////////////////////////////////////
-//
-// OscBinding
-//
-////////////////////////////////////////////////////////////////////////
-
-/**
- * This wraps an Action to add some extra intellence for OSC.
- * 
- * It is functionally very similar to PluginParameter with the way
- * it supports argument scaling and remembering the last value for 
- * periodic export.  Would be nice to share some of this but there
- * are enough differences to keep them distinct classes.
- *
- * One list of these will be built for every Binding in every 
- * OscBindingSet.  They will also be entered into a Map for optimized
- * searching when OSC messages come in.
- *
- * Unlike PluginParameter we don't assume that all bindings are exported
- * to a separate List is maintained of the exportable bindings.
- *
- */
-class OscBinding {
-  public:
-
-    OscBinding(class MobiusInterface* m, class Binding* b, class Action* a);
-	~OscBinding();
-
-    OscBinding* getNext();
-    void setNext(OscBinding* e);
-    bool isResolved();
-    bool isExportable();
-
-    class TriggerType* getTriggerType();
-    class Action* getAction();
-
-    class OscDevice* getExportDevice();
-    void setExportDevice(OscDevice* d);
-
-    const char* getExportAddress();
-
-    int getLast();
-    void setLast(int f);
-
-    bool refreshValue();
-    float getExportValue();
-
-    void setValue(float value);
-
-  private:
-
-    void init();
-
-	OscBinding* mNext;
-    class MobiusInterface* mMobius;
-    class Action* mAction;
-    class Export* mExport;
-    class OscDevice* mExportDevice;
-    char* mExportAddress;
-    bool mExportable;
-    int mMin;
-    int mMax;
-    int mId;
-
-	// value state for function bindings
-	int mFunctionValue;
-	bool mFunctionDown;
-};
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -291,158 +223,6 @@ class OscWatcher {
     char* mName;
     int mTrack;
     
-};
-
-//////////////////////////////////////////////////////////////////////
-//
-// OscRuntimeWatcher
-//
-////////////////////////////////////////////////////////////////////////
-
-/**
- * An extension of the WatchPointListener interface that is
- * registered with Mobius for each OscWatcher.
- */
-class OscRuntimeWatcher : public WatchPointListener
-{
-  public:
-
-    OscRuntimeWatcher(class OscConfig* config, class OscWatcher* src);
-    ~OscRuntimeWatcher();
-
-    void finish(class MobiusInterface* m, class WatchPoint* wp,
-                class OscInterface* osc, class OscDevice* dev);
-
-    // required WatchPointListener methods
-    const char* getWatchPointName();
-    int getWatchPointTrack();
-    void watchPointEvent(int value);
-
-    void tick();
-    void setTrace(bool b);
-
-  private:
-
-    void send(float value);
-
-    char* mPath;
-    char* mName;
-    int mTrack;
-
-    WatchBehavior mBehavior;
-    int mMin;
-    int mMax;
-
-    class OscInterface* mOsc;
-    class OscDevice* mDevice;
-
-    int mLast;
-    int mSends;
-    int mTicks;
-    int mPendingValue;
-    bool mPending;
-    bool mDecaying;
-    bool mTrace;
-};
-
-//////////////////////////////////////////////////////////////////////
-//
-// OscResolver
-//
-////////////////////////////////////////////////////////////////////////
-
-/**
- * A class used to resolve incomming OSC messages and send
- * outging parameter exports.  This is built from the OscConfig
- * and owns it.  It contains all of the state that may be used 
- * by the OSC listener thread and MobiusThread.  It is encapsulated
- * so that we can reload the OscConfig file, build a new OscResolver
- * and splice it in without corrupting the OscResolver being used
- * by the other threads.
- */
-class OscResolver {
-
-  public:
-
-    OscResolver(class MobiusInterface* mobius, class OscInterface* osc,
-                OscConfig* config);
-    ~OscResolver();
-
-    OscResolver* getNext();
-    void setNext(OscResolver* osc);
-    void setTrace(bool b);
-
-    void oscMessage(OscMessage* msg);
-	void exportStatus(bool force);
-
-  private:
-
-    void addBinding(OscBindingSet* set, Binding* b);
-    void addExport(OscBindingSet* set, OscBinding* ob);
-    OscBinding* getBinding(const char* trigger);
-    void addBinding(OscBinding* b);
-    
-    class MobiusInterface* mMobius;
-    class OscInterface* mOsc;
-    OscResolver* mNext;
-    class OscConfig* mConfig;
-    OscBinding* mBindings;
-    class Map* mBindingMap;
-    List* mExports;
-
-    bool mTrace;
-};
-
-//////////////////////////////////////////////////////////////////////
-//
-// OscRuntime
-//
-////////////////////////////////////////////////////////////////////////
-
-/**
- * Class used at runtime to perform OSC method translation, 
- * Mobius target loopup, and OSC status export.
- */
-class OscRuntime : public OscListener {
-  public:
-	
-	OscRuntime(class MobiusInterface* m);
-	~OscRuntime();
-
-    /**
-     * Refresh parameters taken from the global MobiusConfig.
-     */
-    void updateGlobalConfiguration(class MobiusInterface* m);
-
-    /**
-     * Reload the configuration file which may have been edited.
-     */
-    void reloadConfigurationFile(class MobiusInterface* m);
-
-    /**
-     * OscListener interface to receive messages.
-     */
-    void oscMessage(OscMessage* msg);
-
-    /**
-     * Periodically called by MobiusThread to send out status messages.
-     */
-	void exportStatus();
-
-  private:
-
-    void updateGlobalConfiguration(class MobiusInterface* m, bool refreshExports);
-    void registerWatchers(class OscConfig* config);
-
-    class MobiusInterface* mMobius;
-    class OscInterface* mOsc;
-    class OscResolver* mResolver;
-    class List* mWatchers;
-
-    int mInputPort;
-    int mOutputPort;
-    char* mOutputHost;
-
 };
 
 /****************************************************************************/

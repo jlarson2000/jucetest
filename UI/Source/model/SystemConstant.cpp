@@ -61,10 +61,10 @@ SystemConstant::SystemConstant(const char* name, int key)
 
 void SystemConstant::init()
 {
-    mName = NULL;
+    mName = nullptr;
     mKey = 0;
     mDisplayName[0] = 0;
-    mHelp = NULL;
+    mHelp = nullptr;
 }
 
 SystemConstant::~SystemConstant()
@@ -118,7 +118,7 @@ const char* SystemConstant::getDisplayName()
  */
 void SystemConstant::setDisplayName(const char* name)
 {
-    if (name != NULL)
+    if (name != nullptr)
       CopyString(name, mDisplayName, sizeof(mDisplayName));
 }
 
@@ -142,7 +142,7 @@ void SystemConstant::localize(MessageCatalog* cat)
     }
     else {
         const char* msg = cat->get(mKey);
-        if (msg != NULL) {
+        if (msg != nullptr) {
             setDisplayName(msg);
         }
         else {
