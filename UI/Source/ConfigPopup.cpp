@@ -23,6 +23,14 @@ void ConfigPopup::setListener(Listener* l)
     listener = l;
 }
 
+void ConfigPopup::startup()
+{
+}
+
+void ConfigPopup::shutdown()
+{
+}
+
 /**
  * ConfigPanel::Listener
  * Cascaide to our listener.
@@ -102,5 +110,33 @@ SetupPopup::SetupPopup()
 }
 
 SetupPopup::~SetupPopup()
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// GlobalPopup
+//
+//////////////////////////////////////////////////////////////////////
+
+GlobalPopup::GlobalPopup()
+{
+    addAndMakeVisible(panel);
+    // who should do this, us or the base class?
+    setSize(500, 500);
+
+    // ask the panel to tell us when it is done
+    panel.setListener(this);
+}
+
+GlobalPopup::~GlobalPopup()
+{
+}
+
+void GlobalPopup::startup()
+{
+}
+
+void GlobalPopup::shutdown()
 {
 }

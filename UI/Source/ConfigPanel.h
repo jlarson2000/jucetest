@@ -66,7 +66,7 @@ class ConfigPanelFooter : public juce::Component, public juce::Button::Listener
     void paint (juce::Graphics& g) override;
     
     // Button::Listener
-    void buttonClicked(juce::Button* b);
+    virtual void buttonClicked(juce::Button* b);
     
   private:
         
@@ -111,8 +111,9 @@ class ConfigPanel : public juce::Component
      */
     class Listener {
       public:
-        virtual void configPanelClosed() = 0;
+        virtual void configPanelClosed(ConfigPanelButton button) = 0;
     };
+    
     ConfigPanel(const char* titleText, int buttons);
     ~ConfigPanel() override;
 

@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="UI\Source\mobius">
+      <UniqueIdentifier>{59DCCA25-F24C-265F-1201-6854AD0C64CA}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source\util">
       <UniqueIdentifier>{C6DA17FE-BCCA-2E0F-108F-1B75398A16D7}</UniqueIdentifier>
     </Filter>
@@ -595,6 +598,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\mobius\Mobius.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
@@ -3141,6 +3150,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\mobius\Mobius.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\MobiusInterface.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\util\FileUtil.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>

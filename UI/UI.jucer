@@ -4,6 +4,14 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
+        <FILE id="MoJ397" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/Mobius.cpp"/>
+        <FILE id="HpTgOg" name="Mobius.h" compile="0" resource="0" file="Source/mobius/Mobius.h"/>
+        <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
+              file="Source/mobius/MobiusInterface.cpp"/>
+        <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"
+              file="Source/mobius/MobiusInterface.h"/>
+      </GROUP>
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
         <FILE id="MCgODr" name="FileUtil.cpp" compile="1" resource="0" file="Source/util/FileUtil.cpp"/>

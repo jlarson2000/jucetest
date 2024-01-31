@@ -141,6 +141,8 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\mobius\Mobius.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp"/>
     <ClCompile Include="..\..\Source\util\KeyCode.cpp"/>
     <ClCompile Include="..\..\Source\util\List.cpp"/>
@@ -2443,6 +2445,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\mobius\Mobius.h"/>
+    <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\util\FileUtil.h"/>
     <ClInclude Include="..\..\Source\util\KeyCode.h"/>
     <ClInclude Include="..\..\Source\util\List.h"/>

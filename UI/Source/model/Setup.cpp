@@ -400,6 +400,7 @@ OutRealignMode Setup::getOutRealignMode() {
 
 /**
  * This one had a clone method that didn't use XML for some reason
+ * !! don't like this
  */
 Setup* Setup::clone()
 {
@@ -412,8 +413,8 @@ Setup* Setup::clone()
 	
     // can leverage the Parameter list to do the clone
     // not as effiient but saves hard codeing them again
-	for (int i = 0 ; Parameters[i] != nullptr ; i++) {
-		Parameter* p = Parameters[i];
+	for (int i = 0 ; Parameter::Parameters[i] != nullptr ; i++) {
+		Parameter* p = Parameter::Parameters[i];
         if (p->scope == PARAM_SCOPE_SETUP) {
             ExValue value;
             p->getObjectValue(this, &value);

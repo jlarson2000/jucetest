@@ -14,6 +14,7 @@
 #ifndef MOBIUS_PARAMETER_H
 #define MOBIUS_PARAMETER_H
 
+#include <vector>
 #include "SystemConstant.h"
 
 /****************************************************************************
@@ -57,7 +58,7 @@ class Parameter : public SystemConstant {
 
   public:
 
-	Parameter();
+	//Parameter();
 	Parameter(const char* name, int key);
 	virtual ~Parameter();
     void localize(MessageCatalog* cat);
@@ -170,29 +171,18 @@ class Parameter : public SystemConstant {
 	int getControllerEnum(int value);
 
     // internal use only
-
     //virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
 
-	//
-	// XML
-	//
-
-	void toXml(class XmlBuffer* b, void* obj);
-	void parseXml(class XmlElement* e, void* obj);
-
+    // Global parameter registry
+    
+    static std::vector<Parameter*> Parameters;
+    static void dumpParameters();
+	static Parameter* getParameter(const char* name);
+	static Parameter* getParameterWithDisplayName(const char* name);
+	static void localizeAll(class MessageCatalog* cat);
+    
   protected:
 
-    static void initParameters();
-	static void localizeAll(class MessageCatalog* cat);
-    static void dumpFlags();
-
-	static Parameter* getParameter(Parameter** group, const char* name);
-	static Parameter* getParameter(const char* name);
-
-	static Parameter* getParameterWithDisplayName(Parameter** group, const char* name);
-	static Parameter* getParameterWithDisplayName(const char* name);
-
-	static void checkAmbiguousNames();
     void addAlias(const char* alias);
 
 	const char** allocLabelArray(int size);
@@ -201,8 +191,11 @@ class Parameter : public SystemConstant {
 	int low;
 	int high;
 
-
   private:
+
+	static void checkAmbiguousNames();
+    static const char* getEnumLabel(ParameterType type);
+    static const char* getEnumLabel(ParameterScope scope);
 
     void init();
 
@@ -213,6 +206,24 @@ class Parameter : public SystemConstant {
  *                            PARAMETER CONSTANTS                           *
  *                                                                          *
  ****************************************************************************/
+
+// Now that these are static objects can't extern them as Parameters like this
+// 
+// extern Parameter AltFeedbackEnableParameter;
+// 
+// You get a redefinition error during linking.
+// I have to believe there is some casting syntax magic that could be applied
+// here but I'm not bothering with it at the moment.
+//
+// Easiest thing is to define a set of global pointers to the static objects
+// and just use those.  
+//
+// Alternately, try to do away with subclassing Parameter which would be cleaner
+// still.  This is currently used to set the parameter scope and to overload
+// methods that get/set values in the associated objects (global, Preset, Setup)
+// I'd like to factor out the object-specific access anyway and just let Parameter
+// be an object model but it's going to need thought on how to best do that.
+// 
 
 // Preset Parameters
 
@@ -256,7 +267,6 @@ extern Parameter* SlipModeParameter;
 extern Parameter* SlipTimeParameter;
 extern Parameter* SoundCopyParameter;
 extern Parameter* SubCycleParameter;
-extern class SubCycleParameterType SubCycleParameterTest;
 extern Parameter* SustainFunctionsParameter;
 extern Parameter* SwitchDurationParameter;
 extern Parameter* SwitchLocationParameter;
@@ -379,10 +389,6 @@ extern Parameter* TracksParameter;
 extern Parameter* UnitTestsParameter;
 extern Parameter* TrackInputPortParameter;
 extern Parameter* TrackOutputPortParameter;
-
-// Parameter Groups
-
-extern Parameter* Parameters[];
 
 /****************************************************************************/
 /****************************************************************************/

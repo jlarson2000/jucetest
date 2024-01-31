@@ -1,0 +1,22 @@
+
+util
+  standalone utilities
+
+model
+  relatively standalone data model used by the ui and internally
+  
+ui
+  all things related to the Juce UI
+  also external stimulus handled by Juce: midi, osc, plugin hosts
+
+mobius
+  application code that communicates with the UI and lives above the audio interrupt
+
+core
+  application code that runs within the interrupt
+
+container
+  an interface that provides access to operating system things
+  implemented by Juce, used by mobius
+  files, critical sections, threads...
+

@@ -86,6 +86,8 @@
 #ifndef BINDING_H
 #define BINDING_H
 
+#include <vector>
+
 #include "SystemConstant.h"
 
 /****************************************************************************
@@ -102,18 +104,16 @@
 class Trigger : public SystemConstant {
   public:
 
-	static Trigger* get(const char* name);
+    Trigger(const char* name, const char* display, bool isBindable);
 
-    Trigger(const char* name, const char* display, bool bindable);
+    static std::vector<Trigger*> Triggers;
+    static Trigger* getBindable(const char* name);
 
-    bool isBindable();
-
-  private:
-
-   // true if this can be dynamically bound with a Binding object.
-   bool mBindable;
-
+    bool bindable;
 };
+
+// these have historically been global constants
+// think about moving them inside Trigger
 
 extern Trigger* TriggerKey;
 extern Trigger* TriggerMidi;
@@ -164,12 +164,10 @@ extern Trigger* TriggerUnknown;
 class TriggerMode : public SystemConstant {
   public:
 
-	static TriggerMode* get(const char* name);
+    static std::vector<TriggerMode*> TriggerModes;
+    static TriggerMode* get(const char* name);
 
     TriggerMode(const char* name, const char* display);
-
-  private:
-
 };
 
 extern TriggerMode* TriggerModeContinuous;
@@ -177,7 +175,6 @@ extern TriggerMode* TriggerModeOnce;
 extern TriggerMode* TriggerModeMomentary;
 extern TriggerMode* TriggerModeToggle;
 extern TriggerMode* TriggerModeXY;
-extern TriggerMode* TriggerModes[];
 
 /****************************************************************************
  *                                                                          *
@@ -200,12 +197,12 @@ extern TriggerMode* TriggerModes[];
 class Target : public SystemConstant {
   public:
 
-	static Target* get(const char* name);
+    static std::vector<Target*> Targets;
+	static Target* getBindable(const char* name);
 
-	Target(const char* name, const char* display);
+	Target(const char* name, const char* display, bool isBindable);
 
-  private:
-
+    bool bindable;
 };
 
 extern Target* TargetFunction;
@@ -215,11 +212,7 @@ extern Target* TargetPreset;
 extern Target* TargetBindings;
 extern Target* TargetUIControl;
 extern Target* TargetUIConfig;
-
-// internal targets, can't be used in bindings
 extern Target* TargetScript;
-
-extern Target* Targets[];
 
 /****************************************************************************
  *                                                                          *

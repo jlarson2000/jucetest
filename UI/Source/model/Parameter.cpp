@@ -21,12 +21,12 @@
 #include <memory.h>
 #include <ctype.h>
 
+#include <vector>
+
 #include "../util/Util.h"
 #include "../util/Trace.h"
 //#include "List.h"
 #include "../util/MessageCatalog.h"
-#include "../util/XmlModel.h"
-#include "../util/XmlBuffer.h"
 
 //#include "Action.h"
 //#include "Audio.h"
@@ -51,11 +51,120 @@
 #define HIDE_TRACK
 
 
-/****************************************************************************
- *                                                                          *
- *   							  PARAMETER                                 *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Global Parameter Registry
+//
+// A registry of all parameters, created as they are constructed.
+// This is primarily for binding where we need to associate things
+// dynamically with any parameter identified by name.
+//
+// Not liking the global namespace for the static objects.
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Global registry of parameters.
+ * Since these are all created statically don't need to worry
+ * about lifespan of the objects.
+ *
+ * The vector will be built out by the Parameter constructor.
+ * Normally all Parameter objects will be static objects.
+ */
+std::vector<Parameter*> Parameter::Parameters;
+
+void Parameter::dumpParameters()
+{
+    for (int i = 0 ; i < Parameters.size() ; i++) {
+        Parameter* p = Parameters[i];
+        // !! SystemConstant has getters but most of Parameter has direct member access
+        // be consistent
+        Trace(1, "Parameter %s %s %s\n", p->getName(), getEnumLabel(p->type), getEnumLabel(p->scope));
+    }
+}
+
+//
+// Utilities to render enumerations for debugging
+//
+
+const char* Parameter::getEnumLabel(ParameterType type)
+{
+    const char* label = "???";
+    switch (type) {
+        case TYPE_INT: label = "int"; break;
+        case TYPE_BOOLEAN: label = "bool"; break;
+        case TYPE_ENUM: label = "enum"; break;
+        case TYPE_STRING: label = "string"; break;
+    }
+    return label;
+}
+
+const char* Parameter::getEnumLabel(ParameterScope scope)
+{
+    const char* label = "???";
+    switch (scope) {
+        case PARAM_SCOPE_NONE: label = "none"; break;
+        case PARAM_SCOPE_PRESET: label = "preset"; break;
+        case PARAM_SCOPE_TRACK: label = "track"; break;
+        case PARAM_SCOPE_SETUP: label = "setup"; break;
+        case PARAM_SCOPE_GLOBAL: label = "global"; break;            
+    }
+    return label;
+}
+
+/**
+ * Find a Parameter by name
+ * This doesn't happen often so we can do a liner search.
+ */
+Parameter* Parameter::getParameter(const char* name)
+{
+	Parameter* found = nullptr;
+	
+	for (int i = 0 ; i < Parameters.size() ; i++) {
+		Parameter* p = Parameters[i];
+		if (StringEqualNoCase(p->getName(), name)) {
+            found = p;
+            break;
+        }
+	}
+
+    // if not a name match, try aliases
+    // todo: do we really need aliases any more?  backward compatibility
+    // is much less important now
+	if (found == nullptr) {
+		for (int i = 0 ; i < Parameters.size() ; i++) {
+			Parameter* p = Parameters[i];
+			for (int j = 0 ; 
+				 j < MAX_PARAMETER_ALIAS && p->aliases[j] != nullptr ; 
+				 j++) {
+				if (StringEqualNoCase(p->aliases[j], name)) {
+					found = p;
+					break;
+				}
+			}
+		}
+	}
+
+	return found;
+}
+
+/**
+ * Find a parameter by it's display name.
+ * I believe this is used only by the Setup editor.
+ */
+Parameter* Parameter::getParameterWithDisplayName(const char* name)
+{
+	Parameter* found = nullptr;
+	
+	for (int i = 0 ; i < Parameters.size() ; i++) {
+		Parameter* p = Parameters[i];
+		if (StringEqualNoCase(p->getDisplayName(), name)) {
+			found = p;
+			break;	
+		}
+	}
+	return found;
+}
 
 // Shared text for boolean values
 
@@ -71,14 +180,66 @@ const char* BOOLEAN_VALUE_LABELS[] = {
 	nullptr, nullptr, nullptr
 };
 
+/**
+ * Refresh the cached display names from the message catalog.
+ */
+void Parameter::localizeAll(MessageCatalog* cat)
+{
+	for (int i = 0 ; i < Parameters.size() ; i++) {
+        Parameters[i]->localize(cat);
+    }
+    
+	// these are shared by all
+	for (int i = 0 ; BOOLEAN_VALUE_NAMES[i] != nullptr; i++) {
+		const char* msg = cat->get(BOOLEAN_VALUE_KEYS[i]);
+		if (msg == nullptr)
+		  msg = BOOLEAN_VALUE_NAMES[i];
+		BOOLEAN_VALUE_LABELS[i] = msg;
+	}
+
+    // a good point to run diagnostics
+    checkAmbiguousNames();
+}
+
+void Parameter::checkAmbiguousNames()
+{
+	for (int i = 0 ; i < Parameters.size() ; i++) {
+        Parameter* p = Parameters[i];
+        const char** values = p->values;
+        if (values != nullptr) {
+            for (int j = 0 ; values[j] != nullptr ; j++) {
+                Parameter* other = getParameter(values[j]);
+                if (other != nullptr) {
+                    printf("WARNING: Ambiguous parameter name/value %s\n", values[j]);
+					fflush(stdout);
+                }
+            }
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Parameter
+//
+//////////////////////////////////////////////////////////////////////
+
+// do we really need a no-arg constructor?
+/*
 Parameter::Parameter()
 {
     init();
+    Trace(1, "Parameter::Parameter\n");
 }
+*/
 
 Parameter::Parameter(const char* name, int key) :
     SystemConstant(name, key)
 {
+    // if we decide we only need one constructor
+    // don't need an init() method
+    // modern way for this is to have this be in the class member initializers
+    // anyway
     init();
 }
 
@@ -107,6 +268,9 @@ void Parameter::init()
 
 	for (int i = 0 ; i < MAX_PARAMETER_ALIAS ; i++)
 	  aliases[i] = nullptr;
+
+    // add to the global registry
+    Parameters.push_back(this);
 }
 
 Parameter::~Parameter()
@@ -148,7 +312,7 @@ void Parameter::setObjectValue(void* object, class ExValue* value)
 }
 
 // defer migration of Export and Action
-/*
+#if 0
 void Parameter::getValue(Export* exp, ExValue* value)
 {
     Trace(1, "Parameter %s: getValue not overloaded!\n",
@@ -168,7 +332,7 @@ void Parameter::setValue(Action* action)
     Trace(1, "Parameter %s: setValue not overloaded!\n",
           getName());
 }
-*/
+#endif
 
 /**
  * Refresh the cached display names from the message catalog.
@@ -177,6 +341,12 @@ void Parameter::setValue(Action* action)
  * Push that down to SysetmConstant?
  *
  * We also handle the localization of the values.
+ *
+ * !! This needs work
+ * We've got static objects now that auto destruct, but this
+ * won't handle names pulled out of the catalog.  Need to teach
+ * ~Parameter about this or just stop using the message catalog
+ * and refine if and how we do localication
  */
 void Parameter::localize(MessageCatalog* cat)
 {
@@ -306,79 +476,6 @@ void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
 
 //////////////////////////////////////////////////////////////////////
 //
-// XML
-//
-//////////////////////////////////////////////////////////////////////
-
-// would really like to avoid ExValue and the object indirecdtion
-// here, rethink how these are serialized
-
-/**
- * Emit the XML attribute for a parameter.
- */
-void Parameter::toXml(XmlBuffer* b, void* obj)
-{
-	ExValue value;
-	getObjectValue(obj, &value);
-
-    if (value.getType() == EX_INT) {
-        // option to filter zero?
-        b->addAttribute(getName(), value.getInt());
-    }
-    else {
-        // any filtering options?
-        b->addAttribute(getName(), value.getString());
-    }
-}
-
-/**
- * There are two aliases we can use here to upgrade XML.
- * If the "aliases" list is set we assume this is an upgrade to
- * both the XML name and the internal parameter name.  
- *
- * If xmlAlias is set this is an upgrade to the XML name only
- * and another parmaeter may be using this internal name.
- * This was added for inputPort and audioInputPort where we're
- * needing to upgrade inputPort to audioInputPort in the Setup
- * but we have another parameter named inputPort that has to 
- * use that name so it can't be an alias of audioInputPort.
- */
-void Parameter::parseXml(XmlElement* e, void* obj)
-{
-    const char* value = e->getAttribute(getName());
-
-    // try the xml alias
-    if (value == nullptr && xmlAlias != nullptr)
-      value = e->getAttribute(xmlAlias);
-
-    // try regular aliases
-    if (value == nullptr) {
-        for (int i = 0 ; i < MAX_PARAMETER_ALIAS ; i++) {
-            const char* alias = aliases[i];
-            if (alias == nullptr)
-              break;
-            else {
-                value = e->getAttribute(alias);
-                if (value != nullptr)
-                  break;
-            }
-        }
-    }
-
-    // Only set it if we found a value in the XML, otherwise it has the
-    // default from Preset::reset and more importantly may have
-    // some upgraded values from older parameters like sampleStyle
-    // that won't be in the XML yet.  And if deprecated setting to null
-    // can have side effects we don't want.
-    if (value != nullptr) {
-        ExValue v;
-        v.setString(value);
-        setObjectValue(obj, &v);
-    }
-}
-
-//////////////////////////////////////////////////////////////////////
-//
 // coersion utilities
 //
 //////////////////////////////////////////////////////////////////////
@@ -505,361 +602,6 @@ int Parameter::getEnum(ExValue *value)
 		}
 	}
 	return ivalue;
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Parameter Search
-//
-//////////////////////////////////////////////////////////////////////
-
-Parameter* Parameter::getParameter(Parameter** group, 
-										  const char* name)
-{
-	Parameter* found = nullptr;
-	
-	for (int i = 0 ; group[i] != nullptr && found == nullptr ; i++) {
-		Parameter* p = group[i];
-		if (StringEqualNoCase(p->getName(), name))
-		  found = p;
-	}
-
-	if (found == nullptr) {
-		// not a name match, try aliases
-		for (int i = 0 ; group[i] != nullptr && found == nullptr ; i++) {
-			Parameter* p = group[i];
-			for (int j = 0 ; 
-				 j < MAX_PARAMETER_ALIAS && p->aliases[j] != nullptr ; 
-				 j++) {
-				if (StringEqualNoCase(p->aliases[j], name)) {
-					found = p;
-					break;
-				}
-			}
-		}
-	}
-
-	return found;
-}
-
-Parameter* Parameter::getParameterWithDisplayName(Parameter** group,
-														 const char* name)
-{
-	Parameter* found = nullptr;
-	
-	for (int i = 0 ; group[i] != nullptr ; i++) {
-		Parameter* p = group[i];
-		if (StringEqualNoCase(p->getDisplayName(), name)) {
-			found = p;
-			break;	
-		}
-	}
-	return found;
-}
-
-Parameter* Parameter::getParameter(const char* name)
-{
-	return getParameter(Parameters, name);
-}
-
-Parameter* Parameter::getParameterWithDisplayName(const char* name)
-{
-	return getParameterWithDisplayName(Parameters, name);
-}
-
-/****************************************************************************
- *                                                                          *
- *                             SCRIPT PARAMETERS                            *
- *                                                                          *
- ****************************************************************************/
-
-/****************************************************************************
- *                                                                          *
- *                               PARAMETER LIST                             *
- *                                                                          *
- ****************************************************************************/
-/*
- * Can't use a simple static initializer for the Parameters array any more
- * now that they've been broken up into several files.  Have to build
- * the array at runtime.
- */
-
-#define MAX_STATIC_PARAMETERS 256
-
-Parameter* Parameters[MAX_STATIC_PARAMETERS];
-int ParameterIndex = 0;
-
-void add(Parameter* p)
-{
-	if (ParameterIndex >= MAX_STATIC_PARAMETERS - 1) {
-		printf("Parameter array overflow!\n");
-		fflush(stdout);
-	}
-	else {
-		Parameters[ParameterIndex++] = p;
-		// keep it nullptr terminated
-		Parameters[ParameterIndex] = nullptr;
-	}
-}
-
-/**
- * Called early during Mobius initializations to initialize the 
- * static parameter arrays.  Had to start doing this after splitting
- * the parameters out into several files, they are no longer accessible
- * with static initializers.
- */
-void Parameter::initParameters()
-{
-    // ignore if already initialized
-    if (ParameterIndex == 0) {
-
-        // Preset
-        add(AltFeedbackEnableParameter);
-        add(AutoRecordBarsParameter);
-        add(AutoRecordTempoParameter);
-        add(BounceQuantizeParameter);
-        add(EmptyLoopActionParameter);
-        add(EmptyTrackActionParameter);
-        add(LoopCountParameter);
-        add(MaxRedoParameter);
-        add(MaxUndoParameter);
-        add(MultiplyModeParameter);
-        add(MuteCancelParameter);
-        add(MuteModeParameter);
-        add(NoFeedbackUndoParameter);
-        add(NoLayerFlatteningParameter);
-        add(OverdubQuantizedParameter);
-        add(OverdubTransferParameter);
-        add(PitchBendRangeParameter);
-        add(PitchSequenceParameter);
-        add(PitchShiftRestartParameter);
-        add(PitchStepRangeParameter);
-        add(PitchTransferParameter);
-        add(QuantizeParameter);
-        add(SpeedBendRangeParameter);
-        add(SpeedRecordParameter);
-        add(SpeedSequenceParameter);
-        add(SpeedShiftRestartParameter);
-        add(SpeedStepRangeParameter);
-        add(SpeedTransferParameter);
-        add(TimeStretchRangeParameter);
-        add(RecordResetsFeedbackParameter);
-        add(RecordThresholdParameter);
-        add(RecordTransferParameter);
-        add(ReturnLocationParameter);
-        add(ReverseTransferParameter);
-        add(RoundingOverdubParameter);
-        add(ShuffleModeParameter);
-        add(SlipModeParameter);
-        add(SlipTimeParameter);
-        add(SoundCopyParameter);
-        add(SubCycleParameter);
-        add(&SubCycleParameterTest);
-        add(SustainFunctionsParameter);
-        add(SwitchDurationParameter);
-        add(SwitchLocationParameter);
-        add(SwitchQuantizeParameter);
-        add(SwitchVelocityParameter);
-        add(TimeCopyParameter);
-        add(TrackLeaveActionParameter);
-        add(WindowEdgeAmountParameter);
-        add(WindowEdgeUnitParameter);
-        add(WindowSlideAmountParameter);
-        add(WindowSlideUnitParameter);
-
-        // Deprecated
-
-        add(AutoRecordParameter);
-        add(InsertModeParameter);
-        add(InterfaceModeParameter);
-        add(LoopCopyParameter);
-        add(OverdubModeParameter);
-        add(RecordModeParameter);
-        add(SamplerStyleParameter);
-        add(TrackCopyParameter);
-
-        // Track
-#ifndef HIDE_TRACK
-        add(AltFeedbackLevelParameter);
-        add(AudioInputPortParameter);
-        add(AudioOutputPortParameter);
-        add(FeedbackLevelParameter);
-        add(FocusParameter);
-        add(GroupParameter);
-        add(InputLevelParameter);
-        add(InputPortParameter);
-        add(MonoParameter);
-        add(OutputLevelParameter);
-        add(OutputPortParameter);
-        add(PanParameter);
-        add(PluginInputPortParameter);
-        add(PluginOutputPortParameter);
-
-        add(SpeedOctaveParameter);
-        add(SpeedBendParameter);
-        add(SpeedStepParameter);
-
-        add(PitchOctaveParameter);
-        add(PitchBendParameter);
-        add(PitchStepParameter);
-
-        add(TimeStretchParameter);
-
-        add(TrackNameParameter);
-        add(TrackPresetParameter);
-        add(TrackPresetNumberParameter);
-        add(TrackSyncUnitParameter);
-        add(SyncSourceParameter);
-#endif
-        
-        // Setup
-
-        add(BeatsPerBarParameter);
-        add(DefaultSyncSourceParameter);
-        add(DefaultTrackSyncUnitParameter);
-        add(ManualStartParameter);
-        add(MaxTempoParameter);
-        add(MinTempoParameter);
-        add(MuteSyncModeParameter);
-        add(OutRealignModeParameter);
-        add(RealignTimeParameter);
-        add(ResizeSyncAdjustParameter);
-        add(SlaveSyncUnitParameter);
-        add(SpeedSyncAdjustParameter);
-
-        // Global
-
-        add(AltFeedbackDisableParameter);
-        add(AudioInputParameter);
-        add(AudioOutputParameter);
-        add(AutoFeedbackReductionParameter);
-        add(BindingsParameter);
-        add(ConfirmationFunctionsParameter);
-        add(CustomMessageFileParameter);
-        add(CustomModeParameter);
-        add(DriftCheckPointParameter);
-        add(DualPluginWindowParameter);
-        add(FadeFramesParameter);
-        add(FocusLockFunctionsParameter);
-        add(GroupFocusLockParameter);
-        add(HostMidiExportParameter);
-        add(InputLatencyParameter);
-        add(IntegerWaveFileParameter);
-        add(IsolateOverdubsParameter);
-        add(LogStatusParameter);
-        add(LongPressParameter);
-        add(MaxLoopsParameter);
-        add(MaxSyncDriftParameter);
-        add(MidiExportParameter);
-        add(MidiInputParameter);
-        add(MidiOutputParameter);
-        add(MidiRecordModeParameter);
-        add(MidiThroughParameter);
-        add(MonitorAudioParameter);
-        add(MuteCancelFunctionsParameter);
-        add(NoiseFloorParameter);
-        add(OutputLatencyParameter);
-        add(OscInputPortParameter);
-        add(OscOutputPortParameter);
-        add(OscOutputHostParameter);
-        add(OscTraceParameter);
-        add(OscEnableParameter);
-        add(PluginMidiInputParameter);
-        add(PluginMidiOutputParameter);
-        add(PluginMidiThroughParameter);
-        add(PluginPortsParameter);
-        add(QuickSaveParameter);
-        add(SampleRateParameter);
-        add(SaveLayersParameter);
-        add(SetupNameParameter);
-        add(SetupNumberParameter);
-        add(SpreadRangeParameter);
-        add(TraceDebugLevelParameter);
-        add(TracePrintLevelParameter);
-        add(TrackGroupsParameter);
-        add(TrackParameter);
-        add(TracksParameter);
-        add(UnitTestsParameter);
-
-        // sanity check on scopes since they're critical
-        for (int i = 0 ; Parameters[i] != nullptr ; i++) {
-            if (Parameters[i]->scope == PARAM_SCOPE_NONE) {
-                Trace(1, "Parameter %s has no scope!\n", 
-                      Parameters[i]->getName());
-            }
-        }
-    }
-}
-
-/**
- * Refresh the cached display names from the message catalog.
- */
-void Parameter::localizeAll(MessageCatalog* cat)
-{
-	int i;
-
-	for (i = 0 ; Parameters[i] != nullptr ; i++)
-	  Parameters[i]->localize(cat);
-
-	// these are shared by all
-	for (i = 0 ; BOOLEAN_VALUE_NAMES[i] != nullptr; i++) {
-		const char* msg = cat->get(BOOLEAN_VALUE_KEYS[i]);
-		if (msg == nullptr)
-		  msg = BOOLEAN_VALUE_NAMES[i];
-		BOOLEAN_VALUE_LABELS[i] = msg;
-	}
-
-    // a good point to run diagnostics
-    checkAmbiguousNames();
-
-    // debugging hack
-    //    dumpFlags();
-}
-
-void Parameter::checkAmbiguousNames()
-{
-	int i;
-
-	for (i = 0 ; Parameters[i] != nullptr ; i++) {
-        Parameter* p = Parameters[i];
-        const char** values = p->values;
-        if (values != nullptr) {
-            for (int j = 0 ; values[j] != nullptr ; j++) {
-                Parameter* other = getParameter(values[j]);
-                if (other != nullptr) {
-                    printf("WARNING: Ambiguous parameter name/value %s\n", values[j]);
-					fflush(stdout);
-                }
-            }
-        }
-    }
-}
-
-void Parameter::dumpFlags()
-{
-    int i;
-
-    printf("*** Bindable ***\n");
-	for (i = 0 ; Parameters[i] != nullptr ; i++) {
-        Parameter* p = Parameters[i];
-        if (p->bindable)
-          printf("%s\n", p->getName());
-    }
-
-    printf("*** Hidden ***\n");
-	for (i = 0 ; Parameters[i] != nullptr ; i++) {
-        Parameter* p = Parameters[i];
-        if (!p->bindable)
-          printf("%s\n", p->getName());
-    }
-
-    printf("*** Deprecated ***\n");
-	for (i = 0 ; Parameters[i] != nullptr ; i++) {
-        Parameter* p = Parameters[i];
-        if (p->deprecated)
-          printf("%s\n", p->getName());
-    }
-
 }
 
 /****************************************************************************/

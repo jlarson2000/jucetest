@@ -8,7 +8,7 @@
 #include "SimpleMenu.h"
 #include "MainComponent.h"
 
-#include "model/XmlRenderer.h"
+#include "mobius/MobiusInterface.h"
 
 SimpleMenu::SimpleMenu()
 {
@@ -209,9 +209,7 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
             break;
                 
             case menuGlobalParameters: {
-                XmlRenderer* r = new XmlRenderer();
-                r->test();
-                delete r;
+                mainComponent->showGlobal();
             }
             break;
                 

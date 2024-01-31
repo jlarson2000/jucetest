@@ -10,6 +10,14 @@
  * Not liking the nested listener levels but trying to maintain encapsulation
  * Think more about this.
  * 
+ * The owner component calls show() when it wants the dialog to show.
+ * If this is implemented as a child Component it will be added and made visible.
+ * If this is implemented as a window the window is created and shown.
+ *
+ * The owner assumes this an async dialog and will close itself
+ *
+ * The owner may call close() to force the dialog to cancel whatever it was
+ * doing and 
  */
 
 #pragma once
@@ -19,6 +27,7 @@
 #include "ConfigPanel.h"
 #include "PresetPanel.h"
 #include "SetupPanel.h"
+#include "GlobalPanel.h"
 
 class ConfigPopup : public juce::Component, public ConfigPanel::Listener
 {
@@ -33,6 +42,10 @@ class ConfigPopup : public juce::Component, public ConfigPanel::Listener
     ~ConfigPopup() override;
 
     void setListener(Listener *l);
+    
+    // initialize before showing
+    void startup();
+    void shutdown();
 
     // Component
     void resized() override;
@@ -72,5 +85,20 @@ class SetupPopup : public ConfigPopup
   private:
 
     SetupPanel panel;
+
+};
+
+class GlobalPopup : public ConfigPopup
+{
+  public:
+
+    GlobalPopup();
+    ~GlobalPopup();
+
+    void startup();
+
+  private:
+
+    GlobalPanel panel;
 
 };

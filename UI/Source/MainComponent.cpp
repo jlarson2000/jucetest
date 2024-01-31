@@ -7,8 +7,13 @@
 #include "MainMenu.h"
 #include "qtrace.h"
 
+#include "mobius/MobiusInterface.h"
+
 MainComponent::MainComponent()
 {
+    // should this go here or in UIApplication?
+    MobiusInterface::startup();
+
     // add subcomponents before setting size
     addAndMakeVisible (titleLabel);
     titleLabel.setFont (juce::Font (16.0f, juce::Font::bold));
@@ -56,6 +61,8 @@ MainComponent::~MainComponent()
 {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+
+    MobiusInterface::shutdown();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -114,9 +121,11 @@ void MainComponent::resized()
     titleLabel.setBounds (10,  100, getWidth() - 20,  30);
     anotherLabel.setBounds (10,  130, getWidth() - 20,  30);
     
-    // would prefer that we do this when it is opened?
-    presetPopup.center();
-    setupPopup.center();
+    // do we need to pass this down or just let them size themselves
+    // when shown?
+    globalEditor.resized();
+    presetEditor.resized();
+    setupEditor.resized();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -126,32 +135,27 @@ void MainComponent::resized()
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Called by the menu when the popup is to be shown.
- * I guess you can have more than one of these open at a time which
- * isn't terrible, but since you can't move them, it could get confusing.
- * Could simulate modal with a flag.
- 
+ * Called by the menu when an editor is to be shown.
+ * Let's enforce non-concurrency for now.
  */
 void MainComponent::showPresets()
 {
-    presetPopup.setVisible(true);
+    globalPopup.close();
+    setupPopup.close();
+
+    presetPopup.show();
 }
 
 void MainComponent::showSetups()
 {
-    setupPopup.setVisible(true);
+    globalPopup.close();
+    presetPopup.close();
+    setupPopup.show();
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Popup Listeners
-//
-//////////////////////////////////////////////////////////////////////
-
-void MainComponent::configPopupClosed(ConfigPopup* p)
+void MainComponent::showGlobal()
 {
-    if (p == &presetPopup)
-      presetPopup.setVisible(false);
-    else if (p == &setupPopup)
-      setupPopup.setVisible(false);
+    presetPopup.close();
+    setupPopup.close();
+    globalPopup.show();
 }

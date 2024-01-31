@@ -217,7 +217,8 @@ void LogStatusParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setLogStatus(value->getBool());
 }
 
-Parameter* LogStatusParameter = new LogStatusParameterType();
+LogStatusParameterType LogStatusParameterObj;
+Parameter* LogStatusParameter = &LogStatusParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -356,7 +357,8 @@ void SetupNameParameterType::getOrdinalLabel(MobiusInterface* mobius,
 }
 #endif
 
-Parameter* SetupNameParameter = new SetupNameParameterType();
+SetupNameParameterType SetupNameParameterObj;
+Parameter* SetupNameParameter = &SetupNameParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -384,7 +386,8 @@ class SetupNumberParameterType : public GlobalParameter
 #endif    
 };
 
-Parameter* SetupNumberParameter = new SetupNumberParameterType();
+SetupNumberParameterType SetupNumberParameterObj;
+Parameter* SetupNumberParameter = &SetupNumberParameterObj;
 
 SetupNumberParameterType::SetupNumberParameterType() :
     GlobalParameter("setupNumber", MSG_PARAM_SETUP_NUMBER)
@@ -512,7 +515,8 @@ int TrackParameterType::getOrdinalValue(Export *exp)
 }
 #endif
 
-Parameter* TrackParameter = new TrackParameterType();
+TrackParameterType TrackParameterObj;
+Parameter* TrackParameter = &TrackParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -654,7 +658,8 @@ void BindingsParameterType::getOrdinalLabel(MobiusInterface* m,
 }
 #endif
 
-Parameter* BindingsParameter = new BindingsParameterType();
+BindingsParameterType BindingsParameterObj;
+Parameter* BindingsParameter = &BindingsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -709,7 +714,8 @@ void FadeFramesParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* FadeFramesParameter = new FadeFramesParameterType();
+FadeFramesParameterType FadeFramesParameterObj;
+Parameter* FadeFramesParameter = &FadeFramesParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -774,7 +780,8 @@ void MaxSyncDriftParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* MaxSyncDriftParameter = new MaxSyncDriftParameterType();
+MaxSyncDriftParameterType MaxSyncDriftParameterObj;
+Parameter* MaxSyncDriftParameter = &MaxSyncDriftParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -844,8 +851,8 @@ void DriftCheckPointParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* DriftCheckPointParameter = 
-new DriftCheckPointParameterType();
+DriftCheckPointParameterType DriftCheckPointParameterObj;
+Parameter* DriftCheckPointParameter = &DriftCheckPointParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -880,7 +887,8 @@ void NoiseFloorParameterType::setValue(MobiusConfig* c, ExValue* value)
     c->setNoiseFloor(value->getInt());
 }
 
-Parameter* NoiseFloorParameter = new NoiseFloorParameterType();
+NoiseFloorParameterType NoiseFloorParameterObj;
+Parameter* NoiseFloorParameter = &NoiseFloorParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -915,7 +923,8 @@ void PluginPortsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setPluginPorts(value->getInt());
 }
 
-Parameter* PluginPortsParameter = new PluginPortsParameterType();
+PluginPortsParameterType PluginPortsParameterObj;
+Parameter* PluginPortsParameter = &PluginPortsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -950,7 +959,8 @@ void MidiExportParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setMidiExport(value->getBool());
 }
 
-Parameter* MidiExportParameter = new MidiExportParameterType();
+MidiExportParameterType MidiExportParameterObj;
+Parameter* MidiExportParameter = &MidiExportParameterObj;
 
 /////////////////////////////////////////
 
@@ -980,7 +990,8 @@ void HostMidiExportParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setHostMidiExport(value->getBool());
 }
 
-Parameter* HostMidiExportParameter = new HostMidiExportParameterType();
+HostMidiExportParameterType HostMidiExportParameterObj;
+Parameter* HostMidiExportParameter = &HostMidiExportParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1015,7 +1026,8 @@ void LongPressParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setLongPress(value->getInt());
 }
 
-Parameter* LongPressParameter = new LongPressParameterType();
+LongPressParameterType LongPressParameterObj;
+Parameter* LongPressParameter = &LongPressParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1051,7 +1063,8 @@ void SpreadRangeParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setSpreadRange(value->getInt());
 }
 
-Parameter* SpreadRangeParameter = new SpreadRangeParameterType();
+SpreadRangeParameterType SpreadRangeParameterObj;
+Parameter* SpreadRangeParameter = &SpreadRangeParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1104,7 +1117,8 @@ void TraceDebugLevelParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* TraceDebugLevelParameter = new TraceDebugLevelParameterType();
+TraceDebugLevelParameterType TraceDebugLevelParameterObj;
+Parameter* TraceDebugLevelParameter = &TraceDebugLevelParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1157,7 +1171,8 @@ void TracePrintLevelParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* TracePrintLevelParameter = new TracePrintLevelParameterType();
+TracePrintLevelParameterType TracePrintLevelParameterObj;
+Parameter* TracePrintLevelParameter = &TracePrintLevelParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1210,7 +1225,8 @@ void CustomModeParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* CustomModeParameter = new CustomModeParameterType();
+CustomModeParameterType CustomModeParameterObj;
+Parameter* CustomModeParameter = &CustomModeParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1273,7 +1289,8 @@ void AutoFeedbackReductionParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* AutoFeedbackReductionParameter = new AutoFeedbackReductionParameterType();
+AutoFeedbackReductionParameterType AutoFeedbackReductionParameterObj;
+Parameter* AutoFeedbackReductionParameter = &AutoFeedbackReductionParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1306,7 +1323,8 @@ void IsolateOverdubsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setIsolateOverdubs(value->getBool());
 }
 
-Parameter* IsolateOverdubsParameter = new IsolateOverdubsParameterType();
+IsolateOverdubsParameterType IsolateOverdubsParameterObj;
+Parameter* IsolateOverdubsParameter = &IsolateOverdubsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1366,7 +1384,8 @@ void MonitorAudioParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* MonitorAudioParameter = new MonitorAudioParameterType();
+MonitorAudioParameterType MonitorAudioParameterObj;
+Parameter* MonitorAudioParameter = &MonitorAudioParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1399,7 +1418,8 @@ void SaveLayersParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setSaveLayers(value->getBool());
 }
 
-Parameter* SaveLayersParameter = new SaveLayersParameterType();
+SaveLayersParameterType SaveLayersParameterObj;
+Parameter* SaveLayersParameter = &SaveLayersParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1432,7 +1452,8 @@ void QuickSaveParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setQuickSave(value->getString());
 }
 
-Parameter* QuickSaveParameter = new QuickSaveParameterType();
+QuickSaveParameterType QuickSaveParameterObj;
+Parameter* QuickSaveParameter = &QuickSaveParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1465,7 +1486,8 @@ void UnitTestsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setUnitTests(value->getString());
 }
 
-Parameter* UnitTestsParameter = new UnitTestsParameterType();
+UnitTestsParameterType UnitTestsParameterObj;
+Parameter* UnitTestsParameter = &UnitTestsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1518,7 +1540,8 @@ void IntegerWaveFileParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* IntegerWaveFileParameter = new IntegerWaveFileParameterType();
+IntegerWaveFileParameterType IntegerWaveFileParameterObj;
+Parameter* IntegerWaveFileParameter = &IntegerWaveFileParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1565,7 +1588,8 @@ void AltFeedbackDisableParameterType::setValue(MobiusConfig* c, ExValue* value)
 	  c->setAltFeedbackDisables(new StringList(value->getString()));
 }
 
-Parameter* AltFeedbackDisableParameter = new AltFeedbackDisableParameterType();
+AltFeedbackDisableParameterType AltFeedbackDisableParameterObj;
+Parameter* AltFeedbackDisableParameter = &AltFeedbackDisableParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1598,7 +1622,8 @@ void GroupFocusLockParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setGroupFocusLock(value->getBool());
 }
 
-Parameter* GroupFocusLockParameter = new GroupFocusLockParameterType();
+GroupFocusLockParameterType GroupFocusLockParameterObj;
+Parameter* GroupFocusLockParameter = &GroupFocusLockParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1643,8 +1668,8 @@ void FocusLockFunctionsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	  c->setFocusLockFunctions(new StringList(value->getString()));
 }
 
-Parameter* FocusLockFunctionsParameter = 
-new FocusLockFunctionsParameterType();
+FocusLockFunctionsParameterType FocusLockFunctionsParameterObj;
+Parameter* FocusLockFunctionsParameter = &FocusLockFunctionsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1713,8 +1738,8 @@ void MuteCancelFunctionsParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* MuteCancelFunctionsParameter = 
-new MuteCancelFunctionsParameterType();
+MuteCancelFunctionsParameterType MuteCancelFunctionsParameterObj;
+Parameter* MuteCancelFunctionsParameter = &MuteCancelFunctionsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1783,8 +1808,8 @@ void ConfirmationFunctionsParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* ConfirmationFunctionsParameter = 
-new ConfirmationFunctionsParameterType();
+ConfirmationFunctionsParameterType ConfirmationFunctionsParameterObj;
+Parameter* ConfirmationFunctionsParameter = &ConfirmationFunctionsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1850,7 +1875,8 @@ void MidiRecordModeParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* MidiRecordModeParameter = new MidiRecordModeParameterType();
+MidiRecordModeParameterType MidiRecordModeParameterObj;
+Parameter* MidiRecordModeParameter = &MidiRecordModeParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1883,7 +1909,8 @@ void DualPluginWindowParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setDualPluginWindow(value->getBool());
 }
 
-Parameter* DualPluginWindowParameter = new DualPluginWindowParameterType();
+DualPluginWindowParameterType DualPluginWindowParameterObj;
+Parameter* DualPluginWindowParameter = &DualPluginWindowParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1916,7 +1943,8 @@ void CustomMessageFileParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setCustomMessageFile(value->getString());
 }
 
-Parameter* CustomMessageFileParameter = new CustomMessageFileParameterType();
+CustomMessageFileParameterType CustomMessageFileParameterObj;
+Parameter* CustomMessageFileParameter = &CustomMessageFileParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1951,7 +1979,8 @@ void TracksParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setTracks(value->getInt());
 }
 
-Parameter* TracksParameter = new TracksParameterType();
+TracksParameterType TracksParameterObj;
+Parameter* TracksParameter = &TracksParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1985,7 +2014,8 @@ void TrackGroupsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setTrackGroups(value->getInt());
 }
 
-Parameter* TrackGroupsParameter = new TrackGroupsParameterType();
+TrackGroupsParameterType TrackGroupsParameterObj;
+Parameter* TrackGroupsParameter = &TrackGroupsParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2019,7 +2049,8 @@ void MaxLoopsParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setMaxLoops(value->getInt());
 }
 
-Parameter* MaxLoopsParameter = new MaxLoopsParameterType();
+MaxLoopsParameterType MaxLoopsParameterObj;
+Parameter* MaxLoopsParameter = &MaxLoopsParameterObj;
 
 /****************************************************************************
  *                                                                          *
@@ -2058,7 +2089,8 @@ void OscInputPortParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setOscInputPort(value->getInt());
 }
 
-Parameter* OscInputPortParameter = new OscInputPortParameterType();
+OscInputPortParameterType OscInputPortParameterObj;
+Parameter* OscInputPortParameter = &OscInputPortParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2091,7 +2123,8 @@ void OscOutputPortParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setOscOutputPort(value->getInt());
 }
 
-Parameter* OscOutputPortParameter = new OscOutputPortParameterType();
+OscOutputPortParameterType OscOutputPortParameterObj;
+Parameter* OscOutputPortParameter = &OscOutputPortParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2124,7 +2157,8 @@ void OscOutputHostParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setOscOutputHost(value->getString());
 }
 
-Parameter* OscOutputHostParameter = new OscOutputHostParameterType();
+OscOutputHostParameterType OscOutputHostParameterObj;
+Parameter* OscOutputHostParameter = &OscOutputHostParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2157,7 +2191,8 @@ void OscTraceParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setOscTrace(value->getBool());
 }
 
-Parameter* OscTraceParameter = new OscTraceParameterType();
+OscTraceParameterType OscTraceParameterObj;
+Parameter* OscTraceParameter = &OscTraceParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2190,7 +2225,8 @@ void OscEnableParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setOscEnable(value->getBool());
 }
 
-Parameter* OscEnableParameter = new OscEnableParameterType();
+OscEnableParameterType OscEnableParameterObj;
+Parameter* OscEnableParameter = &OscEnableParameterObj;
 
 /****************************************************************************
  *                                                                          *
@@ -2260,7 +2296,8 @@ void InputLatencyParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* InputLatencyParameter = new InputLatencyParameterType();
+InputLatencyParameterType InputLatencyParameterObj;
+Parameter* InputLatencyParameter = &InputLatencyParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2321,7 +2358,8 @@ void OutputLatencyParameterType::setValue(Action* action)
 }
 #endif
 
-Parameter* OutputLatencyParameter = new OutputLatencyParameterType();
+OutputLatencyParameterType OutputLatencyParameterObj;
+Parameter* OutputLatencyParameter = &OutputLatencyParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2354,7 +2392,8 @@ void MidiInputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setMidiInput(value->getString());
 }
 
-Parameter* MidiInputParameter = new MidiInputParameterType();
+MidiInputParameterType MidiInputParameterObj;
+Parameter* MidiInputParameter = &MidiInputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2387,7 +2426,8 @@ void MidiOutputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setMidiOutput(value->getString());
 }
 
-Parameter* MidiOutputParameter = new MidiOutputParameterType();
+MidiOutputParameterType MidiOutputParameterObj;
+Parameter* MidiOutputParameter = &MidiOutputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2420,7 +2460,8 @@ void MidiThroughParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setMidiThrough(value->getString());
 }
 
-Parameter* MidiThroughParameter = new MidiThroughParameterType();
+MidiThroughParameterType MidiThroughParameterObj;
+Parameter* MidiThroughParameter = &MidiThroughParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2454,7 +2495,8 @@ void PluginMidiInputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setPluginMidiInput(value->getString());
 }
 
-Parameter* PluginMidiInputParameter = new PluginMidiInputParameterType();
+PluginMidiInputParameterType PluginMidiInputParameterObj;
+Parameter* PluginMidiInputParameter = &PluginMidiInputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2488,7 +2530,8 @@ void PluginMidiOutputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setPluginMidiOutput(value->getString());
 }
 
-Parameter* PluginMidiOutputParameter = new PluginMidiOutputParameterType();
+PluginMidiOutputParameterType PluginMidiOutputParameterObj;
+Parameter* PluginMidiOutputParameter = &PluginMidiOutputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2522,7 +2565,8 @@ void PluginMidiThroughParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setPluginMidiThrough(value->getString());
 }
 
-Parameter* PluginMidiThroughParameter = new PluginMidiThroughParameterType();
+PluginMidiThroughParameterType PluginMidiThroughParameterObj;
+Parameter* PluginMidiThroughParameter = &PluginMidiThroughParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2555,7 +2599,8 @@ void AudioInputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setAudioInput(value->getString());
 }
 
-Parameter* AudioInputParameter = new AudioInputParameterType();
+AudioInputParameterType AudioInputParameterObj;
+Parameter* AudioInputParameter = &AudioInputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2588,7 +2633,8 @@ void AudioOutputParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setAudioOutput(value->getString());
 }
 
-Parameter* AudioOutputParameter = new AudioOutputParameterType();
+AudioOutputParameterType AudioOutputParameterObj;
+Parameter* AudioOutputParameter = &AudioOutputParameterObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2630,8 +2676,8 @@ void SampleRateParameterType::setValue(MobiusConfig* c, ExValue* value)
 	c->setSampleRate(rate);
 }
 
-Parameter* SampleRateParameter = new SampleRateParameterType();
-
+SampleRateParameterType SampleRateParameterObj;
+Parameter* SampleRateParameter = &SampleRateParameterObj;
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

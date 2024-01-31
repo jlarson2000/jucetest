@@ -16,6 +16,8 @@
 #include <math.h>
 #include <ctype.h>
 
+#include <vector>
+
 #include "../util/Util.h"
 #include "../util/Trace.h"
 #include "../util/MidiUtil.h"  // MidiNoteName
@@ -76,58 +78,23 @@ void Bindable::clone(Bindable* src)
  *                                                                          *
  ****************************************************************************/
 
-Trigger* TriggerKey = new Trigger("key", "Key", true);
-Trigger* TriggerMidi = new Trigger("midi", "MIDI", false);
-Trigger* TriggerNote = new Trigger("note", "Note", true);
-Trigger* TriggerProgram = new Trigger("program", "Program", true);
-Trigger* TriggerControl = new Trigger("control", "Control", true);
-Trigger* TriggerPitch = new Trigger("pitch", "Pitch Bend", true);
-Trigger* TriggerHost = new Trigger("host", "Host", true);
-Trigger* TriggerOsc = new Trigger("osc", "OSC", false);
-Trigger* TriggerUI = new Trigger("ui", "UI", true);
-Trigger* TriggerScript = new Trigger("script", "Script", false);
-Trigger* TriggerAlert = new Trigger("alert", "Alert", false);
-Trigger* TriggerEvent = new Trigger("event", "Event", false);
-Trigger* TriggerThread = new Trigger("thread", "Mobius Thread", false);
-Trigger* TriggerUnknown = new Trigger("unknown", "unknown", false);
-
-/**
- * Array of all triggers for resolving references in XML.
- * Only bindable triggers should be here
- */
-Trigger* Triggers[] = {
-	TriggerKey,
-	TriggerNote,
-	TriggerProgram,
-	TriggerControl,
-	TriggerPitch,
-	TriggerHost,
-	TriggerOsc,
-    TriggerUI,
-	nullptr
-};
-
-Trigger::Trigger(const char* name, const char* display, bool bindable) :
+Trigger::Trigger(const char* name, const char* display, bool isBindable) :
     SystemConstant(name, display)
 {
-    mBindable = bindable;
-}
-
-bool Trigger::isBindable()
-{
-    return mBindable;
+    Triggers.push_back(this);
+    bindable = isBindable;
 }
 
 /**
  * Lookup a bindable trigger by name.
  */
-Trigger* Trigger::get(const char* name) 
+Trigger* Trigger::getBindable(const char* name) 
 {
 	Trigger* found = nullptr;
 	if (name != nullptr) {
-		for (int i = 0 ; Triggers[i] != nullptr ; i++) {
+		for (int i = 0 ; Triggers.size() ; i++) {
 			Trigger* t = Triggers[i];
-			if (!strcmp(t->getName(), name)) {
+			if (t->bindable && !strcmp(t->getName(), name)) {
 				found = t;
 				break;
 			}
@@ -136,40 +103,90 @@ Trigger* Trigger::get(const char* name)
 	return found;
 }
 
+std::vector<Trigger*> Trigger::Triggers;
+
+// unlike Parameter we don't have subclasses so can just extern
+// the Trigger object
+// everything really wants to deal with a pointer to them and I don't want
+// to mess with reference conversion right now
+
+Trigger TriggerKeyObj("key", "Key", true);
+Trigger* TriggerKey = &TriggerKeyObj;
+
+Trigger TriggerMidiObj("midi", "MIDI", false);
+Trigger* TriggerMidi = &TriggerMidiObj;
+
+Trigger TriggerNoteObj("note", "Note", true);
+Trigger* TriggerNote = &TriggerNoteObj;
+
+Trigger TriggerProgramObj("program", "Program", true);
+Trigger* TriggerProgram = &TriggerProgramObj;
+
+Trigger TriggerControlObj("control", "Control", true);
+Trigger* TriggerControl = &TriggerControlObj;
+
+Trigger TriggerPitchObj("pitch", "Pitch Bend", true);
+Trigger* TriggerPitch = &TriggerPitchObj;
+
+Trigger TriggerHostObj("host", "Host", true);
+Trigger* TriggerHost = &TriggerHostObj;
+
+Trigger TriggerOscObj("osc", "OSC", false);
+Trigger* TriggerOsc = &TriggerOscObj;
+
+Trigger TriggerUIObj("ui", "UI", true);
+Trigger* TriggerUI = &TriggerUIObj;
+
+Trigger TriggerScriptObj("script", "Script", false);
+Trigger* TriggerScript = &TriggerScriptObj;
+
+Trigger TriggerAlertObj("alert", "Alert", false);
+Trigger* TriggerAlert = &TriggerAlertObj;
+
+Trigger TriggerEventObj("event", "Event", false);
+Trigger* TriggerEvent = &TriggerEventObj;
+
+Trigger TriggerThreadObj("thread", "Mobius Thread", false);
+Trigger* TriggerThread = &TriggerThreadObj;
+
+Trigger TriggerUnknownObj("unknown", "unknown", false);
+Trigger* TriggerUnknown = &TriggerUnknownObj;
+
 /****************************************************************************
  *                                                                          *
  *                               TRIGGER MODES                              *
  *                                                                          *
  ****************************************************************************/
 
-TriggerMode* TriggerModeContinuous = new TriggerMode("continuous", "Continuous");
-TriggerMode* TriggerModeOnce = new TriggerMode("once", "Once");
-TriggerMode* TriggerModeMomentary = new TriggerMode("momentary", "Momentary");
-TriggerMode* TriggerModeToggle = new TriggerMode("toggle", "Toggle");
-TriggerMode* TriggerModeXY = new TriggerMode("xy", "X,Y");
+std::vector<TriggerMode*> TriggerMode::TriggerModes;
 
-/**
- * Array of all triggers for resolving references in XML.
- */
-TriggerMode* TriggerModes[] = {
-    TriggerModeContinuous,
-    TriggerModeOnce,
-    TriggerModeMomentary,
-    TriggerModeToggle,
-    TriggerModeXY,
-	nullptr
-};
+TriggerMode TriggerModeContinuousObj("continuous", "Continuous");
+TriggerMode* TriggerModeContinuous = &TriggerModeContinuousObj;
+
+TriggerMode TriggerModeOnceObj("once", "Once");
+TriggerMode* TriggerModeOnce = &TriggerModeOnceObj;
+
+TriggerMode TriggerModeMomentaryObj("momentary", "Momentary");
+TriggerMode* TriggerModeMomentary = &TriggerModeMomentaryObj;
+
+TriggerMode TriggerModeToggleObj("toggle", "Toggle");
+TriggerMode* TriggerModeToggle = &TriggerModeToggleObj;
+
+TriggerMode TriggerModeXYObj("xy", "X,Y");
+TriggerMode* TriggerModeXY = &TriggerModeXYObj;
+
 
 TriggerMode::TriggerMode(const char* name, const char* display) :
     SystemConstant(name, display)
 {
+    TriggerModes.push_back(this);
 }
 
 TriggerMode* TriggerMode::get(const char* name) 
 {
 	TriggerMode* found = nullptr;
 	if (name != nullptr) {
-		for (int i = 0 ; TriggerModes[i] != nullptr ; i++) {
+		for (int i = 0 ; i < TriggerModes.size() ; i++) {
 			TriggerMode* t = TriggerModes[i];
 			if (!strcmp(t->getName(), name)) {
 				found = t;
@@ -186,33 +203,41 @@ TriggerMode* TriggerMode::get(const char* name)
  *                                                                          *
  ****************************************************************************/
 
-Target* TargetFunction = new Target("function", "Function");
-Target* TargetParameter = new Target("parameter", "Parameter");
-Target* TargetSetup = new Target("setup", "Setup");
-Target* TargetPreset = new Target("preset", "Preset");
-Target* TargetBindings = new Target("bindings", "Bindings");
-Target* TargetUIControl = new Target("uiControl", "UI Control");
-Target* TargetUIConfig = new Target("uiConfig", "UI Config");
-Target* TargetScript = new Target("script", "Script");
+std::vector<Target*> Target::Targets;
 
-Target* Targets[] = {
-	TargetFunction,
-	TargetParameter,
-	TargetSetup,
-	TargetPreset,
-	TargetBindings,
-	TargetUIControl,
-	TargetUIConfig,
-	TargetScript,
-	nullptr
-};
- 
-Target::Target(const char* name, const char* display) :
+Target TargetFunctionObj("function", "Function", true);
+Target* TargetFunction = &TargetFunctionObj;
+
+Target TargetParameterObj("parameter", "Parameter", true);
+Target* TargetParameter = &TargetParameterObj;
+
+Target TargetSetupObj("setup", "Setup", true);
+Target* TargetSetup = &TargetSetupObj;
+
+Target TargetPresetObj("preset", "Preset", true);
+Target* TargetPreset = &TargetPresetObj;
+
+Target TargetBindingsObj("bindings", "Bindings", true);
+Target* TargetBindings = &TargetBindingsObj;
+
+Target TargetUIControlObj("uiControl", "UI Control", true);
+Target* TargetUIControl = &TargetUIControlObj;
+
+Target TargetUIConfigObj("uiConfig", "UI Config", true);
+Target* TargetUIConfig = &TargetUIConfigObj;
+
+// this is for internal use, can't be used in bindings
+Target TargetScriptObj("script", "Script", false);
+Target* TargetScript = &TargetScriptObj;
+
+Target::Target(const char* name, const char* display, bool argBindable) :
     SystemConstant(name, display)
 {
+    Targets.push_back(this);
+    bindable = argBindable;
 }
 
-Target* Target::get(const char* name) 
+Target* Target::getBindable(const char* name) 
 {
 	Target* found = nullptr;
 
@@ -221,9 +246,9 @@ Target* Target::get(const char* name)
       name = "parameter";
 
 	if (name != nullptr) {
-		for (int i = 0 ; Targets[i] != nullptr ; i++) {
+		for (int i = 0 ; i < Targets.size() ; i++) {
 			Target* t = Targets[i];
-			if (!strcmp(t->getName(), name)) {
+			if (t->bindable && !strcmp(t->getName(), name)) {
 				found = t;
 				break;
 			}

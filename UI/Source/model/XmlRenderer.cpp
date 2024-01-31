@@ -1086,7 +1086,7 @@ void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
 void XmlRenderer::parse(XmlElement* e, Binding* b)
 {
     // trigger
-    b->setTrigger(Trigger::get(e->getAttribute(ATT_TRIGGER)));
+    b->setTrigger(Trigger::getBindable(e->getAttribute(ATT_TRIGGER)));
     b->setTriggerMode(TriggerMode::get(e->getAttribute(ATT_TRIGGER_TYPE)));
     b->setValue(e->getIntAttribute(ATT_VALUE));
     b->setChannel(e->getIntAttribute(ATT_CHANNEL));
@@ -1099,7 +1099,7 @@ void XmlRenderer::parse(XmlElement* e, Binding* b)
 
     // target
     b->setTargetPath(e->getAttribute(ATT_TARGET_PATH));
-    b->setTarget(Target::get(e->getAttribute(ATT_TARGET)));
+    b->setTarget(Target::getBindable(e->getAttribute(ATT_TARGET)));
     b->setName(e->getAttribute(ATT_NAME));
 
     // scope
@@ -1356,27 +1356,6 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
     w->setPath(e->getAttribute(ATT_PATH));
     w->setName(e->getAttribute(ATT_NAME));
     w->setTrack(e->getIntAttribute(ATT_TRACK));
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Test
-//
-//////////////////////////////////////////////////////////////////////
-
-void XmlRenderer::test()
-{
-    char* xml = ReadFile("c:/dev/jucetest/UI/Source/mobius.xml");
-
-    MobiusConfig* c = parseMobiusConfig(xml);
-
-    char* xml2 = render(c);
-    
-    WriteFile("c:/dev/jucetest/UI/Source/mobius2.xml", xml2);
-
-    delete xml2;
-    delete xml;
-    delete c;
 }
 
 /****************************************************************************/

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <JuceHeader.h>
+
 // #include "MainMenu.h"
 #include "SimpleMenu.h"
 //#include "PopupTest.h"
-#include "ConfigPopup.h"
+#include "ConfigEditor.h"
 
 //==============================================================================
 /*
@@ -36,14 +37,17 @@ public:
 
   private:
 
+    class MobiusInterface* mobius;
+
     juce::Label titleLabel;
     juce::Label anotherLabel;
 
     // class MainMenu mainMenu;
     class SimpleMenu mainMenu;
 
-    PresetPopup presetPopup;
-    SetupPopup setupPopup;
+    GlobalEditor globalEditor;
+    PresetEditor presetEditor;
+    SetupEditor setupEditor;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
