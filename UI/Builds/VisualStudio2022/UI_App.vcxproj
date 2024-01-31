@@ -173,9 +173,10 @@
     <ClCompile Include="..\..\Source\model\XmlRenderer.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigEditor.cpp"/>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp"/>
-    <ClCompile Include="..\..\Source\ConfigPopup.cpp"/>
     <ClCompile Include="..\..\Source\Form.cpp"/>
+    <ClCompile Include="..\..\Source\GlobalPanel.cpp"/>
     <ClCompile Include="..\..\Source\MainMenu.cpp"/>
     <ClCompile Include="..\..\Source\PopupTest.cpp"/>
     <ClCompile Include="..\..\Source\PresetPanel.cpp"/>
@@ -2473,9 +2474,10 @@
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
+    <ClInclude Include="..\..\Source\ConfigEditor.h"/>
     <ClInclude Include="..\..\Source\ConfigPanel.h"/>
-    <ClInclude Include="..\..\Source\ConfigPopup.h"/>
     <ClInclude Include="..\..\Source\Form.h"/>
+    <ClInclude Include="..\..\Source\GlobalPanel.h"/>
     <ClInclude Include="..\..\Source\MainMenu.h"/>
     <ClInclude Include="..\..\Source\PopupTest.h"/>
     <ClInclude Include="..\..\Source\PresetPanel.h"/>

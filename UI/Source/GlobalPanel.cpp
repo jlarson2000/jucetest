@@ -48,17 +48,4 @@ GlobalPanel::~GlobalPanel()
 {
 }
 
-void GlobalPanel::show()
-{
-}
-
-void GlobalPanel::buttonClicked(juce::Button* b)
-{
-    // todo: test the button
-
-    // pass up to super to hide the panel
-    ConfigPanel::buttonClicked(b);
-}
-
-
     

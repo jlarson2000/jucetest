@@ -12,7 +12,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent, ConfigPopup::Listener
+class MainComponent  : public juce::AudioAppComponent
 {
 public:
     //==============================================================================
@@ -29,11 +29,9 @@ public:
     void resized() override;
 
     // callbacks from the menu
+    void showGlobal();
     void showPresets();
     void showSetups();
-
-    // callbacks from the popup
-    void configPopupClosed(ConfigPopup* p);
 
   private:
 
@@ -45,9 +43,9 @@ public:
     // class MainMenu mainMenu;
     class SimpleMenu mainMenu;
 
-    GlobalEditor globalEditor;
-    PresetEditor presetEditor;
-    SetupEditor setupEditor;
+    GlobalEditor globalEditor {this};
+    PresetEditor presetEditor {this};
+    SetupEditor setupEditor {this};
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

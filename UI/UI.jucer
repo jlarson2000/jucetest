@@ -87,12 +87,15 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
+    <FILE id="E3se5e" name="ConfigEditor.cpp" compile="1" resource="0"
+          file="Source/ConfigEditor.cpp"/>
+    <FILE id="ff7C6l" name="ConfigEditor.h" compile="0" resource="0" file="Source/ConfigEditor.h"/>
     <FILE id="qeSkvH" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ConfigPanel.cpp"/>
     <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
-    <FILE id="U79qDT" name="ConfigPopup.cpp" compile="1" resource="0" file="Source/ConfigPopup.cpp"/>
-    <FILE id="L2aeBF" name="ConfigPopup.h" compile="0" resource="0" file="Source/ConfigPopup.h"/>
     <FILE id="hthmrW" name="Form.cpp" compile="1" resource="0" file="Source/Form.cpp"/>
     <FILE id="Mzw5se" name="Form.h" compile="0" resource="0" file="Source/Form.h"/>
+    <FILE id="ppPtSh" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/GlobalPanel.cpp"/>
+    <FILE id="b3o8xr" name="GlobalPanel.h" compile="0" resource="0" file="Source/GlobalPanel.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>

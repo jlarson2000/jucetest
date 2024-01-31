@@ -694,13 +694,16 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigEditor.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigPanel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ConfigPopup.cpp">
+    <ClCompile Include="..\..\Source\Form.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Form.cpp">
+    <ClCompile Include="..\..\Source\GlobalPanel.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\MainMenu.cpp">
@@ -3234,13 +3237,16 @@
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigEditor.h">
+      <Filter>UI</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ConfigPanel.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ConfigPopup.h">
+    <ClInclude Include="..\..\Source\Form.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Form.h">
+    <ClInclude Include="..\..\Source\GlobalPanel.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainMenu.h">

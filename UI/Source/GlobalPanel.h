@@ -15,9 +15,6 @@ class GlobalPanel : public ConfigPanel
     GlobalPanel();
     ~GlobalPanel();
 
-    // Button::Listener
-    void buttonClicked(juce::Button* b);
-
   private:
 
     FieldSet fields;

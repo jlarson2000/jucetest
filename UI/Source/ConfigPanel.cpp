@@ -34,7 +34,7 @@ void ConfigPanel::setListener(Listener* l)
 void ConfigPanel::buttonClicked(ConfigPanelButton button)
 {
     if (listener != nullptr)
-      listener->configPanelClosed();
+      listener->configPanelClosed(button);
 }
 
 void ConfigPanel::resized()

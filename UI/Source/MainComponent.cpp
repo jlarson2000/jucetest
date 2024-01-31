@@ -32,13 +32,6 @@ MainComponent::MainComponent()
     // we're already passing it to the constructor
     mainMenu.setMainComponent(this);
     
-    //addAndMakeVisible(popup);
-    addChildComponent(presetPopup);
-    presetPopup.setListener(this);
-    
-    addChildComponent(setupPopup);
-    setupPopup.setListener(this);
-
     // Make sure you set the size of the component after
     // you add any child components.
     setSize (1000, 1000);
@@ -140,22 +133,22 @@ void MainComponent::resized()
  */
 void MainComponent::showPresets()
 {
-    globalPopup.close();
-    setupPopup.close();
+    globalEditor.close();
+    setupEditor.close();
 
-    presetPopup.show();
+    presetEditor.open();
 }
 
 void MainComponent::showSetups()
 {
-    globalPopup.close();
-    presetPopup.close();
-    setupPopup.show();
+    globalEditor.close();
+    presetEditor.close();
+    setupEditor.open();
 }
 
 void MainComponent::showGlobal()
 {
-    presetPopup.close();
-    setupPopup.close();
-    globalPopup.show();
+    presetEditor.close();
+    setupEditor.close();
+    globalEditor.open();
 }

@@ -6,7 +6,7 @@
 
 #include "ConfigEditor.h"
 
-ConfigEditor::ConfigEditor(juce::Component argOwner)
+ConfigEditor::ConfigEditor(juce::Component* argOwner)
 {
     owner = argOwner;
 }
@@ -47,8 +47,7 @@ void ConfigEditor::open()
 
             panel->setSize(500, 500);
 
-            // ask the panel to tell us when it is done
-            panel.setListener(this);
+            panel->setAlwaysOnTop(true);
 
             // start off centered
             resized();
@@ -57,14 +56,14 @@ void ConfigEditor::open()
             panel->setListener(this);
         }
         else {
-            panel.setVisible(true);
+            panel->setVisible(true);
             resized();
         }
     }
     initialized = true;
 }
 
-void GlobalEditor::close()
+void ConfigEditor::close()
 {
     if (initialized) {
         // don't remove it but make it invisible
@@ -73,6 +72,7 @@ void GlobalEditor::close()
             // todo: ask the panel to flush state
             panel->setVisible(false);
         }
+        // leave initialized
     }
 }
 
@@ -81,6 +81,7 @@ void GlobalEditor::close()
  */
 void ConfigEditor::configPanelClosed(ConfigPanelButton button)
 {
+    // anything to do?  ould notify the owner
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -89,7 +90,7 @@ void ConfigEditor::configPanelClosed(ConfigPanelButton button)
 //
 //////////////////////////////////////////////////////////////////////
 
-GlobalEditor::GlobalEditor(jucce::Component argOwner) :
+GlobalEditor::GlobalEditor(juce::Component* argOwner) :
     ConfigEditor(argOwner)
 {
 }
@@ -98,18 +99,13 @@ GlobalEditor::~GlobalEditor()
 {
 }
 
-juce::Component GlobalEditor::getPanel()
-{
-    return &panel;
-}
-
 //////////////////////////////////////////////////////////////////////
 //
 // PresetEditor
 //
 //////////////////////////////////////////////////////////////////////
 
-PresetEditor::PresetEditor(jucce::Component argOwner) :
+PresetEditor::PresetEditor(juce::Component* argOwner) :
     ConfigEditor(argOwner)
 {
 }
@@ -118,27 +114,17 @@ PresetEditor::~PresetEditor()
 {
 }
 
-juce::Component* PresetEditor::getPanel()
-{
-    return &panel;
-}
-
 //////////////////////////////////////////////////////////////////////
 //
 // SetupEditor
 //
 //////////////////////////////////////////////////////////////////////
 
-SetupEditor::SetupEditor(jucce::Component argOwner) :
+SetupEditor::SetupEditor(juce::Component* argOwner) :
     ConfigEditor(argOwner)
 {
 }
 
 SetupEditor::~SetupEditor()
 {
-}
-
-juce::Component* SetupEditor::getPanel()
-{
-    return &panel;
 }

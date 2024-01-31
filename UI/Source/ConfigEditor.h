@@ -34,9 +34,9 @@
 #include <JuceHeader.h>
 
 #include "ConfigPanel.h"
+#include "GlobalPanel.h"
 #include "PresetPanel.h"
 #include "SetupPanel.h"
-#include "GlobalPanel.h"
 
 class ConfigEditor : public ConfigPanel::Listener
 {
@@ -44,7 +44,7 @@ class ConfigEditor : public ConfigPanel::Listener
 
     // hmm, should we carry this with us from construction or should
     // this be passed in show()?
-    ConfigEditor(juce::Component* owner);
+    ConfigEditor(juce::Component* argOwner);
     ~ConfigEditor();
 
     void open();
@@ -60,9 +60,27 @@ class ConfigEditor : public ConfigPanel::Listener
     
   private:
 
-    juce::Component* owner;
-    bool active;  // true if this is currently open
+    juce::Component* owner = nullptr;
+    bool initialized = false;
+    bool active = false;  // true if this is currently open
     
+};
+
+class GlobalEditor : public ConfigEditor
+{
+  public:
+
+    GlobalEditor(juce::Component* owner);
+    ~GlobalEditor();
+
+    ConfigPanel* getPanel() {
+        return &panel;
+    }
+
+  private:
+
+    GlobalPanel panel;
+
 };
 
 class PresetEditor : public ConfigEditor
@@ -72,6 +90,10 @@ class PresetEditor : public ConfigEditor
     PresetEditor(juce::Component* owner);
     ~PresetEditor();
 
+    ConfigPanel* getPanel() {
+        return &panel;
+    }
+    
   private:
 
     PresetPanel panel;
@@ -85,22 +107,13 @@ class SetupEditor : public ConfigEditor
     SetupEditor(juce::Component* owner);
     ~SetupEditor();
 
+    ConfigPanel* getPanel() {
+        return &panel;
+    }
+
   private:
 
     SetupPanel panel;
 
 };
 
-class GlobalEditor : public ConfigEditor
-{
-  public:
-
-    GlobalEditor(juce::Component owner);
-    ~GlobalEditor();
-
-
-  private:
-
-    GlobalPanel panel;
-
-};
