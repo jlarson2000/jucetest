@@ -9,7 +9,27 @@
  *
  * This is part of the public interface.
  *
+ * 
  */
+
+// Things I took out:
+//    virtual int getHigh(class MobiusInterface* m);
+//    virtual void getValue(class Export* exp, class ExValue* value);
+//    virtual void setValue(class Action* action);
+//    virtual int getOrdinalValue(class Export* exp);
+//    internal use only
+//      virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
+
+
+ /**
+ * The maximum value used for bindings.
+ * This is usually the same as getHigh() except for a ew
+ * integers that don't have an upper bound.  Since we have 
+ * to have some bounds for scaling MIDI CCs, this will default
+ * to 127 and can be overridden.
+ */
+//virtual int getBindingHigh(class MobiusInterface* m);
+//virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
 
 #ifndef MOBIUS_PARAMETER_H
 #define MOBIUS_PARAMETER_H
@@ -105,41 +125,18 @@ class Parameter : public SystemConstant {
     // 
 
     int getLow();
-    //virtual int getHigh(class MobiusInterface* m);
+    int getHigh();
 
-    /**
-     * The maximum value used for bindings.
-     * This is usually the same as getHigh() except for a ew
-     * integers that don't have an upper bound.  Since we have 
-     * to have some bounds for scaling MIDI CCs, this will default
-     * to 127 and can be overridden.
-     */
-    //virtual int getBindingHigh(class MobiusInterface* m);
-	//virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
-
-	//
-	// Parameter value access
-	//
+    virtual int Parameter::getConfigurableHigh(MobiusConfig* config);
 
     /**
      * Get or set the value from a configuration object.
      */
-    virtual void getObjectValue(void* object, class ExValue* value);
-    virtual void setObjectValue(void* object, class ExValue* value);
+    virtual void getObjectValue(void* object, class ExValue* value) = 0;
+    virtual void setObjectValue(void* object, class ExValue* value) = 0;
 
-    //
-    // Get or set the value at runtime
-    //
-
-    //virtual void getValue(class Export* exp, class ExValue* value);
-    //virtual void setValue(class Action* action);
-
-    // maybe this can be a quality of the Export?
-    //virtual int getOrdinalValue(class Export* exp);
-
-	//
 	// Coercion helpers
-	//
+	// Weed  these!
 
 	/**
 	 * Convert a string value to an enumeration ordinal value.
@@ -170,9 +167,6 @@ class Parameter : public SystemConstant {
 	 */
 	int getControllerEnum(int value);
 
-    // internal use only
-    //virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
-
     // Global parameter registry
     
     static std::vector<Parameter*> Parameters;
@@ -184,7 +178,6 @@ class Parameter : public SystemConstant {
   protected:
 
     void addAlias(const char* alias);
-
 	const char** allocLabelArray(int size);
     int getOrdinalInternal(class ExValue* value, const char** varray);
 
@@ -206,24 +199,6 @@ class Parameter : public SystemConstant {
  *                            PARAMETER CONSTANTS                           *
  *                                                                          *
  ****************************************************************************/
-
-// Now that these are static objects can't extern them as Parameters like this
-// 
-// extern Parameter AltFeedbackEnableParameter;
-// 
-// You get a redefinition error during linking.
-// I have to believe there is some casting syntax magic that could be applied
-// here but I'm not bothering with it at the moment.
-//
-// Easiest thing is to define a set of global pointers to the static objects
-// and just use those.  
-//
-// Alternately, try to do away with subclassing Parameter which would be cleaner
-// still.  This is currently used to set the parameter scope and to overload
-// methods that get/set values in the associated objects (global, Preset, Setup)
-// I'd like to factor out the object-specific access anyway and just let Parameter
-// be an object model but it's going to need thought on how to best do that.
-// 
 
 // Preset Parameters
 

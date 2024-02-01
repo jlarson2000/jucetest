@@ -130,6 +130,8 @@ class ConfigPanel : public juce::Component
     // builders
     void addTab(const char* name);
 
+    bool isOpen();
+    
   protected:
     
     ContentPanel content;
@@ -140,6 +142,7 @@ class ConfigPanel : public juce::Component
     ConfigPanelFooter footer;
     
     Listener* listener;
-
+    bool open;
+    
 };
     

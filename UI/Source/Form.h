@@ -33,6 +33,7 @@ class Field : public juce::Component
     enum class RenderType {Text, Combo, Check, Slider, Rotary, List};
     
     Field(const char* name, const char* displayName, Type type);
+    Field(class Parameter* p);
     ~Field();
 
     const char* getName() {
@@ -134,6 +135,8 @@ class Field : public juce::Component
     void resized() override;
     
   private:
+    
+    void init();
     
     void renderInt();
     void renderString();

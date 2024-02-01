@@ -1,0 +1,30 @@
+
+When a config panel is opened for the first time it reads the MobiusConfiguration
+object and picks out the part it is interested in.
+
+When a config panel is hidden, it retains the last loaded config
+
+Save commits the changes
+  - the full config is read again since other parts may have changed
+  - the part this panel edits is replaced
+  - the config is saved
+
+
+Cancel
+  - reverts to the previously loaded state and hides
+  - continues to keep a copy of the config
+
+Global parameters are a little difficult since there is no nice wrapper object
+around them, have to replace them one at a time.
+
+This works because only the UI can edit config objects, the engine can change transient
+parameters but it cannot persist them.
+  - think about allowing this, would really complicate config panels?
+  - they expect a "lock" on the things they are editing
+
+When changes are committed, the file is updated and the engine is informed
+
+You cannot edit the .xml file directly while an editor has been loaded, the changes
+will be lost
+  this doesn't seem too bad
+

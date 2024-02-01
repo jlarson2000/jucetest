@@ -76,17 +76,6 @@ class PresetParameter : public Parameter
 	void setObjectValue(void* object, ExValue* value);
 
     /**
-     * Overload the Parameter versions and resolve to a Preset.
-     */
-	//void getValue(Export* exp, ExValue* value);
-	//void setValue(Action* action);
-
-    /**
-     * Overload the Parameter versions and resolve to a Preset.
-     */
-	//int getOrdinalValue(Export* exp);
-
-    /**
      * These must always be overloaded.
      */
 	virtual void getValue(Preset* p, ExValue* value) = 0;

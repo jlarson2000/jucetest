@@ -4,6 +4,8 @@
 
 #include <JuceHeader.h>
 
+#include "Parameter.h"
+
 #include "Form.h"
 #include "qtrace.h"
 
@@ -21,6 +23,36 @@ Field::Field(const char* argName, const char* argDisplayName, Field::Type argTyp
     displayName = argDisplayName;
     type = argType;
 }
+
+// should we have a ParameterField subclass?
+Field::Field(Parameter* p)
+{
+    parameter = p;
+
+    name = p->getName();
+    displayName = p->getDisplayName();
+
+    switch (p->type) {
+        case (ParameterType::TYPE_INT): {
+            type = Field::Type::Int;
+        }
+        break;
+        case (ParameterType::TYPE_BOOLEAN): {
+            type = Field::Type::Bool;
+        }
+        break;
+        case (ParameterType::TYPE_STRING):
+        case (ParameterType::TYPE_ENUM): {
+            type = Field::Type::String;
+        }
+        break;
+    }
+    
+    setAllowedValues(p->values);
+    setAllowedValueLabels(p->valueLabels);
+
+}
+
 
 Field::~Field()
 {

@@ -39,9 +39,9 @@ void ConfigEditor::resized()
    
 void ConfigEditor::open()
 {
-    if (!initialized) {
-        ConfigPanel* panel = getPanel();
-        if (panel != nullptr) {
+    ConfigPanel* panel = getPanel();
+    if (panel != nullptr) {
+        if (!initialized ) {
             // add directly to the owner
             owner->addAndMakeVisible(panel);
 
@@ -54,13 +54,12 @@ void ConfigEditor::open()
 
             // called by ConfigPanel when a button is clicked
             panel->setListener(this);
+            initialized = true;
         }
-        else {
-            panel->setVisible(true);
-            resized();
-        }
+    
+        panel->setVisible(true);
+        resized();
     }
-    initialized = true;
 }
 
 void ConfigEditor::close()
@@ -81,7 +80,7 @@ void ConfigEditor::close()
  */
 void ConfigEditor::configPanelClosed(ConfigPanelButton button)
 {
-    // anything to do?  ould notify the owner
+    close();
 }
 
 //////////////////////////////////////////////////////////////////////

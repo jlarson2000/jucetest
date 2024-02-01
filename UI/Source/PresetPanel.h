@@ -13,4 +13,10 @@ class PresetPanel : public ConfigPanel
   public:
     PresetPanel();
     ~PresetPanel();
+
+  private:
+    
+    bool loaded = false;
+    juce::OwnedArray<Preset*> presets;
+    int selectedPreset = 0;
 };

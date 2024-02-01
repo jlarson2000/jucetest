@@ -293,46 +293,6 @@ void Parameter::addAlias(const char* alias)
       Trace(1, "Alias overflow: %s\n", alias);
 }
 
-/**
- * Must be overloaded in the subclass.
- */
-void Parameter::getObjectValue(void* object, class ExValue* value)
-{
-    Trace(1, "Parameter %s: getObjectValue not overloaded!\n",
-          getName());
-}
-
-/**
- * Must be overloaded in the subclass.
- */
-void Parameter::setObjectValue(void* object, class ExValue* value)
-{
-    Trace(1, "Parameter %s: setObjectValue not overloaded!\n",
-          getName());
-}
-
-// defer migration of Export and Action
-#if 0
-void Parameter::getValue(Export* exp, ExValue* value)
-{
-    Trace(1, "Parameter %s: getValue not overloaded!\n",
-          getName());
-	value->setString("");
-}
-
-int Parameter::getOrdinalValue(Export* exp)
-{
-    Trace(1, "Parameter %s: getOrdinalValue not overloaded! \n",
-          getName());
-    return -1;
-}
-
-void Parameter::setValue(Action* action)
-{
-    Trace(1, "Parameter %s: setValue not overloaded!\n",
-          getName());
-}
-#endif
 
 /**
  * Refresh the cached display names from the message catalog.
@@ -413,10 +373,20 @@ int Parameter::getLow()
     return low;
 }
 
+int Parameter::getHigh()
+{
+    return high;
+}
+
+int Parameter::getConfigurableHigh(MobiusConfig* config)
+{
+    return getHigh();
+}
+
 // this shit is only necessary for group count which we get from
 // a global config but go through MobiusInterface to get it
 // make this more direct
-/*
+#if 0
 int Parameter::getHigh(MobiusInterface* m)
 {
     int max = high;
@@ -443,13 +413,10 @@ int Parameter::getBindingHigh(MobiusInterface* m)
 
     return max;
 }
-*/
 
 /**
  * Given an ordinal, map it into a display label.
  */
-// find a way to avoid MobiusInterface here
-/*
 void Parameter::getOrdinalLabel(MobiusInterface* m, 
                                        int i, ExValue* value)
 {
@@ -472,7 +439,29 @@ void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
     // things that overload getOrdinalLabel
     value->setNull();
 }
-*/
+
+// defer migration of Export and Action
+void Parameter::getValue(Export* exp, ExValue* value)
+{
+    Trace(1, "Parameter %s: getValue not overloaded!\n",
+          getName());
+	value->setString("");
+}
+
+int Parameter::getOrdinalValue(Export* exp)
+{
+    Trace(1, "Parameter %s: getOrdinalValue not overloaded! \n",
+          getName());
+    return -1;
+}
+
+void Parameter::setValue(Action* action)
+{
+    Trace(1, "Parameter %s: setValue not overloaded!\n",
+          getName());
+}
+
+#endif 
 
 //////////////////////////////////////////////////////////////////////
 //

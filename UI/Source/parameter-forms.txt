@@ -1,0 +1,241 @@
+
+A form for editing a set of fields of a configuration object
+Fields initialize from a Parameter object
+
+data loading
+  nice here if Parameter can read/write the value given the containing object
+  if not the Field needs to know
+
+  ParameterSomething->write(Preset* p, int value)
+
+  if (Parameter == SomeParameter)
+    p->setThing(value);
+
+  if we put this in Parameter then have to have overloads for strings
+  or use ExValue
+
+could have a bunch of Field subclasses
+
+  class LoopCountField : 
+    Field(parameter)
+    {
+      void write(Preset* p, int value) {
+        p->setThing(value);
+    }
+  }
+
+getting somethign in and out of a config objectd is so common, it kind of makes
+sense to put it in Parameter
+  anything behond that can be built from that interface
+
+alt, convert everything to a Map for the UI
+  Map dto = DtoRenderer::render(Preset* p)
+  name/value pairs in the map
+  DtoRenderer::commit(dto, Preset* p)
+
+  similar to XML renderer, again a lot of duplication but at least it's encapsulated
+
+  DTO can use Juce Maps
+
+High/low
+  some parameters have configurable highs
+  always of type int
+
+
+examples of complex high
+
+PUBLIC int GroupParameterType::getHigh(MobiusInterface* m)
+{
+	MobiusConfig* config = m->getConfiguration();
+    int max = config->getTrackGroups();
+    return max;
+}
+
+PUBLIC int TrackPresetParameterType::getHigh(MobiusInterface* m)
+{
+	MobiusConfig* config = m->getConfiguration();
+    int max = config->getPresetCount();
+    // this is the number of presets, the max ordinal is zero based
+    max--;
+    return max;
+}
+
+int AudioInputPortParameterType::getHigh(MobiusInterface* m)
+{
+    AudioStream* stream = m->getAudioStream();
+    return stream->getInputPorts();
+}
+
+int AudioOutputPortParameterType::getHigh(MobiusInterface* m)
+{
+    AudioStream* stream = m->getAudioStream();
+    return stream->getOutputPorts();
+}
+
+int PluginInputPortParameterType::getHigh(MobiusInterface* m)
+{
+    MobiusConfig* config = m->getConfiguration();
+    return config->getPluginPorts();
+}
+
+int PluginOutputPortParameterType::getHigh(MobiusInterface* m)
+{
+    MobiusConfig* config = m->getConfiguration();
+    return config->getPluginPorts();
+}
+
+int InputPortParameterType::getHigh(MobiusInterface* m)
+{
+    int ports = 0;
+
+    MobiusContext* con = m->getContext();
+    if (con->isPlugin()) {
+        MobiusConfig* config = m->getConfiguration();
+        ports = config->getPluginPorts();
+    }
+    else {
+        AudioStream* stream = m->getAudioStream();
+        ports = stream->getInputPorts();
+    }
+    return ports;
+}
+
+int OutputPortParameterType::getHigh(MobiusInterface* m)
+{
+    int ports = 0;
+
+    MobiusContext* con = m->getContext();
+    if (con->isPlugin()) {
+        MobiusConfig* config = m->getConfiguration();
+        ports = config->getPluginPorts();
+    }
+    else {
+        AudioStream* stream = m->getAudioStream();
+        ports = stream->getOutputPorts();
+    }
+    return ports;
+}
+
+PUBLIC int SetupNameParameterType::getHigh(MobiusInterface* m)
+{
+	MobiusConfig* config = m->getConfiguration();
+    int max = config->getSetupCount();
+    // this is the number of configs, the max ordinal is zero based
+    max--;
+
+    return max;
+}
+
+PUBLIC int BindingsParameterType::getHigh(MobiusInterface* m)
+{
+    int max = 0;
+
+	MobiusConfig* config = m->getConfiguration();
+    max = config->getBindingConfigCount();
+    // this is the number of configs, the max ordinal is zero based
+    max--;
+
+    return max;
+}
+
+almost all of these can use just MobiusConfig as input
+
+alternate
+  let Parameter be editable for a few parameters
+  Mobius is responsible for updating the few relevant values when the
+  configuration changes
+
+complicated ones are the ones with names of things
+  presets
+  setups
+  binding configs
+
+it isn't just the high that is variable, it is the value names
+the values are not fixed
+
+if we put it in Parameter then we've got a mismatch between editing and runtime state
+editing can change values but can't change the runtime model until it is committed
+
+no, don't like storing effective value in Parameter
+
+do we really need to go to AudioStream to get the number of IO ports, that should be
+defined in MobiusConfig and put into AudioStream, we can't wake up with a host confiruable set
+of ports
+
+anything related to high and labels only really matters to the binding UI
+could put special cases up there
+
+This is complicated...
+
+/**
+ * For bindings, we not only update the config object, we also propagate
+ * the change through the engine.
+ * For scripts accept a name or a number.
+ * Number is 1 based like SetupNumberParameter.
+ *
+ * This is one of the rare overloads to get the Action so we
+ * can check the trigger.
+ */
+void SetupNameParameterType::setValue(Action* action)
+{
+	Mobius* m = (Mobius*)action->mobius;
+	if (m == NULL)
+	  Trace(1, "Mobius not passed in Action!\n");
+    else {
+        MobiusConfig* config = m->getConfiguration();
+
+        Setup* setup = NULL;
+        if (action->arg.getType() == EX_INT)
+          setup = config->getSetup(action->arg.getInt());
+        else 
+          setup = config->getSetup(action->arg.getString());
+
+        if (setup != NULL) {
+            // Set the external one so that if you open the setup
+            // window you'll see the one we're actually using selected.
+            // in theory we could be cloning this config at the same time
+            // while opening the setup window but worse case it just gets
+            // the wrong selection.
+            config->setCurrentSetup(setup);
+
+            // then set the one we're actually using internally
+            // we're always inside the interrupt at this point
+            m->setSetupInternal(setup->getNumber());
+        }
+    }
+}
+
+Action is public
+should also keep Mobius internals out of it
+
+Since not many of these are complicated move the logic to Mobius::doAction
+  it can special case them
+
+So....
+
+Very convenient to have the config object update logic
+Everything else can be special cased
+
+----------------------------------------------------------------------
+
+Form...
+
+
+    addField(SubCycleParameterType);
+    ....
+
+
+   initFields(Preset* p) {
+     // iterate over the fields calling Parameter.getObjectValue to get the
+     // current value
+     // value is now maintained in the field until saved
+
+  saveFields(Preset* p)
+    // iterate over the fields calling Parameter.setObjectValue
+
+panel
+  tabs
+    tabpanel
+      form
+
+

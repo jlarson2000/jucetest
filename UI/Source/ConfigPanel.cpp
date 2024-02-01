@@ -28,6 +28,11 @@ void ConfigPanel::setListener(Listener* l)
     listener = l;
 }
 
+bool ConfigPanel::isOpen()
+{
+    return open;
+}
+
 /**
  * Called by the footer when a button is clicked
  */
@@ -50,6 +55,29 @@ void ConfigPanel::resized()
 void ConfigPanel::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::yellow);
+}
+
+/**
+ * Called by subcllasses to read the MobiusConfig.
+ * The returned object is owned by the caller and must be deleted.
+ */
+MobiusConfig* readMobiusConfig()
+{
+    MobiusConfig* config = nullptr;
+    
+    // todo: determine the best way to find this
+    const char* path = "c:/dev/jucetest/UI/Source/mobius.xml";
+
+    char* xml = ReadFile(path);
+    if (xml != nullptr) {
+        XmlRenderer xr = new XmlRenderer();
+        config = parseMobiusConfig(xml);
+        // todo: display parse errors
+        delete xr;
+        delete xml;
+    }
+
+    return config;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -221,6 +249,13 @@ void ContentPanel::addTab(const char* name)
         
     tabs.addTab(name, juce::Colours::black, nullptr, false);
 }
+
+//////////////////////////////////////////////////////////////////////
+//
+// Visibility
+//
+//////////////////////////////////////////////////////////////////////
+
 //////////////////////////////////////////////////////////////////////
 //
 // Subclass Builders
