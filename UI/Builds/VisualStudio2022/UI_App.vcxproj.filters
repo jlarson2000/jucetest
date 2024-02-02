@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="UI\Source\ui">
+      <UniqueIdentifier>{ABDD14AA-01B6-2D9B-2038-B446693E43DE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source\mobius">
       <UniqueIdentifier>{59DCCA25-F24C-265F-1201-6854AD0C64CA}</UniqueIdentifier>
     </Filter>
@@ -598,6 +601,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ui\ConfigEditor.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\ConfigPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\Field.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\Form.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\GlobalPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\ParameterField.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\PresetPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SetupPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SimpleListBox.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Mobius.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -617,6 +647,9 @@
       <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\MidiUtil.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\qtrace.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\Trace.cpp">
@@ -694,34 +727,10 @@
     <ClCompile Include="..\..\Source\MainComponent.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ConfigEditor.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ConfigPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Form.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\GlobalPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\MainMenu.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PopupTest.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\PresetPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\qtrace.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SetupPanel.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\SimpleListBox.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\SimpleMenu.cpp">
@@ -3153,6 +3162,33 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ui\ConfigEditor.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\ConfigPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\Field.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\Form.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\GlobalPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\ParameterField.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\PresetPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SetupPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SimpleListBox.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Mobius.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
@@ -3172,6 +3208,9 @@
       <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\MidiUtil.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\qtrace.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\Trace.h">
@@ -3237,34 +3276,10 @@
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ConfigEditor.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ConfigPanel.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Form.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\GlobalPanel.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\MainMenu.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PopupTest.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\PresetPanel.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\qtrace.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SetupPanel.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\SimpleListBox.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\SimpleMenu.h">

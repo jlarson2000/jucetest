@@ -1,4 +1,60 @@
 
+Needs
+
+field has a label, a widget, and holds a value
+  value may be an int, bool, string, or enumeration
+  value may be multi-valued, only need this for enumerations but could for others?
+    yes will need it for arbitrary lists of strings
+  use it for others as an alternative to lists of checkboxes?
+     eg:
+        foo x
+        bar x
+     vs
+        box with foo, bar that can be individually highlighted
+        I have these in a few places, sustain functions
+        
+  field does not know where the value came from
+  field has an optional render type to override default rules
+  field is constructed before the rendered Component model
+  dependencies between fields needs to be worked out, keep this
+    at a higher level
+    will require field listeners
+
+  let fields be subclassed to add specialized initialization and processing behavior
+    ParameterField
+
+field set
+  displays a list of vertical fields
+  may have multiple columns
+  renders container components, and then the field components within them
+  could be generalized into a more flexible layout manager
+  field labels are right aligned, field widgets are left aligned within a row
+  alt: form
+  
+field organizer
+  maintains multiple field sets but only displays one at a time
+  typically uses tabs to display selected field sets
+  alternately could use a select box to select sets
+  alt: form group
+
+action field
+  do we need these?
+  typically a button that calls out to something that can make adjustments to
+  fields, "Capture" for setup fields is one
+  might be better to promote this to the panel that manages the fields
+
+
+
+
+
+panel that displays a list of vertical fields
+panel that displays multiple lists of fields in columns
+
+
+
+
+----------------------------------------------------------------------
+
 Field
   renders a single labeled value
   selects component based on type

@@ -5,7 +5,7 @@
 
 #include "MainComponent.h"
 #include "MainMenu.h"
-#include "qtrace.h"
+#include "util/qtrace.h"
 
 #include "mobius/MobiusInterface.h"
 

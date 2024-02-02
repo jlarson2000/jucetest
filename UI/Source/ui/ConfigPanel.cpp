@@ -4,6 +4,9 @@
 
 #include <JuceHeader.h>
 
+#include "../util/FileUtil.h"
+#include "../model/MobiusConfig.h"
+#include "../model/XmlRenderer.h"
 #include "ConfigPanel.h"
 
 ConfigPanel::ConfigPanel(const char* titleText, int buttons)
@@ -61,7 +64,7 @@ void ConfigPanel::paint (juce::Graphics& g)
  * Called by subcllasses to read the MobiusConfig.
  * The returned object is owned by the caller and must be deleted.
  */
-MobiusConfig* readMobiusConfig()
+MobiusConfig* ConfigPanel::readMobiusConfig()
 {
     MobiusConfig* config = nullptr;
     
@@ -70,10 +73,9 @@ MobiusConfig* readMobiusConfig()
 
     char* xml = ReadFile(path);
     if (xml != nullptr) {
-        XmlRenderer xr = new XmlRenderer();
-        config = parseMobiusConfig(xml);
+        XmlRenderer xr;
+        config = xr.parseMobiusConfig(xml);
         // todo: display parse errors
-        delete xr;
         delete xml;
     }
 

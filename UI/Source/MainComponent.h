@@ -5,7 +5,7 @@
 // #include "MainMenu.h"
 #include "SimpleMenu.h"
 //#include "PopupTest.h"
-#include "ConfigEditor.h"
+#include "ui/ConfigEditor.h"
 
 //==============================================================================
 /*

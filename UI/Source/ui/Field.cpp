@@ -1,13 +1,14 @@
+/**
+ * A FieldSet organizes a set of Fields into one or more columns.
+ */
 
 #include <string>
 #include <sstream>
 
 #include <JuceHeader.h>
 
-#include "Parameter.h"
-
 #include "Form.h"
-#include "qtrace.h"
+#include "../util/qtrace.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -24,56 +25,28 @@ Field::Field(const char* argName, const char* argDisplayName, Field::Type argTyp
     type = argType;
 }
 
-// should we have a ParameterField subclass?
-Field::Field(Parameter* p)
-{
-    parameter = p;
-
-    name = p->getName();
-    displayName = p->getDisplayName();
-
-    switch (p->type) {
-        case (ParameterType::TYPE_INT): {
-            type = Field::Type::Int;
-        }
-        break;
-        case (ParameterType::TYPE_BOOLEAN): {
-            type = Field::Type::Bool;
-        }
-        break;
-        case (ParameterType::TYPE_STRING):
-        case (ParameterType::TYPE_ENUM): {
-            type = Field::Type::String;
-        }
-        break;
-    }
-    
-    setAllowedValues(p->values);
-    setAllowedValueLabels(p->valueLabels);
-
-}
-
-
 Field::~Field()
 {
-    std::ostringstream ss;
-    ss << "Deleting field: " << name << "\n";
-    qtrace(&ss);
 }
 
 void Field::setAllowedValues(const char** arg)
 {
-    allowedValues.clear();
-}
-
-void Field::addAllowedValue(const char* arg)
-{
-    allowedValues.add(arg);
+    allowedValues = juce::StringArray(arg);
 }
 
 void Field::setAllowedValues(juce::StringArray& src)
 {
     allowedValues = src;
+}
+
+void Field::setAllowedValueLabels(const char** arg)
+{
+    allowedValueLabels = juce::StringArray(arg);
+}
+
+void Field::setAllowedValueLabels(juce::StringArray& src)
+{
+    allowedValueLabels = src;
 }
 
 /**
@@ -89,9 +62,9 @@ void Field::render()
 
     // render methods will set renderType and renderer
     switch (type) {
-        case Type::Int: { renderInt(); } break;
+        case Type::Integer: { renderInt(); } break;
         case Type::String: { renderString(); } break;
-        case Type::Bool: { renderBool(); } break;
+        case Type::Boolean: { renderBool(); } break;
     }
 
     if (renderer != nullptr) {
@@ -209,6 +182,23 @@ void Field::resized()
     }
 }
 
+/**
+ * Set the value of a field and propagate it to the components.
+ */
+void Field::setValue(juce::var argValue)
+{
+    value = argValue;
+    // todo: udpate the field
+}
+
+/**
+ * Pull the value out of the components
+ */
+void Field::refreshValue()
+{
+    // todo: component magic to update value
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // FieldSet
@@ -223,16 +213,49 @@ FieldSet::~FieldSet()
 {
 }
 
+void FieldSet::setName(juce::String argName)
+{
+    name = argName;
+}
+
+juce::String FieldSet::getName()
+{
+    return name;
+}
+
 /**
  * Add a field to the list and render it as components.
  * Don't really like deferred rendering but I want to allow a Field to
  * be constructed in phases that may influence how they are rendered.
  */
-void FieldSet::add(Field* f)
+void FieldSet::add(Field* f, int column)
 {
-    f->render();
-    fields.add(f);
-    addAndMakeVisible(f);
+    juce::OwnedArray<Field>* fieldColumn = nullptr;
+    
+    if (column >= columns.size()) {
+        fieldColumn = new juce::OwnedArray<Field>();
+        columns.set(column, fieldColumn);
+    }
+    else {
+        fieldColumn = columns[column];
+    }
+
+    fieldColumn->add(f);
+}
+
+void FieldSet::render()
+{
+    // I can see this happening a lot, come up with a field iterator
+    for (int col = 0 ; col < columns.size() ; col++) {
+        juce::OwnedArray<Field>* fieldCol = columns[col];
+        if (fieldCol != nullptr) {
+            for (int row = 0 ; row < fieldCol->size() ; row++) {
+                Field* f = (*fieldCol)[row];
+                f->render();
+                addAndMakeVisible(f);
+            }
+        }
+    }
 }
 
 /**
@@ -244,12 +267,23 @@ void FieldSet::resized()
     // single column for now
     juce::Rectangle<int> area = getLocalBounds();
 
-    for (int i = 0 ; i < fields.size() ; i++) {
-        Field* f = fields[i];
-        int height = f->getPreferredHeight();
-        if (height == 0)
-          height = 30;
-        f->setBounds(area.removeFromTop(height));
+    // todo: need to support columns, assume only one for now
+    
+    for (int col = 0 ; col < columns.size() ; col++) {
+        juce::OwnedArray<Field>* fieldCol = columns[col];
+        if (fieldCol != nullptr) {
+            for (int row = 0 ; row < fieldCol->size() ; row++) {
+                Field* f = (*fieldCol)[row];
+
+                int height = f->getPreferredHeight();
+                if (height == 0)
+                  height = 30;
+                f->setBounds(area.removeFromTop(height));
+            }
+        }
     }
 }
 
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

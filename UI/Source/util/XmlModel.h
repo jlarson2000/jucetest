@@ -1100,20 +1100,20 @@ class XmlVisitor {
 	
 	// XmlNode hierachy
 
-	virtual void visitDocument(XmlDocument *obj){}
-	virtual void visitDoctype(XmlDoctype *obj){}
-	virtual void visitElement(XmlElement *obj){}
-	virtual void visitPi(XmlPi *obj){}
-	virtual void visitComment(XmlComment *obj){}
-	virtual void visitMsect(XmlMsect *obj){}
-	virtual void visitPcdata(XmlPcdata *obj){}
-	virtual void visitEntref(XmlEntref *obj){}
+	virtual void visitDocument(XmlDocument *){}
+	virtual void visitDoctype(XmlDoctype *){}
+	virtual void visitElement(XmlElement *){}
+	virtual void visitPi(XmlPi *){}
+	virtual void visitComment(XmlComment *){}
+	virtual void visitMsect(XmlMsect *){}
+	virtual void visitPcdata(XmlPcdata *){}
+	virtual void visitEntref(XmlEntref *){}
 
 	// Not part of the XmlNode hierarchy, but some iterators may
 	// be able to visit them.
 
-	virtual void visitAttribute(XmlAttribute *obj){}
-	virtual void visitProperty(XmlProperty *obj){}
+	virtual void visitAttribute(XmlAttribute *){}
+	virtual void visitProperty(XmlProperty *){}
 
 
   protected:

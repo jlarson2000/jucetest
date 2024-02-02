@@ -59,8 +59,6 @@
 #include "../util/XmlModel.h"
 #include "../util/FileUtil.h"
 
-#include "../qtrace.h"
-
 #include "MobiusConfig.h"
 #include "Preset.h"
 #include "Setup.h"

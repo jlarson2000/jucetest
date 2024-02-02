@@ -5,6 +5,7 @@
 #include <JuceHeader.h>
 
 
+#include "util/qtrace.h"
 #include "SimpleMenu.h"
 #include "MainComponent.h"
 
@@ -159,7 +160,6 @@ juce::PopupMenu SimpleMenu::getMenuForIndex (int menuIndex, const juce::String& 
  *
  * Yes, this would be a lot simpler if you don't need keyboard activation
  */
-#include "qtrace.h"
 void SimpleMenu::menuItemSelected (int itemId, int menuId)
 {
     char buf[100];

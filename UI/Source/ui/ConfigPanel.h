@@ -117,6 +117,8 @@ class ConfigPanel : public juce::Component
     ConfigPanel(const char* titleText, int buttons);
     ~ConfigPanel() override;
 
+    class MobiusConfig* ConfigPanel::readMobiusConfig();
+    
     // Component
     void resized() override;
     void paint (juce::Graphics& g) override;

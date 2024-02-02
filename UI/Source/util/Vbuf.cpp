@@ -91,7 +91,7 @@ Vbuf::~Vbuf(void)
 Vbuf *Vbuf::create(int initial)
 {
 	// no pooling at the moment
-	return new Vbuf;
+	return new Vbuf(initial);
 }
 
 /****************************************************************************
@@ -452,7 +452,7 @@ void Vbuf::prepend(const char *text)
 	int len, actual, endpsn, i;
 
 	if (text != NULL) {
-		len = strlen(text);
+		len = (int)strlen(text);
 
 		// +1 to maintain null termination
 		actual = len + 1;

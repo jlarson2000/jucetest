@@ -85,6 +85,7 @@ class Parameter : public SystemConstant {
 
 	const char* aliases[MAX_PARAMETER_ALIAS];
 
+    // behavioral flags
     bool bindable;      // true if this bindable 
 	bool dynamic;		// true if labels and max ordinal can change
     bool deprecated;    // true if this is a backward compatible parameter
@@ -109,6 +110,7 @@ class Parameter : public SystemConstant {
     int mDefault;
 
 	ParameterType type;
+    bool multi;         // true if this field may have multiple values
 	ParameterScope scope;
     const char** values;
 	const char** valueLabels;
@@ -127,7 +129,7 @@ class Parameter : public SystemConstant {
     int getLow();
     int getHigh();
 
-    virtual int Parameter::getConfigurableHigh(MobiusConfig* config);
+    virtual int Parameter::getConfigurableHigh(class MobiusConfig* config);
 
     /**
      * Get or set the value from a configuration object.

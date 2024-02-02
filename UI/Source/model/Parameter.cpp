@@ -255,6 +255,7 @@ void Parameter::init()
     control = false;
 
 	type = TYPE_INT;
+    multi = false;
 	scope = PARAM_SCOPE_NONE;
 	low = 0;
 	high = 0;

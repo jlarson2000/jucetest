@@ -5,25 +5,25 @@
 #include <sstream>
 
 #include "GlobalPanel.h"
-#include "qtrace.h"
+#include "../util/qtrace.h"
 
 GlobalPanel::GlobalPanel() : ConfigPanel{"Global Parameters", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
 {
-    fields.add(new Field("first", "First", Field::Type::Int));
+    fields.add(new Field("first", "First", Field::Type::Integer));
     fields.add(new Field("second", "Second", Field::Type::String));
-    fields.add(new Field("third", "Third", Field::Type::Bool));
+    fields.add(new Field("third", "Third", Field::Type::Boolean));
 
     Field* combo = new Field("fourth", "Fourth", Field::Type::String);
     juce::StringArray cvalues = {"a", "b", "c"};
     combo->setAllowedValues(cvalues);
     fields.add(combo);
 
-    Field* slider = new Field("fifth", "Fifth", Field::Type::Int);
+    Field* slider = new Field("fifth", "Fifth", Field::Type::Integer);
     slider->setMin(0);
     slider->setMax(127);
     fields.add(slider);
 
-    Field* knob = new Field("six", "Sixth", Field::Type::Int);
+    Field* knob = new Field("six", "Sixth", Field::Type::Integer);
     knob->setMin(0);
     knob->setMax(127);
     knob->setRenderType(Field::RenderType::Rotary);

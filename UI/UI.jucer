@@ -4,6 +4,30 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <GROUP id="{65649B8C-FFE3-B772-6B79-EF729D3BCE34}" name="ui">
+        <FILE id="R09hMU" name="ConfigEditor.cpp" compile="1" resource="0"
+              file="Source/ui/ConfigEditor.cpp"/>
+        <FILE id="NbAr78" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/ConfigEditor.h"/>
+        <FILE id="VvcefV" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ui/ConfigPanel.cpp"/>
+        <FILE id="MzSuf9" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/ConfigPanel.h"/>
+        <FILE id="M2zYTT" name="Field.cpp" compile="1" resource="0" file="Source/ui/Field.cpp"/>
+        <FILE id="NFpNmJ" name="Field.h" compile="0" resource="0" file="Source/ui/Field.h"/>
+        <FILE id="cUhuAx" name="Form.cpp" compile="1" resource="0" file="Source/ui/Form.cpp"/>
+        <FILE id="BMLGp0" name="Form.h" compile="0" resource="0" file="Source/ui/Form.h"/>
+        <FILE id="XWe7sc" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/GlobalPanel.cpp"/>
+        <FILE id="E3bsdD" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/GlobalPanel.h"/>
+        <FILE id="JVNYjO" name="ParameterField.cpp" compile="1" resource="0"
+              file="Source/ui/ParameterField.cpp"/>
+        <FILE id="UhzySN" name="ParameterField.h" compile="0" resource="0"
+              file="Source/ui/ParameterField.h"/>
+        <FILE id="wJT0gk" name="PresetPanel.cpp" compile="1" resource="0" file="Source/ui/PresetPanel.cpp"/>
+        <FILE id="ALkfwM" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/PresetPanel.h"/>
+        <FILE id="kZynOw" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/SetupPanel.cpp"/>
+        <FILE id="IH3gkv" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/SetupPanel.h"/>
+        <FILE id="zIuf5I" name="SimpleListBox.cpp" compile="1" resource="0"
+              file="Source/ui/SimpleListBox.cpp"/>
+        <FILE id="QvD4Xk" name="SimpleListBox.h" compile="0" resource="0" file="Source/ui/SimpleListBox.h"/>
+      </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
         <FILE id="MoJ397" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/Mobius.cpp"/>
         <FILE id="HpTgOg" name="Mobius.h" compile="0" resource="0" file="Source/mobius/Mobius.h"/>
@@ -26,6 +50,8 @@
               file="Source/util/MessageCatalog.h"/>
         <FILE id="gEdMSH" name="MidiUtil.cpp" compile="1" resource="0" file="Source/util/MidiUtil.cpp"/>
         <FILE id="a2wHMK" name="MidiUtil.h" compile="0" resource="0" file="Source/util/MidiUtil.h"/>
+        <FILE id="kZhxhi" name="qtrace.cpp" compile="1" resource="0" file="Source/util/qtrace.cpp"/>
+        <FILE id="rCdOpI" name="qtrace.h" compile="0" resource="0" file="Source/util/qtrace.h"/>
         <FILE id="kxfasO" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
         <FILE id="JZyodG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
         <FILE id="yz3ePc" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
@@ -87,28 +113,10 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
-    <FILE id="E3se5e" name="ConfigEditor.cpp" compile="1" resource="0"
-          file="Source/ConfigEditor.cpp"/>
-    <FILE id="ff7C6l" name="ConfigEditor.h" compile="0" resource="0" file="Source/ConfigEditor.h"/>
-    <FILE id="qeSkvH" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ConfigPanel.cpp"/>
-    <FILE id="Tr4N9b" name="ConfigPanel.h" compile="0" resource="0" file="Source/ConfigPanel.h"/>
-    <FILE id="hthmrW" name="Form.cpp" compile="1" resource="0" file="Source/Form.cpp"/>
-    <FILE id="Mzw5se" name="Form.h" compile="0" resource="0" file="Source/Form.h"/>
-    <FILE id="ppPtSh" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/GlobalPanel.cpp"/>
-    <FILE id="b3o8xr" name="GlobalPanel.h" compile="0" resource="0" file="Source/GlobalPanel.h"/>
     <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
     <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
     <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
     <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
-    <FILE id="xbAsdP" name="PresetPanel.cpp" compile="1" resource="0" file="Source/PresetPanel.cpp"/>
-    <FILE id="bW8cXR" name="PresetPanel.h" compile="0" resource="0" file="Source/PresetPanel.h"/>
-    <FILE id="o6JvQ9" name="qtrace.cpp" compile="1" resource="0" file="Source/qtrace.cpp"/>
-    <FILE id="nDz8r8" name="qtrace.h" compile="0" resource="0" file="Source/qtrace.h"/>
-    <FILE id="kv3O43" name="SetupPanel.cpp" compile="1" resource="0" file="Source/SetupPanel.cpp"/>
-    <FILE id="kRTWDZ" name="SetupPanel.h" compile="0" resource="0" file="Source/SetupPanel.h"/>
-    <FILE id="ZbnOtS" name="SimpleListBox.cpp" compile="1" resource="0"
-          file="Source/SimpleListBox.cpp"/>
-    <FILE id="qSagSe" name="SimpleListBox.h" compile="0" resource="0" file="Source/SimpleListBox.h"/>
     <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
     <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
   </MAINGROUP>
