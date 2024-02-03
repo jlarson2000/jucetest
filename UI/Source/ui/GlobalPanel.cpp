@@ -7,7 +7,8 @@
 #include "GlobalPanel.h"
 #include "../util/qtrace.h"
 
-GlobalPanel::GlobalPanel() : ConfigPanel{"Global Parameters", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+GlobalPanel::GlobalPanel(ConfigEditor* argEditor) :
+    ConfigPanel{argEditor, "Global Parameters", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
 {
     fields.add(new Field("first", "First", Field::Type::Integer));
     fields.add(new Field("second", "Second", Field::Type::String));
@@ -48,4 +49,23 @@ GlobalPanel::~GlobalPanel()
 {
 }
 
-    
+void GlobalPanel::show()
+{
+}
+
+void GlobalPanel::save()
+{
+}
+
+void GlobalPanel::revert()
+{
+}
+
+void GlobalPanel::cancel()
+{
+}
+
+bool GlobalPanel::isActive()
+{
+    return false;
+}

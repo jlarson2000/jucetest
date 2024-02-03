@@ -7,11 +7,15 @@
 #include "../util/FileUtil.h"
 #include "../model/MobiusConfig.h"
 #include "../model/XmlRenderer.h"
+
+#include "ConfigEditor.h"
 #include "ConfigPanel.h"
 
-ConfigPanel::ConfigPanel(const char* titleText, int buttons)
+ConfigPanel::ConfigPanel(ConfigEditor* argEditor, const char* titleText, int buttons)
     : header{titleText}, footer{this,buttons}
 {
+    editor = argEditor;
+
     addAndMakeVisible(header);
     addAndMakeVisible(footer);
     addAndMakeVisible(content);
@@ -26,23 +30,28 @@ ConfigPanel::~ConfigPanel()
 {
 }
 
-void ConfigPanel::setListener(Listener* l)
-{
-    listener = l;
-}
-
-bool ConfigPanel::isOpen()
-{
-    return open;
-}
-
 /**
  * Called by the footer when a button is clicked
  */
 void ConfigPanel::buttonClicked(ConfigPanelButton button)
 {
-    if (listener != nullptr)
-      listener->configPanelClosed(button);
+    switch (button) {
+        case (ConfigiPanelButton::Ok):
+        case (ConfigiPanelButton::Save): {
+            save();
+        }
+        break;
+        case (ConfigPanelButton::Cancel): {
+            cancel();
+        }
+        break;
+        case (ConfigPanelButton::Revert): {
+            revert();
+        }
+        break;
+    }
+
+    editor->close(this);
 }
 
 void ConfigPanel::resized()
@@ -55,31 +64,31 @@ void ConfigPanel::resized()
     content.setBounds(area);
 }
 
+void ConfigPanel::center()
+{
+    // we don't change our size, but we will
+    // center relative to the parent
+// copied from ConfigEditor when it was a component
+/*
+    int pwidth = owner->getWidth();
+        int pheight = owner->getHeight();
+        int mywidth = panel->getWidth();
+        int myheight = panel->getHeight();
+    
+        if (mywidth > pwidth) mywidth = pwidth;
+        if (myheight > pheight) myheight = pheight;
+
+        int left = (pwidth - mywidth) / 2;
+        int top = (pheight - myheight) / 2;
+    
+        panel->setTopLeftPosition(left, top);
+    }
+*/
+}
+
 void ConfigPanel::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::yellow);
-}
-
-/**
- * Called by subcllasses to read the MobiusConfig.
- * The returned object is owned by the caller and must be deleted.
- */
-MobiusConfig* ConfigPanel::readMobiusConfig()
-{
-    MobiusConfig* config = nullptr;
-    
-    // todo: determine the best way to find this
-    const char* path = "c:/dev/jucetest/UI/Source/mobius.xml";
-
-    char* xml = ReadFile(path);
-    if (xml != nullptr) {
-        XmlRenderer xr;
-        config = xr.parseMobiusConfig(xml);
-        // todo: display parse errors
-        delete xml;
-    }
-
-    return config;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -207,7 +216,7 @@ void ConfigPanelFooter::buttonClicked(juce::Button* b)
 //
 //////////////////////////////////////////////////////////////////////
 
-ContentPanel::ContentPanel() : tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
+ContentPanel::ContentPanel()
 {
 }
 
@@ -217,55 +226,9 @@ ContentPanel::~ContentPanel()
 
 void ContentPanel::resized()
 {
-    //group.setBounds(getLocalBounds());
-
-    // from the demo
-    // if (tabBarIndent > 0)
-    // getTabbedButtonBar().setBounds (getTabbedButtonBar().getBounds().withTrimmedLeft (tabBarIndent));
-    tabs.setBounds(getLocalBounds());
-
-    // subclasses can toss whatever they want in here
-    // hmm, might be better to subclass the content panel?
-    // no, at the point of initial sizing, there will be no children
-    // have to do this later, doesn't Juce iterate over children automatically?
-    /*
-    const juce::Array <Component * > & children = getChildren();
-    for (int i = 0 ; i < children.size() ; i++) {
-        children[i]->setBounds(getLocalBounds());
-    }
-    */
-    
 }
 
 void ContentPanel::paint(juce::Graphics& g)
 {
-}
-
-void ContentPanel::addTab(const char* name)
-{
-    if (numTabs == 0) {
-        addAndMakeVisible(tabs);
-        tabs.setTabBarDepth (40);
-    }
-    numTabs++;
-        
-    tabs.addTab(name, juce::Colours::black, nullptr, false);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Visibility
-//
-//////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-//
-// Subclass Builders
-//
-//////////////////////////////////////////////////////////////////////
-
-void ConfigPanel::addTab(const char* name)
-{
-    content.addTab(name);
 }
 

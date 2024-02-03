@@ -1,5 +1,15 @@
 /**
- * Base class for all configuration and information popup editors.
+ * Class managing most configuration editing dialogs.
+ * Old Mobius implemented these with popup windows, we're now doing
+ * these with simple Juce components overlayed over the main window.
+ * 
+ * There are a number of panels focused in a particular area of the
+ * configuration: global, presets, setups, bindings.  Only one of these
+ * may be visible at a time.
+ *
+ * This wrapper allows for the possible experimentation with popup windows
+ * if we ever decide to go there, isolating MainComponent from the details.
+ *
  */
 
 #include <JuceHeader.h>
@@ -9,121 +19,112 @@
 ConfigEditor::ConfigEditor(juce::Component* argOwner)
 {
     owner = argOwner;
+
+    owner->add(&global);
+    owner->add(&preset);
+    owner->add(&setup);
 }
 
 ConfigEditor::~ConfigEditor()
 {
+    // RIAA will destruct the various panels
 }
 
-void ConfigEditor::resized()
+void ConfigEditor::showGlobal()
 {
-    // we don't change our size, but we will
-    // center relative to the parent
-
-    juce::Component* panel = getPanel();
-    if (panel != nullptr) {
-        int pwidth = owner->getWidth();
-        int pheight = owner->getHeight();
-        int mywidth = panel->getWidth();
-        int myheight = panel->getHeight();
-    
-        if (mywidth > pwidth) mywidth = pwidth;
-        if (myheight > pheight) myheight = pheight;
-
-        int left = (pwidth - mywidth) / 2;
-        int top = (pheight - myheight) / 2;
-    
-        panel->setTopLeftPosition(left, top);
-    }
-}
-   
-void ConfigEditor::open()
-{
-    ConfigPanel* panel = getPanel();
-    if (panel != nullptr) {
-        if (!initialized ) {
-            // add directly to the owner
-            owner->addAndMakeVisible(panel);
-
-            panel->setSize(500, 500);
-
-            panel->setAlwaysOnTop(true);
-
-            // start off centered
-            resized();
-
-            // called by ConfigPanel when a button is clicked
-            panel->setListener(this);
-            initialized = true;
-        }
-    
-        panel->setVisible(true);
-        resized();
-    }
+    show(&global);
 }
 
-void ConfigEditor::close()
+void ConfigEditor::showPresets()
 {
-    if (initialized) {
-        // don't remove it but make it invisible
-        juce::Component* panel = getPanel();
-        if (panel != nullptr) {
-            // todo: ask the panel to flush state
-            panel->setVisible(false);
-        }
-        // leave initialized
-    }
+    show(&preset);
+}
+
+void ConfigEditor::showSetups()
+{
+    show(&setup);
+}
+
+void ConfigEditor::closeAll()
+{
+    // TODO: should this have the side effect of canceling the current editing session?
+    show(nullptr);
+}
+
+void ConfigEditor::show(ConfigPanel* p)
+{
+    showOrHide(&global, p);
+    showOrHide(&preset, p);
+    showOrHide(&setup, p);
+}
+
+void ConfigEditor::showOrHide(ConfigPanel* p, ConfigPanel* selected)
+{
+    // should we handle centering here or in ConfigPanel?
+    p->setVisible(p == selected);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// ConfigPanel Callbacks
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by the panel when it is done
+ */
+void ConfigEditor::close(ConfigPanel* p)
+{
+    p->setVisible(false);
 }
 
 /**
- * Panel button callback
+ * Determine the path to the MobiusConfig file.
  */
-void ConfigEditor::configPanelClosed(ConfigPanelButton button)
+const char* ConfigEditor::getConfigFilePath()
 {
-    close();
+    // todo: determine the best way to find this
+    const char* path = "c:/dev/jucetest/UI/Source/mobius.xml";
+    return path;
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// GlobalEditor
-//
-//////////////////////////////////////////////////////////////////////
-
-GlobalEditor::GlobalEditor(juce::Component* argOwner) :
-    ConfigEditor(argOwner)
+/**
+ * Called by the ConfigPanel to read the MobiusConfig.
+ * The master config object is managed by ConfigEditor
+ * the panels are allowed to make modifications to it
+ * and ask us to save it.  Each panel must not overlap
+ * on the changes it makes to the MobiusConfig.
+ *
+ * Might be better to have the panel return us just the
+ * changes and have us splice it into the master config?
+ */
+MobiusConfig* ConfigEditor::getMobiusConfig()
 {
+    if (masterConfig == nullptr) {
+        const char* path = getConfigFilePath();
+        char* xml = ReadFile(path);
+        if (xml != nullptr) {
+            XmlRenderer xr;
+            masterConfig = xr.parseMobiusConfig(xml);
+            // todo: display parse errors
+            delete xml;
+        }
+    }
+
+    return masterConfig;
 }
 
-GlobalEditor::~GlobalEditor()
+/**
+ * Called by the ConfigPanel after it has made modifications
+ * to the MobiusConfig returned by getMobiusConfig.
+ */
+void ConfigEditor::saveMobiusConfig()
 {
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// PresetEditor
-//
-//////////////////////////////////////////////////////////////////////
-
-PresetEditor::PresetEditor(juce::Component* argOwner) :
-    ConfigEditor(argOwner)
-{
-}
-
-PresetEditor::~PresetEditor()
-{
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// SetupEditor
-//
-//////////////////////////////////////////////////////////////////////
-
-SetupEditor::SetupEditor(juce::Component* argOwner) :
-    ConfigEditor(argOwner)
-{
-}
-
-SetupEditor::~SetupEditor()
-{
+    if (masterConfig != nullptr) {
+        const char* path = getConfigFilePath();
+        XmlRenderer xr;
+        char* xml = xr.render(masterConfig);
+        WriteFile(path, xml);
+        delete xml;
+    }
 }

@@ -1,0 +1,57 @@
+
+ConfigEditor
+
+manages a set of ConfigPanels to display portions of the configuration
+loads the MobiusConfiguration and makes it available to the configuration panels
+responsible for reading and writing the configuration file and informing MobiusInterface
+
+
+
+
+
+void ConfigEditor::open()
+{
+    ConfigPanel* panel = getPanel();
+    if (panel != nullptr) {
+        if (!initialized ) {
+            // add directly to the owner
+            owner->addAndMakeVisible(panel);
+
+            panel->setSize(500, 500);
+
+            panel->setAlwaysOnTop(true);
+
+            // start off centered
+            resized();
+
+            // called by ConfigPanel when a button is clicked
+            panel->setListener(this);
+            initialized = true;
+        }
+    
+        panel->setVisible(true);
+        resized();
+    }
+}
+
+void ConfigEditor::closeAll()
+{
+    if (initialized) {
+        // don't remove it but make it invisible
+        juce::Component* panel = getPanel();
+        if (panel != nullptr) {
+            // todo: ask the panel to flush state
+            panel->setVisible(false);
+        }
+        // leave initialized
+    }
+}
+
+/**
+ * Panel button callback
+ */
+void ConfigEditor::configPanelClosed(ConfigPanelButton button)
+{
+    close();
+}
+

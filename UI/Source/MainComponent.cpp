@@ -114,11 +114,8 @@ void MainComponent::resized()
     titleLabel.setBounds (10,  100, getWidth() - 20,  30);
     anotherLabel.setBounds (10,  130, getWidth() - 20,  30);
     
-    // do we need to pass this down or just let them size themselves
-    // when shown?
-    globalEditor.resized();
-    presetEditor.resized();
-    setupEditor.resized();
+    // ConfigEditor is not a Component but it will have added
+    // components to us.  Does resized cascade?  
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -133,22 +130,15 @@ void MainComponent::resized()
  */
 void MainComponent::showPresets()
 {
-    globalEditor.close();
-    setupEditor.close();
-
-    presetEditor.open();
+    configEditor.showPresets();
 }
 
 void MainComponent::showSetups()
 {
-    globalEditor.close();
-    presetEditor.close();
-    setupEditor.open();
+    configEditor.showSetups();
 }
 
 void MainComponent::showGlobal()
 {
-    presetEditor.close();
-    setupEditor.close();
-    globalEditor.open();
+    configEditor.showGlobal();
 }

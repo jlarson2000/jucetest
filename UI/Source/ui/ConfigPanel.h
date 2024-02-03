@@ -27,7 +27,8 @@
 enum ConfigPanelButton {
     Ok = 1,
     Save = 2,
-    Cancel = 4
+    Cancel = 4,
+    Revert = 8
 };
 
 class ConfigPanelHeader : public juce::Component
@@ -77,7 +78,8 @@ class ConfigPanelFooter : public juce::Component, public juce::Button::Listener
     juce::TextButton okButton;
     juce::TextButton saveButton;
     juce::TextButton cancelButton;
-
+    juce::TextButton revertButton;
+    
     void addButton(juce::TextButton* button, const char* text);
 };
 
@@ -91,13 +93,8 @@ class ContentPanel : public juce::Component
     void resized() override;
     void paint (juce::Graphics& g) override;
 
-    void addTab(const char* name);
-    
   private:
 
-    juce::GroupComponent group;
-    juce::TabbedComponent tabs;
-    int numTabs = 0;
 };
 
 class ConfigPanel : public juce::Component
@@ -105,20 +102,9 @@ class ConfigPanel : public juce::Component
   public:
 
 
-    /**
-     * Interface of the parent that controls opening and
-     * closing of the popup.  Tells the parent we are done.
-     */
-    class Listener {
-      public:
-        virtual void configPanelClosed(ConfigPanelButton button) = 0;
-    };
-    
-    ConfigPanel(const char* titleText, int buttons);
+    ConfigPanel(ConfigEditor* argEditor, const char* titleText, int buttons);
     ~ConfigPanel() override;
 
-    class MobiusConfig* ConfigPanel::readMobiusConfig();
-    
     // Component
     void resized() override;
     void paint (juce::Graphics& g) override;
@@ -129,10 +115,24 @@ class ConfigPanel : public juce::Component
     // callback from the footer buttons
     void buttonClicked(ConfigPanelButton button);
     
-    // builders
-    void addTab(const char* name);
+    // Subclass overloads
 
-    bool isOpen();
+    // prepare for this panel to be shown
+    void show() = 0;
+
+    // save all edited objects and prepare to close
+    virtual void save() = 0;
+
+    // throw away any changes and prepare to close
+    // is this necessary?  could just implement this as revert
+    // for all of them
+    virtual void cancel() = 0;
+
+    // throw away changes and load the oridinal, keep the session open
+    virtual void revert() = 0;
+    
+    // true if changes have been made to this panel and not saved
+    bool isActive() = 0;
     
   protected:
     
@@ -140,11 +140,9 @@ class ConfigPanel : public juce::Component
 
   private:
 
+    ConfigEditor* editor;
     ConfigPanelHeader header;
     ConfigPanelFooter footer;
-    
-    Listener* listener;
-    bool open;
     
 };
     

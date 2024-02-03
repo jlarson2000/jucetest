@@ -10,7 +10,8 @@
 #include "ParameterField.h"
 #include "PresetPanel.h"
 
-PresetPanel::PresetPanel() : ConfigPanel{"Presets", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+PresetPanel::PresetPanel(ConfigEditor* argEditor) :
+    ConfigPanel{argEditor, "Presets", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
 {
     render();
 }
@@ -20,26 +21,22 @@ PresetPanel::~PresetPanel()
     // presets will delete itself and the cached objects
 }
 
-void PresetPanel::load()
+void PresetPanel::show()
 {
     if (!loaded) {
+        // clone the Preset list into a local copy
         presets.clear();
-        MobiusConfig* config = readMobiusConfig();
+        MobiusConfig* config = editor.getMobiusConfig();
         if (config != nullptr) {
             // convert the linked list to an OwnedArray
             Preset* plist = config->getPresets();
-            Preset* next = nullptr;
             while (plist != nullptr) {
-                presets.add(plist);
-                next = plist->getNext();
-                // since these are no longer linked, null this out so
-                // we can delete it without cascading
-                plist->setNext(nullptr);
+                XmlRenderer xr;
+                Preset* p = xr.clone(plist);
+                presets.add(p);
+                plist = plist->getNext();
             }
         }
-        // take it from the MobiusConfig
-        config->setPresets(nullptr);
-        delete config;
         loaded = true;
     }
 
@@ -47,6 +44,26 @@ void PresetPanel::load()
     loadPreset(selectedPreset);
 }
 
+void PresetPanel::save()
+{
+}
+
+void PresetPanel::revert()
+{
+}
+
+void PresetPanel::cancel()
+{
+}
+
+bool PresetPanel::isActive()
+{
+    return false;
+}
+
+/**
+ * Load a preset into the parameter fields
+ */
 void PresetPanel::loadPreset(int index)
 {
     Preset* p = presets[index];
@@ -59,6 +76,14 @@ void PresetPanel::loadPreset(int index)
     }
 }
 
+/**
+ * Save one of the edited presets back to the master config
+ * Think...should save/cancel apply to the entire list of presets
+ * or only the one currently being edited.  I think it would be confusing
+ * to keep an editing transaction over the entire list
+ * When a preset is selected, it should throw away changes that
+ * are in progress to the current preset.
+ */
 void PresetPanel::savePreset(int index)
 {
     Preset* p = presets[index];

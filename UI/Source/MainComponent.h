@@ -43,9 +43,7 @@ public:
     // class MainMenu mainMenu;
     class SimpleMenu mainMenu;
 
-    GlobalEditor globalEditor {this};
-    PresetEditor presetEditor {this};
-    SetupEditor setupEditor {this};
+    ConfigEditor configEditor {this};
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

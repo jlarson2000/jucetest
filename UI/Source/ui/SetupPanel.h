@@ -12,8 +12,14 @@
 class SetupPanel : public ConfigPanel 
 {
   public:
-    SetupPanel();
+    SetupPanel(class ConfigEditor *);
     ~SetupPanel();
+
+    void show();
+    void save();
+    void cancel();
+    void revert();
+    bool isActive();
 
   private:
 

@@ -1,32 +1,39 @@
 /**
- * The base class of an object responsible for editing some portion of the
- * Mobius configuration.  The implementation of the editor is up to the editor,
- * the owner should not care.
+ * Class managing most configuration editing dialogs.
+ * Old Mobius implemented these with popup windows, we're now doing
+ * these with simple Juce components overlayed over the main window.
  *
- * It may either be a true popup dialog window, or simply a Component that is added
- * to the owning component.
+ * There are a number of panels focused in a particular area of the
+ * configuration: global, presets, setups, bindings.  Only one of these
+ * may be visible at a time.
+ * 
+ * These methods may be used to show editors for various parts of the
+ * configuration:
  *
- * ConfigEditor::open
+ *   showGlobal
+ *   showPresets
+ *   showSetups
+ *   showMIDIBindings
+ *   showKeyboardBindings
+ *   showPluginParameters
+ *   showScripts
+ *   showSamples
  *
- * Called by the owning component to display the dialog.
- * If the editor is not currently visible, it is expected to load fresh state from Mobius.
- * If the editor is already visible could just let it continue or force a reload.
+ * Although they are stored in different files, might as well do the UI configuration
+ * here too:
  *
- * ConfigEditor::close
+ *   showButtons
+ *   showDisplayComponents
  *
- * Called by the owning component to force the editor to close and abandon whatever
- * it was doing.  Editors typically close themselves when a Save/Cancel button is pressed.
- * close() may be called to enforce non-concurency or simply when shutting down.
+ * Only one configuration editor may be open at a time, if a request is made to show one
+ * that is not already visible it will be automaticcally canceled.
+ * Think about this, could allow it to maintain editing state until explicitly saved or canceled.
  *
- * ConfigEditor::Listener
+ * The close() method may be used to close all active configuration editors without having
+ * to manually click the save or cancel buttons.
  *
- * Interface that may be registered, usually by the owning component to take
- * action when the editor is closed.  Not sure this is necessary.
- *
- * Concurrency can't easily be handled by the editor since they won't know about each
- * other.  Could have a ConfigEditor::allowConcurrent flag to let the owner
- * know what to do.
- *
+ * Note that this is NOT a juce::Component.  It is responsible for constructing the appropriate
+ * Components and managing their visibility and will clean up allocations when it is deleted.
  */
 
 #pragma once
@@ -38,82 +45,43 @@
 #include "PresetPanel.h"
 #include "SetupPanel.h"
 
-class ConfigEditor : public ConfigPanel::Listener
+class ConfigEditor
 {
   public:
 
-    // hmm, should we carry this with us from construction or should
-    // this be passed in show()?
     ConfigEditor(juce::Component* argOwner);
     ~ConfigEditor();
 
-    void open();
-    void close();
+    void showGlobal();
+    void showPresets();
+    void showSetups();
+    void showMIDIBindings();
+    void showKeyboardBindings();
+    void showPluginParameters();
+    void showScripts();
+    void showSamples();
 
-    // called by the owner when it is resized
-    void resized();
-    
-    virtual class ConfigPanel* getPanel() = 0;
+    void closeAll();
 
-    // called by ConfigPanel when a button is clicked
-    void configPanelClosed(ConfigPanelButton button);
+    // should be protected with friends for the panels
+    void close(ConfigPanel* p);
+    void class MobiusConfig* getMobiusConfig();
+    void saveMobiusConfig(class MobiusConfig* config);
     
   private:
 
+    void showOrHide(juce::Component* other, juce::Component* desired);
+    const char* getConfigFilePath();
+    
     juce::Component* owner = nullptr;
     bool initialized = false;
-    bool active = false;  // true if this is currently open
     
-};
+    class MobiusConfig* masterConfig;
 
-class GlobalEditor : public ConfigEditor
-{
-  public:
-
-    GlobalEditor(juce::Component* owner);
-    ~GlobalEditor();
-
-    ConfigPanel* getPanel() {
-        return &panel;
-    }
-
-  private:
-
-    GlobalPanel panel;
-
-};
-
-class PresetEditor : public ConfigEditor
-{
-  public:
-
-    PresetEditor(juce::Component* owner);
-    ~PresetEditor();
-
-    ConfigPanel* getPanel() {
-        return &panel;
-    }
+    GlobalPanel global {this};
+    PresetPanel presets {this};
+    SetupPanel setups {this};
+    // more...
     
-  private:
-
-    PresetPanel panel;
-
-};
-
-class SetupEditor : public ConfigEditor
-{
-  public:
-
-    SetupEditor(juce::Component* owner);
-    ~SetupEditor();
-
-    ConfigPanel* getPanel() {
-        return &panel;
-    }
-
-  private:
-
-    SetupPanel panel;
-
 };
 

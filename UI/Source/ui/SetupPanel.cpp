@@ -8,7 +8,8 @@
 
 #include "SetupPanel.h"
 
-SetupPanel::SetupPanel() : ConfigPanel{"Track Setups", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+SetupPanel::SetupPanel(ConfigEditor* argEditor) :
+    ConfigPanel{argEditor, "Track Setups", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
 {
     std::ostringstream ss;
     ss << "Creating SetupPanel\n";
@@ -52,9 +53,26 @@ SetupPanel::SetupPanel() : ConfigPanel{"Track Setups", ConfigPanelButton::Save |
 
 SetupPanel::~SetupPanel()
 {
-    std::ostringstream ss;
-    ss << "Deleting SetupPanel\n";
-    qtrace(&ss);
 }
 
     
+void SetupPanel::show()
+{
+}
+
+void SetupPanel::save()
+{
+}
+
+void SetupPanel::revert()
+{
+}
+
+void SetupPanel::cancel()
+{
+}
+
+bool SetupPanel::isActive()
+{
+    return false;
+}

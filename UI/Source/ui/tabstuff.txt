@@ -1,0 +1,73 @@
+class ContentPanel : public juce::Component
+{
+  public:
+
+    ContentPanel();
+    ~ContentPanel();
+
+    void resized() override;
+    void paint (juce::Graphics& g) override;
+
+    void addTab(const char* name);
+    
+  private:
+
+    juce::GroupComponent group;
+    juce::TabbedComponent tabs;
+    int numTabs = 0;
+};
+
+ContentPanel::ContentPanel() : tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
+{
+}
+
+void ContentPanel::resized()
+{
+    //group.setBounds(getLocalBounds());
+
+    // from the demo
+    // if (tabBarIndent > 0)
+    // getTabbedButtonBar().setBounds (getTabbedButtonBar().getBounds().withTrimmedLeft (tabBarIndent));
+    tabs.setBounds(getLocalBounds());
+
+    // subclasses can toss whatever they want in here
+    // hmm, might be better to subclass the content panel?
+    // no, at the point of initial sizing, there will be no children
+    // have to do this later, doesn't Juce iterate over children automatically?
+    /*
+    const juce::Array <Component * > & children = getChildren();
+    for (int i = 0 ; i < children.size() ; i++) {
+        children[i]->setBounds(getLocalBounds());
+    }
+    */
+    
+}
+
+void ContentPanel::addTab(const char* name)
+{
+    if (numTabs == 0) {
+        addAndMakeVisible(tabs);
+        tabs.setTabBarDepth (40);
+    }
+    numTabs++;
+        
+    tabs.addTab(name, juce::Colours::black, nullptr, false);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Visibility
+//
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+//
+// Subclass Builders
+//
+//////////////////////////////////////////////////////////////////////
+
+void ConfigPanel::addTab(const char* name)
+{
+    content.addTab(name);
+}
+

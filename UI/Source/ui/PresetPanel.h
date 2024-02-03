@@ -15,12 +15,18 @@
 class PresetPanel : public ConfigPanel 
 {
   public:
-    PresetPanel();
+    PresetPanel(class ConfigEditor*);
     ~PresetPanel();
 
     void load();
     void render();
     
+    void show();
+    void save();
+    void cancel();
+    void revert();
+    bool isActive();
+
   private:
 
     void loadPreset(int index);

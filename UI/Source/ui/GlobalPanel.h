@@ -12,9 +12,15 @@
 class GlobalPanel : public ConfigPanel 
 {
   public:
-    GlobalPanel();
+    GlobalPanel(class ConfigEditor*);
     ~GlobalPanel();
 
+    void show();
+    void save();
+    void cancel();
+    void revert();
+    bool isActive();
+    
   private:
 
     FieldSet fields;
