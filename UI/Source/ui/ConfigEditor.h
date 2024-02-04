@@ -26,10 +26,11 @@
  *   showDisplayComponents
  *
  * Only one configuration editor may be open at a time, if a request is made to show one
- * that is not already visible it will be automaticcally canceled.
- * Think about this, could allow it to maintain editing state until explicitly saved or canceled.
+ * that is not already visible it will be hidden, but the editing session will remain.
+ * The editing session is only closed when the user explicitly clicks one of the close buttons
+ * or when forced to cancel by something else.
  *
- * The close() method may be used to close all active configuration editors without having
+ * The closeAll() method may be used to close all active configuration editors without having
  * to manually click the save or cancel buttons.
  *
  * Note that this is NOT a juce::Component.  It is responsible for constructing the appropriate
@@ -64,24 +65,26 @@ class ConfigEditor
     void closeAll();
 
     // should be protected with friends for the panels
-    void close(ConfigPanel* p);
-    void class MobiusConfig* getMobiusConfig();
-    void saveMobiusConfig(class MobiusConfig* config);
+    void close(ConfigPanel* p, bool canceled);
+    class MobiusConfig* getMobiusConfig();
+    void saveMobiusConfig();
     
   private:
 
-    void showOrHide(juce::Component* other, juce::Component* desired);
+    void addPanel(ConfigPanel* panel);
+    void show(ConfigPanel* panel);
     const char* getConfigFilePath();
     
     juce::Component* owner = nullptr;
+
     bool initialized = false;
-    
-    class MobiusConfig* masterConfig;
+    class MobiusConfig* masterConfig = nullptr;
 
     GlobalPanel global {this};
     PresetPanel presets {this};
     SetupPanel setups {this};
-    // more...
-    
+
+    // list of all active panels, we often need to iterate over these
+    juce::Array<ConfigPanel*> panels;
 };
 

@@ -15,14 +15,13 @@ class GlobalPanel : public ConfigPanel
     GlobalPanel(class ConfigEditor*);
     ~GlobalPanel();
 
-    void show();
+    // overloads called by ConfigPanel
+    void load();
     void save();
     void cancel();
-    void revert();
-    bool isActive();
-    
+
   private:
 
-    FieldSet fields;
+    FieldGrid fields;
     
 };

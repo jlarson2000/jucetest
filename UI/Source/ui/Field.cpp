@@ -1,6 +1,16 @@
 /**
- * A FieldSet organizes a set of Fields into one or more columns.
- */
+ * An object model for form fields that are rendered as Juce components.
+ * 
+ * DESIGN NOTES
+ *
+ * Since Fields are rendered using Juce, we will use Juce collections
+ * here too instead of std:: collections where appropriate.
+ *
+ * Field could either inherit directly from Component or it could be
+ * a parallel model that generates Components.  Tradeoffs are unclear
+ * at this time, start with them being Components.
+ *
+*/
 
 #include <string>
 #include <sstream>
@@ -20,6 +30,7 @@
 
 Field::Field(const char* argName, const char* argDisplayName, Field::Type argType)
 {
+    juce::Component::setName("Field");
     name = argName;
     displayName = argDisplayName;
     type = argType;
@@ -50,7 +61,7 @@ void Field::setAllowedValueLabels(juce::StringArray& src)
 }
 
 /**
- * Called by FieldSet as fields are added
+ * Called by FieldGrid as fields are added
  */
 void Field::render()
 {
@@ -182,6 +193,13 @@ void Field::resized()
     }
 }
 
+void Field::paint(juce::Graphics& g)
+{
+    // give it an obvious background
+    // need to work out  borders
+    g.fillAll (juce::Colours::beige);
+}
+
 /**
  * Set the value of a field and propagate it to the components.
  */
@@ -201,24 +219,25 @@ void Field::refreshValue()
 
 //////////////////////////////////////////////////////////////////////
 //
-// FieldSet
+// FieldGrid
 //
 //////////////////////////////////////////////////////////////////////
 
-FieldSet::FieldSet()
+FieldGrid::FieldGrid()
+{
+    juce::Component::setName("FieldGrid");
+}
+
+FieldGrid::~FieldGrid()
 {
 }
 
-FieldSet::~FieldSet()
-{
-}
-
-void FieldSet::setName(juce::String argName)
+void FieldGrid::setName(juce::String argName)
 {
     name = argName;
 }
 
-juce::String FieldSet::getName()
+juce::String FieldGrid::getName()
 {
     return name;
 }
@@ -228,7 +247,7 @@ juce::String FieldSet::getName()
  * Don't really like deferred rendering but I want to allow a Field to
  * be constructed in phases that may influence how they are rendered.
  */
-void FieldSet::add(Field* f, int column)
+void FieldGrid::add(Field* f, int column)
 {
     juce::OwnedArray<Field>* fieldColumn = nullptr;
     
@@ -243,7 +262,7 @@ void FieldSet::add(Field* f, int column)
     fieldColumn->add(f);
 }
 
-void FieldSet::render()
+void FieldGrid::render()
 {
     // I can see this happening a lot, come up with a field iterator
     for (int col = 0 ; col < columns.size() ; col++) {
@@ -259,10 +278,10 @@ void FieldSet::render()
 }
 
 /**
- * TODO: Would like each field set to auto-size the label
+ * TODO: Would like each grid to auto-size the label
  * column so we don't have to hard wire it.
  */
-void FieldSet::resized()
+void FieldGrid::resized()
 {
     // single column for now
     juce::Rectangle<int> area = getLocalBounds();
@@ -282,6 +301,13 @@ void FieldSet::resized()
             }
         }
     }
+}
+
+void FieldGrid::paint(juce::Graphics& g)
+{
+    // give it an obvious background
+    // need to work out  borders
+        g.fillAll (juce::Colours::green);
 }
 
 /****************************************************************************/

@@ -89,16 +89,22 @@ XmlRenderer::~XmlRenderer()
 {
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Object renderers and cloners
+//
+// Really shouldn't need clone methods if we made all the objects
+// copyable.
+//
+//////////////////////////////////////////////////////////////////////
+
 char* XmlRenderer::render(MobiusConfig* c)
 {
 	char* xml = nullptr;
+    XmlBuffer b;
 
-    // TODO: make this more like others and have a clear() so it can be reused
-    // and not dynamically allocated 
-    XmlBuffer* b = new XmlBuffer();
-    render(b, c);
-    xml = b->stealString();
-    delete b;
+    render(&b, c);
+    xml = b.stealString();
     return xml;
 }
 
@@ -106,8 +112,8 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
 {
     MobiusConfig* config = nullptr;
 	XomParser* parser = new XomParser();
-	XmlDocument* doc = parser->parse(xml);
-
+    XmlDocument* doc = parser->parse(xml);
+	
     if (doc == nullptr) {
         Trace(1, "XmlRender: Parse error %s\n", parser->getError());
     }
@@ -129,6 +135,52 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
 	delete parser;
 
     return config;
+}
+
+Preset* XmlRenderer::clone(Preset* src)
+{
+    Preset* copy = nullptr;
+
+    XmlBuffer b;
+    render(&b, src);
+
+	XomParser parser;
+    // nicer if the parser owns the document so it can be
+    // deleted with it, when would we not want that
+	XmlDocument* doc = parser.parse(b.getString());
+    if (doc != nullptr) {
+        XmlElement* e = doc->getChildElement();
+        if (e != nullptr) {
+            copy = new Preset();
+            parse(e, copy);
+        }
+        delete doc;
+    }
+    
+    return copy;
+}
+
+Setup* XmlRenderer::clone(Setup* src)
+{
+    Setup* copy = nullptr;
+
+    XmlBuffer b;
+    render(&b, src);
+
+	XomParser parser;
+    // nicer if the parser owns the document so it can be
+    // deleted with it, when would we not want that
+	XmlDocument* doc = parser.parse(b.getString());
+    if (doc != nullptr) {
+        XmlElement* e = doc->getChildElement();
+        if (e != nullptr) {
+            copy = new Setup();
+            parse(e, copy);
+        }
+        delete doc;
+    }
+    
+    return copy;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -548,9 +600,9 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 			c->addSetup(s);
 		}
 		else if (child->isName(EL_BINDING_CONFIG)) {
-			BindingConfig* bc = new BindingConfig();
-            parse(child, bc);
-			c->addBindingConfig(bc);
+			//BindingConfig* bc = new BindingConfig();
+            //parse(child, bc);
+			//c->addBindingConfig(bc);
 		}
 		else if (child->isName(EL_MIDI_CONFIG)) {
             // could handle this but they should have been
@@ -567,13 +619,13 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
             parse(child, sc);
             c->setSampleConfig(sc);
 		}
-#if 0
-		else if (child->isName(EL_CONTROL_SURFACE)) {
-			ControlSurfaceConfig* cs = new ControlSurfaceConfig();
-            parse(child, cs);
-			c->addControlSurface(cs);
-		}
-#endif        
+
+        // never did fully support this 
+		//else if (child->isName(EL_CONTROL_SURFACE)) {
+        //ControlSurfaceConfig* cs = new ControlSurfaceConfig();
+        //parse(child, cs);
+        //c->addControlSurface(cs);
+        //}
 
 		else if (child->isName(EL_OSC_CONFIG)) {
 			OscConfig* oc = new OscConfig();
@@ -596,7 +648,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
             c->setAltFeedbackDisables(parseStringList(child));
 		}
 	}
-
+    
     // do these last since setting them has the side effect
     // of locating the corresponding object and caching it in
     // a pointer, not sure I like this

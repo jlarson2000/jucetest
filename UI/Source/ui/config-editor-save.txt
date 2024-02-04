@@ -5,6 +5,51 @@ manages a set of ConfigPanels to display portions of the configuration
 loads the MobiusConfiguration and makes it available to the configuration panels
 responsible for reading and writing the configuration file and informing MobiusInterface
 
+PresetPanel
+  clones the list of Presets
+
+
+Multi-object panels
+
+master config has a list of objects
+one is edited at a time
+
+What does Save do?
+  - saves just the one visible object
+  - saves all objects that have been edited
+  - saving all would be easier, if not then when a different object is selected
+    without saving we would have to prompt to save or revert changes
+  - either way need a Revert button to throw away the changes to the selected object
+  - New, adds an object to the list but doesn't save it
+  - Would be nice to have a Clone option to copy the selected object as a new object
+  - Reset button to initialize the object to a default state
+  - buttons
+      Save - saves all edited presets (or just the current one)
+      Cancel - cancels all edits in progress
+      Revert - reverts the current object, would need a Revert All?
+      Save All - saves and closes if Save just saves the current
+        - this seems confusing most dialogs Save means save and close
+      so
+        Save = Save All and close
+        Cancel = Cancel All and close
+        Revert = revert all to be consistent with save/cancel
+          most of the time objects will be edited one at a time anyway
+        Save This One - isn't that useful, why do this and keep the session open?
+          if Save doesn't Save
+
+      over thinking this, just have full save/cancel/revert and if we need indivual add later
+      if switching objects cancels will want a "Changes have not been saved" alert
+      switching editing windows does not auto-save or cancel, if it did we would need an alert
+      nice to have the Save/Revert buttons become highlighted if there are changes
+
+      if you start one panel, then select another it is hidden but the editing session remains
+      when the second panel is closed need to restore the previous one
+
+      if you open a panel but make no changes, when another is selected it is hidden
+
+      changes made to one type of object (mostly global) may impact parameter values in others
+      will need a way to refresh panels whose editing sessions are in progress
+        actually even if they aren't in progress 
 
 
 

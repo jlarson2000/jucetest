@@ -9,8 +9,13 @@
 #include "SetupPanel.h"
 
 SetupPanel::SetupPanel(ConfigEditor* argEditor) :
-    ConfigPanel{argEditor, "Track Setups", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+    ConfigPanel{argEditor, "Track Setups", ConfigPanelButton::Save | ConfigPanelButton::Cancel, true},
+    tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
 {
+    // debugging hack
+    setName("SetupPanel");
+
+#if 0
     std::ostringstream ss;
     ss << "Creating SetupPanel\n";
     qtrace(&ss);
@@ -49,14 +54,23 @@ SetupPanel::SetupPanel(ConfigEditor* argEditor) :
     // trigger resized so have to do it manually
     content.addAndMakeVisible(fields);
     fields.setBounds(content.getBounds());
+#endif
+    tabs.addTab("One", juce::Colours::black, nullptr, false);
+    tabs.addTab("Two", juce::Colours::black, nullptr, false);
+    tabs.addTab("Three", juce::Colours::black, nullptr, false);
+    content.addAndMakeVisible(tabs);
+
+    // at this point the component hierarhcy has been fully constructed
+    // but not sized, until we support bottom up sizing start with
+    // a fixed size, this will cascade resized() down the child hierarchy
+    setSize (500, 500);
 }
 
 SetupPanel::~SetupPanel()
 {
 }
 
-    
-void SetupPanel::show()
+void SetupPanel::load()
 {
 }
 
@@ -64,15 +78,32 @@ void SetupPanel::save()
 {
 }
 
-void SetupPanel::revert()
-{
-}
-
 void SetupPanel::cancel()
 {
 }
 
-bool SetupPanel::isActive()
+//////////////////////////////////////////////////////////////////////
+//
+// ObjectSelector overloads
+// 
+//////////////////////////////////////////////////////////////////////
+
+void SetupPanel::selectObject(int ordinal)
 {
-    return false;
+}
+
+void SetupPanel::newObject()
+{
+}
+
+void SetupPanel:: deleteObject()
+{
+}
+
+void SetupPanel::revertObject()
+{
+}
+
+void SetupPanel::renameObject(juce::String newName)
+{
 }

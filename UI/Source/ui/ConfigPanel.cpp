@@ -4,26 +4,26 @@
 
 #include <JuceHeader.h>
 
-#include "../util/FileUtil.h"
-#include "../model/MobiusConfig.h"
-#include "../model/XmlRenderer.h"
-
 #include "ConfigEditor.h"
 #include "ConfigPanel.h"
 
-ConfigPanel::ConfigPanel(ConfigEditor* argEditor, const char* titleText, int buttons)
-    : header{titleText}, footer{this,buttons}
+ConfigPanel::ConfigPanel(ConfigEditor* argEditor, const char* titleText, int buttons, bool multi)
+    : header{titleText}, footer{this,buttons}, objectSelector{this}
 {
+    setName("ConfigPanel");
     editor = argEditor;
 
     addAndMakeVisible(header);
     addAndMakeVisible(footer);
     addAndMakeVisible(content);
+
+    if (multi) {
+        hasObjectSelector = true;
+        addAndMakeVisible(objectSelector);
+    }
     
-    // todo: this is one where I would like the size to be determined
-    // by the child components, not the other way around
-    // this is initial size, the parent component may change it
-    setSize (500, 500);
+    // size has to be deferred to the subclass after it has finished rendering
+    //setSize (500, 500);
 }
 
 ConfigPanel::~ConfigPanel()
@@ -33,11 +33,11 @@ ConfigPanel::~ConfigPanel()
 /**
  * Called by the footer when a button is clicked
  */
-void ConfigPanel::buttonClicked(ConfigPanelButton button)
+void ConfigPanel::footerButtonClicked(ConfigPanelButton button)
 {
     switch (button) {
-        case (ConfigiPanelButton::Ok):
-        case (ConfigiPanelButton::Save): {
+        case (ConfigPanelButton::Ok):
+        case (ConfigPanelButton::Save): {
             save();
         }
         break;
@@ -45,49 +45,50 @@ void ConfigPanel::buttonClicked(ConfigPanelButton button)
             cancel();
         }
         break;
-        case (ConfigPanelButton::Revert): {
-            revert();
-        }
-        break;
     }
 
-    editor->close(this);
+    // ConfigEditor will decide whether to save the
+    // MobiusConfig if it has nothing else active
+    editor->close(this, (button == ConfigPanelButton::Cancel));
 }
 
 void ConfigPanel::resized()
 {
     auto area = getLocalBounds();
     
-    header.setBounds(area.removeFromTop(ConfigPanelHeader::PreferredHeight));
-    footer.setBounds(area.removeFromBottom(ConfigPanelFooter::PreferredHeight));
+    header.setBounds(area.removeFromTop(header.getPreferredHeight()));
+    if (hasObjectSelector) {
+        objectSelector.setBounds(area.removeFromTop(objectSelector.getPreferredHeight()));
+    }
+    footer.setBounds(area.removeFromBottom(footer.getPreferredHeight()));
 
     content.setBounds(area);
 }
 
+/**
+ * ConfigPanels are not at the moment resizeable, but they
+ * can auto-center within the parent.
+ */
 void ConfigPanel::center()
 {
-    // we don't change our size, but we will
-    // center relative to the parent
-// copied from ConfigEditor when it was a component
-/*
-    int pwidth = owner->getWidth();
-        int pheight = owner->getHeight();
-        int mywidth = panel->getWidth();
-        int myheight = panel->getHeight();
+    int pwidth = getParentWidth();
+    int pheight = getParentHeight();
     
-        if (mywidth > pwidth) mywidth = pwidth;
-        if (myheight > pheight) myheight = pheight;
+    int mywidth = getWidth();
+    int myheight = getHeight();
+    
+    if (mywidth > pwidth) mywidth = pwidth;
+    if (myheight > pheight) myheight = pheight;
 
-        int left = (pwidth - mywidth) / 2;
-        int top = (pheight - myheight) / 2;
+    int left = (pwidth - mywidth) / 2;
+    int top = (pheight - myheight) / 2;
     
-        panel->setTopLeftPosition(left, top);
-    }
-*/
+    setTopLeftPosition(left, top);
 }
 
 void ConfigPanel::paint (juce::Graphics& g)
 {
+    // temporary, give it an obvious background while we play with positioning
     g.fillAll (juce::Colours::yellow);
 }
 
@@ -99,8 +100,9 @@ void ConfigPanel::paint (juce::Graphics& g)
 
 ConfigPanelHeader::ConfigPanelHeader(const char* titleText)
 {
+    setName("ConfigPanelHeader");
     addAndMakeVisible (titleLabel);
-    titleLabel.setFont (juce::Font (16.0f, juce::Font::bold));
+    titleLabel.setFont (juce::Font (12.0f, juce::Font::bold));
     titleLabel.setText (titleText, juce::dontSendNotification);
     titleLabel.setColour (juce::Label::textColourId, juce::Colours::black);
     titleLabel.setJustificationType (juce::Justification::centred);
@@ -111,14 +113,22 @@ ConfigPanelHeader::~ConfigPanelHeader()
 {
 }
 
+int ConfigPanelHeader::getPreferredHeight()
+{
+    // todo: ask the title font
+    return 30;
+}
+
 void ConfigPanelHeader::resized()
 {
-    // do we need to adjust bounds here?  just let it oriented to upper left
+    // let it fill the entire area
     titleLabel.setBounds(getLocalBounds());
 }
 
 void ConfigPanelHeader::paint(juce::Graphics& g)
 {
+    // give it an obvious background
+    // need to work out  borders
     g.fillAll (juce::Colours::blue);
 }
 
@@ -128,8 +138,12 @@ void ConfigPanelHeader::paint(juce::Graphics& g)
 //
 //////////////////////////////////////////////////////////////////////
 
-ConfigPanelFooter::ConfigPanelFooter(ConfigPanel* parentPanel, int buttons)
+ConfigPanelFooter::ConfigPanelFooter(ConfigPanel* parent, int buttons)
 {
+    setName("ConfigPanelFooter");
+    parentPanel = parent;
+    buttonList = buttons;
+
     if (buttons & ConfigPanelButton::Ok) {
         addButton(&okButton, "Ok");
     }
@@ -142,8 +156,6 @@ ConfigPanelFooter::ConfigPanelFooter(ConfigPanel* parentPanel, int buttons)
         addButton(&cancelButton, "Cancel");
     }
 
-    panel = parentPanel;
-    buttonList = buttons;
 }
 
 ConfigPanelFooter::~ConfigPanelFooter()
@@ -157,12 +169,20 @@ void ConfigPanelFooter::addButton(juce::TextButton* button, const char* text)
     button->addListener(this);
 }
 
+int ConfigPanelFooter::getPreferredHeight()
+{
+    // todo: more control over the internal button sizes
+    return 36;
+}
+
 void ConfigPanelFooter::resized()
 {
     auto area = getLocalBounds();
     const int buttonWidth = 100;
 
     // seems like centering should be easier...
+    // don't really need to deal with having both Ok and Save there
+    // will only ever be two
     int numButtons = 0;
     if (buttonList & ConfigPanelButton::Ok) numButtons++;
     if (buttonList & ConfigPanelButton::Save) numButtons++;
@@ -200,13 +220,13 @@ void ConfigPanelFooter::buttonClicked(juce::Button* b)
 {
     // find a better way to do this, maybe subclassing Button
     if (b == &okButton) {
-        panel->buttonClicked(ConfigPanelButton::Ok);
+        parentPanel->footerButtonClicked(ConfigPanelButton::Ok);
     }
     else if (b == &saveButton) {
-        panel->buttonClicked(ConfigPanelButton::Save);
+        parentPanel->footerButtonClicked(ConfigPanelButton::Save);
     }
     else if (b == &cancelButton) {
-        panel->buttonClicked(ConfigPanelButton::Cancel);
+        parentPanel->footerButtonClicked(ConfigPanelButton::Cancel);
     }
 }
 
@@ -214,10 +234,15 @@ void ConfigPanelFooter::buttonClicked(juce::Button* b)
 //
 // Content
 //
+// Nothing really to do here.  If all subclasses just have a single
+// component could do away with this, but it is a nice spot to leave
+// the available area.
+//
 //////////////////////////////////////////////////////////////////////
 
 ContentPanel::ContentPanel()
 {
+    setName("ContentPanel");
 }
 
 ContentPanel::~ContentPanel()
@@ -226,9 +251,77 @@ ContentPanel::~ContentPanel()
 
 void ContentPanel::resized()
 {
+    // assume subclass added a single child
+    Component* child = getChildComponent(0);
+    child->setSize(getWidth(), getHeight());
 }
 
 void ContentPanel::paint(juce::Graphics& g)
 {
+    g.fillAll (juce::Colours::beige);
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// ObjectSelector  TODO
+//
+//////////////////////////////////////////////////////////////////////
+
+ObjectSelector::ObjectSelector(ConfigPanel* parent)
+{
+    setName("ObjectSelector");
+    parentPanel = parent;
+}
+
+ObjectSelector::~ObjectSelector()
+{
+}
+
+int ObjectSelector::getPreferredHeight()
+{
+    return 0;
+}
+
+void ObjectSelector::resized()
+{
+}
+
+void ObjectSelector::paint(juce::Graphics& g)
+{
+}
+
+/**
+ * Called by the ConfigPanel subclass to set the names
+ * to display in the combobox.
+ * When the combobox is changed we call the selectObject overload.
+ * This also auto-selects the first name in the list.
+ */
+void ObjectSelector::setObjectNames(juce::Array<juce::String> names)
+{
+}
+
+/**
+ * Juce listener for the object management buttons.
+ */
+void ObjectSelector::buttonClicked(juce::Button* b)
+{
+    if (b == &newButton) {
+        parentPanel->newObject();
+    }
+    else if (b == &deleteButton) {
+        parentPanel->deleteObject();
+    }
+    else if (b == &copyButton) {
+        parentPanel->copyObject();
+    }
+    else if (b == &revertButton) {
+        parentPanel->revertObject();
+    }
+}
+
+// TODO: give the name label a listener to call renameObject
+// TODO: give the combobox a listener to call selectObject
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

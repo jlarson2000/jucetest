@@ -6,60 +6,163 @@
 
 #include "../model/MobiusConfig.h"
 #include "../model/Parameter.h"
+#include "../model/XmlRenderer.h"
+
 #include "Form.h"
 #include "ParameterField.h"
+#include "ConfigEditor.h"
 #include "PresetPanel.h"
+#include "JuceUtil.h"
 
 PresetPanel::PresetPanel(ConfigEditor* argEditor) :
-    ConfigPanel{argEditor, "Presets", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+    ConfigPanel{argEditor, "Presets", ConfigPanelButton::Save | ConfigPanelButton::Cancel, true}
 {
+    // debugging hack
+    setName("PresetPanel");
     render();
 }
 
 PresetPanel::~PresetPanel()
 {
-    // presets will delete itself and the cached objects
+    // members will delete themselves
 }
 
-void PresetPanel::show()
+//////////////////////////////////////////////////////////////////////
+//
+// ConfigPanel overloads
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by ConfigEditor when asked to edit presets.
+ * 
+ * If this is the first time being shown, copy the Preset list from the
+ * master configuration and load the first preset.
+ *
+ * If we are already active, just display what we currently have.
+ * ConfigEditor will handle visibility.
+ */
+void PresetPanel::load()
 {
     if (!loaded) {
+        // build a list of names for the object selector
+        juce::Array<juce::String> names;
         // clone the Preset list into a local copy
         presets.clear();
-        MobiusConfig* config = editor.getMobiusConfig();
+        MobiusConfig* config = editor->getMobiusConfig();
         if (config != nullptr) {
             // convert the linked list to an OwnedArray
             Preset* plist = config->getPresets();
             while (plist != nullptr) {
+                // we shouldn't need to use an XML transform,
+                // just make Preset copyable
                 XmlRenderer xr;
                 Preset* p = xr.clone(plist);
+                // it shouldn't have one but make sure it doesn't have
+                // a lingering next pointer
+                p->setNext(NULL);
                 presets.add(p);
+                // note this needs to be in a local to prevent a leak
+                juce::String js(plist->getName());
+                names.add(js);
                 plist = plist->getNext();
             }
         }
-        loaded = true;
-    }
+        
+        // this will also auto-select the first one
+        objectSelector.setObjectNames(names);
 
-    selectedPreset = 0;
-    loadPreset(selectedPreset);
+        loadPreset(selectedPreset);
+
+        loaded = true;
+        changed = false;
+    }
 }
 
+/**
+ * Called by the Save button in the footer.
+ * 
+ * Save all presets that have been edited during this session
+ * back to the master configuration.
+ *
+ * Tell the ConfigEditor we are done.
+ */
 void PresetPanel::save()
 {
+    if (changed) {
+        // build a new Preset linked list
+        Preset* plist = nullptr;
+        Preset* last = nullptr;
+        
+        for (int i = 0 ; i < presets.size() ; i++) {
+            Preset* p = presets[i];
+            if (last == nullptr)
+              plist = p;
+            else
+              last->setNext(p);
+            last = p;
+        }
+
+        // we took ownership of the objects so
+        // clear the owned array but don't delete them
+        presets.clear(false);
+
+        MobiusConfig* config = editor->getMobiusConfig();
+        // this will also delete the current preset list
+        config->setPresets(plist);
+
+        loaded = false;
+        changed = false;
+    }
+    else if (loaded) {
+        // throw away preset copies
+        presets.clear();
+        loaded = false;
+    }
 }
 
-void PresetPanel::revert()
-{
-}
-
+/**
+ * Throw away all editing state.
+ */
 void PresetPanel::cancel()
 {
+    // delete the copied presets
+    presets.clear();
+    loaded = false;
+    changed = false;
 }
 
-bool PresetPanel::isActive()
+//////////////////////////////////////////////////////////////////////
+//
+// ObjectSelector overloads
+// 
+//////////////////////////////////////////////////////////////////////
+
+void PresetPanel::selectObject(int ordinal)
 {
-    return false;
 }
+
+void PresetPanel::newObject()
+{
+}
+
+void PresetPanel:: deleteObject()
+{
+}
+
+void PresetPanel::revertObject()
+{
+}
+
+void PresetPanel::renameObject(juce::String newName)
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Internal Methods
+// 
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Load a preset into the parameter fields
@@ -74,6 +177,9 @@ void PresetPanel::loadPreset(int index)
             f->loadValue(p);
         }
     }
+
+    // at this point the combobox is in sync
+    selectedPreset = 0;
 }
 
 /**
@@ -109,10 +215,24 @@ Preset* PresetPanel::getSelectedPreset()
     return p;
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Form Rendering
+//
+//////////////////////////////////////////////////////////////////////
+
 void PresetPanel::render()
 {
     initForm();
     form.render();
+
+    // place it in the content panel
+    content.addAndMakeVisible(form);
+
+    // at this point the component hierarhcy has been fully constructed
+    // but not sized, until we support bottom up sizing start with
+    // a fixed size, this will cascade resized() down the child hierarchy
+    setSize (500, 500);
 }
 
 void PresetPanel::initForm()
@@ -124,13 +244,12 @@ void PresetPanel::initForm()
     add("General", NoFeedbackUndoParameter);
     add("General", AltFeedbackEnableParameter);
 
-#if 0
-    // Quantize
-    add("Quantize", QuantizeModeParameter);
+    add("Quantize", QuantizeParameter);
     add("Quantize", SwitchQuantizeParameter);
     add("Quantize", BounceQuantizeParameter);
     add("Quantize", OverdubQuantizedParameter);
 
+#if 0
     // Record
 
     add("Record", RecordThresholdParameter);
@@ -191,3 +310,6 @@ void PresetPanel::add(const char* tab, Parameter* p, int column)
 }
 
             
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

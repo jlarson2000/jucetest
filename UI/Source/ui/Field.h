@@ -19,22 +19,13 @@
  *
  * Fields may have a listener to respond to changes to the field.
  *
- * A FieldSet organizes multiple fields into one or more columns.
- * All fields in a field set are displayed.
+ * A FieldGrid organizes multiple fields into one or more columns.
+ * All fields in a grid are displayed.
  *
- * A Form contains one or more field setes.
- * If there are multiple field sets they are selcted using tabs or
+ * A Form contains one or more grids.
+ * If there are multiple grids they are selcted using tabs or
  * some other set selection mechanism.  If a form contains more than one
- * field set, the field set must be named to provide the name for the tab.
- *
- * DESIGN NOTES
- *
- * Since Fields are rendered using Juce, we will use Juce collections
- * here too instead of std:: collections where appropriate.
- *
- * Field could either inherit directly from Component or it could be
- * a parallel model that generates Components.  Tradeoffs are unclear
- * at this time, start with them being Components.
+ * grid, the grid must be named to provide the name for the tab.
  *
  */
 
@@ -218,6 +209,8 @@ class Field : public juce::Component
     //
 
     void resized() override;
+    void paint (juce::Graphics& g) override;
+
     
   private:
     
@@ -262,15 +255,15 @@ class Field : public juce::Component
 };
 
 /**
- * A field set is a list of Fields that can be arranged in columns
- * TODO: should the column split be a property of the field or the set?
- * The field set owns the Fields which are deleted when the set is deleted.
+ * A field grid is a list of Fields that can be arranged in columns
+ * TODO: should the column split be a property of the field or the grid?
+ * The grid owns the Fields which are deleted when the grid is deleted.
  */
-class FieldSet : public juce::Component {
+class FieldGrid : public juce::Component {
 
   public:
-    FieldSet();
-    ~FieldSet();
+    FieldGrid();
+    ~FieldGrid();
 
     void setName(juce::String argName);
 
@@ -296,7 +289,12 @@ class FieldSet : public juce::Component {
     
     void render();
     
+    //
+    // Juce interface
+    //
+
     void resized() override;
+    void paint (juce::Graphics& g) override;
     
   private:
 

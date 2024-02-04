@@ -99,6 +99,14 @@ Setup::Setup()
 
 Setup::~Setup()
 {
+	Setup *el, *next;
+
+	for (el = mNext ; el != nullptr ; el = next) {
+		next = el->getNext();
+		el->setNext(nullptr);
+		delete el;
+	}
+
 	delete mTracks;
 	delete mBindings;
 }

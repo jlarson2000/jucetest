@@ -6,8 +6,10 @@
 
 #include <JuceHeader.h>
 
-#include "ConfigPanel.h"
+#include "../model/Setup.h"
+
 #include "Form.h"
+#include "ConfigPanel.h"
 
 class SetupPanel : public ConfigPanel 
 {
@@ -15,14 +17,21 @@ class SetupPanel : public ConfigPanel
     SetupPanel(class ConfigEditor *);
     ~SetupPanel();
 
-    void show();
+    // ConfigPanel overloads
+    void load();
     void save();
     void cancel();
-    void revert();
-    bool isActive();
+
+    // ObjectSelector overloads
+    void selectObject(int ordinal);
+    void newObject() override;
+    void deleteObject() override;
+    void revertObject() override;
+    void renameObject(juce::String) override;
 
   private:
 
-    FieldSet fields;
+    FieldGrid fields;
+    juce::TabbedComponent tabs;
     
 };

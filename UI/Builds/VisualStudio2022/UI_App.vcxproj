@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\Source\ui\Field.cpp"/>
     <ClCompile Include="..\..\Source\ui\Form.cpp"/>
     <ClCompile Include="..\..\Source\ui\GlobalPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\JuceUtil.cpp"/>
     <ClCompile Include="..\..\Source\ui\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\SetupPanel.cpp"/>
@@ -2453,6 +2454,7 @@
     <ClInclude Include="..\..\Source\ui\Field.h"/>
     <ClInclude Include="..\..\Source\ui\Form.h"/>
     <ClInclude Include="..\..\Source\ui\GlobalPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\JuceUtil.h"/>
     <ClInclude Include="..\..\Source\ui\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\SetupPanel.h"/>

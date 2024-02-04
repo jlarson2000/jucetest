@@ -26,6 +26,9 @@ class XmlRenderer {
     class MobiusConfig* parseMobiusConfig(const char* xml);
     char* render(class MobiusConfig* c);
 
+    class Preset* clone(class Preset* src);
+    class Setup* clone(class Setup* src);
+
   private:
 
     // common utilities

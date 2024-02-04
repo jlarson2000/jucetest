@@ -599,7 +599,10 @@ XmlDocument *XomParser::parse(const char *buffer, int length)
         mDocument = NULL;
 	}
 
-	retval = mDocument;
+    // TODO: It would be nicer for this to continue ownership of the Document
+    // since we almost always have to delete it outside after we're done
+
+    retval = mDocument;
 	mDocument = NULL;
 	return retval;
 }

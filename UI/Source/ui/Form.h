@@ -47,9 +47,13 @@ class Form : public juce::Component
     
     void render();
 
-  protected:
-
-    juce::OwnedArray<FieldSet> tabs;
+    void resized() override;
+    void paint (juce::Graphics& g) override;
+    
+  private:
+    
+    juce::OwnedArray<FieldGrid> grids;
+    juce::TabbedComponent tabs;
 
 };
 

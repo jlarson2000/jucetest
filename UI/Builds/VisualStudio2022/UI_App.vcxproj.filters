@@ -616,6 +616,9 @@
     <ClCompile Include="..\..\Source\ui\GlobalPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\JuceUtil.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\ParameterField.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
@@ -3175,6 +3178,9 @@
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\GlobalPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\JuceUtil.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\ParameterField.h">

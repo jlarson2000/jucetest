@@ -8,8 +8,11 @@
 #include "../util/qtrace.h"
 
 GlobalPanel::GlobalPanel(ConfigEditor* argEditor) :
-    ConfigPanel{argEditor, "Global Parameters", ConfigPanelButton::Save | ConfigPanelButton::Cancel}
+    ConfigPanel{argEditor, "Global Parameters", ConfigPanelButton::Save | ConfigPanelButton::Cancel, false}
 {
+    // debugging hack
+    setName("GlobalPanel");
+
     fields.add(new Field("first", "First", Field::Type::Integer));
     fields.add(new Field("second", "Second", Field::Type::String));
     fields.add(new Field("third", "Third", Field::Type::Boolean));
@@ -35,21 +38,26 @@ GlobalPanel::GlobalPanel(ConfigEditor* argEditor) :
     // const char* lvalues[] = {"one", "two", "three", nullptr};
     juce::StringArray lvalues = {"one", "two", "three"};
     list->setAllowedValues(lvalues);
-
     fields.add(list);
+
+    fields.render();
 
     // At this point, the content component has already been sized
     // during superclass initialization.  Adding a child does not
     // trigger resized so have to do it manually
     content.addAndMakeVisible(fields);
-    fields.setBounds(content.getBounds());
+
+    // at this point the component hierarhcy has been fully constructed
+    // but not sized, until we support bottom up sizing start with
+    // a fixed size, this will cascade resized() down the child hierarchy
+    setSize (500, 500);
 }
 
 GlobalPanel::~GlobalPanel()
 {
 }
 
-void GlobalPanel::show()
+void GlobalPanel::load()
 {
 }
 
@@ -57,15 +65,11 @@ void GlobalPanel::save()
 {
 }
 
-void GlobalPanel::revert()
-{
-}
-
 void GlobalPanel::cancel()
 {
 }
 
-bool GlobalPanel::isActive()
-{
-    return false;
-}
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
+
