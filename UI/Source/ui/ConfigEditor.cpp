@@ -90,7 +90,7 @@ void ConfigEditor::show(ConfigPanel* selected)
 
     // weird for Juce but since we defer rendering and don't do it the normal way
     // resize just before showing
-    //selected->resized();
+    selected->resized();
     selected->center();
 
     // tell it to load state if it hasn't already

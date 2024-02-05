@@ -232,7 +232,10 @@ void PresetPanel::render()
     // at this point the component hierarhcy has been fully constructed
     // but not sized, until we support bottom up sizing start with
     // a fixed size, this will cascade resized() down the child hierarchy
-    setSize (500, 500);
+
+    // until we get auto-sizing worked out, make this plenty wide
+    // MainComponent is currently 1000x1000
+    setSize (900, 600);
 }
 
 void PresetPanel::initForm()

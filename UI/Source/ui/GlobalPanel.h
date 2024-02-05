@@ -23,5 +23,6 @@ class GlobalPanel : public ConfigPanel
   private:
 
     FieldGrid fields;
+    juce::TabbedComponent tabs {juce::TabbedButtonBar::Orientation::TabsAtTop};
     
 };

@@ -12,10 +12,32 @@ Form::Form() :
     tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
 {
     setName("Form");
+
+    // adjust tab bar colors
+    juce::TabbedButtonBar& bar = tabs.getTabbedButtonBar();
+    bar.setColour(juce::TabbedButtonBar::ColourIds::tabTextColourId, juce::Colours::grey);
+    bar.setColour(juce::TabbedButtonBar::ColourIds::frontTextColourId, juce::Colours::white);
+            
+    // add space between the bar and the grid
+    // ugh, this leaves a border around it with the background color
+    // may be better to twiddle with the content component?
+    // doesn't really help because the first component is still adjacent to the
+    // indent color 
+    tabs.setIndent(4);
+    
 }
 
 Form::~Form()
 {
+}
+
+/**
+ * Convenience method for most configuration forms that use
+ * parameter fields
+ */
+void Form::add(const char* tab, Parameter* p, int column)
+{
+    add(new ParameterField(p), tab, column);
 }
 
 /**
@@ -79,7 +101,6 @@ void Form::render()
             // if for some reason you want something other than
             // the first tab selected you can call tis
             // tabs.setCurrentTabIndex(index, false);
-            tabs.setCurrentTabIndex(1, false);
             addChildComponent(tabs);
             tabs.setVisible(true);
         }
@@ -110,7 +131,7 @@ void Form::resized()
 
 void Form::paint(juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::red);
+    g.fillAll (juce::Colours::beige);
 }
 
 //////////////////////////////////////////////////////////////////////

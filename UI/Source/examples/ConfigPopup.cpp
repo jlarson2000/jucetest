@@ -1,4 +1,5 @@
 /**
+ * A very old experiment that should no longer be interesting
  * Base class for all configuration and information popup dialogs.
  */
 

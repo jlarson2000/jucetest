@@ -1,6 +1,17 @@
-/**
- * The main menu.
- */
+ /**
+  * A main menu.
+  *
+  * This was derived from the Juce menu example and/or some simplified
+  * version I found on the webz, I think "MenusDemoFlash" which tried to extract the
+  * rather complicated Juce demo into a more standalone thing that doesn't deal
+  * with side panels and burger menus like the Juce demo.
+  *
+  * It retains the complexity of ApplicationCommandManager which I don't want
+  * just yet so keep this around for reference.
+  *
+  * This is not used by Mobius
+  * 
+  */
 
 #include <JuceHeader.h>
 

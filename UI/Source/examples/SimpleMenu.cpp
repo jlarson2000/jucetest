@@ -213,7 +213,9 @@ void SimpleMenu::menuItemSelected (int itemId, int menuId)
             }
             break;
                 
-            case menuMIDIControl: break;
+            case menuMIDIControl: {
+                mainComponent->showTest();
+            }
             case menuKeyboardControl: break;
             case menuPluginParamters: break;
             case menuButtons: break;

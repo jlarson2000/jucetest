@@ -1,5 +1,5 @@
 /**
- * The main menu
+ * A main menu example
  */
 
 #pragma once

@@ -45,6 +45,9 @@ class Form : public juce::Component
         add(f, nullptr, column);
     }
     
+    // convience for most config panels
+    void add(const char* tab, class Parameter* p, int column = 0);
+
     void render();
 
     void resized() override;
@@ -52,9 +55,22 @@ class Form : public juce::Component
     
   private:
     
-    juce::OwnedArray<FieldGrid> grids;
+    juce::OwnedArray<FieldGrid> panels;
     juce::TabbedComponent tabs;
 
 };
 
-    
+class FormPanel : public juce::Component
+{
+  public:
+
+    FormPanel();
+    ~FormPanel() override;
+
+    void resized() override;
+
+  private:
+
+    juce::String name;
+};
+     

@@ -18,6 +18,8 @@
         <FILE id="E3bsdD" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/GlobalPanel.h"/>
         <FILE id="BDnCv2" name="JuceUtil.cpp" compile="1" resource="0" file="Source/ui/JuceUtil.cpp"/>
         <FILE id="XzPX2v" name="JuceUtil.h" compile="0" resource="0" file="Source/ui/JuceUtil.h"/>
+        <FILE id="pup9jz" name="MainMenu.cpp" compile="1" resource="0" file="Source/ui/MainMenu.cpp"/>
+        <FILE id="Fo9xTD" name="MainMenu.h" compile="0" resource="0" file="Source/ui/MainMenu.h"/>
         <FILE id="JVNYjO" name="ParameterField.cpp" compile="1" resource="0"
               file="Source/ui/ParameterField.cpp"/>
         <FILE id="UhzySN" name="ParameterField.h" compile="0" resource="0"
@@ -29,6 +31,8 @@
         <FILE id="zIuf5I" name="SimpleListBox.cpp" compile="1" resource="0"
               file="Source/ui/SimpleListBox.cpp"/>
         <FILE id="QvD4Xk" name="SimpleListBox.h" compile="0" resource="0" file="Source/ui/SimpleListBox.h"/>
+        <FILE id="xj7zdN" name="TestPanel.cpp" compile="1" resource="0" file="Source/ui/TestPanel.cpp"/>
+        <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
         <FILE id="MoJ397" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/Mobius.cpp"/>
@@ -115,12 +119,6 @@
       <FILE id="x4dOIH" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
     </GROUP>
-    <FILE id="EBqIKF" name="MainMenu.cpp" compile="1" resource="0" file="Source/MainMenu.cpp"/>
-    <FILE id="RFeMyn" name="MainMenu.h" compile="0" resource="0" file="Source/MainMenu.h"/>
-    <FILE id="Yr9LkE" name="PopupTest.cpp" compile="1" resource="0" file="Source/PopupTest.cpp"/>
-    <FILE id="ht2HRw" name="PopupTest.h" compile="0" resource="0" file="Source/PopupTest.h"/>
-    <FILE id="Du4359" name="SimpleMenu.cpp" compile="1" resource="0" file="Source/SimpleMenu.cpp"/>
-    <FILE id="Se5AW4" name="SimpleMenu.h" compile="0" resource="0" file="Source/SimpleMenu.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

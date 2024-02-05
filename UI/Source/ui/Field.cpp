@@ -286,8 +286,6 @@ void FieldGrid::resized()
     // single column for now
     juce::Rectangle<int> area = getLocalBounds();
 
-    // todo: need to support columns, assume only one for now
-    
     for (int col = 0 ; col < columns.size() ; col++) {
         juce::OwnedArray<Field>* fieldCol = columns[col];
         if (fieldCol != nullptr) {
@@ -307,7 +305,7 @@ void FieldGrid::paint(juce::Graphics& g)
 {
     // give it an obvious background
     // need to work out  borders
-        g.fillAll (juce::Colours::green);
+        g.fillAll (juce::Colours::beige);
 }
 
 /****************************************************************************/

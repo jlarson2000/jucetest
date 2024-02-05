@@ -23,7 +23,6 @@ ConfigPanel::ConfigPanel(ConfigEditor* argEditor, const char* titleText, int but
     }
     
     // size has to be deferred to the subclass after it has finished rendering
-    //setSize (500, 500);
 }
 
 ConfigPanel::~ConfigPanel()
@@ -49,17 +48,40 @@ void ConfigPanel::footerButtonClicked(ConfigPanelButton button)
 
     // ConfigEditor will decide whether to save the
     // MobiusConfig if it has nothing else active
-    editor->close(this, (button == ConfigPanelButton::Cancel));
+    if (editor != nullptr)
+      editor->close(this, (button == ConfigPanelButton::Cancel));
 }
 
+/**
+ * Calculate the preferred width for the configued components.
+ * MainComponent will use this to set our size, then we adjust downward.
+ */
+#if 0
+int ConfigPanel::getPreferredHeight()
+{
+    return 0;
+}
+#endif
+
+/**
+ * TODO: MainComponent will give us it's maximum size.
+ * We wander through the configured child components asking for their
+ * preferred sizes and shrink down if possible.
+ */
 void ConfigPanel::resized()
 {
     auto area = getLocalBounds();
     
     header.setBounds(area.removeFromTop(header.getPreferredHeight()));
+
+    // leave a little space under the header
+    area.removeFromTop(4);
+    
     if (hasObjectSelector) {
         objectSelector.setBounds(area.removeFromTop(objectSelector.getPreferredHeight()));
+        area.removeFromTop(4);
     }
+
     footer.setBounds(area.removeFromBottom(footer.getPreferredHeight()));
 
     content.setBounds(area);
@@ -89,7 +111,7 @@ void ConfigPanel::center()
 void ConfigPanel::paint (juce::Graphics& g)
 {
     // temporary, give it an obvious background while we play with positioning
-    g.fillAll (juce::Colours::yellow);
+    g.fillAll (juce::Colours::beige);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -102,9 +124,9 @@ ConfigPanelHeader::ConfigPanelHeader(const char* titleText)
 {
     setName("ConfigPanelHeader");
     addAndMakeVisible (titleLabel);
-    titleLabel.setFont (juce::Font (12.0f, juce::Font::bold));
+    titleLabel.setFont (juce::Font (16.0f, juce::Font::bold));
     titleLabel.setText (titleText, juce::dontSendNotification);
-    titleLabel.setColour (juce::Label::textColourId, juce::Colours::black);
+    titleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
     titleLabel.setJustificationType (juce::Justification::centred);
 }
 
@@ -209,7 +231,7 @@ void ConfigPanelFooter::resized()
 void ConfigPanelFooter::paint(juce::Graphics& g)
 {
     // buttons will draw themselves in whatever the default color is
-    g.fillAll (juce::Colours::white);
+    g.fillAll (juce::Colours::beige);
 }
 
 /**
@@ -253,7 +275,8 @@ void ContentPanel::resized()
 {
     // assume subclass added a single child
     Component* child = getChildComponent(0);
-    child->setSize(getWidth(), getHeight());
+    if (child != nullptr)
+      child->setSize(getWidth(), getHeight());
 }
 
 void ContentPanel::paint(juce::Graphics& g)

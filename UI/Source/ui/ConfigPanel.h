@@ -162,7 +162,7 @@ class ConfigPanel : public juce::Component
 
     void center();
 
-// Component
+    // Component
     void resized() override;
     void paint (juce::Graphics& g) override;
 
@@ -216,7 +216,6 @@ class ConfigPanel : public juce::Component
     bool changed = false;
     
   private:
-
 
     bool hasObjectSelector = false;;
     ConfigPanelHeader header;
