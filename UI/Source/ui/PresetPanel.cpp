@@ -171,10 +171,13 @@ void PresetPanel::loadPreset(int index)
 {
     Preset* p = presets[index];
     if (p != nullptr) {
-        Form::Iterator it(&form);
-        while (it.hasNext()) {
-            ParameterField* f = (ParameterField*)it.next();
-            f->loadValue(p);
+        juce::Array<Field*> fields;
+        form.gatherFields(fields);
+        for (int i = 0 ; i < fields.size() ; i++) {
+          Field* f = fields[i];
+          ParameterField* pf = dynamic_cast<ParameterField*>(f);
+          if (pf != nullptr)
+            pf->loadValue(p);
         }
     }
 
@@ -194,10 +197,13 @@ void PresetPanel::savePreset(int index)
 {
     Preset* p = presets[index];
     if (p != nullptr) {
-        Form::Iterator it(&form);
-        while (it.hasNext()) {
-            ParameterField* f = (ParameterField*)it.next();
-            f->saveValue(p);
+        juce::Array<Field*> fields;
+        form.gatherFields(fields);
+        for (int i = 0 ; i < fields.size() ; i++) {
+          Field* f = fields[i];
+          ParameterField* pf = dynamic_cast<ParameterField*>(f);
+          if (pf != nullptr)
+            pf->saveValue(p);
         }
     }
 }
@@ -240,78 +246,72 @@ void PresetPanel::render()
 
 void PresetPanel::initForm()
 {
-    add("General", LoopCountParameter);
-    add("General", SubCycleParameter);
-    add("General", MaxUndoParameter);
-    add("General", MaxRedoParameter);
-    add("General", NoFeedbackUndoParameter);
-    add("General", AltFeedbackEnableParameter);
+    form.add("General", LoopCountParameter);
+    form.add("General", SubCycleParameter);
+    form.add("General", MaxUndoParameter);
+    form.add("General", MaxRedoParameter);
+    form.add("General", NoFeedbackUndoParameter);
+    form.add("General", AltFeedbackEnableParameter);
 
-    add("Quantize", QuantizeParameter);
-    add("Quantize", SwitchQuantizeParameter);
-    add("Quantize", BounceQuantizeParameter);
-    add("Quantize", OverdubQuantizedParameter);
+    form.add("Quantize", QuantizeParameter);
+    form.add("Quantize", SwitchQuantizeParameter);
+    form.add("Quantize", BounceQuantizeParameter);
+    form.add("Quantize", OverdubQuantizedParameter);
 
 #if 0
     // Record
 
-    add("Record", RecordThresholdParameter);
-    add("Record", AutoRecordBarsParameter);
-    add("Record", AutoRecordTempoParameter);
-    add("Record", RecordSpeedChangesParameter);
-    add("Record", RecordResetsFeedbackParameter);
+    form.add("Record", RecordThresholdParameter);
+    form.add("Record", AutoRecordBarsParameter);
+    form.add("Record", AutoRecordTempoParameter);
+    form.add("Record", RecordSpeedChangesParameter);
+    form.add("Record", RecordResetsFeedbackParameter);
 
     // Switch
-    add("Switch", EmptyLoopAction);
-    add("Switch", EmptyTrackActionParameter);
-    add("Switch", TrackLeaveActionParameter);
-    add("Switch", TimeCopyModeParameter);
-    add("Switch", SoundCopyModeParameter);
-    add("Switch", SwitchLocationParameter);
-    add("Switch", SwitchDurationParameter);
-    add("Switch", ReturnLocationParameter);
-    add("Switch", SwitchVelocitySensitiveParameter);
+    form.add("Switch", EmptyLoopAction);
+    form.add("Switch", EmptyTrackActionParameter);
+    form.add("Switch", TrackLeaveActionParameter);
+    form.add("Switch", TimeCopyModeParameter);
+    form.add("Switch", SoundCopyModeParameter);
+    form.add("Switch", SwitchLocationParameter);
+    form.add("Switch", SwitchDurationParameter);
+    form.add("Switch", ReturnLocationParameter);
+    form.add("Switch", SwitchVelocitySensitiveParameter);
     // column 2
-    add("Switch", RecordTransferParameter, 1);
-    add("Switch", OverdubTransferParameter, 1);
-    add("Switch", ReverseTransferParameter, 1);
-    add("Switch", SpeedTransferParameter, 1);
-    add("Switch", PitchTransferParameter, 1);
+    form.add("Switch", RecordTransferParameter, 1);
+    form.add("Switch", OverdubTransferParameter, 1);
+    form.add("Switch", ReverseTransferParameter, 1);
+    form.add("Switch", SpeedTransferParameter, 1);
+    form.add("Switch", PitchTransferParameter, 1);
         
     // Functions
-    add("Functions", MultiplyModeParameter);
-    add("Functions", ShuffleModeParameter);
-    add("Functions", MuteModeParameter);
-    add("Functions", MuteCancelParameter);
-    add("Functions", SlipModeParameter);
-    add("Functions", SlipTimeParameter);
-    add("Functions", WindowSlideUnitParameter);
-    add("Functions", WindowSlideAmountParameter);
-    add("Functions", WindowEdgeAmountParameter);
+    form.add("Functions", MultiplyModeParameter);
+    form.add("Functions", ShuffleModeParameter);
+    form.add("Functions", MuteModeParameter);
+    form.add("Functions", MuteCancelParameter);
+    form.add("Functions", SlipModeParameter);
+    form.add("Functions", SlipTimeParameter);
+    form.add("Functions", WindowSlideUnitParameter);
+    form.add("Functions", WindowSlideAmountParameter);
+    form.add("Functions", WindowEdgeAmountParameter);
     // column 2
-    add("Functions", OverdubWhileRoundingParameter, 1);
+    form.add("Functions", OverdubWhileRoundingParameter, 1);
         
     // Effects
-    add("Effects", SpeedSequenceParameter);
-    add("Effects", PitchSequenceParameter);
-    add("Effects", SpeedShiftRestartParameter);
-    add("Effects", PitchShiftRestartParameter);
-    add("Effects", SpeedStepRangeParameter);
-    add("Effects", SpeedBendRangeParameter);
-    add("Effects", PitchStepRangeParameter);
-    add("Effects", PitchBendRangeParameter);
-    add("Effects", TimeStretchRangeParameter);
+    form.add("Effects", SpeedSequenceParameter);
+    form.add("Effects", PitchSequenceParameter);
+    form.add("Effects", SpeedShiftRestartParameter);
+    form.add("Effects", PitchShiftRestartParameter);
+    form.add("Effects", SpeedStepRangeParameter);
+    form.add("Effects", SpeedBendRangeParameter);
+    form.add("Effects", PitchStepRangeParameter);
+    form.add("Effects", PitchBendRangeParameter);
+    form.add("Effects", TimeStretchRangeParameter);
 
     // Sustain
-    add("Sustain", SustainFunctionsParameter);
+    form.add("Sustain", SustainFunctionsParameter);
 #endif
 }
-
-void PresetPanel::add(const char* tab, Parameter* p, int column)
-{
-    form.add(new ParameterField(p), tab, column);
-}
-
             
 /****************************************************************************/
 /****************************************************************************/

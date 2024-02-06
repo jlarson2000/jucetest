@@ -1,42 +1,25 @@
 /**
  * Component model for Mobius configuration forms.
  * 
+ * A form consists of a list of FormPanels.  If there is more than
+ * one FormPanel a tabbed component is added to select the visible panel.
  */
 
 #pragma once
 
 #include <JuceHeader.h>
+
 #include "Field.h"
+#include "FormPanel.h"
 
 class Form : public juce::Component
 {
   public:
 
-    // surely there is some library/Juce support for an iterator interface?
-    class Iterator
-    {
-      public:
-    
-        Iterator(Form* form);
-        ~Iterator();
-
-        void reset();
-        bool hasNext();
-        Field* next();
-
-      private:
-
-        void advance();
-        
-        Form* form;
-        int tabIndex = 0;
-        int colIndex = 0;
-        int fieldIndex = 0;
-        Field* nextField = nullptr;
-    };
-
     Form();
     ~Form();
+
+    void add(FormPanel* panel);
 
     // will want more options here
     void add(Field* f, const char* tab = nullptr, int column = 0);
@@ -49,28 +32,16 @@ class Form : public juce::Component
     void add(const char* tab, class Parameter* p, int column = 0);
 
     void render();
+    void autoSize();
+    void gatherFields(juce::Array<Field*>& fields);
 
     void resized() override;
     void paint (juce::Graphics& g) override;
     
   private:
     
-    juce::OwnedArray<FieldGrid> panels;
+    juce::OwnedArray<FormPanel> panels;
     juce::TabbedComponent tabs;
 
 };
 
-class FormPanel : public juce::Component
-{
-  public:
-
-    FormPanel();
-    ~FormPanel() override;
-
-    void resized() override;
-
-  private:
-
-    juce::String name;
-};
-     

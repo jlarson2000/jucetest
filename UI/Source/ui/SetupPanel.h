@@ -31,7 +31,16 @@ class SetupPanel : public ConfigPanel
 
   private:
 
-    FieldGrid fields;
-    juce::TabbedComponent tabs;
+    void render();
+    void initForm();
     
+    void loadSetup(int index);
+    void saveSetup(int index);
+    Setup* getSelectedSetup();
+    
+    bool active = false;
+    juce::OwnedArray<Setup> setups;
+    int selectedSetup = 0;
+
+    Form form;
 };

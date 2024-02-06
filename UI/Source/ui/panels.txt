@@ -1,0 +1,30 @@
+
+would like panels to do two things
+
+  - automatically size themselves based on content
+  - track Components that need to be freed
+  - Juce does not automatically delete child components since
+    they are often member objects
+  - would be nice if it could automatically make things visible
+
+
+Since Panel is directly a Juce component addChildComponent and
+addAndMakeVisible can still be called for untracked objects
+
+Give it addOwnedChild
+
+  play with giving children a visible flag before we add them so don't
+  have to call addAndMakeVisible?
+
+Sizing options
+  deferred
+     add various children
+     must call panel->autoSize
+  automatic
+    after ever child is added call autoSize
+    requires overloading the base Component child methods
+
+autoSize might be nice to call once at the top level and have it recurse?
+  - requires dynamic cast and an AutoSizeable interface
+
+

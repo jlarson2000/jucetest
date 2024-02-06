@@ -19,15 +19,25 @@ class Panel : public juce::Component
     Panel(Orientation);
     ~Panel() override;
 
-    setOrientation(Orientation);
+    void setOrientation(Orientation);
+    void addOwned(juce::Component* c);
     
-    void resized();
+    int getPreferredWidth();
+    int getPreferredHeight();
+    void autoSize();
+
+    // Component overloads
+    void resized() override;
 
   private:
 
-    Orientation orientation = Vertical;
+    void init();
     void layout();
+
+    Orientation orientation = Vertical;
     
+    juce::OwnedArray<Component> ownedChildren;
+
 };
 
 

@@ -5,6 +5,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "JLabel.h"
+#include "Panel.h"
 
 class TestContentPanel : public juce::Component
 {
@@ -43,6 +45,9 @@ class TestPanel : public juce::Component
 
     juce::TabbedComponent tabs {juce::TabbedButtonBar::Orientation::TabsAtTop};
 
+    JLabel label;
+    Panel panel;
+    
 };
 
 class TestPanelSub : public TestPanel

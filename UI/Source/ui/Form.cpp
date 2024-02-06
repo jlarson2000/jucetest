@@ -1,12 +1,24 @@
+/**
+ * Component model for Mobius configuration forms.
+ * 
+ * A form consists of a list of FormPanels.  If there is more than
+ * one panel a tabbed component is added to select the visible panel.
+ *
+ * Panels almost always contain a FieldGrid though they can have other things.
+ *
+ * In theory panels can contain more than one grid that we might like to
+ * put a labeled group border around.  If we end up there will need
+ * more complicate Field adder methods.
+ */
 
 #include <string>
 #include <sstream>
 
 #include <JuceHeader.h>
 
+#include "ParameterField.h"
+#include "FormPanel.h"
 #include "Form.h"
-#include "../util/qtrace.h"
-
 
 Form::Form() :
     tabs {juce::TabbedButtonBar::Orientation::TabsAtTop}
@@ -24,11 +36,61 @@ Form::Form() :
     // doesn't really help because the first component is still adjacent to the
     // indent color 
     tabs.setIndent(4);
-    
 }
 
 Form::~Form()
 {
+}
+
+void Form::add(FormPanel* panel)
+{
+    panels.add(panel);
+}
+
+/**
+ * Called during form rendering to add a field to a panel/grid
+ * at the specified column.
+ *
+ * Making assumptions right now that each panel can contain only
+ * one grid.
+ *
+ */
+void Form::add(Field* f, const char* tab, int column)
+{
+    FormPanel* panel = nullptr;
+
+    if (tab == nullptr) {
+        // simple form, no tabs
+        if (panels.size() > 0)
+          panel = panels[0];
+    }
+    else {
+        // find panel by ame
+        for (int i = 0 ; i < panels.size() ; i++) {
+            FormPanel* p = panels[i];
+            if (p->getTabName() == tab) {
+                panel = p;
+                break;
+            }
+        }
+    }
+
+    if (panel == nullptr) {
+        // give it something to catch errors
+        if (tab == nullptr) tab = "???";
+        panel = new FormPanel(juce::String(tab));
+        panels.add(panel);
+    }
+    
+    // once we allow panels to have more than
+    // one grid will need to name them
+    FieldGrid* grid = panel->getGrid(0);
+    if (grid == nullptr) {
+        grid = new FieldGrid();
+        panel->addGrid(grid);
+    }
+
+    grid->add(f, column);
 }
 
 /**
@@ -41,39 +103,15 @@ void Form::add(const char* tab, Parameter* p, int column)
 }
 
 /**
- * Called during form rendering to add a field to a grid/tab
- * at the specified column.
+ * Traverse the hierarchy to find all contained Fields.
  */
-void Form::add(Field* f, const char* tab, int column)
+void Form::gatherFields(juce::Array<Field*>& fields)
 {
-    FieldGrid* grid = nullptr;
-    
-    if (tab != nullptr) {
-        for (int i = 0 ; i < grids.size() ; i++) {
-            FieldGrid* g = grids[i];
-            if (g->getName() == tab) {
-                grid = g;
-                break;
-            }
-        }
+    for (int i = 0 ; i < panels.size() ; i++){
+        FormPanel* p = panels[i];
+        if (p != nullptr)
+          p->gatherFields(fields);
     }
-    else {
-        // just dump them into the first tab
-        if (grids.size() > 0)
-          grid = grids[0];
-    }
-
-    // boostrap one if the tab is empty
-    if (grid == nullptr) {
-        grid = new FieldGrid();
-        if (tab != nullptr)
-          grid->setName(tab);
-        else
-          grid->setName("???");
-        grids.add(grid);
-    }
-
-    grid->add(f, column);
 }
 
 /**
@@ -84,48 +122,72 @@ void Form::add(Field* f, const char* tab, int column)
  */
 void Form::render()
 {
-    for (int i = 0 ; i < grids.size() ; i++) {
-        FieldGrid* grid = grids[i];
-        grid->render();
+    for (int i = 0 ; i < panels.size() ; i++) {
+        FormPanel* panel = panels[i];
+        panel->render();
     }
 
-    if (grids.size() > 0) {
-        // only add a tab bar if we have more than one
-        if (grids.size() > 1) {
-            for (int i = 0 ; i < grids.size() ; i++) {
-                FieldGrid* grid = grids[i];
-                // last flag is deleteComponentWhenNotNeeded
-                // we manage deletion of the grids
-                tabs.addTab(juce::String(grid->getName()), juce::Colours::black, grid, false);
-            }
-            // if for some reason you want something other than
-            // the first tab selected you can call tis
-            // tabs.setCurrentTabIndex(index, false);
-            addChildComponent(tabs);
-            tabs.setVisible(true);
+    // only add a tab bar if we have more than one
+    if (panels.size() > 1) {
+        for (int i = 0 ; i < panels.size() ; i++) {
+            FormPanel* panel = panels[i];
+            // last flag is deleteComponentWhenNotNeeded
+            // we manage deletion of the grids
+            tabs.addTab(juce::String(panel->getTabName()), juce::Colours::black, panel, false);
         }
-        else {
-            FieldGrid* first = grids[0];
-            addChildComponent(first);
-            first->setVisible(true);
-        }
+        // if for some reason you want something other than
+        // the first tab selected you can call tis
+        // tabs.setCurrentTabIndex(index, false);
+        addChildComponent(tabs);
+        tabs.setVisible(true);
     }
+    else if (panels.size() > 0) {
+        FormPanel* first = panels[0];
+        addChildComponent(first);
+        // necessary?
+        first->setVisible(true);
+    }
+
+    autoSize();
 }
 
+void Form::autoSize()
+{
+    int maxWidth = 0;
+    int maxHeight = 0;
+    
+    for (int i = 0 ; i < panels.size() ; i++) {
+        FormPanel* panel = panels[i];
+        panel->autoSize();
+        if (panel->getWidth() > maxWidth)
+          maxWidth = panel->getWidth();
+        if (panel->getHeight() > maxHeight)
+          maxHeight = panel->getHeight();
+    }
+
+    // this isn't exactly right because it doesn't account for the
+    // tab bar, hmm, should be looking at the font
+    if (panels.size() > 1) {
+        maxHeight += 10;
+    }
+
+    setSize(maxWidth, maxHeight);
+}
+        
 /**
  * Give all the tab grids the full size.
  * Need to factor out the tab buttons.
  */
 void Form::resized()
 {
-    if (grids.size() > 1) {
+    if (panels.size() > 1) {
         // we used a tab component
         tabs.setSize(getWidth(), getHeight());
     }
-    else if (grids.size() > 0) {
-        // we have a directd grid child
-        FieldGrid* first = grids[0];
-        first->setSize(getWidth(), getHeight());
+    else {
+        // is this necessary, wait shouldn't we be doing this for all of them?
+        FormPanel* first = panels[0];
+        first->setTopLeftPosition(0, 0);
     }
 }
 
@@ -134,65 +196,6 @@ void Form::paint(juce::Graphics& g)
     g.fillAll (juce::Colours::beige);
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// FormIterator
-//
-//////////////////////////////////////////////////////////////////////
-
-Form::Iterator::Iterator(Form* argForm)
-{
-    form = argForm;
-    advance();
-}
-
-Form::Iterator::~Iterator()
-{
-}
-
-void Form::Iterator::reset()
-{
-    tabIndex = 0;
-    colIndex = 0;
-    fieldIndex = 0;
-    nextField = nullptr;
-    advance();
-}
-
-bool Form::Iterator::hasNext()
-{
-    return (nextField != nullptr);
-}
-
-Field* Form::Iterator::next()
-{
-    Field* retval = nextField;
-    advance();
-    return retval;
-}
-
-void Form::Iterator::advance()
-{
-    nextField = nullptr;
-    
-    while (nextField == nullptr && tabIndex < form->grids.size()) {
-        FieldGrid* grid = form->grids[tabIndex];
-        while (nextField == nullptr && colIndex < grid->getColumns()) {
-            juce::OwnedArray<Field>* fields = grid->getColumn(colIndex);
-            // should not have nulls in here but this is harder to enforce
-            if (fields != nullptr && fieldIndex < fields->size()) {
-                nextField = (*fields)[fieldIndex];
-                fieldIndex++;
-            }
-            else {
-                colIndex++;
-                fieldIndex = 0;
-            }
-        }
-        if (nextField == nullptr) {
-            tabIndex++;
-            colIndex = 0;
-            fieldIndex = 0;
-        }
-    }
-}    
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

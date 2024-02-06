@@ -33,7 +33,6 @@ class PresetPanel : public ConfigPanel
 
     void render();
     void initForm();
-    void add(const char* tab, class Parameter* p, int column = 0);
     
     void loadPreset(int index);
     void savePreset(int index);

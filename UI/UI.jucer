@@ -12,14 +12,22 @@
         <FILE id="MzSuf9" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/ConfigPanel.h"/>
         <FILE id="M2zYTT" name="Field.cpp" compile="1" resource="0" file="Source/ui/Field.cpp"/>
         <FILE id="NFpNmJ" name="Field.h" compile="0" resource="0" file="Source/ui/Field.h"/>
+        <FILE id="KGg0Ge" name="FieldGrid.cpp" compile="1" resource="0" file="Source/ui/FieldGrid.cpp"/>
+        <FILE id="KAPJ5s" name="FieldGrid.h" compile="0" resource="0" file="Source/ui/FieldGrid.h"/>
         <FILE id="cUhuAx" name="Form.cpp" compile="1" resource="0" file="Source/ui/Form.cpp"/>
         <FILE id="BMLGp0" name="Form.h" compile="0" resource="0" file="Source/ui/Form.h"/>
+        <FILE id="uxiG8S" name="FormPanel.cpp" compile="1" resource="0" file="Source/ui/FormPanel.cpp"/>
+        <FILE id="EBFeKw" name="FormPanel.h" compile="0" resource="0" file="Source/ui/FormPanel.h"/>
         <FILE id="XWe7sc" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/GlobalPanel.cpp"/>
         <FILE id="E3bsdD" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/GlobalPanel.h"/>
+        <FILE id="aIiC6T" name="JLabel.cpp" compile="1" resource="0" file="Source/ui/JLabel.cpp"/>
+        <FILE id="zt8aoj" name="JLabel.h" compile="0" resource="0" file="Source/ui/JLabel.h"/>
         <FILE id="BDnCv2" name="JuceUtil.cpp" compile="1" resource="0" file="Source/ui/JuceUtil.cpp"/>
         <FILE id="XzPX2v" name="JuceUtil.h" compile="0" resource="0" file="Source/ui/JuceUtil.h"/>
         <FILE id="pup9jz" name="MainMenu.cpp" compile="1" resource="0" file="Source/ui/MainMenu.cpp"/>
         <FILE id="Fo9xTD" name="MainMenu.h" compile="0" resource="0" file="Source/ui/MainMenu.h"/>
+        <FILE id="MAoEQ2" name="Panel.cpp" compile="1" resource="0" file="Source/ui/Panel.cpp"/>
+        <FILE id="iytffB" name="Panel.h" compile="0" resource="0" file="Source/ui/Panel.h"/>
         <FILE id="JVNYjO" name="ParameterField.cpp" compile="1" resource="0"
               file="Source/ui/ParameterField.cpp"/>
         <FILE id="UhzySN" name="ParameterField.h" compile="0" resource="0"

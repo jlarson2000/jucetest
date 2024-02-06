@@ -6,6 +6,11 @@
 
 #include "TestPanel.h"
 #include "JuceUtil.h"
+#include "Panel.h"
+#include "Field.h"
+#include "FieldGrid.h"
+#include "Form.h"
+#include "../model/Parameter.h"
 
 TestPanel::TestPanel()
 {
@@ -15,11 +20,71 @@ TestPanel::TestPanel()
     tabs.addTab("Two", juce::Colours::black, nullptr, false);
     tabs.addTab("Three", juce::Colours::black, nullptr, false);
     //addAndMakeVisible(tabs);
-
-    addAndMakeVisible(content);
+    // addAndMakeVisible(content);
     //content.addAndMakeVisible(tabs);
     
-//    setSize (500, 500);
+    label.setText(juce::String("Hello World!"));
+    label.setBorder(juce::Colours::red);
+    //addAndMakeVisible(label);
+
+    Panel* panel1 = new Panel(Panel::Orientation::Horizontal);
+    panel1->addAndMakeVisible(label);
+    JLabel* l = new JLabel(juce::String("xxxxxxxxxxxxxxxxxxxx!"));
+    l->setBorder(juce::Colours::green);
+    panel1->addOwned(l);
+    panel1->autoSize();
+             
+    panel.addOwned(panel1);
+
+    Field* f = new Field("foo", "Foo", Field::Type::String);
+    f->render();
+    panel.addOwned(f);
+    
+    f = new Field("bar", "Bar", Field::Type::Integer);
+    f->render();
+    panel.addOwned(f);
+
+    f = new Field("baz", "Baz", Field::Type::Integer);
+    f->setMin(0);
+    f->setMax(127);
+    f->render();
+    panel.addOwned(f);
+
+    f = new Field("blort", "Blort", Field::Type::Integer);
+    f->setMin(0);
+    f->setMax(127);
+    f->setRenderType(Field::RenderType::Rotary);
+    f->render();
+    panel.addOwned(f);
+
+    f = new Field("sex", "Sex", Field::Type::Boolean);
+    f->render();
+    panel.addOwned(f);
+    
+    FieldGrid* grid = new FieldGrid();
+    for (int col = 0 ; col < 2 ; col++) {
+        for (int row = 0 ; row < 4 ; row++) {
+            char buf[80];
+            sprintf(buf, "%d/%d", col, row);
+            f = new Field(buf, buf, Field::Type::Boolean);
+            grid->add(f, col);
+        }
+    }
+    grid->render();
+    panel.addOwned(grid);
+    
+    Form* form = new Form();
+    form->add("General", LoopCountParameter);
+    form->add("General", SubCycleParameter);
+    form->add("Record", RecordThresholdParameter);
+    form->add("Record", AutoRecordBarsParameter);
+    form->render();
+    panel.addOwned(form);
+
+    panel.autoSize();
+    addAndMakeVisible(panel);
+    
+    setSize (500, 500);
 }
 
 TestPanel::~TestPanel()
@@ -30,12 +95,16 @@ void TestPanel::resized()
 {
     tabs.setSize(getWidth(), getHeight());
     content.setSize(getWidth(), getHeight());
+
+    // label.setTopLeftPosition(10, 10);
+
+    panel.setTopLeftPosition(10, 10);
 }
 
 void TestPanel::paint (juce::Graphics& g)
 {
     // temporary, give it an obvious background while we play with positioning
-    g.fillAll (juce::Colours::yellow);
+    g.fillAll (juce::Colours::grey);
 }
 
 /**

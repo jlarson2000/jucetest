@@ -40,12 +40,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-/**
- * A field defines a set of editing components for a single named paramter value.
- * Fields have a data type of boolean, integer, or string.
- * Integer fields may have allowed value ranges.
- * String fields may have a set of allowed values.
- */
 class Field : public juce::Component
 {
   public:
@@ -54,12 +48,10 @@ class Field : public juce::Component
 
     enum class RenderType {Text, Combo, Check, Slider, Rotary, List};
     
-    // assume for now that these can be literal string constants
-    // and we don't have to worry about lifespan
-    Field(const char* name, const char* displayName, Type type);
+    Field(juce::String name, juce::String displayName, Type type);
     ~Field();
 
-    const char* getName() {
+    const juce::String& getName() {
         return name;
     }
 
@@ -75,12 +67,8 @@ class Field : public juce::Component
         displayName = s;
     }
 
-    const char* getDisplayName() {
-        return displayName;
-    }
-
-    const char* getDisplayableName() {
-        return (displayName != nullptr) ? displayName : name;
+    const juce::String& getDisplayableName() {
+        return (displayName.length() > 0) ? displayName : name;
     }
 
     /**
@@ -120,12 +108,8 @@ class Field : public juce::Component
     /**
      * For string fields, this is the number of characcters to display.
      */
-    void setSize(int i) {
-        size = i;
-    }
-
-    int getSize() {
-        return size;
+    void setWidthUnits(int i) {
+        widthUnits = i;
     }
 
     /**
@@ -149,21 +133,8 @@ class Field : public juce::Component
     void setAllowedValueLabels(const char** a);
     void setAllowedValueLabels(juce::StringArray& src);
 
-    int getPreferredHeight() {
-        return preferredHeight;
-    }
-
-    void setPreferredHeight(int h) {
-        preferredHeight = h;
-    }
-
-    int getPreferredWidth() {
-        return preferredWidth;
-    }
-
-    void setPreferredWidth(int w) {
-        preferredWidth = w;
-    }
+    int getPreferredHeight();
+    int getPreferredWidth();
     
     void setValue(juce::var value);
     
@@ -203,7 +174,8 @@ class Field : public juce::Component
 
     // build out the Juce components to display this field
     void render();
-
+    void autoSize();
+    
     //
     // Juce interface
     //
@@ -220,16 +192,14 @@ class Field : public juce::Component
     void renderString();
     void renderBool();
     
-    const char* name = nullptr;
-    const char* displayName = nullptr;
+    juce::String name;
+    juce::String displayName;
     Type type = Type::Integer;
     RenderType renderType = RenderType::Text;
     bool multi = false;
     int min = 0;
     int max = 0;
-    int size = 0;
-    int preferredWidth = 0;
-    int preferredHeight = 0;
+    int widthUnits = 0;
 
     juce::StringArray allowedValues = {};
     juce::StringArray allowedValueLabels = {};
@@ -254,50 +224,3 @@ class Field : public juce::Component
     juce::Component* renderer = nullptr;
 };
 
-/**
- * A field grid is a list of Fields that can be arranged in columns
- * TODO: should the column split be a property of the field or the grid?
- * The grid owns the Fields which are deleted when the grid is deleted.
- */
-class FieldGrid : public juce::Component {
-
-  public:
-    FieldGrid();
-    ~FieldGrid();
-
-    void setName(juce::String argName);
-
-    void setName(const char* argName) {
-        setName(juce::String(argName));
-    }
-    
-    juce::String getName();
-    
-    void add(Field* field, int column = 0);
-
-    // iterator interface
-    int getColumns() {
-        return columns.size();
-    }
-
-    juce::OwnedArray<Field>* getColumn(int index) {
-        juce::OwnedArray<Field>* column = nullptr;
-        if (index >= 0 && index < columns.size())
-          column = columns[index];
-        return column;
-    }
-    
-    void render();
-    
-    //
-    // Juce interface
-    //
-
-    void resized() override;
-    void paint (juce::Graphics& g) override;
-    
-  private:
-
-    juce::String name;
-    juce::OwnedArray<juce::OwnedArray<Field>> columns;
-};

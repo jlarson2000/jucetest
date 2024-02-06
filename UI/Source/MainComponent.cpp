@@ -7,7 +7,8 @@
 #include <JuceHeader.h>
 
 #include "MainComponent.h"
-#include "util/qtrace.h"
+#include "util/Trace.h"
+#include "ui/JuceUtil.h"
 
 #include "mobius/MobiusInterface.h"
 
@@ -19,7 +20,7 @@ MainComponent::MainComponent()
     addAndMakeVisible(mainMenu);
     mainMenu.setListener(this);
 
-    // addChildComponent(test);
+    addChildComponent(test);
 
     // Make sure you set the size of the component after
     // you add any child components.  This will cascade resized()
@@ -156,6 +157,7 @@ void MainComponent::mainMenuSelection(int id)
         case MainMenu::MIDIControl: {
             test.setVisible(true);
             test.center();
+            JuceUtil::dumpComponent(&test);
         }
         break;
         
@@ -175,7 +177,7 @@ void MainComponent::mainMenuSelection(int id)
         case MainMenu::About: break;
                 
         default: {
-            qtrace("Unknown menu item\n");
+            trace("Unknown menu item: %d\n", id);
         }
         break;
     }

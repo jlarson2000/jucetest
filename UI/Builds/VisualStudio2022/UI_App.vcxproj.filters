@@ -610,16 +610,28 @@
     <ClCompile Include="..\..\Source\ui\Field.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\FieldGrid.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\Form.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\FormPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\GlobalPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\JLabel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\JuceUtil.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\MainMenu.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\Panel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\ParameterField.cpp">
@@ -3171,16 +3183,28 @@
     <ClInclude Include="..\..\Source\ui\Field.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\FieldGrid.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\Form.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\FormPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\GlobalPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\JLabel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\JuceUtil.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\MainMenu.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\Panel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\ParameterField.h">
