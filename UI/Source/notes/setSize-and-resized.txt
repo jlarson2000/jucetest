@@ -1,0 +1,17 @@
+
+This is complicated and not well documented
+
+The general rule seems to be to add child components first
+
+then call setSize()
+
+setSize results in a cascading resized() calls to the child components
+which is how layout seems to be done
+
+unclear the extent to which components can ignore the downward trickling sizes
+
+when messing around with complex component ordering with subclasses and whatnot,
+be careful not to call setSize too soon or too often
+
+prefer setSize on the topmost compents when the component tree is more-or-less done
+
