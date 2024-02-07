@@ -183,6 +183,12 @@ const char* ConfigEditor::getConfigFilePath()
     return path;
 }
 
+const char* ConfigEditor::getWriteConfigFilePath()
+{
+    const char* path = "c:/dev/jucetest/UI/Source/mobius2.xml";
+    return path;
+}
+
 /**
  * Called by a panel read the MobiusConfig.
  * The master config object is managed by ConfigEditor

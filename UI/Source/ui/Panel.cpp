@@ -75,6 +75,11 @@ void Panel::addOwned(juce::Component* c)
     ownedChildren.add(c);
 }
 
+void Panel::addShared(juce::Component* c)
+{
+    addAndMakeVisible(c);
+}
+
 int Panel::getPreferredWidth()
 {
     int width = 0;
@@ -118,22 +123,18 @@ int Panel::getPreferredHeight()
 
 /**
  * Call this after the child hierarchy has been constructed
- * to calculate the desired size.  
+ * to calculate the desired minimum size.  
  */
 void Panel::autoSize()
 {
-    // this will indirectly call resized() which calls layout()
+    // this will indirectly call resized() to do layout
     setSize(getPreferredWidth(), getPreferredHeight());
 }
 
 /**
- * Organize the child components within our current size.
- * Normally this would be called only after autoSize
- * has been called.  If something comes along and calls setSize
- * after that we'll lay out again indirectly which I guess doesn't
- * hurt.
+ * Layout the child components within our current size.
  */
-void Panel::layout()
+void Panel::resized()
 {
     auto area = getLocalBounds();
     const juce::Array<Component*>& children = getChildren();
@@ -152,14 +153,4 @@ void Panel::layout()
             left += child->getWidth();
         }
     }
-}
-
-/**
- * Juce overload for responding to size changes.
- * This should normally only be called when we are
- * first constructed.
- */
-void Panel::resized()
-{
-    layout();
 }

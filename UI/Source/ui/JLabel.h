@@ -44,4 +44,3 @@ class JLabel : public juce::Component
     juce::Colour borderColor;
     bool bordered;
 };
-

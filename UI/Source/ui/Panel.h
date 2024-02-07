@@ -21,6 +21,7 @@ class Panel : public juce::Component
 
     void setOrientation(Orientation);
     void addOwned(juce::Component* c);
+    void addShared(juce::Component* c);
     
     int getPreferredWidth();
     int getPreferredHeight();
@@ -32,7 +33,6 @@ class Panel : public juce::Component
   private:
 
     void init();
-    void layout();
 
     Orientation orientation = Vertical;
     

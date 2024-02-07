@@ -32,7 +32,7 @@ class Form : public juce::Component
     void add(const char* tab, class Parameter* p, int column = 0);
 
     void render();
-    void autoSize();
+    juce::Rectangle<int> getMinimumSize();
     void gatherFields(juce::Array<Field*>& fields);
 
     void resized() override;
@@ -42,6 +42,9 @@ class Form : public juce::Component
     
     juce::OwnedArray<FormPanel> panels;
     juce::TabbedComponent tabs;
+
+    int indentWidth = 0;
+    int outlineWidth = 0;
 
 };
 

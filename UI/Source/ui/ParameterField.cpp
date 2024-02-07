@@ -100,9 +100,6 @@ void ParameterField::saveValue(void *obj)
     
     ExValue ev;
 
-    // pull the current value from the component
-    refreshValue();
-
     if (parameter->multi) {
         // todo: will need to handle multi-valued lists properly
         Trace(1, "ParameterField: muli-value save not supported\n");

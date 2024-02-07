@@ -28,7 +28,7 @@ TestPanel::TestPanel()
     //addAndMakeVisible(label);
 
     Panel* panel1 = new Panel(Panel::Orientation::Horizontal);
-    panel1->addAndMakeVisible(label);
+    panel1->addShared(&label);
     JLabel* l = new JLabel(juce::String("xxxxxxxxxxxxxxxxxxxx!"));
     l->setBorder(juce::Colours::green);
     panel1->addOwned(l);
@@ -36,7 +36,12 @@ TestPanel::TestPanel()
              
     panel.addOwned(panel1);
 
-    Field* f = new Field("foo", "Foo", Field::Type::String);
+    Field* f = new Field("xyz", "XYZ", Field::Type::Boolean);
+    f->setUnmanagedLabel(true);
+    f->render();
+    panel.addOwned(f);
+
+    f = new Field("foo", "Foo", Field::Type::String);
     f->render();
     panel.addOwned(f);
     
@@ -72,6 +77,20 @@ TestPanel::TestPanel()
     }
     grid->render();
     panel.addOwned(grid);
+
+    FormPanel* fpanel = new FormPanel();
+    grid = new FieldGrid();
+    for (int col = 0 ; col < 2 ; col++) {
+        for (int row = 0 ; row < 4 ; row++) {
+            char buf[80];
+            sprintf(buf, "%d/%d", col, row);
+            f = new Field(buf, buf, Field::Type::Boolean);
+            grid->add(f, col);
+        }
+    }
+    fpanel->addGrid(grid);
+    fpanel->render();
+    panel.addOwned(fpanel);
     
     Form* form = new Form();
     form->add("General", LoopCountParameter);
@@ -81,9 +100,12 @@ TestPanel::TestPanel()
     form->render();
     panel.addOwned(form);
 
+    // let the panel expand to fit the children
     panel.autoSize();
     addAndMakeVisible(panel);
     
+    // make the test panel bigger than it needs to be, though
+    // we could have it track the inner form
     setSize (500, 500);
 }
 

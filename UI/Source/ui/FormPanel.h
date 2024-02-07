@@ -30,7 +30,7 @@ class FormPanel : public Panel
     void gatherFields(juce::Array<Field*>& fields);
 
     void render();
-    void autoSize();
+    juce::Rectangle<int> getMinimumSize();
     
     void resized() override;
 

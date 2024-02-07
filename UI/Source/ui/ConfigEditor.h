@@ -74,6 +74,7 @@ class ConfigEditor
     void addPanel(ConfigPanel* panel);
     void show(ConfigPanel* panel);
     const char* getConfigFilePath();
+    const char* getWriteConfigFilePath();
     
     juce::Component* owner = nullptr;
 

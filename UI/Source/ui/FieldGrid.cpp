@@ -1,6 +1,6 @@
 /**
  * A field grid is a set of Fields that can be arranged in columns.
- *
+ * Fields must be heap allocated and ownership transfers to the FieldGrid.
  */
 
 #include <JuceHeader.h>
@@ -36,6 +36,10 @@ void FieldGrid::add(Field* f, int column)
     }
 
     fieldColumn->add(f);
+    addAndMakeVisible(f);
+
+    // should we resize as we go or require the caller
+    // to do it at the end?
 }
 
 /**
@@ -46,7 +50,7 @@ void FieldGrid::add(Field* f, int column)
  * This little traversal happens three times now.  If we keep
  * doing this either define a FieldIterator or better might
  * be just to maintain them on a single list, put the column on the Field
- * and have render() figure it out.
+ * and have resized() figure it out.
  */
 void FieldGrid::gatherFields(juce::Array<Field*>& fields)
 {
@@ -61,31 +65,45 @@ void FieldGrid::gatherFields(juce::Array<Field*>& fields)
     }
 }
 
+
 /**
  * Iterate over the fields we contain and render them as Juce components.
+ * 
  * This happens twice now, does it make sense to define a FieldIterator?
+ *
+ * Calculate the minim size and set it.  
  */
 void FieldGrid::render()
 {
+    // make sure the Fields are rendered
     for (int col = 0 ; col < columns.size() ; col++) {
         juce::OwnedArray<Field>* column = columns[col];
         if (column != nullptr) {
             for (int row = 0 ; row < column->size() ; row++) {
                 Field* f = (*column)[row];
                 f->render();
-                addAndMakeVisible(f);
             }
         }
     }
-    autoSize();
+
+    juce::Rectangle<int> size = getMinimumSize();
+    setSize(size.getWidth(), size.getHeight());
 }
 
 /**
- * Calculate the minimum size for this grid.
- * TODO: Start using Panel here
- * Hmm, may as well do layout here too rather than just size...think
+ * Calculate the minimum size required by this grid.
+ * This will become the initial size in render()
+ * but may be changed by the parent.
+ *
+ * If given a larger size, we should try to center it
+ * during layout.
+ *
+ * To do alignment of labels first calculate the maximum
+ * label width MLW.  Then the maximum field width without
+ * labels, or the maximum render width MRW.  The maximum
+ * field width is then MLW + MRW.
  */
-void FieldGrid::autoSize()
+juce::Rectangle<int> FieldGrid::getMinimumSize()
 {
     int maxWidth = 0;
     int maxHeight = 0;
@@ -95,27 +113,43 @@ void FieldGrid::autoSize()
         if (column != nullptr) {
             int colWidth = 0;
             int colHeight = 0;
+            
+            // get MLW and MRW
+            int maxLabelWidth = 0;
+            int maxRenderWidth = 0;
             for (int row = 0 ; row < column->size() ; row++) {
                 Field* f = (*column)[row];
+                if (f->getLabelWidth() > maxLabelWidth)
+                  maxLabelWidth = f->getLabelWidth();
+                if (f->getRenderWidth() > maxRenderWidth)
+                  maxRenderWidth = f->getRenderWidth();
+                // height just adds
                 colHeight += f->getHeight();
-                if (f->getWidth() > colWidth)
-                  colWidth = f->getWidth();
             }
+
+            int maxFieldWidth = maxLabelWidth + maxRenderWidth;
+            if (maxFieldWidth > colWidth)
+              colWidth = maxFieldWidth;
+            
             maxWidth += colWidth;
             if (colHeight > maxHeight)
               maxHeight = colHeight;
         }
     }
 
-    setSize(maxWidth, maxHeight);
+    return juce::Rectangle<int> {0, 0, maxWidth, maxHeight};
 }
 
 /**
- * TODO: Would like each grid to auto-size the label
- * column so we don't have to hard wire it.
+ * Layout needs to much more complicated to provide different
+ * options for field label justification.  For now we are just a
+ * simple vertical panel for fields and an evenly divided horizontal
+ * panel for columns.  Could use Panel here?
  *
- * TODO: Might as well combine positining with autoSize
- * since they do about the same thing.
+ * Column widths can follow exactly what the fields one or we can
+ * evenly subdivide the available space by column.  When this is at
+ * the minimum size, the effect is the same, but if we're given a larger
+ * space it would space them out better.
  */
 void FieldGrid::resized()
 {
@@ -126,11 +160,24 @@ void FieldGrid::resized()
         int maxWidth = 0;
         if (column != nullptr) {
             int rowOffset = 0;
+
+            // first determine MLW
+            int maxLabelWidth = 0;
             for (int row = 0 ; row < column->size() ; row++) {
                 Field* f = (*column)[row];
-                f->setTopLeftPosition(colOffset, rowOffset);
+                int w = f->getLabelWidth();
+                if (w > maxLabelWidth)
+                  maxLabelWidth = w;
+            }
+
+            // offset each field by column and label justification
+            for (int row = 0 ; row < column->size() ; row++) {
+                Field* f = (*column)[row];
+                int alignOffset = maxLabelWidth - f->getLabelWidth();
+                f->setTopLeftPosition(colOffset + alignOffset, rowOffset);
                 rowOffset += f->getHeight();
-                if (f->getWidth() > maxWidth)
+                int fieldWidth = maxLabelWidth + f->getRenderWidth();
+                if (fieldWidth > maxWidth)
                   maxWidth = f->getWidth();
             }
         }
@@ -145,3 +192,6 @@ void FieldGrid::paint(juce::Graphics& g)
     g.fillAll (juce::Colours::beige);
 }
 
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

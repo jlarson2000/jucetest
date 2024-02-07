@@ -5,6 +5,9 @@
  * of a single value A field may be rendered using a variety of Juce components.
  * Fields will provide a preferred size which may be overridden by the container.
  *
+ * You must call the render() method after setting properties of the field
+ * to build out the suitable child components.
+ *
  * Fields may be of type integer, boolean, string, or enumeration.
  * Enumeration fields will have a list of allowed values which may or not be
  * split into internal and display values.
@@ -49,6 +52,7 @@ class Field : public juce::Component
     enum class RenderType {Text, Combo, Check, Slider, Rotary, List};
     
     Field(juce::String name, juce::String displayName, Type type);
+        
     ~Field();
 
     const juce::String& getName() {
@@ -80,6 +84,14 @@ class Field : public juce::Component
 
     void setMulti(bool b) {
         multi = b;
+    }
+
+    void setUnmanagedLabel(bool b) {
+        unmanagedLabel = b;
+    }
+
+    bool isUnManagedLabel() {
+        return unmanagedLabel;
     }
     
     /**
@@ -113,6 +125,15 @@ class Field : public juce::Component
     }
 
     /**
+     * For string fields that use a value selection list, the number of
+     * lines to display.  The default is the length of the allowed values
+     * list up to a maximum of 4.
+     */
+    void setHeightUnits(int i) {
+        heightUnits = i;
+    }
+    
+    /**
      * String values may have value limits.
      * TODO: needs a lot more work to have internal/display values
      * in a proper CC++ way.  Find a tuple class in std:: or something
@@ -133,48 +154,18 @@ class Field : public juce::Component
     void setAllowedValueLabels(const char** a);
     void setAllowedValueLabels(juce::StringArray& src);
 
-    int getPreferredHeight();
-    int getPreferredWidth();
-    
     void setValue(juce::var value);
-    
-    void setValue(int i) {
-        value = i;
-    }
-
-    void setValue(const char* string) {
-        value = string;
-    }
-
-    void setValue(bool b) {
-        value = b;
-    }
-
-    juce::var getValue() {
-        return value;
-    }
-
-    int getIntValue() {
-        return (int)value;
-    }
-
-    juce::String getStringValue() {
-        return value.toString();
-    }
-
-    const char* getCharValue() {
-        return value.toString().toUTF8();
-    }
-
-    bool getBoolValue() {
-        return (bool)value;
-    }
-
-    void refreshValue();
+    juce::var getValue();
+    int getIntValue();
+    juce::String getStringValue();
+    const char* getCharValue();
+    bool getBoolValue();
 
     // build out the Juce components to display this field
     void render();
-    void autoSize();
+    juce::Rectangle<int> getMinimumSize();
+    int getLabelWidth();
+    int getRenderWidth();
     
     //
     // Juce interface
@@ -186,21 +177,24 @@ class Field : public juce::Component
     
   private:
     
-    void init();
-    
+    void initLabel();
+    void renderLabel();
     void renderInt();
     void renderString();
     void renderBool();
+    void loadValue();
     
     juce::String name;
     juce::String displayName;
     Type type = Type::Integer;
+    bool unmanagedLabel = false;
     RenderType renderType = RenderType::Text;
     bool multi = false;
     int min = 0;
     int max = 0;
     int widthUnits = 0;
-
+    int heightUnits = 0;
+    
     juce::StringArray allowedValues = {};
     juce::StringArray allowedValueLabels = {};
 

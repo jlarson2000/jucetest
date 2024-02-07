@@ -25,7 +25,7 @@ class FieldGrid : public juce::Component {
     void gatherFields(juce::Array<Field*>& fields);
 
     void render();
-    void autoSize();
+    juce::Rectangle<int> getMinimumSize();
     
     //
     // Juce interface

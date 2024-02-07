@@ -75,7 +75,8 @@ void PresetPanel::load()
         loadPreset(selectedPreset);
 
         loaded = true;
-        changed = false;
+        // force this true for testing
+        changed = true;
     }
 }
 
@@ -90,6 +91,10 @@ void PresetPanel::load()
 void PresetPanel::save()
 {
     if (changed) {
+        // copy visible state back into the Preset
+        // need to also do this when the selected preset is changed
+        savePreset(selectedPreset);
+        
         // build a new Preset linked list
         Preset* plist = nullptr;
         Preset* last = nullptr;
@@ -258,25 +263,24 @@ void PresetPanel::initForm()
     form.add("Quantize", BounceQuantizeParameter);
     form.add("Quantize", OverdubQuantizedParameter);
 
-#if 0
     // Record
 
     form.add("Record", RecordThresholdParameter);
     form.add("Record", AutoRecordBarsParameter);
     form.add("Record", AutoRecordTempoParameter);
-    form.add("Record", RecordSpeedChangesParameter);
+    form.add("Record", SpeedRecordParameter);
     form.add("Record", RecordResetsFeedbackParameter);
 
     // Switch
-    form.add("Switch", EmptyLoopAction);
+    form.add("Switch", EmptyLoopActionParameter);
     form.add("Switch", EmptyTrackActionParameter);
     form.add("Switch", TrackLeaveActionParameter);
-    form.add("Switch", TimeCopyModeParameter);
-    form.add("Switch", SoundCopyModeParameter);
+    form.add("Switch", TimeCopyParameter);
+    form.add("Switch", SoundCopyParameter);
     form.add("Switch", SwitchLocationParameter);
     form.add("Switch", SwitchDurationParameter);
     form.add("Switch", ReturnLocationParameter);
-    form.add("Switch", SwitchVelocitySensitiveParameter);
+    form.add("Switch", SwitchVelocityParameter);
     // column 2
     form.add("Switch", RecordTransferParameter, 1);
     form.add("Switch", OverdubTransferParameter, 1);
@@ -293,9 +297,10 @@ void PresetPanel::initForm()
     form.add("Functions", SlipTimeParameter);
     form.add("Functions", WindowSlideUnitParameter);
     form.add("Functions", WindowSlideAmountParameter);
+    form.add("Functions", WindowEdgeUnitParameter);
     form.add("Functions", WindowEdgeAmountParameter);
     // column 2
-    form.add("Functions", OverdubWhileRoundingParameter, 1);
+    form.add("Functions", RoundingOverdubParameter, 1);
         
     // Effects
     form.add("Effects", SpeedSequenceParameter);
@@ -310,7 +315,6 @@ void PresetPanel::initForm()
 
     // Sustain
     form.add("Sustain", SustainFunctionsParameter);
-#endif
 }
             
 /****************************************************************************/
