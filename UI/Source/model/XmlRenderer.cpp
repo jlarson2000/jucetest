@@ -505,7 +505,7 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 
     // though they are top-level parameters, put these last since
     // they are long and not as interesting as the main child objects
-    
+    // TODO: just use csv like SustainFunctions
     renderList(b, EL_FOCUS_LOCK_FUNCTIONS, c->getFocusLockFunctions());
     renderList(b, EL_MUTE_CANCEL_FUNCTIONS, c->getMuteCancelFunctions());
     renderList(b, EL_CONFIRMATION_FUNCTIONS, c->getConfirmationFunctions());
@@ -652,6 +652,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
     // do these last since setting them has the side effect
     // of locating the corresponding object and caching it in
     // a pointer, not sure I like this
+    // NO, I absolutely do not like this, revisit when we get to the core
     c->setCurrentSetup(e->getAttribute(ATT_SETUP));
     c->setOverlayBindingConfig(e->getAttribute(ATT_OVERLAY_BINDINGS));
 }
@@ -902,12 +903,15 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
 {
 	b->addOpenStartTag(EL_SETUP_TRACK);
 
+    const char* name = t->getName();
+    if (name != nullptr)
+	  b->addAttribute(ATT_NAME, name);
+
     // in the old model, this was driven from Parameters
     // in TRACK scope that did not have the transient flag set
     // this was only InputPort, OutputPort, and PresetNumber
     // actually there are a lot missing and not just ones with transient
-    
-    // what about name?
+
     render(b, TrackPresetParameter, t->getPreset());
     render(b, FocusParameter, t->isFocusLock());
     render(b, MonoParameter, t->isMono());
@@ -943,7 +947,7 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
 
 void XmlRenderer::parse(XmlElement* e, SetupTrack* t)
 {
-    // what about name?
+	t->setName(e->getAttribute(ATT_NAME));
     t->setPreset(parseString(e, TrackPresetParameter));
     t->setFocusLock(parse(e, FocusParameter));
     t->setMono(parse(e, MonoParameter));

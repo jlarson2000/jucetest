@@ -33,14 +33,16 @@ class SetupPanel : public ConfigPanel
 
     void render();
     void initForm();
+    class Field* buildResetablesField();
     
-    void loadSetup(int index);
-    void saveSetup(int index);
+    void loadSetupFields();
+    void saveSetupFields();
     Setup* getSelectedSetup();
     
     bool active = false;
     juce::OwnedArray<Setup> setups;
     int selectedSetup = 0;
+    int selectedTrack = 0;
 
     Form form;
 };

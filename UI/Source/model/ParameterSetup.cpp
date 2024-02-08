@@ -64,6 +64,11 @@ class SetupParameter : public Parameter
         scope = PARAM_SCOPE_SETUP;
     }
 
+    SetupParameter(const char* name, const char* displayName) :
+        Parameter(name, displayName) {
+        scope = PARAM_SCOPE_SETUP;
+    }
+
     /**
      * Overload the Parameter versions and cast to a Setup.
      */
@@ -764,6 +769,129 @@ void OutRealignModeParameterType::setValue(Setup* s, ExValue* value)
 
 OutRealignModeParameterType OutRealignModeParameterObj;
 Parameter* OutRealignModeParameter = &OutRealignModeParameterObj;
+
+//////////////////////////////////////////////////////////////////////
+//
+// InitialTrack
+//
+// This was not in the original Parameter model, SetupDialog displayed
+// it and it could be captured, but was not intended for real-time
+// control.  It was only used by Mobius::installConfiguration
+//
+// Compare this with the global TrackParameter
+// That was used I think for bindings to allow current track
+// to be set as a parameter rather than a function.
+//
+// It is related to be different than this one which is the track
+// that becomes active when the setup is loaded.
+//
+//////////////////////////////////////////////////////////////////////
+
+class InitialTrackParameterType : public SetupParameter
+{
+  public:
+	InitialTrackParameterType();
+    int getOrdinalValue(Setup* s);
+	void getValue(Setup* s, ExValue* value);
+	void setValue(Setup* s, ExValue* value);
+};
+
+InitialTrackParameterType::InitialTrackParameterType() :
+    SetupParameter("activeTrack", "Active Track")
+{
+	type = TYPE_INT;
+    // will need this to be configurable!
+    high = 8;
+}
+
+int InitialTrackParameterType::getOrdinalValue(Setup* s)
+{
+	return s->getActiveTrack();
+}
+
+void InitialTrackParameterType::getValue(Setup* s, ExValue* value)
+{
+	value->setInt(s->getActiveTrack());
+}
+
+void InitialTrackParameterType::setValue(Setup* s, ExValue* value)
+{
+	s->setActiveTrack(value->getInt());
+}
+
+InitialTrackParameterType InitialTrackParameterObj;
+Parameter* InitialTrackParameter = &InitialTrackParameterObj;
+
+//////////////////////////////////////////////////////////////////////
+//
+// Resetables
+//
+// Not in the original Mobius model
+// This is multi-valued and I don't want to mess with problems
+// overflowing the ExValueList model.  Since this is intended
+// only for the UI and can't be bound or changed in scripts
+// We're introducing alternate juce::var accessors.
+// You must NOT use these in core since there is potential
+// memory allocation.  Think more about this as it evolves.
+//
+// The XML model is a csv is can be long and won't fit in
+// an ExValue and I don't want to mess with ExValueList just
+// for the UI.
+//
+//////////////////////////////////////////////////////////////////////
+
+class ResetablesParameterType : public SetupParameter
+{
+  public:
+	ResetablesParameterType();
+	void getValue(Setup* s, ExValue* value);
+	void setValue(Setup* s, ExValue* value);
+    void getJuceValue(void* object, juce::var& value) override;
+    void setJuceValue(void* object, juce::var& value) override;
+};
+
+ResetablesParameterType::ResetablesParameterType() :
+    SetupParameter("resetables", "Restore After Reset")
+{
+	type = TYPE_STRING;
+    multi = true;
+    bindable = false;
+    juceValues = true;
+}
+
+void ResetablesParameterType::getValue(Setup* s, ExValue* value)
+{
+    value->setInt(0);
+}
+
+void ResetablesParameterType::setValue(Setup* s, ExValue* value)
+{
+}
+
+// think: if we're going to be adding Juce specific accessors
+// may as well have them in the model we want to use, in this
+// case StringArray
+
+void ResetablesParameterType::getJuceValue(void* s, juce::var& value)
+{
+    // currently a StringList, need to consistently convert these
+    // when parsing XML
+    StringList* values = ((Setup*)s)->getResetables();
+    if (values != nullptr) {
+        char* csv = values->toCsv();
+        value = csv;
+        delete csv;
+    }
+}
+
+void ResetablesParameterType::setJuceValue(void* s, juce::var& value)
+{
+    const char* csv = value.toString().toUTF8();
+    ((Setup*)s)->setResetables(new StringList(csv));
+}
+
+ResetablesParameterType ResetablesParameterObj;
+Parameter* ResetablesParameter = &ResetablesParameterObj;
 
 /****************************************************************************/
 /****************************************************************************/

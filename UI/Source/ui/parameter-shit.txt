@@ -1,0 +1,78 @@
+
+Setup Dialog/Other Tab/Active Track
+
+This comes from Setup::getActiveTrack
+
+There is no SetupParameter model for this
+
+Mobius.cpp uses this in installConfiguration
+to set the active track after editing
+
+Weirdly there is a global parameter
+  class TrackParameterType : public GlobalParameter
+  this is a transient parameter, meaning it is not stored
+  I think this is just so host parameters and scripts
+  have a way to set the active track as a parameter
+  rather than a function
+
+I think a better name for this would be "Initial Active Track"
+that is set when a Setup is selected, and probably
+restored after reset.
+
+Why was this never a Parameter?
+
+Resetables in the old dialog
+
+constructor
+    optionPanel->add(new Label("Restore After Reset"));
+	mReset = new ListBox();
+	mReset->setMultiSelect(true);
+	mReset->setColumns(20);
+	mReset->setRows(8);
+    StringList* paramNames = new StringList();
+	for (i = 0 ; Parameters[i] != NULL ; i++) {
+        Parameter* p = Parameters[i];
+        // !! not everything in setup scope needs to be resettable
+        if (p->resettable)
+          paramNames->add(p->getDisplayName());
+    }
+    paramNames->sort();
+    mReset->setValues(paramNames);
+	optionPanel->add(mReset);
+
+refreshFields
+	StringList* names = mSetup->getResetables();
+	if (names != NULL) {
+		StringList* selected = new StringList();
+		for (int i = 0 ; i < names->size() ; i++) {
+			const char* name = names->getString(i);
+			Parameter* p = mMobius->getParameter(name);
+			if (p != NULL)
+			  selected->add(p->getDisplayName());
+		}
+		mReset->setSelectedValues(selected);
+	}
+
+captureFields
+    StringList* selected = mReset->getSelectedValues();
+	if (selected == NULL)
+	  mSetup->setResetables(NULL);
+	else {
+		StringList* names = new StringList();
+		for (int i = 0 ; i < selected->size() ; i++) {
+			const char* displayName = selected->getString(i);
+			Parameter* p = mMobius->getParameterWithDisplayName(displayName);
+			if (p != NULL)
+			  names->add(p->getName());
+		}
+		mSetup->setResetables(names);
+	}
+
+So, this one is unusual because the set of selectable values comes
+from walking over the Paameter list looking for p->resetables
+Need two transformations
+  rendering: look at p->resetables
+  save: map the display name back to a Parameter name
+
+Field still just has value and displayValues for the panel
+the trick is that rendering needs special logic

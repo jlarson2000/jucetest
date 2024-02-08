@@ -35,6 +35,10 @@
 #define MOBIUS_PARAMETER_H
 
 #include <vector>
+
+// for juce::var only
+#include <JuceHeader.h>
+
 #include "SystemConstant.h"
 
 /****************************************************************************
@@ -80,6 +84,7 @@ class Parameter : public SystemConstant {
 
 	//Parameter();
 	Parameter(const char* name, int key);
+	Parameter(const char* name, const char* displayName);
 	virtual ~Parameter();
     void localize(MessageCatalog* cat);
 
@@ -122,6 +127,11 @@ class Parameter : public SystemConstant {
      */
     const char* xmlAlias;
 
+    /**
+     * Parameter supports juce::var for getting and setting values.
+     */
+    bool juceValues = false;
+    
     //
     // Configurable Parameter property access
     // 
@@ -137,7 +147,13 @@ class Parameter : public SystemConstant {
     virtual void getObjectValue(void* object, class ExValue* value) = 0;
     virtual void setObjectValue(void* object, class ExValue* value) = 0;
 
-	// Coercion helpers
+    /**
+     * New interface just for the Juce UI with complicated values.
+     */
+    virtual void getJuceValue(void* object, juce::var& value);
+    virtual void setJuceValue(void* object, juce::var& value);
+    
+    // Coercion helpers
 	// Weed  these!
 
 	/**
@@ -310,6 +326,8 @@ extern Parameter* RealignTimeParameter;
 extern Parameter* ResizeSyncAdjustParameter;
 extern Parameter* SlaveSyncUnitParameter;
 extern Parameter* SpeedSyncAdjustParameter;
+extern Parameter* InitialTrackParameter;
+extern Parameter* ResetablesParameter;
 
 // Global Parameters
 

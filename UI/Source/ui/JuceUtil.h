@@ -12,4 +12,10 @@ class JuceUtil
 
     static void dumpComponent(juce::Component* c, int indent = 0);
 
+    /**
+     * Convert a String containing a CSV into a StringArray
+     */
+    static void CsvToArray(juce::String csv, juce::StringArray& values);
+    static juce::String ArrayToCsv(juce::StringArray& values);
+
 };

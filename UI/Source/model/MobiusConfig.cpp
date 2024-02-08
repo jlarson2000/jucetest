@@ -946,6 +946,8 @@ void MobiusConfig::setPresets(Preset* list)
 		delete mPresets;
 		mPresets = list;
 		numberThings(mPresets);
+        // this invalidates the current preset
+        mPreset = nullptr;
     }
 }
 	
@@ -1107,6 +1109,10 @@ void MobiusConfig::setSetups(Setup* list)
 		delete mSetups;
 		mSetups = list;
 		numberThings(mSetups);
+
+        // this invalidates the current setup pointer cache
+        mSetup = nullptr;
+        
     }
 }
 	
@@ -1133,6 +1139,9 @@ void MobiusConfig::addSetup(Setup* p)
 /**
  * Note that this should only be called on a cloned MobiusConfig that
  * the interrupt handler can't be using.
+ *
+ * Doint WAY too much work to maintan the mSetups "current" setup.
+ * Need to get rid of tis.
  */
 void MobiusConfig::removeSetup(Setup* preset) 
 {
@@ -1184,6 +1193,9 @@ Setup* MobiusConfig::getSetup(int index)
 
 /**
  * If there is no currently selected setup, we pick the first one.
+ *
+ * Should NOT be boostrapping an empty Setup here, this needs to be
+ * accessible in the interrupt.  Move this...
  */
 Setup* MobiusConfig::getCurrentSetup()
 {
@@ -1223,7 +1235,7 @@ void MobiusConfig::setCurrentSetup(Setup* p)
 {
 	if (p != nullptr) {
 		// these should be the same object, but make sure
- Setup* cur = getSetup(p->getName());
+        Setup* cur = getSetup(p->getName());
 		if (cur != nullptr) 
 		  mSetup= cur;
 	}

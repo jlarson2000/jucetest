@@ -87,6 +87,7 @@
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
+#include "JuceUtil.h"
 #include "Field.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -274,12 +275,16 @@ void Field::renderString()
     else {
         renderType = RenderType::List;
         renderer = &listbox;
-        //listbox.setListValues(allowedValues);
         listbox.setValues(allowedValues);
+        listbox.setValueLabels(allowedValueLabels);
+
+        juce::StringArray& displayValues = allowedValues;
+        if (allowedValueLabels.size() > 0)
+          displayValues = allowedValueLabels;
 
         int maxChars = 0;
-        for (int i = 0 ; i < allowedValues.size() ; i++) {
-            juce::String s = allowedValues[i];
+        for (int i = 0 ; i < displayValues.size() ; i++) {
+            juce::String s = displayValues[i];
             if (s.length() > maxChars)
               maxChars = s.length();
         }
@@ -511,6 +516,7 @@ void Field::loadValue()
         checkbox.setToggleState((bool)value, juce::dontSendNotification);
     }
     else if (renderer == &combobox) {
+        // should only get here if we had allowedValues
         int itemId = 0;
         for (int i = 0 ; i < allowedValues.size() ; i++) {
             juce::String s = allowedValues[i];
@@ -526,10 +532,14 @@ void Field::loadValue()
         slider.setValue((double)value);
     }
     else if (renderer == &listbox) {
-        // more complicadted
-        // SimpleListBox contains a ListBox
-        // and we need to allow selection of multiple items
-        // for muli-valued fields
+        // compare values value to allowedValues and
+        // set all the included values
+        juce::String csv = value.toString();
+        // not supporting display names yet
+        // don't know if Juce has any CSV utilities
+        juce::StringArray values;
+        JuceUtil::CsvToArray(csv, values);
+        listbox.setSelectedValues(values);
     }
     else {
         // Field hasn't been rendered yet
@@ -567,10 +577,10 @@ juce::var Field::getValue()
         value = (int)slider.getValue();
     }
     else if (renderer == &listbox) {
-        // more complicadted
-        // SimpleListBox contains a ListBox
-        // and we need to allow selection of multiple items
-        // for muli-valued fields
+        juce::StringArray selected;
+        listbox.getSelectedValues(selected);
+        juce::String csv = JuceUtil::ArrayToCsv(selected);
+        value = csv;
     }
 
     return value;

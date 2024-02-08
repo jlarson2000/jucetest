@@ -8,40 +8,64 @@ SimpleListBox::SimpleListBox()
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
     addAndMakeVisible(listBox);
-    listBox.setRowHeight (30);
+
+    juce::Font font = juce::Font(juce::Font (16.0f, juce::Font::bold));
+    listBox.setRowHeight (font.getHeight());
     listBox.setModel (this);   // Tell the listbox where to get its data model
     listBox.setColour (juce::ListBox::textColourId, juce::Colours::black);
     listBox.setColour (juce::ListBox::backgroundColourId, juce::Colours::white);
-    
-    // setSize (400,600);
+
+    listBox.setMultipleSelectionEnabled(true);
+    listBox.setClickingTogglesRowSelection(true);
 }
 
 SimpleListBox::~SimpleListBox()
 {
 }
 
-void SimpleListBox::setValues(const char** strings) {
-
-    // really don't understand how this works, strange that you
-    // can take this in the constructor but not in add
-    // values.add(strings);
-
-    values.clear();
-    if (strings != nullptr) {
-        for (int i = 0 ; strings[i] != NULL ; i++) {
-            values.add(strings[i]);
-        }
-    }
-    
-    listBox.updateContent();
-}
-
 void SimpleListBox::setValues(juce::StringArray& src)
 {
     // this copies
     values = src;
+
+    // docs say "This must only be called from the main message thread"
+    // not sure what that means
     listBox.updateContent();
 }
+
+void SimpleListBox::setValueLabels(juce::StringArray& src)
+{
+    valueLabels = src;
+    listBox.updateContent();
+}
+
+/**
+ * Set the initial selected rows.
+ */
+void SimpleListBox::setSelectedValues(juce::StringArray& selected)
+{
+    listBox.deselectAllRows();
+    for (int i = 0 ; i < selected.size() ; i++) {
+        juce::String value = selected[i];
+        int index = values.indexOf(value);
+        if (index >= 0) {
+            listBox.selectRow(index, true /* don't scroll */, true /* don't deselect others */);
+        }
+    }
+}
+
+/**
+ * Return only the selected values.
+ */
+void SimpleListBox::getSelectedValues(juce::StringArray& selected)
+{
+    juce::SparseSet<int> rows = listBox.getSelectedRows();
+    for (int i = 0 ; i < rows.size() ; i++) {
+        int row = rows[i];
+        selected.add(values[row]);
+    }
+}
+
 
 void SimpleListBox::paint(juce::Graphics& g)
 {
@@ -57,10 +81,8 @@ void SimpleListBox::paint(juce::Graphics& g)
 
 void SimpleListBox::resized()
 {
-    // This method is where you should set the bounds of any child
-    // components that your component contains..
-
-	listBox.setBounds(0, 0, getParentWidth(), getParentHeight());
+    // inner ListBox fills us, makes us whole
+	listBox.setBounds(getBounds());
 }
 
 //
@@ -83,10 +105,19 @@ void SimpleListBox::paintListBoxItem (int rowNumber, juce::Graphics& g,
    
     // g.drawText ("Row Number " + String (rowNumber + 1), 5, 0, width, height,
     // Justification::centredLeft, true);
-    juce::String s = values[rowNumber];
+    juce::String s;
+    if (valueLabels.size() > 0)
+      s = valueLabels[rowNumber];
+    else
+      s = values[rowNumber];
+
     g.drawText (s, 5, 0, width, height, juce::Justification::centredLeft, true);
 }
 
+/**
+ * Don't need to overload this, the listbox will track selections
+ * and we'll call getSelectedValues when we want to save them.
+ */
 void SimpleListBox::selectedRowsChanged (int /*lastRowselected*/)
 {
     //do stuff when selection changes

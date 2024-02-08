@@ -29,8 +29,8 @@ ParameterField::ParameterField(Parameter* p) :
     setMin(p->getLow());
     setMax(p->getHigh());
 
-    if (p->type == TYPE_ENUM) {
-        // must have allowed values
+    // enums must have allowed values, strings are optional
+    if (p->type == TYPE_ENUM || p->type == TYPE_STRING) {
         if (p->values != nullptr) {
             setAllowedValues(p->values);
         }
@@ -63,69 +63,85 @@ Field::Type ParameterField::convertParameterType(ParameterType intype)
  */
 void ParameterField::loadValue(void *obj)
 {
-    ExValue ev;
+    juce::var value;
 
-    parameter->getObjectValue(obj, &ev);
-
-    if (parameter->multi) {
-        // todo: will need to handle multi-valued lists properly
-        Trace(1, "ParameterField: muli-value save not supported\n");
+    // newer complex parameter values use juce::var
+    // should be here for all multi valued parameters
+    if (parameter->juceValues) {
+        parameter->getJuceValue(obj, value);
     }
     else {
-        switch (parameter->type) {
-            case TYPE_INT: {
-                setValue(ev.getInt());
-            }
-                break;
-            case TYPE_BOOLEAN: {
-                setValue(ev.getBool());
-            }
-                break;
-            case TYPE_STRING: {
-                setValue(ev.getString());
-            }
-                break;
-            case TYPE_ENUM: {
-                // don't have to do anything special here
-                // the Field will figure out what to display
-                setValue(ev.getString());
-            }
-            break;
+        // old-school ExValue
+        ExValue ev;
+
+        parameter->getObjectValue(obj, &ev);
+
+        if (parameter->multi) {
+            // supposed to be using juce::var for these
+            Trace(1, "ParameterField: muli-value parameter not supported without Juce accessors\n");
         }
-    }    
+        else {
+            switch (parameter->type) {
+                case TYPE_INT: {
+                    value = ev.getInt();
+                }
+                    break;
+                case TYPE_BOOLEAN: {
+                    value = ev.getBool();
+                }
+                    break;
+                case TYPE_STRING: {
+                    value = ev.getString();
+                }
+                    break;
+                case TYPE_ENUM: {
+                    // don't have to do anything special here
+                    // the Field will figure out what to display
+                    value = ev.getString();
+                }
+                    break;
+            }
+        }
+    }
+
+    setValue(value);
 }
 
 void ParameterField::saveValue(void *obj)
 {
-    
-    ExValue ev;
-
-    if (parameter->multi) {
-        // todo: will need to handle multi-valued lists properly
-        Trace(1, "ParameterField: muli-value save not supported\n");
+    if (parameter->juceValues) {
+        parameter->setJuceValue(obj, getValue());
     }
     else {
-        switch (parameter->type) {
-            case TYPE_INT: {
-                ev.setInt(getIntValue());
-            }
-            break;
-            case TYPE_BOOLEAN: {
-                ev.setBool(getBoolValue());
-            }
-            break;
-            case TYPE_STRING: {
-                ev.setString(getCharValue());
-            }
-            break;
-            case TYPE_ENUM: {
-                ev.setString(getCharValue());
-            }
-            break;
-        }
-    }
+        ExValue ev;
 
-    // should do this only if we had a conversion
-    if (!ev.isNull())
-      parameter->setObjectValue(obj, &ev);
+        if (parameter->multi) {
+            // todo: will need to handle multi-valued lists properly
+            Trace(1, "ParameterField: muli-value parameter not supported without Juce accessors\n");
+        }
+        else {
+            switch (parameter->type) {
+                case TYPE_INT: {
+                    ev.setInt(getIntValue());
+                }
+                    break;
+                case TYPE_BOOLEAN: {
+                    ev.setBool(getBoolValue());
+                }
+                    break;
+                case TYPE_STRING: {
+                    ev.setString(getCharValue());
+                }
+                    break;
+                case TYPE_ENUM: {
+                    ev.setString(getCharValue());
+                }
+                    break;
+            }
+        }
+
+        // should do this only if we had a conversion
+        if (!ev.isNull())
+          parameter->setObjectValue(obj, &ev);
+    }
 }

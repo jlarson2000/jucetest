@@ -1,0 +1,161 @@
+<!-- experiment to see what Parameter definition in text would look like -->
+
+<Parameter name='switchQuantize'
+           displayName="Switch Quantize"
+	       values="off, subCycle, cycle, loop, confirm, confirmSubCycle, confirmCycle, confirmLoop"
+           displayValues"Off, Subcycle, Cycle, Loop, Confirm, Confirm Subcycle, Confirm Cycle, Confirm Loop"
+           bindable='true'
+	       type="enum"
+           aliases="switchQuant"
+           object="Preset"
+           method="SwitchQuantize"
+           enum="SwitchQuantize">
+           comments="Things you might want to know"
+           displayStyle="Slider"
+         </Parameter>
+         
+
+If displayValues are missing, the rule is to take the internal name, capitalize the
+first letter and add spaces between subsequent capitalizations.
+
+If this pattern can't be followed
+
+  displayValues="subCycle=Subcycle, confirmSubCycle=Confirm Subcycle"
+
+Generalize for all objects?
+
+<Definition type="Parameter"
+            name='switchQuantize'
+            displayName="Switch Quantize"
+            ...
+
+Really doesn't matter if we don't build a C++ model for each type element
+can operate on the Xom model and use the element name as the type name.
+Less pure because the XML attribute sets are merged.
+
+Multi valued attribute are weird
+
+sustainFunctions are stored as a csv
+
+focusLockFunctions are stored as a StringList
+
+
+MobiusConfig has these global parameters
+MobiusConfig.h:	class StringList* mFocusLockFunctions;
+MobiusConfig.h:	class StringList* mMuteCancelFunctions;
+MobiusConfig.h:	class StringList* mConfirmationFunctions;
+MobiusConfig.h:	class StringList* mAltFeedbackDisables;
+
+Setup has these, it is a StringList in the c++ model but a csv in XML
+Setup.h:	class StringList* mResetables;
+
+No need to be inconsistent in the model, either stick with csv and get rid of StringList
+or use csv always.
+
+AltFeedbackDisables was loaded directly into Mode objects, the core did not
+access the parameter directly.  I like this when it works SystemConstants don't have to be
+const.  This works for FocusLockFunctions too, anything that is global.
+
+Why is Resetables in Setup?
+
+Some of these might not be used much if at all.  Change the model and
+start migrating the core as we encounter it.  Remove "Is" testers and think
+about whether these can be set directly on the system constants.
+
+I think most of the global parameters are set directly on Function or other
+config objects when a MobiusConfig is applied
+
+	/**
+	 * List of track parameter names that will be restored from the
+	 * setup after an individual (non-global) reset.
+	 */
+	class StringList* mResetables;
+
+
+Track.cpp:	if (global || setup->isResetable(InputLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(OutputLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(FeedbackLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(AltFeedbackLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(PanParameter)) {
+Track.cpp:	if (global || setup->isResetable(FocusParameter)) {
+Track.cpp:	if (global || setup->isResetable(GroupParameter)) {
+Track.cpp:        (global || setup->isResetable(TrackPresetParameter))) {
+
+	class StringList* mResetables;
+
+Rules:
+  xml model always stores multis as csv
+  c++ model could use either csv or StringList
+  c++ runtime for global can just copy the value to SystemConstant flags
+  c++ runtime for the one Setup parameter
+
+Setup is the hard one, Track needs to determine at runtime if something
+is resetable and it does so by searching a StringList by name.  Not bad
+if it's just the Reset function.  Can't put this on Parameter since it is
+Setup specific.
+
+Since core always calls isResetable it doesn't matter how we model it in memory.
+I don't see this in any config files, change it to a csv and deal with it when
+we port Track?
+
+Alternate model
+
+"preferences" is what we have referred to some of these in Mobius::updateGlobalFunctionPreferences
+
+<GlobalPreferences>
+  <ObjectFlag type='Function'  focusLock='true' muteCancel='true'  confirmation='true' altFeedbackDisable='true'/>
+</ObjectOptions>
+
+I like this because it keeps several long lists in one place at the end
+
+If we flesh out a definition model for system constants, could use a sparse model here:
+
+  <Function name='Something' focusLock='true'/>
+  <Parameter name='Something' resetable='true'/>
+  <Mode name='Something' asdf='true'/>
+
+Hmm, this also might provide a way to change display labels in a pinch
+
+
+FocusLockFunctions seems to be consistently long, would be nice to have
+this in the permanent model and override it in config
+
+   <FocusLockFunctions>
+     <String>!Record</String>
+   </FocusLockFunctions>
+
+on render
+
+  if current value is not default value
+    if default value is true
+       emit !name
+    else
+       emit name
+       
+----------------------------------------------------------------------
+Multi-valued parameters
+
+Preset::sustainFuncdtions
+  stored in XML as csv and kept in memory as csv
+  uses isSustainFunction to search it
+
+lol, this parameter is not used anywhere by Mobius
+don't bother displaying
+
+
+the first multi we need to really deal with is "Restore After Reset"
+in Setup, it currently uses a multi-select list rather than a "mvoe to the side"
+the model calls this mResetables
+
+Global parameters use "move to the side" for Focus Lock, Mute Cancel, Confirmation
+Also Modes Ignoring Secondary Feedback
+  this could easily be a select list
+
+Function lists are a little harder because they are long and it is hearder to
+see what's on the list.  But these seem to be rarely used so we can start
+with select lists for now and improve it later.
+
+
+
+
+

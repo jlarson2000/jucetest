@@ -52,3 +52,39 @@ void JuceUtil::dumpComponent(juce::Component* c, int indent)
     }
 }
 
+/**
+ * Convert a String containing a CSV to a StringArray
+ */
+void JuceUtil::CsvToArray(juce::String csv, juce::StringArray& array)
+{
+    int start = 0;
+
+    while (start < csv.length()) {
+        int comma = csv.indexOfChar(start, ',');
+        if (comma < 0) {
+            // at the end
+            array.add(csv.substring(start));
+            start = csv.length();
+        }
+        else {
+            if (comma > start) {
+                juce::String token = csv.substring(start, comma);
+                // todo: could trim leading and trailing space
+                array.add(token);
+            }
+            // else must have had ",,"
+            // not supposed to happen, ignore
+            start = comma+1;
+        }
+    }
+}
+
+juce::String JuceUtil::ArrayToCsv(juce::StringArray& array)
+{
+    juce::String string;
+    for (int i = 0 ; i < array.size() ; i++) {
+        if (i > 0) string += ",";
+        string += array[i];
+    }
+    return string;
+}

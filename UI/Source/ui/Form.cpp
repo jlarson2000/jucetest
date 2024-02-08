@@ -99,7 +99,8 @@ void Form::add(Field* f, const char* tab, int column)
  */
 void Form::add(const char* tab, Parameter* p, int column)
 {
-    add(new ParameterField(p), tab, column);
+    Field * field = new ParameterField(p);
+    add(field, tab, column);
 }
 
 /**

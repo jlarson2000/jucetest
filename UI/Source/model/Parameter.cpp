@@ -23,6 +23,9 @@
 
 #include <vector>
 
+// for juce::value
+#include <JuceHeader.h>
+
 #include "../util/Util.h"
 #include "../util/Trace.h"
 //#include "List.h"
@@ -50,6 +53,20 @@
 // they're not really part of the configuration model anyway
 #define HIDE_TRACK
 
+/////////////////////////////////////////////////////////////////////
+//
+// New for the Juce UI, work in progress
+// These are only used if the Parameter::juceValue flag is set
+//
+/////////////////////////////////////////////////////////////////////
+
+void Parameter::getJuceValue(void* object, juce::var& value)
+{
+}
+
+void Parameter::setJuceValue(void* object, juce::var& value)
+{
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -233,8 +250,19 @@ Parameter::Parameter()
 }
 */
 
+// weed out keys eventually
 Parameter::Parameter(const char* name, int key) :
     SystemConstant(name, key)
+{
+    // if we decide we only need one constructor
+    // don't need an init() method
+    // modern way for this is to have this be in the class member initializers
+    // anyway
+    init();
+}
+
+Parameter::Parameter(const char* name, const char* displayName) :
+    SystemConstant(name, displayName)
 {
     // if we decide we only need one constructor
     // don't need an init() method

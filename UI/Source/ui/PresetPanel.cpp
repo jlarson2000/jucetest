@@ -314,7 +314,10 @@ void PresetPanel::initForm()
     form.add("Effects", TimeStretchRangeParameter);
 
     // Sustain
-    form.add("Sustain", SustainFunctionsParameter);
+    // this was never used, keep it out until we need it
+    // I see Sustainable in various places around Action
+    // handling, maybe we replaced it with that?
+    //form.add("Sustain", SustainFunctionsParameter);
 }
             
 /****************************************************************************/

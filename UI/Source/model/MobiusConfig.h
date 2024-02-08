@@ -8,6 +8,11 @@
  * Model for the Mobius core configuration.
  * UIConfig has a model for most of the UI configuration.
  *
+ * NEW
+ *
+ * I hate how MobiusConfig keeps a "current" pointer to Preset, Setup, and BindingConfig
+ * to an object within those lists.  I'd rather this just keep a number or name
+ * so it can be a pure data model.  Too much depends on this in core code, revisit laber.
  */
 
 #ifndef MOBIUS_CONFIG_H

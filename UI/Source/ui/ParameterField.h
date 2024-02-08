@@ -19,11 +19,15 @@ class ParameterField : public Field
 
     static Field::Type convertParameterType(ParameterType intype);
 
+    Parameter* getParameter() {
+        return parameter;
+    }
+    
     void loadValue(void* sourceObject);
     void saveValue(void* targetObject);
     
   private:
 
-    Parameter* parameter;
+    Parameter* parameter = nullptr;
 
 };

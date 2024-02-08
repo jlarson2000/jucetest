@@ -69,6 +69,11 @@ class PresetParameter : public Parameter
         scope = PARAM_SCOPE_PRESET;
     }
 
+    PresetParameter(const char* name, const char* displayName) :
+        Parameter(name, displayName) {
+        scope = PARAM_SCOPE_PRESET;
+    }
+
     /**
      * Overload the Parameter versions and cast to a Preset.
      */
@@ -162,7 +167,7 @@ class SubCycleParameterType : public PresetParameter
 };
 
 SubCycleParameterType::SubCycleParameterType() :
-    PresetParameter("subcycles", MSG_PARAM_SUBCYCLES)
+    PresetParameter("subcycles", "Subcycles")
 {
     bindable = true;
 	type = TYPE_INT;
@@ -211,18 +216,17 @@ const char* MULTIPLY_MODE_NAMES[] = {
 	"normal", "simple", nullptr
 };
 
-int MULTIPLY_MODE_KEYS[] = {
-	MSG_VALUE_MULTIPLY_NORMAL, MSG_VALUE_MULTIPLY_SIMPLE, 
-	0
+const char* MULTIPLY_MODE_LABELS[] = {
+	"Normal", "Simple", nullptr
 };
 
 MultiplyModeParameterType::MultiplyModeParameterType() :
-    PresetParameter("multiplyMode", MSG_PARAM_MULTIPLY_MODE)
+    PresetParameter("multiplyMode", "Multiply Mode")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = MULTIPLY_MODE_NAMES;
-	valueKeys = MULTIPLY_MODE_KEYS;
+	valueLabels = MULTIPLY_MODE_LABELS;
 }
 
 int MultiplyModeParameterType::getOrdinalValue(Preset* p)
@@ -273,17 +277,8 @@ class ShuffleModeParameterType : public PresetParameter
 	void setValue(Preset* p, ExValue* value);
 };
 
-const char* SHUFFLE_MODE_NAMES[] = {
-	"reverse", "shift", "swap", "random", nullptr
-};
-
-int SHUFFLE_MODE_KEYS[] = {
-	MSG_VALUE_SHUFFLE_REVERSE, 
-	MSG_VALUE_SHUFFLE_SHIFT,
-	MSG_VALUE_SHUFFLE_SWAP,
-	MSG_VALUE_SHUFFLE_RANDOM,
-	0
-};
+const char* SHUFFLE_MODE_NAMES[] = {"reverse", "shift", "swap", "random", nullptr};
+const char* SHUFFLE_MODE_LABELS[] = {"Reverse", "Shift", "Swap", "Random", nullptr};
 
 ShuffleModeParameterType::ShuffleModeParameterType() :
     PresetParameter("shuffleMode", MSG_PARAM_SHUFFLE_MODE)
@@ -291,7 +286,7 @@ ShuffleModeParameterType::ShuffleModeParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SHUFFLE_MODE_NAMES;
-	valueKeys = SHUFFLE_MODE_KEYS;
+	valueLabels = SHUFFLE_MODE_LABELS;
 }
 
 int ShuffleModeParameterType::getOrdinalValue(Preset* p)
@@ -371,21 +366,15 @@ const char* EMPTY_LOOP_NAMES[] = {
 	"none", "record", "copy", "copyTime", nullptr
 };
 
-int EMPTY_LOOP_KEYS[] = {
-	MSG_VALUE_EMPTY_LOOP_NONE,
-	MSG_VALUE_EMPTY_LOOP_RECORD,
-	MSG_VALUE_EMPTY_LOOP_COPY,
-	MSG_VALUE_EMPTY_LOOP_TIME,
-	0
-};
+const char* EMPTY_LOOP_LABELS[] = {"None", "Record", "Copy Sound", "Copy Timing", nullptr};
 
 EmptyLoopActionParameterType::EmptyLoopActionParameterType() :
-    PresetParameter("emptyLoopAction", MSG_PARAM_EMPTY_LOOP_ACTION)
+    PresetParameter("emptyLoopAction", "Empty Loop Action")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = EMPTY_LOOP_NAMES;
-	valueKeys = EMPTY_LOOP_KEYS;
+	valueLabels = EMPTY_LOOP_LABELS;
 }
 
 int EmptyLoopActionParameterType::getOrdinalValue(Preset* p)
@@ -433,12 +422,12 @@ class EmptyTrackActionParameterType : public PresetParameter
 };
 
 EmptyTrackActionParameterType::EmptyTrackActionParameterType() :
-    PresetParameter("emptyTrackAction", MSG_PARAM_EMPTY_TRACK_ACTION)
+    PresetParameter("emptyTrackAction", "Empty Track Action")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = EMPTY_LOOP_NAMES;
-	valueKeys = EMPTY_LOOP_KEYS;
+ 	valueLabels = EMPTY_LOOP_LABELS;
 }
 
 int EmptyTrackActionParameterType::getOrdinalValue(Preset* p)
@@ -478,20 +467,15 @@ const char* TRACK_LEAVE_NAMES[] = {
 	"none", "cancel", "wait", nullptr
 };
 
-int TRACK_LEAVE_KEYS[] = {
-	MSG_VALUE_TRACK_LEAVE_NONE,
-	MSG_VALUE_TRACK_LEAVE_CANCEL,
-	MSG_VALUE_TRACK_LEAVE_WAIT,
-	0
-};
+const char* TRACK_LEAVE_LABELS[] = {"None", "Cancel Current Mode", "Cancel and Wait", nullptr};
 
 TrackLeaveActionParameterType::TrackLeaveActionParameterType() :
-    PresetParameter("trackLeaveAction", MSG_PARAM_TRACK_LEAVE_ACTION)
+    PresetParameter("trackLeaveAction", "Track Leave Action")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = TRACK_LEAVE_NAMES;
-	valueKeys = TRACK_LEAVE_KEYS;
+	valueLabels = TRACK_LEAVE_LABELS;
 }
 
 int TrackLeaveActionParameterType::getOrdinalValue(Preset* p)
@@ -527,7 +511,7 @@ class LoopCountParameterType : public PresetParameter
 };
 
 LoopCountParameterType::LoopCountParameterType() :
-    PresetParameter("loopCount", MSG_PARAM_LOOP_COUNT)
+    PresetParameter("loopCount", "Looper Per Track")
 {
     // not bindable
 	type = TYPE_INT;
@@ -579,20 +563,15 @@ const char* MUTE_MODE_NAMES[] = {
 	"continue", "start", "pause", nullptr
 };
 
-int MUTE_MODE_KEYS[] = {
-	MSG_VALUE_MUTE_CONTINUE,
-	MSG_VALUE_MUTE_START,
-	MSG_VALUE_MUTE_PAUSE,
-	0
-};
+const char* MUTE_MODE_LABELS[] = {"Continue", "Start", "Pause", nullptr};
 
 MuteModeParameterType::MuteModeParameterType() :
-    PresetParameter("muteMode", MSG_PARAM_MUTE_MODE)
+    PresetParameter("muteMode", "Mute Mode")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = MUTE_MODE_NAMES;
-	valueKeys = MUTE_MODE_KEYS;
+	valueLabels = MUTE_MODE_LABELS;
 }
 
 int MuteModeParameterType::getOrdinalValue(Preset* p)
@@ -637,23 +616,15 @@ const char* MUTE_CANCEL_NAMES[] = {
 	"never", "edit", "trigger", "effect", "custom", "always", nullptr
 };
 
-int MUTE_CANCEL_KEYS[] = {
-	MSG_VALUE_MUTE_CANCEL_NEVER,
-	MSG_VALUE_MUTE_CANCEL_EDIT,
-	MSG_VALUE_MUTE_CANCEL_TRIGGER,
-	MSG_VALUE_MUTE_CANCEL_EFFECT,
-	MSG_VALUE_MUTE_CANCEL_CUSTOM,
-	MSG_VALUE_MUTE_CANCEL_ALWAYS,
-	0
-};
+const char* MUTE_CANCEL_LABELS[] = {"Never", "Edits", "Triggers", "Effects", "Custom", "Always", nullptr};
 
 MuteCancelParameterType::MuteCancelParameterType() :
-    PresetParameter("muteCancel", MSG_PARAM_MUTE_CANCEL)
+    PresetParameter("muteCancel", "Mute Cancel")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = MUTE_CANCEL_NAMES;
-	valueKeys = MUTE_CANCEL_KEYS;
+	valueLabels = MUTE_CANCEL_LABELS;
 }
 
 int MuteCancelParameterType::getOrdinalValue(Preset* p)
@@ -695,7 +666,7 @@ class OverdubQuantizedParameterType : public PresetParameter
 };
 
 OverdubQuantizedParameterType::OverdubQuantizedParameterType() :
-    PresetParameter("overdubQuantized", MSG_PARAM_OVERDUB_QUANTIZED)
+    PresetParameter("overdubQuantized", "Overdub Quantized")
 {
     bindable = true;
 	type = TYPE_BOOLEAN;
@@ -740,21 +711,15 @@ const char* QUANTIZE_MODE_NAMES[] = {
 	"off", "subCycle", "cycle", "loop", nullptr
 };
 
-int QUANTIZE_MODE_KEYS[] = {
-	MSG_VALUE_QUANTIZE_OFF,
-	MSG_VALUE_QUANTIZE_SUBCYCLE,
-	MSG_VALUE_QUANTIZE_CYCLE,
-	MSG_VALUE_QUANTIZE_LOOP,
-	0
-};
+const char* QUANTIZE_MODE_LABELS[] = {"Off", "Subcycle", "Cycle", "Loop", nullptr};
 
 QuantizeParameterType::QuantizeParameterType() :
-    PresetParameter("quantize", MSG_PARAM_QUANTIZE_MODE)
+    PresetParameter("quantize", "Quantize Mode")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = QUANTIZE_MODE_NAMES;
-	valueKeys = QUANTIZE_MODE_KEYS;
+	valueLabels = QUANTIZE_MODE_LABELS;
 }
 
 int QuantizeParameterType::getOrdinalValue(Preset* p)
@@ -791,12 +756,12 @@ class BounceQuantizeParameterType : public PresetParameter
 };
 
 BounceQuantizeParameterType::BounceQuantizeParameterType() :
-    PresetParameter("bounceQuantize", MSG_PARAM_BOUNCE_QUANTIZE)
+    PresetParameter("bounceQuantize", "Bounce Quantize")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = QUANTIZE_MODE_NAMES;
-	valueKeys = QUANTIZE_MODE_KEYS;
+	valueLabels = QUANTIZE_MODE_LABELS;
 }
 
 int BounceQuantizeParameterType::getOrdinalValue(Preset* p)
@@ -833,7 +798,7 @@ class RecordResetsFeedbackParameterType : public PresetParameter
 };
 
 RecordResetsFeedbackParameterType::RecordResetsFeedbackParameterType() :
-    PresetParameter("recordResetsFeedback", MSG_PARAM_RECORD_FEEDBACK)
+    PresetParameter("recordResetsFeedback", "Record Resets Feedback")
 {
     bindable = true;
 	type = TYPE_BOOLEAN;
@@ -873,7 +838,7 @@ class SpeedRecordParameterType : public PresetParameter
 };
 
 SpeedRecordParameterType::SpeedRecordParameterType() :
-    PresetParameter("speedRecord", MSG_PARAM_SPEED_RECORD)
+    PresetParameter("speedRecord", "Record Speed Changes")
 {
     bindable = true;
 	type = TYPE_BOOLEAN;
@@ -914,7 +879,7 @@ class RoundingOverdubParameterType : public PresetParameter
 };
 
 RoundingOverdubParameterType::RoundingOverdubParameterType() :
-    PresetParameter("roundingOverdub", MSG_PARAM_ROUND_MODE)
+    PresetParameter("roundingOverdub", "Overdub While Rounding")
 {
     bindable = true;
 	type = TYPE_BOOLEAN;
@@ -961,21 +926,15 @@ const char* SWITCH_LOCATION_NAMES[] = {
 	"follow", "restore", "start", "random", nullptr
 };
 
-int SWITCH_LOCATION_KEYS[] = {
-	MSG_VALUE_SWITCH_FOLLOW,
-	MSG_VALUE_SWITCH_RESTORE,
-	MSG_VALUE_SWITCH_START,
-	MSG_VALUE_SWITCH_RANDOM,
-	0
-};
+const char* SWITCH_LOCATION_LABELS[] = {"Follow", "Restore", "Start", "Random", nullptr};
 
 SwitchLocationParameterType::SwitchLocationParameterType() :
-    PresetParameter("switchLocation", MSG_PARAM_SWITCH_LOCATION)
+    PresetParameter("switchLocation", "Switch Location")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = SWITCH_LOCATION_NAMES;
-	valueKeys = SWITCH_LOCATION_KEYS;
+	valueLabels = SWITCH_LOCATION_LABELS;
 }
 
 int SwitchLocationParameterType::getOrdinalValue(Preset* p)
@@ -1012,12 +971,12 @@ class ReturnLocationParameterType : public PresetParameter
 };
 
 ReturnLocationParameterType::ReturnLocationParameterType() :
-    PresetParameter("returnLocation", MSG_PARAM_RETURN_LOCATION)
+    PresetParameter("returnLocation", "Return Location")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = SWITCH_LOCATION_NAMES;
-	valueKeys = SWITCH_LOCATION_KEYS;
+	valueLabels = SWITCH_LOCATION_LABELS;
 }
 
 int ReturnLocationParameterType::getOrdinalValue(Preset* p)
@@ -1057,22 +1016,15 @@ const char* SWITCH_DURATION_NAMES[] = {
 	"permanent", "once", "onceReturn", "sustain", "sustainReturn", nullptr
 };
 
-int SWITCH_DURATION_KEYS[] = {
-	MSG_VALUE_SWITCH_PERMANENT,
-	MSG_VALUE_SWITCH_ONCE,
-	MSG_VALUE_SWITCH_ONCE_RETURN,
-	MSG_VALUE_SWITCH_SUSTAIN,
-	MSG_VALUE_SWITCH_SUSTAIN_RETURN,
-	0
-};
+const char* SWITCH_DURATION_LABELS[] = {"Permanent", "Once", "Once Return", "Sustain", "Sustain Return", nullptr};
 
 SwitchDurationParameterType::SwitchDurationParameterType() :
-    PresetParameter("switchDuration", MSG_PARAM_SWITCH_DURATION)
+    PresetParameter("switchDuration", "Switch Duration")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = SWITCH_DURATION_NAMES;
-	valueKeys = SWITCH_DURATION_KEYS;
+	valueLabels = SWITCH_DURATION_LABELS;
 }
 
 int SwitchDurationParameterType::getOrdinalValue(Preset* p)
@@ -1113,25 +1065,15 @@ const char* SWITCH_QUANT_NAMES[] = {
     "confirm", "confirmSubCycle", "confirmCycle", "confirmLoop", nullptr
 };
 
-int SWITCH_QUANT_KEYS[] = {
-	MSG_VALUE_SWITCH_OFF,
-	MSG_VALUE_SWITCH_SUBCYCLE,
-	MSG_VALUE_SWITCH_CYCLE,
-	MSG_VALUE_SWITCH_LOOP,
-	MSG_VALUE_SWITCH_CONFIRM,
-	MSG_VALUE_SWITCH_CONFIRM_SUBCYCLE,
-	MSG_VALUE_SWITCH_CONFIRM_CYCLE,
-	MSG_VALUE_SWITCH_CONFIRM_LOOP,
-	0
-};
+const char* SWITCH_QUANT_LABELS[] = {"Off", "Subcycle", "Cycle", "Loop", "Confirm", "Confirm Subcycle", "Confirm Cycle", "Confirm Loop", nullptr};
 
 SwitchQuantizeParameterType::SwitchQuantizeParameterType() :
-    PresetParameter("switchQuantize", MSG_PARAM_SWITCH_QUANTIZE)
+    PresetParameter("switchQuantize", "Switch Quantize")
 {
     bindable = true;
 	type = TYPE_ENUM;
 	values = SWITCH_QUANT_NAMES;
-	valueKeys = SWITCH_QUANT_KEYS;
+	valueLabels = SWITCH_QUANT_LABELS;
     // old name
     addAlias("switchQuant");
 }
@@ -2054,6 +1996,7 @@ SustainFunctionsParameterType::SustainFunctionsParameterType() :
 {
     // not bindable
 	type = TYPE_STRING;
+    multi=true;
 }
 
 void SustainFunctionsParameterType::getValue(Preset* p, ExValue* value)

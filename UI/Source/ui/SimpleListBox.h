@@ -1,6 +1,8 @@
 /*
  * Extension of the ListBox that provides display of a simple list of strings
  * and allows them to be selected.  What other systems call a "multiselect".
+ * Also provides for an alternate set of labels that are displayed instead
+ * of the internal values and maps between them.
  */
 
 #pragma once
@@ -13,10 +15,12 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
     SimpleListBox();
     ~SimpleListBox();
 
-    void setValues(const char** strings);
-    void setListValues(juce::StringArray& src);
     void setValues(juce::StringArray& src);
-    
+    void setValueLabels(juce::StringArray& src);
+
+    void setSelectedValues(juce::StringArray& src);
+    void getSelectedValues(juce::StringArray& selected);
+
     // juce::Component overrides
     
     void paint (juce::Graphics& g) override;
@@ -36,6 +40,7 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
     juce::ListBox listBox;
 
     juce::StringArray values;
+    juce::StringArray valueLabels;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleListBox)
 };
