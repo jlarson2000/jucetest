@@ -868,7 +868,7 @@ void XmlRenderer::parse(XmlElement* e, Setup* setup)
 	const char* csv = e->getAttribute(ATT_RESETABLES);
 	if (csv != nullptr)
 	  setup->setResetables(new StringList(csv));
-    
+
     setup->setBeatsPerBar(parse(e, BeatsPerBarParameter));
     setup->setSyncSource((SyncSource)parse(e, DefaultSyncSourceParameter));
     setup->setSyncTrackUnit((SyncTrackUnit)parse(e, DefaultTrackSyncUnitParameter));
@@ -884,7 +884,6 @@ void XmlRenderer::parse(XmlElement* e, Setup* setup)
 
     SetupTrack* tracks = nullptr;
     SetupTrack* last = nullptr;
-    
 	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
         // todo: should verify the element name

@@ -49,7 +49,9 @@ void SimpleListBox::setSelectedValues(juce::StringArray& selected)
         juce::String value = selected[i];
         int index = values.indexOf(value);
         if (index >= 0) {
-            listBox.selectRow(index, true /* don't scroll */, true /* don't deselect others */);
+            listBox.selectRow(index,
+                              true /* don't scroll */,
+                              false /* delect others FIRST */);
         }
     }
 }

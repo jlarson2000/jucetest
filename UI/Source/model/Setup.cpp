@@ -109,6 +109,7 @@ Setup::~Setup()
 
 	delete mTracks;
 	delete mBindings;
+    delete mResetables;
 }
 
 void Setup::init()

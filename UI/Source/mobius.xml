@@ -101,7 +101,7 @@
     windowEdgeUnit='loop'
     windowSlideAmount='0'
     windowSlideUnit='loop'/>
-  <Setup name='Default' active='0' reset='focus,altFeedback' beatsPerBar='0' defaultSyncSource='track' defaultTrackSyncUnit='cycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
+  <Setup name='Default' active='0' reset='focus,feedback' beatsPerBar='0' defaultSyncSource='track' defaultTrackSyncUnit='cycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
     <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='1' audioOutputPort='1' pluginInputPort='1' pluginOutputPort='1' syncSource='default' trackSyncUnit='default'/>
     <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
     <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>

@@ -1,0 +1,85 @@
+    // Binding Overlay
+	optionPanel->add(new Strut(0, 10));
+	optionPanel->add(new Label("Binding Overlay"));
+	mBindings = new ComboBox();
+	mBindings->setColumns(20);
+	optionPanel->add(mBindings);
+    
+	mBindings->addValue("[Retain]");
+	mBindings->addValue("[Cancel]");
+
+    BindingConfig* overlays = mConfig->getBindingConfigs();
+    // the first one is always on, overlays start after that
+    if (overlays != NULL) {
+        for (overlays = overlays->getNext() ; overlays != NULL ; 
+             overlays = overlays->getNext())
+          mBindings->addValue(overlays->getName());
+    }
+
+
+    const char* overlay = mSetup->getBindings();
+    if (overlay == NULL)
+      mBindings->setSelectedIndex(0);
+    else if (StringEqual(overlay, SETUP_OVERLAY_CANCEL))
+      mBindings->setSelectedIndex(1);
+    else
+      mBindings->setSelectedValue(overlay);
+
+    const char* bindings = mBindings->getSelectedValue();
+    int index = mBindings->getSelectedIndex();
+    if (index <= 0)
+      bindings = NULL;  // retain
+    else if (index == 1)
+      bindings = SETUP_OVERLAY_CANCEL;
+    mSetup->setBindings(bindings);
+
+
+Overlay bindings feels too complicated
+
+so the options seem to be
+   empty, retain: keep base bindings only
+
+   binding name: merge base bindings and second bindings
+
+   canel
+
+
+/**
+ * Called from a few locations within the interrupt to install
+ * Things in the setup that are not track specific.
+ * Mostly this is the the overlay bindings.
+ * 
+ * This is new in 2.0.  We also have a binding overlay value in the
+ * Project, which will capture whatever the overlay was at the time the
+ * project was saved.  This may be different than what is in the Setup but
+ * not usually.
+ * THINK: It may be confusing not to have loading a project put everything
+ * back into the Setup state?
+ *
+ * This is an unusual case where we're in an interrupt but we
+ * must set the master MobiusConfig object to change the
+ * binding overlay since that is not used inside the interrupt.
+ */
+PRIVATE void Mobius::propagateSetupGlobals(Setup* setup)
+{
+    // changes the active track without TrackCopy semantics
+    setTrack(setup->getActiveTrack());
+
+    // A NULL binding value means "keep the current one", if you
+    // always want the setup to remove the current binding overlay you
+    // need to set it to a special value.
+    const char* name = setup->getBindings();
+    if (name != NULL) {
+        BindingConfig* bindings = mConfig->getBindingConfig(name);
+        if (bindings != NULL) {
+            setOverlayBindings(bindings);
+        }
+        else if (StringEqual(name, SETUP_OVERLAY_CANCEL)) {
+            // special value that means to always cancel the current bindings
+            setOverlayBindings(NULL);
+        }
+        else {
+            // could just let any invalid name cancel the bindings?
+        }
+    }
+}
