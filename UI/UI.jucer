@@ -125,6 +125,8 @@
               file="Source/model/SystemConstant.cpp"/>
         <FILE id="JZYXKm" name="SystemConstant.h" compile="0" resource="0"
               file="Source/model/SystemConstant.h"/>
+        <FILE id="vOMGOg" name="UIConfig.cpp" compile="1" resource="0" file="Source/model/UIConfig.cpp"/>
+        <FILE id="TEKUdU" name="UIConfig.h" compile="0" resource="0" file="Source/model/UIConfig.h"/>
         <FILE id="wa9W4M" name="UserVariable.cpp" compile="1" resource="0"
               file="Source/model/UserVariable.cpp"/>
         <FILE id="JU2prp" name="UserVariable.h" compile="0" resource="0" file="Source/model/UserVariable.h"/>

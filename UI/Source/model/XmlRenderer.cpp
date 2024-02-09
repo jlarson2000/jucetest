@@ -1411,6 +1411,161 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
     w->setTrack(e->getIntAttribute(ATT_TRACK));
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// UIConfig
+//
+//////////////////////////////////////////////////////////////////////
+
+#define EL_UI_CONFIG "UIConfig"
+#define ATT_NAME "name"
+#define ATT_REFRESH "refreshInterval"
+#define ATT_ALERT_INTERVALS "alertIntervals"
+#define ATT_MESSAGE_DURATION "messageDuration"
+#define ATT_WIDTH "width"
+#define ATT_HEIGHT "height"
+ 
+#define EL_LOCATIONS "Locations"
+#define EL_LOCATION "Location"
+#define ATT_X "x"
+#define ATT_Y "y"
+#define ATT_DISABLED "disabled"
+
+#define EL_BUTTONS "Buttons"
+#define EL_BUTTON "Button"
+#define ATT_FUNCTION_NAME "function"
+
+// don't really like these as top level things, would make more sense
+// inside the <Location> element, consider generalizing <Location>
+// to <Component> and allowing it to have arbitrary <Property>s.
+
+#define EL_PARAMETERS "InstantParameters"
+#define EL_PARAMETER "Parameter"
+
+#define EL_OLD_TRACK_CONTROLS "TrackControls"
+#define EL_FLOATING_TRACK_STRIP "FloatingTrackStrip"
+#define EL_FLOATING_TRACK_STRIP2 "FloatingTrackStrip2"
+#define EL_DOCKED_TRACK_STRIP "DockedTrackStrip"
+
+void XmlRenderer::render(XmlBuffer* b, UIConfig* c)
+{
+	b->addOpenStartTag(EL_UI_CONFIG);
+
+    // these won't ever have names currently
+    b->addAttribute(ATT_NAME, mName);
+
+    b->addAttribute(ATT_WIDTH, c->getWidth());
+    b->addAttribute(ATT_HEIGHT, c->getHeight());
+    b->addAttribute(ATT_REFRESH, c->getRefreshInterval());
+    b->addAttribute(ATT_MESSAGE_DURATION, d->getMessageDuration());
+
+    // this has never been used and I'm not even sure what it was for
+    //b->addAttribute(ATT_ALERT_INTERVALS, mAlertIntervals);
+
+	b->add(">\n");
+	b->incIndent();
+
+	if (mLocations != NULL) {
+		b->addStartTag(EL_LOCATIONS);
+		b->incIndent();
+        std::vector<Location>* locations = c->getLocations();
+		for (int i = 0 ; i < locations->length() ; i++) {
+			Location* l = (Location*)mLocations->get(i);
+			l->toXml(b);
+		}
+		b->decIndent();
+		b->addEndTag(EL_LOCATIONS);
+	}
+
+	if (mParameters != NULL) {
+		b->addStartTag(EL_PARAMETERS);
+		b->incIndent();
+		for (int i = 0 ; i < mParameters->size() ; i++) {
+			const char* name = mParameters->getString(i);
+			if (name != NULL) {
+				b->addOpenStartTag(EL_PARAMETER);
+				b->addAttribute(ATT_NAME, name);
+				b->add("/>\n");
+			}
+		}
+		b->decIndent();
+		b->addEndTag(EL_PARAMETERS);
+	}
+
+    if (mFloatingStrip != NULL) {
+        b->addStartTag(EL_FLOATING_TRACK_STRIP);
+		b->incIndent();
+		for (int i = 0 ; i < mFloatingStrip->size() ; i++) {
+			const char* name = mFloatingStrip->getString(i);
+			if (name != NULL) {
+				b->addOpenStartTag(EL_COMPONENT);
+				b->addAttribute(ATT_NAME, name);
+				b->add("/>\n");
+			}
+		}
+		b->decIndent();
+		b->addEndTag(EL_FLOATING_TRACK_STRIP);
+	}
+
+    if (mFloatingStrip2 != NULL) {
+        b->addStartTag(EL_FLOATING_TRACK_STRIP2);
+		b->incIndent();
+		for (int i = 0 ; i < mFloatingStrip2->size() ; i++) {
+			const char* name = mFloatingStrip2->getString(i);
+			if (name != NULL) {
+				b->addOpenStartTag(EL_COMPONENT);
+				b->addAttribute(ATT_NAME, name);
+				b->add("/>\n");
+			}
+		}
+		b->decIndent();
+		b->addEndTag(EL_FLOATING_TRACK_STRIP2);
+	}
+
+    if (mDockedStrip != NULL) {
+        b->addStartTag(EL_DOCKED_TRACK_STRIP);
+		b->incIndent();
+		for (int i = 0 ; i < mDockedStrip->size() ; i++) {
+			const char* name = mDockedStrip->getString(i);
+			if (name != NULL) {
+				b->addOpenStartTag(EL_COMPONENT);
+				b->addAttribute(ATT_NAME, name);
+				b->add("/>\n");
+			}
+		}
+		b->decIndent();
+		b->addEndTag(EL_DOCKED_TRACK_STRIP);
+	}
+
+	if (mKeyConfig != NULL)
+      mKeyConfig->toXml(b);
+
+    // deprecated, this should be upgraded immediately into Bindings
+	if (mButtons != NULL) {
+		b->addStartTag(EL_BUTTONS);
+		b->incIndent();
+		for (int i = 0 ; i < mButtons->size() ; i++) {
+			ButtonConfig* bc = (ButtonConfig*)mButtons->get(i);
+			bc->toXml(b);
+		}
+		b->decIndent();
+		b->addEndTag(EL_BUTTONS);
+	}
+	
+	if (mPalette != NULL)
+	  mPalette->toXml(b);
+
+	if (mFontConfig != NULL)
+	  mFontConfig->toXml(b);
+
+    b->decIndent();
+
+	b->addEndTag(EL_UI_CONFIG);
+}
+
+    
+
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

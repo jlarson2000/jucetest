@@ -748,6 +748,9 @@
     <ClCompile Include="..\..\Source\model\SystemConstant.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\UIConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
@@ -3322,6 +3325,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\SystemConstant.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\UIConfig.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UserVariable.h">

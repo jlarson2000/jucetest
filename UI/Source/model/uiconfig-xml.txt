@@ -1,0 +1,136 @@
+/****************************************************************************
+ *                                                                          *
+ *   							XML CONSTANTS                               *
+ *                                                                          *
+ ****************************************************************************/
+
+
+
+void UIConfig::parseXml(const char *src) 
+{
+    mError[0] = 0;
+	XomParser* p = new XomParser();
+	XmlDocument* d = p->parse(src);
+    XmlElement* e = NULL;
+
+	if (d != NULL)
+      e = d->getChildElement();
+
+	if (e != NULL)
+      parseXml(e);
+    else {
+        // capture the error since the parser no longer throws
+        CopyString(p->getError(), mError, sizeof(mError));
+    }
+    delete d;
+	delete p;
+}
+
+PRIVATE void UIConfig::parseXml(XmlElement* e)
+{
+    setName(e->getAttribute(ATT_NAME));
+	mBounds = new Bounds();
+
+	mBounds->x = e->getIntAttribute(ATT_X, 0);
+	mBounds->y = e->getIntAttribute(ATT_Y, 0);
+	mBounds->width = e->getIntAttribute(ATT_WIDTH, 0);
+	mBounds->height = e->getIntAttribute(ATT_HEIGHT, 0);
+	mMaximized = e->getBoolAttribute(ATT_MAXIMIZED);
+	mNoMenu = e->getBoolAttribute(ATT_NOMENU);
+	mPaintTrace = e->getBoolAttribute(ATT_PAINT_TRACE);
+    setRefreshInterval(e->getIntAttribute(ATT_REFRESH, DEFAULT_REFRESH_INTERVAL));
+    setAlertIntervals(e->getIntAttribute(ATT_ALERT_INTERVALS, DEFAULT_ALERT_INTERVALS));
+    setMessageDuration(e->getIntAttribute(ATT_MESSAGE_DURATION, DEFAULT_MESSAGE_DURATION));
+
+	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+		 child = child->getNextElement()) {
+
+		if (child->isName(EL_LOCATIONS)) {
+			for (XmlElement* le = child->getChildElement() ; le != NULL ; 
+				 le = le->getNextElement()) {
+				addLocation(new Location(le));
+			}
+		}
+		else if (child->isName(EL_PARAMETERS)) {
+			for (XmlElement* pe = child->getChildElement() ; pe != NULL ; 
+				 pe = pe->getNextElement()) {
+				addParameter(pe->getAttribute(ATT_NAME));
+			}
+		}
+		else if (child->isName(EL_OLD_TRACK_CONTROLS) ||
+                 child->isName(EL_FLOATING_TRACK_STRIP)) {
+			for (XmlElement* pe = child->getChildElement() ; pe != NULL ; 
+				 pe = pe->getNextElement()) {
+				addFloatingStrip(pe->getAttribute(ATT_NAME));
+			}
+		}
+		else if (child->isName(EL_FLOATING_TRACK_STRIP2)) {
+            StringList* controls = NULL;
+			for (XmlElement* pe = child->getChildElement() ; pe != NULL ; 
+				 pe = pe->getNextElement()) {
+                if (controls == NULL)
+                  controls = new StringList();
+				controls->add(pe->getAttribute(ATT_NAME));
+			}
+            setFloatingStrip2(controls);
+		}
+		else if (child->isName(EL_OLD_TRACK_STRIP) ||
+                 child->isName(EL_DOCKED_TRACK_STRIP)) {
+			for (XmlElement* pe = child->getChildElement() ; pe != NULL ; 
+				 pe = pe->getNextElement()) {
+				addDockedStrip(pe->getAttribute(ATT_NAME));
+			}
+		}
+		else if (child->isName(EL_BUTTONS)) {
+            // deprecated but we have to parse them for upgrade
+			for (XmlElement* bce = child->getChildElement() ; bce != NULL ; 
+				 bce = bce->getNextElement()) {
+				addButton(new ButtonConfig(bce));
+			}
+		}
+		else if (child->isName(EL_KEY_CONFIG)) {
+			mKeyConfig = new KeyConfig(child);
+		}
+		else if (child->isName(Palette::ELEMENT)) {
+            setPalette(new Palette(child));
+        }
+		else if (child->isName(FontConfig::ELEMENT)) {
+            setFontConfig(new FontConfig(child));
+		}
+	}
+
+    checkDisplayComponents();
+}
+
+PUBLIC char* UIConfig::toXml()
+{
+	char* xml = NULL;
+	XmlBuffer* b = new XmlBuffer();
+	toXml(b);
+	xml = b->stealString();
+	delete b;
+	return xml;
+}
+
+PUBLIC void UIConfig::toXml(XmlBuffer* b)
+{
+c}
+
+PUBLIC void Location::toXml(XmlBuffer* b)
+{
+	b->addOpenStartTag(EL_LOCATION);
+	b->addAttribute(ATT_NAME, mName);
+	b->addAttribute(ATT_X, mX);
+	b->addAttribute(ATT_Y, mY);
+	b->addAttribute(ATT_DISABLED, mDisabled);
+	b->add("/>\n");
+}
+
+PUBLIC void Location::parseXml(XmlElement* e)
+{
+	setName(e->getAttribute(ATT_NAME));
+	setX(e->getIntAttribute(ATT_X));
+	setY(e->getIntAttribute(ATT_Y));
+    setDisabled(e->getBoolAttribute(ATT_DISABLED));
+}
+

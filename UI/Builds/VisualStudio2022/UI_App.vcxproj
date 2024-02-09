@@ -190,6 +190,7 @@
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\SystemConstant.cpp"/>
+    <ClCompile Include="..\..\Source\model\UIConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp"/>
     <ClCompile Include="..\..\Source\model\XmlRenderer.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -2502,6 +2503,7 @@
     <ClInclude Include="..\..\Source\model\ScriptConfig.h"/>
     <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
+    <ClInclude Include="..\..\Source\model\UIConfig.h"/>
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
