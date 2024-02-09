@@ -643,7 +643,19 @@
     <ClCompile Include="..\..\Source\ui\SetupPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SimpleButton.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\SimpleListBox.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SimpleRadio.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SimpleTable.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\TableTest.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
@@ -3216,7 +3228,19 @@
     <ClInclude Include="..\..\Source\ui\SetupPanel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SimpleButton.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\SimpleListBox.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SimpleRadio.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SimpleTable.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\TableTest.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\TestPanel.h">

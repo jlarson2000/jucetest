@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 
+#include "../util/Trace.h"
 #include "../model/Parameter.h"
 #include "../model/MobiusConfig.h"
 #include "../model/Setup.h"
@@ -11,6 +12,7 @@
 
 #include "ConfigEditor.h"
 #include "ParameterField.h"
+#include "SimpleRadio.h"
 
 #include "SetupPanel.h"
 
@@ -188,6 +190,8 @@ void SetupPanel::loadSetupFields()
           }
         }
     }
+    // initial selection will be the first, any need to change it?
+    trackSelector->setSelection(2);
 }
 
 /**
@@ -232,6 +236,44 @@ void SetupPanel::render()
 {
     initForm();
     form.render();
+
+    // Track panel is special
+    trackSelector = new SimpleRadio();
+    int ntracks = 8; // TODO: need to get this from config
+    juce::StringArray trackNumbers;
+    for (int i = 0 ; i < ntracks ; i++) {
+        trackNumbers.add(juce::String(i+1));
+    }
+    trackSelector->setButtonLabels(trackNumbers);
+    trackSelector->setLabel("Track");
+    trackSelector->setSelection(0);
+    trackSelector->setListener(this);
+    trackSelector->render();
+
+    // this will take ownership of the Component
+    FormPanel* formPanel = form.getPanel("Tracks");
+    formPanel->addHeader(trackSelector);
+    
+    initButton = new SimpleButton("Initialize");
+    initButton->addListener(this);
+    initAllButton = new SimpleButton("Initialize All");
+    initAllButton->addListener(this);
+    
+    captureButton = new SimpleButton("Capture");
+    captureButton->addListener(this);
+    captureAllButton = new SimpleButton("Capture All");
+    captureAllButton->addListener(this);
+
+    Panel* buttons = new Panel(Panel::Orientation::Horizontal);
+    buttons->addOwned(initButton);
+    buttons->addOwned(initAllButton);
+    buttons->addOwned(captureButton);
+    buttons->addOwned(captureAllButton);
+    buttons->autoSize();
+    // would be nice to have a panel option that adjusts the
+    // width of all the buttons to be the same
+    // buttons->setUniformWidth(true);
+    formPanel->addFooter(buttons);
 
     // place it in the content panel
     content.addAndMakeVisible(form);
@@ -315,3 +357,20 @@ Field* SetupPanel::buildResetablesField()
 
     return field;
 }
+
+//////////////////////////////////////////////////////////////////////
+//
+// Listneners
+//
+//////////////////////////////////////////////////////////////////////
+
+void SetupPanel::radioSelected(SimpleRadio* r, int index)
+{
+    Trace(1, "Track %d\n", index);
+}
+
+void SetupPanel::buttonClicked(juce::Button* b)
+{
+    Trace(1, "Button %s\n", b->getButtonText().toUTF8());
+}
+

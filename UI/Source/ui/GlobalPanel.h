@@ -22,7 +22,12 @@ class GlobalPanel : public ConfigPanel
 
   private:
 
-    FieldGrid fields;
-    juce::TabbedComponent tabs {juce::TabbedButtonBar::Orientation::TabsAtTop};
+    void render();
+    void initForm();
     
+    void loadGlobal(class MobiusConfig* c);
+    void saveGlobal(class MobiusConfig* c);
+    
+    Form form;
+        
 };

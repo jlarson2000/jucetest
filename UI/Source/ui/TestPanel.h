@@ -7,6 +7,7 @@
 #include <JuceHeader.h>
 #include "JLabel.h"
 #include "Panel.h"
+#include "SimpleRadio.h"
 
 class TestContentPanel : public juce::Component
 {
@@ -23,7 +24,7 @@ class TestContentPanel : public juce::Component
     juce::TabbedComponent tabs {juce::TabbedButtonBar::Orientation::TabsAtTop};
 };
 
-class TestPanel : public juce::Component
+class TestPanel : public juce::Component, SimpleRadio::Listener
 {
   public:
 
@@ -32,6 +33,8 @@ class TestPanel : public juce::Component
     ~TestPanel() override;
 
     void center();
+
+    void radioSelected(SimpleRadio* radio, int index);
 
     // Component
     void resized() override;

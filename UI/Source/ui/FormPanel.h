@@ -25,6 +25,9 @@ class FormPanel : public Panel
         return tabName;
     }
 
+    void addHeader(Component* c);
+    void addFooter(Component* c);
+    
     void addGrid(FieldGrid* grid);
     FieldGrid* getGrid(int index);
     void gatherFields(juce::Array<Field*>& fields);
@@ -36,8 +39,12 @@ class FormPanel : public Panel
 
   private:
 
+    int layoutComponents(juce::OwnedArray<Component>* stuff, int rowOffset);
+
     juce::String tabName;
+    juce::OwnedArray<juce::Component> header;
     juce::OwnedArray<FieldGrid> grids;
+    juce::OwnedArray<juce::Component> footer;
 
 };
 

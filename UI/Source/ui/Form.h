@@ -20,6 +20,7 @@ class Form : public juce::Component
     ~Form();
 
     void add(FormPanel* panel);
+    FormPanel* getPanel(juce::String name);
 
     // will want more options here
     void add(Field* f, const char* tab = nullptr, int column = 0);

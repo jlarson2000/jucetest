@@ -9,9 +9,11 @@
 #include "../model/Setup.h"
 
 #include "Form.h"
+#include "SimpleRadio.h"
+#include "SimpleButton.h"
 #include "ConfigPanel.h"
 
-class SetupPanel : public ConfigPanel 
+class SetupPanel : public ConfigPanel, public SimpleRadio::Listener, public juce::Button::Listener
 {
   public:
     SetupPanel(class ConfigEditor *);
@@ -29,6 +31,9 @@ class SetupPanel : public ConfigPanel
     void revertObject() override;
     void renameObject(juce::String) override;
 
+    void radioSelected(class SimpleRadio* r, int index);
+    void buttonClicked(juce::Button* b);
+    
   private:
 
     void render();
@@ -41,6 +46,12 @@ class SetupPanel : public ConfigPanel
     
     bool active = false;
     juce::OwnedArray<Setup> setups;
+    // this will be in FormPanel's OwnedArray
+    SimpleRadio* trackSelector = nullptr;
+    SimpleButton* initButton = nullptr;
+    SimpleButton* initAllButton = nullptr;
+    SimpleButton* captureButton = nullptr;
+    SimpleButton* captureAllButton = nullptr;
     int selectedSetup = 0;
     int selectedTrack = 0;
 

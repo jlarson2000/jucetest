@@ -1,0 +1,77 @@
+
+There are a bunch of Global parameters that are no longer relevant,
+for internal testing, handled in a special way by Mobius for bindings,
+or are accessible only from Scripts.
+
+// not relevant
+ *  Custom Message File, CustomMessageFileParameter
+ *  Message Duration/MessageDurationParameter
+ *   this is actually a UIType, not in MobiusConfig
+ *  Dual Plugin Edit Window
+
+
+// used only in scripts, not in MobiusConfig
+extern Parameter* SetupNumberParameter;
+
+// forgotton hack to set a custom mode label I guess
+// Used by Mobius.cpp, not in MobiusConfig
+extern Parameter* CustomModeParameter;
+
+
+// this is in MobiusConfig but not visible
+// used by Synchronizer, maybe for test scripts?
+extern Parameter* DriftCheckPointParameter;
+
+// this is in MobiusConfig but not visible
+// does not appear to have been used
+extern Parameter* FadeFramesParameter;
+
+// these are used in test scripts
+extern Parameter* InputLatencyParameter;
+extern Parameter* OutputLatencyParameter;
+
+// not visible, possibly used in Bindings and scripts
+// handled by Mobius.cpp
+extern Parameter* BindingsParameter;
+extern Parameter* SetupNameParameter;
+
+// not visible, referenced by Layer
+// possibly used in test scripts
+extern Parameter* IsolateOverdubsParameter;
+
+// not visible used by Synchronizer
+extern Parameter* MidiRecordModeParameter;
+
+// do not appear to have been used
+extern Parameter* MidiThroughParameter;
+extern Parameter* PluginMidiThroughParameter;
+
+// set in the MIDI dialog
+extern Parameter* PluginMidiInputParameter;
+extern Parameter* PluginMidiOutputParameter;
+
+// set in audio dialog
+extern Parameter* SampleRateParameter;
+
+// not visible, not sure how it was used
+extern Parameter* UnitTestsParameter;
+
+// unsure, I think this was used for bindings to
+// select tracks as a Host parameter?
+extern Parameter* TrackParameter;
+
+/**
+ * This is only used when editing the setup, it is not bindable
+ * or usable from a script.  From scripts it behaves the same
+ * as InputPort and TrackInputPort.
+ */
+class PluginInputPortParameterType : public TrackParameter
+
+// not visible unclear, probably used in scripts and bindings?
+// these are not shown in the old dialog
+
+
+extern Parameter* TrackInputPortParameter;
+extern Parameter* TrackOutputPortParameter;
+
+

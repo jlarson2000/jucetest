@@ -21,6 +21,7 @@ MainComponent::MainComponent()
     mainMenu.setListener(this);
 
     addChildComponent(test);
+    addChildComponent(table);
 
     // Make sure you set the size of the component after
     // you add any child components.  This will cascade resized()
@@ -161,7 +162,11 @@ void MainComponent::mainMenuSelection(int id)
         }
         break;
         
-        case MainMenu::KeyboardControl: break;
+        case MainMenu::KeyboardControl:  {
+            table.show();
+        }
+            break;
+            
         case MainMenu::PluginParamters: break;
         case MainMenu::Buttons: break;
         case MainMenu::DisplayComponents: break;

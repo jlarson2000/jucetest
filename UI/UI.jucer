@@ -36,9 +36,18 @@
         <FILE id="ALkfwM" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/PresetPanel.h"/>
         <FILE id="kZynOw" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/SetupPanel.cpp"/>
         <FILE id="IH3gkv" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/SetupPanel.h"/>
+        <FILE id="FxcyMb" name="SimpleButton.cpp" compile="1" resource="0"
+              file="Source/ui/SimpleButton.cpp"/>
+        <FILE id="bRSWP9" name="SimpleButton.h" compile="0" resource="0" file="Source/ui/SimpleButton.h"/>
         <FILE id="zIuf5I" name="SimpleListBox.cpp" compile="1" resource="0"
               file="Source/ui/SimpleListBox.cpp"/>
         <FILE id="QvD4Xk" name="SimpleListBox.h" compile="0" resource="0" file="Source/ui/SimpleListBox.h"/>
+        <FILE id="aWTrOS" name="SimpleRadio.cpp" compile="1" resource="0" file="Source/ui/SimpleRadio.cpp"/>
+        <FILE id="UBAnBB" name="SimpleRadio.h" compile="0" resource="0" file="Source/ui/SimpleRadio.h"/>
+        <FILE id="IcToht" name="SimpleTable.cpp" compile="1" resource="0" file="Source/ui/SimpleTable.cpp"/>
+        <FILE id="qttamz" name="SimpleTable.h" compile="0" resource="0" file="Source/ui/SimpleTable.h"/>
+        <FILE id="i2oaVK" name="TableTest.cpp" compile="1" resource="0" file="Source/ui/TableTest.cpp"/>
+        <FILE id="AtA2ao" name="TableTest.h" compile="0" resource="0" file="Source/ui/TableTest.h"/>
         <FILE id="xj7zdN" name="TestPanel.cpp" compile="1" resource="0" file="Source/ui/TestPanel.cpp"/>
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>

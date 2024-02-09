@@ -4,11 +4,13 @@
 
 #include <JuceHeader.h>
 
+#include "../util/Trace.h"
 #include "TestPanel.h"
 #include "JuceUtil.h"
 #include "Panel.h"
 #include "Field.h"
 #include "FieldGrid.h"
+#include "SimpleRadio.h"
 #include "Form.h"
 #include "../model/Parameter.h"
 
@@ -35,6 +37,13 @@ TestPanel::TestPanel()
     panel1->autoSize();
              
     panel.addOwned(panel1);
+
+    SimpleRadio* r = new SimpleRadio();
+    r->setLabel("Radio");
+    r->setButtonLabels(juce::StringArray({"1", "2", "3"}));
+    r->render();
+    r->setListener(this);
+    panel.addOwned(r);
 
     Field* f = new Field("xyz", "XYZ", Field::Type::Boolean);
     f->setUnmanagedLabel(true);
@@ -195,3 +204,8 @@ TestPanelSub::~TestPanelSub()
 {
 }
 
+
+void TestPanel::radioSelected(SimpleRadio* radio, int index)
+{
+    Trace(1, "Radio selected %d\n", index);
+}

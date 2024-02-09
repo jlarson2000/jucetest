@@ -155,7 +155,11 @@
     <ClCompile Include="..\..\Source\ui\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\SetupPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\SimpleButton.cpp"/>
     <ClCompile Include="..\..\Source\ui\SimpleListBox.cpp"/>
+    <ClCompile Include="..\..\Source\ui\SimpleRadio.cpp"/>
+    <ClCompile Include="..\..\Source\ui\SimpleTable.cpp"/>
+    <ClCompile Include="..\..\Source\ui\TableTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Mobius.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
@@ -2466,7 +2470,11 @@
     <ClInclude Include="..\..\Source\ui\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\SetupPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\SimpleButton.h"/>
     <ClInclude Include="..\..\Source\ui\SimpleListBox.h"/>
+    <ClInclude Include="..\..\Source\ui\SimpleRadio.h"/>
+    <ClInclude Include="..\..\Source\ui\SimpleTable.h"/>
+    <ClInclude Include="..\..\Source\ui\TableTest.h"/>
     <ClInclude Include="..\..\Source\ui\TestPanel.h"/>
     <ClInclude Include="..\..\Source\mobius\Mobius.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>

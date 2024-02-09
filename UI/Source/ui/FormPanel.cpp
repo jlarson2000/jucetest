@@ -8,6 +8,13 @@
  * it is layed out vertically.
  * The panel name becomes the tab name if there is more than one
  * panel in a form.
+ *
+ * The Tracks panel for SetupPanel is unusual because it
+ * has a track selection radio component at the top and some
+ * buttons at the bottom to capture runtime state.
+ *
+ * We could try to implement these with stacked grids, but just
+ * Allow for a list of header/footer components.  Center them above the grids.
  */
 
 #include <JuceHeader.h>
@@ -22,6 +29,18 @@ FormPanel::FormPanel(juce::String argTabName)
 {
     setName("FormPanel");
     tabName = argTabName;
+}
+
+void FormPanel::addHeader(juce::Component* c)
+{
+    addAndMakeVisible(c);
+    header.add(c);
+}
+
+void FormPanel::addFooter(juce::Component* c)
+{
+    addAndMakeVisible(c);
+    footer.add(c);
 }
 
 void FormPanel::addGrid(FieldGrid* grid)
@@ -71,11 +90,27 @@ juce::Rectangle<int> FormPanel::getMinimumSize()
     int maxWidth = 0;
     int maxHeight = 0;
     
+    for (int i = 0 ; i < header.size() ; i++) {
+        Component* c = header[i];
+        if (c->getWidth() > maxWidth)
+          maxWidth = c->getWidth();
+        if (c->getHeight() > maxHeight)
+          maxHeight = c->getHeight();
+    }
+
     for (int i = 0 ; i < grids.size() ; i++) {
         FieldGrid* grid = grids[i];
         if (grid->getWidth() > maxWidth)
           maxWidth = grid->getWidth();
         maxHeight += grid->getHeight();
+    }
+
+    for (int i = 0 ; i < footer.size() ; i++) {
+        Component* c = footer[i];
+        if (c->getWidth() > maxWidth)
+          maxWidth = c->getWidth();
+        if (c->getHeight() > maxHeight)
+          maxHeight = c->getHeight();
     }
 
     return juce::Rectangle<int> {0, 0, maxWidth, maxHeight};
@@ -90,24 +125,37 @@ juce::Rectangle<int> FormPanel::getMinimumSize()
  */
 void FormPanel::resized()
 {
-    int gridOffset = 0;
+    juce::Rectangle<int> bounds = getMinimumSize();
+    int contentHeight = bounds.getHeight();
+    int contentOffset = (getHeight() - contentHeight) / 2;
 
-    int maxHeight = 0;
-    for (int i = 0 ; i < grids.size() ; i++) {
-        FieldGrid* grid = grids[i];
-        maxHeight += grid->getHeight();
-    }
+    contentOffset = layoutComponents(&header, contentOffset);
 
-    gridOffset = (getHeight() - maxHeight) / 2;
-
+    // sigh, can't pass OwnedArray<FieldGrid> to OwnedArray<Component>
+    // should be a way to upcast these
+    // I'd rather now change this to a Component array and make
+    // everything else dynamic_cast down to FieldGrid
     for (int i = 0 ; i < grids.size() ; i++) {
         FieldGrid* grid = grids[i];
         int centerOffset = (getWidth() - grid->getWidth()) / 2;
-        grid->setTopLeftPosition(centerOffset, gridOffset);
-        gridOffset += grid->getHeight();
+        grid->setTopLeftPosition(centerOffset, contentOffset);
+        contentOffset += grid->getHeight();
     }
+
+    contentOffset = layoutComponents(&footer, contentOffset);
 }
 
+int FormPanel::layoutComponents(juce::OwnedArray<Component>* stuff, int rowOffset)
+{
+    for (int i = 0 ; i < stuff->size() ; i++) {
+        Component* c = (*stuff)[i];
+        int centerOffset = (getWidth() - c->getWidth()) / 2;
+        c->setTopLeftPosition(centerOffset, rowOffset);
+        rowOffset += c->getHeight();
+    }
+    return rowOffset;
+}
+    
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

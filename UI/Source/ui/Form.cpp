@@ -47,6 +47,19 @@ void Form::add(FormPanel* panel)
     panels.add(panel);
 }
 
+FormPanel* Form::getPanel(juce::String name)
+{
+    FormPanel* found = nullptr;
+    for (int i = 0 ; i < panels.size() ; i++) {
+        FormPanel* p = panels[i];
+        if (name == p->getTabName()) {
+            found = p;
+            break;
+        }
+    }
+    return found;
+}
+
 /**
  * Called during form rendering to add a field to a panel/grid
  * at the specified column.

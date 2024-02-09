@@ -38,7 +38,6 @@ class PresetPanel : public ConfigPanel
     void savePreset(int index);
     Preset* getSelectedPreset();
     
-    bool active = false;
     juce::OwnedArray<Preset> presets;
     int selectedPreset = 0;
 
