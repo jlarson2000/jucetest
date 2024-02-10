@@ -73,6 +73,12 @@ void ButtonPanel::cancel()
 //
 //////////////////////////////////////////////////////////////////////
 
+// getting a warning on the setColumnTitles call
+// 1>C:\dev\jucetest\UI\Source\ui\ButtonPanel.cpp(80,44): warning C4239: nonstandard extension used: 'argument': conversion from 'juce::StringArray' to 'juce::StringArray &'
+// 1>C:\dev\jucetest\UI\Source\ui\ButtonPanel.cpp(80,44): message : A non-const reference may only be bound to an lvalue
+1>UI_App.vcxproj -> C:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\UI.exe
+
+
 void ButtonPanel::render()
 {
     content.addAndMakeVisible(table);
