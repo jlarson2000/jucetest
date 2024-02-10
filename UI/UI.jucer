@@ -5,6 +5,8 @@
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
       <GROUP id="{65649B8C-FFE3-B772-6B79-EF729D3BCE34}" name="ui">
+        <FILE id="RWAiHd" name="ButtonPanel.cpp" compile="1" resource="0" file="Source/ui/ButtonPanel.cpp"/>
+        <FILE id="IR0gRb" name="ButtonPanel.h" compile="0" resource="0" file="Source/ui/ButtonPanel.h"/>
         <FILE id="R09hMU" name="ConfigEditor.cpp" compile="1" resource="0"
               file="Source/ui/ConfigEditor.cpp"/>
         <FILE id="NbAr78" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/ConfigEditor.h"/>

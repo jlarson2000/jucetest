@@ -7,6 +7,29 @@
  * 
  * Model for Mobius UI configuration.
  *
+ * Handling of Button configuration is weird and was evolving.
+ * It started with a list of ButtonConfigs in UIConfig but moved
+ * toward representing them as Bindings in MobiusConfig.
+ *
+ *   <Binding target='function' name='Reset' trigger='ui' value='0'/>
+ *
+ * This would have created a button for the function named Reset.
+ * Though only function targets were used, the model supports adding
+ * buttons for selecting configuration objects, controls, parameters, etc.
+ *
+ * What use is there for parameters?  I guess "set quantize on" when this
+ * button is pressed.  Could be useful.
+ *
+ * Controls might be "set pan center".
+ *
+ * Since Bindings are compiled, it feels better to keep them in both UIConfig
+ * and MobiusConfig and have them merged during startup into the compiled model.
+ * Only the UI uses these so it makes sense for these to be adjusted during
+ * UI initialization.
+ *
+ * Could use the Binding model here for buttons, but I like keeping them
+ * distinct in case we want to store other button properties like color, or
+ * alternate names.
  */
 
 #include <stdio.h>
@@ -15,6 +38,7 @@
 #include <math.h>
 
 #include <vector>
+#include <memory>
 
 #include "../util/Util.h"
 
@@ -27,11 +51,6 @@
  ****************************************************************************/
 
 UIConfig::UIConfig()
-{
-    init();
-}
-
-void UIConfig::init()
 {
     mError[0] = 0;
     mName = nullptr;
@@ -54,12 +73,18 @@ UIConfig::~UIConfig()
     delete mFloatingStrip;
     delete mFloatingStrip2;
     delete mDockedStrip;
+    // buttons and locations will auto-delete with std::unique_ptr
 }
 
 void UIConfig::setName(const char* s)
 {
 	delete mName;
 	mName = CopyString(s);
+}
+
+const char* UIConfig::getName()
+{
+    return mName;
 }
 
 void UIConfig::setRefreshInterval(int i)
@@ -97,28 +122,38 @@ int UIConfig::getMessageDuration()
     return mMessageDuration;
 }
 
-std::vector<Location>* UIConfig::getLocations()
+std::vector<std::unique_ptr<UILocation>>* UIConfig::getLocations()
 {
     return &locations;
 }
 
 // ownership is not taken, think about this and do the
 // same for the other lists
-void UIConfig::setLocations(std::vector<Location>& locs)
+void UIConfig::addLocation(UILocation* loc)
 {
-    locations = locs;
+    // the difference between push_back and emplace_back is extremely
+    // subtle, god I hate c++
+    locations.emplace_back(loc);
 }
 
-std::vector<Button>* UIConfig::getButtons()
+void UIConfig::clearLocations()
+{
+    locations.clear();
+}
+
+std::vector<std::unique_ptr<UIButton>>* UIConfig::getButtons()
 {
     return &buttons;
 }
 
-// ownership is not taken, think about this and do the
-// same for the other lists
-void UIConfig::setButtons(std::vector<Button>& butts)
+void UIConfig::addButton(UIButton* butt)
 {
-    buttons = butts;
+    buttons.emplace_back(butt);
+}
+
+void UIConfig::clearButtons()
+{
+    buttons.clear();
 }
 
 StringList* UIConfig::getParameters()
@@ -165,20 +200,20 @@ void UIConfig::setDockedStrip(StringList* l)
     mDockedStrip = l;
 }
 
-
 /**
- * Return the error message if it is set.
+ * Return the parse error message if it is set.
  */
 const char* UIConfig::getError()
 {
     return (mError[0] != 0) ? mError : nullptr;
 }
 
-
 /**
  * Cleanup after parsing.
  * For each display component, add a Location for any new ones, and
  * remove obsolete Locations.
+ *
+ * Needs work, port over UITypes for SpaceElements
  */
 #if 0
 void UIConfig::checkDisplayComponents()
@@ -213,9 +248,7 @@ void UIConfig::checkDisplayComponents()
         }
     }
 }
-#endif
 
-#if 0
 Location* UIConfig::getLocation(const char* name)
 {
 	Location* found = nullptr;
@@ -271,95 +304,7 @@ void UIConfig::updateLocation(const char* name, int x, int y)
 	}
 }
 
-List* UIConfig::getLocations()
-{
-	return mLocations;
-}
-
-List* UIConfig::stealLocations()
-{
-	List* l = mLocations;
-    mLocations = nullptr;
-    return l;
-}
-
-void UIConfig::resetLocations()
-{
-	delete mLocations;
-    mLocations = nullptr;
-}
 #endif
-
-/****************************************************************************
- *                                                                          *
- *   							   LOCATION                                 *
- *                                                                          *
- ****************************************************************************/
-
-Location::Location()
-{
-	init();
-}
-
-Location::Location(const char* name)
-{
-	init();
-	setName(name);
-}
-
-void Location::init()
-{
-	mName = nullptr;
-	mX = 0;
-	mY = 0;
-    mDisabled = false;
-}
-
-Location::~Location()
-{
-	delete mName;
-}
-
-void Location::setName(const char* s)
-{
-	delete mName;
-	mName = CopyString(s);
-}
-
-const char* Location::getName()
-{
-	return mName;
-}
-
-void Location::setX(int i)
-{
-	mX = i;
-}
-
-int Location::getX()
-{
-	return mX;
-}
-
-void Location::setY(int i)
-{
-	mY = i;
-}
-
-int Location::getY()
-{
-	return mY;
-}
-
-void Location::setDisabled(bool b)
-{
-    mDisabled = b;
-}
-
-bool Location::isDisabled()
-{
-    return mDisabled;
-}
 
 /****************************************************************************/
 /****************************************************************************/

@@ -67,7 +67,7 @@
 #include "ScriptConfig.h"
 #include "SampleConfig.h"
 #include "OscConfig.h"
-
+#include "UIConfig.h"
 #include "Parameter.h"
 
 #include "XmlRenderer.h"
@@ -79,6 +79,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #define EL_MOBIUS_CONFIG "MobiusConfig"
+#define EL_UI_CONFIG "UIConfig"
 #define EL_PRESET "Preset"
 
 XmlRenderer::XmlRenderer()
@@ -127,6 +128,45 @@ MobiusConfig* XmlRenderer::parseMobiusConfig(const char* xml)
         }
         else {
             config = new MobiusConfig();
+			parse(e, config);
+        }
+    }
+
+    delete doc;
+	delete parser;
+
+    return config;
+}
+
+char* XmlRenderer::render(UIConfig* c)
+{
+	char* xml = nullptr;
+    XmlBuffer b;
+
+    render(&b, c);
+    xml = b.stealString();
+    return xml;
+}
+
+UIConfig* XmlRenderer::parseUIConfig(const char* xml)
+{
+    UIConfig* config = nullptr;
+	XomParser* parser = new XomParser();
+    XmlDocument* doc = parser->parse(xml);
+	
+    if (doc == nullptr) {
+        Trace(1, "XmlRender: Parse error %s\n", parser->getError());
+    }
+    else {
+        XmlElement* e = doc->getChildElement();
+        if (e == nullptr) {
+            Trace(1, "XmlRender: Missing child element\n");
+        }
+        else if (!e->isName(EL_UI_CONFIG)) {
+            Trace(1, "XmlRenderer: Document is not a UIConfig: %s\n", e->getName());
+        }
+        else {
+            config = new UIConfig();
 			parse(e, config);
         }
     }
@@ -1415,15 +1455,16 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
 //
 // UIConfig
 //
+// WTF is TrackStrip2?  Get better names for these
+//
 //////////////////////////////////////////////////////////////////////
 
-#define EL_UI_CONFIG "UIConfig"
 #define ATT_NAME "name"
 #define ATT_REFRESH "refreshInterval"
 #define ATT_ALERT_INTERVALS "alertIntervals"
 #define ATT_MESSAGE_DURATION "messageDuration"
-#define ATT_WIDTH "width"
-#define ATT_HEIGHT "height"
+#define ATT_WINDOW_WIDTH "width"
+#define ATT_WINDOW_HEIGHT "height"
  
 #define EL_LOCATIONS "Locations"
 #define EL_LOCATION "Location"
@@ -1447,17 +1488,19 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
 #define EL_FLOATING_TRACK_STRIP2 "FloatingTrackStrip2"
 #define EL_DOCKED_TRACK_STRIP "DockedTrackStrip"
 
+#define EL_COMPONENT "Component"
+
 void XmlRenderer::render(XmlBuffer* b, UIConfig* c)
 {
 	b->addOpenStartTag(EL_UI_CONFIG);
 
     // these won't ever have names currently
-    b->addAttribute(ATT_NAME, mName);
+    b->addAttribute(ATT_NAME, c->getName());
 
-    b->addAttribute(ATT_WIDTH, c->getWidth());
-    b->addAttribute(ATT_HEIGHT, c->getHeight());
+    b->addAttribute(ATT_WINDOW_WIDTH, c->getWindowWidth());
+    b->addAttribute(ATT_WINDOW_HEIGHT, c->getWindowHeight());
     b->addAttribute(ATT_REFRESH, c->getRefreshInterval());
-    b->addAttribute(ATT_MESSAGE_DURATION, d->getMessageDuration());
+    b->addAttribute(ATT_MESSAGE_DURATION, c->getMessageDuration());
 
     // this has never been used and I'm not even sure what it was for
     //b->addAttribute(ATT_ALERT_INTERVALS, mAlertIntervals);
@@ -1465,106 +1508,101 @@ void XmlRenderer::render(XmlBuffer* b, UIConfig* c)
 	b->add(">\n");
 	b->incIndent();
 
-	if (mLocations != NULL) {
+    std::vector<std::unique_ptr<UILocation>>* locations = c->getLocations();
+	if (locations->size() > 0) {
 		b->addStartTag(EL_LOCATIONS);
 		b->incIndent();
-        std::vector<Location>* locations = c->getLocations();
-		for (int i = 0 ; i < locations->length() ; i++) {
-			Location* l = (Location*)mLocations->get(i);
-			l->toXml(b);
+		for (int i = 0 ; i < locations->size() ; i++) {
+            // sweet jesus, vectors of unique_ptr are subtle
+            // juce::<OwnedArray> is much more obvious
+			UILocation* location = locations->at(i).get();
+            b->addOpenStartTag(EL_LOCATION);
+            b->addAttribute(ATT_NAME, location->getName());
+            b->addAttribute(ATT_X, location->getX());
+            b->addAttribute(ATT_Y, location->getY());
+            b->addAttribute(ATT_DISABLED, location->isDisabled());
+            b->add("/>\n");
 		}
 		b->decIndent();
 		b->addEndTag(EL_LOCATIONS);
 	}
 
-	if (mParameters != NULL) {
-		b->addStartTag(EL_PARAMETERS);
-		b->incIndent();
-		for (int i = 0 ; i < mParameters->size() ; i++) {
-			const char* name = mParameters->getString(i);
-			if (name != NULL) {
-				b->addOpenStartTag(EL_PARAMETER);
-				b->addAttribute(ATT_NAME, name);
-				b->add("/>\n");
-			}
-		}
-		b->decIndent();
-		b->addEndTag(EL_PARAMETERS);
-	}
-
-    if (mFloatingStrip != NULL) {
-        b->addStartTag(EL_FLOATING_TRACK_STRIP);
-		b->incIndent();
-		for (int i = 0 ; i < mFloatingStrip->size() ; i++) {
-			const char* name = mFloatingStrip->getString(i);
-			if (name != NULL) {
-				b->addOpenStartTag(EL_COMPONENT);
-				b->addAttribute(ATT_NAME, name);
-				b->add("/>\n");
-			}
-		}
-		b->decIndent();
-		b->addEndTag(EL_FLOATING_TRACK_STRIP);
-	}
-
-    if (mFloatingStrip2 != NULL) {
-        b->addStartTag(EL_FLOATING_TRACK_STRIP2);
-		b->incIndent();
-		for (int i = 0 ; i < mFloatingStrip2->size() ; i++) {
-			const char* name = mFloatingStrip2->getString(i);
-			if (name != NULL) {
-				b->addOpenStartTag(EL_COMPONENT);
-				b->addAttribute(ATT_NAME, name);
-				b->add("/>\n");
-			}
-		}
-		b->decIndent();
-		b->addEndTag(EL_FLOATING_TRACK_STRIP2);
-	}
-
-    if (mDockedStrip != NULL) {
-        b->addStartTag(EL_DOCKED_TRACK_STRIP);
-		b->incIndent();
-		for (int i = 0 ; i < mDockedStrip->size() ; i++) {
-			const char* name = mDockedStrip->getString(i);
-			if (name != NULL) {
-				b->addOpenStartTag(EL_COMPONENT);
-				b->addAttribute(ATT_NAME, name);
-				b->add("/>\n");
-			}
-		}
-		b->decIndent();
-		b->addEndTag(EL_DOCKED_TRACK_STRIP);
-	}
-
-	if (mKeyConfig != NULL)
-      mKeyConfig->toXml(b);
-
-    // deprecated, this should be upgraded immediately into Bindings
-	if (mButtons != NULL) {
+    // assuming that the Button name is the same as a function name
+    // will need more here for display names, old model allowed
+    // these to be bound to anything though I doubt that was used
+    std::vector<std::unique_ptr<UIButton>>* buttons = c->getButtons();
+	if (buttons->size() > 0) {
 		b->addStartTag(EL_BUTTONS);
 		b->incIndent();
-		for (int i = 0 ; i < mButtons->size() ; i++) {
-			ButtonConfig* bc = (ButtonConfig*)mButtons->get(i);
-			bc->toXml(b);
+		for (int i = 0 ; i < buttons->size() ; i++) {
+            UIButton* button = buttons->at(i).get();
+            b->addOpenStartTag(EL_BUTTON);
+            b->addAttribute(ATT_FUNCTION_NAME, button->getName());
+            b->add("/>\n");
 		}
 		b->decIndent();
 		b->addEndTag(EL_BUTTONS);
 	}
-	
-	if (mPalette != NULL)
-	  mPalette->toXml(b);
-
-	if (mFontConfig != NULL)
-	  mFontConfig->toXml(b);
+    
+    renderList(b, EL_PARAMETERS, c->getParameters());
+    renderList(b, EL_FLOATING_TRACK_STRIP, c->getFloatingStrip());
+    renderList(b, EL_FLOATING_TRACK_STRIP2, c->getFloatingStrip2());
+    renderList(b, EL_DOCKED_TRACK_STRIP, c->getDockedStrip());
 
     b->decIndent();
 
 	b->addEndTag(EL_UI_CONFIG);
 }
 
-    
+void XmlRenderer::parse(XmlElement* e, UIConfig* config)
+{
+    config->setName(e->getAttribute(ATT_NAME));
+    config->setWindowWidth(e->getIntAttribute(ATT_WINDOW_WIDTH));
+    config->setWindowHeight(e->getIntAttribute(ATT_WINDOW_HEIGHT));
+    config->setRefreshInterval(e->getIntAttribute(ATT_REFRESH, DEFAULT_REFRESH_INTERVAL));
+    config->setAlertIntervals(e->getIntAttribute(ATT_ALERT_INTERVALS, DEFAULT_ALERT_INTERVALS));
+    config->setMessageDuration(e->getIntAttribute(ATT_MESSAGE_DURATION, DEFAULT_MESSAGE_DURATION));
 
+	for (XmlElement* child = e->getChildElement() ; child != NULL ; 
+		 child = child->getNextElement()) {
+
+		if (child->isName(EL_LOCATIONS)) {
+            // ugh, c++ unique_ptr semantics make building lists outside
+            // and setting them hard, supposed to implement a "move constructor"
+            // for now just let addLocation do it
+			for (XmlElement* le = child->getChildElement() ; le != NULL ; 
+				 le = le->getNextElement()) {
+                UILocation* loc = new UILocation();
+                loc->setName(le->getAttribute(ATT_NAME));
+                loc->setX(le->getIntAttribute(ATT_X));
+                loc->setY(le->getIntAttribute(ATT_Y));
+                loc->setDisabled(le->getBoolAttribute(ATT_DISABLED));
+                config->addLocation(loc);
+            }
+		}
+        else if (child->isName(EL_BUTTONS)) {
+			for (XmlElement* be = child->getChildElement() ; be != NULL ; 
+				 be = be->getNextElement()) {
+                UIButton* button = new UIButton();
+                button->setName(be->getAttribute(ATT_FUNCTION_NAME));
+                config->addButton(button);
+            }
+        }
+
+		if (child->isName(EL_PARAMETERS)) {
+            config->setParameters(parseStringList(child));
+		}
+		else if (child->isName(EL_FLOATING_TRACK_STRIP)) {
+            config->setFloatingStrip(parseStringList(child));
+		}
+		else if (child->isName(EL_FLOATING_TRACK_STRIP2)) {
+            config->setFloatingStrip2(parseStringList(child));
+		}
+		else if (child->isName(EL_DOCKED_TRACK_STRIP)) {
+            config->setDockedStrip(parseStringList(child));
+        }
+	}
+}
 
 /****************************************************************************/
 /****************************************************************************/

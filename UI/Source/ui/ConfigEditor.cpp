@@ -15,6 +15,7 @@
 #include "../util/FileUtil.h"
 #include "../model/XmlRenderer.h"
 #include "../model/MobiusConfig.h"
+#include "../model/UIConfig.h"
 
 #include "JuceUtil.h"
 #include "ConfigEditor.h"
@@ -28,6 +29,7 @@ ConfigEditor::ConfigEditor(juce::Component* argOwner)
     addPanel(&global);
     addPanel(&presets);
     addPanel(&setups);
+    addPanel(&buttons);
 }
 
 ConfigEditor::~ConfigEditor()
@@ -36,6 +38,7 @@ ConfigEditor::~ConfigEditor()
 
     // this we own
     delete masterConfig;
+    delete masterUIConfig;
 }
 
 /**
@@ -62,6 +65,11 @@ void ConfigEditor::showPresets()
 void ConfigEditor::showSetups()
 {
     show(&setups);
+}
+
+void ConfigEditor::showButtons()
+{
+    show(&buttons);
 }
 
 void ConfigEditor::closeAll()
@@ -132,7 +140,7 @@ void ConfigEditor::show(ConfigPanel* selected)
  * Note though that this isn't actually a stack since we don't maintain
  * an ordered activation list if there are more than two loaded panels.
  */
-void ConfigEditor::close(ConfigPanel* closing, bool canceled)
+void ConfigEditor::close(ConfigPanel* closing)
 {
     ConfigPanel* nextLoaded = nullptr;
     ConfigPanel* nextChanged = nullptr;
@@ -165,9 +173,6 @@ void ConfigEditor::close(ConfigPanel* closing, bool canceled)
             }
             else {
                 // all done
-                // we don't need to write configuration if the panel canceled
-                if (!canceled)
-                  saveMobiusConfig();
             }
         }
     }
@@ -186,6 +191,18 @@ const char* ConfigEditor::getConfigFilePath()
 const char* ConfigEditor::getWriteConfigFilePath()
 {
     const char* path = "c:/dev/jucetest/UI/Source/mobius2.xml";
+    return path;
+}
+
+const char* ConfigEditor::getUIConfigFilePath()
+{
+    const char* path = "c:/dev/jucetest/UI/Source/ui.xml";
+    return path;
+}
+
+const char* ConfigEditor::getWriteUIConfigFilePath()
+{
+    const char* path = "c:/dev/jucetest/UI/Source/ui2.xml";
     return path;
 }
 
@@ -230,6 +247,42 @@ void ConfigEditor::saveMobiusConfig()
         const char* path = getConfigFilePath();
         XmlRenderer xr;
         char* xml = xr.render(masterConfig);
+        WriteFile(path, xml);
+        delete xml;
+    }
+}
+
+UIConfig* ConfigEditor::getUIConfig()
+{
+    if (masterUIConfig == nullptr) {
+        const char* path = getUIConfigFilePath();
+        char* xml = ReadFile(path);
+        if (xml != nullptr) {
+            XmlRenderer xr;
+            masterUIConfig = xr.parseUIConfig(xml);
+            // todo: display parse errors
+            delete xml;
+        }
+
+        // if we couldn't read one, boostrap a new one
+        // might want to warn here?
+        if (masterUIConfig == nullptr)
+          masterUIConfig = new UIConfig();
+    }
+
+    return masterUIConfig;
+}
+
+/**
+ * Called by the ConfigPanel after it has made modifications
+ * to the UIConfig returned by getUIConfig.
+ */
+void ConfigEditor::saveUIConfig()
+{
+    if (masterUIConfig != nullptr) {
+        const char* path = getWriteUIConfigFilePath();
+        XmlRenderer xr;
+        char* xml = xr.render(masterUIConfig);
         WriteFile(path, xml);
         delete xml;
     }

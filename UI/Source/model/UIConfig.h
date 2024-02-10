@@ -1,10 +1,4 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
  * Model for persistent UI configuration.
  *
  * This has been reduced from the original UIConfig to think
@@ -14,72 +8,116 @@
 
 #pragma once
 
+#include <vector>
+#include <memory>
+
 #include "../util/List.h"
+#include "../util/Util.h"
 
 #define DEFAULT_REFRESH_INTERVAL 100
 #define DEFAULT_MESSAGE_DURATION 2
 #define DEFAULT_ALERT_INTERVALS 10
 
-/**
- * Holds display component locations.
- * This needs to be in the UI model because we can save it
- * with the configuration.  But keep the model generic and independent.
- * We only store names and coordinates.
- */
-
-class Location
+class UILocation
 {
   public:
 
-	Location();
-	Location(const char* name);
-	~Location();
+    UILocation() {
+        init();
+    }
+        
+    UILocation(const char* name) {
+        init();
+        setName(name);
+    }
+        
+    ~UILocation() {
+        delete mName;
+    }
+        
+    void setName(const char *name) {
+        delete mName;
+        mName = CopyString(name);
+    }
 
-	void setName(const char *name);
-	void setX(int i);
-	void setY(int i);
-    void setDisabled(bool b);
+    const char* getName() {
+        return mName;
+    }
 
-	const char* getName();
-	int getX();
-	int getY();
-    bool isDisabled();
+    void setX(int i) { mX = i; };
+    int getX() { return mX; };
+
+    void setY(int i) { mY = i; };
+    int getY() { return mY; };
+        
+    void setDisabled(bool b) { mDisabled = b; };
+    bool isDisabled() { return mDisabled; };
 
   private:
 
-	void init();
+    void init() {
+        mName = nullptr;
+        mX = 0;
+        mY = 0;
+        mDisabled = false;
+    }
 
-	char* mName;
-	int mX;
-	int mY;
+    char* mName;
+    int mX;
+    int mY;
     bool mDisabled;
 
 };
 
-class Button
+/**
+ * Comments are unclear on the usage of this, some indicate
+ * that I replaced this with Binding.  You could have more
+ * information in here such as function arguments.  Does
+ * it belong here?  Didn't have a separate dialog for button
+ * bindings.
+ */
+class UIButton
 {
   public:
 
-    Button();
-    ~Button();
+    UIButton() {
+        mName = nullptr;
+    }
+        
+    UIButton(const char* name) {
+        mName = CopyString(name);
+    }
+        
+    ~UIButton() {
+        delete mName;
+    }
 
-    const char* getFunction();
-    void setFunction();
+    void setName(const char *name) {
+        delete mName;
+        mName = CopyString(name);
+    }
+        
+    const char* getName() {
+        return mName;
+    }
 
   private:
 
-    char* function;
+    char* mName;
 };
-    
+
 class UIConfig
 {
   public:
 
+    
     UIConfig();
     ~UIConfig();
 
+    // only have one of these, but could support more
     void setName(const char* name);
-
+    const char* getName();
+    
     void setRefreshInterval(int i);
     int getRefreshInterval();
 
@@ -90,8 +128,7 @@ class UIConfig
     void setMessageDuration(int i);
     int getMessageDuration();
 
-    // captured window size
-    // not used yet
+    // captured window size, not used yet
     void setWindowWidth(int w) {
         width = w;
     }
@@ -108,12 +145,14 @@ class UIConfig
         return height;
     }
 
-    std::vector<Location>* getLocations();
-    void setLocations(std::vector<Location>& src);
-
-    std::vector<Button>* getButtons();
-    void setButtons(std::vector<Button>& src);
-
+    std::vector<std::unique_ptr<UILocation>>* getLocations();
+    void addLocation(UILocation* l);
+    void clearLocations();
+    
+    std::vector<std::unique_ptr<UIButton>>* getButtons();
+    void addButton(UIButton* b);
+    void clearButtons();
+    
     StringList* getParameters();
     void setParameters(StringList* l);
 
@@ -142,9 +181,11 @@ class UIConfig
     int width;
     int height;
     
-    std::vector<Location> locations;
-    std::vector<Button> buttons;
-
+    // can't use entity objects here since they are not copy
+    // constructable yet, use unique_ptr for now
+    std::vector<std::unique_ptr<UILocation>> locations;
+    std::vector<std::unique_ptr<UIButton>> buttons;
+    
 	StringList* mParameters;
 	StringList* mFloatingStrip;
 	StringList* mFloatingStrip2;

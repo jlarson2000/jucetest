@@ -39,6 +39,10 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+
+    UIConfig* config = configEditor.getUIConfig();
+    configEditor.saveUIConfig();
+
 }
 
 MainComponent::~MainComponent()
@@ -167,8 +171,12 @@ void MainComponent::mainMenuSelection(int id)
         }
             break;
             
+        case MainMenu::Buttons: {
+            configEditor.showButtons();
+        }
+        break;
+
         case MainMenu::PluginParamters: break;
-        case MainMenu::Buttons: break;
         case MainMenu::DisplayComponents: break;
         case MainMenu::Palette: break;
         case MainMenu::Scripts: break;

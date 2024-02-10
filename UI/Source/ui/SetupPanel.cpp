@@ -108,6 +108,7 @@ void SetupPanel::save()
         MobiusConfig* config = editor->getMobiusConfig();
         // this will also delete the current preset list
         config->setSetups(plist);
+        editor->saveMobiusConfig();
 
         loaded = false;
         changed = false;

@@ -601,6 +601,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ui\ButtonPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\ConfigEditor.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
@@ -3189,6 +3192,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ui\ButtonPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\ConfigEditor.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>

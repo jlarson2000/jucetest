@@ -26,6 +26,9 @@ class XmlRenderer {
     class MobiusConfig* parseMobiusConfig(const char* xml);
     char* render(class MobiusConfig* c);
 
+    class UIConfig* parseUIConfig(const char* xml);
+    char* render(class UIConfig* c);
+
     class Preset* clone(class Preset* src);
     class Setup* clone(class Setup* src);
 
@@ -84,4 +87,6 @@ class XmlRenderer {
     void render(class XmlBuffer* b, class OscWatcher* w);
     void parse(class XmlElement* e, class OscWatcher* w);
 
+    void render(class XmlBuffer* b, class UIConfig* c);
+    void parse(class XmlElement* e, class UIConfig* c);
 };

@@ -45,6 +45,7 @@
 #include "GlobalPanel.h"
 #include "PresetPanel.h"
 #include "SetupPanel.h"
+#include "ButtonPanel.h"
 
 class ConfigEditor
 {
@@ -61,13 +62,17 @@ class ConfigEditor
     void showPluginParameters();
     void showScripts();
     void showSamples();
+    void showButtons();
 
     void closeAll();
 
     // should be protected with friends for the panels
-    void close(ConfigPanel* p, bool canceled);
+    void close(ConfigPanel* p);
     class MobiusConfig* getMobiusConfig();
     void saveMobiusConfig();
+
+    class UIConfig* getUIConfig();
+    void saveUIConfig();
     
   private:
 
@@ -75,16 +80,20 @@ class ConfigEditor
     void show(ConfigPanel* panel);
     const char* getConfigFilePath();
     const char* getWriteConfigFilePath();
+    const char* getUIConfigFilePath();
+    const char* getWriteUIConfigFilePath();
     
     juce::Component* owner = nullptr;
 
     bool initialized = false;
     class MobiusConfig* masterConfig = nullptr;
-
+    class UIConfig* masterUIConfig = nullptr;
+    
     GlobalPanel global {this};
     PresetPanel presets {this};
     SetupPanel setups {this};
-
+    ButtonPanel buttons {this};
+    
     // list of all active panels, we often need to iterate over these
     juce::Array<ConfigPanel*> panels;
 };

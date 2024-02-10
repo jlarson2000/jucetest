@@ -48,6 +48,7 @@ void GlobalPanel::save()
     if (changed) {
         MobiusConfig* config = editor->getMobiusConfig();
         saveGlobal(config);
+        editor->saveMobiusConfig();
         changed = false;
     }
 }

@@ -46,10 +46,10 @@ void ConfigPanel::footerButtonClicked(ConfigPanelButton button)
         break;
     }
 
-    // ConfigEditor will decide whether to save the
-    // MobiusConfig if it has nothing else active
+    // ConfigEditor will decide whether to show
+    // another editor panel if one has unsaved changes
     if (editor != nullptr)
-      editor->close(this, (button == ConfigPanelButton::Cancel));
+      editor->close(this);
 }
 
 /**

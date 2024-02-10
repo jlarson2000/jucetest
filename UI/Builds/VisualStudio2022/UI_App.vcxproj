@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ui\ButtonPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\ConfigEditor.cpp"/>
     <ClCompile Include="..\..\Source\ui\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\Field.cpp"/>
@@ -2457,6 +2458,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ui\ButtonPanel.h"/>
     <ClInclude Include="..\..\Source\ui\ConfigEditor.h"/>
     <ClInclude Include="..\..\Source\ui\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ui\Field.h"/>
