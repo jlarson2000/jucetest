@@ -1,0 +1,268 @@
+
+Definition Objects
+
+  provide only what is necessary to display and configure
+  things in the UI, hides unnecessary implementation detail
+
+Implementation Objects
+
+  parallel set of objects that extend the definition model
+  to provide implementation details
+
+Definition objects should only need access to MobiusConfig
+to display/edit.
+
+From Parameter, things all definition objects must have
+
+  name
+  displayName
+  help
+    defined in SystemConstant
+
+  aliases
+    necessary ony for XML parsing, no longer needed
+
+  bindable
+     true if this can be a binding target
+     may not be necessary if we only put bindable things
+     in the array used by the UI, what are examples of non-bindable parameters?
+
+  dynamic
+    true if labels and ordinals can be configured
+    may be able to get rid of this if instead we allow the definition
+    objects to modify themselves after a configuration change and keep the
+    value in members for easy access
+    if we do updateConfiguration may not need this flag
+
+The dynamic parameters are:
+
+Global
+SetupNameParameterType::SetupNameParameterType() :
+SetupNumberParameterType::SetupNumberParameterType() :
+BindingsParameterType::BindingsParameterType() :
+Track
+class TrackPresetParameterType : public TrackParameter
+TrackPresetNumberParameterType::TrackPresetNumberParameterType() :
+
+These do not necessarily need to be bound as parameters.
+There are two ways named objects can be changed
+
+A function with an argument
+  SelectSetup <number> | <name>
+  SelectBindings <number> | <name>
+    though this could be dangerious if you move the binding out from
+    under the binding that caused it
+
+  SelectPreset <track> <preset>
+    these are always track specific or apply to all tracks
+    ccould support track ranges
+
+A Parameter
+  the only reason to do this would be to make it easier to expose
+  to a plugin host, plugins don't have the concept of non-numeric commands
+  afaik though you could model that with a parameter with range 0 and 1
+
+  in theory this gives you a way to change setups with a knob in the host UI
+  but why would you want to do that?  could also be bad since setups can change
+  host configuration (well ports mappings anyway)
+
+  plugins do have the notion of a preset I think but that makes more sense
+  for track setups that set presets for each track rather than per-track presets
+  would need a different parameter for each track which we could do,
+  this makes them sort of like replicated functions: "Replicate the TrackPreset
+  parameter for every configured track"
+
+  this is probably also used in scripts
+
+  set setup <name>
+  set preset ???  how to specify tracks
+
+  probably need that for backward compatibility
+
+Controls vs. Paraemeters
+  think about why we need the difference
+  I think mostly a parameter is persistent operational characteristics
+  and a control is more intended to be tweaked at runtime
+  a control is what makes the most sense for host parameters
+
+deprecated
+  I don't think we need this any more
+
+transient
+  means memory only not stored in configurations
+
+
+Transient parameters:
+
+SetupNumberParameterType::SetupNumberParameterType() :
+TrackParameterType::TrackParameterType() :
+	// changed from "track" to "selectedTrack" to avoid ambiguity
+	// with the read-only variable
+    GlobalParameter("selectedTrack", MSG_PARAM_TRACK)
+CustomModeParameterType::CustomModeParameterType() :
+TrackPresetNumberParameterType::TrackPresetNumberParameterType() :
+InputPortParameterType::InputPortParameterType() :
+OutputPortParameterType::OutputPortParameterType() :
+    TrackParameter("outputPort", MSG_PARAM_OUTPUT_PORT)
+
+Preset/Setup number are transient beause we store the name in the config
+but wanted to expose these as bindable host parameters since those
+can't deal with names.
+
+input/Output port I'm not sure about, those are in the SetupTrack so
+they technically are in the XML  why were these transient?
+
+nothing in the UI uses these
+This was only used in XML serialization by Setup
+    // new sync options with Parameter interfaces
+	for (int i = 0 ; Parameters[i] != NULL ; i++)  {
+        Parameter* p = Parameters[i];
+        if (p->scope == PARAM_SCOPE_SETUP && !p->transient)
+          p->toXml(b, this);
+    }
+
+We no longer do this so it can be removed
+
+    bool resettable;    // true for Setup parameters that may be reset
+
+Was used in Track
+/**
+ * Called to restore the track parameters after a reset.
+ * When the global flag is on it means we're doing a GlobalReset or
+ * refreshing the setup after it has been edited.  In those cases
+ * we always return parameters to the values in the setup.
+ *
+ * When the global flag is off it means we're doing a Reset or TrackReset.
+ * Here we only change parameters if they are flagged as being resettable
+ * in the setup, otherwise they retain their current value.
+ *
+ * When somethign is flagged as resettable, we'll toggle between two different
+ * sets of values each time you do a Reset or TrackReset: the "setup" set and
+ * the "full" set.  The first time you do Reset, the parameters are restored
+ * to the values in the preset, the second time you do Reset the controls
+ * are set to their maximum values.  The third time you do Reset the values
+ * are restored from the setup etc.
+ *
+ * !! I don't really like this behavior, it is hard to explain and subtle.
+ * I'm removing it in 2.0, if no one complains take the code out.
+ */
+PRIVATE void Track::resetParameters(Setup* setup, bool global, bool doPreset)
+{
+
+but never actually referenced
+
+Also used in the configuration UI for Restore After Reset
+
+	optionPanel->add(new Label("Restore After Reset"));
+	mReset = new ListBox();
+	mReset->setMultiSelect(true);
+	mReset->setColumns(20);
+	mReset->setRows(8);
+    StringList* paramNames = new StringList();
+	for (i = 0 ; Parameters[i] != NULL ; i++) {
+        Parameter* p = Parameters[i];
+        // !! not everything in setup scope needs to be resettable
+        if (p->resettable)
+          paramNames->add(p->getDisplayName());
+    }
+    paramNames->sort();
+    mReset->setValues(paramNames);
+	optionPanel->add(mReset);
+
+This is a UI hint so it should be in the external model if we still need it
+
+
+bool scheduled;     // true if setting the value schedules an event
+bool takesAction;   // true if ownership of the Action may be taken
+
+used only internall
+
+bool control;       // true if this is displayed as control in the binding UI
+
+    /**
+     * When this is set, it is a hint to the UI to display the value
+     * of this parameter as a positive and negative range with zero
+     * at the center.  This has no effect on the value of the parameter
+     * only the way it is displayed.
+     */
+    bool zeroCenter;
+
+    /**
+     * Control parameters  have a default value, usually either the 
+     * upper end of the range or the center.
+     */
+    int mDefault;
+
+	ParameterType type;
+    bool multi;         // true if this field may have multiple values
+	ParameterScope scope;
+    const char** values;
+	const char** valueLabels;
+	int* valueKeys;
+
+    /**
+     * Used in rare cases where we need to change the
+     * name of a parameter and upgrade the xml.
+     */
+    const char* xmlAlias;
+
+    /**
+     * Parameter supports juce::var for getting and setting values.
+     */
+    bool juceValues = false;
+    
+    //
+    // Configurable Parameter property access
+    // 
+
+    int getLow();
+    int getHigh();
+
+    virtual int Parameter::getConfigurableHigh(class MobiusConfig* config);
+
+    /**
+     * Get or set the value from a configuration object.
+     */
+    virtual void getObjectValue(void* object, class ExValue* value) = 0;
+    virtual void setObjectValue(void* object, class ExValue* value) = 0;
+
+    /**
+     * New interface just for the Juce UI with complicated values.
+     */
+    virtual void getJuceValue(void* object, juce::var& value);
+    virtual void setJuceValue(void* object, juce::var& value);
+    
+
+
+See Parameter->control
+
+this is how we distinguish between parameters and controls in the UI
+though internally they are all just Parameters.  Why the difference again?
+
+If it weren't for the set/get into the config object we wouldn't
+need Parameter subclassing except for the initialization of fields
+could do that with a member initializer instead
+
+Parameter SomethingParameter {dynamic=true, ...};
+
+Works except the member init list could get busy
+wait no, those are constructor arguments, I think we tried this
+and it didn't work
+
+Parameter SomethingParameter : dynamic=true, ...;
+You an put that in the class definition but not in a constructor initialization
+
+Doesn't work as well anyway for sub-parameter types like PresetParameter
+that want to set scope and other things without duplicating them.
+
+Parameter::setConfigValue(void* container, ExValue)
+
+alternative would be to let the config object class pull them in
+
+  preset->assimilate(parameter, ExValue)
+
+would require a big swith statement and makes the Preset model more complicated,
+it otherwise does't need to knowo about Parameter though it could use them
+for range validation.
+
+
