@@ -22,6 +22,7 @@ MainComponent::MainComponent()
 
     addChildComponent(test);
     addChildComponent(table);
+    addChildComponent(tabs);
 
     // Make sure you set the size of the component after
     // you add any child components.  This will cascade resized()
@@ -167,7 +168,8 @@ void MainComponent::mainMenuSelection(int id)
         break;
         
         case MainMenu::KeyboardControl:  {
-            table.show();
+            // table.show();
+            tabs.show();
         }
             break;
             

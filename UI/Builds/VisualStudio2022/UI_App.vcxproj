@@ -141,6 +141,8 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ui\BindingTargetPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\ButtonBar.cpp"/>
     <ClCompile Include="..\..\Source\ui\ButtonPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\ConfigEditor.cpp"/>
     <ClCompile Include="..\..\Source\ui\ConfigPanel.cpp"/>
@@ -160,7 +162,9 @@
     <ClCompile Include="..\..\Source\ui\SimpleListBox.cpp"/>
     <ClCompile Include="..\..\Source\ui\SimpleRadio.cpp"/>
     <ClCompile Include="..\..\Source\ui\SimpleTable.cpp"/>
+    <ClCompile Include="..\..\Source\ui\SimpleTabPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\TableTest.cpp"/>
+    <ClCompile Include="..\..\Source\ui\TabTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Mobius.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
@@ -2458,6 +2462,8 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ui\BindingTargetPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\ButtonBar.h"/>
     <ClInclude Include="..\..\Source\ui\ButtonPanel.h"/>
     <ClInclude Include="..\..\Source\ui\ConfigEditor.h"/>
     <ClInclude Include="..\..\Source\ui\ConfigPanel.h"/>
@@ -2477,7 +2483,9 @@
     <ClInclude Include="..\..\Source\ui\SimpleListBox.h"/>
     <ClInclude Include="..\..\Source\ui\SimpleRadio.h"/>
     <ClInclude Include="..\..\Source\ui\SimpleTable.h"/>
+    <ClInclude Include="..\..\Source\ui\SimpleTabPanel.h"/>
     <ClInclude Include="..\..\Source\ui\TableTest.h"/>
+    <ClInclude Include="..\..\Source\ui\TabTest.h"/>
     <ClInclude Include="..\..\Source\ui\TestPanel.h"/>
     <ClInclude Include="..\..\Source\mobius\Mobius.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>

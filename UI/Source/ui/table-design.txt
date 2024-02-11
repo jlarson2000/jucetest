@@ -1,0 +1,262 @@
+
+would like
+
+   table = construct a table
+
+   table.setColumnTitles(array of titles)
+   table.setRowHeight(10);
+     sets the hight of the row in pixels, font adjusts to match
+
+table.setColumnWidth(int col, int w);
+      width in characters or pixels
+
+
+
+Setting row hight in pixels is nice because we don't have to
+care about font height, hmm, same could  be said for buttons
+or anything else with a font
+
+can you have both?  if font not speciecified, derive one based on
+desired pixel height, if font specified, derive height from the font
+
+nice to experiment with the number of visible rows, just automatically
+squash the font until it becomes hard to read
+
+widths are similar, but more useful to have pixel size and let the font adjust
+could combine
+  pick a font that fits in this height, then adjust the width according to the
+  font character width
+  hmm, if you start doing pixel adjustments for height may as well be consistent
+  on widths for width, otherwise need to be explicit in the wording
+    table.setColumnCharacterWidth(4);
+    table.setColumnPixelWidth(100);
+
+setAnythingPixelWidth is the same as setWidth
+  but it makes authority over the Component.width ambiguous and order dependent
+  if width is auto sized or set by accident, setColumnWidth later won't know whether to override that
+  or not?  I guess the same if you use explicit settings, if both charWidth and pixelWidth are
+  manually set, who wins?
+    pixel width preferred
+       string may be ellippsed if it is too small
+    character width preferred
+
+
+things will never come by default with a character width
+thigns may default with a pixel width
+
+Fonts these days all seem to be of varying size, you specify the height as a float
+and it magically adjusts to fit that size, gone are the days of fixed size fonts unless
+maybe you create a custom.  Assumign Juce applies transforms to the glyph, that is probably expensive
+and cached.
+
+So you can always fit a font to a desired height.  My current notion
+of auto-sizing height based on the Font is backwards.  This
+
+    label.setFont (juce::Font (16.0f, juce::Font::bold));
+
+Says, make a sans-serif Font that is 16 pixels high of the given size and bold.  You can specify
+typefaces here too.
+
+You could just as well do this:
+
+  something.setHeight(16);
+    inside:
+      Font f = Font(me.getHeight());
+      cretes a font of the desired pixel height for this container
+
+So...heights of things are ALWAYS specified in pixels UNLESS they are given a font from the outside to use.
+
+   something.setHeight
+     remembers the desired height and picks a font accordingly
+     does it?
+
+Width in characters is knowable only AFTER you have set the height
+  Fonts don't widen to fill a desired character width constrained by height?
+
+
+What are "font points" and "em", used to know this
+
+Font.setHeightWithoutChangingWidth
+  this seems to suggest you can make font glyphs wider
+
+...typography research...
+
+Start thinking in pixels for height and let the font glyphs scale
+
+String widths can only be determined after setting the height, well generally speaking, I think
+you can widen fonts but that seems less common than thinking in terms of height first
+
+Pixels for widths make sense for table columns and even button sizes
+
+Auto-sizing makes sense mostly for widths of buttons or for compressing columns to their minimum width.
+Forms can auto size but some elements will have a preferred height.
+
+For forms, a rotary control would have a minimum size that can then influence the font of the label.
+
+Back to tables...
+
+Header height and row height can be independent but should default to being the same if one is
+not specified.  Font is taken from the row height.
+
+Column widths can be specified first with elippses added to cell text.
+Column widths can be auto generated based on header cell contents but since interior cells will
+be more variable I don't know if that makes much sense.
+
+Proportaional column widths would be nice for uniformity of the binding windows.
+
+Give each binding component a proportion of the overall panel, then scale each row from that.
+
+This is where the Juce Way makes sense.
+
+Top down makes sense if you want all config panels to be the same size for consistency.
+Bottom up makes sense if you want each panel to take up the minimum size.
+The absolute minimum will often be too small, so components should have preferred sizes or
+min sizes.
+
+Scaling up could look weird so might want max sizes someday.
+
+SimpleTable
+
+  tableHeight
+    if set fixes the total table height
+  numRows
+    if set fixes the total number of rows
+  rowHeight
+    if set fixes the row height
+
+These can conflict
+
+  numRows * rowHeight can be different than tableHeight
+    if larger, tableHeight wins and the table scrolls
+    if smaller, tableHeight wins and there is dead space
+
+  if rowHeight not set then rowHeight = tableHeight / numRows
+  if rowHeight and numRows not set, then rowHeight both would need to default to reasonable numbers
+  
+Juce::resized
+  this should be expect to obey the container size, if explicit sizing below violates that there is clipping
+
+Fixed Component
+  a component that has a fixed size always and cannot be changed
+  primitive components might include an image that must be displayed at a minimum 
+  size for legibility and making it bigger would look weird
+
+Variable Compoent
+  one that whose size changes based on content
+  components with text change in width based on the length of the text
+  components with variable children (forms) change based on the number of children
+  that must be displayed without scrolling
+
+Stop thinking about text as something that determines height, text can grow or shrink to the
+height given, though there could be minimum/maximum heights.
+
+Height changes of text changes the optimal width.  Text with less than optimal width will be truncated or scrolled.
+
+Forms
+  forms will contain a variable number of grids and grids can contain a variable number of fields
+  fields and grids are added over time, though usuall there is a single time period where
+  they are constructed then the size will not change
+
+
+Config Panel
+  all the same size
+    looks uniform and prevents display mess if more than one is open
+    panels with low content will have a lot of empty space
+      self-sizing: let the subcomponent size itself and put it in the top/left or center it
+      expanding: tell the component the entire size and have it fill it
+        this could end up with excessively large layouts for some things
+        components can enforce their own maximum sizing and leave the parents with gaps
+        components can enforce their own minimum sizing and truncate
+        
+  varying
+    looks more concise for panels that don't have a lot to display
+    can result in mess if more than one panel is open
+    probably not that big of a deal since unlikely more than one will be open at a time
+
+Flex Containers
+  containers that don't care what size their children will be during layout
+  they may let them size themselves and then adapt accordingly
+  children don't need to set their positions, just their size (for my purposes anyway)
+  container still gets to decide the general layout of component position
+  in rare cases a child component may want a fixed position
+    e.g. an alert or error message at the top of a parent
+    but then it would be better to reserve that space and let the children inform
+    the parent that it has something to say
+    letting the children force themselves to a position complicates layout
+
+Thinking...forced child position
+   container oriented
+     there is an area at the top and bottom and I will put children there
+   child oriented
+     container adds a bunch of components
+     component says "I am a bottom component"
+     seems less useful
+     container still needs to organize children with the same location desires
+     unless children know about peers which is weird encapsulation
+
+Fixed ConfigPanel
+  give the config panel a starting size
+  build panel contents
+
+
+For things with an available size, but variable sized components
+  container tells child, this is theh available size
+    child tells parent you gave me this but I only want this (maximum size)
+    parent centers the child
+      child is allowed to tell the parent a smaller size than availble
+      child cannot tell parent a larger size?
+
+ugh, concrete examples
+
+PresetPanel
+  given a fixed starting size
+  needs: title bar, footer area with save/cancel buttons, and variable content panel
+  title bar:
+    will be of fixed width determined by the PresetPanel
+    could be of varialbe height determined by the child
+      e.g. BigFontTileBar vs. SmallFontTitleBar
+      seems less useful, just tell the title bar how big it should be in proportion to our available size
+  button bar:
+    similar, tell it a proportional size
+    buttons may not like that if the font becomes too large or small, but it would be up to the
+    parent to minimize the proportional size
+      is this manual or automatic?
+        manual: I see it and change the size
+        automatic: child ignores the size (hight usually), how is this communicated
+          upward: child calls setSize on itself AFTER parent calls setSize
+            unclear how Juce handles this, seems to be not the way
+          downward: parent calls getPreferredSize, getMinimumSize, getMaximumSize
+            children may return nothing to indiciate that the parent is in control
+            children may return something to indiciate the parent needs to adapt to positining peers
+            reuires interface awareness in both directions
+              child must implement it and parent must call it
+              seems about the same as upward, child needs to do something either implement getPreferredSize, or
+                calculate that anyway and call setSize on itself and parent has to adapt either way
+
+
+          
+
+can be of fixed height determined by PresetPanel, font adapts
+
+    
+    
+  
+
+
+Variable Component
+  a component that does't know 
+
+Adaptable Sizing Containers
+  a container that doesn't know the size it's children might have
+
+Fixed
+
+
+rowHeight
+    if set, fixes the row height
+
+setRowHeight - if called fixes the row height, if zero uses 
+
+
+
+

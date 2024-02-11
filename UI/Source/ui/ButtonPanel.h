@@ -11,7 +11,7 @@
 #include "ConfigPanel.h"
 #include "SimpleTable.h"
 
-class ButtonPanel : public ConfigPanel
+class ButtonPanel : public ConfigPanel, public SimpleTable::Listener
 {
   public:
     ButtonPanel(class ConfigEditor *);
@@ -22,6 +22,10 @@ class ButtonPanel : public ConfigPanel
     void save();
     void cancel();
 
+    void resized();
+
+    void tableTouched(SimpleTable* table);
+    
   private:
 
     void render();

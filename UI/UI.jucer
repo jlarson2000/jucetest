@@ -5,6 +5,12 @@
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
       <GROUP id="{65649B8C-FFE3-B772-6B79-EF729D3BCE34}" name="ui">
+        <FILE id="XfxSqE" name="BindingTargetPanel.cpp" compile="1" resource="0"
+              file="Source/ui/BindingTargetPanel.cpp"/>
+        <FILE id="fbPQRH" name="BindingTargetPanel.h" compile="0" resource="0"
+              file="Source/ui/BindingTargetPanel.h"/>
+        <FILE id="i13Lfc" name="ButtonBar.cpp" compile="1" resource="0" file="Source/ui/ButtonBar.cpp"/>
+        <FILE id="n6FdzZ" name="ButtonBar.h" compile="0" resource="0" file="Source/ui/ButtonBar.h"/>
         <FILE id="RWAiHd" name="ButtonPanel.cpp" compile="1" resource="0" file="Source/ui/ButtonPanel.cpp"/>
         <FILE id="IR0gRb" name="ButtonPanel.h" compile="0" resource="0" file="Source/ui/ButtonPanel.h"/>
         <FILE id="R09hMU" name="ConfigEditor.cpp" compile="1" resource="0"
@@ -48,8 +54,14 @@
         <FILE id="UBAnBB" name="SimpleRadio.h" compile="0" resource="0" file="Source/ui/SimpleRadio.h"/>
         <FILE id="IcToht" name="SimpleTable.cpp" compile="1" resource="0" file="Source/ui/SimpleTable.cpp"/>
         <FILE id="qttamz" name="SimpleTable.h" compile="0" resource="0" file="Source/ui/SimpleTable.h"/>
+        <FILE id="zmOkAa" name="SimpleTabPanel.cpp" compile="1" resource="0"
+              file="Source/ui/SimpleTabPanel.cpp"/>
+        <FILE id="LSEK89" name="SimpleTabPanel.h" compile="0" resource="0"
+              file="Source/ui/SimpleTabPanel.h"/>
         <FILE id="i2oaVK" name="TableTest.cpp" compile="1" resource="0" file="Source/ui/TableTest.cpp"/>
         <FILE id="AtA2ao" name="TableTest.h" compile="0" resource="0" file="Source/ui/TableTest.h"/>
+        <FILE id="T7icvO" name="TabTest.cpp" compile="1" resource="0" file="Source/ui/TabTest.cpp"/>
+        <FILE id="Z2vg72" name="TabTest.h" compile="0" resource="0" file="Source/ui/TabTest.h"/>
         <FILE id="xj7zdN" name="TestPanel.cpp" compile="1" resource="0" file="Source/ui/TestPanel.cpp"/>
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>

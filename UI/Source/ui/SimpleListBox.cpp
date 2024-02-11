@@ -5,12 +5,16 @@
 
 SimpleListBox::SimpleListBox()
 {
+    setName("SimpleListBox");
+    
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
     addAndMakeVisible(listBox);
 
-    juce::Font font = juce::Font(juce::Font (16.0f, juce::Font::bold));
-    listBox.setRowHeight (font.getHeight());
+    // don't need to do this, the default is reasonable
+    //juce::Font font = juce::Font(juce::Font (16.0f, juce::Font::bold));
+    //listBox.setRowHeight (font.getHeight());
+    
     listBox.setModel (this);   // Tell the listbox where to get its data model
     listBox.setColour (juce::ListBox::textColourId, juce::Colours::black);
     listBox.setColour (juce::ListBox::backgroundColourId, juce::Colours::white);
@@ -36,6 +40,12 @@ void SimpleListBox::setValues(juce::StringArray& src)
 void SimpleListBox::setValueLabels(juce::StringArray& src)
 {
     valueLabels = src;
+    listBox.updateContent();
+}
+
+void SimpleListBox::add(juce::String label)
+{
+    values.add(label);
     listBox.updateContent();
 }
 
@@ -77,14 +87,15 @@ void SimpleListBox::paint(juce::Graphics& g)
        You should replace everything in this method with your own
        drawing code..
     */
-	g.fillAll (juce::Colours::lightgrey);   // clear the background
+	// g.fillAll (juce::Colours::lightgrey);   // clear the background
+	g.fillAll (juce::Colours::blue);   // clear the background
     
 }
 
 void SimpleListBox::resized()
 {
     // inner ListBox fills us, makes us whole
-	listBox.setBounds(getBounds());
+	listBox.setBounds(getLocalBounds());
 }
 
 //

@@ -9,7 +9,7 @@
 #include "JLabel.h"
 #include "SimpleTable.h"
 
-class TableTest : public juce::Component
+class TableTest : public juce::Component, public SimpleTable::Listener
 {
   public:
 
@@ -23,6 +23,8 @@ class TableTest : public juce::Component
     void resized() override;
     void paint (juce::Graphics& g) override;
 
+    void tableTouched(SimpleTable* t);
+    
   private:
 
     SimpleTable table;

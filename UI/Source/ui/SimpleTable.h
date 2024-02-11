@@ -1,5 +1,6 @@
 /*
  * Provides a basic headered, scrolling table.
+ *
  */
 
 #pragma once
@@ -19,16 +20,31 @@ class SimpleTable : public juce::Component, public juce::TableListBoxModel
     SimpleTable();
     ~SimpleTable();
 
-    void setColumnTitles(juce::StringArray& src) {
-        columnTitles = src;
-    }
-
     void setListener(Listener* l) {
         listener = l;
     }
 
-    void render();
+    // Height in pixels of the header
+    void setHeaderHeight(int height);
+    int getHeaderHeight();
+    
+    // Height in pixels of the row, defaults to 22
+    void setRowHeight(int height);
+    int getRowHeight();
 
+    // names of the columns with some presentation defaults
+    void setColumnTitles(juce::StringArray& src);
+
+    // this would be initial width if we allow resizing columns
+    // or it could set the width after resizing
+    void setColumnWidth(int col, int width);
+
+    void setCell(int row, int col, juce::String text);
+    void dumpCells();
+    
+    int getSelectedRow();
+    int getSelectedColumn();
+    
     // juce::Component overrides
     
     void resized() override;
@@ -40,14 +56,16 @@ class SimpleTable : public juce::Component, public juce::TableListBoxModel
                     int width, int height, bool rowIsSelected) override;
     void cellClicked(int rowNumber, int columnId, const juce::MouseEvent& event) override;
 
+    // int getColumnAutoSizeWidth (int columnId) override
 
   private:
     
     Listener* listener = nullptr;
-    juce::StringArray columnTitles;
+
+    // juce::Array<juce::StringArray> columns;
+    juce::OwnedArray<juce::StringArray> columns;
 
     juce::TableListBox table { {} /* component name */, this /* TableListBoxModel */};
-    juce::Font font           { 14.0f };
-    
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleTable)
 };

@@ -18,6 +18,10 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
     void setValues(juce::StringArray& src);
     void setValueLabels(juce::StringArray& src);
 
+    // if you use this you can't use value/label pairs
+    // need more flexibility here
+    void add(juce::String value);
+
     void setSelectedValues(juce::StringArray& src);
     void getSelectedValues(juce::StringArray& selected);
 

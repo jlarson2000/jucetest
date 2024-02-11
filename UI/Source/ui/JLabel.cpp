@@ -2,6 +2,8 @@
  * An extension of Juce::Label that provides automatic initialization and sizing.
  * Might be better to subclass this so we don't have to forward all the methods.
  * Primarily used in Forms.
+ *
+ * Rethink this now that I have more experience with top-down sizing.
  */
 
 #include <JuceHeader.h>

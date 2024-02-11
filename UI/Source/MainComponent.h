@@ -11,6 +11,7 @@
 #include "ui/ConfigEditor.h"
 #include "ui/TestPanel.h"
 #include "ui/TableTest.h"
+#include "ui/TabTest.h"
 
 //==============================================================================
 /*
@@ -49,6 +50,7 @@ class MainComponent  : public juce::AudioAppComponent, public MainMenu::Listener
     ConfigEditor configEditor {this};
     TestPanel test;
     TableTest table;
+    TabTest tabs;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

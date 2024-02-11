@@ -15,7 +15,18 @@ ButtonPanel::ButtonPanel(ConfigEditor* argEditor) :
     ConfigPanel{argEditor, "Buttons", ConfigPanelButton::Save | ConfigPanelButton::Cancel, false}
 {
     setName("ButtonPanel");
-    render();
+
+    content.addAndMakeVisible(table);
+    table.setColumnTitles(juce::StringArray({"Button", "Target"}));
+    table.setColumnWidth(0, 200);
+    table.setColumnWidth(1, 50);
+    table.setHeaderHeight(22);
+    table.setRowHeight(22);
+    table.setListener(this);
+
+    // we can either auto size at this point or try to
+    // make all config panels a uniform size
+    setSize (900, 600);
 }
 
 ButtonPanel::~ButtonPanel()
@@ -67,30 +78,30 @@ void ButtonPanel::cancel()
     changed = false;
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Rendering
-//
-//////////////////////////////////////////////////////////////////////
-
-// getting a warning on the setColumnTitles call
-// 1>C:\dev\jucetest\UI\Source\ui\ButtonPanel.cpp(80,44): warning C4239: nonstandard extension used: 'argument': conversion from 'juce::StringArray' to 'juce::StringArray &'
-// 1>C:\dev\jucetest\UI\Source\ui\ButtonPanel.cpp(80,44): message : A non-const reference may only be bound to an lvalue
-1>UI_App.vcxproj -> C:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\UI.exe
-
-
-void ButtonPanel::render()
+void ButtonPanel::tableTouched(SimpleTable* table)
 {
-    content.addAndMakeVisible(table);
-    
-    table.setColumnTitles(juce::StringArray({"Button"}));
-    table.setTopLeftPosition(10, 10);
-    table.render();
-
-    // we can either auto size at this point or try to
-    // make all config panels a uniform size
-    setSize (900, 600);
 }
+
+//////////////////////////////////////////////////////////////////////
+//
+// Component
+//
+//////////////////////////////////////////////////////////////////////
+
+void ButtonPanel::resized()
+{
+    juce::Rectangle<int> area = getLocalBounds();
+
+    // leave some space at the top
+    area.removeFromTop(20);
+    // and on the left
+    area.removeFromLeft(20);
+
+    // let's fix the size of the table for now rather
+    // adapt to our size
+    table.setBounds(area.getX(), area.getY(), 500, 500);
+    area.removeFromLeft(table.getWidth() + 50);
+}    
 
 /****************************************************************************/
 /****************************************************************************/

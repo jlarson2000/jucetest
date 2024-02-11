@@ -601,6 +601,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ui\BindingTargetPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\ButtonBar.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\ButtonPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
@@ -658,7 +664,13 @@
     <ClCompile Include="..\..\Source\ui\SimpleTable.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\SimpleTabPanel.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\TableTest.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\TabTest.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
@@ -3192,6 +3204,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ui\BindingTargetPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\ButtonBar.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\ButtonPanel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
@@ -3249,7 +3267,13 @@
     <ClInclude Include="..\..\Source\ui\SimpleTable.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\SimpleTabPanel.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\TableTest.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\TabTest.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\TestPanel.h">
