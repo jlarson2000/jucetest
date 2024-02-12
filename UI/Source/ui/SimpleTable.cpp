@@ -39,6 +39,12 @@ SimpleTable::SimpleTable()
     // from the example
     table.setColour (juce::ListBox::outlineColourId, juce::Colours::grey);      // [2]
     table.setOutlineThickness (1);
+
+    table.setMultipleSelectionEnabled (true);
+    
+    // any reason not to want this?
+    // only relevant if multi selection enabled
+    table.setClickingTogglesRowSelection(true);
 }
 
 SimpleTable::~SimpleTable()
@@ -68,9 +74,8 @@ void SimpleTable::setColumnTitles(juce::StringArray& titles)
         header.addColumn(titles[i], i+1, 100, 30, -1,
                          juce::TableHeaderComponent::defaultFlags);
     }
-
     //header.setSortColumnId (1, true);
-    table.setMultipleSelectionEnabled (true);
+
 }
 
 /**
@@ -178,6 +183,28 @@ void SimpleTable::dumpCells()
             }
         }
     }
+}
+
+void SimpleTable::clear()
+{
+    columns.clear();
+    table.deselectAllRows();
+    table.updateContent();
+}
+
+void SimpleTable::updateContent()
+{
+    table.updateContent();
+    // this alone isn't enough to get it to repaint for some reason
+    table.repaint();
+}
+
+/**
+ * Todo: don't have a way to specify multiple rows.
+ */
+void SimpleTable::setSelectedRow(int row)
+{
+    table.selectRow(row);
 }
 
 //////////////////////////////////////////////////////////////////////

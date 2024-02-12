@@ -72,8 +72,8 @@ class SetupParameter : public Parameter
     /**
      * Overload the Parameter versions and cast to a Setup.
      */
-	void getObjectValue(void* obj, ExValue* value);
-	void setObjectValue(void* obj, ExValue* value);
+	void getConfigValue(void* obj, ExValue* value);
+	void setConfigValue(void* obj, ExValue* value);
 
     /**
      * Overload the Parameter versions and resolve to a Setup.
@@ -103,12 +103,12 @@ class SetupParameter : public Parameter
 
 };
 
-void SetupParameter::getObjectValue(void* obj, ExValue* value)
+void SetupParameter::getConfigValue(void* obj, ExValue* value)
 {
     getValue((Setup*)obj, value);
 }
 
-void SetupParameter::setObjectValue(void* obj, ExValue* value)
+void SetupParameter::setConfigValue(void* obj, ExValue* value)
 {
     setValue((Setup*)obj, value);
 }
@@ -202,7 +202,7 @@ DefaultSyncSourceParameterType::DefaultSyncSourceParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = DEFAULT_SYNC_SOURCE_NAMES;
-	valueKeys = DEFAULT_SYNC_SOURCE_KEYS;
+	//valueKeys = DEFAULT_SYNC_SOURCE_KEYS;
 }
 
 int DefaultSyncSourceParameterType::getOrdinalValue(Setup* s)
@@ -265,7 +265,7 @@ DefaultTrackSyncUnitParameterType::DefaultTrackSyncUnitParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = DEFAULT_TRACK_SYNC_UNIT_NAMES;
-	valueKeys = DEFAULT_TRACK_SYNC_UNIT_KEYS;
+	//valueKeys = DEFAULT_TRACK_SYNC_UNIT_KEYS;
 }
 
 int DefaultTrackSyncUnitParameterType::getOrdinalValue(Setup* s)
@@ -327,7 +327,7 @@ SlaveSyncUnitParameterType::SlaveSyncUnitParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SYNC_UNIT_NAMES;
-	valueKeys = SYNC_UNIT_KEYS;
+	//valueKeys = SYNC_UNIT_KEYS;
 }
 
 int SlaveSyncUnitParameterType::getOrdinalValue(Setup* s)
@@ -544,7 +544,7 @@ MuteSyncModeParameterType::MuteSyncModeParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = MUTE_SYNC_NAMES;
-	valueKeys = MUTE_SYNC_KEYS;
+	//valueKeys = MUTE_SYNC_KEYS;
 }
 
 int MuteSyncModeParameterType::getOrdinalValue(Setup* s)
@@ -596,7 +596,7 @@ ResizeSyncAdjustParameterType::ResizeSyncAdjustParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SYNC_ADJUST_NAMES;
-	valueKeys = SYNC_ADJUST_KEYS;
+	//valueKeys = SYNC_ADJUST_KEYS;
 }
 
 int ResizeSyncAdjustParameterType::getOrdinalValue(Setup* s)
@@ -638,7 +638,7 @@ SpeedSyncAdjustParameterType::SpeedSyncAdjustParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SYNC_ADJUST_NAMES;
-	valueKeys = SYNC_ADJUST_KEYS;
+	//valueKeys = SYNC_ADJUST_KEYS;
 }
 
 int SpeedSyncAdjustParameterType::getOrdinalValue(Setup* s)
@@ -692,7 +692,7 @@ RealignTimeParameterType::RealignTimeParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = REALIGN_TIME_NAMES;
-	valueKeys = REALIGN_TIME_KEYS;
+	//valueKeys = REALIGN_TIME_KEYS;
 }
 
 int RealignTimeParameterType::getOrdinalValue(Setup* s)
@@ -744,7 +744,7 @@ OutRealignModeParameterType::OutRealignModeParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = REALIGN_MODE_NAMES;
-	valueKeys = REALIGN_MODE_KEYS;
+	//valueKeys = REALIGN_MODE_KEYS;
 }
 
 int OutRealignModeParameterType::getOrdinalValue(Setup* s)

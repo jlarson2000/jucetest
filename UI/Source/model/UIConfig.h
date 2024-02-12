@@ -82,14 +82,17 @@ class UIButton
 
     UIButton() {
         mName = nullptr;
+        mArguments = nullptr;
     }
         
     UIButton(const char* name) {
         mName = CopyString(name);
+        mArguments = nullptr;
     }
         
     ~UIButton() {
         delete mName;
+        delete mArguments;
     }
 
     void setName(const char *name) {
@@ -101,9 +104,20 @@ class UIButton
         return mName;
     }
 
+    void setArguments(const char* args) {
+        delete mArguments;
+        mArguments = CopyString(args);
+    }
+
+    const char* getArguments() {
+        return mArguments;
+    }
+
+    
   private:
 
     char* mName;
+    char* mArguments;
 };
 
 class UIConfig

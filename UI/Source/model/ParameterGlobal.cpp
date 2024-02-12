@@ -76,8 +76,8 @@ class GlobalParameter : public Parameter {
     /**
      * Overload the Parameter versions and cast to a MobiusConfig.
      */
-	void getObjectValue(void* obj, ExValue* value);
-	void setObjectValue(void* obj, ExValue* value);
+	void getConfigValue(void* obj, ExValue* value);
+	void setConfigValue(void* obj, ExValue* value);
 
     /**
      * Overload the Parameter versions and pass a Mobius;
@@ -109,12 +109,12 @@ class GlobalParameter : public Parameter {
 };
 
 
-void GlobalParameter::getObjectValue(void* obj, ExValue* value)
+void GlobalParameter::getConfigValue(void* obj, ExValue* value)
 {
     getValue((MobiusConfig*)obj, value);
 }
 
-void GlobalParameter::setObjectValue(void* obj, ExValue* value)
+void GlobalParameter::setConfigValue(void* obj, ExValue* value)
 {
     setValue((MobiusConfig*)obj, value);
 }

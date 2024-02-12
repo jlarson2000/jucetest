@@ -1,38 +1,24 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
  * Static object definitions for Mobius parameters.
  *
- * This is part of the public interface.
+ * Parameters are named values that may have a range
+ * of values and are used to control operational aspects of the engine.
+ * Most parameters are displayed in the UI for editing and stored
+ * in the MobiusConfig object.
  *
- * 
+ * The Parameter class defines the characteristics of the parameter
+ * including an internal name, an optional display name, the value type,
+ * value range, and scope (global, preset, setup, track).
+ *
+ * DESIGN NOTES
+ *
+ * I've tried to keep Juce out of this so that the model and engine
+ * can be independent of UI technology, but juce::var crept in because
+ * it is more convenient than ExValue for a few things.  
+ *
  */
 
-// Things I took out:
-//    virtual int getHigh(class MobiusInterface* m);
-//    virtual void getValue(class Export* exp, class ExValue* value);
-//    virtual void setValue(class Action* action);
-//    virtual int getOrdinalValue(class Export* exp);
-//    internal use only
-//      virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
-
-
- /**
- * The maximum value used for bindings.
- * This is usually the same as getHigh() except for a ew
- * integers that don't have an upper bound.  Since we have 
- * to have some bounds for scaling MIDI CCs, this will default
- * to 127 and can be overridden.
- */
-//virtual int getBindingHigh(class MobiusInterface* m);
-//virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
-
-#ifndef MOBIUS_PARAMETER_H
-#define MOBIUS_PARAMETER_H
+#pragma once
 
 #include <vector>
 
@@ -78,27 +64,66 @@ typedef enum {
 
 class Parameter : public SystemConstant {
 
-    //friend class Mobius;
-
   public:
 
-	//Parameter();
-	Parameter(const char* name, int key);
 	Parameter(const char* name, const char* displayName);
+	Parameter(const char* name, int key);
 	virtual ~Parameter();
-    void localize(MessageCatalog* cat);
 
-	const char* aliases[MAX_PARAMETER_ALIAS];
+    /**
+     * Defines the value type, int, string, bool, enum, etc.
+     */
+	ParameterType type;
 
-    // behavioral flags
+    /**
+     * True if it supports multiple values.
+     */
+    bool multi;
+
+    /**
+     * The parameter scope, global, preset, track, etc.
+     */
+	ParameterScope scope;
+
+    /**
+     * For enumeration parameters, a set of allowed values.
+     */
+    const char** values;
+
+    /**
+     * For enumeration parameters, a set of alternate display
+     * names for the allowed values.
+     */
+	const char** valueLabels;
+
+    /**
+     * For integer parameters, the lowest allowed value.
+     */
+    int low;
+
+    /**
+     * For integer parameters, the highest allowed value.
+     * For a small number of parameters, this value may be changed
+     * at runtime to adapt to other configuration changes.
+     */
+    int high;
+
+    /**
+     * A few parameters have a default value, usually either
+     * the upper end of a range or the center.
+     * Used when initialing new configuration objects containing
+     * parameters.
+     */
+    int defaultValue;
+    
+    //
+    // Flags that can be used as hints for the UI for editing
+    // These do not effect the use at runtime
+    //
+
     bool bindable;      // true if this bindable 
-	bool dynamic;		// true if labels and max ordinal can change
-    bool deprecated;    // true if this is a backward compatible parameter
-    bool transient;     // memory only, not stored in config objects
-    bool resettable;    // true for Setup parameters that may be reset
-    bool scheduled;     // true if setting the value schedules an event
-    bool takesAction;   // true if ownership of the Action may be taken
     bool control;       // true if this is displayed as control in the binding UI
+    bool juceValues = false; // true if this may be accessed using juce::var
 
     /**
      * When this is set, it is a hint to the UI to display the value
@@ -108,44 +133,26 @@ class Parameter : public SystemConstant {
      */
     bool zeroCenter;
 
-    /**
-     * Control parameters  have a default value, usually either the 
-     * upper end of the range or the center.
-     */
-    int mDefault;
-
-	ParameterType type;
-    bool multi;         // true if this field may have multiple values
-	ParameterScope scope;
-    const char** values;
-	const char** valueLabels;
-	int* valueKeys;
-
-    /**
-     * Used in rare cases where we need to change the
-     * name of a parameter and upgrade the xml.
-     */
-    const char* xmlAlias;
-
-    /**
-     * Parameter supports juce::var for getting and setting values.
-     */
-    bool juceValues = false;
-    
     //
-    // Configurable Parameter property access
-    // 
-
-    int getLow();
-    int getHigh();
-
-    virtual int Parameter::getConfigurableHigh(class MobiusConfig* config);
+    // Flags that are in the process of being phased out
+    // Do not write new code that depends on these
+    //
+    
+    // behavioral flags
+	bool dynamic;		// true if labels and max ordinal can change
+    bool deprecated;    // true if this is a backward compatible parameter
+    bool transient;     // memory only, not stored in config objects
+    bool resettable;    // true for Setup parameters that may be reset
+    bool scheduled;     // true if setting the value schedules an event
+    bool takesAction;   // true if ownership of the Action may be taken
 
     /**
-     * Get or set the value from a configuration object.
+     * Methods implemented by subclasses to get and set the value
+     * of a parameter from the configuration objects.
      */
-    virtual void getObjectValue(void* object, class ExValue* value) = 0;
-    virtual void setObjectValue(void* object, class ExValue* value) = 0;
+
+    virtual void getConfigValue(void* object, class ExValue* value) = 0;
+    virtual void setConfigValue(void* object, class ExValue* value) = 0;
 
     /**
      * New interface just for the Juce UI with complicated values.
@@ -153,9 +160,10 @@ class Parameter : public SystemConstant {
     virtual void getJuceValue(void* object, juce::var& value);
     virtual void setJuceValue(void* object, juce::var& value);
     
+    // 
     // Coercion helpers
-	// Weed  these!
-
+    //
+    
 	/**
 	 * Convert a string value to an enumeration ordinal value.
      * If the value is not in the enum, an error is traced and zero is returned.
@@ -166,7 +174,7 @@ class Parameter : public SystemConstant {
 	 * Convert a string value to an enumeration ordinal value, returning
      * -1 if the value isn't in the enum.
 	 */
-	int getEnumValue(const char *value);
+	int getEnumNoWarn(const char *value);
 
 	/**
 	 * Convert an ExValue with an string or a number into an ordinal.
@@ -174,37 +182,29 @@ class Parameter : public SystemConstant {
 	int getEnum(ExValue *value);
 
     /**
-     * Upgrade an enumeration value.
+     * Convert an enumeration ordinal into the corresponding
+     * internal name.
      */
-    void fixEnum(ExValue* value, const char* oldValue, const char* newValue);
+    const char* getEnumName(int value);
 
-	/**
-	 * Convert a CC number in the range of 0-127 to an enumeration ordinal.
-	 * !! This isn't used any more. Scaling needs to be done at the
-	 * binding trigger layer appropriate for the trigger (host, key, midi, etc.)
-	 */
-	int getControllerEnum(int value);
-
+    //
     // Global parameter registry
+    //
     
     static std::vector<Parameter*> Parameters;
     static void dumpParameters();
 	static Parameter* getParameter(const char* name);
 	static Parameter* getParameterWithDisplayName(const char* name);
-	static void localizeAll(class MessageCatalog* cat);
     
-  protected:
+    //
+    // Temporary backward compatibility for old definitions
+    //
 
-    void addAlias(const char* alias);
-	const char** allocLabelArray(int size);
-    int getOrdinalInternal(class ExValue* value, const char** varray);
+    void addAlias(const char* alias) {};
 
-	int low;
-	int high;
 
   private:
 
-	static void checkAmbiguousNames();
     static const char* getEnumLabel(ParameterType type);
     static const char* getEnumLabel(ParameterScope scope);
 
@@ -388,4 +388,3 @@ extern Parameter* TrackOutputPortParameter;
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

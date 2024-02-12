@@ -1,24 +1,13 @@
 /*
- * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- *
  * Common superclass for various constant objects that are allocated
- * during static initialization.  
+ * during static initialization.
  * 
  * System constants all have a name and an optional display name.  
- * Some will have a catalog key with deferred localization.
+ * A member is defined for help text but is not used.
  *
- * There are assumptions about static initialization in here which is
- * fine for now but eventually may want these to be extensible.
- *
- * The stuff related to localization and message catalogs comes from
- * an old Mobius goal that I don't think is relevant any more and was
- * a pain in the ass.  Keep it around for awhile since it's already there
- * but I'd like to move away from it or at least find a less intrusive way
- * to do it.
+ * The message catalog key is a temporary holder from old Mobius
+ * until I can upgrade all of the object definition to just
+ * store display names directly in the definitions.
  */
 
 #pragma once
@@ -34,19 +23,20 @@ class SystemConstant {
 
     virtual ~SystemConstant();
 
+    // why would we ever need to set these?
+    // comments say used in rare cases like MobiusMode
+    // that need to construct in a complex way with
+    // the noarg constructor
+
     const char* getName();
     void setName(const char* name);
 
     const char* getDisplayName();
     void setDisplayName(const char* name);
-
-    int getKey();
-    void setKey(int key);
-
+    const char* getDisplayableName();
+    
     const char* getHelp();
     void setHelp(const char* name);
-
-    void localize(class MessageCatalog* cat);
 
   private:
 
@@ -59,15 +49,10 @@ class SystemConstant {
     const char* mName;
 
     /**
-     * This may come from a static or a message catalog so keep
-     * a private copy.
+     * Formerly a buffer so it could hold a catalog entry.
+     * Can be a constant now.
      */
-    char mDisplayName[MAX_CONSTANT_DISPLAY_NAME];
-
-    /**
-     * Non-zero if we initialize display name from a message catalog.
-     */
-    int mKey;
+    const char* mDisplayName;
 
     /**
      * Used by functions, nothing else.

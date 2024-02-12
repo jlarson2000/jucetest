@@ -1,8 +1,9 @@
 <UIConfig width='1026' height='665' refreshInterval='100' messageDuration='2'>
-  <Buttons>
-    <Button function='foo'/>
-  </Buttons>
   <Locations>
     <Location name='foo' x='42' y='24' disabled='true'/>
   </Locations>
+  <Buttons>
+    <Button target='AutoRecord' arguments='xxx'/>
+    <Button target='fadeFrames' arguments='yyy'/>
+  </Buttons>
 </UIConfig>

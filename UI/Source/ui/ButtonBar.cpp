@@ -21,15 +21,43 @@ void ButtonBar::add(juce::String name)
     addAndMakeVisible(b);
 }
 
-void ButtonBar::resized()
+/**
+ * Auto size is mostly for the width to keep the buttons
+ * of uniform size.  But for font string widths to be accurate
+ * need to know the height first.  Default a height unless
+ * we already have one.
+ * Because resized wants to center by default, the calculatiosn
+ * we do here have to match closely.
+ */
+void ButtonBar::autoSize()
 {
+    // hight must be set before we calculate widths
     int height = getHeight();
+    if (height == 0) {
+        height = 20;
+        // weirdly don't have a setHeight??
+        // setHeight(20);
+        setSize(0, height);
+    }
 
+    int maxWidth = getMaxButtonWidth();
+    const juce::Array<Component*>& children = getChildren();
+    int totalWidth = maxWidth * children.size();
+
+    // and also don't have setWidth
+    setSize(totalWidth, height);
+}
+
+/**
+ * Calculate the maximum size needed for each button.
+ */
+int ButtonBar::getMaxButtonWidth()
+{
     // this seems not entirely accurate since we don't
     // explicitly set the button font, it will apparently
     // be an unknown percentage of the height given
     // but we'll err on the larger side
-    juce::Font font = juce::Font(height);
+    juce::Font font = juce::Font(getHeight());
     int maxWidth = 0;
 
     const juce::Array<Component*>& children = getChildren();
@@ -43,10 +71,18 @@ void ButtonBar::resized()
               maxWidth = width;
         }
     }
-
+    
     // padding on each side
     maxWidth += 10;
 
+    return maxWidth;
+}
+
+void ButtonBar::resized()
+{
+    int height = getHeight();
+    int maxWidth = getMaxButtonWidth();
+    const juce::Array<Component*>& children = getChildren();
     int totalWidth = maxWidth * children.size();
     int centerOffset = (getWidth() - totalWidth) / 2;
 

@@ -26,8 +26,8 @@ ParameterField::ParameterField(Parameter* p) :
 
     // todo: need to figure out how to handle fields with
     // confirable highs
-    setMin(p->getLow());
-    setMax(p->getHigh());
+    setMin(p->low);
+    setMax(p->high);
 
     // enums must have allowed values, strings are optional
     if (p->type == TYPE_ENUM || p->type == TYPE_STRING) {
@@ -74,7 +74,7 @@ void ParameterField::loadValue(void *obj)
         // old-school ExValue
         ExValue ev;
 
-        parameter->getObjectValue(obj, &ev);
+        parameter->getConfigValue(obj, &ev);
 
         if (parameter->multi) {
             // supposed to be using juce::var for these
@@ -142,6 +142,6 @@ void ParameterField::saveValue(void *obj)
 
         // should do this only if we had a conversion
         if (!ev.isNull())
-          parameter->setObjectValue(obj, &ev);
+          parameter->setConfigValue(obj, &ev);
     }
 }

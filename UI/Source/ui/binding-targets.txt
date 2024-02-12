@@ -1,0 +1,70 @@
+
+Current UI has a Scope selector with values
+
+   Global
+   Track 1
+   Track 2
+   ...
+   Group A
+   Group B
+
+Could continue that or just have a Track/Group text box where
+you type in the name.
+
+That might be interesting, any other binding scopes?  Would allow things
+like 1-4 or 1,3,5
+
+Binding model does not support that though, would have to replicate it
+and then collapse it back to a tracks specifier.
+
+Kind of like this, scopes were always a little hard to explain and rarely used.
+
+Can we use arguments for this?
+
+What functions have arguments?
+
+RunScript <name>
+  track scope doesn't make sense yet
+  would a script ever want to want to run in just one track?
+  
+SelectLoop <number>
+  track scope does make sense here
+
+SelectTrack <number>
+  track scope doesn't make sense here
+
+PlaySample <name>
+  no track scope
+
+SelectLoop is the problem child, it can have both a track number and loop number
+as arguments.  Could qualify them
+  track:1 loop:2
+
+If not set have to assume order, track would have to be first which makes
+a global "set all tracks to loop 2" harder.  But really, why would you want that?
+Examples
+  SelectLoop 1
+    selects loop 1 in the current track
+  SelectLoop 1 2
+    selects loop 2 in track 1
+    should we consistently put the track number first?
+  SelectLoop 2 track:1
+    name to make it unambiguous
+
+Control bindings for switches would always have a numeric argument
+   Pan 64
+   Pan 1 64
+     seems less natural than Pan 64 1
+
+putting track at the end works as long as functions can't have variable optional
+arguments, if any do have to name them
+
+would be really nice to have argument help show under the arguments field relevant
+to the selected target
+
+Yes, start with just Arguments, that gets us there and we can add sugar later
+
+   
+
+
+  

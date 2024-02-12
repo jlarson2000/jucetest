@@ -36,15 +36,6 @@
  * 
  */
 
-// I see this a lot for the old getValue(ExValue) methods
-// can probably do away with all these and if anyone else needs
-// it move this to a general getEnumValue on Parameter
-//
-//  void MultiplyModeParameterType::getValue(Preset* p, ExValue* value)
-//  {
-//	  value->setString(values[p->getMultiplyMode()]);
-//  }
-
 // necessary to get FILE* for XMlParser.h
 #include <stdio.h>
 // for atoi
@@ -241,8 +232,9 @@ void XmlRenderer::render(XmlBuffer* b, Parameter* p, int value)
         else {
             // should do some range checking here but we're only ever getting a value
             // from an object member cast as an int
+            // shoudl be letting the 
             // !! put this in Parameter::getEnumValue
-            b->addAttribute(p->getName(), p->values[value]);
+            b->addAttribute(p->getName(), p->getEnumName(value));
         }
     }
     else {
@@ -289,7 +281,7 @@ int XmlRenderer::parse(XmlElement* e, Parameter* p)
             value = atoi(str);
         }
         else if (p->type == ParameterType::TYPE_ENUM) {
-            value = p->getEnumValue(str);
+            value = p->getEnumNoWarn(str);
             if (value < 0) {
                 // invalid enum name, leave zero
                 Trace(1, "XmlRenderer: Invalid enumeration value %s for %s\n", str, p->getName());
@@ -1474,7 +1466,8 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
 
 #define EL_BUTTONS "Buttons"
 #define EL_BUTTON "Button"
-#define ATT_FUNCTION_NAME "function"
+#define ATT_BUTTON_NAME "target"
+#define ATT_BUTTON_ARGS "arguments"
 
 // don't really like these as top level things, would make more sense
 // inside the <Location> element, consider generalizing <Location>
@@ -1537,7 +1530,8 @@ void XmlRenderer::render(XmlBuffer* b, UIConfig* c)
 		for (int i = 0 ; i < buttons->size() ; i++) {
             UIButton* button = buttons->at(i).get();
             b->addOpenStartTag(EL_BUTTON);
-            b->addAttribute(ATT_FUNCTION_NAME, button->getName());
+            b->addAttribute(ATT_BUTTON_NAME, button->getName());
+            b->addAttribute(ATT_BUTTON_ARGS, button->getArguments());
             b->add("/>\n");
 		}
 		b->decIndent();
@@ -1583,9 +1577,15 @@ void XmlRenderer::parse(XmlElement* e, UIConfig* config)
         else if (child->isName(EL_BUTTONS)) {
 			for (XmlElement* be = child->getChildElement() ; be != NULL ; 
 				 be = be->getNextElement()) {
-                UIButton* button = new UIButton();
-                button->setName(be->getAttribute(ATT_FUNCTION_NAME));
-                config->addButton(button);
+                const char* name = be->getAttribute(ATT_BUTTON_NAME);
+                // ignore malformed objects
+                if (name != nullptr) {
+                    UIButton* button = new UIButton();
+                    button->setName(be->getAttribute(ATT_BUTTON_NAME));
+                    button->setArguments(be->getAttribute(ATT_BUTTON_ARGS));                    
+                    config->addButton(button);
+                }
+                
             }
         }
 

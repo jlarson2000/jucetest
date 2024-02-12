@@ -19,7 +19,7 @@ TableTest::TableTest()
     table.setColumnWidth(1, 50);
     table.setHeaderHeight(22);
     table.setRowHeight(22);
-    table.setListener(this);
+    table.addListener(this);
     
     setSize (800, 800);
 

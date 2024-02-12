@@ -12,9 +12,27 @@
 class SimpleListBox : public juce::Component, public juce::ListBoxModel
 {
   public:
+
+    class Listener {
+      public:
+        virtual void selectedRowsChanged(SimpleListBox*box, int lastRowSelected) = 0;
+    };
+    
     SimpleListBox();
     ~SimpleListBox();
 
+    void addListener(Listener* l) {
+        listener = l;
+    }
+    
+    void setMultipleSelectionEnabled(bool b) {
+        // note that turning this on also effectdively
+        // disables setClickingTogglesRowSelection(true)
+        // you can't have toggling rows on a single select
+        // odd, I could think of uses for that?
+        listBox.setMultipleSelectionEnabled(b);
+    }
+    
     void setValues(juce::StringArray& src);
     void setValueLabels(juce::StringArray& src);
 
@@ -24,6 +42,15 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
 
     void setSelectedValues(juce::StringArray& src);
     void getSelectedValues(juce::StringArray& selected);
+    void deselectAll();
+
+    // todo: added this for single select box convenience
+    // if we have more than one will need more selected
+    // row iteration methods
+    int getSelectedRow();
+    void setSelectedRow(int index);
+    juce::String getSelectedValue();
+    juce::String getRowValue(int index);
 
     // juce::Component overrides
     
@@ -41,6 +68,7 @@ class SimpleListBox : public juce::Component, public juce::ListBoxModel
 
   private:
     
+    Listener* listener = nullptr;
     juce::ListBox listBox;
 
     juce::StringArray values;

@@ -183,6 +183,7 @@
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
     <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
+    <ClCompile Include="..\..\Source\model\Function.cpp"/>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
@@ -2504,6 +2505,7 @@
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
     <ClInclude Include="..\..\Source\model\ExValue.h"/>
+    <ClInclude Include="..\..\Source\model\Function.h"/>
     <ClInclude Include="..\..\Source\model\Messages.h"/>
     <ClInclude Include="..\..\Source\model\MobiusConfig.h"/>
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>

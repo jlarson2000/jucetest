@@ -78,6 +78,32 @@ void SimpleListBox::getSelectedValues(juce::StringArray& selected)
     }
 }
 
+int SimpleListBox::getSelectedRow()
+{
+    return listBox.getSelectedRow();
+}
+
+void SimpleListBox::setSelectedRow(int index)
+{
+    // dontScrollToShowThisRow=false, deselectOthersFirst=true
+    listBox.selectRow(index);
+    // didn't seem to force a repaint?
+    listBox.repaint();
+}
+
+juce::String SimpleListBox::getSelectedValue()
+{
+    juce::String value;
+    int row = getSelectedRow();
+    if (row >= 0)
+      value = values[row];
+    return value;
+}
+
+void SimpleListBox::deselectAll()
+{
+    listBox.deselectAllRows();
+}
 
 void SimpleListBox::paint(juce::Graphics& g)
 {
@@ -131,7 +157,18 @@ void SimpleListBox::paintListBoxItem (int rowNumber, juce::Graphics& g,
  * Don't need to overload this, the listbox will track selections
  * and we'll call getSelectedValues when we want to save them.
  */
-void SimpleListBox::selectedRowsChanged (int /*lastRowselected*/)
+void SimpleListBox::selectedRowsChanged (int lastRowSelected)
 {
     //do stuff when selection changes
+    if (listener != nullptr)
+      listener->selectedRowsChanged(this, lastRowSelected);
+}
+
+/**
+ * If we have labels need to decide what to return
+ * or provide an interface to access both.
+ */
+juce::String SimpleListBox::getRowValue(int index)
+{
+    return values[index];
 }

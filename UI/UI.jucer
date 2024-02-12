@@ -109,6 +109,8 @@
         <FILE id="Kl8nMI" name="Binding.h" compile="0" resource="0" file="Source/model/Binding.h"/>
         <FILE id="azEsBL" name="ExValue.cpp" compile="1" resource="0" file="Source/model/ExValue.cpp"/>
         <FILE id="km0fDA" name="ExValue.h" compile="0" resource="0" file="Source/model/ExValue.h"/>
+        <FILE id="ieUSs5" name="Function.cpp" compile="1" resource="0" file="Source/model/Function.cpp"/>
+        <FILE id="WGj3OW" name="Function.h" compile="0" resource="0" file="Source/model/Function.h"/>
         <FILE id="FZEt89" name="Messages.h" compile="0" resource="0" file="Source/model/Messages.h"/>
         <FILE id="w1kSSZ" name="MobiusConfig.cpp" compile="1" resource="0"
               file="Source/model/MobiusConfig.cpp"/>

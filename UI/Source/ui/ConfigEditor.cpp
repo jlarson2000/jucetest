@@ -188,6 +188,7 @@ const char* ConfigEditor::getConfigFilePath()
     return path;
 }
 
+// call this variant for testing
 const char* ConfigEditor::getWriteConfigFilePath()
 {
     const char* path = "c:/dev/jucetest/UI/Source/mobius2.xml";
@@ -280,7 +281,7 @@ UIConfig* ConfigEditor::getUIConfig()
 void ConfigEditor::saveUIConfig()
 {
     if (masterUIConfig != nullptr) {
-        const char* path = getWriteUIConfigFilePath();
+        const char* path = getUIConfigFilePath();
         XmlRenderer xr;
         char* xml = xr.render(masterUIConfig);
         WriteFile(path, xml);

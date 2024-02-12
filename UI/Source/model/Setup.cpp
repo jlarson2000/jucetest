@@ -410,7 +410,9 @@ OutRealignMode Setup::getOutRealignMode() {
 /**
  * This one had a clone method that didn't use XML for some reason
  * !! don't like this
+ * Not used by XmlRenderer
  */
+#if 0
 Setup* Setup::clone()
 {
 	Setup* clone = new Setup();
@@ -426,8 +428,8 @@ Setup* Setup::clone()
 		Parameter* p = Parameter::Parameters[i];
         if (p->scope == PARAM_SCOPE_SETUP) {
             ExValue value;
-            p->getObjectValue(this, &value);
-            p->setObjectValue(clone, &value);
+            p->getConfigValue(this, &value);
+            p->setConfigValue(clone, &value);
         }
     }
 
@@ -444,6 +446,7 @@ Setup* Setup::clone()
 
     return clone;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -550,6 +553,8 @@ SetupTrack::~SetupTrack()
 	}
 }
 
+// new UI uses XmlRenderer for cloning, do we still need this?
+#if 0
 SetupTrack* SetupTrack::clone()
 {
 	SetupTrack* t = new SetupTrack();
@@ -578,7 +583,7 @@ SetupTrack* SetupTrack::clone()
 
 	return t;
 }
-
+#endif
 
 void SetupTrack::setNext(SetupTrack* s) 
 {

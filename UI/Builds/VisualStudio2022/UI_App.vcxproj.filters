@@ -727,6 +727,9 @@
     <ClCompile Include="..\..\Source\model\ExValue.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\Function.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
@@ -3328,6 +3331,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\ExValue.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Function.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Messages.h">

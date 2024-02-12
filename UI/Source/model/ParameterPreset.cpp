@@ -10,7 +10,7 @@
 
  * Static object definitions for Preset parameters.
  * These get and set the fields of a Preset object.
- * getObjectValue/setObjectValue are used when parsing or serializing XML
+ * getConfigValue/setConfigValue are used when parsing or serializing XML
  * and when editing presets in the UI.
  *
  * getValue/setValue are used to process bindings.
@@ -77,8 +77,8 @@ class PresetParameter : public Parameter
     /**
      * Overload the Parameter versions and cast to a Preset.
      */
-	void getObjectValue(void* object, ExValue* value);
-	void setObjectValue(void* object, ExValue* value);
+	void getConfigValue(void* object, ExValue* value);
+	void setConfigValue(void* object, ExValue* value);
 
     /**
      * These must always be overloaded.
@@ -94,12 +94,12 @@ class PresetParameter : public Parameter
 
 };
 
-void PresetParameter::setObjectValue(void* object, ExValue* value)
+void PresetParameter::setConfigValue(void* object, ExValue* value)
 {
     setValue((Preset*)object, value);
 }
 
-void PresetParameter::getObjectValue(void* object, ExValue* value)
+void PresetParameter::getConfigValue(void* object, ExValue* value)
 {
     getValue((Preset*)object, value);
 }
@@ -1129,7 +1129,7 @@ TimeCopyParameterType::TimeCopyParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = COPY_MODE_NAMES;
-	valueKeys = COPY_MODE_KEYS;
+	//valueKeys = COPY_MODE_KEYS;
 }
 
 int TimeCopyParameterType::getOrdinalValue(Preset* p)
@@ -1171,7 +1171,7 @@ SoundCopyParameterType::SoundCopyParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = COPY_MODE_NAMES;
-	valueKeys = COPY_MODE_KEYS;
+	//valueKeys = COPY_MODE_KEYS;
 }
 
 int SoundCopyParameterType::getOrdinalValue(Preset* p)
@@ -1819,7 +1819,7 @@ SlipModeParameterType::SlipModeParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SLIP_MODE_NAMES;
-	valueKeys = SLIP_MODE_KEYS;
+	//valueKeys = SLIP_MODE_KEYS;
 }
 
 int SlipModeParameterType::getOrdinalValue(Preset* p)
@@ -2067,7 +2067,7 @@ RecordTransferParameterType::RecordTransferParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = RECORD_TRANSFER_NAMES;
-	valueKeys = RECORD_TRANSFER_KEYS;
+	//valueKeys = RECORD_TRANSFER_KEYS;
 }
 
 int RecordTransferParameterType::getOrdinalValue(Preset* p)
@@ -2123,7 +2123,7 @@ OverdubTransferParameterType::OverdubTransferParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = MODE_TRANSFER_NAMES;
-	valueKeys = MODE_TRANSFER_KEYS;
+	//valueKeys = MODE_TRANSFER_KEYS;
 }
 
 int OverdubTransferParameterType::getOrdinalValue(Preset* p)
@@ -2138,8 +2138,6 @@ void OverdubTransferParameterType::getValue(Preset* p, ExValue* value)
 
 void OverdubTransferParameterType::setValue(Preset* p, ExValue* value)
 {
-    // changed the name in 1.43
-    fixEnum(value, "remember", "restore");
 	p->setOverdubTransfer((Preset::TransferMode)getEnum(value));
 }
 
@@ -2167,7 +2165,7 @@ ReverseTransferParameterType::ReverseTransferParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = MODE_TRANSFER_NAMES;
-	valueKeys = MODE_TRANSFER_KEYS;
+	//valueKeys = MODE_TRANSFER_KEYS;
 }
 
 int ReverseTransferParameterType::getOrdinalValue(Preset* p)
@@ -2182,8 +2180,6 @@ void ReverseTransferParameterType::getValue(Preset* p, ExValue* value)
 
 void ReverseTransferParameterType::setValue(Preset* p, ExValue* value)
 {
-    // changed the name in 1.43
-    fixEnum(value, "remember", "restore");
 	p->setReverseTransfer((Preset::TransferMode)getEnum(value));
 }
 
@@ -2211,7 +2207,7 @@ SpeedTransferParameterType::SpeedTransferParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = MODE_TRANSFER_NAMES;
-	valueKeys = MODE_TRANSFER_KEYS;
+	//valueKeys = MODE_TRANSFER_KEYS;
     addAlias("rateTransfer");
 }
 
@@ -2227,8 +2223,6 @@ void SpeedTransferParameterType::getValue(Preset* p, ExValue* value)
 
 void SpeedTransferParameterType::setValue(Preset* p, ExValue* value)
 {
-    // changed the name in 1.43
-    fixEnum(value, "remember", "restore");
 	p->setSpeedTransfer((Preset::TransferMode)getEnum(value));
 }
 
@@ -2256,7 +2250,7 @@ PitchTransferParameterType::PitchTransferParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = MODE_TRANSFER_NAMES;
-	valueKeys = MODE_TRANSFER_KEYS;
+	//valueKeys = MODE_TRANSFER_KEYS;
 }
 
 int PitchTransferParameterType::getOrdinalValue(Preset* p)
@@ -2271,8 +2265,6 @@ void PitchTransferParameterType::getValue(Preset* p, ExValue* value)
 
 void PitchTransferParameterType::setValue(Preset* p, ExValue* value)
 {
-    // changed the name in 1.43
-    fixEnum(value, "remember", "restore");
 	p->setPitchTransfer((Preset::TransferMode)getEnum(value));
 }
 
@@ -2313,7 +2305,7 @@ WindowSlideUnitParameterType::WindowSlideUnitParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = WINDOW_SLIDE_NAMES;
-	valueKeys = WINDOW_SLIDE_KEYS;
+	//valueKeys = WINDOW_SLIDE_KEYS;
 }
 
 int WindowSlideUnitParameterType::getOrdinalValue(Preset* p)
@@ -2368,7 +2360,7 @@ WindowEdgeUnitParameterType::WindowEdgeUnitParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = WINDOW_EDGE_NAMES;
-	valueKeys = WINDOW_EDGE_KEYS;
+	//valueKeys = WINDOW_EDGE_KEYS;
 }
 
 int WindowEdgeUnitParameterType::getOrdinalValue(Preset* p)

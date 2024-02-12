@@ -17,18 +17,22 @@ class ButtonBar : public juce::Component, public juce::Button::Listener
 
     void add(juce::String name);
 
-    void resized();
-
     void addListener(Listener* l) {
         listener = l;
     }
     
+    void autoSize();
+
+    void resized();
+
     // Button::Listener
     virtual void buttonClicked(juce::Button* b);
 
   private:
 
+    int getMaxButtonWidth();
+
     juce::OwnedArray<juce::TextButton> buttons;
-    Listener* listener;
+    Listener* listener = nullptr;
     
 };

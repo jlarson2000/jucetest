@@ -46,15 +46,24 @@
 class Field : public juce::Component
 {
   public:
+    
+    class Listener {
+      public:
+        virtual void fieldSet(Field* f) = 0;
+    };
 
     enum class Type {Integer, Boolean, String};
 
     enum class RenderType {Text, Combo, Check, Slider, Rotary, List};
     
     Field(juce::String name, juce::String displayName, Type type);
-        
+    Field(const char* name, Type type);
     ~Field();
 
+    void addListener(Listener* l) {
+        listener = l;
+    }
+    
     const juce::String& getName() {
         return name;
     }
@@ -184,6 +193,7 @@ class Field : public juce::Component
     void renderBool();
     void loadValue();
     
+    Listener* listener = nullptr;
     juce::String name;
     juce::String displayName;
     Type type = Type::Integer;

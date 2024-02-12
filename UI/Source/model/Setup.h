@@ -151,7 +151,7 @@ class Setup : public Bindable {
 
     Setup();
     void reset(class Preset* p);
-	Setup* clone();
+	// Setup* clone();
     ~Setup();
 
     Bindable* getNextBindable();
@@ -346,7 +346,7 @@ class SetupTrack {
 
 	SetupTrack();
 	~SetupTrack();
-	SetupTrack* clone();
+	// SetupTrack* clone();
 	void reset();
 
     // will need to sort this out

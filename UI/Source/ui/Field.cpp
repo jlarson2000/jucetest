@@ -109,6 +109,14 @@ Field::Field(juce::String argName, juce::String argDisplayName, Field::Type argT
     initLabel();
 }
 
+Field::Field(const char* argName, Field::Type argType)
+{
+    juce::Component::setName("Field");  // class sname for debugging
+    name = juce::String(argName);
+    type = argType;
+    initLabel();
+}
+
 Field::~Field()
 {
 }

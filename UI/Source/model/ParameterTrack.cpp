@@ -10,7 +10,7 @@
  * Static object definitions for SetupTrack/Track parameters.
  *
  * Track parameters are more complicated than Preset parameters because we
- * have two locations to deal with.  The get/setObjectValue methods
+ * have two locations to deal with.  The get/setConfigValue methods
  * get a SetupTrack configuration object.
  * 
  * The get/setValue objects used for bindings do not use the SetupTrack,
@@ -127,8 +127,8 @@ class TrackParameter : public Parameter
     /**
      * Overload the Parameter versions and cast to a SetupTrack.
      */
-	void getObjectValue(void* object, ExValue* value);
-	void setObjectValue(void* object, ExValue* value);
+	void getConfigValue(void* object, ExValue* value);
+	void setConfigValue(void* object, ExValue* value);
 
     /**
      * Overload the Parameter versions and resolve to a Track.
@@ -152,12 +152,12 @@ class TrackParameter : public Parameter
 
 };
 
-void TrackParameter::getObjectValue(void* object, ExValue* value)
+void TrackParameter::getConfigValue(void* object, ExValue* value)
 {
     return getValue((SetupTrack*)object, value);
 }
 
-void TrackParameter::setObjectValue(void* object, ExValue* value)
+void TrackParameter::setConfigValue(void* object, ExValue* value)
 {
     return setValue((SetupTrack*)object, value);
 }
@@ -1585,7 +1585,7 @@ SyncSourceParameterType::SyncSourceParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = SYNC_SOURCE_NAMES;
-	valueKeys = SYNC_SOURCE_KEYS;
+	//valueKeys = SYNC_SOURCE_KEYS;
 }
 
 void SyncSourceParameterType::getValue(SetupTrack* s, ExValue* value)
@@ -1707,7 +1707,7 @@ TrackSyncUnitParameterType::TrackSyncUnitParameterType() :
     bindable = true;
 	type = TYPE_ENUM;
 	values = TRACK_SYNC_UNIT_NAMES;
-	valueKeys = TRACK_SYNC_UNIT_KEYS;
+	//valueKeys = TRACK_SYNC_UNIT_KEYS;
 }
 
 void TrackSyncUnitParameterType::getValue(SetupTrack* s, ExValue* value)
@@ -1823,7 +1823,7 @@ AudioInputPortParameterType::AudioInputPortParameterType() :
 
     // rare case of an xmlAlias since we have a new parameter 
     // with the old name
-    xmlAlias = "inputPort";
+    // xmlAlias = "inputPort";
 }
 
 void AudioInputPortParameterType::getValue(SetupTrack* t, ExValue* value)
@@ -1911,7 +1911,7 @@ AudioOutputPortParameterType::AudioOutputPortParameterType() :
 
     // rare case of an xmlAlias since we have a new parameter 
     // with the old name
-    xmlAlias = "outputPort";
+    // xmlAlias = "outputPort";
 }
 
 void AudioOutputPortParameterType::getValue(SetupTrack* t, ExValue* value)

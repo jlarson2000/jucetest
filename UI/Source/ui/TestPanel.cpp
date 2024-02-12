@@ -109,6 +109,14 @@ TestPanel::TestPanel()
     form->render();
     panel.addOwned(form);
 
+    SimpleListBox* box = new SimpleListBox();
+    box->add(juce::String("One"));
+    box->add(juce::String("Two"));
+    box->add(juce::String("Three"));
+    box->setSize(100, 80);
+    box->setMultipleSelectionEnabled(false);
+    panel.addOwned(box);
+
     // let the panel expand to fit the children
     panel.autoSize();
     addAndMakeVisible(panel);

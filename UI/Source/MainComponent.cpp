@@ -40,10 +40,6 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
-
-    UIConfig* config = configEditor.getUIConfig();
-    configEditor.saveUIConfig();
-
 }
 
 MainComponent::~MainComponent()

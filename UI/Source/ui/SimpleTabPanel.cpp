@@ -88,4 +88,9 @@ void SimpleTabPanel::setBackgroundColor(juce::Colour color)
     }
 }
 
-    
+void SimpleTabPanel::showTab(int index)
+{
+    // optional second arg is sendChangeMessage
+    // set to -1 to deselect all, what does that show?
+    tabs.setCurrentTabIndex(index, false);
+}

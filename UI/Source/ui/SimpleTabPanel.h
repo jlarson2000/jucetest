@@ -16,12 +16,13 @@ class SimpleTabPanel : public juce::Component
 
     void addTab(juce::String name, juce::Component* content);
     void addTab(juce::String name);
-
+    void showTab(int index);
+    
     void setBackgroundColor(juce::Colour color);
     
     void resized();
     
-  private:
+  protected:
 
     juce::TabbedComponent tabs {juce::TabbedButtonBar::Orientation::TabsAtTop};
 

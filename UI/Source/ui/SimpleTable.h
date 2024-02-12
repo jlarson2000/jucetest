@@ -20,7 +20,7 @@ class SimpleTable : public juce::Component, public juce::TableListBoxModel
     SimpleTable();
     ~SimpleTable();
 
-    void setListener(Listener* l) {
+    void addListener(Listener* l) {
         listener = l;
     }
 
@@ -41,10 +41,19 @@ class SimpleTable : public juce::Component, public juce::TableListBoxModel
 
     void setCell(int row, int col, juce::String text);
     void dumpCells();
+    void clear();
+    void updateContent();
     
     int getSelectedRow();
+    void setSelectedRow(int row);
     int getSelectedColumn();
     
+    // doesn't seem to work to change this after the fact?
+    // Constructor set it to true but I couldn't set it false in ButtonPanel
+    void setMultipleSelectionEnabled(bool b) {
+        table.setMultipleSelectionEnabled(b);
+    }
+
     // juce::Component overrides
     
     void resized() override;
