@@ -3,8 +3,8 @@
 
 #include <JuceHeader.h>
 
-#include "SimpleTabPanel.h"
-#include "SimpleListBox.h"
+#include "../common/SimpleTabPanel.h"
+#include "../common/SimpleListBox.h"
 
 class BindingTargetPanel : public SimpleTabPanel, public SimpleListBox::Listener
 {

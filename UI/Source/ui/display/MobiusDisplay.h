@@ -11,7 +11,7 @@
 
 #include <JuceHeader.h>
 
-#include "BaseComponent.h"
+#include "BaseItem.h"
 
 class MobiusDisplay : public juce::Component
 {

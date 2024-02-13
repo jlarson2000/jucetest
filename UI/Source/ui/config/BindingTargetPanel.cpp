@@ -1,11 +1,11 @@
 
 #include <JuceHeader.h>
 
-#include "../model/Function.h"
-#include "../model/Parameter.h"
-#include "../model/MobiusConfig.h"
-#include "../model/Preset.h"
-#include "../model/Setup.h"
+#include "../../model/Function.h"
+#include "../../model/Parameter.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Preset.h"
+#include "../../model/Setup.h"
 
 #include "BindingTargetPanel.h"
 

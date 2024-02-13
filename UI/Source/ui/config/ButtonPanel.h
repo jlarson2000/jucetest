@@ -6,13 +6,11 @@
 
 #include <JuceHeader.h>
 
-#include "../model/UIConfig.h"
+#include "../common/SimpleTable.h"
+#include "../common/ButtonBar.h"
+#include "../common/Field.h"
 
 #include "ConfigPanel.h"
-#include "SimpleTable.h"
-#include "ButtonBar.h"
-#include "Field.h"
-
 #include "BindingTargetPanel.h"
 
 class ButtonPanel :
@@ -38,7 +36,7 @@ class ButtonPanel :
     void render();
     void rebuildTable();
     
-    juce::OwnedArray<UIButton> buttons;
+    juce::OwnedArray<class UIButton> buttons;
     SimpleTable table;
     BindingTargetPanel targets;
     ButtonBar commands;

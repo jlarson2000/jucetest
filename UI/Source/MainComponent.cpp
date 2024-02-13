@@ -7,26 +7,21 @@
 #include <JuceHeader.h>
 
 #include "MainComponent.h"
-#include "util/Trace.h"
-#include "ui/JuceUtil.h"
 
-#include "mobius/MobiusInterface.h"
+#include "Supervisor.h"
+#include "ui/JuceUtil.h"
+#include "util/Trace.h"
 
 MainComponent::MainComponent()
 {
-    // should this go here or lower?
-    MobiusInterface::startup();
-
-    addAndMakeVisible(mainMenu);
-    mainMenu.setListener(this);
-
-    addChildComponent(test);
-    addChildComponent(table);
-    addChildComponent(tabs);
-
-    // Make sure you set the size of the component after
-    // you add any child components.  This will cascade resized()
-    setSize (1000, 1000);
+    // Jeff's component tree debugging hack
+    setName("MainComponent");
+    
+    // startup can do a lot of thigns, perhais we should have different
+    // phases, first to load any configuration related to the initial window size
+    // and device configuration, and then another to start up the engine
+    
+    supervisor.start();
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -40,14 +35,27 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+
+    // Normally you're supposed to set the size of the component after adding
+    // children so the resize is triggered and cascades down.  For us,
+    // we might want to let the child configuration determine the optimal
+    // window size and pass it back up.  Or I guess just let Supervisor do
+    // this when ready.
+
+    // start with a size large enough to give us room but still display
+    // on most monitors
+    
+    setSize (1200, 800);
 }
 
 MainComponent::~MainComponent()
 {
+    // I guess do this before audio shutdown to make sure we're
+    // not getting any lingering interrupts
+    supervisor.shutdown();
+
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
-
-    MobiusInterface::shutdown();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -55,6 +63,10 @@ MainComponent::~MainComponent()
 // AudioAppComponent
 //
 //////////////////////////////////////////////////////////////////////
+
+// see this thread when you get ready to start handling audio buffers
+// https://forum.juce.com/t/using-smart-pointers-with-juce-functions-that-want-raw-pointers/29229/12
+
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
@@ -95,6 +107,10 @@ void MainComponent::releaseResources()
 void MainComponent::paint (juce::Graphics& g)
 {
     // You can add your drawing code here!
+
+    // start with basic black, always in style
+    // DisplayManager can override this, should we even bother?
+
     g.fillAll (juce::Colours::black);
 }
 
@@ -105,91 +121,11 @@ void MainComponent::paint (juce::Graphics& g)
  */
 void MainComponent::resized()
 {
-    // !! still don't understand how we do components that
-    // want to set their own size, try passing zero for height
-    // and let it ignore it
-    mainMenu.setBounds(0, 0, getWidth(), mainMenu.getPreferredHeight());
-
-    // ConfigEditor will set its own size
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Menu Callbacks
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Called for anything other than the dynamic
- * Preset and Setup menus
- */
-void MainComponent::mainMenuSelection(int id)
-{
-    switch (id)
-    {
-        case MainMenu::OpenLoop:
-        {
-        }
-        break;
-        case MainMenu::OpenProject:
-        {
-        }
-        break;
-        case MainMenu::SaveLoop: break;
-        case MainMenu::SaveProject: break;
-        case MainMenu::QuickSave: break;
-        case MainMenu::ReloadScripts: break;
-        case MainMenu::ReloadOSC: break;
-        case MainMenu::Exit: break;
-
-        case MainMenu::Presets: {
-            configEditor.showPresets();
-        }
-        break;
-        case MainMenu::TrackSetups: {
-            configEditor.showSetups();
-        }
-        break;
-                
-        case MainMenu::GlobalParameters: {
-            configEditor.showGlobal();
-        }
-        break;
-                
-        case MainMenu::MIDIControl: {
-            test.setVisible(true);
-            test.center();
-            JuceUtil::dumpComponent(&test);
-        }
-        break;
-        
-        case MainMenu::KeyboardControl:  {
-            // table.show();
-            tabs.show();
-        }
-            break;
-            
-        case MainMenu::Buttons: {
-            configEditor.showButtons();
-        }
-        break;
-
-        case MainMenu::PluginParamters: break;
-        case MainMenu::DisplayComponents: break;
-        case MainMenu::Palette: break;
-        case MainMenu::Scripts: break;
-        case MainMenu::Samples: break;
-        case MainMenu::MIDIDevices: break;
-        case MainMenu::AudioDevices: break;
-
-        case MainMenu::KeyBindings: break;
-        case MainMenu::MIDIBindings: break;
-        case MainMenu::RefreshUI: break;
-        case MainMenu::About: break;
-                
-        default: {
-            trace("Unknown menu item: %d\n", id);
-        }
-        break;
-    }
+    // jsl - This does not cascade through the children automatically
+    // unless you call setSize on them, it's unusual here because of the
+    // deferred adding of children by DisplayManager, so assume we have
+    // something and let it fill us up with hope and wonder
+    juce::Component* child = getChildComponent(0);
+    if (child != nullptr)
+      child->setBounds(getLocalBounds());
 }

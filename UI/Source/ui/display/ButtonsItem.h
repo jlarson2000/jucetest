@@ -7,7 +7,8 @@
 
 #include <JuceHeader.h>
 
-#include "Panel.h"
+#include "../common/Panel.h"
+
 #include "BaseItem.h"
 
 class ButtonsItem : public BaseItem

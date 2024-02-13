@@ -54,6 +54,11 @@ class ConfigEditor
     ConfigEditor(juce::Component* argOwner);
     ~ConfigEditor();
 
+    // sigh, would like to pass this to the constructor
+    // but have to work out how the member initialization works
+    // in MainWindow
+    void init(class Supervisor* supervisor);
+
     void showGlobal();
     void showPresets();
     void showSetups();
@@ -83,6 +88,7 @@ class ConfigEditor
     const char* getUIConfigFilePath();
     const char* getWriteUIConfigFilePath();
     
+    class Supervisor* supervisor = nullptr;
     juce::Component* owner = nullptr;
 
     bool initialized = false;

@@ -86,8 +86,8 @@
 
 #include <JuceHeader.h>
 
-#include "../util/Trace.h"
-#include "JuceUtil.h"
+#include "../../util/Trace.h"
+#include "../JuceUtil.h"
 #include "Field.h"
 
 //////////////////////////////////////////////////////////////////////

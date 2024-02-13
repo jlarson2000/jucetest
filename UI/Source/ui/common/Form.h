@@ -29,9 +29,6 @@ class Form : public juce::Component
         add(f, nullptr, column);
     }
     
-    // convience for most config panels
-    void add(const char* tab, class Parameter* p, int column = 0);
-
     void render();
     juce::Rectangle<int> getMinimumSize();
     void gatherFields(juce::Array<Field*>& fields);

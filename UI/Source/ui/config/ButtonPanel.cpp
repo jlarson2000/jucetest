@@ -4,12 +4,11 @@
 #include <string>
 #include <sstream>
 
-#include "../util/Trace.h"
-#include "../model/UIConfig.h"
+#include "../../util/Trace.h"
+#include "../../model/UIConfig.h"
+#include "../common/Form.h"
 
 #include "ConfigEditor.h"
-#include "Form.h"
-
 #include "ButtonPanel.h"
 
 /**
@@ -37,7 +36,8 @@ ButtonPanel::ButtonPanel(ConfigEditor* argEditor) :
 
     content.addAndMakeVisible(targets);
     // todo: options to suppress tabs
-    targets.init(editor->getMobiusConfig());
+    // don't do this yet!! defer this till load() and we're ready to be shown
+    //targets.init(editor->getMobiusConfig());
     // targets.addListener(this);
 
     content.addAndMakeVisible(commands);
@@ -61,12 +61,17 @@ ButtonPanel::~ButtonPanel()
 {
 }
 
+
+
 /**
  * ConfigPanel overload to load state.
  */
 void ButtonPanel::load()
 {
     if (!loaded) {
+        // let the target panel know the names of the things it can target
+        targets.init(editor->getMobiusConfig());
+        
         UIConfig* config = editor->getUIConfig();
 
         // copy the button vector for editing

@@ -4,15 +4,16 @@
 
 #include <JuceHeader.h>
 
-#include "../model/MobiusConfig.h"
-#include "../model/Parameter.h"
-#include "../model/XmlRenderer.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Parameter.h"
+#include "../../model/XmlRenderer.h"
 
-#include "Form.h"
+#include "../common/Form.h"
+#include "../JuceUtil.h"
+
 #include "ParameterField.h"
 #include "ConfigEditor.h"
 #include "PresetPanel.h"
-#include "JuceUtil.h"
 
 PresetPanel::PresetPanel(ConfigEditor* argEditor) :
     ConfigPanel{argEditor, "Presets", ConfigPanelButton::Save | ConfigPanelButton::Cancel, true}
@@ -252,67 +253,67 @@ void PresetPanel::render()
 
 void PresetPanel::initForm()
 {
-    form.add("General", LoopCountParameter);
-    form.add("General", SubCycleParameter);
-    form.add("General", MaxUndoParameter);
-    form.add("General", MaxRedoParameter);
-    form.add("General", NoFeedbackUndoParameter);
-    form.add("General", AltFeedbackEnableParameter);
+    addField("General", LoopCountParameter);
+    addField("General", SubCycleParameter);
+    addField("General", MaxUndoParameter);
+    addField("General", MaxRedoParameter);
+    addField("General", NoFeedbackUndoParameter);
+    addField("General", AltFeedbackEnableParameter);
 
-    form.add("Quantize", QuantizeParameter);
-    form.add("Quantize", SwitchQuantizeParameter);
-    form.add("Quantize", BounceQuantizeParameter);
-    form.add("Quantize", OverdubQuantizedParameter);
+    addField("Quantize", QuantizeParameter);
+    addField("Quantize", SwitchQuantizeParameter);
+    addField("Quantize", BounceQuantizeParameter);
+    addField("Quantize", OverdubQuantizedParameter);
 
     // Record
 
-    form.add("Record", RecordThresholdParameter);
-    form.add("Record", AutoRecordBarsParameter);
-    form.add("Record", AutoRecordTempoParameter);
-    form.add("Record", SpeedRecordParameter);
-    form.add("Record", RecordResetsFeedbackParameter);
+    addField("Record", RecordThresholdParameter);
+    addField("Record", AutoRecordBarsParameter);
+    addField("Record", AutoRecordTempoParameter);
+    addField("Record", SpeedRecordParameter);
+    addField("Record", RecordResetsFeedbackParameter);
 
     // Switch
-    form.add("Switch", EmptyLoopActionParameter);
-    form.add("Switch", EmptyTrackActionParameter);
-    form.add("Switch", TrackLeaveActionParameter);
-    form.add("Switch", TimeCopyParameter);
-    form.add("Switch", SoundCopyParameter);
-    form.add("Switch", SwitchLocationParameter);
-    form.add("Switch", SwitchDurationParameter);
-    form.add("Switch", ReturnLocationParameter);
-    form.add("Switch", SwitchVelocityParameter);
+    addField("Switch", EmptyLoopActionParameter);
+    addField("Switch", EmptyTrackActionParameter);
+    addField("Switch", TrackLeaveActionParameter);
+    addField("Switch", TimeCopyParameter);
+    addField("Switch", SoundCopyParameter);
+    addField("Switch", SwitchLocationParameter);
+    addField("Switch", SwitchDurationParameter);
+    addField("Switch", ReturnLocationParameter);
+    addField("Switch", SwitchVelocityParameter);
     // column 2
-    form.add("Switch", RecordTransferParameter, 1);
-    form.add("Switch", OverdubTransferParameter, 1);
-    form.add("Switch", ReverseTransferParameter, 1);
-    form.add("Switch", SpeedTransferParameter, 1);
-    form.add("Switch", PitchTransferParameter, 1);
+    addField("Switch", RecordTransferParameter, 1);
+    addField("Switch", OverdubTransferParameter, 1);
+    addField("Switch", ReverseTransferParameter, 1);
+    addField("Switch", SpeedTransferParameter, 1);
+    addField("Switch", PitchTransferParameter, 1);
         
     // Functions
-    form.add("Functions", MultiplyModeParameter);
-    form.add("Functions", ShuffleModeParameter);
-    form.add("Functions", MuteModeParameter);
-    form.add("Functions", MuteCancelParameter);
-    form.add("Functions", SlipModeParameter);
-    form.add("Functions", SlipTimeParameter);
-    form.add("Functions", WindowSlideUnitParameter);
-    form.add("Functions", WindowSlideAmountParameter);
-    form.add("Functions", WindowEdgeUnitParameter);
-    form.add("Functions", WindowEdgeAmountParameter);
+    addField("Functions", MultiplyModeParameter);
+    addField("Functions", ShuffleModeParameter);
+    addField("Functions", MuteModeParameter);
+    addField("Functions", MuteCancelParameter);
+    addField("Functions", SlipModeParameter);
+    addField("Functions", SlipTimeParameter);
+    addField("Functions", WindowSlideUnitParameter);
+    addField("Functions", WindowSlideAmountParameter);
+    addField("Functions", WindowEdgeUnitParameter);
+    addField("Functions", WindowEdgeAmountParameter);
     // column 2
-    form.add("Functions", RoundingOverdubParameter, 1);
+    addField("Functions", RoundingOverdubParameter, 1);
         
     // Effects
-    form.add("Effects", SpeedSequenceParameter);
-    form.add("Effects", PitchSequenceParameter);
-    form.add("Effects", SpeedShiftRestartParameter);
-    form.add("Effects", PitchShiftRestartParameter);
-    form.add("Effects", SpeedStepRangeParameter);
-    form.add("Effects", SpeedBendRangeParameter);
-    form.add("Effects", PitchStepRangeParameter);
-    form.add("Effects", PitchBendRangeParameter);
-    form.add("Effects", TimeStretchRangeParameter);
+    addField("Effects", SpeedSequenceParameter);
+    addField("Effects", PitchSequenceParameter);
+    addField("Effects", SpeedShiftRestartParameter);
+    addField("Effects", PitchShiftRestartParameter);
+    addField("Effects", SpeedStepRangeParameter);
+    addField("Effects", SpeedBendRangeParameter);
+    addField("Effects", PitchStepRangeParameter);
+    addField("Effects", PitchBendRangeParameter);
+    addField("Effects", TimeStretchRangeParameter);
 
     // Sustain
     // this was never used, keep it out until we need it
@@ -320,7 +321,13 @@ void PresetPanel::initForm()
     // handling, maybe we replaced it with that?
     //form.add("Sustain", SustainFunctionsParameter);
 }
-            
+
+void PresetPanel::addField(const char* tab, Parameter* p, int col)
+{
+    form.add(new ParameterField(p), tab, col);
+}
+
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

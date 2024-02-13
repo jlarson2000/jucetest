@@ -5,7 +5,7 @@
 
 #include "JuceUtil.h"
 
-#include "SimpleTabPanel.h"
+#include "common/SimpleTabPanel.h"
 #include "TabTest.h"
 
 TabTest::TabTest()

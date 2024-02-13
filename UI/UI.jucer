@@ -4,60 +4,80 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <FILE id="md4KUz" name="Supervisor.cpp" compile="1" resource="0" file="Source/Supervisor.cpp"/>
+      <FILE id="qYO2SW" name="Supervisor.h" compile="0" resource="0" file="Source/Supervisor.h"/>
       <GROUP id="{65649B8C-FFE3-B772-6B79-EF729D3BCE34}" name="ui">
-        <FILE id="XfxSqE" name="BindingTargetPanel.cpp" compile="1" resource="0"
-              file="Source/ui/BindingTargetPanel.cpp"/>
-        <FILE id="fbPQRH" name="BindingTargetPanel.h" compile="0" resource="0"
-              file="Source/ui/BindingTargetPanel.h"/>
-        <FILE id="i13Lfc" name="ButtonBar.cpp" compile="1" resource="0" file="Source/ui/ButtonBar.cpp"/>
-        <FILE id="n6FdzZ" name="ButtonBar.h" compile="0" resource="0" file="Source/ui/ButtonBar.h"/>
-        <FILE id="RWAiHd" name="ButtonPanel.cpp" compile="1" resource="0" file="Source/ui/ButtonPanel.cpp"/>
-        <FILE id="IR0gRb" name="ButtonPanel.h" compile="0" resource="0" file="Source/ui/ButtonPanel.h"/>
-        <FILE id="R09hMU" name="ConfigEditor.cpp" compile="1" resource="0"
-              file="Source/ui/ConfigEditor.cpp"/>
-        <FILE id="NbAr78" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/ConfigEditor.h"/>
-        <FILE id="VvcefV" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ui/ConfigPanel.cpp"/>
-        <FILE id="MzSuf9" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/ConfigPanel.h"/>
-        <FILE id="M2zYTT" name="Field.cpp" compile="1" resource="0" file="Source/ui/Field.cpp"/>
-        <FILE id="NFpNmJ" name="Field.h" compile="0" resource="0" file="Source/ui/Field.h"/>
-        <FILE id="KGg0Ge" name="FieldGrid.cpp" compile="1" resource="0" file="Source/ui/FieldGrid.cpp"/>
-        <FILE id="KAPJ5s" name="FieldGrid.h" compile="0" resource="0" file="Source/ui/FieldGrid.h"/>
-        <FILE id="cUhuAx" name="Form.cpp" compile="1" resource="0" file="Source/ui/Form.cpp"/>
-        <FILE id="BMLGp0" name="Form.h" compile="0" resource="0" file="Source/ui/Form.h"/>
-        <FILE id="uxiG8S" name="FormPanel.cpp" compile="1" resource="0" file="Source/ui/FormPanel.cpp"/>
-        <FILE id="EBFeKw" name="FormPanel.h" compile="0" resource="0" file="Source/ui/FormPanel.h"/>
-        <FILE id="XWe7sc" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/GlobalPanel.cpp"/>
-        <FILE id="E3bsdD" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/GlobalPanel.h"/>
-        <FILE id="aIiC6T" name="JLabel.cpp" compile="1" resource="0" file="Source/ui/JLabel.cpp"/>
-        <FILE id="zt8aoj" name="JLabel.h" compile="0" resource="0" file="Source/ui/JLabel.h"/>
+        <GROUP id="{C154E97D-0CEE-20FA-DFB7-9667274BF918}" name="config">
+          <FILE id="Bm8yeH" name="BindingTargetPanel.cpp" compile="1" resource="0"
+                file="Source/ui/config/BindingTargetPanel.cpp"/>
+          <FILE id="PgF3wm" name="BindingTargetPanel.h" compile="0" resource="0"
+                file="Source/ui/config/BindingTargetPanel.h"/>
+          <FILE id="TjpfTj" name="ButtonPanel.cpp" compile="1" resource="0" file="Source/ui/config/ButtonPanel.cpp"/>
+          <FILE id="FYyoFi" name="ButtonPanel.h" compile="0" resource="0" file="Source/ui/config/ButtonPanel.h"/>
+          <FILE id="Du70TA" name="ConfigEditor.cpp" compile="1" resource="0"
+                file="Source/ui/config/ConfigEditor.cpp"/>
+          <FILE id="zqWOpM" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/config/ConfigEditor.h"/>
+          <FILE id="xcIb02" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ui/config/ConfigPanel.cpp"/>
+          <FILE id="EB8YDo" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/config/ConfigPanel.h"/>
+          <FILE id="UrIXNZ" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/config/GlobalPanel.cpp"/>
+          <FILE id="GsBQz3" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/config/GlobalPanel.h"/>
+          <FILE id="aY7LcN" name="ParameterField.cpp" compile="1" resource="0"
+                file="Source/ui/config/ParameterField.cpp"/>
+          <FILE id="Olbaad" name="ParameterField.h" compile="0" resource="0"
+                file="Source/ui/config/ParameterField.h"/>
+          <FILE id="s6l7RT" name="PresetPanel.cpp" compile="1" resource="0" file="Source/ui/config/PresetPanel.cpp"/>
+          <FILE id="NT6kia" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/config/PresetPanel.h"/>
+          <FILE id="exr3oW" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/config/SetupPanel.cpp"/>
+          <FILE id="F0YB7p" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/config/SetupPanel.h"/>
+        </GROUP>
+        <GROUP id="{506F264E-A601-E29C-91E6-134CCA9C4AAA}" name="display">
+          <FILE id="leee75" name="BaseItem.h" compile="0" resource="0" file="Source/ui/display/BaseItem.h"/>
+          <FILE id="ePBbG6" name="ButtonsItem.cpp" compile="1" resource="0" file="Source/ui/display/ButtonsItem.cpp"/>
+          <FILE id="gnMKz3" name="ButtonsItem.h" compile="0" resource="0" file="Source/ui/display/ButtonsItem.h"/>
+          <FILE id="Ni6UXz" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
+        </GROUP>
+        <GROUP id="{AEC022E8-1C76-A11C-D2FB-C021B2012684}" name="common">
+          <FILE id="UkLauY" name="ButtonBar.cpp" compile="1" resource="0" file="Source/ui/common/ButtonBar.cpp"/>
+          <FILE id="lDGPJq" name="ButtonBar.h" compile="0" resource="0" file="Source/ui/common/ButtonBar.h"/>
+          <FILE id="vyeo6h" name="Field.cpp" compile="1" resource="0" file="Source/ui/common/Field.cpp"/>
+          <FILE id="RjFLPv" name="Field.h" compile="0" resource="0" file="Source/ui/common/Field.h"/>
+          <FILE id="tceRTv" name="FieldGrid.cpp" compile="1" resource="0" file="Source/ui/common/FieldGrid.cpp"/>
+          <FILE id="wXEPam" name="FieldGrid.h" compile="0" resource="0" file="Source/ui/common/FieldGrid.h"/>
+          <FILE id="ayhV48" name="Form.cpp" compile="1" resource="0" file="Source/ui/common/Form.cpp"/>
+          <FILE id="S7Xbq6" name="Form.h" compile="0" resource="0" file="Source/ui/common/Form.h"/>
+          <FILE id="qFRIjz" name="FormPanel.cpp" compile="1" resource="0" file="Source/ui/common/FormPanel.cpp"/>
+          <FILE id="JWBS2l" name="FormPanel.h" compile="0" resource="0" file="Source/ui/common/FormPanel.h"/>
+          <FILE id="z0zBNd" name="JLabel.cpp" compile="1" resource="0" file="Source/ui/common/JLabel.cpp"/>
+          <FILE id="n1jih9" name="JLabel.h" compile="0" resource="0" file="Source/ui/common/JLabel.h"/>
+          <FILE id="yVC7nU" name="Panel.cpp" compile="1" resource="0" file="Source/ui/common/Panel.cpp"/>
+          <FILE id="TLuhnZ" name="Panel.h" compile="0" resource="0" file="Source/ui/common/Panel.h"/>
+          <FILE id="OjuAfI" name="SimpleButton.cpp" compile="1" resource="0"
+                file="Source/ui/common/SimpleButton.cpp"/>
+          <FILE id="pGSyi0" name="SimpleButton.h" compile="0" resource="0" file="Source/ui/common/SimpleButton.h"/>
+          <FILE id="JeWRRg" name="SimpleListBox.cpp" compile="1" resource="0"
+                file="Source/ui/common/SimpleListBox.cpp"/>
+          <FILE id="SOk6NY" name="SimpleListBox.h" compile="0" resource="0" file="Source/ui/common/SimpleListBox.h"/>
+          <FILE id="IxU0jZ" name="SimpleRadio.cpp" compile="1" resource="0" file="Source/ui/common/SimpleRadio.cpp"/>
+          <FILE id="WL6Zy9" name="SimpleRadio.h" compile="0" resource="0" file="Source/ui/common/SimpleRadio.h"/>
+          <FILE id="SCCaw4" name="SimpleTable.cpp" compile="1" resource="0" file="Source/ui/common/SimpleTable.cpp"/>
+          <FILE id="yNdibm" name="SimpleTable.h" compile="0" resource="0" file="Source/ui/common/SimpleTable.h"/>
+          <FILE id="ttfh9P" name="SimpleTabPanel.cpp" compile="1" resource="0"
+                file="Source/ui/common/SimpleTabPanel.cpp"/>
+          <FILE id="ywZEOE" name="SimpleTabPanel.h" compile="0" resource="0"
+                file="Source/ui/common/SimpleTabPanel.h"/>
+        </GROUP>
+        <FILE id="bdUSHt" name="DisplayManager.cpp" compile="1" resource="0"
+              file="Source/ui/DisplayManager.cpp"/>
+        <FILE id="nE49XS" name="DisplayManager.h" compile="0" resource="0"
+              file="Source/ui/DisplayManager.h"/>
         <FILE id="BDnCv2" name="JuceUtil.cpp" compile="1" resource="0" file="Source/ui/JuceUtil.cpp"/>
         <FILE id="XzPX2v" name="JuceUtil.h" compile="0" resource="0" file="Source/ui/JuceUtil.h"/>
+        <FILE id="o30JOS" name="MainDisplay.cpp" compile="1" resource="0" file="Source/ui/MainDisplay.cpp"/>
+        <FILE id="UuKdpF" name="MainDisplay.h" compile="0" resource="0" file="Source/ui/MainDisplay.h"/>
         <FILE id="pup9jz" name="MainMenu.cpp" compile="1" resource="0" file="Source/ui/MainMenu.cpp"/>
         <FILE id="Fo9xTD" name="MainMenu.h" compile="0" resource="0" file="Source/ui/MainMenu.h"/>
-        <FILE id="MAoEQ2" name="Panel.cpp" compile="1" resource="0" file="Source/ui/Panel.cpp"/>
-        <FILE id="iytffB" name="Panel.h" compile="0" resource="0" file="Source/ui/Panel.h"/>
-        <FILE id="JVNYjO" name="ParameterField.cpp" compile="1" resource="0"
-              file="Source/ui/ParameterField.cpp"/>
-        <FILE id="UhzySN" name="ParameterField.h" compile="0" resource="0"
-              file="Source/ui/ParameterField.h"/>
-        <FILE id="wJT0gk" name="PresetPanel.cpp" compile="1" resource="0" file="Source/ui/PresetPanel.cpp"/>
-        <FILE id="ALkfwM" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/PresetPanel.h"/>
-        <FILE id="kZynOw" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/SetupPanel.cpp"/>
-        <FILE id="IH3gkv" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/SetupPanel.h"/>
-        <FILE id="FxcyMb" name="SimpleButton.cpp" compile="1" resource="0"
-              file="Source/ui/SimpleButton.cpp"/>
-        <FILE id="bRSWP9" name="SimpleButton.h" compile="0" resource="0" file="Source/ui/SimpleButton.h"/>
-        <FILE id="zIuf5I" name="SimpleListBox.cpp" compile="1" resource="0"
-              file="Source/ui/SimpleListBox.cpp"/>
-        <FILE id="QvD4Xk" name="SimpleListBox.h" compile="0" resource="0" file="Source/ui/SimpleListBox.h"/>
-        <FILE id="aWTrOS" name="SimpleRadio.cpp" compile="1" resource="0" file="Source/ui/SimpleRadio.cpp"/>
-        <FILE id="UBAnBB" name="SimpleRadio.h" compile="0" resource="0" file="Source/ui/SimpleRadio.h"/>
-        <FILE id="IcToht" name="SimpleTable.cpp" compile="1" resource="0" file="Source/ui/SimpleTable.cpp"/>
-        <FILE id="qttamz" name="SimpleTable.h" compile="0" resource="0" file="Source/ui/SimpleTable.h"/>
-        <FILE id="zmOkAa" name="SimpleTabPanel.cpp" compile="1" resource="0"
-              file="Source/ui/SimpleTabPanel.cpp"/>
-        <FILE id="LSEK89" name="SimpleTabPanel.h" compile="0" resource="0"
-              file="Source/ui/SimpleTabPanel.h"/>
+        <FILE id="FsMNcl" name="MainWindow.cpp" compile="1" resource="0" file="Source/ui/MainWindow.cpp"/>
+        <FILE id="einvVL" name="MainWindow.h" compile="0" resource="0" file="Source/ui/MainWindow.h"/>
         <FILE id="i2oaVK" name="TableTest.cpp" compile="1" resource="0" file="Source/ui/TableTest.cpp"/>
         <FILE id="AtA2ao" name="TableTest.h" compile="0" resource="0" file="Source/ui/TableTest.h"/>
         <FILE id="T7icvO" name="TabTest.cpp" compile="1" resource="0" file="Source/ui/TabTest.cpp"/>

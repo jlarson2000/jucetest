@@ -6,9 +6,9 @@
 
 #include <JuceHeader.h>
 
-#include "SimpleTabPanel.h"
-#include "BindingTargetPanel.h"
-#include "ButtonBar.h"
+#include "common/SimpleTabPanel.h"
+#include "common/ButtonBar.h"
+#include "config/BindingTargetPanel.h"
 
 class TabTest : public juce::Component, public ButtonBar::Listener
 {

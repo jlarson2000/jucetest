@@ -4,12 +4,12 @@
 #include <string>
 #include <sstream>
 
-#include "../model/MobiusConfig.h"
-#include "../model/Parameter.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Parameter.h"
 
-#include "ConfigEditor.h"
-#include "Form.h"
+#include "../common/Form.h"
 #include "ParameterField.h"
+#include "ConfigEditor.h"
 
 #include "GlobalPanel.h"
 
@@ -125,42 +125,48 @@ void GlobalPanel::render()
  */
 void GlobalPanel::initForm()
 {
-    form.add("Miscellaneous", QuickSaveParameter);
-    form.add("Miscellaneous", LongPressParameter);
-    form.add("Miscellaneous", SpreadRangeParameter);
-    form.add("Miscellaneous", NoiseFloorParameter);
-    form.add("Miscellaneous", IntegerWaveFileParameter);
-    form.add("Miscellaneous", MonitorAudioParameter);
-    form.add("Miscellaneous", AutoFeedbackReductionParameter);
-    form.add("Miscellaneous", GroupFocusLockParameter);
-    form.add("Miscellaneous", MidiExportParameter);
-    form.add("Miscellaneous", HostMidiExportParameter);
+    addField("Miscellaneous", QuickSaveParameter);
+    addField("Miscellaneous", LongPressParameter);
+    addField("Miscellaneous", SpreadRangeParameter);
+    addField("Miscellaneous", NoiseFloorParameter);
+    addField("Miscellaneous", IntegerWaveFileParameter);
+    addField("Miscellaneous", MonitorAudioParameter);
+    addField("Miscellaneous", AutoFeedbackReductionParameter);
+    addField("Miscellaneous", GroupFocusLockParameter);
+    addField("Miscellaneous", MidiExportParameter);
+    addField("Miscellaneous", HostMidiExportParameter);
 
-    form.add("Limits", TracksParameter);
-    form.add("Limits", TrackGroupsParameter);
-    form.add("Limits", MaxLoopsParameter);
-    form.add("Limits", PluginPortsParameter);
+    addField("Limits", TracksParameter);
+    addField("Limits", TrackGroupsParameter);
+    addField("Limits", MaxLoopsParameter);
+    addField("Limits", PluginPortsParameter);
 
-    form.add("Functions", FocusLockFunctionsParameter);
-    form.add("Functions", MuteCancelFunctionsParameter);
-    form.add("Functions", ConfirmationFunctionsParameter);
+    addField("Functions", FocusLockFunctionsParameter);
+    addField("Functions", MuteCancelFunctionsParameter);
+    addField("Functions", ConfirmationFunctionsParameter);
 
-    form.add("Modes", AltFeedbackDisableParameter);
+    addField("Modes", AltFeedbackDisableParameter);
 
-    form.add("Advanced", TracePrintLevelParameter);
-    form.add("Advanced", TraceDebugLevelParameter);
-    form.add("Advanced", MaxSyncDriftParameter);
-    form.add("Advanced", SaveLayersParameter);
-    form.add("Advanced", LogStatusParameter);
+    addField("Advanced", TracePrintLevelParameter);
+    addField("Advanced", TraceDebugLevelParameter);
+    addField("Advanced", MaxSyncDriftParameter);
+    addField("Advanced", SaveLayersParameter);
+    addField("Advanced", LogStatusParameter);
 
     // old dialog had some red warning text at the top
     
-    form.add("Advanced", OscEnableParameter);
-    form.add("Advanced", OscTraceParameter);
-    form.add("Advanced", OscInputPortParameter);
-    form.add("Advanced", OscOutputPortParameter);
-    form.add("Advanced", OscOutputHostParameter);
+    addField("Advanced", OscEnableParameter);
+    addField("Advanced", OscTraceParameter);
+    addField("Advanced", OscInputPortParameter);
+    addField("Advanced", OscOutputPortParameter);
+    addField("Advanced", OscOutputHostParameter);
 }
+
+void GlobalPanel::addField(const char* tab, Parameter* p)
+{
+    form.add(new ParameterField(p), tab, 0);
+}
+
 
 /****************************************************************************/
 /****************************************************************************/

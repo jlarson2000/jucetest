@@ -5,7 +5,7 @@
 
 #include "JuceUtil.h"
 
-#include "SimpleTable.h"
+#include "common/SimpleTable.h"
 #include "TableTest.h"
 
 TableTest::TableTest()
@@ -30,7 +30,7 @@ TableTest::TableTest()
         if (i % 2)
           table.setCell(i, 1, juce::String("X"));
     }
-    table.dumpCells();
+    // table.dumpCells();
 }
 
 TableTest::~TableTest()

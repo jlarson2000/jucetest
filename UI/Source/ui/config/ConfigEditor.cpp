@@ -8,21 +8,42 @@
  * This wrapper allows for the possible experimentation with popup windows
  * if we ever decide to go there, isolating MainComponent from the details.
  *
+ * There are some confusing dependencies on initialization since we're
+ * trying to be a good boy and use RAII.  The sub panels are defined
+ * as member objects which means they need to construct themselves
+ * before the management hierarchy may be done stitching itself together.
+ * In particular, panels shouldn't call up to Supervisor since that
+ * may not be accessible at construction time.  The problem child
+ * was ButtonPanel which wanted to load configuration which is really
+ * too early for that anyway.  Defer until load()
  */
 
 #include <JuceHeader.h>
 
-#include "../util/FileUtil.h"
-#include "../model/XmlRenderer.h"
-#include "../model/MobiusConfig.h"
-#include "../model/UIConfig.h"
+#include "../../Supervisor.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/UIConfig.h"
+#include "../JuceUtil.h"
 
-#include "JuceUtil.h"
 #include "ConfigEditor.h"
 
 ConfigEditor::ConfigEditor(juce::Component* argOwner)
 {
     owner = argOwner;
+}
+
+/**
+ * The main reason this exists is to connect the
+ * editor to the Supervisor until I work out how to
+ * do that in the constructor while letting it be passed
+ * down the initialization chain.
+ *
+ * Also can defer adding the panels since we might want to
+ * dynamically allocate those anyway.
+ */
+void ConfigEditor::init(Supervisor* super)
+{
+    supervisor = super;
 
     // add the various config panels to the owner but don't
     // make them visible yet
@@ -104,7 +125,7 @@ void ConfigEditor::show(ConfigPanel* selected)
     // tell it to load state if it hasn't already
     selected->load();
 
-    JuceUtil::dumpComponent(selected);
+    // JuceUtil::dumpComponent(selected);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -179,63 +200,24 @@ void ConfigEditor::close(ConfigPanel* closing)
 }
 
 /**
- * Determine the path to the MobiusConfig file.
- * Hard code for now, need to find a good way to do this.
- */
-const char* ConfigEditor::getConfigFilePath()
-{
-    const char* path = "c:/dev/jucetest/UI/Source/mobius.xml";
-    return path;
-}
-
-// call this variant for testing
-const char* ConfigEditor::getWriteConfigFilePath()
-{
-    const char* path = "c:/dev/jucetest/UI/Source/mobius2.xml";
-    return path;
-}
-
-const char* ConfigEditor::getUIConfigFilePath()
-{
-    const char* path = "c:/dev/jucetest/UI/Source/ui.xml";
-    return path;
-}
-
-const char* ConfigEditor::getWriteUIConfigFilePath()
-{
-    const char* path = "c:/dev/jucetest/UI/Source/ui2.xml";
-    return path;
-}
-
-/**
  * Called by a panel read the MobiusConfig.
- * The master config object is managed by ConfigEditor
- * the panels are allowed to make modifications to it
+ * The master config object is managed by Supervisor.
+ * The panels are allowed to make modifications to it
  * and ask us to save it.  Each panel must not overlap
  * on the changes it makes to the MobiusConfig.
  *
  * Might be better to have the panel return us just the
  * changes and have us splice it into the master config?
+ *
+ * todo: I'm not loving the control flow here, might be
+ * better to always make a copy of the Supervisor's objects
+ * for editing, but it isn't really necessary since the panels
+ * are making their own copies and won't modify the main object
+ * until they are ready to commit.
  */
 MobiusConfig* ConfigEditor::getMobiusConfig()
 {
-    if (masterConfig == nullptr) {
-        const char* path = getConfigFilePath();
-        char* xml = ReadFile(path);
-        if (xml != nullptr) {
-            XmlRenderer xr;
-            masterConfig = xr.parseMobiusConfig(xml);
-            // todo: display parse errors
-            delete xml;
-        }
-
-        // if we couldn't read one, boostrap a new one
-        // might want to warn here?
-        if (masterConfig == nullptr)
-          masterConfig = new MobiusConfig();
-    }
-
-    return masterConfig;
+    return supervisor->getMobiusConfig();
 }
 
 /**
@@ -244,49 +226,17 @@ MobiusConfig* ConfigEditor::getMobiusConfig()
  */
 void ConfigEditor::saveMobiusConfig()
 {
-    if (masterConfig != nullptr) {
-        const char* path = getConfigFilePath();
-        XmlRenderer xr;
-        char* xml = xr.render(masterConfig);
-        WriteFile(path, xml);
-        delete xml;
-    }
+    supervisor->updateMobiusConfig();
 }
 
 UIConfig* ConfigEditor::getUIConfig()
 {
-    if (masterUIConfig == nullptr) {
-        const char* path = getUIConfigFilePath();
-        char* xml = ReadFile(path);
-        if (xml != nullptr) {
-            XmlRenderer xr;
-            masterUIConfig = xr.parseUIConfig(xml);
-            // todo: display parse errors
-            delete xml;
-        }
-
-        // if we couldn't read one, boostrap a new one
-        // might want to warn here?
-        if (masterUIConfig == nullptr)
-          masterUIConfig = new UIConfig();
-    }
-
-    return masterUIConfig;
+    return supervisor->getUIConfig();
 }
 
-/**
- * Called by the ConfigPanel after it has made modifications
- * to the UIConfig returned by getUIConfig.
- */
 void ConfigEditor::saveUIConfig()
 {
-    if (masterUIConfig != nullptr) {
-        const char* path = getUIConfigFilePath();
-        XmlRenderer xr;
-        char* xml = xr.render(masterUIConfig);
-        WriteFile(path, xml);
-        delete xml;
-    }
+    supervisor->updateUIConfig();
 }
 
 /****************************************************************************/

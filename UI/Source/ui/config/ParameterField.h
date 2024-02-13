@@ -7,8 +7,8 @@
 
 #include "JuceHeader.h"
 
-#include "../model/Parameter.h"
-#include "Field.h"
+#include "../../model/Parameter.h"
+#include "../common/Field.h"
 
 class ParameterField : public Field
 {

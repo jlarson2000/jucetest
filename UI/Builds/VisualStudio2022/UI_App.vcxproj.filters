@@ -2,6 +2,15 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="UI\Source\ui\config">
+      <UniqueIdentifier>{A124F9E7-43A2-9094-5755-423BBBDA43F6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Source\ui\display">
+      <UniqueIdentifier>{FC3D7025-B053-AF83-53CB-C30935867F33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Source\ui\common">
+      <UniqueIdentifier>{933012BD-5803-5440-5DF0-B22FB8F8EE82}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source\ui">
       <UniqueIdentifier>{ABDD14AA-01B6-2D9B-2038-B446693E43DE}</UniqueIdentifier>
     </Filter>
@@ -601,70 +610,85 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\ui\BindingTargetPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\Supervisor.cpp">
+      <Filter>UI\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\ButtonBar.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\ButtonPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\ButtonPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\ConfigEditor.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\ConfigEditor.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\ConfigPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\Field.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\FieldGrid.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\Form.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\FormPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\GlobalPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
+    <ClCompile Include="..\..\Source\ui\display\ButtonsItem.cpp">
+      <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\JLabel.cpp">
+    <ClCompile Include="..\..\Source\ui\common\ButtonBar.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\Field.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\FieldGrid.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\Form.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\FormPanel.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\JLabel.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\Panel.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\SimpleButton.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\SimpleListBox.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\SimpleRadio.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\SimpleTable.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\common\SimpleTabPanel.cpp">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\DisplayManager.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\JuceUtil.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\MainDisplay.cpp">
+      <Filter>UI\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\MainMenu.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\Panel.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\ParameterField.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\PresetPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SetupPanel.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SimpleButton.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SimpleListBox.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SimpleRadio.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SimpleTable.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\ui\SimpleTabPanel.cpp">
+    <ClCompile Include="..\..\Source\ui\MainWindow.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\TableTest.cpp">
@@ -3207,70 +3231,91 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ui\BindingTargetPanel.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\Supervisor.h">
+      <Filter>UI\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\ButtonBar.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\ButtonPanel.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\ButtonPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\ConfigEditor.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\ConfigEditor.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\ConfigPanel.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\Field.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\FieldGrid.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\ParameterField.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\Form.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\PresetPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\FormPanel.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\config\SetupPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\GlobalPanel.h">
-      <Filter>UI\Source\ui</Filter>
+    <ClInclude Include="..\..\Source\ui\display\BaseItem.h">
+      <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\JLabel.h">
+    <ClInclude Include="..\..\Source\ui\display\ButtonsItem.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\ButtonBar.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\Field.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\FieldGrid.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\Form.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\FormPanel.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\JLabel.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\Panel.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\SimpleButton.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\SimpleListBox.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\SimpleRadio.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\SimpleTable.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\common\SimpleTabPanel.h">
+      <Filter>UI\Source\ui\common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\DisplayManager.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\JuceUtil.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\MainDisplay.h">
+      <Filter>UI\Source\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\MainMenu.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\Panel.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\ParameterField.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\PresetPanel.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SetupPanel.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SimpleButton.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SimpleListBox.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SimpleRadio.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SimpleTable.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\SimpleTabPanel.h">
+    <ClInclude Include="..\..\Source\ui\MainWindow.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\TableTest.h">

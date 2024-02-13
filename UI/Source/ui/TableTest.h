@@ -6,8 +6,8 @@
 
 #include <JuceHeader.h>
 
-#include "JLabel.h"
-#include "SimpleTable.h"
+#include "common/JLabel.h"
+#include "common/SimpleTable.h"
 
 class TableTest : public juce::Component, public SimpleTable::Listener
 {

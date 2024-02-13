@@ -17,14 +17,14 @@ class BaseItem : public juce::Component
 {
   public:
     
-    BaseItem(const char* type) {
+    BaseItem(const char* argType) {
         type = argType;
     }
 
     ~BaseItem() {
     }
 
-  pritected:
+  protected:
 
     const char* type;
 

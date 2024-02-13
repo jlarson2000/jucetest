@@ -4,16 +4,16 @@
 #include <string>
 #include <sstream>
 
-#include "../util/Trace.h"
-#include "../model/Parameter.h"
-#include "../model/MobiusConfig.h"
-#include "../model/Setup.h"
-#include "../model/XmlRenderer.h"
+#include "../../util/Trace.h"
+#include "../../model/Parameter.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Setup.h"
+#include "../../model/XmlRenderer.h"
+
+#include "../common/SimpleRadio.h"
 
 #include "ConfigEditor.h"
 #include "ParameterField.h"
-#include "SimpleRadio.h"
-
 #include "SetupPanel.h"
 
 SetupPanel::SetupPanel(ConfigEditor* argEditor) :
@@ -294,46 +294,51 @@ void SetupPanel::initForm()
     // Tracks tab to select the target track and a set
     // of buttons at the bottom for initialize and capture
     
-    form.add("Tracks", TrackNameParameter);
-    form.add("Tracks", DefaultSyncSourceParameter);    // overrides default SyncSourceParameter
-    form.add("Tracks", TrackSyncUnitParameter);
-    form.add("Tracks", TrackPresetParameter);
-    form.add("Tracks", GroupParameter);
-    form.add("Tracks", FocusParameter);
-    form.add("Tracks", InputLevelParameter);
-    form.add("Tracks", OutputLevelParameter);
-    form.add("Tracks", FeedbackLevelParameter);
-    form.add("Tracks", AltFeedbackLevelParameter);
-    form.add("Tracks", PanParameter);
-    form.add("Tracks", MonoParameter);
+    addField("Tracks", TrackNameParameter);
+    addField("Tracks", DefaultSyncSourceParameter);    // overrides default SyncSourceParameter
+    addField("Tracks", TrackSyncUnitParameter);
+    addField("Tracks", TrackPresetParameter);
+    addField("Tracks", GroupParameter);
+    addField("Tracks", FocusParameter);
+    addField("Tracks", InputLevelParameter);
+    addField("Tracks", OutputLevelParameter);
+    addField("Tracks", FeedbackLevelParameter);
+    addField("Tracks", AltFeedbackLevelParameter);
+    addField("Tracks", PanParameter);
+    addField("Tracks", MonoParameter);
 
     // these were arranged on a 4x4 sub-grid
-    form.add("Tracks", AudioInputPortParameter);
-    form.add("Tracks", AudioOutputPortParameter);
-    form.add("Tracks", PluginInputPortParameter);
-    form.add("Tracks", PluginOutputPortParameter);
+    addField("Tracks", AudioInputPortParameter);
+    addField("Tracks", AudioOutputPortParameter);
+    addField("Tracks", PluginInputPortParameter);
+    addField("Tracks", PluginOutputPortParameter);
 
-    form.add("Synchronization", SyncSourceParameter);   // should be DefaultSyncSourceParameter
-    form.add("Synchronization", DefaultTrackSyncUnitParameter);
-    form.add("Synchronization", SlaveSyncUnitParameter);
-    form.add("Synchronization", BeatsPerBarParameter);
-    form.add("Synchronization", RealignTimeParameter);
-    form.add("Synchronization", OutRealignModeParameter);
-    form.add("Synchronization", MuteSyncModeParameter);
-    form.add("Synchronization", ResizeSyncAdjustParameter);
-    form.add("Synchronization", SpeedSyncAdjustParameter);
-    form.add("Synchronization", MinTempoParameter);
-    form.add("Synchronization", MaxTempoParameter);
-    form.add("Synchronization", ManualStartParameter);
+    addField("Synchronization", SyncSourceParameter);   // should be DefaultSyncSourceParameter
+    addField("Synchronization", DefaultTrackSyncUnitParameter);
+    addField("Synchronization", SlaveSyncUnitParameter);
+    addField("Synchronization", BeatsPerBarParameter);
+    addField("Synchronization", RealignTimeParameter);
+    addField("Synchronization", OutRealignModeParameter);
+    addField("Synchronization", MuteSyncModeParameter);
+    addField("Synchronization", ResizeSyncAdjustParameter);
+    addField("Synchronization", SpeedSyncAdjustParameter);
+    addField("Synchronization", MinTempoParameter);
+    addField("Synchronization", MaxTempoParameter);
+    addField("Synchronization", ManualStartParameter);
 
     // Other
 
-    form.add("Other", InitialTrackParameter);
+    addField("Other", InitialTrackParameter);
 
     // this one has special values
     form.add(buildResetablesField(), "Other");
 
     // Binding Overlay
+}
+
+void SetupPanel::addField(const char* tab, Parameter* p)
+{
+    form.add(new ParameterField(p), tab, 0);
 }
 
 Field* SetupPanel::buildResetablesField()

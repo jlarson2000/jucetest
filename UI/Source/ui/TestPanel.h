@@ -5,9 +5,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "JLabel.h"
-#include "Panel.h"
-#include "SimpleRadio.h"
+#include "common/JLabel.h"
+#include "common/Panel.h"
+#include "common/SimpleRadio.h"
 
 class TestContentPanel : public juce::Component
 {

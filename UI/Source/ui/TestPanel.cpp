@@ -5,14 +5,17 @@
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
-#include "TestPanel.h"
-#include "JuceUtil.h"
-#include "Panel.h"
-#include "Field.h"
-#include "FieldGrid.h"
-#include "SimpleRadio.h"
-#include "Form.h"
 #include "../model/Parameter.h"
+
+#include "common/Panel.h"
+#include "common/Field.h"
+#include "common/FieldGrid.h"
+#include "common/SimpleRadio.h"
+#include "common/Form.h"
+#include "config/ParameterField.h"
+
+#include "JuceUtil.h"
+#include "TestPanel.h"
 
 TestPanel::TestPanel()
 {
@@ -102,10 +105,10 @@ TestPanel::TestPanel()
     panel.addOwned(fpanel);
     
     Form* form = new Form();
-    form->add("General", LoopCountParameter);
-    form->add("General", SubCycleParameter);
-    form->add("Record", RecordThresholdParameter);
-    form->add("Record", AutoRecordBarsParameter);
+    form->add(new ParameterField(LoopCountParameter), "General");
+    form->add(new ParameterField(SubCycleParameter), "General");
+    form->add(new ParameterField(RecordThresholdParameter), "Record");
+    form->add(new ParameterField(AutoRecordBarsParameter), "Record");
     form->render();
     panel.addOwned(form);
 

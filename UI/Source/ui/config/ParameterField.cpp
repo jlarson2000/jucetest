@@ -11,9 +11,9 @@
 
 #include "JuceHeader.h"
 
-#include "../util/Trace.h"
-#include "../model/Parameter.h"
-#include "../model/ExValue.h"
+#include "../../util/Trace.h"
+#include "../../model/Parameter.h"
+#include "../../model/ExValue.h"
 
 #include "ParameterField.h"
 

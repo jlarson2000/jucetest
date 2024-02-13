@@ -6,11 +6,10 @@
 
 #include <JuceHeader.h>
 
-#include "../model/Setup.h"
-
-#include "Form.h"
-#include "SimpleRadio.h"
-#include "SimpleButton.h"
+#include "../../model/Setup.h"
+#include "../common/Form.h"
+#include "../common/SimpleRadio.h"
+#include "../common/SimpleButton.h"
 #include "ConfigPanel.h"
 
 class SetupPanel : public ConfigPanel, public SimpleRadio::Listener, public juce::Button::Listener
@@ -38,6 +37,7 @@ class SetupPanel : public ConfigPanel, public SimpleRadio::Listener, public juce
 
     void render();
     void initForm();
+    void addField(const char* tab, class Parameter* p);
     class Field* buildResetablesField();
     
     void loadSetupFields();

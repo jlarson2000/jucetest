@@ -21,6 +21,8 @@
  */
 MainMenu::MainMenu()
 {
+    setName("MainMenu");
+    
     // demo used a std::unique_ptr instead of just having a local object
     //menuBar.reset (new juce::MenuBarComponent (this));
     //addAndMakeVisible (menuBar.get());
@@ -35,22 +37,8 @@ MainMenu::~MainMenu()
 {
 }
 
-/**
- * Here we would like the component to specify a height
- * rather than having the owner guess or ask us for it.
- * Still not sure the best way to do this.
- */
 void MainMenu::resized()
 {
-    // this did not work, parent had to set bounds with getPreferredHeight
-    // menuBar.setSize(getWidth(), getPreferredHeight());
-    // trace("MenuBar: width %d height %d\n", getWidth(), getHeight());
-    // menuBar.setBounds(0, 0, getWidth(), getPreferredHeight());
-
-    // I think the problem is the children can set whatever bounds they want
-    // but if the parent isn't at least that large it won't show
-    // so MainComponent needs to set the bounds for MainMenu, then we
-    // pass that along to MenuBar...
     menuBar.setBounds(getLocalBounds());
 }
 

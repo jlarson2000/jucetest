@@ -1,7 +1,6 @@
 #include <JuceHeader.h>
 
 #include "SimpleListBox.h"
-#include "../util/qtrace.h"
 
 SimpleListBox::SimpleListBox()
 {

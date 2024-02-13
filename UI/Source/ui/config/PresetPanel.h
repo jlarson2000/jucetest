@@ -6,9 +6,8 @@
 
 #include <JuceHeader.h>
 
-#include "../model/Preset.h"
-
-#include "Form.h"
+#include "../../model/Preset.h"
+#include "../common/Form.h"
 #include "ConfigPanel.h"
 
 class PresetPanel : public ConfigPanel 
@@ -33,6 +32,7 @@ class PresetPanel : public ConfigPanel
 
     void render();
     void initForm();
+    void addField(const char* tab, class Parameter* p, int col = 0);
     
     void loadPreset(int index);
     void savePreset(int index);

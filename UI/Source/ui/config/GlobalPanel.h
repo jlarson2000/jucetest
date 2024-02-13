@@ -6,8 +6,8 @@
 
 #include <JuceHeader.h>
 
+#include "../common/Form.h"
 #include "ConfigPanel.h"
-#include "Form.h"
 
 class GlobalPanel : public ConfigPanel 
 {
@@ -24,6 +24,7 @@ class GlobalPanel : public ConfigPanel
 
     void render();
     void initForm();
+    void addField(const char* tab, class Parameter* p);
     
     void loadGlobal(class MobiusConfig* c);
     void saveGlobal(class MobiusConfig* c);

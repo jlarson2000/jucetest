@@ -16,7 +16,6 @@
 
 #include <JuceHeader.h>
 
-#include "ParameterField.h"
 #include "FormPanel.h"
 #include "Form.h"
 
@@ -104,16 +103,6 @@ void Form::add(Field* f, const char* tab, int column)
     }
 
     grid->add(f, column);
-}
-
-/**
- * Convenience method for most configuration forms that use
- * parameter fields
- */
-void Form::add(const char* tab, Parameter* p, int column)
-{
-    Field * field = new ParameterField(p);
-    add(field, tab, column);
 }
 
 /**

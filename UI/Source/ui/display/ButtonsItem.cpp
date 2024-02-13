@@ -1,10 +1,10 @@
 
 #include <JuceHeader.h>
 
-#include "../model/UIConfig.h"
-#include "Panel.h"
+#include "../../model/UIConfig.h"
+#include "../common/Panel.h"
 
-#include "BaseItem.h"
+#include "ButtonsItem.h"
 
 ButtonsItem::ButtonsItem() :
     BaseItem {"Buttons"}
@@ -12,7 +12,7 @@ ButtonsItem::ButtonsItem() :
 }
 
 ButtonsItem::~ButtonsItem()
-}
+{
 }
 
 void ButtonsItem::add(UIButton* src)
