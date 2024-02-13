@@ -1,0 +1,159 @@
+
+Supervisor
+  - top-level component just under MainComponent
+  - could be MainComponent but keep them separate so we can regenerate
+    it
+  - responsible for initializing the UI, may be more than one
+  - initializes the Mobius Engine
+  - provides OS services like threads
+  - could put file handling in here too, or keep that in ConfigEditor?
+  - where does MainMenu go?
+
+ConfigEditor
+  - responsible for all configuration file editing
+  - manages a complex collection of components
+  - does not need the Mobius Engine
+  - extensive use of the External Model
+  - PresetPanel, ButtonPanel, etc.
+  - things like ButtonPanel are specific to a chosen UI, might
+    want to move those
+  - Supervisor responds to menu selections to open ConfigEditors
+  - allow other events to open config, like keyboard events
+  - some configuration editors may need OS services
+     - keyboard events for key binding capture
+     - MIDI events for MIDI binding capture
+     - ask the Supervisor to listen for those?
+  - mouse/key events are going to be common so can access those
+    directly from Juce, no need to go through Supervisor
+     
+External Model
+  - the data model edited by ConfigEditor and saved in files
+  - no dependencies on the Mobius Engine
+
+ui/base
+  - general purpose Juce components
+
+ui/config
+  - ConfigEditor and related components
+
+ui/display
+  - MainDisplayComponent
+    - evolve this to an interface with different display implementations
+      swapped in
+    - independent of configuration editors
+  - manages configurable "items" or "elements" that show status
+  - needs a thread for periodic status updates
+  - currently use a combination of UI managed thread polling events
+    and synchronous refresh events from the engine
+  - let Supervisor coordinate comm between engine and display
+
+MobiusThread
+  - currently does a combination of non-interrupt housekeeping and UI updates
+  - need to separate the logic into UI and engine
+  - currently "under" the Mobius interface, makes sense to raise it and
+  - have the SupervisorThread be the thread that dispatches to either the UI
+    or the engine?
+    - requires ThreadEvent to be part of the External Model
+  - are two threads above and below the interface bad?
+    - don't really need except for external model pollution
+  - ThreadEvents could be viewed similar to Actions, the UI layer needs to make
+    them and send them to the engine
+
+Action
+  - part of the external model, desiribes something the UI can ask the mobius engine to perform
+  - different than just calling methods on the engine
+  - most Actions will result in invocation of things inside the engine and may result
+    in complex scheduling
+  - some Actions may be targeted at the UI?
+     - this would be similar to ThreadEvent
+
+BindingDispatcher
+  - respondes to external stimulus: midi, keyboard, UI
+  - maps stimulus to Actions that are sent to the engine
+  - currently this is "under" the engine, but it may make sense to
+    have it above
+  - processing some Actions will require knowledge of the engine so
+    the engine needs it's own ActionProcessor
+
+  - two levels of ActionProcessor
+     - actions targeted to the UI and one for the engine
+     - does the UI need to respond to keyboard events without involving the engine?
+       - yes, for the "instant parameter" display element, it responds to keyboard events
+
+MobiusEngine/MobiusCore
+  - the two parts that are above and below the interrupt
+  - Supervisor handles comm with both
+  - a thread handles comm between them
+  - who manages the engine/core comm thread?  probably Supervisor
+  - like having Thread above engine, makes it easier to embed
+    will need an interface for engine to ask Supervisor to schedule events
+    Supervisor passes events to the engine and core
+
+Supervisor is kind of a catch all for coordination between the engine and UI
+  this could make it messy, but think about as it evolves
+
+binding managemeent kind of belongs up in the Supervisor rather than the engine
+especially if there can be UI related bindings and it has to interact with OS
+services like devices and MIDI
+
+OscManager
+  this is kind of it's own thing, it doesn't really belong in the engine
+  it's a special kind of binding manager that responds to stimulus and hten
+  sends Actions to the engine
+  - OSC export is a bit like UI updates, something happens in the engine that
+    needs to be communicated with the outside, this could be drawing in the UI
+    sending Osc events,
+  - what about MIDI events?
+     - currently allowed in the interrupt, Mobius should pass those up to the
+       supervisor
+
+Supervisor
+  DisplayManager
+  BindingManager
+  OscManager
+    - should we also have KeyManager and MidiManager?
+  MobiusManager/MobiusEngine
+    MobiusInterrupt
+      directky accessible by supervisor or under MobiusManager?
+  ThreadManager
+     manages the single thread used for cross-component comms
+     for testing, it doesn't really even need a thread, just pass things
+     directly between components?
+  MobiusSimulator
+    will want this for UI testing
+    encapculates both the engine and interrupt
+    facilitates thread testing
+    facilitates Action testing
+
+The Various managers are not Juce components but they can
+manage Juce components so Juce access is allowed
+
+MobiusEngine/Intterupt shoudl have no Juce dependencies for embedding
+Yes, route all the complicated comms through Supervisor and see how
+that falls out for later refactoring
+
+Supervisor should not have any visible UI elements, keep those in DisplayManager
+  that includes the main menu
+
+Still need a MainComponent for Juce
+  MainComponent creates Supervisor and passes itself
+  Supervisor creates DisplayManager and gives it MainComponent
+  DisplayManager handles ConfigEditor, MainWindow alternatives
+    - receives UI actions and events
+  MainComponent still receives all Juce external events for MIDI and audio
+    passes them to Supervisor, possibly put the transformation up here too?
+
+The various Managers are not Juce Components, only DisplayManager creates
+Components and adds them to MainComponent
+
+Supervisor needs to pass itself to a lot of things, it needs a clean interface
+with limited compile time dependencies.
+
+
+  
+  
+
+
+  
+  
+
