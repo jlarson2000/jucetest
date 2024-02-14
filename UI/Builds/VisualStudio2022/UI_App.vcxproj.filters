@@ -637,6 +637,12 @@
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\ButtonsItem.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -751,10 +757,16 @@
     <ClCompile Include="..\..\Source\model\ExValue.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\model\Function.cpp">
+    <ClCompile Include="..\..\Source\model\FunctionDef.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\MobiusState.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ModeDef.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp">
@@ -3258,10 +3270,19 @@
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\ActionButton.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\ActionButtons.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\BaseItem.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\ButtonsItem.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\Colors.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h">
@@ -3378,13 +3399,19 @@
     <ClInclude Include="..\..\Source\model\ExValue.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\model\Function.h">
+    <ClInclude Include="..\..\Source\model\FunctionDef.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Messages.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\MobiusConfig.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\MobiusState.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\ModeDef.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\OscConfig.h">

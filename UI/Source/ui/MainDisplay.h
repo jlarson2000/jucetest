@@ -7,12 +7,7 @@
 
 #include <JuceHeader.h>
 
-#define MobiusBlue 0xFF8080FF
-#define MobiusGreen 0xFF00b000
-#define MobiusRed 0xFFf40b74
-#define MobiusYellow 0xFFFFFF00
-#define MobiusPink 0xFFFF8080
-#define MobiusDarkYellow 0xFFe0bd00
+#include "display/ActionButtons.h"
 
 class MainDisplay : public juce::Component
 {
@@ -20,13 +15,15 @@ class MainDisplay : public juce::Component
 
     MainDisplay();
     ~MainDisplay();
+    void configure(class UIConfig* config);
 
     void drawText(juce::Graphics& g, const char* text, int x, int y);
-
+    
     void resized() override;
     void paint (juce::Graphics& g) override;
 
   private:
 
- 
+    ActionButtons buttons;
+    
 };    

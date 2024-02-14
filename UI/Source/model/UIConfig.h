@@ -4,6 +4,8 @@
  * This has been reduced from the original UIConfig to think
  * about other ways of doing things.
  *
+ * todo: Since this model is entirely created and consumed by Juce
+ * we can use Juce objects here like OwnedArray and String.
  */
 
 #pragma once

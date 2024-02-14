@@ -36,8 +36,8 @@ void JuceUtil::dumpComponent(juce::Component* c, int indent)
     s += c->getWidth();
     s += " ";
     s += c->getHeight();
-    if (c->isVisible()) {
-        s += " visible";
+    if (!c->isVisible()) {
+        s += " INVISIBLE";
     }
     s += "\n";
 

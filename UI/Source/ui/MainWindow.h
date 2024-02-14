@@ -32,8 +32,8 @@ class MainWindow : public juce::Component, public MainMenu::Listener
 
     void resized() override;
 
-    void updateConfiguration(class UIConfig* config);
-    void updateConfiguration(class MobiusConfig* config);
+    void configure(class MobiusConfig* config);
+    void configure(class UIConfig* config);
 
     // MainMenu listener
     void mainMenuSelection(int id);

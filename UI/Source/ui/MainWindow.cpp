@@ -32,6 +32,7 @@ MainWindow::MainWindow(Supervisor* super)
 
     addAndMakeVisible(menu);
     menu.setListener(this);
+    
     addAndMakeVisible(display);
 
     // let the config editor pre-load all its panels
@@ -144,17 +145,12 @@ void MainWindow::mainMenuSelection(int id)
  * Called by Supervisor after the initial load of the
  * configuration files, and after any editing.
  * Most of our configuration is in UIConfig.
+ * MainDisplay uses this most, old Mobius adjusted
+ * the menus for Preset and Setup selection.
  */
-void MainWindow::updateConfiguration(UIConfig* config)
+void MainWindow::configure(UIConfig* config)
 {
-    std::vector<std::unique_ptr<UIButton>>* buttons = config->getButtons();
-    if (buttons != nullptr) {
-        for (int i = 0 ; i < buttons->size() ; i++) {
-            // these are such a fucking pain in the ass
-            UIButton* b = buttons->at(i).get();
-            trace("Button %s\n", b->getName());
-        }
-    }
+    display.configure(config);
 }
 
 /**
@@ -165,6 +161,6 @@ void MainWindow::updateConfiguration(UIConfig* config)
  * except for the names of the Presets and Setups and other
  * things we might want to select with menus or display elements.
  */
-void MainWindow::updateConfiguration(MobiusConfig* config)
+void MainWindow::configure(MobiusConfig* config)
 {
 }

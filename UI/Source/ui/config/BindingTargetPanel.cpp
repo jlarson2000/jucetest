@@ -1,7 +1,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../model/Function.h"
+#include "../../model/FunctionDef.h"
 #include "../../model/Parameter.h"
 #include "../../model/MobiusConfig.h"
 #include "../../model/Preset.h"
@@ -22,9 +22,9 @@ void BindingTargetPanel::init(MobiusConfig* config)
 {
     initBox(&functions);
     addTab(juce::String("Functions"), &functions);
-    for (int i = 0 ; i < Function::Functions.size() ; i++) {
+    for (int i = 0 ; i < FunctionDefinition::Functions.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        Function* f = Function::Functions[i];
+        FunctionDefinition* f = FunctionDefinition::Functions[i];
         // no display name for these yet
         functions.add(f->getName());
     }

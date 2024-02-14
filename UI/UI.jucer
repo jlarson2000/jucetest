@@ -31,9 +31,16 @@
           <FILE id="F0YB7p" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/config/SetupPanel.h"/>
         </GROUP>
         <GROUP id="{506F264E-A601-E29C-91E6-134CCA9C4AAA}" name="display">
+          <FILE id="NZymdN" name="ActionButton.cpp" compile="1" resource="0"
+                file="Source/ui/display/ActionButton.cpp"/>
+          <FILE id="Tb2xAQ" name="ActionButton.h" compile="0" resource="0" file="Source/ui/display/ActionButton.h"/>
+          <FILE id="fDm6Vs" name="ActionButtons.cpp" compile="1" resource="0"
+                file="Source/ui/display/ActionButtons.cpp"/>
+          <FILE id="JEpK4O" name="ActionButtons.h" compile="0" resource="0" file="Source/ui/display/ActionButtons.h"/>
           <FILE id="leee75" name="BaseItem.h" compile="0" resource="0" file="Source/ui/display/BaseItem.h"/>
           <FILE id="ePBbG6" name="ButtonsItem.cpp" compile="1" resource="0" file="Source/ui/display/ButtonsItem.cpp"/>
           <FILE id="gnMKz3" name="ButtonsItem.h" compile="0" resource="0" file="Source/ui/display/ButtonsItem.h"/>
+          <FILE id="iB815e" name="Colors.h" compile="0" resource="0" file="Source/ui/display/Colors.h"/>
           <FILE id="Ni6UXz" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
         </GROUP>
         <GROUP id="{AEC022E8-1C76-A11C-D2FB-C021B2012684}" name="common">
@@ -129,12 +136,16 @@
         <FILE id="Kl8nMI" name="Binding.h" compile="0" resource="0" file="Source/model/Binding.h"/>
         <FILE id="azEsBL" name="ExValue.cpp" compile="1" resource="0" file="Source/model/ExValue.cpp"/>
         <FILE id="km0fDA" name="ExValue.h" compile="0" resource="0" file="Source/model/ExValue.h"/>
-        <FILE id="ieUSs5" name="Function.cpp" compile="1" resource="0" file="Source/model/Function.cpp"/>
-        <FILE id="WGj3OW" name="Function.h" compile="0" resource="0" file="Source/model/Function.h"/>
+        <FILE id="dXx1mZ" name="FunctionDef.cpp" compile="1" resource="0" file="Source/model/FunctionDef.cpp"/>
+        <FILE id="S7PcUH" name="FunctionDef.h" compile="0" resource="0" file="Source/model/FunctionDef.h"/>
         <FILE id="FZEt89" name="Messages.h" compile="0" resource="0" file="Source/model/Messages.h"/>
         <FILE id="w1kSSZ" name="MobiusConfig.cpp" compile="1" resource="0"
               file="Source/model/MobiusConfig.cpp"/>
         <FILE id="rrRIuQ" name="MobiusConfig.h" compile="0" resource="0" file="Source/model/MobiusConfig.h"/>
+        <FILE id="ZkQ3jU" name="MobiusState.cpp" compile="1" resource="0" file="Source/model/MobiusState.cpp"/>
+        <FILE id="PhGxLv" name="MobiusState.h" compile="0" resource="0" file="Source/model/MobiusState.h"/>
+        <FILE id="rdATfu" name="ModeDef.cpp" compile="1" resource="0" file="Source/model/ModeDef.cpp"/>
+        <FILE id="XBsqot" name="ModeDef.h" compile="0" resource="0" file="Source/model/ModeDef.h"/>
         <FILE id="sWgU5q" name="OscConfig.cpp" compile="1" resource="0" file="Source/model/OscConfig.cpp"/>
         <FILE id="RfFrrM" name="OscConfig.h" compile="0" resource="0" file="Source/model/OscConfig.h"/>
         <FILE id="kSK1Zx" name="Parameter.cpp" compile="1" resource="0" file="Source/model/Parameter.cpp"/>

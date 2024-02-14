@@ -15,8 +15,8 @@ class DisplayManager
     DisplayManager(class Supervisor* super, juce::Component* main);
     ~DisplayManager();
 
-    void updateConfiguration(class UIConfig* config);
-    void updateConfiguration(class MobiusConfig* config);
+    void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
 
   private:
 

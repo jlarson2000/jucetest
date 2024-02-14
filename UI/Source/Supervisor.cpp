@@ -32,11 +32,11 @@ void Supervisor::start()
     displayManager.reset(new DisplayManager(this, mainComponent));
 
     // load the initial configuration and tell everyone about it
-    displayManager->updateConfiguration(getUIConfig());
+    displayManager->configure(getUIConfig());
 
     MobiusConfig* mc = getMobiusConfig();
     // a few things in the UI are sensitive to this
-    displayManager->updateConfiguration(mc);
+    displayManager->configure(mc);
 }
 
 /**
@@ -213,7 +213,7 @@ void Supervisor::updateMobiusConfig()
 
         // this is where the engine will want to know about things
         // like the max loop & track counts
-        displayManager->updateConfiguration(mobiusConfig.get());
+        displayManager->configure(mobiusConfig.get());
     }
 }
 
@@ -222,7 +222,7 @@ void Supervisor::updateUIConfig()
     if (uiConfig) {
         writeUIConfig(uiConfig.get());
         // DisplayManager/MainWindow are the primary consumers of this
-        displayManager->updateConfiguration(uiConfig.get());
+        displayManager->configure(uiConfig.get());
     }
 }
 

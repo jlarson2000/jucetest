@@ -150,6 +150,8 @@
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ButtonsItem.cpp"/>
     <ClCompile Include="..\..\Source\ui\common\ButtonBar.cpp"/>
     <ClCompile Include="..\..\Source\ui\common\Field.cpp"/>
@@ -188,8 +190,10 @@
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
     <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
-    <ClCompile Include="..\..\Source\model\Function.cpp"/>
+    <ClCompile Include="..\..\Source\model\FunctionDef.cpp"/>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp"/>
+    <ClCompile Include="..\..\Source\model\MobiusState.cpp"/>
+    <ClCompile Include="..\..\Source\model\ModeDef.cpp"/>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
     <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp"/>
@@ -2477,8 +2481,11 @@
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\display\ActionButton.h"/>
+    <ClInclude Include="..\..\Source\ui\display\ActionButtons.h"/>
     <ClInclude Include="..\..\Source\ui\display\BaseItem.h"/>
     <ClInclude Include="..\..\Source\ui\display\ButtonsItem.h"/>
+    <ClInclude Include="..\..\Source\ui\display\Colors.h"/>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h"/>
     <ClInclude Include="..\..\Source\ui\common\ButtonBar.h"/>
     <ClInclude Include="..\..\Source\ui\common\Field.h"/>
@@ -2517,9 +2524,11 @@
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
     <ClInclude Include="..\..\Source\model\ExValue.h"/>
-    <ClInclude Include="..\..\Source\model\Function.h"/>
+    <ClInclude Include="..\..\Source\model\FunctionDef.h"/>
     <ClInclude Include="..\..\Source\model\Messages.h"/>
     <ClInclude Include="..\..\Source\model\MobiusConfig.h"/>
+    <ClInclude Include="..\..\Source\model\MobiusState.h"/>
+    <ClInclude Include="..\..\Source\model\ModeDef.h"/>
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>
     <ClInclude Include="..\..\Source\model\Parameter.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>

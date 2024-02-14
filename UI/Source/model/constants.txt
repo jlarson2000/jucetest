@@ -1,0 +1,254 @@
+
+EventType is another thing like Function that has
+a bunch of engine stuff in it including virtual methods.
+
+A pimpl pattern may be okay here
+
+EventType
+  name, UI things
+  void* pimpl to InternalEventType
+
+InternalEventType
+  what we have now
+
+Since the engine rarely needs the name, it makes sense
+here to have a back pointer
+
+EventTypeDefinition
+  name, UI things
+
+EventType
+  EventTypeDefinition* def
+  engine things
+
+Or you could just subclass them.
+
+class FooEventType : public: FooEventDefinition
+
+The constant pointers would have to point to different things
+
+extern EventType* InvokeEvent;
+
+This is used by the engine and it should retain it's meaning.
+
+The UI would want these:
+
+extern EventTypeDefinition* InvokeEvent;
+
+which we can't do since their static and the names would conflict
+but the UI would never need these by name
+
+Function is different since the UI needs to put those in an Action
+
+Mode is the same as EventType
+
+If a constant has only a name, just define an ordinal to string mapping table.
+
+Parameter is mostly UI stuff except for these:
+
+    // behavioral flags
+	bool dynamic;		// true if labels and max ordinal can change
+    bool deprecated;    // true if this is a backward compatible parameter
+    bool transient;     // memory only, not stored in config objects
+    bool resettable;    // true for Setup parameters that may be reset
+    bool scheduled;     // true if setting the value schedules an event
+    bool takesAction;   // true if ownership of the Action may be taken
+
+This could be another case for subclassing.
+
+I'm liking this
+
+In the UI
+
+  SomethingDefinition
+    names, UI stuff
+
+  vector Somethings
+    UI iteration
+
+  SomethingDefinitionObj;
+    need an instance to get the vector
+    this is also where we could define ordinal numbers.
+
+  ParameterField(SomethingDefinitionPtr)
+    this is the new part, need a pointer constant to pass things around
+    in the UI, or would have to use refs everywherem or just & the Obj when necessary
+
+
+In the engine
+
+  SomethingImpl : public SomethingDefinition
+    engine stuff
+
+  SomethingImplObj
+    still need one to get the values populated and build a vector
+
+  *Something
+    engine gets to own this, they are different than &SomethingDefinitionObj
+    but can map between them with ordinals
+
+MobiusState must use Definition object pointers if it uses pointers
+
+PresetParameter etc. classes
+  can extend the Definition object, do we need parallel classes internally?
+  don't think so, engine uses Preset and Setup directly
+  only Scripts that reference thigs by name may need constant objects
+
+  start with the UI owning the nice Parameter pointer names and see if the engine even needs them
+
+Constnat objects referended in MobiusState
+
+  EventType - becomes EventDefinition or UIEventType
+  Function - becomes &FunctionDefinition
+  MobiusMode - MobiusModeDefinition
+
+  SyncSource - enum in Setup
+  SyncUnit - enum in Setup
+
+Back to EventType
+
+extern EventType* InvokeEvent;
+extern EventType* ValidateEvent;
+extern EventType* RecordEvent;
+extern EventType* RecordStopEvent;
+extern EventType* PlayEvent;
+extern EventType* OverdubEvent;
+extern EventType* MultiplyEvent;
+extern EventType* MultiplyEndEvent;
+extern EventType* InstantMultiplyEvent;
+extern EventType* InstantDivideEvent;
+extern EventType* InsertEvent;
+extern EventType* InsertEndEvent;
+extern EventType* StutterEvent;
+extern EventType* ReplaceEvent;
+extern EventType* SubstituteEvent;
+extern EventType* LoopEvent;
+extern EventType* CycleEvent;
+extern EventType* SubCycleEvent;
+extern EventType* ReverseEvent;
+extern EventType* ReversePlayEvent;
+extern EventType* SpeedEvent;
+extern EventType* RateEvent;
+extern EventType* PitchEvent;
+extern EventType* BounceEvent;
+extern EventType* MuteEvent;
+extern EventType* PlayEvent;
+extern EventType* JumpPlayEvent;
+extern EventType* UndoEvent;
+extern EventType* RedoEvent;
+extern EventType* ScriptEvent;
+extern EventType* StartPointEvent;
+extern EventType* RealignEvent;
+extern EventType* MidiStartEvent;
+extern EventType* SwitchEvent;
+extern EventType* ReturnEvent;
+extern EventType* SUSReturnEvent;
+extern EventType* TrackEvent;
+extern EventType* RunScriptEvent;
+extern EventType* SampleTriggerEvent;
+extern EventType* SyncEvent;
+extern EventType* SlipEvent;
+extern EventType* MoveEvent;
+extern EventType* ShuffleEvent;
+extern EventType* SyncCheckEvent;
+extern EventType* MidiOutEvent;
+
+Do we really need all these, won't any Function that can be quantized have
+an EventType?  Why not just a FunctionEvent with a Function* for the names
+Probably but keep the models parallel until we can do engine redesign
+
+Current system constants in UI
+
+  Function
+    need constants, will either need to rename the files to FunctionDefinition.h
+    or have FunctionInternal.h in the engine
+    Kind of liking UIFunction.h
+
+  Parameter
+    might be able to remove these entirely from the enging except for scripts
+    how possible would it be to move the ScriptInterpreter above the interrupt?
+    ScriptCompiler certainly except for resolving to internal structures
+
+Any include file currently used by the engine must either be shared with the UI
+or the UI needs a different name if the objects are different
+  applies to Function.h and Parameter.h
+
+UIParameter.h
+BaseParameter.h
+ExtParameter.h
+
+Uses of Parameter by the engine
+
+Track.cpp:	if (global || setup->isResetable(InputLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(OutputLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(FeedbackLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(AltFeedbackLevelParameter)) {
+Track.cpp:	if (global || setup->isResetable(PanParameter)) {
+Track.cpp:	if (global || setup->isResetable(FocusParameter)) {
+Track.cpp:	if (global || setup->isResetable(GroupParameter)) {
+Track.cpp:        (global || setup->isResetable(TrackPresetParameter))) {
+  don't need to do it this way
+  
+Script.cpp:PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, Parameter* p)
+Script.cpp:    mParameter = p;
+Script.cpp:    else if (mParameter != NULL) {
+Script.h:    ScriptUse(Parameter* p);   
+Script.h:    Parameter* getParameter();
+Script.h:    Parameter* mParameter;
+  will be a problem, maybe not if the UI object works
+
+MobiusPlugin.cpp:	return mParameters;
+MobiusPlugin.cpp:PUBLIC PluginParameter* MobiusPlugin::getParameter(int id)
+MobiusPlugin.cpp:	PluginParameter* found = NULL;
+  will be completely different now
+
+Mobius.cpp:            doParameter(a, p, mTrack);
+Mobius.cpp:                    doParameter(ta, p, t);
+Mobius.cpp: * When we pass the Action to the Parameter, the value in the
+  Action handling, relatively high level but awkward to change
+
+Export.cpp:#include "Parameter.h"
+Export.cpp: * So we don't have to expose Parameter.h and ParameterType, 
+Export.cpp:        if (ttype == TargetParameter) {
+  can probably redesign this safely
+  similar to bindings, can move up a level
+
+Action.cpp:        else if (mTarget == TargetParameter) {
+Action.cpp:            Parameter* p = mObject.parameter;
+Action.cpp:    else if (mTarget == TargetParameter) {
+ActionDispatcher.cpp: * PluginParameter will track the last set value.
+ActionDispatcher.cpp:    else if (target == TargetParameter) {
+
+Yes, let the UI be in control of Parameter definitions until
+we find something that needs unusual implementation and
+either use Pimpl or special case it
+
+Function is far more complicated, UI must use BaseFunction
+
+Ugh, subclassing doesn't work as well as I thought
+The base class defines that the object HAS a name, it is the static
+instiations that GIVE it it a name.
+
+I really don't want to define a bazillon subclasses like Parameter does just to assign a name.
+But this means you can't simply subclass FunctionDefinition, you have to duplicate
+the name assignment or reference it
+
+
+class Function : public FunctionDefinition
+{
+  inherits name, maybe other things
+
+class MultiplyFunction : public Function
+  use "Multiply" again
+  or reference MultiplyFunctionDef which means they have to be declared in FunctdionDef.h, not bad
+
+  if all we share is the name, could just define const char* constants for those
+  
+  
+
+
+
+
+
+
+

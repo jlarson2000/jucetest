@@ -38,12 +38,12 @@ DisplayManager::~DisplayManager()
  *
  * todo: think about control flow here
  * rather than passing these down everwhere could just
- * call a single updateConfiguration() and have the
+ * call a single configure() and have the
  * subcomponents pull out the things they need from Supervisor?
  */
-void DisplayManager::updateConfiguration(UIConfig* config)
+void DisplayManager::configure(UIConfig* config)
 {
-    mainWindow->updateConfiguration(config);
+    mainWindow->configure(config);
 }
 
 /**
@@ -54,7 +54,7 @@ void DisplayManager::updateConfiguration(UIConfig* config)
  * except for the names of the Presets and Setups and other
  * things we might want to select with menus or display elements.
  */
-void DisplayManager::updateConfiguration(MobiusConfig* config)
+void DisplayManager::configure(MobiusConfig* config)
 {
-    mainWindow->updateConfiguration(config);
+    mainWindow->configure(config);
 }
