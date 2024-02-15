@@ -1,0 +1,332 @@
+/****************************************************************************
+ *                                                                          *
+ *                              RESOLVED TARGET                             *
+ *                                                                          *
+ ****************************************************************************/
+
+/**
+ * Union of possible target pointers.
+ * While the code deals with these as a void* and casts 
+ * when necessary, it is nice in the debugger to have these
+ * in a union so we can see what they are.
+ */
+typedef union {
+
+    void* object;
+    class FunctionDefinition* function;
+    class Parameter* parameter;
+    class Bindable* bindable;
+    class UIControl* uicontrol;
+
+} TargetPointer;
+
+/**
+ * A runtime representation of a binding target that has been resolved
+ * to the internal Mobius object where possible.  This serves two purposes:
+ *
+ *    - It allows us to cache pointers to Functions, Parameters, and
+ *      Controls so we don't have to do a linear search by name every time
+ *      they are needed.
+ *
+ *    - It provides a level of indirection so that the Function and
+ *      Bindable objects can be replaced if the configuration changes.
+ *      For Function objects, this only happens as you add or remove 
+ *      scripts, which are wrapped in dynamically allocated Functions.
+ *      For Bindables (Preset, Setup, BindingConfig), they can change
+ *      whenever  the configuration is edited.
+ *
+ * Once a target is resolved, it is normally registered with Mobius,
+ * which means that the object will live for the duration of the Mobius
+ * object and it will be refreshed as the configuration changes. 
+ * Application level code is allowed to keep pointers to these objects
+ * and be assured that they can always be used for Actions and Exports.
+ */
+class ResolvedTarget {
+
+    // friend class Mobius;
+
+  public:
+
+	ResolvedTarget();
+	~ResolvedTarget();
+    void init();
+    void clone(ResolvedTarget* t);
+
+    bool isInterned();
+
+    class Target* getTarget();
+    void setTarget(class Target* t);
+
+    const char* getName();
+    void setName(const char* name);
+
+    int getTrack();
+    void setTrack(int t);
+
+    int getGroup();
+    void setGroup(int t);
+
+    void* getObject();
+    void setObject(void* o);
+
+    bool isResolved();
+    const char* getDisplayName();
+    const char* getTypeDisplayName();
+    void getGroupName(char* buf);
+    void getFullName(char* buffer, int max);
+
+  protected:
+
+    void setInterned(bool b);
+    ResolvedTarget* getNext();
+    void setNext(ResolvedTarget* rt);
+
+  private:
+
+    bool mInterned;
+    ResolvedTarget* mNext;
+    class Target* mTarget;
+    char* mName;
+    TargetPointer mObject;
+    int mTrack;
+    int mGroup;
+
+};
+
+/****************************************************************************
+ *                                                                          *
+ *                              RESOLVED TARGET                             *
+ *                                                                          *
+ ****************************************************************************/
+
+void ResolvedTarget::init()
+{
+    mInterned = false;
+    mNext = nullptr;
+    mTarget = nullptr;
+    mName = nullptr;
+    mObject.object = nullptr;
+    mTrack = 0;
+    mGroup = 0;
+}
+
+ResolvedTarget::ResolvedTarget()
+{
+    init();
+}
+
+/**
+ * Called by Action::clone, we're by definition
+ * not interned.
+ */
+void ResolvedTarget::clone(ResolvedTarget* src)
+{
+    mTarget = src->mTarget;
+    // names are not cloned
+    mObject = src->mObject;
+    mTrack = src->mTrack;
+    mGroup = src->mGroup;
+}
+
+
+ResolvedTarget::~ResolvedTarget()
+{
+    // we can't stop it now, but warn if we try to do this
+    if (mInterned) 
+      Trace(1, "ResolvedTarget: deleting interned object!\n");
+
+    delete mName;
+
+	ResolvedTarget *el, *next;
+	for (el = mNext ; el != nullptr ; el = next) {
+		next = el->getNext();
+		el->setNext(nullptr);
+		delete el;
+	}
+}
+
+bool ResolvedTarget::isInterned()
+{
+    return mInterned;
+}
+
+void ResolvedTarget::setInterned(bool b)
+{
+    mInterned = b;
+}
+
+ResolvedTarget* ResolvedTarget::getNext()
+{
+    return mNext;
+}
+
+void ResolvedTarget::setNext(ResolvedTarget* t)
+{
+    mNext = t;
+}
+
+Target* ResolvedTarget::getTarget()
+{
+    return mTarget;
+}
+
+void ResolvedTarget::setTarget(Target* t)
+{
+    mTarget = t;
+}
+
+const char* ResolvedTarget::getName()
+{
+    return mName;
+}
+
+void ResolvedTarget::setName(const char* name)
+{
+    delete mName;
+    mName = CopyString(name);
+}
+
+void* ResolvedTarget::getObject()
+{
+    return mObject.object;
+}
+
+void ResolvedTarget::setObject(void* o)
+{
+    mObject.object = o;
+}
+
+int ResolvedTarget::getTrack()
+{
+    return mTrack;
+}
+
+void ResolvedTarget::setTrack(int t)
+{
+    mTrack = t;
+}
+
+int ResolvedTarget::getGroup()
+{
+    return mGroup;
+}
+
+void ResolvedTarget::setGroup(int g)
+{
+    mGroup = g;
+}
+
+bool ResolvedTarget::isResolved()
+{
+    return (mObject.object != nullptr);
+}
+
+/**
+ * The UI likes to resolve targets so it can get from the
+ * raw binding name to a nicer display name.
+ */
+const char* ResolvedTarget::getDisplayName()
+{
+    const char* dname = mName;
+            
+    if (mObject.object != nullptr) {
+
+        if (mTarget == TargetFunction) {
+            FunctionDefinition* f = mObject.function;
+            dname = f->getDisplayName();
+        }
+        else if (mTarget == TargetUIControl) {
+            UIControl* uic = mObject.uicontrol;
+            dname = uic->getDisplayName();
+        }
+        else if (mTarget == TargetParameter) {
+            Parameter* p = mObject.parameter;
+            dname = p->getDisplayName();
+        }
+        else if (mTarget == TargetSetup ||
+                 mTarget == TargetPreset ||
+                 mTarget == TargetBindings) {
+            Bindable* b = mObject.bindable;
+            dname = b->getName();
+        }
+    }
+
+    return dname;
+}
+
+/**
+ * Return a nice name to display for the type of this target.
+ */
+const char* ResolvedTarget::getTypeDisplayName()
+{
+    const char* type = mTarget->getDisplayName();
+
+    // Scripts are TargetFunction but we'd like a more specicic name
+    if (mTarget == TargetFunction) {
+        FunctionDefinition* f = mObject.function;
+        // old implementation looked at this
+        // todo: see comments at the top about adding RunScriptFunction
+        // to the global Function list and just comparing the Function constant
+        //if (f != nullptr && f->eventType == RunScriptEvent)
+        // should be able to do this
+        // if (f == RunScriptFunction)
+        //   type = "Script";
+    }
+    else if (mTarget == TargetParameter) {
+        Parameter* p = mObject.parameter;
+        if (p->control)
+          type = "Control";
+    }
+
+    return type;
+}
+
+/**
+ * Return the group name as a letter.
+ * Supplied buffer must be at least 2 characters long.
+ */
+void ResolvedTarget::getGroupName(char* buf)
+{
+    strcpy(buf, "");
+    if (mGroup > 0) {
+		// naughty ASCII hack
+		char letter = (char)((int)'A' + (mGroup - 1));
+		sprintf(buf, "%c", letter);
+    }
+}
+
+/**
+ * Return a full description of the resolved target, suitable
+ * for presentation in the UI.
+ *
+ * This was designed for the two help dialogs (MIDI, Key).
+ * There is a similar rendering used in the binding dialogs.
+ * !! Try to merge these?
+ */
+void ResolvedTarget::getFullName(char* buffer, int max)
+{
+    strcpy(buffer, "");
+
+    if (mTrack > 0) {
+        char buf[8];
+        sprintf(buf, "%d", mTrack);
+        AppendString(buf, buffer, max);
+        AppendString(":", buffer, max);
+    }
+    else if (mGroup > 0) {
+        char buf[8];
+        getGroupName(buf);
+        AppendString(buf, buffer, max);
+        AppendString(":", buffer, max);
+    }
+
+    // Leave the type off since this is usually unambiguous
+    /*
+    if (mTarget != TargetFunction) {
+        AppendString(getTypeDisplayName(), buffer, max);
+        AppendString(":", buffer, max);
+    }
+    */
+
+    AppendString(getDisplayName(), buffer, max);
+}
