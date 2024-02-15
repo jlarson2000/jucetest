@@ -39,7 +39,7 @@ void ActionButtons::configure(UIConfig* config)
 	if (uiButtons->size() > 0) {
 		for (int i = 0 ; i < uiButtons->size() ; i++) {
             UIButton* button = uiButtons->at(i).get();
-            ActionButton* b = new ActionButton(formatButtonName(button));
+            ActionButton* b = new ActionButton(button);
             b->addListener(this);
             // todo: resolve Action
             addAndMakeVisible(b);

@@ -1,0 +1,128 @@
+
+How should ActionButton send commands?
+
+1) Button calls doAction
+
+   muddies the distinction between Juce compoents and the engine
+   nice in case the button wants to change it's appearance based on the
+   status of the action, e.g. dim until the action is processed
+
+   that may have to be async though and we can't wait around
+
+2) Button informs Supervisor to do the deed
+
+   let's the Component just focus on graphics and not what it does
+   requires Supervisor to manage a mapping between ActionButton and
+   the corresponding Action to be passed to do Action
+
+   this will be very similar to how Bindings work
+
+   since ActionButton objects can be destructed pointing to them is
+   unreliable, easier to annotate the button to have a refernce
+   to something that won't change
+
+   requires button to be in a "resolved" state
+
+Kind of nice to avoid the annotation, but this would then requires
+runtime mapping between the button name and the action
+
+Since we might want to play games with interning or subclassing the Action
+it is nice not having the button understand it's lifespan
+
+It can be thought of as just a cache, if Supervisor doesn't have a cached mapping
+for the Button it creates one by name, then caches it on the button
+
+Requires Supervisor to know what ActionButton is, but something is going
+to need to know that, either Supervisor or DisplayManager
+
+hmm, yes, if we want to swap displays, then Supervisor shouldn't know anything
+about how the display is implemented
+
+I do like the idea of Supervisor being the manager of Actions though so it
+can implement interning and pooling
+
+Yes, Supervisor manages Bindings and Actions
+Supervisor can know about Audio, MIDI, and OSC devices
+The display should be transparent
+  other things that make transparency hard are UIControls
+  we can have an abstract concept of a UIControl that is bound and let DisplayManager
+  figure out how to draw it
+
+
+UIControls are also bi-directional
+
+Supervisor tells DisplayManager "this UIControl changed, update state"
+DisplayManager tells Supervisor "this UIControl was wiggled in my chosen UI, do something
+about it.  That works okay for things that have UIControls.
+
+Parameter also works since we have a model for that.
+
+Well but both of those would want to make Actions too
+  create an action to set the value of outputLevel on track 1
+  create an action to set the quantize mode to on
+  create an action to run the function Record
+
+So UIAction also becomes the model for communication from DisplayManager back to Supervisor
+  I'm liking that, Supervisor doesn't have to care how Actions were displayed only
+  that something wants them to happen
+
+  could have a similar model for other binding processor
+
+  MidiManager
+    raw data comes in from the Supervisor
+    consults the Bindings to determine what to do
+    returns an Action back to Supervisor to process
+
+  OscManager, KeyboardManager
+    same
+
+
+Mouse/keyboard processing could be at least partially under the control of
+DisplayManager, especially the mouse since it would be entirely dependent on
+what is displayed
+
+Keyboard could be bifurcated, a layer of non-display bindings handled
+directly by Supervisor
+
+Anything that falls through that would be passed to DisplayManager to see if there
+are any keyboard sensitive components listening
+
+Keyboard events are going to have to come from DisplayManager anyway since it controls
+the components that will handle keyboard events
+  - always?  we still have the root MainComponent that could get keys, what underneath
+    that would override it?
+
+Back to buttons...
+
+I like the notion of UIActions comming "out of" something that knows how to generate them
+that Supervisor doesn't have to worry about
+
+I still think Supervisor should be in charge of the lifespan of actions though
+for interning and pooling
+
+So components that handle bindings need to go through a "resolution" phase where
+they examine their configuration (MIDI Binding from MobiusConfig, Button binding from UIConfig)
+to construct a suitable UIAction.  These can ask Supervisor for the action.
+
+The old engine had a similar concept an Action could be interned or just a free floating
+Action object that could be created by anything.
+
+Construction of the Action will be manager specific, parsing the targets in whatever
+way necessary, Supervisor shouldn't have to know about that.  It could understand Binding
+but it shouldn't understand Button or UIControl.  So you either have to
+ask Supervisor to intern an empty action then fill it out, or you allow action managers
+to create them and own them, then pass control back to Supervisor for interning.  Yeah, that
+feels right and also fits in with engine interning which the Supervisor may choose to do.
+
+So an action source does:
+
+    - asked to go through resolution whenever configuration changes
+    - parses configuration and creates UIAction objects
+    - optionally asks Supervisor to intern those floating objects and receives
+      back an interned object which must not be deleted
+    - gives supervisor an Action to perform when a trigger happens
+    - supervisor does not delete the object unless it has been interned and it wants
+      to for some reason
+
+
+

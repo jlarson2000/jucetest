@@ -52,13 +52,19 @@
 #include "Colors.h"
 #include "ActionButton.h"
 
-ActionButton::ActionButton(juce::String name) :
-    juce::TextButton(name)
+/**
+ * Initialize the button to trigger an action defined by UIButton.
+ * We do not retain a refernce to the UIButton.
+ */
+ActionButton::ActionButton(UIButton* uib) :
 {
     setName("ActionButton");
     
     // don't wait for mouse up
     setTriggeredOnMouseDown(true);
+    setButtonText(formatButtonName(uib));
+
+    initAction(uib);
 }
 
 ActionButton::~ActionButton()
@@ -134,3 +140,38 @@ void ActionButton::paintButton(juce::Graphics& g, juce::Colour background, juce:
     g.setFont(juce::Font(getHeight() * 0.75f));
     g.drawText(getButtonText(), getLocalBounds(), juce::Justification::centred);
 }    
+
+//////////////////////////////////////////////////////////////////////
+//
+// Action
+//
+////////////////////////////////////////////////////////////////////////
+
+/**
+ * Format a name for the button.  Normally this will be a Function
+ * name but for more complex binding with arguments we add some
+ * annotations.
+ *
+ * todo: standardize this format and use it consistently
+ * Not storing the target type yet
+ */
+juce::String ActionButtons::formatButtonName(UIButton *src)
+{
+    juce::String name = juce::String(src->getName());
+    if (src->getArguments() != nullptr) {
+        // formatting here could be more complicated with
+        // normalization and capitalization
+        name += "(";
+        name += src->getArguments();
+        name += ")";
+    }
+    return name;
+}
+
+
+/**
+ * Initialize the action we request when clicked.
+ */
+void ActionButton::initAction()
+{
+    

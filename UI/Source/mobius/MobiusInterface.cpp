@@ -1,13 +1,13 @@
 
 #include "MobiusInterface.h"
-#include "Mobius.h"
+#include "MobiusSimulator.h"
 
 MobiusInterface* MobiusInterface::Singleton = nullptr;
 
 void MobiusInterface::startup()
 {
     if (Singleton == nullptr) {
-        Singleton = new Mobius();
+        Singleton = new MobiusSimulator();
     }
 }
 
@@ -17,6 +17,7 @@ void MobiusInterface::shutdown()
     Singleton = nullptr;
 }
 
+/*
 MobiusInterface::MobiusInterface()
 {
 }
@@ -24,9 +25,9 @@ MobiusInterface::MobiusInterface()
 MobiusInterface::~MobiusInterface()
 {
 }
+*/
 
 MobiusInterface* MobiusInterface::getMobius()
 {
     return Singleton;
 }
-

@@ -13,7 +13,7 @@ class ActionButton : public juce::TextButton
   public:
 
     // todo: construct with a resolved Action
-    ActionButton(juce::String name);
+    ActionButton(class UIButton* src);
     ~ActionButton();
 
     int getPreferredWidth(int height);
@@ -21,13 +21,19 @@ class ActionButton : public juce::TextButton
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted,
                      bool shouldDrawButtonAsDown) override;
 
+    // actions
+    
+    // called by 
+    void 
+
     void execute();
     
   private:
 
     void paintButton(juce::Graphics& g, juce::Colour background, juce::Colour text);
 
-
+    class UIAction* action;
+    
 };
 
 

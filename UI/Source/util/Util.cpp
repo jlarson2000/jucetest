@@ -232,6 +232,26 @@ int ToInt(const char* str)
 	return value;
 }
 
+/**
+ * Return true if the string looks like a signed integer.
+ */
+bool IsInteger(const char* str)
+{
+    bool is = false;
+    if (str != NULL) {
+        int max = strlen(str);
+        if (max > 0) {
+            is = true;
+            for (int i = 0 ; i < max && is ; i++) {
+                char ch = str[i];
+                if (!isdigit(ch) && (i > 0 || ch != '-'))
+                  is = false;
+            }
+        }
+    }
+    return is;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Exceptions

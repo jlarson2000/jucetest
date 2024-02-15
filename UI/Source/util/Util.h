@@ -64,6 +64,7 @@ bool StartsWithNoCase(const char* str, const char* prefix);
 #define MAX_NUMBER_TOKEN 128
 int ParseNumberString(const char* src, int* numbers, int max);
 
+bool IsInteger(const char* str);
 int ToInt(const char* str);
 
 
