@@ -1,0 +1,21 @@
+
+I dislike having static constants for all the SUS functions.
+Can we just have the base function like Multiply and give the
+FunctionDefinition a "sustainable" flag?
+
+The UIAction could then contain a "sustaining" flag to indicate
+that there will be two actions, one for press and another for release.
+
+Sustaining could be a property of the Binding.  Rather than binding
+to SUSMultiply, bind to Multiply and add a sustaining flag to the action.
+
+Or, we could auto-generate SUS variant funtions in the binding list by looking
+at the "sustainable" flag, this makes it slightly easier in the UI
+
+For that to work, the internal Action would need to be carried around
+longer than just doAction so that by the time the Function is invoked we
+know it was sustaining rather than just looking at the Function pointer.
+
+This is similar to the repicated functions.  Rather than Track2 just
+have SelectTrack with a numeric argument.
+

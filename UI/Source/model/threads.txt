@@ -1,0 +1,11 @@
+
+Older notes talk about who owns the communications thread.
+
+I think this needs to be UI.  The notion of what a thread is will
+depend on the execution context, the operating system.  In an embedded
+system there might not even be the concept of threads.  The interrupt
+can consume and produce an event queue, but whether this handled by a thread
+or just synchronously by the UI doesn't matter to the engine.
+
+This would be nice for testing.
+

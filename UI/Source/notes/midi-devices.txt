@@ -1,0 +1,11 @@
+
+Current Mobius dialog has three multi-select panels
+
+  Input Devices, Output Devices, Through Device
+
+And another set for plugins.  I think this is so that plugins
+can open their own devices outside of the host for more direct control.
+
+Also for sending Out sync clocks through a loopback device so that
+is kind of important.
+

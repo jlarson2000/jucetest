@@ -1,0 +1,56 @@
+
+For configuration object bindings (Preset, Setup) we store the
+object name in the Binding.
+
+When this is acted upon by the engine, it would need to search
+the object list doing name comparisons.  Adding a potentially significant
+amount of overhead, though not likely in practice.
+
+This would be more efficient if we assigned config objects ordinal numbers
+in the action.  The UI and engine models would need to be in sync.
+
+When the model is edited, the ordinal numbers can change.  This would
+require the re-resolution of any stored ordinals in the action models.
+
+
+This is relatively easy in the UI since you can't be editing configuration
+and posting actions at the same time.
+
+whenever config objects are reordered, Supervisor needs to tell all
+the BindingManagers to update any stored ordinals.
+
+It's harder for the engine since posting an action and posting a config change
+are both queued and handled on the next interrupt.  The order in which
+they are evaluated is significant.
+
+The window is small but possible if actions can be posted in another thread
+than the main UI thread, possibly MIDI.
+
+The rule should be that on interrupt, if there are any config changes, they
+are processed first.  Any actions that are also posted must have ordinals
+for the new model.
+
+I think that works.
+
+The complication is events that are scheduled for a long time in the future,
+quantization, loop switch, or some other reason.
+
+Since the action is carried with the event, when it is eventually evaluated
+the configuration may have changed.  This would require the engine
+to update any Events that hold configuration ordinals.  Not hard, but
+it gets messy.  It sure is easier just to carry names around.
+
+What's the worst that could happen?  As long as we do range checking
+to preent invalid memory references, we just select the wrong object.  That
+doesn't seem too bad since editing configuration while you are actively
+looping is extremely unlikely.
+
+Scripts present an interesting problem because the engine can have suspended
+script running at the same time a script change is posted.  It is not feasible
+or desireable to ugprade these.  The only thing that can work is to delay the activation of a new set of scripts until all tracks are in Reset mode.  Or at the very
+least when all tracks are not running any scripts.
+
+In practice this should not be a problem.  That approach could also be taken
+for config objects, they can only be applied when all tracks are in Reset.
+That's certainly the case now for some global parameters like TrackCount
+and the input/output ports.  

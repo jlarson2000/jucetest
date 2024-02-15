@@ -1,12 +1,12 @@
 /*
- * Model for sending commands or "actions" to mobius.
+ * Model for sending commands or "actions" from the UI to the Mobius engine.
  *
  * This is a simplified version of the original Action to remove
  * engine dependencies and move to a cleaner model for "resolution"
- * of the target and the lifecycle of the Action objects.
+ * of the target and the lifecycle of the action objects.
  *
  * The old model had the notion of a ResolvedTarget which was an interned
- * object managed by Mobius.cpp that had cached pointers directly the various
+ * object managed by Mobius.cpp that had cached pointers directly to the various
  * objects that were targeted.  This included internal structure like Track
  * and configuration objects like Preset and Setup.  This resulted in awkward
  * cache management since config objects can be deleted as they are edited

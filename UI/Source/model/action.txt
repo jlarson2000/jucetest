@@ -1,0 +1,30 @@
+
+move the Button model back to Binings
+  consistent with MIDI and OSC which will have their own
+  binding managers
+  simplifies all the BindingPanels
+
+Binding has everything in it to identify a target
+
+Action is crated from a Binding
+  all the same state plus
+    - resolved name references to SystemConstant objects
+    - parsed arguments
+    - trigger information
+
+
+Old model adds a lot of runtime processing state which we don't want out here
+Will require copying from UIAction to a larger object
+  more overhead but results in a much cleaner control flow and lifespan management
+
+Old model stored target resolution down to internal objects
+  must not have that in UI model, but could provide an opaque pointer
+  to the action be annotated by the engine if it really saves any time
+
+UI doesn't have to worry about object pooling since the Actions will
+managed by a binder object.  For buttons, the ActionButton, for MIDI
+the MIDIDispatcher
+
+Buttons are unusual because we have a concrete model to hang the Actions
+MIDI doesn't have that so the dispatcher will need to keep them in a table
+
