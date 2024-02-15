@@ -37,11 +37,19 @@
           <FILE id="fDm6Vs" name="ActionButtons.cpp" compile="1" resource="0"
                 file="Source/ui/display/ActionButtons.cpp"/>
           <FILE id="JEpK4O" name="ActionButtons.h" compile="0" resource="0" file="Source/ui/display/ActionButtons.h"/>
-          <FILE id="leee75" name="BaseItem.h" compile="0" resource="0" file="Source/ui/display/BaseItem.h"/>
-          <FILE id="ePBbG6" name="ButtonsItem.cpp" compile="1" resource="0" file="Source/ui/display/ButtonsItem.cpp"/>
-          <FILE id="gnMKz3" name="ButtonsItem.h" compile="0" resource="0" file="Source/ui/display/ButtonsItem.h"/>
           <FILE id="iB815e" name="Colors.h" compile="0" resource="0" file="Source/ui/display/Colors.h"/>
-          <FILE id="Ni6UXz" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
+          <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
+                file="Source/ui/display/MobiusDisplay.cpp"/>
+          <FILE id="wVdVcf" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
+          <FILE id="fGQWhr" name="StatusArea.cpp" compile="1" resource="0" file="Source/ui/display/StatusArea.cpp"/>
+          <FILE id="PL33Lh" name="StatusArea.h" compile="0" resource="0" file="Source/ui/display/StatusArea.h"/>
+          <FILE id="xu4lJg" name="StatusElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/StatusElement.cpp"/>
+          <FILE id="TnBtCz" name="StatusElement.h" compile="0" resource="0" file="Source/ui/display/StatusElement.h"/>
+          <FILE id="ty1mou" name="TrackStrip.cpp" compile="1" resource="0" file="Source/ui/display/TrackStrip.cpp"/>
+          <FILE id="jzCok7" name="TrackStrip.h" compile="0" resource="0" file="Source/ui/display/TrackStrip.h"/>
+          <FILE id="UXBs6H" name="TrackStrips.cpp" compile="1" resource="0" file="Source/ui/display/TrackStrips.cpp"/>
+          <FILE id="NYaX5Z" name="TrackStrips.h" compile="0" resource="0" file="Source/ui/display/TrackStrips.h"/>
         </GROUP>
         <GROUP id="{AEC022E8-1C76-A11C-D2FB-C021B2012684}" name="common">
           <FILE id="UkLauY" name="ButtonBar.cpp" compile="1" resource="0" file="Source/ui/common/ButtonBar.cpp"/>
@@ -79,8 +87,6 @@
               file="Source/ui/DisplayManager.h"/>
         <FILE id="BDnCv2" name="JuceUtil.cpp" compile="1" resource="0" file="Source/ui/JuceUtil.cpp"/>
         <FILE id="XzPX2v" name="JuceUtil.h" compile="0" resource="0" file="Source/ui/JuceUtil.h"/>
-        <FILE id="o30JOS" name="MainDisplay.cpp" compile="1" resource="0" file="Source/ui/MainDisplay.cpp"/>
-        <FILE id="UuKdpF" name="MainDisplay.h" compile="0" resource="0" file="Source/ui/MainDisplay.h"/>
         <FILE id="pup9jz" name="MainMenu.cpp" compile="1" resource="0" file="Source/ui/MainMenu.cpp"/>
         <FILE id="Fo9xTD" name="MainMenu.h" compile="0" resource="0" file="Source/ui/MainMenu.h"/>
         <FILE id="FsMNcl" name="MainWindow.cpp" compile="1" resource="0" file="Source/ui/MainWindow.cpp"/>
@@ -93,12 +99,14 @@
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
-        <FILE id="MoJ397" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/Mobius.cpp"/>
-        <FILE id="HpTgOg" name="Mobius.h" compile="0" resource="0" file="Source/mobius/Mobius.h"/>
         <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusInterface.cpp"/>
         <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"
               file="Source/mobius/MobiusInterface.h"/>
+        <FILE id="vwntMP" name="MobiusSimulator.cpp" compile="1" resource="0"
+              file="Source/mobius/MobiusSimulator.cpp"/>
+        <FILE id="r8q8Kh" name="MobiusSimulator.h" compile="0" resource="0"
+              file="Source/mobius/MobiusSimulator.h"/>
       </GROUP>
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">

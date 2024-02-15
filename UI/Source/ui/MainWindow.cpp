@@ -1,13 +1,12 @@
 /*
  * The default Mobius main window.
- *
- * This manages a menu bar and an area of
- * configurable display elements.
+ * Contains a main menu, a set of configuration editor popup panels
+ * and the MobiusDisplay.
  *
  * Let's put the ConfigEditor under here for now
  * though it probably makes more sense to move that
  * up to DisplayManager since editors won't change but
- * the main display might.
+ * the main display might?  
  */
 
 #include <JuceHeader.h>
@@ -19,6 +18,8 @@
 #include "JuceUtil.h"
 #include "MainMenu.h"
 #include "config/ConfigEditor.h"
+
+// temporary testing panels
 #include "TestPanel.h"
 #include "TableTest.h"
 #include "TabTest.h"
@@ -30,6 +31,8 @@ MainWindow::MainWindow(Supervisor* super)
     setName("MainWindow");
     supervisor = super;
 
+    // using a Listener pattern here but could just
+    // pass this to the constructor like we do for the others
     addAndMakeVisible(menu);
     menu.setListener(this);
     
@@ -164,3 +167,26 @@ void MainWindow::configure(UIConfig* config)
 void MainWindow::configure(MobiusConfig* config)
 {
 }
+
+//////////////////////////////////////////////////////////////////////
+//
+// Actions
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Propagate an action sent from down below.
+ * We have nothing to add here though I suppose
+ * this cold be a place where an action could target
+ * a menu selection.  I can't think of a reason for that,
+ * maybe saving/loading the project or refreshing the configuration.
+ */
+
+void MainWindow::doAction(UIAction* action)
+{
+    supervisor->doAction(action);
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

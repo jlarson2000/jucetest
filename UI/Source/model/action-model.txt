@@ -1,0 +1,103 @@
+Notes on the model for UIAction to keep this out of header comments until things settle down
+
+/*
+ * Model for sending commands or "actions" from the UI to the Mobius engine.
+ *
+ * This is a simplified version of the original Action to remove
+ * engine dependencies and move to a cleaner model for "resolution"
+ * of the target and the lifecycle of the action objects.
+ *
+ * The old model had the notion of a ResolvedTarget which was an interned
+ * object managed by Mobius.cpp that had cached pointers directly to the various
+ * objects that were targeted.  This included internal structure like Track
+ * and configuration objects like Preset and Setup.  This resulted in awkward
+ * cache management since config objects can be deleted as they are edited
+ * and some of the targets like UIParameter didn't belong down there anyway.
+ *
+ * Since Bindings are no longer managed below the MobiusInterface we can move a
+ * lot of that complexity up here.  The exception being targets that resolve to
+ * Tracks.  Currently we will still reference them by number since it's a simple
+ * array dereference to get to them.  Potentially slower are references to
+ * config objects like Preset which will now do a linear search rather than worrying
+ * about invalidating cached pointers.  Can revisit this if necessary.
+ *
+ * UIActions are now owned and operated by the UI layer, Mobius no longer takes
+ * ownership of them when they are passed to doAction.  We'll still maintain the old
+ * Action model internally for awhile, conversion will be made at the interface.
+ * 
+ * todo: need work on script targets, currently wants to test
+ * FunctionDef->event->RunScriptEvent
+ * Scripts are going to be sort of like dynamic FunctionDefs
+ * that get added at runtime.  Maybe should have a new Target type for
+ * that but that would complicated the engine.
+ * hmm, why can't we just make the single RunScriptFunction subclass
+ * and add it as RunScriptFunction to the Functions array?
+ * 
+ * UIActions are usually built from a Binding definition, but now UIButton
+ * serves as a binding source, which is more like it was a long time ago,
+ * rethink this, maybe it was better to make everything be a Binding
+ *
+ * ---
+ * Old Comments
+ * 
+ * Once the Mobius engine is initialized, it is controlled primarily
+ * by the posting of Actions.  An Action object is created and given
+ * to Mobius with the doAction command.  The Action is carried out 
+ * synchronously if possible, otherwise it is placed in an action
+ * queue and processed at the beginning of the next audio interrupt.
+ *
+ * The Action model contains the following things, described here using
+ * the classic W's model.
+ *
+ *   Trigger (Who)
+ *
+ *    Information about the trigger that is causing this action to
+ *    be performed including the trigger type (midi, key, osc, script),
+ *    trigger values (midi note number, velocity), and trigger
+ *    behavior (sustainable, up, down).
+ *
+ *   Target (What)
+ *
+ *    Defines what is to be done.  Execute a function, change a control,
+ *    set a parameter, select a configuration object.
+ *
+ *   Scope (Where)
+ *
+ *    Where the target is to be modified: global, track, or group.
+ *
+ *   Time (When)
+ *
+ *    When the target is to be modified: immediate, after latency delay,
+ *    at a scheduled time, etc.
+ *
+ *   Arguments (How)
+ *
+ *    Additional information that may effect the processing of the action.
+ *    Arguments may be specified in the binding or may be passed from
+ *    scripts.
+ *
+ *   Results
+ *
+ *    When an action is being processed, several result properties may
+ *    be set to let the caller how it was processed.  This is relevant
+ *    only for the script interpreter.
+ *
+ * Actions may be created from scratch at runtime but it is more common
+ * to create them once and "register" them so that they may be reused.
+ * Using registered actions avoids the overhead of searching for the
+ * system objects that define the target, Functions, Parameters, Bindables
+ * etc.  Instead, when the action is registered, the target is resolved
+ * and saved in the Action.
+ *
+ * NOTE: This is where we may need to swap out a UIAction subclass instance
+ * or use the Pimpl pattern.
+ *
+ * Before you execute a registered action you must make a copy of it.
+ * Actions submitted to Mobius are assumed to be autonomous objects
+ * that will become owned by Mobius and deleted when the action is complete.
+ * 
+ * NOTE: I might want to change this, have the engine do the copying, especially
+ * if it needs to map it anyway?  I guess that makes it harder to use for
+ * the Results since the caller won't know where to look.
+ *
+ */

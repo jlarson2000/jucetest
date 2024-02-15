@@ -35,6 +35,8 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
+    void doAction(class UIAction*);
+    
   private:
 
     juce::Component* mainComponent;

@@ -24,6 +24,7 @@ DisplayManager::DisplayManager(Supervisor* super, juce::Component* main)
     MainWindow* window = new MainWindow(super);
     main->addAndMakeVisible(window);
     
+    // store it in the unique_ptr
     mainWindow.reset(window);
 }
 
@@ -35,11 +36,6 @@ DisplayManager::~DisplayManager()
  * Called by Supervisor after the initial load of the
  * configuration files, and after any editing.
  * Most of our configuration is in UIConfig.
- *
- * todo: think about control flow here
- * rather than passing these down everwhere could just
- * call a single configure() and have the
- * subcomponents pull out the things they need from Supervisor?
  */
 void DisplayManager::configure(UIConfig* config)
 {

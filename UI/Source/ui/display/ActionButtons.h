@@ -24,7 +24,7 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
 {
   public:
 
-    ActionButtons();
+    ActionButtons(class MobiusDisplay*);
     ~ActionButtons();
 
     void configure(class UIConfig* config);
@@ -36,11 +36,11 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     
   private:
 
-    void centerRow(int start, int end, int rowWidth, int availableWidth);
-
-    juce::String formatButtonName(class UIButton *src);
-
+    class MobiusDisplay* display;
     juce::OwnedArray<class ActionButton> buttons;
+
+    void centerRow(int start, int end, int rowWidth, int availableWidth);
+    juce::String formatButtonName(class UIButton *src);
     
 };
 

@@ -1,102 +1,10 @@
-/*
- * Model for sending commands or "actions" from the UI to the Mobius engine.
+/**
+ * A model for actions that can be sent from the UI into the engine.
+ * This was derived from the old Action model used by the engine and heavily
+ * simplified.
  *
- * This is a simplified version of the original Action to remove
- * engine dependencies and move to a cleaner model for "resolution"
- * of the target and the lifecycle of the action objects.
- *
- * The old model had the notion of a ResolvedTarget which was an interned
- * object managed by Mobius.cpp that had cached pointers directly to the various
- * objects that were targeted.  This included internal structure like Track
- * and configuration objects like Preset and Setup.  This resulted in awkward
- * cache management since config objects can be deleted as they are edited
- * and some of the targets like UIParameter didn't belong down there anyway.
- *
- * Since Bindings are no longer managed below the MobiusInterface we can move a
- * lot of that complexity up here.  The exception being targets that resolve to
- * Tracks.  Currently we will still reference them by number since it's a simple
- * array dereference to get to them.  Potentially slower are references to
- * config objects like Preset which will now do a linear search rather than worrying
- * about invalidating cached pointers.  Can revisit this if necessary.
- *
- * UIActions are now owned and operated by the UI layer, Mobius no longer takes
- * ownership of them when they are passed to doAction.  We'll still maintain the old
- * Action model internally for awhile, conversion will be made at the interface.
- * 
- * todo: need work on script targets, currently wants to test
- * FunctionDef->event->RunScriptEvent
- * Scripts are going to be sort of like dynamic FunctionDefs
- * that get added at runtime.  Maybe should have a new Target type for
- * that but that would complicated the engine.
- * hmm, why can't we just make the single RunScriptFunction subclass
- * and add it as RunScriptFunction to the Functions array?
- * 
- * UIActions are usually built from a Binding definition, but now UIButton
- * serves as a binding source, which is more like it was a long time ago,
- * rethink this, maybe it was better to make everything be a Binding
- *
- * ---
- * Old Comments
- * 
- * Once the Mobius engine is initialized, it is controlled primarily
- * by the posting of Actions.  An Action object is created and given
- * to Mobius with the doAction command.  The Action is carried out 
- * synchronously if possible, otherwise it is placed in an action
- * queue and processed at the beginning of the next audio interrupt.
- *
- * The Action model contains the following things, described here using
- * the classic W's model.
- *
- *   Trigger (Who)
- *
- *    Information about the trigger that is causing this action to
- *    be performed including the trigger type (midi, key, osc, script),
- *    trigger values (midi note number, velocity), and trigger
- *    behavior (sustainable, up, down).
- *
- *   Target (What)
- *
- *    Defines what is to be done.  Execute a function, change a control,
- *    set a parameter, select a configuration object.
- *
- *   Scope (Where)
- *
- *    Where the target is to be modified: global, track, or group.
- *
- *   Time (When)
- *
- *    When the target is to be modified: immediate, after latency delay,
- *    at a scheduled time, etc.
- *
- *   Arguments (How)
- *
- *    Additional information that may effect the processing of the action.
- *    Arguments may be specified in the binding or may be passed from
- *    scripts.
- *
- *   Results
- *
- *    When an action is being processed, several result properties may
- *    be set to let the caller how it was processed.  This is relevant
- *    only for the script interpreter.
- *
- * Actions may be created from scratch at runtime but it is more common
- * to create them once and "register" them so that they may be reused.
- * Using registered actions avoids the overhead of searching for the
- * system objects that define the target, Functions, Parameters, Bindables
- * etc.  Instead, when the action is registered, the target is resolved
- * and saved in the Action.
- *
- * NOTE: This is where we may need to swap out a UIAction subclass instance
- * or use the Pimpl pattern.
- *
- * Before you execute a registered action you must make a copy of it.
- * Actions submitted to Mobius are assumed to be autonomous objects
- * that will become owned by Mobius and deleted when the action is complete.
- * 
- * NOTE: I might want to change this, have the engine do the copying, especially
- * if it needs to map it anyway?  I guess that makes it harder to use for
- * the Results since the caller won't know where to look.
+ * It has all of the same target properties as Binding with additions for the
+ * trigger and other execution state.
  *
  */
 
@@ -108,11 +16,11 @@
 // sigh, need this until we can figure out what to do with ExValue
 #include "ExValue.h"
 
-/****************************************************************************
- *                                                                          *
- *                                  OPERATOR                                *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// ActionOperator
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Constants that describe operations that produce a relative change to
@@ -128,7 +36,6 @@ class ActionOperator : public SystemConstant {
 	static ActionOperator* getOperator(const char* name);
 
     int ordinal;
-    
 };
 
 extern ActionOperator* OperatorMin;
@@ -172,11 +79,23 @@ typedef union {
 
 } TargetPointer;
 
-/****************************************************************************
- *                                                                          *
- *                                   ACTION                                 *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// UIAction
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Maximum length of a target name
+ *
+ * For most actions, this is relevant only until the target reference
+ * is resolved to a pointer to a system constant object.
+ *
+ * Configurable objects like Presets and Scripts the name identifies
+ * the non-constant object and an "ordinal" may be calculated for faster
+ * lookup.
+ */
+#define MAX_TARGET_NAME 128
 
 /**
  * Maximum length of a string argument in an Action.
@@ -185,8 +104,21 @@ typedef union {
  * UPDATE: In theory Function aruments could be arbitrary.  The only one
  * that comes to mind is RunScript which will have the name of the
  * Script to run.
+ *
+ * todo: think about the difference between targetName and targetArg for
+ * configurable objects.  I think in all cases now we have a Function
+ * to represent the object (SelectPreset, RunScript) and the argument
+ * can be the object name.  In those cases targetName would be "SelectPreset".
+ * Currently targetName is the object name.
  */
 #define MAX_ARG_LENGTH 128
+
+/**
+ * A random string we used to call "name".
+ * I think this is only used in OSC bindings, might be the path.
+ * Figure out what this is and give it a better name.
+ */
+#define MAX_EXTENSION 1024
 
 /**
  * Maximum length of an internal buffer used to format a readable
@@ -194,13 +126,6 @@ typedef union {
  */
 #define MAX_DESCRIPTION 1024
 
-/**
- * An object containing information about an action that is to 
- * take place within the engine.
- * 
- * These are created in response to trigger events then passed to Mobius
- * for processing.
- */
 class UIAction {
 
   public:
@@ -208,16 +133,18 @@ class UIAction {
 	UIAction();
 	~UIAction();
 
+    void init(class Binding* b);
+    void reset();
+    
     //////////////////////////////////////////////////////////////////////
-    //
-    // Trigger (Who)
-    //
+    // Trigger
     //////////////////////////////////////////////////////////////////////
 
 	/**
 	 * A unique identifier for the action.
 	 * This is used when matching the down and up transitions of
 	 * sustainable triggers with script threads.
+     *
 	 * The combination of the Trigger and this id must be unique.
 	 * It is also exposed as a variable for scripts so we need to
      * lock down the meaning.  
@@ -233,12 +160,15 @@ class UIAction {
      * For Host triggers it will be the host parameter id, but this
      * is not currently used since we handle parameter bindings at a higher
      * level in MobiusPlugin.
+     * todo: host bindings are being completely redesigned
      *
      * For script triggers, this will be the address of the ScriptInterpreter.
      * This is only used for some special handling of the GlobalReset function.
      * !! This is one of the 64-bit modifications.  The value must be large enough
      * to accomodate a pointer and long isn't enough.  Should be an enum with void*
      * and integer values.
+     * todo: with the separation of UIAction and Action, I don't think we need
+     * to store the interpreter pointer here any more.
 	 */
 	long id;
 
@@ -256,6 +186,7 @@ class UIAction {
      * True if we will be passing the OSC message argument
      * along as a function argument or using it as the parameter value.
      * This effects the triggerMode.
+     * todo: obscure, don't like it, nosir
      */
     bool passOscArg;
 
@@ -267,6 +198,11 @@ class UIAction {
      * This is only used for TriggerMidi and contains the key velocity
      * for notes and the controller value for CCs.  It is used only
      * by the LoopSwitch function to set output levels.
+     *
+     * todo: the meaning of id and triggerValue is not obvious
+     * change this to triggerNumber and triggerExtra or something
+     * might end up with duplications of triggerNumber and id so we
+     * can keep the meaning of id cleaner
      */
     int triggerValue;
 
@@ -284,7 +220,7 @@ class UIAction {
 
     /**
      * true if the trigger is in "auto repeat" mode.
-     * This is relevant only for TriggerKey;
+     * This is relevant only for TriggerKey
      */
     bool repeat;
 
@@ -296,66 +232,81 @@ class UIAction {
 	bool longPress;
 
     //////////////////////////////////////////////////////////////////////
-    //
-    // Target (What)
-    // Scope (Where)
-    //
-    // These are more complicated and must be accessed with methods.
-    // If the Action was created from a Binding we'll have a ResolvedTarget.
-    // IF the Action is created dynamically we'll have a private set
-    // of properties that define the target.  We don't have interfaces
-    // for the dynamic construction all possible targets only Functions.  
-    //
+    // Target
     //////////////////////////////////////////////////////////////////////
 
-    bool isResolved();
-    bool isSustainable();
-    Target* getTarget();
-    void* getTargetObject();
-    class FunctionDefinition* getFunction();
-    int getTargetTrack();
-    int getTargetGroup();
+    /**
+     * The type of Target to take action on.  Function, Parameter, etc.
+     * todo: refine the concepts of a "static target" and a "dynamic target"
+     */
+    Target* target;
 
-    bool isTargetEqual(UIAction* other);
+    /**
+     * The name of the target captured from the Binding
+     * For most targets this will be resolved to a TargetPointer
+     * to a static target system constant
+     */
+    char targetName[MAX_TARGET_NAME];
 
-    void setTarget(Target* t);
-    void setTarget(Target* t, void* object);
-    void setFunction(class FunctionDefinition* f);
-    void setParameter(class Parameter* p);
-    void setTargetTrack(int track);
-    void setTargetGroup(int group);
+    /**
+     * A resolved pointer to a system constant object like Function
+     * or Parameter.
+     */
+    TargetPointer targetPointer;
 
-    // kludge for long press, make this cleaner
-    void setLongFunction(class FunctionDefinition*f);
-    FunctionDefinition* getLongFunction();
+    /**
+     * For dynamic targets (configuration objects) an optional ordinal
+     * number that may be calculated for faster lookup.
+     * Ordinals begin with 1, zero means there is no ordinal assigned
+     * and lookup must be performed by name.
+     */
+    int targetOrdinal;
+    
+    /**
+     * Alternate function to have the up transition after a long press.  
+     * !! get rid of this, we should either just replace Function
+     * at invocation time, or have Function test the flags and figure it out.
+     * todo: probably relevant only for the engine
+     */
+    class FunctionDefinition* longFunction;
 
-    // internal use only, not for the UI
-    //void setResolvedTrack(class Track* t);
-    //Track* getResolvedTrack();
+    //////////////////////////////////////////////////////////////////////
+    // Scope
+    //////////////////////////////////////////////////////////////////////
 
-    ResolvedTarget* getResolvedTarget();
+    /**
+     * Non-zero if the action is targeted to a specific track rather than
+     * globally, or for the selected track.
+     */
+    int scopeTrack;
 
-    //class ThreadEvent* getThreadEvent();
-    //void setThreadEvent(class ThreadEvent* te);
+    /**
+     * Non-zero if the action is targeted to a track group.
+     */
+    int scopeGroup;
 
-    //class Event* getEvent();
+    //////////////////////////////////////////////////////////////////////
+    // Extensions
+    //////////////////////////////////////////////////////////////////////
 
-    //void setEvent(class Event* e);
-    //void changeEvent(class Event* e);
-    //void detachEvent(class Event* e);
-    //void detachEvent();
+    // this has something todo with OSC debugging, is it the path?
+    char extension[MAX_EXTENSION];
 
-    // something to do with OSC debugging
-    const char* getName();
-    void setName(const char* name);
+    /**
+     * Internal field set by BindingResolver to indicate which
+     * BindingConfig overlay this action came from.
+     * todo: do we need this any more?
+     */
+    int bindingOverlay;
 
     //////////////////////////////////////////////////////////////////////
     //
-    // Time (When)
+    // Time
     //
     // TODO: Might be interesting for OSC to schedule things in the future.  
-    // 
     // Might be a good place to control latency adjustments.
+    // todo: I think most if not all of these are only used by the
+    // engine in it's internal Action model
     //
     //////////////////////////////////////////////////////////////////////
 
@@ -382,11 +333,7 @@ class UIAction {
 
     //////////////////////////////////////////////////////////////////////
     //
-    // Arguments (How)
-    //
-    // TODO: Figure out a way to install new configration objects
-    // through this interface so we don't have to have
-    // Mobius methods setConfiguration, etc.  
+    // Arguments
     //
     //////////////////////////////////////////////////////////////////////
 
@@ -457,68 +404,11 @@ class UIAction {
     class ExValueList* scriptArgs;
 
     //////////////////////////////////////////////////////////////////////
-    //
-    // Runtime
-    //
-    // Various transient things maintained while the action is 
-    // being processed.
-    //
-    // I think this is only relevant for the engine's internal Action
-    //
+    // Utilities
     //////////////////////////////////////////////////////////////////////
 
-	/**
-	 * True if we're rescheduling this after a previously scheduled
-	 * function event has completed.
-	 */
-	//class Event* rescheduling;
-
-    /**
-     * When reschedulign is true, this should have the event that 
-     * we just finished that caused the rescheduling.
-     */
-    //class Event* reschedulingReason;
-
-    // can we get by without this?
-    //class Mobius* mobius;
-
-    /**
-     * Trasnsient flag set true if this action is being evaluated inside
-     * the interrupt.    
-     */ 
-    bool inInterrupt;
-
-    /**
-     * Transient flag to disable focus lock and groups.  Used only
-     * for some error handling in scripts.
-     */
-    bool noGroup;
-
-    /**
-     * Don't trace invocation of this function.  
-     * A kludge for Speed shift parameters that convert themselves to 
-     * many function invocations.   
-     */
-    bool noTrace;
-
-
-    // temporary for debugging trigger timing
-    long millisecond;
-    double streamTime;
-
-    //////////////////////////////////////////////////////////////////////
-    //
-    // Functions
-    //
-    //////////////////////////////////////////////////////////////////////
-
-    // new method for debugging action handling
-    const char* getDescription();
-
-    int getOverlay();
-    void setOverlay(int i);
-
-    void parseBindingArgs();
+    bool isSustainable();
+    bool isTargetEqual(UIAction* other);
 
     int getMidiStatus();
     void setMidiStatus(int i);
@@ -530,21 +420,11 @@ class UIAction {
     void setMidiKey(int i);
 
     bool isSpread();
+
+    // Residual nice naming calculators, weed this 
+    const char* getDescription();
     void getDisplayName(char* buffer, int max);
 
-    //////////////////////////////////////////////////////////////////////
-    //
-    // Protected
-    //
-    //////////////////////////////////////////////////////////////////////
-
-  protected:
-
-    // can we remove pooling above the engine?
-    void setPooled(bool b);
-    bool isPooled();
-    void setPool(class UIActionPool* p);
-    
     //////////////////////////////////////////////////////////////////////
     //
     // Private
@@ -554,108 +434,11 @@ class UIAction {
   private:
 
 	void init();
-    void reset();
-    void clone(UIAction* src);
-    // helper for arg parsing
+    
+    void parseBindingArgs();
     char* advance(char* start, bool stopAtSpace);
 
-    UIAction* mNext;
-    bool mPooled;
-    bool mRegistered;
-
-    /**
-     * The pool we came from.
-     */
-    class UIActionPool* mPool;
-
-	/**
-	 * Set as a side effect of function scheduling to the event
-	 * that represents the end of processing for this function.
-	 * There may be play jump child events and other similar things
-	 * that happen first.
-	 */
-	//class Event* mEvent;
-    
-	/**
-	 * Set as a side effect of function scheduling a Mobius
-	 * thread event scheduled to process this function outside
-	 * the interrupt handler.
-	 * !! have to be careful with this one, it could in theory be
-	 * processed before we have a chance to deal with it in the
-	 * interpreter.
-	 */
-	//class ThreadEvent* mThreadEvent;
-
-    /**
-     * Reference to an interned target when the action is created from
-     * a Binding.
-     */
-    ResolvedTarget* mInternedTarget;
-    
-    /**
-     * Private target properties for actions that are not associated 
-     * with bindings.  These are typically created on the fly by the UI.
-     */
-    ResolvedTarget mPrivateTarget;
-
-    /**
-     * Set during internal processing to the resolved Track
-     * in which this action will run.  Overrides whatever is specified
-     * in the target.
-     */
-    //class Track* mResolvedTrack;
-
-    /**
-     * Internal field set by BindingResolver to indicate which
-     * BindingConfig overlay this action came from.
-     */
-    int mOverlay;
-
-    /**
-     * Allow the client to specify a name, convenient for
-     * OSC debugging.
-     */
-    char* mName;
-
-    /**
-     * Alternate function to have the up transition after
-     * a long press.  
-     * !! get rid of this, we should either just replace Function
-     * at invocation time, or have Function test the flags and figure it out.
-     */
-    FunctionDefinition* mLongFunction;
-
     char mDescription[MAX_DESCRIPTION];
-
-};
-
-/****************************************************************************
- *                                                                          *
- *                                ACTION POOL                               *
- *                                                                          *
- ****************************************************************************/
-
-class UIActionPool {
-
-  public:
-
-    UIActionPool();
-    ~UIActionPool();
-
-    UIAction* newUIAction();
-    UIAction* newUIAction(UIAction* src);
-    void freeUIAction(UIAction* a);
-
-    void dump();
-
-  private:
-
-    UIAction* allocUIAction(UIAction* src);
-
-    UIAction* mUIActions;
-    int mAllocated;
-
-
 };
 
 /****************************************************************************/

@@ -1,0 +1,29 @@
+
+The default display will be arranged in this Component hierarchy
+Each level will have a back pointer to the parent which could just use
+the juce::Componennt parent with downcasting, but I'd like to start with
+concrete back pointers.
+
+This is mostly necessary for action propagation. An alternative would be
+to pass Supervisor, DisplayManager, or MainWindow down.
+
+Supervisor
+  DisplayManager
+    MainWindow
+      MainMenu
+      MobiusDisplay
+      ConfigEditor
+
+MobiusDisplay
+  ActionButtons
+    ActionButton
+  StatusArea
+    StatusElement
+  TrackStrips
+    TrackStrip
+
+
+
+
+
+

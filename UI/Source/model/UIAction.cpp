@@ -3,33 +3,23 @@
  * engine.  These are created in response to triggers.
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <memory.h>
-//#include <stdlib.h>
-//#include <ctype.h>
-
 #include "../util/Util.h"
 #include "../util/Trace.h"
 #include "../util/List.h"
 
 #include "ExValue.h"
 
-//#include "MidiByte.h"
-
 #include "Binding.h"
 #include "FunctionDef.h"
-//#include "Event.h"
-//#include "Script.h"
 #include "Parameter.h"
 
 #include "UIAction.h"
 
-/****************************************************************************
- *                                                                          *
- *                              ACTION OPERATOR                             *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// ActionOperator
+//
+//////////////////////////////////////////////////////////////////////
 
 std::vector<ActionOperator*> ActionOperator::Operators;
 
@@ -59,9 +49,6 @@ ActionOperator* ActionOperator::getOperator(const char* name)
 	return found;
 }
 
-TriggerMode TriggerModeContinuousObj{"continuous", "Continuous"};
-TriggerMode* TriggerModeContinuous = &TriggerModeContinuousObj;
-
 ActionOperator OperatorMinObj{"min", "Minimum"};
 ActionOperator* OperatorMin = &OperatorMinObj;
 
@@ -80,47 +67,30 @@ ActionOperator* OperatorDown = &OperatorDownObj;
 ActionOperator OperatorSetObj{"set", "Set"};
 ActionOperator* OperatorSet = &OperatorSetObj;
 
+// todo: this sounds dangerous, what did it do?
 ActionOperator OperatorPermanentObj{"permanent", "Permanent"};
 ActionOperator* OperatorPermanent = &OperatorPermanentObj;
 
 //////////////////////////////////////////////////////////////////////
 //
-// Target Cache
+// Action
+//
+// Most of the properties are directly accessible so we can dispense
+// with getter/seter functions
 //
 //////////////////////////////////////////////////////////////////////
 
-/**
- * Union of possible target pointers.
- * This is set during the resolution of the symbolic references
- * in the Binding (or UIButton) objects to the concrete objects
- * that are named.
- *
- * This is all that remains of the old ResolvedTarget concept.
- *
- * While the code deals with these as a void* and casts 
- * when necessary, it is nice in the debugger to have these
- * in a union so we can see what they are.
- *
- * Formerly had Bindable in here but I didn't like ugly cache
- * invalidation when the configuration objects are replaced.
- * Until it seems necessary, just remember the name and look them
- * up at runtime.  
- */
-typedef union {
+UIAction::UIAction()
+{
+    init();
+}
 
-    void* object;
-    class FunctionDefinition* function;
-    class Parameter* parameter;
-    //class Bindable* bindable;
-    class UIControl* uicontrol;
-
-} TargetPointer;
-
-/****************************************************************************
- *                                                                          *
- *                                   ACTION                                 *
- *                                                                          *
- ****************************************************************************/
+UIAction::~UIAction()
+{
+    // old model has some dynamic string here,
+    // using char buffers for now but could convert to juce::String
+    delete scriptArgs;
+}
 
 void UIAction::init()
 {
@@ -135,104 +105,60 @@ void UIAction::init()
     repeat = false;
     longPress = false;
 
-    // Target, Scope
-    mInternedTarget = nullptr;
-    //mResolvedTrack = nullptr;
-    mLongFunction = nullptr;
+    // Target
+    target = nullptr;
+    strcpy(targetName, "");
+    targetPointer.object = nullptr;
+    targetOrdinal = 0;
+    longFunction = nullptr;
 
+    // Scope
+    scopeTrack = 0;
+    scopeGroup = 0;
+
+    // Extension
+    strcpy(extension, "");
+    bindingOverlay = 0;
+    
     // Time
     escapeQuantization = false;
     noLatency = false;
     noSynchronization = false;
-
+    
     // Arguments
-    bindingArgs[0] = 0;
+    strcpy(bindingArgs, "");
     actionOperator = nullptr;
     arg.setNull();
+
+    // todo: I don't think this is used in the UI
+    // if so hide it under functions
     scriptArgs = nullptr;
-
-    // Status
-    //rescheduling = nullptr;
-    //reschedulingReason = nullptr;
-    //mobius = nullptr;
-    
-    inInterrupt = false;
-    noGroup = false;
-    noTrace = false;
-    millisecond = 0;
-    streamTime = 0.0f;
-
-    // private
-
-    mNext = nullptr;
-    mPooled = false;
-    mRegistered = false;
-
-    //mEvent = nullptr;
-    //mThreadEvent = nullptr;
-
-    mOverlay = 0;
-    mName = nullptr;
 }
 
-UIAction::UIAction()
+void UIAction::init(Binding* b)
 {
     init();
-}
 
-UIAction::UIAction(UIAction* src)
-{
-    init();
-    if (src != nullptr)
-      clone(src);
-}
+    trigger = b->getTrigger();
+    triggerMode = b->getTriggerMode();
+    setMidiStatus(b->getValue());
+    setMidiChannel(b->getChannel());
 
-UIAction::UIAction(ResolvedTarget* t)
-{
-    init();
-    mInternedTarget = t;
-}
+    target = b->getTarget();
+    // todo: save copy
+    strcpy(targetName, b->getName());
+    strcpy(bindingArgs, b->getArgs());
 
-/**
- * We own nothing except the chain pointer.
- * scrptArgs is transient and owned by the script interpreter that
- * built the action
- */
-UIAction::~UIAction()
-{
-    if (mRegistered)
-      Trace(1, "Atttempt to delete registered action!\n");
-
-    // scriptArgs is dynamically allocated and must be freed
-    delete scriptArgs;
-    delete mName;
-
-	UIAction *el, *next;
-	for (el = mNext ; el != nullptr ; el = next) {
-		next = el->getNext();
-		el->setNext(nullptr);
-		delete el;
-	}
-}
-
-/**
- * Return an action to it's pool.
- */
-void UIAction::free()
-{   
-    if (mPool != nullptr)
-      mPool->freeUIAction(this);
-    else {
-        // let this be okay
-        //Trace(1, "UIAction::free with no pool!\n");
-        delete this;
-    }
+    // more as we bring on Binders
 }
 
 /**
  * Reset clears a previously initialized action.
  * The difference here is that we have to release the
  * scriptArgs.
+ *
+ * todo: where would this be used?
+ * probably when we pooled them or copied them
  */
 void UIAction::reset()
 {
@@ -240,194 +166,159 @@ void UIAction::reset()
     init();
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Descriptions
+//
+// This is a mess, figure out who needs these and simplify
+//
+//////////////////////////////////////////////////////////////////////
+
 /**
  * New method to format a concise description of the action.
  * Used during initial testing.  String must not be freed.
  * Use an internal buffer for now as this evolves.
- * Note that this is different than getName() which is something
- * related to OSC, should change the method name to make this clear.
  */
 const char* UIAction::getDescription()
 {
     // need more...
-    strcpy(mDescription, "Action of destiny!");
-    return &mDescription;
-}
-
-const char* UIAction::getName()
-{
-    return mName;
-}
-
-void UIAction::setName(const char* name)
-{
-    delete mName;
-    mName = CopyString(name);
-}
-
-/**
- * Note that this is called instead of reset() when returning
- * something from the pool for cloning so we must initialize
- * every field!
- */
-void UIAction::clone(UIAction* src)
-{
-    //mobius = src->mobius;
-
-    // assume names don't need to convey
-
-    // Trigger
-    id = src->id;
-    trigger = src->trigger;
-    triggerMode = src->triggerMode;
-    passOscArg = src->passOscArg;
-    triggerValue = src->triggerValue;
-    triggerOffset = src->triggerOffset;
-    down = src->down;
-    repeat = src->repeat;
-    longPress = src->longPress;
-
-    // Target, Scope
-    // take the private target if we have one
-    mInternedTarget = src->mInternedTarget;
-    mPrivateTarget.clone(&(src->mPrivateTarget));
-    mLongFunction = src->mLongFunction;
-
-    // Should we clone these?  They're supposed to be transient!
-    //mResolvedTrack = src->mResolvedTrack;
-    noGroup = src->noGroup;
-    noTrace = src->noTrace;
-
-    // Time
-    escapeQuantization = src->escapeQuantization;
-    noLatency = src->noLatency;
-    noSynchronization = src->noSynchronization;
-
-    // Arguments
-    strcpy(bindingArgs, src->bindingArgs);
-    actionOperator = src->actionOperator;
-    arg.set(&(src->arg));
-
-    // Long script args are NOT cloned.  Since script actions 
-    // are created on the fly we do not need to clone an interned
-    // UIAction.  We could but we would have to copy the ExValueList
-    // which is a pain.
-    //scriptArgs = someKindOfCopy(src->scriptArgs);
-    if (src->scriptArgs != nullptr)
-      Trace(1, "Cloning action with script arguments!\n");
-    delete scriptArgs;
-    scriptArgs = nullptr;
-
-    // relevant runtime status
-    //inInterrupt = src->inInterrupt;
-
-    // are these really necessary?
-    //millisecond = src->millisecond;
-    //streamTime = src->streamTime;
-
-    // absolutely not these
-    //mEvent = nullptr;
-    //mThreadEvent = nullptr;
-
-    // !! not sure, probably should reset
-    //rescheduling = src->rescheduling;
-    //reschedulingReason = src->reschedulingReason;
-
-    // mNext and mPooled maintained by the pool functions
-
-    // mRegistered and mOverlay are not cloned, they are only used
-    // by BindingResolver for actions we do clone
-    mRegistered = false;
-    mOverlay = 0;
+    getDisplayName(mDescription, sizeof(mDescription));
+    return (const char*)&mDescription;
 }
  
+/**
+ * Calculate a display name for this action.
+ * Used in the KeyHelp dialog, possibly others.
+ *
+ * todo: this is old but looks useful
+ */
+void UIAction::getDisplayName(char* buffer, int max)
+{
+    // TODO: add a trigger prefix!
+    buffer[0] = 0;
+
+    AppendString(targetName, buffer, max);
+
+    if (strlen(bindingArgs) > 0) {
+        // unparsed, unusual
+        AppendString(" ", buffer, max);
+        AppendString(bindingArgs, buffer, max);
+    }
+    else {
+        // already parsed
+        if (actionOperator != nullptr && 
+            actionOperator != OperatorSet) {
+            AppendString(" ", buffer, max);
+            AppendString(actionOperator->getName(), buffer, max);
+        }
+
+        if (!arg.isNull()) {
+            AppendString(" ", buffer, max);
+            int start = strlen(buffer);
+            arg.getString(&buffer[start], max - start);
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Public Utilities
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Return true if the TriggerMode supports sustainability
+ */
 bool UIAction::isSustainable()
 {
     return (triggerMode == TriggerModeMomentary ||
             triggerMode == TriggerModeToggle);
 }
 
-void UIAction::setPooled(bool b)
+/**
+ * Return true if our target is the same as another.
+ * The action must be resolved by now.
+ * Used by BindingResolver to filter redundant bindings.
+ */
+bool UIAction::isTargetEqual(UIAction* other)
 {
-    mPooled = b;
+    return (target == other->target &&
+            targetPointer.object == other->targetPointer.object &&
+            scopeTrack == other->scopeTrack &&
+            scopeGroup == other->scopeGroup);
 }
 
-bool UIAction::isPooled()
+/**
+ * Get the MIDI status code from the action id.
+ * Format: ((status | channel) << 8) | key
+ *
+ * We expect these to be MS_ constaints so zero out the channel.
+ */
+int UIAction::getMidiStatus()
 {
-    return mPooled;
+    return ((id >> 8) & 0xF0);
 }
 
-void UIAction::setPool(UIActionPool* p)
+/**
+ * Get the MIDI status code from the action id.
+ * Format: ((status | channel) << 8) | key
+ *
+ * We expect the argument to be an MS_ constaints so it is
+ * already 8 bits with a zero channel.
+ */
+void UIAction::setMidiStatus(int i)
 {
-    mPool = p;
+    id = ((i << 8) | (id & 0xFFF));
 }
 
-UIAction* UIAction::getNext() 
+/**
+ * Get the MIDI channel from the action id.
+ * Format: ((status | channel) << 8) | key
+ */
+int UIAction::getMidiChannel()
 {
-    return mNext;
+    return ((id >> 8) & 0xF);
 }
 
-void UIAction::setNext(UIAction* a)
+void UIAction::setMidiChannel(int i)
 {
-    mNext = a;
+    id = ((i << 8) | (id & 0xF0FF));
 }
 
-bool UIAction::isRegistered() 
+/**
+ * Get the MIDI key, program, or CC number from the action id.
+ * Format: ((status | channel) << 8) | key
+ */
+int UIAction::getMidiKey()
 {
-    return mRegistered;
+    return (id & 0xFF);
 }
 
-void UIAction::setRegistered(bool b)
+void UIAction::setMidiKey(int i)
 {
-    mRegistered = b;
+    id = (i | (id & 0xFF00));
 }
 
-int UIAction::getOverlay()
+/**
+ * Return true if this action is bound to a function or script that
+ * supports spreading.
+ */
+bool UIAction::isSpread() 
 {
-    return mOverlay;
+	bool spread = false;
+    if (target == TargetFunction) {
+        FunctionDefinition* f = targetPointer.function;
+        if (f != nullptr)
+          spread = f->isSpread();
+    }
+	return spread;
 }
 
-void UIAction::setOverlay(int i)
-{
-    mOverlay = i;
-}
-
-bool UIAction::isResolved()
-{
-    return (getTargetObject() != nullptr);
-}
-
-ResolvedTarget* UIAction::getResolvedTarget()
-{
-    ResolvedTarget* t = mInternedTarget;
-    if (t == nullptr)
-      t = &mPrivateTarget;
-    return t;
-}
-
-Target* UIAction::getTarget()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != nullptr) ? rt->getTarget() : nullptr;
-}
-
-void* UIAction::getTargetObject()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != nullptr) ? rt->getObject() : nullptr;
-}
-
-int UIAction::getTargetTrack()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != nullptr) ? rt->getTrack() : 0;
-}
-
-int UIAction::getTargetGroup()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != nullptr) ? rt->getGroup() : 0;
-}
+//////////////////////////////////////////////////////////////////////
+//
+// Private Utilities
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * If the action has bindingArgs, parse them into an
@@ -488,393 +379,6 @@ char* UIAction::advance(char* start, bool stopAtSpace)
     return start;
 }
 
-/**
- * Return true if our target is the same as another.
- * The action must be resolved by now.
- * Used by BindingResolver to filter redundant bindings.
- */
-bool UIAction::isTargetEqual(UIAction* other)
-{
-    // ugh, names and indirection suck
-    return (getTarget() == other->getTarget() &&
-            getTargetObject() == other->getTargetObject() &&
-            getTargetTrack() == other->getTargetTrack() &&
-            getTargetGroup() == other->getTargetGroup());
-}
-
-/**
- * Dynamically set a target.
- * This should only be used for a small number of internally
- * constructed actions.
- */
-void UIAction::setTarget(Target* t)
-{
-    setTarget(t, nullptr);
-}
-
-void UIAction::setTarget(Target* t, void* object)
-{
-    // we may have started with an interned target, switch
-    mInternedTarget = nullptr;
-    mPrivateTarget.setTarget(t);
-    mPrivateTarget.setObject(object);
-}
-
-/**
- * Dynamically set a target function.
- * This is used when building UIActions on the fly rather than from Bindings.
- * This can only be used with static functions, you can't use this
- * for scripts, those are only accessible through ResolvedTargets.
- */
-void UIAction::setFunction(FunctionDefinition* f)
-{
-    setTarget(TargetFunction, f);
-}
-
-FunctionDefinition* UIAction::getFunction()
-{
-    FunctionDefinition* f = nullptr;
-    if (getTarget() == TargetFunction)
-      f = (FunctionDefinition*)getTargetObject();
-    return f;
-}
-
-void UIAction::setLongFunction(FunctionDefinition* f)
-{
-    mLongFunction = f;
-}
-
-FunctionDefinition* UIAction::getLongFunction()
-{
-    return mLongFunction;
-}
-
-/**
- * Dynamically set a target parameter.
- * This is used when building UIActions on the fly rather than from Bindings.
- */
-void UIAction::setParameter(Parameter* p)
-{
-    setTarget(TargetParameter, p);
-}
-
-/**
- * Convenience method for things that create UIActions on the fly with 
- * function targets.
- *
- * Note that the track argument is 1 based like a Binding.
- * This does not switch from mInternedTarget to mPrivate target,
- * you need to call setTarget() first.
- */
-void UIAction::setTargetTrack(int track)
-{
-    mPrivateTarget.setTrack(track);
-}
-
-void UIAction::setTargetGroup(int group)
-{
-    mPrivateTarget.setGroup(group);
-}
-
-/**
- * When actions are processed internally we use this to
- * force it to a certain track.
- */
-#if 0
-void UIAction::setResolvedTrack(Track* t)
-{
-    mResolvedTrack = t;
-}
-
-Track* UIAction::getResolvedTrack()
-{
-    return mResolvedTrack;
-}
-
-Event* UIAction::getEvent()
-{
-    return mEvent;
-}
-
-ThreadEvent* UIAction::getThreadEvent()
-{
-    return mThreadEvent;
-}
-
-void UIAction::setThreadEvent(ThreadEvent* te)
-{
-    mThreadEvent = te;
-}
-#endif
-
-/****************************************************************************
- *                                                                          *
- *                                 UTILITIES                                *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Get the MIDI status code from the action id.
- * Format: ((status | channel) << 8) | key
- *
- * We expect these to be MS_ constaints so zero out the channel.
- */
-int UIAction::getMidiStatus()
-{
-    return ((id >> 8) & 0xF0);
-}
-
-/**
- * Get the MIDI status code from the action id.
- * Format: ((status | channel) << 8) | key
- *
- * We expect the argument to be an MS_ constaints so it is
- * already 8 bits with a zero channel.
- */
-void UIAction::setMidiStatus(int i)
-{
-    id = ((i << 8) | (id & 0xFFF));
-}
-
-/**
- * Get the MIDI channel from the action id.
- * Format: ((status | channel) << 8) | key
- */
-int UIAction::getMidiChannel()
-{
-    return ((id >> 8) & 0xF);
-}
-
-void UIAction::setMidiChannel(int i)
-{
-    id = ((i << 8) | (id & 0xF0FF));
-}
-
-/**
- * Get the MIDI key, program, or CC number from the action id.
- * Format: ((status | channel) << 8) | key
- */
-int UIAction::getMidiKey()
-{
-    return (id & 0xFF);
-}
-
-void UIAction::setMidiKey(int i)
-{
-    id = (i | (id & 0xFF00));
-}
-
-/**
- * Return true if this action is bound to a function or script that
- * supports spreading.
- */
-bool UIAction::isSpread() 
-{
-	bool spread = false;
-    if (getTarget() == TargetFunction) {
-        FunctionDefinition* f = (FunctionDefinition*)getTargetObject();
-        if (f != nullptr)
-          spread = f->isSpread();
-    }
-	return spread;
-}
-
-/**
- * Calculate a display name for this action.
- * Used in the KeyHelp dialog, possibly others.
- */
-void UIAction::getDisplayName(char* buffer, int max)
-{
-    // TODO: add a trigger prefix!
-    buffer[0] = 0;
-
-    if (mInternedTarget != nullptr) {
-        mInternedTarget->getFullName(buffer, max);
-
-        if (strlen(bindingArgs) > 0) {
-            // unparsed, unusual
-            AppendString(" ", buffer, max);
-            AppendString(bindingArgs, buffer, max);
-        }
-        else {
-            // already parsed
-            if (actionOperator != nullptr && 
-                actionOperator != OperatorSet) {
-                AppendString(" ", buffer, max);
-                AppendString(actionOperator->getName(), buffer, max);
-            }
-
-            if (!arg.isNull()) {
-                AppendString(" ", buffer, max);
-                int start = strlen(buffer);
-                arg.getString(&buffer[start], max - start);
-            }
-        }
-    }
-}
-
-#if 0
-/**
- * Set the event that owns this action, checking for error conditions.
- * Check a bunch of "not supposed to happen" integrity constraints to
- * find bugs.
- */
-void UIAction::setEvent(Event* e)
-{
-    if (e != nullptr) {
-        if (mEvent != nullptr) {
-            if (mEvent != e) {
-                Trace(1, "UIAction already owned by another event!\n");
-                // steal it?
-            }
-            else {
-                Trace(1, "UIAction already owned by this event!\n");
-                if (e->getUIAction() != this) {
-                    Trace(1, "UIAction/Event reference not circular!\n");
-                    e->setUIAction(this);
-                }
-            }
-        }
-        else if (e->getUIAction() != nullptr) {
-            if (e->getUIAction() != this) {
-                Trace(1, "Event already owns another action!\n");
-                // steal it?
-            }
-            else if (e->getUIAction() == this) {
-                Trace(1, "Event already owns this action!\n");
-                if (mEvent != e) {
-                    Trace(1, "Event/UIAction reference not circular!\n");
-                    mEvent = e;
-                }
-            }
-        }
-        else {
-            // we hope to be here
-            e->setUIAction(this);
-            mEvent = e;
-        }
-    }
-}
-
-/**
- * Move ownership of the UIAction from one event to another.
- * Again we're being really careful about detecting structure errors,
- * since event/action relationships gets fuzzy in complex cases like
- * Multiply/Insert modes and loop switch.
- */
-void UIAction::changeEvent(Event* e)
-{
-    detachEvent(mEvent);
-    setEvent(e);
-}
-
-/**
- * Remove the relationship between an action and event.
- */
-void UIAction::detachEvent(Event* e)
-{
-    if (e != nullptr && mEvent != e)
-      Trace(1, "detachEvent: expected event not attached!\n");
-    
-    if (mEvent != nullptr) {
-        if (mEvent->getUIAction() != this)
-          Trace(1, "detachEvent: Current event doesn't own this action!\n");
-        mEvent->setUIAction(nullptr);
-        mEvent = nullptr;
-    }
-}
-
-void UIAction::detachEvent()
-{
-    detachEvent(mEvent);
-}
-#endif
-
-/****************************************************************************
- *                                                                          *
- *                                ACTION POOL                               *
- *                                                                          *
- ****************************************************************************/
-
-UIActionPool::UIActionPool()
-{
-    mUIActions = nullptr;
-    mAllocated = 0;
-}
-
-UIActionPool::~UIActionPool()
-{
-    delete mUIActions;
-}
-
-/**
- * Allocate a new action, using the pool if possible.
- * Note that this is not managed a csect, it should only be called
- * by Mobius which uses maintains a single app/interrupt coordination
- * csect.
- */
-UIAction* UIActionPool::newUIAction()
-{
-    return allocUIAction(nullptr);
-}
-
-UIAction* UIActionPool::newUIAction(UIAction* src)
-{
-    return allocUIAction(src);
-}
-
-UIAction* UIActionPool::allocUIAction(UIAction* src)
-{
-    UIAction* action = mUIActions;
-
-    if (action == nullptr) {
-        action = new UIAction(src);
-        action->setPool(this);
-        mAllocated++;
-    }
-    else {
-        mUIActions = action->getNext();
-        action->setNext(nullptr);
-        action->setPooled(false);
-        if (src != nullptr)
-          action->clone(src);
-        else
-          action->reset();
-    }
-
-    return action;
-}
-
-void UIActionPool::freeUIAction(UIAction* action)
-{
-    if (action != nullptr) {
-        if (action->isPooled())
-          Trace(1, "Ignoring attempt to free pooled action\n");
-        else {
-            action->setNext(mUIActions);
-            mUIActions = action;
-            action->setPooled(true);
-
-            // Release script args now or wait till it is brought
-            // out of the pool?  Might as well do them now
-            delete action->scriptArgs;
-            action->scriptArgs = nullptr;
-            // this is transient
-            //action->setTargetTrack(nullptr);
-        }
-    }
-}
-
-void UIActionPool::dump()
-{
-    int count = 0;
-
-    for (UIAction* a = mUIActions ; a != nullptr ; a = a->getNext())
-      count++;
-
-    printf("UIActionPool: %d allocated, %d in the pool, %d in use\n", 
-           mAllocated, count, mAllocated - count);
-}
 
 /****************************************************************************/
 /****************************************************************************/

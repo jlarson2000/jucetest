@@ -7,6 +7,7 @@
 #include "../model/MobiusConfig.h"
 #include "../model/MobiusState.h"
 #include "../model/UIAction.h"
+#include "../model/XmlREnderer.h"
 
 #include "MobiusSimulator.h"
 
@@ -31,7 +32,7 @@ void MobiusSimulator::configure(MobiusConfig* config)
 {
     // clone it so we can make internal modifications
     XmlRenderer xr;
-    configuration = sr.clone(config);
+    configuration = xr.clone(config);
 }
 
 //////////////////////////////////////////////////////////////////////

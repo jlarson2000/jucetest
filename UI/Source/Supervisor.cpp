@@ -6,10 +6,12 @@
 
 #include <JuceHeader.h>
 
+#include "util/Trace.h"
 #include "util/FileUtil.h"
 #include "model/MobiusConfig.h"
 #include "model/UIConfig.h"
 #include "model/XmlRenderer.h"
+#include "model/UIAction.h"
 #include "ui/DisplayManager.h"
 
 #include "Supervisor.h"
@@ -34,8 +36,8 @@ void Supervisor::start()
     // load the initial configuration and tell everyone about it
     displayManager->configure(getUIConfig());
 
+    // a few things in the UI are sensitive to global parameters
     MobiusConfig* mc = getMobiusConfig();
-    // a few things in the UI are sensitive to this
     displayManager->configure(mc);
 }
 
@@ -224,6 +226,26 @@ void Supervisor::updateUIConfig()
         // DisplayManager/MainWindow are the primary consumers of this
         displayManager->configure(uiConfig.get());
     }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Actions
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Propagate an action sent up from one of the display elements that
+ * was not handled at a lower level.
+ * If we get back here, the action is targeted to the mobius engine.
+ * Other options could be to refresh configuration, save projects,
+ * or other housekeeping tasks you would normally do from menu items.
+ */
+void Supervisor::doAction(UIAction* action)
+{
+    // todo: stub out the engine
+
+    trace("Supervisor::doAction %s\n", action->getDescription());
 }
 
 /****************************************************************************/

@@ -49,6 +49,9 @@
 #include <JuceHeader.h>
 
 #include "../../util/Trace.h"
+
+#include "../../model/UIConfig.h"
+#include "../../model/UIAction.h"
 #include "Colors.h"
 #include "ActionButton.h"
 
@@ -56,7 +59,7 @@
  * Initialize the button to trigger an action defined by UIButton.
  * We do not retain a refernce to the UIButton.
  */
-ActionButton::ActionButton(UIButton* uib) :
+ActionButton::ActionButton(UIButton* uib)
 {
     setName("ActionButton");
     
@@ -69,11 +72,6 @@ ActionButton::ActionButton(UIButton* uib) :
 
 ActionButton::~ActionButton()
 {
-}
-
-void ActionButton::execute()
-{
-    trace("%s\n", getButtonText().toUTF8());
 }
 
 /**
@@ -154,8 +152,9 @@ void ActionButton::paintButton(juce::Graphics& g, juce::Colour background, juce:
  *
  * todo: standardize this format and use it consistently
  * Not storing the target type yet
+ * Probably should be on Binding for consistency in logging.
  */
-juce::String ActionButtons::formatButtonName(UIButton *src)
+juce::String ActionButton::formatButtonName(UIButton *src)
 {
     juce::String name = juce::String(src->getName());
     if (src->getArguments() != nullptr) {
@@ -168,10 +167,38 @@ juce::String ActionButtons::formatButtonName(UIButton *src)
     return name;
 }
 
-
 /**
  * Initialize the action we request when clicked.
+ * Button bindings used to be stored in the Binding list
+ * but I went back to maintaining UIButton objects in UI
+ * config.  Since most of the action parsing logic is related
+ * to Binding, convert the UIButton contents to a Binding
+ * to initialize the UIAction.
+ * 
  */
-void ActionButton::initAction()
+void ActionButton::initAction(UIButton* src)
 {
-    
+    Binding binding;
+
+    binding.setTrigger(TriggerUI);
+    // todo: could support Momentary for SUS functions
+    // comments say this was used only for OSC but I guess
+    // it applies to this now too
+    binding.setTriggerMode(TriggerModeOnce);
+    // buttons do not have a trigger value, channel
+
+    // the new UIButton model does not have a target type yet
+    // geez, I'm starting to think going back to a common Binding
+    // model is better
+    binding.setTarget(TargetFunction);
+    binding.setName(src->getName());
+    binding.setArgs(src->getArguments());
+                    
+    action.init(&binding);
+}
+
+UIAction* ActionButton::getAction()
+{
+    return &action;
+}
+

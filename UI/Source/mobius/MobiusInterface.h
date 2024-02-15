@@ -13,6 +13,8 @@ class MobiusInterface {
 
   public:
 
+    virtual ~MobiusInterface();
+    
     /**
      * This must be called once during main application initialization.
      */
@@ -54,7 +56,7 @@ class MobiusInterface {
      * It also impacts how Bindigns are managed which is now above the interface.
      * Once scripts are compiled, call loadScripts
      */
-    void configure(class MobiusConfig* config) =  0;
+    virtual void configure(class MobiusConfig* config) =  0;
     
     /**
      * Return a state object that can be watched by the UI display engine changes.
@@ -64,7 +66,7 @@ class MobiusInterface {
      * It is considered read-only and possibly damaging to the engine if you
      * modify it.
      */
-    class MobiusState* getState() = 0;
+    virtual class MobiusState* getState() = 0;
 
 
     /**
@@ -76,7 +78,7 @@ class MobiusInterface {
      *
      * Will want a more robust error reporting mechanism here.
      */
-    void doAction(class UIAction* action) = 0;
+    virtual void doAction(class UIAction* action) = 0;
     
     /**
      * Run a random test

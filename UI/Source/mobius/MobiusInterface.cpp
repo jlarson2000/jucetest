@@ -4,6 +4,10 @@
 
 MobiusInterface* MobiusInterface::Singleton = nullptr;
 
+MobiusInterface::~MobiusInterface()
+{
+}
+
 void MobiusInterface::startup()
 {
     if (Singleton == nullptr) {

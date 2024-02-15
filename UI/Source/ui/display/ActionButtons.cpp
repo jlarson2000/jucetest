@@ -3,7 +3,6 @@
  * wrapping and sizing.
  *
  * Reads the list of buttons to display from UIConfig
- * Resolves UIButton bindings to Actions.
  */
 
 #include <JuceHeader.h>
@@ -11,10 +10,12 @@
 #include "../../model/UIConfig.h"
 #include "ActionButton.h"
 #include "ActionButtons.h"
+#include "MobiusDisplay.h"
 
-ActionButtons::ActionButtons()
+ActionButtons::ActionButtons(MobiusDisplay* parent)
 {
     setName("ActionButtons");
+    display = parent;
 }
 
 ActionButtons::~ActionButtons()
@@ -40,33 +41,13 @@ void ActionButtons::configure(UIConfig* config)
 		for (int i = 0 ; i < uiButtons->size() ; i++) {
             UIButton* button = uiButtons->at(i).get();
             ActionButton* b = new ActionButton(button);
+            // could use a Listener pattern or just point it
+            // back to us since we're the only ones that use them
             b->addListener(this);
-            // todo: resolve Action
             addAndMakeVisible(b);
             buttons.add(b);
 		}
 	}
-}
-
-/**
- * Format a name for the button.  Normally this will be a Function
- * name but for more complex binding with arguments we add some
- * annotations.
- *
- * todo: standardize this format and use it consistently
- * Not storing the target type yet
- */
-juce::String ActionButtons::formatButtonName(UIButton *src)
-{
-    juce::String name = juce::String(src->getName());
-    if (src->getArguments() != nullptr) {
-        // formatting here could be more complicated with
-        // normalization and capitalization
-        name += "(";
-        name += src->getArguments();
-        name += ")";
-    }
-    return name;
 }
 
 /**
@@ -186,9 +167,13 @@ void ActionButtons::paint(juce::Graphics& g)
     //g.drawRect(getLocalBounds(), 1);
 }
 
+/**
+ * Rather than having each ActionButton propagate the UIAction we'll
+ * forward all the clicks up here and do it.
+ */
 void ActionButtons::buttonClicked(juce::Button* src)
 {
     // todo: figure out of dynamic_cast has any performance implications
     ActionButton* ab = (ActionButton*)src;
-    ab->execute();
+    display->doAction(ab->getAction());
 }

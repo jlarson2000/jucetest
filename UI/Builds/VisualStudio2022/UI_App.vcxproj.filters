@@ -643,7 +643,19 @@
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\display\ButtonsItem.cpp">
+    <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\StatusArea.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\StatusElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\TrackStrip.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\TrackStrips.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\common\ButtonBar.cpp">
@@ -688,9 +700,6 @@
     <ClCompile Include="..\..\Source\ui\JuceUtil.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\MainDisplay.cpp">
-      <Filter>UI\Source\ui</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\ui\MainMenu.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
@@ -706,10 +715,10 @@
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\Mobius.cpp">
+    <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp">
+    <ClCompile Include="..\..\Source\mobius\MobiusSimulator.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp">
@@ -3279,16 +3288,22 @@
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\display\BaseItem.h">
-      <Filter>UI\Source\ui\display</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\display\ButtonsItem.h">
-      <Filter>UI\Source\ui\display</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\Colors.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\StatusArea.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\StatusElement.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\TrackStrip.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\TrackStrips.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\common\ButtonBar.h">
@@ -3333,9 +3348,6 @@
     <ClInclude Include="..\..\Source\ui\JuceUtil.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\MainDisplay.h">
-      <Filter>UI\Source\ui</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\ui\MainMenu.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
@@ -3351,10 +3363,10 @@
     <ClInclude Include="..\..\Source\ui\TestPanel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\Mobius.h">
+    <ClInclude Include="..\..\Source\mobius\MobiusInterface.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\MobiusInterface.h">
+    <ClInclude Include="..\..\Source\mobius\MobiusSimulator.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\FileUtil.h">

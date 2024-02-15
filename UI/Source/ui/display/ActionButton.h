@@ -8,6 +8,8 @@
 
 #include <JuceHeader.h>
 
+#include "../../model/UIAction.h"
+
 class ActionButton : public juce::TextButton
 {
   public:
@@ -21,18 +23,16 @@ class ActionButton : public juce::TextButton
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted,
                      bool shouldDrawButtonAsDown) override;
 
-    // actions
-    
-    // called by 
-    void 
+    class UIAction* getAction();
 
-    void execute();
-    
   private:
+
+    UIAction action;
 
     void paintButton(juce::Graphics& g, juce::Colour background, juce::Colour text);
 
-    class UIAction* action;
+    juce::String formatButtonName(UIButton *src);
+    void initAction(UIButton* src);
     
 };
 

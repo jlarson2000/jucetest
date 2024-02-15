@@ -29,6 +29,7 @@ class XmlRenderer {
     class UIConfig* parseUIConfig(const char* xml);
     char* render(class UIConfig* c);
 
+    class MobiusConfig* clone(class MobiusConfig* src);
     class Preset* clone(class Preset* src);
     class Setup* clone(class Setup* src);
 

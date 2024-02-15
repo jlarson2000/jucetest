@@ -214,6 +214,32 @@ Setup* XmlRenderer::clone(Setup* src)
     return copy;
 }
 
+/**
+ * Really hating this repetition, figure out a way to share this
+ */
+MobiusConfig* XmlRenderer::clone(MobiusConfig* src)
+{
+    MobiusConfig* copy = nullptr;
+
+    XmlBuffer b;
+    render(&b, src);
+
+	XomParser parser;
+    // nicer if the parser owns the document so it can be
+    // deleted with it, when would we not want that
+	XmlDocument* doc = parser.parse(b.getString());
+    if (doc != nullptr) {
+        XmlElement* e = doc->getChildElement();
+        if (e != nullptr) {
+            copy = new MobiusConfig();
+            parse(e, copy);
+        }
+        delete doc;
+    }
+    
+    return copy;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Common Utilities

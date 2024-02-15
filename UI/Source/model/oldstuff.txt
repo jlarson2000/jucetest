@@ -5,22 +5,6 @@
  ****************************************************************************/
 
 /**
- * Union of possible target pointers.
- * While the code deals with these as a void* and casts 
- * when necessary, it is nice in the debugger to have these
- * in a union so we can see what they are.
- */
-typedef union {
-
-    void* object;
-    class FunctionDefinition* function;
-    class Parameter* parameter;
-    class Bindable* bindable;
-    class UIControl* uicontrol;
-
-} TargetPointer;
-
-/**
  * A runtime representation of a binding target that has been resolved
  * to the internal Mobius object where possible.  This serves two purposes:
  *
