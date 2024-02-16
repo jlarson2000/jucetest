@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MainThread.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Supervisor.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -766,7 +769,7 @@
     <ClCompile Include="..\..\Source\model\ExValue.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\model\FunctionDef.cpp">
+    <ClCompile Include="..\..\Source\model\FunctionDefinition.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp">
@@ -775,7 +778,7 @@
     <ClCompile Include="..\..\Source\model\MobiusState.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\model\ModeDef.cpp">
+    <ClCompile Include="..\..\Source\model\ModeDefinition.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp">
@@ -3255,6 +3258,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MainThread.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Supervisor.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
@@ -3414,7 +3420,7 @@
     <ClInclude Include="..\..\Source\model\ExValue.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\model\FunctionDef.h">
+    <ClInclude Include="..\..\Source\model\FunctionDefinition.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Messages.h">
@@ -3426,7 +3432,7 @@
     <ClInclude Include="..\..\Source\model\MobiusState.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\model\ModeDef.h">
+    <ClInclude Include="..\..\Source\model\ModeDefinition.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\OscConfig.h">

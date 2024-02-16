@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 
+#include "MainThread.h"
+
 class Supervisor
 {
   public:
@@ -47,6 +49,12 @@ class Supervisor
     // class DisplayManager* displayManager;
 
     std::unique_ptr<class DisplayManager> displayManager;
+
+    // the singleton instance is managed by MobiusInterface::shutdown
+    // do not make this a unique_ptr
+    class MobiusInterface* mobius;
+    
+    MainThread uiThread;
 
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;

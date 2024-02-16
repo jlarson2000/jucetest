@@ -10,15 +10,7 @@
 
 #include <JuceHeader.h>
 
-/**
- * Helper component used to center the buttons within each row
- */
-class ActionButtonRow : public juce::Component
-{
-  public:
-    ActionButtonRow() {};
-    ~ActionButtonRow() {};
-};
+#include "ActionButton.h"
 
 class ActionButtons : public juce::Component, public juce::Button::Listener
 {
@@ -28,12 +20,15 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     ~ActionButtons();
 
     void configure(class UIConfig* config);
+    int getPreferredHeight(juce::Rectangle<int>);
     void layout(juce::Rectangle<int>);
     
     void resized() override;
     void paint (juce::Graphics& g) override;
-    void buttonClicked(juce::Button* b);
+    void buttonClicked(juce::Button* b) override;
     
+    void add(class ActionButton* b);
+
   private:
 
     class MobiusDisplay* display;
@@ -42,6 +37,25 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     void centerRow(int start, int end, int rowWidth, int availableWidth);
     juce::String formatButtonName(class UIButton *src);
     
+    ActionButton localButton;
+
 };
 
+/**
+ * Helper component used to center the buttons within each row
+ */
+class ActionButtonRow : public juce::Component
+{
+  public:
+    ActionButtonRow();
+    ~ActionButtonRow();
+
+    void add(class ActionButton* b);
+    void resized() override;
     
+  private:
+
+    ActionButton button;
+
+};
+

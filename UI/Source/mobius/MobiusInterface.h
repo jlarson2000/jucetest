@@ -13,6 +13,7 @@ class MobiusInterface {
 
   public:
 
+    // must have a virtual destructor to avoid a warning
     virtual ~MobiusInterface();
     
     /**
@@ -30,10 +31,6 @@ class MobiusInterface {
      * Mobius engine.  It must not be deleted.
      */
     static class MobiusInterface* getMobius();
-
-    // a pure virtual doesn't need constructors, right?
-    //MobiusInterface();
-    //virtual ~MobiusInterface();
 
     /**
      * Reconfigure the Mobius engine.
@@ -84,6 +81,13 @@ class MobiusInterface {
      * Run a random test
      */
     virtual void test() = 0;
+
+    /**
+     * This is only for the simulator.
+     * Simulates the processing of the audio interface without being
+     * actually connected to anything.
+     */
+    virtual void simulateInterrupt(float* input, float* output, int frames) = 0;
 
   private:
 

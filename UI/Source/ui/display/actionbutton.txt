@@ -126,3 +126,23 @@ So an action source does:
 
 
 
+Interning actions may not buy much, just two array indirections for track/loop
+For config objects saves having to do a linear name search which would be slightly
+more significant.  But maintaining cached pointers to those objects gets messy
+when they are invalidated after configuration changes.  Honestly how often do you
+change presets, and when you do must they be done in a few less milliseconds?
+
+Decisions
+
+UIActions are floating initially and not pooled
+
+Can be owned by the "binders" the things that consume the binding configuration
+and turn it into actions
+
+Given to the Supervisor to pass to Mobius
+  - Supervisor can also determine if the action targets the UI and handle it above
+    Mobius
+  - I like that the UI can add it's own Functions and Parameters to extend those
+    defined by the engine
+  - UI is also where function replication can take place, engine doesn't have to care
+

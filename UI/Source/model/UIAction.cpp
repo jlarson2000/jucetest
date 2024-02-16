@@ -10,7 +10,7 @@
 #include "ExValue.h"
 
 #include "Binding.h"
-#include "FunctionDef.h"
+#include "FunctionDefinition.h"
 #include "Parameter.h"
 
 #include "UIAction.h"
@@ -145,9 +145,8 @@ void UIAction::init(Binding* b)
     setMidiChannel(b->getChannel());
 
     target = b->getTarget();
-    // todo: save copy
-    strcpy(targetName, b->getName());
-    strcpy(bindingArgs, b->getArgs());
+    CopyString(b->getName(), targetName, sizeof(targetName));
+    CopyString(b->getArgs(), bindingArgs, sizeof(bindingArgs));
 
     // more as we bring on Binders
 }

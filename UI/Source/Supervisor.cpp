@@ -13,6 +13,7 @@
 #include "model/XmlRenderer.h"
 #include "model/UIAction.h"
 #include "ui/DisplayManager.h"
+#include "mobius/MobiusInterface.h"
 
 #include "Supervisor.h"
 
@@ -31,14 +32,23 @@ Supervisor::~Supervisor()
  */
 void Supervisor::start()
 {
-    displayManager.reset(new DisplayManager(this, mainComponent));
+    MobiusConfig* config = getMobiusConfig();
 
+    MobiusInterface::startup();
+
+    mobius = MobiusInterface::getMobius();
+    mobius->configure(config);
+
+    displayManager.reset(new DisplayManager(this, mainComponent));
+    
     // load the initial configuration and tell everyone about it
     displayManager->configure(getUIConfig());
 
     // a few things in the UI are sensitive to global parameters
-    MobiusConfig* mc = getMobiusConfig();
-    displayManager->configure(mc);
+    displayManager->configure(config);
+
+    // let the UI refresh go
+    uiThread.start();
 }
 
 /**
@@ -46,9 +56,19 @@ void Supervisor::start()
  */
 void Supervisor::shutdown()
 {
+    // stop the UI thread so we don't get any lingering events
+    uiThread.stop();
+
+    // stop the Mobius engine, mobius object is a smart pointer
+    MobiusInterface::shutdown();
+    // this is now invalid
+    mobius = nullptr;
+    
     // DisplayManager is in a smart pointer, but should we be doing
     // things before the destructor happens, in particular the audio
     // streams will be closed before delete happens
+
+    // mobiusConfig and uiConfig are smart pointers
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -243,9 +263,7 @@ void Supervisor::updateUIConfig()
  */
 void Supervisor::doAction(UIAction* action)
 {
-    // todo: stub out the engine
-
-    trace("Supervisor::doAction %s\n", action->getDescription());
+    mobius->doAction(action);
 }
 
 /****************************************************************************/

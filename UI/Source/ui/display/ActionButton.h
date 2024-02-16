@@ -10,19 +10,20 @@
 
 #include "../../model/UIAction.h"
 
-class ActionButton : public juce::TextButton
+class ActionButton : public juce::TextButton, public juce::Button::Listener
 {
   public:
 
-    // todo: construct with a resolved Action
+    ActionButton();
     ActionButton(class UIButton* src);
     ~ActionButton();
 
     int getPreferredWidth(int height);
 
+    void buttonClicked(juce::Button* b) override;
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted,
                      bool shouldDrawButtonAsDown) override;
-
+    
     class UIAction* getAction();
 
   private:

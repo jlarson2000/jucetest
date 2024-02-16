@@ -1,7 +1,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../model/FunctionDef.h"
+#include "../../model/FunctionDefinition.h"
 #include "../../model/Parameter.h"
 #include "../../model/MobiusConfig.h"
 #include "../../model/Preset.h"

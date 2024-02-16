@@ -55,6 +55,10 @@
 #include "Colors.h"
 #include "ActionButton.h"
 
+ActionButton::ActionButton()
+{
+}
+
 /**
  * Initialize the button to trigger an action defined by UIButton.
  * We do not retain a refernce to the UIButton.
@@ -65,13 +69,24 @@ ActionButton::ActionButton(UIButton* uib)
     
     // don't wait for mouse up
     setTriggeredOnMouseDown(true);
-    setButtonText(formatButtonName(uib));
-
-    initAction(uib);
+    if (uib == nullptr) {
+        setButtonText(juce::String("foo"));
+    }
+    else {
+        setButtonText(formatButtonName(uib));
+        initAction(uib);
+    }
+    
+    addListener(this);
 }
 
 ActionButton::~ActionButton()
 {
+}
+
+void ActionButton::buttonClicked(juce::Button* b)
+{
+    trace("Clicked\n");
 }
 
 /**

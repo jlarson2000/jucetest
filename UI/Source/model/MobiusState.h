@@ -75,8 +75,7 @@
 #pragma once
 
 #include "SystemConstant.h"
-#include "FunctionDef.h"
-#include "ModeDef.h"
+
 // for SyncSource, SyncUnit
 #include "Setup.h"
 
@@ -150,7 +149,7 @@ class MobiusLoopState
     void init();
 
     int number;         // need this?  it's the same as it's position in the array
-    ModeDefinition* mode;
+    class ModeDefinition* mode;
     bool	recording;
 	bool	paused;
     long    frame;

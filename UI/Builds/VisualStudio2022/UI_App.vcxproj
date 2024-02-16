@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MainThread.cpp"/>
     <ClCompile Include="..\..\Source\Supervisor.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ButtonPanel.cpp"/>
@@ -193,10 +194,10 @@
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
     <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
-    <ClCompile Include="..\..\Source\model\FunctionDef.cpp"/>
+    <ClCompile Include="..\..\Source\model\FunctionDefinition.cpp"/>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\MobiusState.cpp"/>
-    <ClCompile Include="..\..\Source\model\ModeDef.cpp"/>
+    <ClCompile Include="..\..\Source\model\ModeDefinition.cpp"/>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
     <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp"/>
@@ -2476,6 +2477,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MainThread.h"/>
     <ClInclude Include="..\..\Source\Supervisor.h"/>
     <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ButtonPanel.h"/>
@@ -2529,11 +2531,11 @@
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
     <ClInclude Include="..\..\Source\model\ExValue.h"/>
-    <ClInclude Include="..\..\Source\model\FunctionDef.h"/>
+    <ClInclude Include="..\..\Source\model\FunctionDefinition.h"/>
     <ClInclude Include="..\..\Source\model\Messages.h"/>
     <ClInclude Include="..\..\Source\model\MobiusConfig.h"/>
     <ClInclude Include="..\..\Source\model\MobiusState.h"/>
-    <ClInclude Include="..\..\Source\model\ModeDef.h"/>
+    <ClInclude Include="..\..\Source\model\ModeDefinition.h"/>
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>
     <ClInclude Include="..\..\Source\model\Parameter.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>

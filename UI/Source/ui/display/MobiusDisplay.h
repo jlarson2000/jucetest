@@ -42,6 +42,9 @@ class MobiusDisplay : public juce::Component
     ActionButtons buttons {this};
     StatusArea statusArea {this};
     TrackStrips strips {this};
+
+    ActionButton localButton;
+
 };    
 
     

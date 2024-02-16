@@ -23,6 +23,11 @@ MobiusDisplay::MobiusDisplay(MainWindow* parent)
     addAndMakeVisible(buttons);
     addAndMakeVisible(statusArea);
     addAndMakeVisible(strips);
+
+    localButton.setButtonText("local");
+    addAndMakeVisible(localButton);
+
+    setSize(500, 500);
 }
 
 MobiusDisplay::~MobiusDisplay()
@@ -38,7 +43,7 @@ void MobiusDisplay::configure(UIConfig* config)
     statusArea.configure(config);
     strips.configure(config);
     
-    resized();
+    //resized();
 }
 
 void MobiusDisplay::resized()
@@ -50,8 +55,13 @@ void MobiusDisplay::resized()
     
     // we call layout() rather than resized() to auto-calculate
     // the necessary height for all buttons
+    // this doesn't work, the buttons display but the 
     buttons.layout(area);
 
+    int bheight = buttons.getPreferredHeight(area);
+    buttons.setBounds(area.removeFromTop(bheight));
+    //localButton.setBounds(area.removeFromTop(30));
+    
     // TrackStrips will have configurable content
     strips.layout(area);
 
@@ -62,7 +72,7 @@ void MobiusDisplay::resized()
     // think about maximum heights with a viewport or smart
     // truncation?
     statusArea.setBounds(area);
-
+    
     JuceUtil::dumpComponent(this);
 }
 

@@ -24,7 +24,7 @@
 #include "../util/Util.h"
 
 #include "SystemConstant.h"
-#include "ModeDef.h"
+#include "ModeDefinition.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -97,24 +97,65 @@ ModeDefinition::~ModeDefinition()
 // Major Modes
 //
 
+// not technically a Loop mode, the mode the engine is
+// logically in when all theh tracks are in Reset
+ModeDefinition GlobalResetModeDef {"Global Reset"};
+ModeDefinition* GlobalResetMode = &GlobalResetModeDef;
+
 ModeDefinition ConfirmModeDef {"Confirm"};
+ModeDefinition* ConfirmMode = &ConfirmModeDef;
+
 ModeDefinition InsertModeDef {"Insert"};
+ModeDefinition* InsertMode = &InsertModeDef;
+
 ModeDefinition MultiplyModeDef {"Multiply"};
+ModeDefinition* MultiplyMode = &MultiplyModeDef;
+
 ModeDefinition MuteModeDef {"Mute"};
+ModeDefinition* MuteMode = &MuteModeDef;
+
 ModeDefinition OverdubModeDef {"Overdub"};
+ModeDefinition* OverdubMode = &OverdubModeDef;
+
 ModeDefinition PauseModeDef {"Pause"};
+ModeDefinition* PauseMode = &PauseModeDef;
+
 ModeDefinition PlayModeDef {"Play"};
+ModeDefinition* PlayMode = &PlayModeDef;
+
 ModeDefinition RecordModeDef {"Record"};
+ModeDefinition* RecordMode = &RecordModeDef;
+
 ModeDefinition RehearseModeDef {"Rehearse"};
+ModeDefinition* RehearseMode = &RehearseModeDef;
+
 ModeDefinition RehearseRecordModeDef {"RehearseRecord"};
+ModeDefinition* RehearseRecordMode = &RehearseRecordModeDef;
+
 ModeDefinition ReplaceModeDef {"Replace"};
+ModeDefinition* ReplaceMode = &ReplaceModeDef;
+
 ModeDefinition ResetModeDef {"Reset"};
+ModeDefinition* ResetMode = &ResetModeDef;
+
 ModeDefinition RunModeDef {"Run"};
+ModeDefinition* RunMode = &RunModeDef;
+
 ModeDefinition StutterModeDef {"Stutter"};
+ModeDefinition* StutterMode = &StutterModeDef;
+
 ModeDefinition SubstituteModeDef {"Substitute"};
+ModeDefinition* SubstituteMode = &SubstituteModeDef;
+
 ModeDefinition SwitchModeDef {"Switch"};
+ModeDefinition* SwitchMode = &SwitchModeDef;
+
 ModeDefinition SynchronizeModeDef {"Synchronize"};
+ModeDefinition* SynchronizeMode = &SynchronizeModeDef;
+
 ModeDefinition ThresholdModeDef {"Threshold"};
+ModeDefinition* ThresholdMode = &ThresholdModeDef;
+
 
 //
 // Minor Modes
@@ -123,22 +164,56 @@ ModeDefinition ThresholdModeDef {"Threshold"};
 //
 
 ModeDefinition CaptureModeDef {"Capture"};
+ModeDefinition* CaptureMode = &CaptureModeDef;
+
 ModeDefinition GlobalMuteModeDef {"GlobalMute"};
+ModeDefinition* GlobalMuteMode = &GlobalMuteModeDef;
+
 ModeDefinition GlobalPauseModeDef {"GlobalPause"};
+ModeDefinition* GlobalPauseMode = &GlobalPauseModeDef;
+
 ModeDefinition HalfSpeedModeDef {"HalfSpeed"};
+ModeDefinition* HalfSpeedMode = &HalfSpeedModeDef;
+
 ModeDefinition MIDISyncMasterModeDef {"MIDISyncMaster"};
+ModeDefinition* MIDISyncMasterMode = &MIDISyncMasterModeDef;
 
 ModeDefinition PitchOctaveModeDef {"PitchOctave"};
+ModeDefinition* PitchOctaveMode = &PitchOctaveModeDef;
+
 ModeDefinition PitchStepModeDef {"PitchStep"};
+ModeDefinition* PitchStepMode = &PitchStepModeDef;
+
 ModeDefinition PitchBendModeDef {"PitchBend"};
+ModeDefinition* PitchBendMode = &PitchBendModeDef;
+
 ModeDefinition SpeedOctaveModeDef {"SpeedOctave"};
+ModeDefinition* SpeedOctaveMode = &SpeedOctaveModeDef;
+
 ModeDefinition SpeedStepModeDef {"SpeedStep"};
+ModeDefinition* SpeedStepMode = &SpeedStepModeDef;
+
 ModeDefinition SpeedBendModeDef {"SpeedBend"};
+ModeDefinition* SpeedBendMode = &SpeedBendModeDef;
+
 ModeDefinition SpeedToggleModeDef {"SpeedToggle"};
+ModeDefinition* SpeedToggleMode = &SpeedToggleModeDef;
+
 ModeDefinition TimeStretchModeDef {"TimeStretch"};
+ModeDefinition* TimeStretchMode = &TimeStretchModeDef;
 
 ModeDefinition ReverseModeDef {"Reverse"};
+ModeDefinition* ReverseMode = &ReverseModeDef;
+
 ModeDefinition SoloModeDef {"Solo"};
+ModeDefinition* SoloMode = &SoloModeDef;
+
 ModeDefinition SyncMasterModeDef {"SyncMaster"};
+ModeDefinition* SyncMasterMode = &SyncMasterModeDef;
+
 ModeDefinition TrackSyncMasterModeDef {"TrackSyncMaster"};
+ModeDefinition* TrackSyncMasterMode = &TrackSyncMasterModeDef;
+
 ModeDefinition WindowModeDef {"Window"};
+ModeDefinition* WindowMode = &WindowModeDef;
+

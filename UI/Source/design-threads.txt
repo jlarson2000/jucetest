@@ -1,0 +1,33 @@
+
+There are two uses of threads in Mobius
+
+  UI Thread
+    tells the UI to update every 10ms
+      not time critical
+    used for communication from the interrupt up to the engine
+      unclear, potentially more time critical
+    communication down into the interrupt can just schedule things
+      for the audio thread to pick up
+
+  Timer thread
+    more time critical
+    generates MIDI clocks out
+       clocks are 24 ppq so not so bad
+       jitter is expected by most devices
+    same MIDI clock generator is also used to synchronize internal track playback
+    Juce may have facilities for this so focus on the UI thread
+
+MIDI out has been done in the audio interrupt, seems safe
+
+OSC out is probably not safe since it requires network comms
+  may more time critical than the UI thread, though OSC export is usually done for
+  display rather than sync
+
+Calls to process audio buffers in the interrupt have not in the past been
+time stable, so wasn't a good fit for MIDI clocks, revisit
+
+In general, try to get the engine out of the business of sending a stable MIDI clock
+  that is arguably part of the UI/container
+
+Focus on the UI thread till we need a highres timer for  MIDI
+
