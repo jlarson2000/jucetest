@@ -12,14 +12,7 @@ StatusArea::StatusArea(MobiusDisplay* parent)
     setName("StatusArea");
     display = parent;
 
-    button.setButtonText("Foo");
-    button.addListener(this);
-
-    //row.add(&abutton);
-    addAndMakeVisible(row);
-
-    //abutton.addListener(this);
-    //addAndMakeVisible(abutton);
+    addChildComponent(mode);
 }
 
 StatusArea::~StatusArea()
@@ -28,18 +21,24 @@ StatusArea::~StatusArea()
 
 void StatusArea::configure(UIConfig* config)
 {
+    // todo: selective visibility based on config
+    mode.setVisible(true);
+}
+
+void StatusArea::update(MobiusState* state)
+{
+    mode.update(state);
 }
 
 void StatusArea::resized()
 {
-    //button.setBounds(100, 150, 50, 30);
-    //abutton.setBounds(100, 150, 50, 30);
-    row.setBounds(100, 150, 300, 30);
+    // todo: get location from config
+    mode.setBounds(100, 100, mode.getPreferredWidth(), mode.getPreferredHeight());
 }
 
 void StatusArea::paint(juce::Graphics& g)
 {
-    drawText(g, "Mobius", 100, 100);
+    //drawText(g, "Mobius", 100, 100);
 }
 
 void StatusArea::drawText(juce::Graphics& g, const char* text, int x, int y)
@@ -51,7 +50,6 @@ void StatusArea::drawText(juce::Graphics& g, const char* text, int x, int y)
     g.drawText(text, x, y, font.getStringWidth(text), font.getHeight(), juce::Justification::left);
 }
 
-void StatusArea::buttonClicked(juce::Button* b)
-{
-    trace("Button clicked\n");
-}
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

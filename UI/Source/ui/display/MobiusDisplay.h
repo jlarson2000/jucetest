@@ -29,6 +29,7 @@ class MobiusDisplay : public juce::Component
     ~MobiusDisplay();
     
     void configure(class UIConfig* config);
+    void update(class MobiusState* state);
     void doAction(class UIAction* action);
 
     void resized() override;

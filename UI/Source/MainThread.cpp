@@ -13,11 +13,13 @@
 #include <JuceHeader.h>
 
 #include "util/Trace.h"
+#include "Supervisor.h"
 #include "MainThread.h"
 
-MainThread::MainThread() :
+MainThread::MainThread(Supervisor* super) :
     Thread(juce::String("Mobius"))  // second arg is threadStackSize
 {
+    supervisor = super;
 }
 
 MainThread::~MainThread()
@@ -83,8 +85,9 @@ void MainThread::processEvents()
     counter++;
 
     if (counter > 10) {
-        trace("Beep\n");
+        //trace("Beep\n");
         counter = 0;
+        supervisor->updateState();
     }
 }
 

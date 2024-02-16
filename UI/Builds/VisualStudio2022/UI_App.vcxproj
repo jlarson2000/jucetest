@@ -154,6 +154,7 @@
     <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\ModeElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\StatusArea.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\StatusElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\TrackStrip.cpp"/>
@@ -2491,6 +2492,7 @@
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h"/>
     <ClInclude Include="..\..\Source\ui\display\Colors.h"/>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h"/>
+    <ClInclude Include="..\..\Source\ui\display\ModeElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\StatusArea.h"/>
     <ClInclude Include="..\..\Source\ui\display\StatusElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\TrackStrip.h"/>

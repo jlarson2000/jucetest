@@ -76,17 +76,10 @@ ActionButton::ActionButton(UIButton* uib)
         setButtonText(formatButtonName(uib));
         initAction(uib);
     }
-    
-    addListener(this);
 }
 
 ActionButton::~ActionButton()
 {
-}
-
-void ActionButton::buttonClicked(juce::Button* b)
-{
-    trace("Clicked\n");
 }
 
 /**

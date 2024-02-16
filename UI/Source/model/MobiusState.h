@@ -117,6 +117,11 @@ const int MaxEvents = 10;
 class MobiusLayerState
 {
   public:
+
+    MobiusLayerState() {
+        init();
+    }
+    
     void init();
 
     bool checkpoint;
@@ -128,6 +133,11 @@ class MobiusLayerState
 class MobiusEventState
 {
   public:
+
+    MobiusEventState() {
+        init();
+    }
+    
     void init();
 
     // todo: Do we need an EventDef here or just the name?
@@ -146,6 +156,11 @@ class MobiusEventState
 class MobiusLoopState
 {
   public:
+
+    MobiusLoopState() {
+        init();
+    }
+
     void init();
 
     int number;         // need this?  it's the same as it's position in the array
@@ -191,6 +206,11 @@ class MobiusLoopState
 class MobiusTrackState
 {
   public:
+
+    MobiusTrackState() {
+        init();
+    }
+    
     void init();
 
     int number;
@@ -254,6 +274,11 @@ class MobiusTrackState
 class MobiusState
 {
   public:
+
+    MobiusState() {
+        init();
+    }
+    
     void init();
 
     // old model had a poitner to the BindingConfig in use

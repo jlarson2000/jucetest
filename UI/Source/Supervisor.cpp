@@ -8,10 +8,13 @@
 
 #include "util/Trace.h"
 #include "util/FileUtil.h"
+
 #include "model/MobiusConfig.h"
 #include "model/UIConfig.h"
 #include "model/XmlRenderer.h"
 #include "model/UIAction.h"
+#include "model/MobiusState.h"
+
 #include "ui/DisplayManager.h"
 #include "mobius/MobiusInterface.h"
 
@@ -20,6 +23,7 @@
 Supervisor::Supervisor(juce::Component* main)
 {
     mainComponent = main;
+//    uiThread.setSupervisor(this);
 }
 
 Supervisor::~Supervisor()
@@ -49,6 +53,9 @@ void Supervisor::start()
 
     // let the UI refresh go
     uiThread.start();
+
+    // initial display update
+    updateState();
 }
 
 /**
@@ -69,6 +76,18 @@ void Supervisor::shutdown()
     // streams will be closed before delete happens
 
     // mobiusConfig and uiConfig are smart pointers
+}
+
+/**
+ * Start a traversal down the display hierarchy updaing
+ * Mobius state.
+ */
+void Supervisor::updateState()
+{
+    // this should be a singleton so we don't have to eep
+    // a copy but we can
+    MobiusState* state = mobius->getState();
+    displayManager->update(state);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -263,6 +282,11 @@ void Supervisor::updateUIConfig()
  */
 void Supervisor::doAction(UIAction* action)
 {
+    // resolve it if we haven't already
+    // should normally be able to do this early but if we're
+    // dealing with scripts it will be harder
+    action->resolve();
+
     mobius->doAction(action);
 }
 

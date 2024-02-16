@@ -135,6 +135,7 @@ class UIAction {
 
     void init(class Binding* b);
     void reset();
+    void resolve();
     
     //////////////////////////////////////////////////////////////////////
     // Trigger

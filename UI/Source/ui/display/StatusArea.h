@@ -9,11 +9,9 @@
 
 #include <JuceHeader.h>
 
-#include "../common/SimpleButton.h"
-#include "ActionButton.h"
-#include "ActionButtons.h"
+#include "ModeElement.h"
 
-class StatusArea : public juce::Component, public juce::Button::Listener
+class StatusArea : public juce::Component
 {
   public:
     
@@ -21,19 +19,17 @@ class StatusArea : public juce::Component, public juce::Button::Listener
     ~StatusArea();
 
     void configure(class UIConfig* config);
+    void update(class MobiusState* state);
     
     void resized() override;
     void paint(juce::Graphics& g) override;
-
-    void buttonClicked(juce::Button* b) override;
     
   private:
 
     class MobiusDisplay* display;
-    SimpleButton button;
-    ActionButton abutton {nullptr};
-    ActionButtonRow row;
     
+    ModeElement mode {this};
+
     void drawText(juce::Graphics& g, const char* text, int x, int y);
     
 };

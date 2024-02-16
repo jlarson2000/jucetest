@@ -218,8 +218,8 @@ void ActionButtons::resized()
 void ActionButtons::paint(juce::Graphics& g)
 {
     // draw a border for testing layout
-    g.setColour(juce::Colours::red);
-    g.drawRect(getLocalBounds(), 1);
+    //g.setColour(juce::Colours::red);
+    //g.drawRect(getLocalBounds(), 1);
 }
 
 /**

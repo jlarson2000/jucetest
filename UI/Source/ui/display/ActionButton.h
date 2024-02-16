@@ -10,7 +10,7 @@
 
 #include "../../model/UIAction.h"
 
-class ActionButton : public juce::TextButton, public juce::Button::Listener
+class ActionButton : public juce::TextButton
 {
   public:
 
@@ -20,7 +20,6 @@ class ActionButton : public juce::TextButton, public juce::Button::Listener
 
     int getPreferredWidth(int height);
 
-    void buttonClicked(juce::Button* b) override;
     void paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighlighted,
                      bool shouldDrawButtonAsDown) override;
     

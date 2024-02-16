@@ -50,7 +50,8 @@ class MainWindow : public juce::Component, public MainMenu::Listener
 
     void configure(class MobiusConfig* config);
     void configure(class UIConfig* config);
-
+    void update(class MobiusState* state);
+    
     // MainMenu listener
     void mainMenuSelection(int id);
     

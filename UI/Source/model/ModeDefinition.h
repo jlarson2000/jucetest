@@ -11,6 +11,7 @@
 #pragma once
 
 #include <vector>
+#include "SystemConstant.h"
 
 class ModeDefinition : public SystemConstant
 {

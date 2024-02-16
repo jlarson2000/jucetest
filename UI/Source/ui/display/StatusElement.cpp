@@ -18,12 +18,19 @@ void StatusElement::configure(UIConfig* config)
 {
 }
 
-void StatusElement::resized()
+void StatusElement::update(MobiusState* state)
 {
 }
 
-void StatusElement::paint(juce::Graphics& g)
+// these should probably be pure virtual
+// any useful thing to do in a default implementation?
+
+int StatusElement::getPreferredWidth()
 {
+    return 0;
 }
 
-
+int StatusElement::getPreferredHeight()
+{
+    return 0;
+}

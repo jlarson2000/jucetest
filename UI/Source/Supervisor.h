@@ -37,6 +37,7 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
+    void updateState();
     void doAction(class UIAction*);
     
   private:
@@ -54,7 +55,7 @@ class Supervisor
     // do not make this a unique_ptr
     class MobiusInterface* mobius;
     
-    MainThread uiThread;
+    MainThread uiThread {this};
 
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;

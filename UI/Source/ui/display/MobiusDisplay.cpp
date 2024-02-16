@@ -43,7 +43,13 @@ void MobiusDisplay::configure(UIConfig* config)
     statusArea.configure(config);
     strips.configure(config);
     
-    //resized();
+    resized();
+}
+
+void MobiusDisplay::update(MobiusState* state)
+{
+    statusArea.update(state);
+    //strips.update(state);
 }
 
 void MobiusDisplay::resized()

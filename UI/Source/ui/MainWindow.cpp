@@ -14,6 +14,7 @@
 #include "../Supervisor.h"
 #include "../util/Trace.h"
 #include "../model/UIConfig.h"
+#include "../model/MobiusState.h"
 
 #include "JuceUtil.h"
 #include "MainMenu.h"
@@ -166,6 +167,11 @@ void MainWindow::configure(UIConfig* config)
  */
 void MainWindow::configure(MobiusConfig* config)
 {
+}
+
+void MainWindow::update(MobiusState* state)
+{
+    display.update(state);
 }
 
 //////////////////////////////////////////////////////////////////////

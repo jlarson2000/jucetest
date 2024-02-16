@@ -43,6 +43,8 @@
           <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
                 file="Source/ui/display/MobiusDisplay.cpp"/>
           <FILE id="wVdVcf" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
+          <FILE id="HTY3mt" name="ModeElement.cpp" compile="1" resource="0" file="Source/ui/display/ModeElement.cpp"/>
+          <FILE id="HvJPJu" name="ModeElement.h" compile="0" resource="0" file="Source/ui/display/ModeElement.h"/>
           <FILE id="fGQWhr" name="StatusArea.cpp" compile="1" resource="0" file="Source/ui/display/StatusArea.cpp"/>
           <FILE id="PL33Lh" name="StatusArea.h" compile="0" resource="0" file="Source/ui/display/StatusArea.h"/>
           <FILE id="xu4lJg" name="StatusElement.cpp" compile="1" resource="0"

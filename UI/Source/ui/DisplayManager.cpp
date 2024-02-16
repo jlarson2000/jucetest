@@ -9,6 +9,7 @@
 #include "../Supervisor.h"
 #include "../model/UIConfig.h"
 #include "../model/MobiusConfig.h"
+#include "../model/MobiusState.h"
 
 #include "JuceUtil.h"
 #include "MainWindow.h"
@@ -54,3 +55,9 @@ void DisplayManager::configure(MobiusConfig* config)
 {
     mainWindow->configure(config);
 }
+
+void DisplayManager::update(MobiusState* state)
+{
+    mainWindow->update(state);
+}
+

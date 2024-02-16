@@ -2,6 +2,7 @@
  * Object capturing the runtime state of the Mobius engine.
  */
 
+#include "ModeDefinition.h"
 #include "MobiusState.h"
 
 void MobiusLayerState::init()
@@ -20,7 +21,7 @@ void MobiusEventState::init()
 void MobiusLoopState::init()
 {
     number = 0;
-    mode = nullptr;
+    mode = ResetMode;
     recording = false;
     paused = false;
     frame = 0;

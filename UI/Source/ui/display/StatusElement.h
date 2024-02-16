@@ -14,11 +14,11 @@ class StatusElement : public juce::Component
     StatusElement(class StatusArea*);
     ~StatusElement();
 
-    void configure(UIConfig* config);
-
-    void resized() override;
-    void paint(juce::Graphics& g) override;
-
+    virtual void configure(class UIConfig* config);
+    virtual void update(class MobiusState* state);
+    virtual int getPreferredWidth();
+    virtual int getPreferredHeight();
+    
   private:
 
     class StatusArea* area;

@@ -165,6 +165,22 @@ void UIAction::reset()
     init();
 }
 
+/**
+ * Resolve the target pointer if we haven't already.
+ */
+void UIAction::resolve()
+{
+    if (targetPointer.object == nullptr) {
+        if (target == TargetFunction) {
+            targetPointer.function = FunctionDefinition::getFunction(targetName);
+        }
+    }
+
+    if (targetPointer.object == nullptr) {
+        trace("Unresolved target: %s\n", targetName);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Descriptions

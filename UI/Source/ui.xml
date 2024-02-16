@@ -3,8 +3,7 @@
     <Location name='foo' x='42' y='24' disabled='true'/>
   </Locations>
   <Buttons>
-    <Button target='AutoRecord' arguments='xxx'/>
-    <Button target='fadeFrames' arguments='yyy'/>
-    <Button target='Checkpoint'/>
+    <Button target='Record'/>
+    <Button target='Reset'/>
   </Buttons>
 </UIConfig>
