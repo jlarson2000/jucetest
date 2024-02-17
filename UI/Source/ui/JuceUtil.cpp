@@ -11,6 +11,12 @@
 
 #include "JuceUtil.h"
 
+void JuceUtil::dumpComponent(const char* title, juce::Component* c, int indent)
+{
+    trace("*** %s\n", title);
+    dumpComponent(c, indent);
+}
+
 /**
  * Dump a component hierarchy.
  * Would be nice to figure out typeid or dynamic cast or

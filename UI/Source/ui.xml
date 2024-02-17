@@ -1,6 +1,7 @@
 <UIConfig width='1026' height='665' refreshInterval='100' messageDuration='2'>
   <Locations>
-    <Location name='foo' x='42' y='24' disabled='true'/>
+    <Location name='ModeElement' x='474' y='199' disabled='0'/>
+    <Location name='BeatersElement' x='0' y='0' disabled='0'/>
   </Locations>
   <Buttons>
     <Button target='Record'/>

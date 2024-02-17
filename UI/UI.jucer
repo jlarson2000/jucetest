@@ -39,6 +39,10 @@
           <FILE id="fDm6Vs" name="ActionButtons.cpp" compile="1" resource="0"
                 file="Source/ui/display/ActionButtons.cpp"/>
           <FILE id="JEpK4O" name="ActionButtons.h" compile="0" resource="0" file="Source/ui/display/ActionButtons.h"/>
+          <FILE id="kTPpfK" name="BeatersElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/BeatersElement.cpp"/>
+          <FILE id="WnT2mO" name="BeatersElement.h" compile="0" resource="0"
+                file="Source/ui/display/BeatersElement.h"/>
           <FILE id="iB815e" name="Colors.h" compile="0" resource="0" file="Source/ui/display/Colors.h"/>
           <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
                 file="Source/ui/display/MobiusDisplay.cpp"/>

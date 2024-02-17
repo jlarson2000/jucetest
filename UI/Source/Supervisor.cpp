@@ -55,7 +55,8 @@ void Supervisor::start()
     uiThread.start();
 
     // initial display update
-    updateState();
+    MobiusState* state = mobius->getState();
+    displayManager->update(state);
 }
 
 /**
@@ -70,7 +71,15 @@ void Supervisor::shutdown()
     MobiusInterface::shutdown();
     // this is now invalid
     mobius = nullptr;
-    
+
+    // save any UI configuration changes that were made during use
+    // in practice this is only for StatusArea but might have others someday
+    UIConfig* config = getUIConfig();
+    bool changes = displayManager->saveConfiguration(config);
+    if (changes) {
+        writeUIConfig(config);
+    }
+        
     // DisplayManager is in a smart pointer, but should we be doing
     // things before the destructor happens, in particular the audio
     // streams will be closed before delete happens
@@ -78,14 +87,24 @@ void Supervisor::shutdown()
     // mobiusConfig and uiConfig are smart pointers
 }
 
+
 /**
- * Start a traversal down the display hierarchy updaing
- * Mobius state.
+ * Called by the MobiusThread to process events.
+ * The expected cycle time is 10ms or 1/10 second.
+ * To make things look real, we need to advance the simulator by an amount
+ * that corresponds to the thread notification cycle.  So if the cycle is 100ms
+ * or 1/10 second, then the number of audio frames that would have been cousumed
+ * in that time is SamplesPerSecond divided by 10.  It doesn't really matter what
+ * sample rate is as long as both sides agree, so we'll assume 41.1 which
+ * is what old Mobius always used.  So the number of frames per
+ * thread cycle is 4110.
  */
-void Supervisor::updateState()
+void Supervisor::advance()
 {
-    // this should be a singleton so we don't have to eep
-    // a copy but we can
+    // tell the simulator to pretend it received some audio
+    mobius->simulateInterrupt(nullptr, nullptr, 4110);
+    
+    // traverse the display components telling then to reflect changes in the engine
     MobiusState* state = mobius->getState();
     displayManager->update(state);
 }
@@ -250,20 +269,23 @@ UIConfig* Supervisor::getUIConfig()
 void Supervisor::updateMobiusConfig()
 {
     if (mobiusConfig) {
-        writeMobiusConfig(mobiusConfig.get());
+        MobiusConfig* config = mobiusConfig.get();
 
-        // this is where the engine will want to know about things
-        // like the max loop & track counts
-        displayManager->configure(mobiusConfig.get());
+        writeMobiusConfig(config);
+
+        displayManager->configure(config);
+        mobius->configure(config);
     }
 }
 
 void Supervisor::updateUIConfig()
 {
     if (uiConfig) {
-        writeUIConfig(uiConfig.get());
+        UIConfig* config = uiConfig.get();
+        
+        writeUIConfig(config);
         // DisplayManager/MainWindow are the primary consumers of this
-        displayManager->configure(uiConfig.get());
+        displayManager->configure(config);
     }
 }
 

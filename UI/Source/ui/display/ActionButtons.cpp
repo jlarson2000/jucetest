@@ -8,6 +8,7 @@
 #include <JuceHeader.h>
 
 #include "../../model/UIConfig.h"
+#include "../JuceUtil.h"
 #include "ActionButton.h"
 #include "ActionButtons.h"
 #include "MobiusDisplay.h"
@@ -62,53 +63,31 @@ void ActionButtons::configure(UIConfig* config)
  * some, especially with arguments, might be long.  Continue on one
  * line wrapping when we get to the end of the available space.
  * Expected to be called by the parent's resized() method when
- * it knows the available width instead of calling resized.
+ * it knows the available width.  Our resized() method will then
+ * do nothing since the work has been done.
  *
  * Alternately could have a getPreferredHeight and a normal
  * resized() but we would have to do the same positioning calculations
  * in both so why bother.
- */
-#if 0
-void ActionButtons::layoutEasy(juce::Rectangle<int> parentBounds)
-{
-    int availableWidth = parentBounds.getWidth();
-    int topOffset = 0;
-    int leftOffset = 0;
-    // todo: make this configurable ?
-    int buttonHeight = 25;
-
-    for (int i = 0 ; i < buttons.size() ; i++) {
-        ActionButton* b = buttons[i];
-        int minWidth = b->getPreferredWidth(buttonHeight);
-        b->setSize(minWidth, buttonHeight);
-
-        // leave a gap
-        if (leftOffset > 0) leftOffset += 2;
-        
-        if (leftOffset + minWidth > availableWidth) {
-            // new row
-            // I suppose we should handle the edge case where
-            // the available width isn't enough for a single button
-            // but just let it truncate
-            leftOffset = 0;
-            topOffset += buttonHeight;
-        }
-        b->setTopLeftPosition(leftOffset, topOffset);
-        leftOffset += minWidth;
-    }
-
-    // now set our bounds to enclose the buttons
-    int totalHeight = topOffset;
-    // if we used this row
-    if (leftOffset > 0) totalHeight += buttonHeight;
-    setSize(availableWidth, totalHeight);
-}
-#endif
-
-/**
- * Variant that centers the buttons within each row.
- * It would be easier in some ways to put each row in a
- * wrapper component and than center that.
+ *
+ * NB: There is a very subtle issue with layout() doing both layout
+ * and sizing.  The buttons appear like expected but they are not
+ * responsive.  It seems Button requires the parent to be of a predetermined
+ * size BEFORE adding the children to initialize mouse sensitive areas
+ * or something.  If you position and size the buttons, THEN set the parent
+ * size it doesn't work.  Unfortunate because getPreferredHeight does all the
+ * work, then we set parent bounds, then we do that work again to layout the
+ * buttons.
+ *
+ * Or it might be something about breaking the usual rules of resized not
+ * cascading to the children even though they are already in the desired positions.
+ *
+ * Well it started working for no obvious reason.
+ * If you get here again, what seems to be always reliable is for parent::resized
+ * to call getPreferredHeight, then have it call setBounds again even though
+ * layout will have already done that, then in our resized() do the layout again.
+ * That lead to unresponsive buttons, but after flailing around it started working
+ * so I'm not sure what the magic was.
  */
 void ActionButtons::layout(juce::Rectangle<int> bounds)
 {
@@ -118,6 +97,12 @@ void ActionButtons::layout(juce::Rectangle<int> bounds)
     // todo: make this configurable ?
     int buttonHeight = 25;
 
+    // before we start, bound the parent with all of the available size
+    // so the button mouse listeners have something to work with
+    // note that if this calls resized() it will be ignored
+    // hmm, this didn't work
+    //setBounds(bounds);
+
     int rowStart = 0;
     for (int i = 0 ; i < buttons.size() ; i++) {
         ActionButton* b = buttons[i];
@@ -147,49 +132,20 @@ void ActionButtons::layout(juce::Rectangle<int> bounds)
         topOffset += buttonHeight;
     }
 
-    // now set our bounds to enclose the buttons
-    //setBounds(bounds.getX(), bounds.getY(), bounds.getWidth(), topOffset);
+    // now adjust our height to only use what we needed
+    setSize(availableWidth, topOffset);
+
+    JuceUtil::dumpComponent("ActionButtons::layout", this);
 }
 
+/**
+ * Hack trying to work around the unresponsive buttons problem.
+ * Not used right now but keep around in case we have to resurect that.
+ */
 int ActionButtons::getPreferredHeight(juce::Rectangle<int> bounds)
 {
-    int availableWidth = bounds.getWidth();
-    int topOffset = 0;
-    int leftOffset = 0;
-    // todo: make this configurable ?
-    int buttonHeight = 25;
-
-    int rowStart = 0;
-    for (int i = 0 ; i < buttons.size() ; i++) {
-        ActionButton* b = buttons[i];
-        int minWidth = b->getPreferredWidth(buttonHeight);
-        b->setSize(minWidth, buttonHeight);
-
-        // leave a gap
-        if (leftOffset > 0) leftOffset += 2;
-        
-        if (leftOffset + minWidth > availableWidth) {
-            // center the current row and start a new one
-            // I suppose we should handle the edge case where
-            // the available width isn't enough for a single button
-            // but just let it truncate
-            centerRow(rowStart, i, leftOffset, availableWidth);
-            leftOffset = 0;
-            topOffset += buttonHeight;
-            rowStart = i;
-        }
-        b->setTopLeftPosition(leftOffset, topOffset);
-        leftOffset += minWidth;
-    }
-
-    // close off the last row
-    if (leftOffset > 0) {
-        centerRow(rowStart, buttons.size(), leftOffset, availableWidth);
-        topOffset += buttonHeight;
-    }
-
-    // now set our bounds to enclose the buttons
-    return topOffset;
+    layout(bounds);
+    return getHeight();
 }
 
 void ActionButtons::centerRow(int start, int end, int rowWidth, int availableWidth)
@@ -202,17 +158,20 @@ void ActionButtons::centerRow(int start, int end, int rowWidth, int availableWid
     }
 }
 
+/**
+ * This is an unusual component in that the parent is expected to
+ * call layout() rather than just setSize() in it's resized() method.
+ * Since that does the work, when we eventually get to Juce calling
+ * our resized() we don't have to do anything.
+ *
+ * See comments for layout() about a subtle mouse sensitivity problem
+ * that seemed to have introduced.  For a time I had to call layout()
+ * again here after setting our size, but then it started working.
+ */
 void ActionButtons::resized()
 {
     // shouldn't get here, parent is supposed to call layout() instead
-/*
-    for (int i = 0 ; i < buttons.size() ; i++) {
-        ActionButton* b = buttons[i];
-        b->setBounds(i * 100, 0, 100, 30);
-    }
-*/
-    layout(getLocalBounds());
-    //localButton.setBounds(0, 0, 100, 20);
+    //layout(getLocalBounds());
 }
 
 void ActionButtons::paint(juce::Graphics& g)
@@ -233,26 +192,6 @@ void ActionButtons::buttonClicked(juce::Button* src)
     display->doAction(ab->getAction());
 }
 
-
-///////////////
-
-
-ActionButtonRow::ActionButtonRow()
-{
-    button.setButtonText("Inner");
-    addAndMakeVisible(button);
-}
-
-ActionButtonRow::~ActionButtonRow()
-{
-}
-
-void ActionButtonRow::add(ActionButton* b)
-{
-    ///addAndMakeVisible(b);
-}
-
-void ActionButtonRow::resized()
-{
-    button.setBounds(getLocalBounds());
-}
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

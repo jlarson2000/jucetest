@@ -169,6 +169,15 @@ void MainWindow::configure(MobiusConfig* config)
 {
 }
 
+/**
+ * Called during the shutdown process to save any accumulated
+ * changes.
+ */
+bool MainWindow::saveConfiguration(UIConfig* config)
+{
+    return display.saveConfiguration(config);
+}
+
 void MainWindow::update(MobiusState* state)
 {
     display.update(state);

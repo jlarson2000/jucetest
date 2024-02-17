@@ -37,6 +37,18 @@ void MobiusSimulator::configure(MobiusConfig* config)
     XmlRenderer xr;
     configuration = xr.clone(config);
 
+    state.init();
+
+    // supposed to pull this from config
+    state.trackCount = 8;
+    state.activeTrack = 0;
+
+    for (int t = 0 ; t < state.trackCount ; t++) {
+        MobiusTrackState* track = &(state.tracks[t]);
+        track->loopCount = 4;
+        track->activeLoop = 0;
+    }
+
     // don't need to support config update while active yet
     globalReset();
 }
@@ -169,8 +181,17 @@ void MobiusSimulator::doRecord(UIAction* action)
 
     if (mode == RecordMode) {
         // end the recording
-        loop->mode = PlayMode;;
+        loop->mode = PlayMode;
         loop->frame = 0;
+
+        // for beater testing pretend we have 2 cycles
+        loop->cycles = 2;
+        loop->cycle = 0;
+
+        // can start the UI beaters
+        loop->beatLoop = true;
+        loop->beatCycle = true;
+        loop->beatSubCycle = true;
     }
     else {
         reset(loop);
@@ -208,10 +229,41 @@ void MobiusSimulator::simulateInterrupt(float* input, float* output, int frames)
         else if (loop->frames > 0) {
             // advance the play position
             int newFrame = loop->frame + frames;
+
+            // should be getting subcycles from Preset, but assume 4 for now
+            int subcycles = 4;
+            int cycleFrames = loop->frames / loop->cycles;
+            int subcycleFrames = cycleFrames / subcycles;
+            
+            int startSubcycle = (int)((float)(loop->frame) / (float)subcycleFrames);
+            int endSubcycle = (int)(newFrame / subcycleFrames);
+            if (endSubcycle > startSubcycle)
+              loop->beatSubCycle = true;
+
+            int startCycle = (int)((float)(loop->frame) / (float)cycleFrames);
+            int endCycle = (int)(newFrame / cycleFrames);
+            if (endCycle > startCycle)
+              loop->beatCycle = true;
+
             if (newFrame > loop->frames) {
                 // we loop!
                 loop->frame = newFrame - loop->frames;
+                loop->beatCycle = true;
+                loop->beatLoop = true;
             }
+            else {
+                loop->frame = newFrame;
+            }
+
+            // weird rounding?
+            if (loop->beatLoop) {
+                loop->beatCycle = true;
+                loop->beatSubCycle = true;
+            }
+            else if (loop->beatCycle) {
+                loop->beatSubCycle = true;
+            }
+            
         }
     }
 }

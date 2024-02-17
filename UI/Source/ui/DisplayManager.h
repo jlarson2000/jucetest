@@ -18,6 +18,7 @@ class DisplayManager
     void configure(class UIConfig* config);
     void configure(class MobiusConfig* config);
     void update(class MobiusState* state);
+    bool saveConfiguration(class UIConfig* config);
     
   private:
 

@@ -44,6 +44,15 @@ void DisplayManager::configure(UIConfig* config)
 }
 
 /**
+ * Called by Supervisor before we finish shutting down
+ * to save any accumulated configuration changes.
+ */
+bool DisplayManager::saveConfiguration(UIConfig* config)
+{
+    return mainWindow->saveConfiguration(config);
+}
+
+/**
  * Called by Supervisor after the initial load of the
  * configuration files, and after any editing.
  *

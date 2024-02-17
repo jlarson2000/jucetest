@@ -1488,6 +1488,8 @@ void XmlRenderer::parse(XmlElement* e, OscWatcher* w)
 #define EL_LOCATION "Location"
 #define ATT_X "x"
 #define ATT_Y "y"
+#define ATT_WIDTH "width"
+#define ATT_HEIGHT "height"
 #define ATT_DISABLED "disabled"
 
 #define EL_BUTTONS "Buttons"
@@ -1537,9 +1539,15 @@ void XmlRenderer::render(XmlBuffer* b, UIConfig* c)
 			UILocation* location = locations->at(i).get();
             b->addOpenStartTag(EL_LOCATION);
             b->addAttribute(ATT_NAME, location->getName());
-            b->addAttribute(ATT_X, location->getX());
-            b->addAttribute(ATT_Y, location->getY());
-            b->addAttribute(ATT_DISABLED, location->isDisabled());
+            // these are normally always set
+            b->addAttribute(ATT_X, location->x);
+            b->addAttribute(ATT_Y, location->y);
+            // these are set only if they override the defaults
+            if (location->width > 0)
+              b->addAttribute(ATT_WIDTH, location->width);
+            if (location->height > 0)
+              b->addAttribute(ATT_HEIGHT, location->height);
+            b->addAttribute(ATT_DISABLED, location->disabled);
             b->add("/>\n");
 		}
 		b->decIndent();
@@ -1594,9 +1602,11 @@ void XmlRenderer::parse(XmlElement* e, UIConfig* config)
 				 le = le->getNextElement()) {
                 UILocation* loc = new UILocation();
                 loc->setName(le->getAttribute(ATT_NAME));
-                loc->setX(le->getIntAttribute(ATT_X));
-                loc->setY(le->getIntAttribute(ATT_Y));
-                loc->setDisabled(le->getBoolAttribute(ATT_DISABLED));
+                loc->x = le->getIntAttribute(ATT_X);
+                loc->y = le->getIntAttribute(ATT_Y);
+                loc->width = le->getIntAttribute(ATT_WIDTH);
+                loc->height = le->getIntAttribute(ATT_HEIGHT);
+                loc->disabled = le->getBoolAttribute(ATT_DISABLED);
                 config->addLocation(loc);
             }
 		}

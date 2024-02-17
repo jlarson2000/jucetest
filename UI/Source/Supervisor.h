@@ -37,8 +37,10 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
-    void updateState();
     void doAction(class UIAction*);
+
+    // only to be called by MainThread
+    void advance();
     
   private:
 

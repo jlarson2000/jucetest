@@ -10,6 +10,7 @@
 #include <JuceHeader.h>
 
 #include "ModeElement.h"
+#include "BeatersElement.h"
 
 class StatusArea : public juce::Component
 {
@@ -19,17 +20,27 @@ class StatusArea : public juce::Component
     ~StatusArea();
 
     void configure(class UIConfig* config);
-    void update(class MobiusState* state);
+    bool saveConfiguration(class UIConfig* config);
     
+    void update(class MobiusState* state);
+
+    // element callback to save location changes after dragging
+    void saveLocation(StatusElement* e);
+
     void resized() override;
     void paint(juce::Graphics& g) override;
     
   private:
 
     class MobiusDisplay* display;
+    juce::Array<StatusElement*> elements;
     
     ModeElement mode {this};
-
+    BeatersElement beaters {this};
+    
+    void addElement(StatusElement* el);
+    void addMissing(StatusElement* el);
+    
     void drawText(juce::Graphics& g, const char* text, int x, int y);
     
 };

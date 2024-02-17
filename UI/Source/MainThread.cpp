@@ -82,13 +82,8 @@ void MainThread::run()
 
 void MainThread::processEvents()
 {
-    counter++;
-
-    if (counter > 10) {
-        //trace("Beep\n");
-        counter = 0;
-        supervisor->updateState();
-    }
+    // no events yet, but let the Supervisor do stuff
+    supervisor->advance();
 }
 
 

@@ -20,6 +20,13 @@
 #define DEFAULT_MESSAGE_DURATION 2
 #define DEFAULT_ALERT_INTERVALS 10
 
+/**
+ * Used to track the locations of elements in the StatusArea
+ * that can be dragged around.
+ * The disabled flag is used to selectively hide elements from being visible.
+ * Let's keep the name generic for now in case we want to store locations
+ * for other things besides StatusElements.
+ */
 class UILocation
 {
   public:
@@ -46,28 +53,25 @@ class UILocation
         return mName;
     }
 
-    void setX(int i) { mX = i; };
-    int getX() { return mX; };
-
-    void setY(int i) { mY = i; };
-    int getY() { return mY; };
-        
-    void setDisabled(bool b) { mDisabled = b; };
-    bool isDisabled() { return mDisabled; };
+    // don't bother with getters for these
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+    int disabled = false;
 
   private:
 
     void init() {
         mName = nullptr;
-        mX = 0;
-        mY = 0;
-        mDisabled = false;
+        x = 0;
+        y = 0;
+        width = 0;
+        height = 0;
+        disabled = false;
     }
 
     char* mName;
-    int mX;
-    int mY;
-    bool mDisabled;
 
 };
 

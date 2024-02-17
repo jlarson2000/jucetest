@@ -70,7 +70,7 @@ ActionButton::ActionButton(UIButton* uib)
     // don't wait for mouse up
     setTriggeredOnMouseDown(true);
     if (uib == nullptr) {
-        setButtonText(juce::String("foo"));
+        setButtonText(juce::String("empty"));
     }
     else {
         setButtonText(formatButtonName(uib));

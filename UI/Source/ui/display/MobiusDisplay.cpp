@@ -10,6 +10,7 @@
 #include "../../model/UIConfig.h"
 #include "../JuceUtil.h"
 #include "../MainWindow.h"
+
 #include "Colors.h"
 #include "ActionButtons.h"
 
@@ -24,10 +25,7 @@ MobiusDisplay::MobiusDisplay(MainWindow* parent)
     addAndMakeVisible(statusArea);
     addAndMakeVisible(strips);
 
-    localButton.setButtonText("local");
-    addAndMakeVisible(localButton);
-
-    setSize(500, 500);
+    //setSize(500, 500);
 }
 
 MobiusDisplay::~MobiusDisplay()
@@ -43,7 +41,15 @@ void MobiusDisplay::configure(UIConfig* config)
     statusArea.configure(config);
     strips.configure(config);
     
+    // force resized to reorganize the add/remove of any buttons
+    // or track strip elements
     resized();
+}
+
+bool MobiusDisplay::saveConfiguration(UIConfig* config)
+{
+    // this is the only thing that cares right now
+    return statusArea.saveConfiguration(config);
 }
 
 void MobiusDisplay::update(MobiusState* state)
@@ -64,11 +70,10 @@ void MobiusDisplay::resized()
     // this doesn't work, the buttons display but the 
     buttons.layout(area);
 
-    int bheight = buttons.getPreferredHeight(area);
-    buttons.setBounds(area.removeFromTop(bheight));
-    //localButton.setBounds(area.removeFromTop(30));
+    //int bheight = buttons.getPreferredHeight(area);
+    //buttons.setBounds(area.removeFromTop(bheight));
     
-    // TrackStrips will have configurable content
+    // TrackStrips will have configurable content as well
     strips.layout(area);
 
     area.removeFromBottom(strips.getHeight());

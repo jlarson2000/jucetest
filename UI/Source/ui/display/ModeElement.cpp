@@ -11,9 +11,8 @@
 #include "ModeElement.h"
 
 ModeElement::ModeElement(StatusArea* area) :
-    StatusElement(area)
+    StatusElement(area, "ModeElement")
 {
-    setName("ModeElement");
 }
 
 ModeElement::~ModeElement()
@@ -55,8 +54,8 @@ void ModeElement::resized()
 
 void ModeElement::paint(juce::Graphics& g)
 {
-    g.setColour(juce::Colour(MobiusBlue));
-    g.drawRect(getLocalBounds(), 1);
+    // borders, labels, etc.
+    StatusElement::paint(g);
 
     juce::Font font = juce::Font(getHeight() * 0.8f);
     g.drawText(current, 0, 0, getWidth(), getHeight(), juce::Justification::left);

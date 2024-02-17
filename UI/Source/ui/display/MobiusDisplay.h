@@ -29,6 +29,8 @@ class MobiusDisplay : public juce::Component
     ~MobiusDisplay();
     
     void configure(class UIConfig* config);
+    bool saveConfiguration(class UIConfig* config);
+    
     void update(class MobiusState* state);
     void doAction(class UIAction* action);
 
@@ -43,8 +45,6 @@ class MobiusDisplay : public juce::Component
     ActionButtons buttons {this};
     StatusArea statusArea {this};
     TrackStrips strips {this};
-
-    ActionButton localButton;
 
 };    
 

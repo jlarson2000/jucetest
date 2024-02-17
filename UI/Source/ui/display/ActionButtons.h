@@ -35,27 +35,4 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     juce::OwnedArray<class ActionButton> buttons;
 
     void centerRow(int start, int end, int rowWidth, int availableWidth);
-    juce::String formatButtonName(class UIButton *src);
-    
-    ActionButton localButton;
-
 };
-
-/**
- * Helper component used to center the buttons within each row
- */
-class ActionButtonRow : public juce::Component
-{
-  public:
-    ActionButtonRow();
-    ~ActionButtonRow();
-
-    void add(class ActionButton* b);
-    void resized() override;
-    
-  private:
-
-    ActionButton button;
-
-};
-
