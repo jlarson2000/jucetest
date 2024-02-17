@@ -649,6 +649,9 @@
     <ClCompile Include="..\..\Source\ui\display\BeatersElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\LoopMeterElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -3304,6 +3307,9 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\Colors.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\LoopMeterElement.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h">

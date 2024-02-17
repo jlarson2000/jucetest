@@ -168,7 +168,9 @@ class MobiusLoopState
     bool	recording;
 	bool	paused;
     long    frame;
-	int		cycle;
+    // !! this is new, original engine did not maintain a subcycle
+    int     subcycle; // subcycle within the cycle
+	int		cycle;    // cycle within the loop
 	int 	cycles;
     long    frames;
     int     nextLoop;

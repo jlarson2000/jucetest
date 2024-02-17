@@ -64,7 +64,7 @@ const int BeaterExpectedTickMsec = 100;
  * If ticks come in every 100ms then a decay of 5 keeps the beater
  * lit for 1/2 second.
  */
-const int BeaterDecay = 2;
+const int BeaterDecay = 4;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -78,6 +78,11 @@ BeatersElement::BeatersElement(StatusArea* area) :
     addAndMakeVisible(&subcycleBeater);
     addAndMakeVisible(&cycleBeater);
     addAndMakeVisible(&loopBeater);
+
+    // we have child Beater components that are not StatusElements
+    // so the default mouse listener doesn't work
+    // see if this allows drag
+    setInterceptsMouseClicks(true, false);
 }
 
 BeatersElement::~BeatersElement()
@@ -102,7 +107,7 @@ int BeatersElement::getPreferredHeight()
 
 int BeatersElement::getPreferredWidth()
 {
-    return BeaterDiameter * 3;
+    return (BeaterDiameter * 3);
 }
 
 void BeatersElement::resized()
@@ -290,6 +295,22 @@ void Beater::paintBeater(juce::Graphics& g, bool on)
         g.setColour(juce::Colour(MobiusBlue));
         g.drawEllipse((float)getX(), (float)getY(), (float)getWidth(), (float)getHeight(), 2.0f);
     }
+}
+
+// forward mouse events to our parent
+void Beater::mouseDown(const juce::MouseEvent& e)
+{
+    getParentComponent()->mouseDown(e);
+}
+
+void Beater::mouseDrag(const juce::MouseEvent& e)
+{
+    getParentComponent()->mouseDrag(e);
+}
+
+void Beater::mouseUp(const juce::MouseEvent& e)
+{
+    getParentComponent()->mouseUp(e);
 }
 
 /****************************************************************************/

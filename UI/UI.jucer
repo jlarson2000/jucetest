@@ -44,6 +44,10 @@
           <FILE id="WnT2mO" name="BeatersElement.h" compile="0" resource="0"
                 file="Source/ui/display/BeatersElement.h"/>
           <FILE id="iB815e" name="Colors.h" compile="0" resource="0" file="Source/ui/display/Colors.h"/>
+          <FILE id="XiHGNo" name="LoopMeterElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/LoopMeterElement.cpp"/>
+          <FILE id="MnEOgX" name="LoopMeterElement.h" compile="0" resource="0"
+                file="Source/ui/display/LoopMeterElement.h"/>
           <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
                 file="Source/ui/display/MobiusDisplay.cpp"/>
           <FILE id="wVdVcf" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>

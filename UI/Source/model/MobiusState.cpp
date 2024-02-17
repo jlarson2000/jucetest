@@ -25,6 +25,7 @@ void MobiusLoopState::init()
     recording = false;
     paused = false;
     frame = 0;
+    subcycle = 0;
     cycle = 0;
     cycles = 0;
     frames = 0;

@@ -161,6 +161,8 @@ void MobiusSimulator::reset(MobiusLoopState* loop)
     loop->mode = ResetMode;
     loop->frames = 0;
     loop->frame = 0;
+    loop->subcycle = 0;
+    loop->cycle = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -187,7 +189,8 @@ void MobiusSimulator::doRecord(UIAction* action)
         // for beater testing pretend we have 2 cycles
         loop->cycles = 2;
         loop->cycle = 0;
-
+        loop->subcycle = 0;
+        
         // can start the UI beaters
         loop->beatLoop = true;
         loop->beatCycle = true;
@@ -234,28 +237,50 @@ void MobiusSimulator::simulateInterrupt(float* input, float* output, int frames)
             int subcycles = 4;
             int cycleFrames = loop->frames / loop->cycles;
             int subcycleFrames = cycleFrames / subcycles;
-            
             int startSubcycle = (int)((float)(loop->frame) / (float)subcycleFrames);
             int endSubcycle = (int)(newFrame / subcycleFrames);
-            if (endSubcycle > startSubcycle)
-              loop->beatSubCycle = true;
+            bool subcycleAdvance = false;
+            if (endSubcycle > startSubcycle) {
+                subcycleAdvance = true;
+                loop->subcycle++;
+                loop->beatSubCycle = true;
+            }
 
             int startCycle = (int)((float)(loop->frame) / (float)cycleFrames);
             int endCycle = (int)(newFrame / cycleFrames);
-            if (endCycle > startCycle)
-              loop->beatCycle = true;
+            bool cycleAdvance = false;
+            if (endCycle > startCycle) {
+                cycleAdvance = true;
+                loop->cycle++;
+                loop->beatCycle = true;
+                if (!subcycleAdvance) {
+                    // must have came early?
+                    trace("Missed subcycle advance in cycle\n");
+                }
+            }
 
             if (newFrame > loop->frames) {
                 // we loop!
-                loop->frame = newFrame - loop->frames;
-                loop->beatCycle = true;
                 loop->beatLoop = true;
+                if (!cycleAdvance)
+                  trace("Missed cycle advance in loop\n");
+                if (!subcycleAdvance)
+                  trace("Missed subcycle advance in loop\n");
+
+                loop->frame = newFrame - loop->frames;
+                // todo: if the loop is very short we could in theory
+                // advance more than one subcycle during the loop wrap
+                if (loop->frame > subcycleFrames)
+                  trace("Missed subcyccle on loop wrap\n");
+                loop->cycle = 0;
+                loop->subcycle = 0;
             }
             else {
                 loop->frame = newFrame;
             }
 
             // weird rounding?
+            /*
             if (loop->beatLoop) {
                 loop->beatCycle = true;
                 loop->beatSubCycle = true;
@@ -263,6 +288,7 @@ void MobiusSimulator::simulateInterrupt(float* input, float* output, int frames)
             else if (loop->beatCycle) {
                 loop->beatSubCycle = true;
             }
+            */
             
         }
     }

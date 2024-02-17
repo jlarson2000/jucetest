@@ -33,8 +33,9 @@ class Beater : public juce::Component
 
     void paintBeater(juce::Graphics& g, bool on);
 
-  private:
-    
+    void mouseDown(const juce::MouseEvent& e) override;
+    void mouseDrag(const juce::MouseEvent& e) override;
+    void mouseUp(const juce::MouseEvent& e) override;
 };
 
 class BeatersElement : public StatusElement
