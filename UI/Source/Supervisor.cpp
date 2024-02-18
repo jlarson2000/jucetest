@@ -102,6 +102,7 @@ void Supervisor::shutdown()
 void Supervisor::advance()
 {
     // tell the simulator to pretend it received some audio
+    // this will set beat flags in state
     mobius->simulateInterrupt(nullptr, nullptr, 4110);
     
     // traverse the display components telling then to reflect changes in the engine

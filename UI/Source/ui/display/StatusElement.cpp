@@ -72,12 +72,12 @@ void StatusElement::paint(juce::Graphics& g)
 
 void StatusElement::mouseEnter(const juce::MouseEvent& e)
 {
-    trace("mouse enter\n");
+    //trace("mouse enter\n");
 }
 
 void StatusElement::mouseExit(const juce::MouseEvent& e)
 {
-    trace("mouse exit\n");
+    //trace("mouse exit\n");
 }
 
 void StatusElement::mouseDown(const juce::MouseEvent& e)

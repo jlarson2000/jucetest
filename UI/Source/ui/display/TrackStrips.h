@@ -2,6 +2,8 @@
  * A component that displays a list of track controls for all tracks.
  *
  * Found at the bottom of MobiusDisplay.
+ * 
+ * The child components are StripElements and can be configured.
  */
 
 #pragma once
@@ -17,7 +19,8 @@ class TrackStrips : public juce::Component
 
     void configure(class UIConfig* config);
     void layout(juce::Rectangle<int>);
-    
+    void update(class MobiusState* state);
+
     void resized() override;
     void paint(juce::Graphics& g) override;
 
@@ -25,7 +28,7 @@ class TrackStrips : public juce::Component
 
     class MobiusDisplay* display;
     juce::OwnedArray<class TrackStrip> tracks;
-    
+
 };
 
 

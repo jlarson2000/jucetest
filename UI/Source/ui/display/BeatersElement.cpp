@@ -145,10 +145,6 @@ void BeatersElement::paint(juce::Graphics& g)
     subcycleBeater.paintBeater(g, subcycleOn);
     cycleBeater.paintBeater(g, cycleOn);
     loopBeater.paintBeater(g, loopOn);
-
-    if (loopOn) {
-        trace("here\n");
-    }
 }
 
 /**

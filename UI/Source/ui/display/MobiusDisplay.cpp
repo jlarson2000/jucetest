@@ -24,8 +24,6 @@ MobiusDisplay::MobiusDisplay(MainWindow* parent)
     addAndMakeVisible(buttons);
     addAndMakeVisible(statusArea);
     addAndMakeVisible(strips);
-
-    //setSize(500, 500);
 }
 
 MobiusDisplay::~MobiusDisplay()
@@ -55,7 +53,7 @@ bool MobiusDisplay::saveConfiguration(UIConfig* config)
 void MobiusDisplay::update(MobiusState* state)
 {
     statusArea.update(state);
-    //strips.update(state);
+    strips.update(state);
 }
 
 void MobiusDisplay::resized()
@@ -70,18 +68,21 @@ void MobiusDisplay::resized()
     // this doesn't work, the buttons display but the 
     buttons.layout(area);
 
+    area.removeFromTop(buttons.getHeight());
+
     //int bheight = buttons.getPreferredHeight(area);
     //buttons.setBounds(area.removeFromTop(bheight));
     
     // TrackStrips will have configurable content as well
     strips.layout(area);
+    // move them to the bottom
+    strips.setTopLeftPosition(0, area.getHeight() - strips.getHeight());
 
-    area.removeFromBottom(strips.getHeight());
-
-    // what remains is for the status area
+    // what remains goes to status
     // todo: it's going to be easy for this to overflow
     // think about maximum heights with a viewport or smart
     // truncation?
+    area.removeFromBottom(strips.getHeight());
     statusArea.setBounds(area);
     
     JuceUtil::dumpComponent(this);

@@ -161,8 +161,9 @@ void MobiusSimulator::reset(MobiusLoopState* loop)
     loop->mode = ResetMode;
     loop->frames = 0;
     loop->frame = 0;
-    loop->subcycle = 0;
+    loop->cycles = 0;
     loop->cycle = 0;
+    loop->subcycle = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -231,67 +232,149 @@ void MobiusSimulator::simulateInterrupt(float* input, float* output, int frames)
         }
         else if (loop->frames > 0) {
             // advance the play position
-            int newFrame = loop->frame + frames;
-
-            // should be getting subcycles from Preset, but assume 4 for now
-            int subcycles = 4;
-            int cycleFrames = loop->frames / loop->cycles;
-            int subcycleFrames = cycleFrames / subcycles;
-            int startSubcycle = (int)((float)(loop->frame) / (float)subcycleFrames);
-            int endSubcycle = (int)(newFrame / subcycleFrames);
-            bool subcycleAdvance = false;
-            if (endSubcycle > startSubcycle) {
-                subcycleAdvance = true;
-                loop->subcycle++;
-                loop->beatSubCycle = true;
-            }
-
-            int startCycle = (int)((float)(loop->frame) / (float)cycleFrames);
-            int endCycle = (int)(newFrame / cycleFrames);
-            bool cycleAdvance = false;
-            if (endCycle > startCycle) {
-                cycleAdvance = true;
-                loop->cycle++;
-                loop->beatCycle = true;
-                if (!subcycleAdvance) {
-                    // must have came early?
-                    trace("Missed subcycle advance in cycle\n");
-                }
-            }
-
-            if (newFrame > loop->frames) {
-                // we loop!
-                loop->beatLoop = true;
-                if (!cycleAdvance)
-                  trace("Missed cycle advance in loop\n");
-                if (!subcycleAdvance)
-                  trace("Missed subcycle advance in loop\n");
-
-                loop->frame = newFrame - loop->frames;
-                // todo: if the loop is very short we could in theory
-                // advance more than one subcycle during the loop wrap
-                if (loop->frame > subcycleFrames)
-                  trace("Missed subcyccle on loop wrap\n");
-                loop->cycle = 0;
-                loop->subcycle = 0;
-            }
-            else {
-                loop->frame = newFrame;
-            }
-
-            // weird rounding?
-            /*
-            if (loop->beatLoop) {
-                loop->beatCycle = true;
-                loop->beatSubCycle = true;
-            }
-            else if (loop->beatCycle) {
-                loop->beatSubCycle = true;
-            }
-            */
-            
+            play(loop, frames);
         }
     }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Play
+//
+// Adapted from Loop::play, playLocal, notifyBeatListeners
+// Conceptually we are filling the output buffer with content from
+// from the play layer.  This is normally the most recent layer unless
+// you have used Undo.
+//
+// We've simplified this by assuming that input and output latency are
+// zero so the record frame (mFrame) and play frame (mPlayFrame) are the same.
+// There is only one layer and it defines the loop size.
+//
+// If we cross a subcycle, cycle, or loop boundary within this buffer,
+// we set the beat flags.
+//
+//////////////////////////////////////////////////////////////////////
+
+void MobiusSimulator::play(MobiusLoopState* loop, int bufferFrames)
+{
+    // if we're in pause mode, do not advance
+	if (loop->paused) {
+		// mOutput->captureTail();
+	}
+    else {
+        // number of frames in this loop/layer
+        long loopTransitionFrame = loop->frames;
+        // number of frames remaining in this loop
+        long remaining = loopTransitionFrame - loop->frame;
+
+        // do we have more remaining than the size of this buffer?
+        if (remaining >= bufferFrames) {
+            // bliss, no boundary conditions, play away
+            // put this layer's frames into the output stream
+            notifyBeatListeners(loop, bufferFrames);
+            // mPlayFrame += frames;
+            loop->frame += bufferFrames;
+        }
+        else if (remaining >= 0) {
+            // remaining loop frames is contained within this buffer
+            // play whatever is left in this layer
+            long remainder = bufferFrames - remaining;
+
+            // subtlty of why we're here with >=0 but only play/notify if >0
+            if (remaining > 0) {
+                // play remaining
+                notifyBeatListeners(loop, remaining);
+                loop->frame += remaining;
+            }
+
+            // tests for various modes and sets the play frame, we can skip
+            // now we "loop"
+            loop->frame = 0;
+
+			notifyBeatListeners(loop, remainder);
+			loop->frame += remainder;
+        }
+        else if (remaining < 0) {
+            // play frame beyond the end of the loop, error
+            // supposed to Reset
+        }
+    }
+}
+
+/**
+ * Detect when segment of the audio buffer includes one of the beats.
+ * Usually frames will be the full buffer frames until we reach a loop boundary
+ * and do remainder processing above.
+ */
+void MobiusSimulator::notifyBeatListeners(MobiusLoopState* loop, long bufferFrames)
+{
+	// Don't do this in insert mode since we're never really
+	// returning to the loop start?
+
+    long loopFrames = loop->frames;
+
+    if (loopFrames == 0) {
+		// how can this happen?
+		trace("Loop: notifyBeatListeners: zero length loop\n");
+	}
+	else {
+		int cycles = loop->cycles;
+		long firstLoopFrame = 0;
+
+        // this is the user's percieved play frame
+        //long playFrame = mPlayFrame - mOutput->latency;
+        long playFrame = loop->frame;
+
+        // will never be true without latency
+		if (playFrame < 0)
+          playFrame += loop->frames;
+
+        // is firstLoopFrame within this window?
+        // I don't understand the math, firstLoopFrame is never
+        // set and will always be zero, bug?
+        long delta = playFrame - firstLoopFrame;
+
+        if (delta < bufferFrames) {
+            loop->beatLoop = true;
+            // cycle and subcycle reset
+            loop->cycle = 0;
+            loop->subcycle = 0;
+        }
+
+		long lastBufferFrame = playFrame + bufferFrames - 1;
+
+		long cycleFrames = loopFrames;
+		if (cycles > 1) {
+			cycleFrames = loopFrames / cycles;
+			int delta = lastBufferFrame % cycleFrames;
+			// delta is now the number of frames beyond a cycle point
+			// if we get a negative number subtracting the frame count,
+			// then this block of frames surrounded a cycle boundary
+			if (delta - bufferFrames <= 0) {
+                loop->beatCycle = true;
+                loop->cycle = loop->frame / cycleFrames;
+                loop->subcycle = 0;
+            }
+		}
+
+		// similar calculation as for cycles, is there a faster way?
+		// !! this is the same roundoff problem that 
+		// getQuantizedFrame has
+		// int ticks = mPreset->getSubcycles();
+        int ticks = 4;
+        
+		// sanity check to avoid divide by zero
+		if (ticks == 0) ticks = 1;
+		long tickFrames = cycleFrames / ticks;
+		delta = lastBufferFrame % tickFrames;
+		if (delta - bufferFrames <= 0) {
+            loop->beatSubCycle = true;
+            // todo: maintain loop->subcycle
+        }
+
+        // if we set any of the flags use send the UI
+        // a signal to break out of it's wait loop
+	}
 }
 
 /****************************************************************************/

@@ -11,7 +11,8 @@
 
 #include "ModeElement.h"
 #include "BeatersElement.h"
-#include "LoopMeterElement.h"
+//#include "LoopMeterElement.h"
+#include "CounterElement.h"
 
 class StatusArea : public juce::Component
 {
@@ -38,7 +39,8 @@ class StatusArea : public juce::Component
     
     ModeElement mode {this};
     BeatersElement beaters {this};
-    LoopMeterElement meter {this};
+//    LoopMeterElement meter {this};
+    CounterElement counter {this};
     
     void addElement(StatusElement* el);
     void addMissing(StatusElement* el);

@@ -649,7 +649,7 @@
     <ClCompile Include="..\..\Source\ui\display\BeatersElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\display\LoopMeterElement.cpp">
+    <ClCompile Include="..\..\Source\ui\display\CounterElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp">
@@ -662,6 +662,15 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\StatusElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\StripElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\StripElements.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\StripRotary.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\TrackStrip.cpp">
@@ -3309,7 +3318,7 @@
     <ClInclude Include="..\..\Source\ui\display\Colors.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ui\display\LoopMeterElement.h">
+    <ClInclude Include="..\..\Source\ui\display\CounterElement.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h">
@@ -3322,6 +3331,15 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\StatusElement.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\StripElement.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\StripElements.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\StripRotary.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\TrackStrip.h">

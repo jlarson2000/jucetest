@@ -37,6 +37,8 @@ class MobiusSimulator : public MobiusInterface
 
     void doRecord(class UIAction* action);
 
+    void play(class MobiusLoopState* loop, int bufferFrames);
+    void notifyBeatListeners(class MobiusLoopState* loop, long bufferFrames);
     
 };
 

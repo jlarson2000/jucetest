@@ -44,10 +44,10 @@
           <FILE id="WnT2mO" name="BeatersElement.h" compile="0" resource="0"
                 file="Source/ui/display/BeatersElement.h"/>
           <FILE id="iB815e" name="Colors.h" compile="0" resource="0" file="Source/ui/display/Colors.h"/>
-          <FILE id="XiHGNo" name="LoopMeterElement.cpp" compile="1" resource="0"
-                file="Source/ui/display/LoopMeterElement.cpp"/>
-          <FILE id="MnEOgX" name="LoopMeterElement.h" compile="0" resource="0"
-                file="Source/ui/display/LoopMeterElement.h"/>
+          <FILE id="pLW9gm" name="CounterElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/CounterElement.cpp"/>
+          <FILE id="RNkXdk" name="CounterElement.h" compile="0" resource="0"
+                file="Source/ui/display/CounterElement.h"/>
           <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
                 file="Source/ui/display/MobiusDisplay.cpp"/>
           <FILE id="wVdVcf" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>
@@ -58,6 +58,14 @@
           <FILE id="xu4lJg" name="StatusElement.cpp" compile="1" resource="0"
                 file="Source/ui/display/StatusElement.cpp"/>
           <FILE id="TnBtCz" name="StatusElement.h" compile="0" resource="0" file="Source/ui/display/StatusElement.h"/>
+          <FILE id="G2txQx" name="StripElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/StripElement.cpp"/>
+          <FILE id="hgDLnu" name="StripElement.h" compile="0" resource="0" file="Source/ui/display/StripElement.h"/>
+          <FILE id="I9R4wt" name="StripElements.cpp" compile="1" resource="0"
+                file="Source/ui/display/StripElements.cpp"/>
+          <FILE id="GB84je" name="StripElements.h" compile="0" resource="0" file="Source/ui/display/StripElements.h"/>
+          <FILE id="Xa5EM4" name="StripRotary.cpp" compile="1" resource="0" file="Source/ui/display/StripRotary.cpp"/>
+          <FILE id="IIRO4P" name="StripRotary.h" compile="0" resource="0" file="Source/ui/display/StripRotary.h"/>
           <FILE id="ty1mou" name="TrackStrip.cpp" compile="1" resource="0" file="Source/ui/display/TrackStrip.cpp"/>
           <FILE id="jzCok7" name="TrackStrip.h" compile="0" resource="0" file="Source/ui/display/TrackStrip.h"/>
           <FILE id="UXBs6H" name="TrackStrips.cpp" compile="1" resource="0" file="Source/ui/display/TrackStrips.cpp"/>
