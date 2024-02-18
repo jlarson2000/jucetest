@@ -1,0 +1,146 @@
+
+// these correspond to Parameters in track scope
+// now we're not dealing with a SetupTrack, the operations are
+// on the live Track state source values come from the MobiusState
+// value changes need to be proccessd with doAction
+
+extern StripElementDefinition* StripInputLevel;
+extern StripElementDefinition* StripOutputLevel;
+extern StripElementDefinition* StripFeedback;
+extern StripElementDefinition* StripSecondaryFeedback;
+extern StripElementDefinition* StripPan;
+
+// these are lesser used but also associated with Parameters
+
+extern StripElementDefinition* StripPitchOctave;
+extern StripElementDefinition* StripPitchStep;
+extern StripElementDefinition* StripPitchBend;
+extern StripElementDefinition* StripSpeedOctave;
+extern StripElementDefinition* StripSpeedStep;
+extern StripElementDefinition* StripSpeedBend;
+extern StripElementDefinition* StripTimeStretch;
+
+Formatting the doAction is easy enough, use a Parameter action
+In the engine, can special case these rather than extending
+the model to know about where they go
+
+Requires a switch comparing on Parameter pointer
+a jump table would be nice but there aren't that many of them
+engine wrapper can call the appropriate internal methods
+
+
+The same applies to ANY parameter binding.  Bindings never target
+the config object, only the runtime.  "set subcycles 8"
+For preset parameters these could modify the Preset being used at runtime
+since we always pull from there.
+
+It's the Track parameters that are the complicated ones.
+
+Old model has this:
+
+void OutputLevelParameterType::setValue(Track* t, ExValue* value)
+{
+    int v = value->getInt();
+    if (v >= low && v <= high)
+      t->setOutputLevel(v);
+}
+
+Some are converted to functions
+
+void PitchOctaveParameterType::setValue(Action* action)
+{
+    doFunction(action, PitchOctave);
+}
+
+
+This I think we can factor out:
+
+void PitchOctaveParameterType::setValue(Action* action)
+{
+    doFunction(action, PitchOctave);
+}
+
+Convert them to Function actions at a higher level.
+
+However the dispatch happens the behavior is:
+
+  UI creates an Action to set the parameter and sends it to the engine
+  UI continues to poll MobiusState looking for the side effect
+  It will usually be processed quicly, but until then the control map snap back
+  if it is not processed within the 1/10 refresh interval
+  could lead to confusion but we can't keep the desired value forever without
+  some form of communication back from the engine e.g.
+    retain UI value until engine says it processed the action
+    then start going back to MobiusState
+    what sucks is quantized actions if we allow them
+
+Think about a result model for doAction, necessary for long duration pending
+would be kept by the control that launched the action
+
+non-UI bindings don't really care, they just fire and forget
+OSC may want to behave more like the UI
+
+  ActionResult* engine->doAction
+    ActionResult allocated by engine
+    engine may modify the result but will not free it
+    engine->discardResult(result)
+      engine is free to pool or free the result
+    if the UI forgets to discard, it will leak
+    if the engine somehow detaches from the result, it may become stale and unresponsive
+
+Waiting to be notified with a thread event could also work but need to assign
+a unique identifier for the action, hmm, this could also work
+
+  int id = engine->doAction
+
+  bool engine->isActionValid(id);
+    true if this action is still in progress
+    false if the action was ignored or processed
+
+
+  bool engine->isActionFinished(id);
+    need both of these?  all we really care about is whether it is still alive or not
+    knowing it was a failure could be used to format an error message
+
+Action result ids would have to be generated, could just be an increasing number
+
+Yes, the internal Action model has complexity around "ownership" of the action by an Event
+this must be how we handle scheduling
+
+
+
+// this one is odd, I think it applies only to the UI
+// look for focus usages in the engine, it could be handled
+// entirely in binding processing
+extern StripElementDefinition* StripFocusLock;
+
+Look closely at the Export.h model, that seems to be the way we got results back
+
+
+
+// these are read-only from the MobiusState
+
+// the defaults for the dock, also OutputLevel
+extern StripElementDefinition* StripTrackNumber;
+extern StripElementDefinition* StripLoopRadar;
+extern StripElementDefinition* StripLoopStatus;
+extern StripElementDefinition* StripOutputMeter;
+
+// optional but popular
+extern StripElementDefinition* StripGroupName;
+extern StripElementDefinition* StripLoopThermometer;
+
+// obscure options
+
+// this was a little button we don't need if the track
+// number is clickable for focus
+extern StripElementDefinition* StripFocusLock;
+
+extern StripElementDefinition* StripPitchOctave;
+extern StripElementDefinition* StripPitchStep;
+extern StripElementDefinition* StripPitchBend;
+extern StripElementDefinition* StripSpeedOctave;
+extern StripElementDefinition* StripSpeedStep;
+extern StripElementDefinition* StripSpeedBend;
+extern StripElementDefinition* StripTimeStretch;
+
