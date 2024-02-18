@@ -2,6 +2,7 @@
   <Locations>
     <Location name='ModeElement' x='619' y='191' disabled='0'/>
     <Location name='BeatersElement' x='754' y='306' disabled='0'/>
+    <Location name='LoopMeterElement' x='327' y='118' disabled='0'/>
     <Location name='CounterElement' x='225' y='346' disabled='0'/>
   </Locations>
   <Buttons>

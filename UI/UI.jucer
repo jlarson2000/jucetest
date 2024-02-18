@@ -48,6 +48,10 @@
                 file="Source/ui/display/CounterElement.cpp"/>
           <FILE id="RNkXdk" name="CounterElement.h" compile="0" resource="0"
                 file="Source/ui/display/CounterElement.h"/>
+          <FILE id="pfpSj1" name="LoopMeterElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/LoopMeterElement.cpp"/>
+          <FILE id="tZlDJz" name="LoopMeterElement.h" compile="0" resource="0"
+                file="Source/ui/display/LoopMeterElement.h"/>
           <FILE id="JBJRcC" name="MobiusDisplay.cpp" compile="1" resource="0"
                 file="Source/ui/display/MobiusDisplay.cpp"/>
           <FILE id="wVdVcf" name="MobiusDisplay.h" compile="0" resource="0" file="Source/ui/display/MobiusDisplay.h"/>

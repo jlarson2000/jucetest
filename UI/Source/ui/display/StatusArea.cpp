@@ -35,7 +35,7 @@ StatusArea::StatusArea(MobiusDisplay* parent)
 
     addElement(&mode);
     addElement(&beaters);
-    //addElement(&meter);
+    addElement(&meter);
     addElement(&counter);
 }
 
@@ -45,7 +45,6 @@ void StatusArea::addElement(StatusElement* el)
     addChildComponent(el);
     elements.add(el);
 }
-
 
 StatusArea::~StatusArea()
 {
