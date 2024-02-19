@@ -37,6 +37,7 @@ StatusArea::StatusArea(MobiusDisplay* parent)
     addElement(&beaters);
     addElement(&meter);
     addElement(&counter);
+    addElement(&floater);
 }
 
 void StatusArea::addElement(StatusElement* el)
@@ -57,6 +58,11 @@ void StatusArea::update(MobiusState* state)
         if (el->isVisible())
           el->update(state);
     }
+}
+
+void StatusArea::doAction(UIAction* action)
+{
+    display->doAction(action);
 }
 
 void StatusArea::resized()
@@ -108,6 +114,11 @@ void StatusArea::saveLocation(StatusElement* e)
  */
 void StatusArea::configure(UIConfig* config)
 {
+    // let elements configure themselves
+    for (int i = 0 ; i < elements.size() ; i++) {
+        elements[i]->configure(config);
+    }
+
     std::vector<std::unique_ptr<UILocation>>* locations = config->getLocations();
 	if (locations->size() > 0) {
 		for (int i = 0 ; i < locations->size() ; i++) {

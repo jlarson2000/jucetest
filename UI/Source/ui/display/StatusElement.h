@@ -26,13 +26,17 @@ class StatusElement : public juce::Component
     void mouseDown(const juce::MouseEvent& event) override;
     void mouseDrag(const juce::MouseEvent& event) override;
     void mouseUp(const juce::MouseEvent& e) override;
+
+  protected:
     
+    class StatusArea* area;
+
   private:
 
-    class StatusArea* area;
     juce::ComponentDragger dragger;
+    // testing hack, StatusRotary now has one too
     bool dragging = false;
-
+  
 };
 
 

@@ -48,6 +48,10 @@
                 file="Source/ui/display/CounterElement.cpp"/>
           <FILE id="RNkXdk" name="CounterElement.h" compile="0" resource="0"
                 file="Source/ui/display/CounterElement.h"/>
+          <FILE id="W7GRFq" name="FloatingStripElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/FloatingStripElement.cpp"/>
+          <FILE id="hry81p" name="FloatingStripElement.h" compile="0" resource="0"
+                file="Source/ui/display/FloatingStripElement.h"/>
           <FILE id="pfpSj1" name="LoopMeterElement.cpp" compile="1" resource="0"
                 file="Source/ui/display/LoopMeterElement.cpp"/>
           <FILE id="tZlDJz" name="LoopMeterElement.h" compile="0" resource="0"

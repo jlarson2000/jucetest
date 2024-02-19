@@ -9,6 +9,7 @@
 #include "../model/MobiusState.h"
 #include "../model/ModeDefinition.h"
 #include "../model/FunctionDefinition.h"
+#include "../model/Parameter.h"
 #include "../model/UIAction.h"
 #include "../model/XmlREnderer.h"
 
@@ -30,6 +31,11 @@ MobiusSimulator::~MobiusSimulator()
 // Configuration
 //
 //////////////////////////////////////////////////////////////////////
+
+void MobiusSimulator::setListener(MobiusListener* l)
+{
+    listener = l;
+}
 
 void MobiusSimulator::configure(MobiusConfig* config)
 {
@@ -102,9 +108,33 @@ void MobiusSimulator::doAction(UIAction* action)
             trace("Unimplemented function: %s\n", f->getName());
         }
     }
+    else if (action->target == TargetParameter) {
+        Parameter* p = action->targetPointer.parameter;
+        if (p == nullptr) {
+            trace("Unresolved parameter: %s\n", action->targetName);
+        }
+        else if (p == OutputLevelParameter) {
+            int tracknum = action->scopeTrack;
+            if (tracknum == 0) {
+                tracknum = state.activeTrack;
+            }
+            else {
+                tracknum--;
+            }
+            MobiusTrackState* track = &(state.tracks[tracknum]);
+            track->outputLevel = action->getValueInt();
+        }
+        else {
+            trace("Unimplemented parameter: %s\n", p->getName());
+        }
+            
+    }
     else {
         trace("Unexpected action target %s\n", action->target->getName());
     }
+
+    // until we support queuing make sure this is clean
+    action->actionId = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -312,7 +342,8 @@ void MobiusSimulator::notifyBeatListeners(MobiusLoopState* loop, long bufferFram
 	// returning to the loop start?
 
     long loopFrames = loop->frames;
-
+    bool notify = false;
+    
     if (loopFrames == 0) {
 		// how can this happen?
 		trace("Loop: notifyBeatListeners: zero length loop\n");
@@ -339,6 +370,7 @@ void MobiusSimulator::notifyBeatListeners(MobiusLoopState* loop, long bufferFram
             // cycle and subcycle reset
             loop->cycle = 0;
             loop->subcycle = 0;
+            notify = true;
         }
 
 		long lastBufferFrame = playFrame + bufferFrames - 1;
@@ -354,6 +386,7 @@ void MobiusSimulator::notifyBeatListeners(MobiusLoopState* loop, long bufferFram
                 loop->beatCycle = true;
                 loop->cycle = loop->frame / cycleFrames;
                 loop->subcycle = 0;
+                notify = true;
             }
 		}
 
@@ -370,11 +403,26 @@ void MobiusSimulator::notifyBeatListeners(MobiusLoopState* loop, long bufferFram
 		if (delta - bufferFrames <= 0) {
             loop->beatSubCycle = true;
             // todo: maintain loop->subcycle
+            notify = true;
         }
 
         // if we set any of the flags use send the UI
         // a signal to break out of it's wait loop
 	}
+
+    if (notify && listener != nullptr)
+      listener->MobiusTimeBoundary();
+    
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Maintenance
+//
+//////////////////////////////////////////////////////////////////////
+
+void MobiusSimulator::performMaintenance()
+{
 }
 
 /****************************************************************************/

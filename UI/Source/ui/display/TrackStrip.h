@@ -15,6 +15,7 @@ class TrackStrip : public juce::Component
   public:
     
     TrackStrip(class TrackStrips*);
+    TrackStrip(class FloatingStripElement*);
     ~TrackStrip();
 
     void setFloatingConfig(int i);
@@ -29,12 +30,16 @@ class TrackStrip : public juce::Component
     void resized() override;
     void paint(juce::Graphics& g) override;
 
+    void doAction(class UIAction* action);
+
   private:
 
-    // parent, shouldn't be needed for much
-    // but this is how we tell if we're floating or docked
+    // parent when we're in the docked strips
     class TrackStrips* strips;
 
+    // parent when we're in a floating status element
+    class FloatingStripElement* floater;
+    
     // taking a different approach than StatusArea and
     // allocating these dynamicall since you don't usually
     // want that many of them

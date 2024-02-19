@@ -140,6 +140,11 @@ extern Trigger* TriggerUnknown;
  *                                                                          *
  ****************************************************************************/
 
+// todo: do we really need this much information about a trigger
+// for the action?  other than momentary vs. sustain why
+// would the engine care?  For that matter, if it's sustain that
+// can't this all be handled in the Binding layer?
+
 /**
  * Defines the behavior of the trigger over time.
  * 

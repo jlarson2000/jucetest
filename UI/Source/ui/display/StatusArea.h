@@ -13,6 +13,7 @@
 #include "BeatersElement.h"
 #include "LoopMeterElement.h"
 #include "CounterElement.h"
+#include "FloatingStripElement.h"
 
 class StatusArea : public juce::Component
 {
@@ -25,7 +26,8 @@ class StatusArea : public juce::Component
     bool saveConfiguration(class UIConfig* config);
     
     void update(class MobiusState* state);
-
+    void doAction(class UIAction* action);
+    
     // element callback to save location changes after dragging
     void saveLocation(StatusElement* e);
 
@@ -41,6 +43,7 @@ class StatusArea : public juce::Component
     BeatersElement beaters {this};
     LoopMeterElement meter {this};
     CounterElement counter {this};
+    FloatingStripElement floater {this};
     
     void addElement(StatusElement* el);
     void addMissing(StatusElement* el);

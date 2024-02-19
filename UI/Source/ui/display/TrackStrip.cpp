@@ -19,12 +19,21 @@
 #include "StripElements.h"
 #include "TrackStrips.h"
 #include "TrackStrip.h"
+#include "FloatingStripElement.h"
 
 // eventually have one that takes a StatusAreaWrapper parent
 TrackStrip::TrackStrip(TrackStrips* parent)
 {
     setName("TrackStrip");
     strips = parent;
+    floater = nullptr;
+}
+
+TrackStrip::TrackStrip(FloatingStripElement* parent)
+{
+    setName("TrackStrip");
+    floater = parent;
+    strips = nullptr;
 }
 
 TrackStrip::~TrackStrip()
@@ -124,6 +133,9 @@ void TrackStrip::paint(juce::Graphics& g)
             g.drawRect(getLocalBounds(), 2);
         }
     }
+    else {
+        // floater paints itself
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -193,6 +205,18 @@ void TrackStrip::configure(UIConfig* config)
         else if (StringEqual(name, StripOutputLevel->name)) {
             el = new OutputLevelElement(this);
         }
+        else if (StringEqual(name, StripInputLevel->name)) {
+            el = new InputLevelElement(this);
+        }
+        else if (StringEqual(name, StripFeedback->name)) {
+            el = new FeedbackElement(this);
+        }
+        else if (StringEqual(name, StripSecondaryFeedback->name)) {
+            el = new SecondaryFeedbackElement(this);
+        }
+        else if (StringEqual(name, StripPan->name)) {
+            el = new PanElement(this);
+        }
         
         if (el != nullptr) {
             addAndMakeVisible(el);
@@ -201,6 +225,22 @@ void TrackStrip::configure(UIConfig* config)
     }
 }
         
+/**
+ * Called by one of the sub elements to perform an action.
+ * Here we'll add the track scope and pass it along up
+ */
+void TrackStrip::doAction(UIAction* action)
+{
+    // sigh, TrackStrip.followTrack is -1 for active track
+    // action is 0 based, but we use 0 meaning active elsewhere
+    action->scopeTrack = followTrack + 1;
+    
+    if (strips != nullptr)
+      strips->doAction(action);
+    else if (floater != nullptr)
+      floater->doAction(action);
+}
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

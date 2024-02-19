@@ -20,6 +20,7 @@ class TrackStrips : public juce::Component
     void configure(class UIConfig* config);
     void layout(juce::Rectangle<int>);
     void update(class MobiusState* state);
+    void doAction(class UIAction* action);
 
     void resized() override;
     void paint(juce::Graphics& g) override;

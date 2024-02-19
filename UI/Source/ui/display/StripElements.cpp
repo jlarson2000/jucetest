@@ -3,6 +3,7 @@
 
 #include "../../util/Trace.h"
 #include "../../model/MobiusState.h"
+#include "../../model/Parameter.h"
 
 #include "Colors.h"
 #include "TrackStrip.h"
@@ -219,16 +220,198 @@ OutputLevelElement::~OutputLevelElement()
 
 void OutputLevelElement::update(MobiusState* state)
 {
-    int tracknum = strip->getTrackNumber();
-    MobiusTrackState* track = &(state->tracks[tracknum]);
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
 
-    if (track->outputLevel != value) {
-        value = track->outputLevel;
-        // testing, max it
-        value = 127;
-        slider.setValue((double)value);
-        slider.repaint();
+        if (track->outputLevel != value) {
+            value = track->outputLevel;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
     }
+}
+
+/**
+ * Where the rubber meets the sky...
+ * Needing to know OutputLevelParameter here could
+ * be avoided if the StripElementDefinition
+ * we have to pass to the StripRotary constructor could contain
+ * that.  We've got a set of ElementDefinitions that match
+ * the Parameters, why not associate them there?  I guess
+ * since we need parameter specific implementation anyway in update()
+ * it's not so bad.
+ */
+void OutputLevelElement::sliderValueChanged(juce::Slider* slider)
+{
+    // capture the value in local state so we don't trigger a repaint
+    // on the next update
+    value = (int)slider->getValue();
+    
+    // StripRotary will already have set TargetParameter
+    action.targetPointer.parameter = OutputLevelParameter;
+    // argument will be the same as our member object
+    action.setValue(value);
+    
+    strip->doAction(&action);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// InputLevel
+//
+//////////////////////////////////////////////////////////////////////
+
+InputLevelElement::InputLevelElement(class TrackStrip* parent) :
+    StripRotary(parent, StripInputLevel)
+{
+    min = 0;
+    max = 127;
+    slider.setRange((double)min, (double)max, 1);
+}
+
+InputLevelElement::~InputLevelElement()
+{
+}
+
+void InputLevelElement::update(MobiusState* state)
+{
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
+
+        if (track->inputLevel != value) {
+            value = track->inputLevel;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
+    }
+}
+
+void InputLevelElement::sliderValueChanged(juce::Slider* slider)
+{
+    value = (int)slider->getValue();
+    action.targetPointer.parameter = InputLevelParameter;
+    action.setValue(value);
+    strip->doAction(&action);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Feedback
+//
+//////////////////////////////////////////////////////////////////////
+
+FeedbackElement::FeedbackElement(class TrackStrip* parent) :
+    StripRotary(parent, StripFeedback)
+{
+    min = 0;
+    max = 127;
+    slider.setRange((double)min, (double)max, 1);
+}
+
+FeedbackElement::~FeedbackElement()
+{
+}
+
+void FeedbackElement::update(MobiusState* state)
+{
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
+
+        if (track->feedback != value) {
+            value = track->feedback;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
+    }
+}
+
+void FeedbackElement::sliderValueChanged(juce::Slider* slider)
+{
+    value = (int)slider->getValue();
+    action.targetPointer.parameter = FeedbackLevelParameter;
+    action.setValue(value);
+    strip->doAction(&action);
+}
+//////////////////////////////////////////////////////////////////////
+//
+// SecondaryFeedback
+//
+//////////////////////////////////////////////////////////////////////
+
+SecondaryFeedbackElement::SecondaryFeedbackElement(class TrackStrip* parent) :
+    StripRotary(parent, StripSecondaryFeedback)
+{
+    min = 0;
+    max = 127;
+    slider.setRange((double)min, (double)max, 1);
+}
+
+SecondaryFeedbackElement::~SecondaryFeedbackElement()
+{
+}
+
+void SecondaryFeedbackElement::update(MobiusState* state)
+{
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
+
+        if (track->feedback != value) {
+            value = track->feedback;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
+    }
+}
+
+void SecondaryFeedbackElement::sliderValueChanged(juce::Slider* slider)
+{
+    value = (int)slider->getValue();
+    action.targetPointer.parameter = AltFeedbackLevelParameter;
+    action.setValue(value);
+    strip->doAction(&action);
+}
+//////////////////////////////////////////////////////////////////////
+//
+// Pan
+//
+//////////////////////////////////////////////////////////////////////
+
+PanElement::PanElement(class TrackStrip* parent) :
+    StripRotary(parent, StripPan)
+{
+    min = 0;
+    max = 127;
+    slider.setRange((double)min, (double)max, 1);
+}
+
+PanElement::~PanElement()
+{
+}
+
+void PanElement::update(MobiusState* state)
+{
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
+
+        if (track->pan != value) {
+            value = track->pan;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
+    }
+}
+
+void PanElement::sliderValueChanged(juce::Slider* slider)
+{
+    value = (int)slider->getValue();
+    action.targetPointer.parameter = PanParameter;
+    action.setValue(value);
+    strip->doAction(&action);
 }
 
 /****************************************************************************/

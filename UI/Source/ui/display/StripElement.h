@@ -34,13 +34,16 @@ class StripElementDefinition
     static StripElementDefinition* getElement(const char* name);
 
     StripElementDefinition(const char* argName, const char* argDisplayName);
+    
     ~StripElementDefinition() {};
 
-    const char* name;
-    const char* displayName;
+    // but if not, you have to supply a name
+    const char* name = nullptr;
+    const char* displayName = nullptr;
 
     // todo: flags to limit which elements can be in
     // the docked or floating strips
+
 };
 
 // the defaults for the floating strip
@@ -99,7 +102,6 @@ class StripElement : public juce::Component
   protected:
 
     class TrackStrip* strip;
-
 };
 
 /****************************************************************************/

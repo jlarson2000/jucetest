@@ -76,14 +76,10 @@ void MainThread::run()
         }
 
         // thread is locked, we can mess with components
-        processEvents();
+        // I don't think we're going to need events to process, just
+        // notify Supervisor
+        supervisor->advance();
     }
-}
-
-void MainThread::processEvents()
-{
-    // no events yet, but let the Supervisor do stuff
-    supervisor->advance();
 }
 
 

@@ -6,6 +6,7 @@
 
 #include "../../model/UIConfig.h"
 #include "../../model/MobiusConfig.h"
+#include "../../model/Parameter.h"
 
 #include "Colors.h"
 #include "TrackStrip.h"
@@ -19,7 +20,10 @@
 //////////////////////////////////////////////////////////////////////
 
 // todo: these should be SystemConsants for consistency and to add
-// help text later
+// help text later, though if you construct them with Parameter
+// we get that.  The old Parameter names don't always match what we have
+// historically used to reference them in the UIConfig though, so keep
+// them distinct, but need to rethink this
 
 /**
  * Find a strip element definition by name
@@ -48,7 +52,7 @@ StripElementDefinition::StripElementDefinition(const char* argName, const char* 
 {
     name = argName;
     displayName = argDisplayName;
-
+    
     Elements.push_back(this);
 }
 

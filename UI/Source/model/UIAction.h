@@ -141,6 +141,8 @@ class UIAction {
     // Trigger
     //////////////////////////////////////////////////////////////////////
 
+    // todo: HATE this, why should the UI be responsible?
+    
 	/**
 	 * A unique identifier for the action.
 	 * This is used when matching the down and up transitions of
@@ -278,6 +280,9 @@ class UIAction {
     /**
      * Non-zero if the action is targeted to a specific track rather than
      * globally, or for the selected track.
+     * todo: dislike not being consistent about track numbers, they
+     * start from zero in some places with -1 being active and 1 in
+     * some places with 0 being active. Here they are 1 based.
      */
     int scopeTrack;
 
@@ -365,6 +370,9 @@ class UIAction {
      */
     ActionOperator* actionOperator;
 
+    // todo: hate using ExValue for the primary value since
+    // they can now almost always be integers or ordinals
+
     /**
      * The primary argument of the action.
      * This must be set for Parameter targets.  For function targets
@@ -408,6 +416,16 @@ class UIAction {
     // Utilities
     //////////////////////////////////////////////////////////////////////
 
+    // try to hide ExValue
+    
+    int getValueInt() {
+        return arg.getInt();
+    }
+
+    void setValue(int i) {
+        arg.setInt(i);
+    }
+
     bool isSustainable();
     bool isTargetEqual(UIAction* other);
 
@@ -425,6 +443,17 @@ class UIAction {
     // Residual nice naming calculators, weed this 
     const char* getDescription();
     void getDisplayName(char* buffer, int max);
+
+    //////////////////////////////////////////////////////////////////////
+    // Results
+    //
+    // These can be set synchronously by the engine after calling doAction
+    //
+    //////////////////////////////////////////////////////////////////////
+
+    // zero if the action was performed immediately
+    // non-zero if the action was queued;
+    int actionId;
 
     //////////////////////////////////////////////////////////////////////
     //

@@ -1,0 +1,47 @@
+
+things that suck
+
+we've got a set of Parameter objects that
+define the parameter but they don't know how to set that in MobiusSimulator
+same will apply to the real engine
+
+Need a parallel set of InternalParameter objects that we can map between
+with ordinals
+
+In TrackStrip::configure
+  the element names come from UIConfig
+  we match those to StripElementDefinitions by name but the names
+    don't match Parameter
+  StripElement could find the associated Parameter and save it so
+  we don't have to have code to set the action target
+    all sliderValueChanged methods could be the same
+
+
+  the constructor for the various script eleemnts sets the range
+  could get this from the Parameter
+
+  the only thing the element subclasses need to do is take the slider
+  value and put it in the right MobiusState
+    - could use the same thing that MobiusSimulator uses but that's temporary
+    - NO, these are driven from MobiusState so can still share the basic value
+      testing, all we have to do is provide one method to pull it out of the right place
+
+
+so StripElementDefinition has an alternate constructor that takes a Parameter
+  can get name/displayName from there but the names don't match
+
+StripElement
+
+While we're cleaning up names might as well fix XmlRenderer so that it uses
+The Parameter object for the element names?
+
+ hmm, I like seeing just "output" in the XML and it is consistent with "feedback"
+ which would otherwise be "feedbackLevel"  So if we want to keep those
+ names hould change the names of the Parameters to OutputParameter
+
+
+Other types of "output" can use qualfiied names.
+
+
+
+  

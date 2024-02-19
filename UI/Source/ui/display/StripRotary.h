@@ -4,7 +4,11 @@
 
 #pragma once
 
-class StripRotary : public StripElement
+#include <JuceHeader.h>
+
+#include "../../model/UIAction.h"
+
+class StripRotary : public StripElement, public juce::Slider::Listener
 {
   public:
     
@@ -17,6 +21,11 @@ class StripRotary : public StripElement
     void resized() override;
     void paint(juce::Graphics& g) override;
     
+    // don't care about DragStarted and DragEnded
+    virtual void sliderValueChanged(juce::Slider* slider);
+    virtual void sliderDragStarted(juce::Slider* slider);
+    virtual void sliderDragEnded(juce::Slider* slider);
+    
   protected:
 
     int min;
@@ -24,5 +33,7 @@ class StripRotary : public StripElement
     int value;
     
     juce::Slider slider;
-    
+    UIAction action;
+    const char* label = nullptr;
+    bool dragging;
 };

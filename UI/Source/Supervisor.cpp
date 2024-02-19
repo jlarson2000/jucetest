@@ -101,8 +101,13 @@ void Supervisor::shutdown()
  */
 void Supervisor::advance()
 {
+    // tell the engine to do housekeeping before we refresh the UI
+    mobius->performMaintenance();
+
     // tell the simulator to pretend it received some audio
     // this will set beat flags in state
+    // geez, this violates the notion that we're using a simulator at all
+    // but what the hell, it's okay for now
     mobius->simulateInterrupt(nullptr, nullptr, 4110);
     
     // traverse the display components telling then to reflect changes in the engine

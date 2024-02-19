@@ -72,6 +72,71 @@ class OutputLevelElement : public StripRotary
     ~OutputLevelElement();
 
     void update(MobiusState* state) override;
+    void sliderValueChanged(juce::Slider* slider) override;
+
+  private:
+
+    long level = 0;
+
+};
+    
+class InputLevelElement : public StripRotary
+{
+  public:
+    
+    InputLevelElement(class TrackStrip* parent);
+    ~InputLevelElement();
+
+    void update(MobiusState* state) override;
+    void sliderValueChanged(juce::Slider* slider) override;
+
+  private:
+
+    long level = 0;
+
+};
+    
+class FeedbackElement : public StripRotary
+{
+  public:
+    
+    FeedbackElement(class TrackStrip* parent);
+    ~FeedbackElement();
+
+    void update(MobiusState* state) override;
+    void sliderValueChanged(juce::Slider* slider) override;
+
+  private:
+
+    long level = 0;
+
+};
+    
+class SecondaryFeedbackElement : public StripRotary
+{
+  public:
+    
+    SecondaryFeedbackElement(class TrackStrip* parent);
+    ~SecondaryFeedbackElement();
+
+    void update(MobiusState* state) override;
+    void sliderValueChanged(juce::Slider* slider) override;
+
+  private:
+
+    long level = 0;
+
+};
+    
+class PanElement : public StripRotary
+{
+  public:
+    
+    PanElement(class TrackStrip* parent);
+    ~PanElement();
+
+    void update(MobiusState* state) override;
+    void sliderValueChanged(juce::Slider* slider) override;
 
   private:
 

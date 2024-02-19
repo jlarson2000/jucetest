@@ -9,6 +9,21 @@
 
 #pragma once
 
+/**
+ * Old engine has both of these so we'll probably have to rename or use namespaces.
+ */
+class MobiusListener {
+  public:
+
+	/**
+	 * A significant time boundary has passed (beat, cycle, loop)
+	 * so refresh time sensitive components now rather than waiting
+	 * for the next timer event to make it look more accurate.
+	 */
+	virtual void MobiusTimeBoundary() = 0;
+};
+
+
 class MobiusInterface {
 
   public:
@@ -31,6 +46,11 @@ class MobiusInterface {
      * Mobius engine.  It must not be deleted.
      */
     static class MobiusInterface* getMobius();
+
+    /**
+     * Register the listener.
+     */
+    virtual void setListener(MobiusListener* l) = 0;
 
     /**
      * Reconfigure the Mobius engine.
@@ -67,6 +87,18 @@ class MobiusInterface {
 
 
     /**
+     * Do periodic housekeeping tasks within the client thread.
+     * This may include checking the status of pending actions,
+     * processing automatic exports, and managing communication
+     * with the interrupt.  It must be called at regular intervals.
+     * todo: Unclear whether this should be done before or after
+     * refreshing the UI, before may make the UI feel more responsive,
+     * after may make the engine more responsive to the UI.  Maybe
+     * we want both?
+     */
+    virtual void performMaintenance() = 0;
+    
+    /**
      * Tell the engine to do something.
      * The old engine took ownership of the Action, for now we're letting the caller
      * keep it and will do any necessary copying with internal structure resolution.
@@ -76,7 +108,9 @@ class MobiusInterface {
      * Will want a more robust error reporting mechanism here.
      */
     virtual void doAction(class UIAction* action) = 0;
-    
+
+    // todo: need something to check UIAction status?
+
     /**
      * Run a random test
      */

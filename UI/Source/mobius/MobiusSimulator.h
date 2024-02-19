@@ -18,19 +18,22 @@ class MobiusSimulator : public MobiusInterface
     MobiusSimulator();
     ~MobiusSimulator();
 
+    void setListener(class MobiusListener* l);
     void configure(class MobiusConfig* config);
     MobiusState* getState();
     void doAction(class UIAction* action);
 
+    void performMaintenance();
     void simulateInterrupt(float* input, float* output, int frames);
 
     void test();
     
   private:
 
-    class MobiusConfig* configuration;
+    class MobiusConfig* configuration = nullptr;
     MobiusState state;
-
+    MobiusListener* listener = nullptr;
+    
     void globalReset();
     void doReset(class UIAction* action);
     void reset(class MobiusLoopState* loop);

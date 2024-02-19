@@ -19,7 +19,6 @@ class MainThread : public juce::Thread
 
     class Supervisor* supervisor;
 
-    void processEvents();
     int counter = 0;
     
 };

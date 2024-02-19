@@ -155,6 +155,7 @@
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\BeatersElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\CounterElement.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\FloatingStripElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\LoopMeterElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ModeElement.cpp"/>
@@ -2499,6 +2500,7 @@
     <ClInclude Include="..\..\Source\ui\display\BeatersElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\Colors.h"/>
     <ClInclude Include="..\..\Source\ui\display\CounterElement.h"/>
+    <ClInclude Include="..\..\Source\ui\display\FloatingStripElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\LoopMeterElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h"/>
     <ClInclude Include="..\..\Source\ui\display\ModeElement.h"/>
