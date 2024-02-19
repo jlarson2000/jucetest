@@ -1,0 +1,52 @@
+
+We have two major varieties: docked and floating
+
+The docked strips appear at the bottom and there will always
+be one for each configured track
+
+The default docked strip contains
+  Track Number
+  Loop Radar
+  Loop Status
+  Output Level
+  Output Level Meter
+
+The optional dock elements are
+  Focus Lock
+  Group Name
+  Input Level
+  Feedback, Secondary Feedback, Pan,
+  Speed Octave, Step, Bend
+  Pitch Octave, Step, Bend
+  Time Stretch
+  Loop Meter
+
+Of the optionals the only really useful ones are Group Name
+Loop Meter is an alternative to radar that takes up less space
+
+The floating track strips can contain the same things, could
+add "floating" and "docked" flags to simplify the options.
+
+Could allow any number of floaters.
+
+So we've got a new container/child concept like StatusArea
+
+TrackStrip
+  contains StripElements
+  may be floating or docked
+  floating are also StatusElements or else need a StatusElement wrapper
+    - kind of like the wrapper for config and dragging
+
+A track strip currently displays the elements in a vertical column.
+  - could add support for multiple columns but that complicates docking
+  - better just to use multiple floaters for this
+
+Will need SystemConstant objects to define both element lists for config
+but can hard code them for now
+
+Will want to allow the standalone Mobius window to be resized while playing
+with these since you can't squash status area elements.  Docked track strip
+will always be of fixed height.
+
+
+  
