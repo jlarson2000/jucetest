@@ -1,0 +1,65 @@
+
+Layer list
+Sync status
+Minor modes
+Audio meter (input)
+Messages
+
+not use by default
+Floating Track Strip 2
+Loop Bars
+  what is this?
+  I think a simple set of horiz rectangles to show selected loop, not
+  needed when we have loop status in the track strip
+
+
+Sync Status is weird
+				char buf[128];
+				if (!mDoBeat || mBeat == 0)
+				  sprintf(buf, "Tempo %d.%d", tempo, frac);
+				else if (mDoBar)
+				  sprintf(buf, "Tempo %d.%d Bar %d Beat %d", 
+						  tempo, frac, mBar, mBeat);
+				else
+				  sprintf(buf, "Tempo %d.%d Beat %d", tempo, frac, mBeat);
+
+I think this is primarily to track host tempo
+
+Display controlled by
+
+    if (src == SYNC_MIDI || src == SYNC_HOST)
+      doBeat = true;
+
+    // originally did this only for SYNC_UNIT_BAR but if we're beat
+    // syncing it still makes sense to see the bar to know where we are,
+    // especially if we're wrapping the beat
+    //if (tstate->syncUnit == SYNC_UNIT_BAR)
+    if (src == SYNC_MIDI || src == SYNC_HOST)
+      doBar = true;
+
+
+Message displays messages that were given to it
+
+Tracks internal preset changes
+            // monitor preset changes by displaying a message
+            // since the message area is generic, have to do the change
+            // detection out here
+            Preset* preset = tstate->preset;
+            int pnum = preset->getNumber();
+            if (pnum != mLastPreset) {
+                mMessages->add(preset->getName());
+                mLastPreset = pnum;
+            }
+
+Response to a thread event
+PUBLIC void UI::MobiusMessage(const char* msg) 
+{
+	// punt on internationalizing these, assume they're comming from scripts
+	mMessages->add(msg);
+}
+
+Messages time out after a few seconds
+This feels useful, but primarily for scripts, don't really
+need it to track preset changes
+
+

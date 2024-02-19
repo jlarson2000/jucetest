@@ -18,6 +18,7 @@
     <String>pan</String>
   </FloatingTrackStrip>
   <DockedTrackStrip>
+    <String>focusLock</String>
     <String>trackNumber</String>
     <String>loopMeter</String>
     <String>loopStatus</String>

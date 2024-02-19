@@ -51,6 +51,57 @@ void TrackNumberElement::paint(juce::Graphics& g)
 
 //////////////////////////////////////////////////////////////////////
 //
+// FocusLock
+//
+//////////////////////////////////////////////////////////////////////
+
+FocusLockElement::FocusLockElement(class TrackStrip* parent) :
+    StripElement(parent, StripFocusLock)
+{
+}
+
+FocusLockElement::~FocusLockElement()
+{
+}
+
+int FocusLockElement::getPreferredWidth()
+{
+    return 20;
+}
+
+int FocusLockElement::getPreferredHeight()
+{
+    return 20;
+}
+
+void FocusLockElement::update(MobiusState* state)
+{
+    int tracknum = strip->getTrackNumber();
+    MobiusTrackState* track = &(state->tracks[tracknum]);
+
+    if (track->focusLock != focusLock) {
+        focusLock = track->focusLock;
+        repaint();
+    }
+}
+
+void FocusLockElement::paint(juce::Graphics& g)
+{
+    g.setColour(juce::Colours::white);
+    g.drawEllipse((float)getX(), (float)getY(), (float)getWidth(), (float)getHeight(), 2.0f);
+
+    if (focusLock) {
+        g.setColour(juce::Colour(MobiusRed));
+    }
+    else {
+        g.setColour(juce::Colours::black);
+    }
+
+    g.drawEllipse((float)getX() + 2, (float)getY() + 2, (float)getWidth() - 4, (float)getHeight() - 4, 2.0f);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // LoopRadar
 //
 //////////////////////////////////////////////////////////////////////

@@ -1,0 +1,42 @@
+
+Minor modes that can be displayed in old mobius
+
+	mRecording = false;
+	mOverdub = false;
+	mMute = false;
+	mReverse = false;
+
+    mSpeedToggle = 0;
+    mSpeedOctave = 0;
+	mSpeedStep = 0;
+	mSpeedBend = 0;
+    mPitchOctave = 0;
+	mPitchStep = 0;
+	mPitchBend = 0;
+	mTimeStretch = 0;
+
+	mTrackSyncMaster = false;
+	mOutSyncMaster = false;
+    mSolo = false;
+    mGlobalMute = false;
+    mGlobalPause = false;
+    mWindow = false;
+'
+
+--- paint code has
+
+Overdub, Mute, Reverse
+SpeedOct %d, SpeedStep %d, SpeedToggle %d, SpeedBend %d
+PitchOct, PitchStep, PitchBend
+  - no PitchToggle, I think because 1/2 Speed is a toggle
+TimeStretch
+SyncMaster, TrackSyncMaster, MIDISyncMaster
+Capture, Solo, GlobalMute, GlobalPause, Window
+
+These are all concatenated into one long string
+
+Recording flag becomes Capture, and is sensitive to tstat->globalRecording
+
+----------------------------------------------------------------------
+
+

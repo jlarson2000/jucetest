@@ -196,6 +196,9 @@ void TrackStrip::configure(UIConfig* config)
         if (StringEqual(name, StripTrackNumber->name)) {
             el = new TrackNumberElement(this);
         }
+        else if (StringEqual(name, StripFocusLock->name)) {
+            el = new FocusLockElement(this);
+        }
         else if (StringEqual(name, StripLoopRadar->name)) {
             el = new LoopRadarElement(this);
         }

@@ -1,0 +1,51 @@
+
+New client services class to process bindings
+
+Reads binding definitions from the MobiusConfig and pulls out
+keyboard and MIDI bindings
+
+could have two different classes for this
+
+When a key event is received by the UI it calls
+
+   binderator->doKey(key info)
+
+Binderator finds the key bining if any, builds a UIAction
+and calls engine->doAction
+
+OSC and Host parameter bindings are different enough they can different
+client services classes
+
+Button bindinds are already handled by the UI with ActionButtons
+
+Bindings can target things in the UI
+  I think this is only for key bindings that control the Instant Parameters
+  display element
+
+  those can be implemented with listener callbacks rather than actions
+  but the binding args need to be conveyed so may as well have doAction,
+  just intercept it before the engine
+
+Not sure how but these "functions" appear in the key binding window
+
+  UI Decrement Parameter
+  UI Increment Parameter
+  UI Move Display Components
+  UI Next Parameter
+  UI Previous Parameter
+
+Move... is how we get the Z key to enable component drag, don't need that any more.
+The parameter functions are all for the instant parameter component
+
+Could skip this entirely and just have some status elements be key sensitive
+but that raises focus issues
+
+How do bindings work when you are editing text components in a form?
+
+Though Juce handles dragging now stil might be nice to have a UI function
+to enable borders around elements.  Other possibilities
+
+   Show configuration editors, e.g. Ctrl-shift-P for Preset editor
+   what about all the menu items like load/save etc.  Juce has mechanisms for that
+   but they aren't runtime configurable
+

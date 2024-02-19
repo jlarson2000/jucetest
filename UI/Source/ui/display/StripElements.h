@@ -24,6 +24,23 @@ class TrackNumberElement : public StripElement
   private:
 };
 
+class FocusLockElement : public StripElement
+{
+  public:
+    
+    FocusLockElement(class TrackStrip* parent);
+    ~FocusLockElement();
+
+    int getPreferredHeight() override;
+    int getPreferredWidth() override;
+
+    void update(MobiusState* state) override;
+    void paint(juce::Graphics& g) override;
+    
+  private:
+    bool focusLock = false;
+};
+
 class LoopRadarElement : public StripElement
 {
   public:
