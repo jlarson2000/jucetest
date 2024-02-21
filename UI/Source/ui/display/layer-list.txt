@@ -1,0 +1,68 @@
+
+Based on BarGraph with some extra to show "lost" layers on the
+undo and redo sides
+
+The notion is that there is a bar for each layer.  The highlighted bar is
+the active layer and is on the end of the list unless you have used undo.
+
+So
+
+     . . . . X . .
+
+is 7 layers total, active is 5 and there are two undo layers
+
+the nummber of layers can be long, especially the undo layers
+
+There are limits on the number we will capture in MobiusState
+Also limits on the number we can display
+
+MobiusState doesn't have much for layers, only the "checkpoint" flag
+since there are usually much fewer checkpoints than there are layers
+this could be simplified by just storing the checkpoint layer numbers
+in state, layers can be then represented with these numbers
+
+  layerCount    total number of layers in the loop
+  activeLayer   number of the layer that is active/playing/recording
+
+The layers before activeLayer are the undo layers and the ones higher
+are the redo layers
+
+could simplify this further and store only the cloest undo checkpoint number
+for highlighting, after undo we then find the next highest and so on
+you can't visually see how many checkpoitns you have though
+
+to save visual space i think we collapsed the layers between a checkpoint and
+the ative layer
+
+did we have two different functions Undo and UndoToCheckpoint?
+
+If Undo always went back to the previous checkpoint then there would basically
+be no need to keep the layer bars advancing since you couldn't undo to them
+
+if you redo, do you go back to layer you were in when you did UndoToCheckpoint
+or do you start moving through the intermediate layers?
+
+Checkpoint could also mean that you're done evolving the loop to this point
+and you have no need for the previous layers.  It in effect flattens the layers
+and leaves you with a single one
+
+so there are two operations
+  - go back to the previous checkpoint
+  - discard anything before this checkpoint back to the previous one
+
+The second seems useful don't know if I did that
+
+In the new world, other things might be of interest
+
+  size - show bars of different relative heights
+
+
+merge the two state arrays?
+  what makes this hard is insertion of new layers
+  if you create 10 layers, undo 4, then start new layers, what happens
+  to the redo layers?  I think they're lost once you start adding new ones
+  if we kept them
+
+don't need to go crazy here and add complexity, they'll start acting a lot
+like different loops
+
