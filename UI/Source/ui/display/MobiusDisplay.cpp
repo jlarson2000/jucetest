@@ -30,6 +30,11 @@ MobiusDisplay::~MobiusDisplay()
 {
 }
 
+class Supervisor* MobiusDisplay::getSupervisor()
+{
+    return mainWindow->getSupervisor();
+}
+
 /**
  * Configure ourselves after a UIConfig change
  */
@@ -48,6 +53,19 @@ bool MobiusDisplay::saveConfiguration(UIConfig* config)
 {
     // this is the only thing that cares right now
     return statusArea.saveConfiguration(config);
+}
+
+/**
+ * Needed only for Parameters area to pull out Preset names.
+ * could avoid this.
+ */
+void MobiusDisplay::configure(MobiusConfig* config)
+{
+    statusArea.configure(config);
+    
+    // force resized to reorganize the add/remove of any buttons
+    // or track strip elements
+    resized();
 }
 
 void MobiusDisplay::update(MobiusState* state)

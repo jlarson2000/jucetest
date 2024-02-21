@@ -1,0 +1,89 @@
+what we have now
+
+    /**
+     * Methods implemented by subclasses to get and set the value
+     * of a parameter from the configuration objects.
+     */
+
+    virtual void getConfigValue(void* object, class ExValue* value) = 0;
+    virtual void setConfigValue(void* object, class ExValue* value) = 0;
+
+    /**
+     * New interface just for the Juce UI with complicated values.
+     */
+    virtual void getJuceValue(void* object, juce::var& value);
+    virtual void setJuceValue(void* object, juce::var& value);
+
+There is no getOrdinal in Parameter
+
+Subclasses define getOrdinalValue
+
+    /**
+     * This must be overloaded by anything that supports ordinals.
+     */
+	virtual int getOrdinalValue(MobiusConfig* c);
+
+
+    /**
+     * This must be overloaded by anything that supports ordinals.
+     */
+	virtual int getOrdinalValue(Preset* p);
+
+ParameterTrack does not
+
+What I want
+
+
+Parameter
+  int getOrdinalValue(object* obj)
+     can't implement in terms of ExValue because of the enumeration conversion
+     have to undo that which sucks
+     
+  void setOrdinalValue(object* obj, int value)
+    has never existed
+    could use in the UI if we had it
+    will want in MobiusSimulator to implement doAction
+
+
+
+
+
+----------------------------------------------------------------------
+
+
+
+
+
+
+
+Parameter needs to support these value accessors
+
+// for int, bool, enum values get/set the number
+// this is enough for almost everything except the few
+// that are multi-valued or strings
+
+  int getOrdinalValue
+  void setOrdinalValue
+
+we can't expect things like TrackPresetParameter to support ordinals
+since the name-to-Preset ordinal needs more context
+
+  getConfigValue
+  setConfigValue
+
+supports all data types
+
+the last two are currently pure virtual and used by the preset editor
+the first two are all the preset editor really needs
+
+Really disliking the enum mapping happening automatically
+
+for things that are enums could instead require
+
+   int ordinal = getOrdinalValue
+   const char* symbol = getEnumName(ordinal)
+
+for the things that care
+
+would like getConfigValue to return ordinals only and require the mapping above
+

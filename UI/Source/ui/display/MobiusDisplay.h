@@ -27,8 +27,11 @@ class MobiusDisplay : public juce::Component
 
     MobiusDisplay(class MainWindow* main);
     ~MobiusDisplay();
-    
+
+    class Supervisor* getSupervisor();
+
     void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
     bool saveConfiguration(class UIConfig* config);
     
     void update(class MobiusState* state);

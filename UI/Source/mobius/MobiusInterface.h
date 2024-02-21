@@ -112,6 +112,11 @@ class MobiusInterface {
     // todo: need something to check UIAction status?
 
     /**
+     * Return the value of a Parameter as a normalized ordinal.
+     */
+    virtual int getParameter(class Parameter* p, int trackNumber = 0) = 0;
+    
+    /**
      * Run a random test
      */
     virtual void test() = 0;

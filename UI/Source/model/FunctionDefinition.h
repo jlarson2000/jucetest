@@ -40,8 +40,6 @@ class FunctionDefinition : public SystemConstant {
 	FunctionDefinition(const char* name);
     virtual ~FunctionDefinition();
 
-    int ordinal;				// internal number for indexing
-
     // used by UIAction.cpp
     // decide if we need this
     bool isSpread() {

@@ -37,6 +37,10 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
+    class MobiusInterface* getMobius() {
+        return mobius;
+    }
+    
     void doAction(class UIAction*);
 
     // only to be called by MainThread

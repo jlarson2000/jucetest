@@ -1,7 +1,5 @@
 /**
- * Implementations for the initial set
- * of StripElements.  Decide whether to break these out into files
- * or collect under a folder since we're going to have a lot of them.
+ * Implementations strip elements that are not Parameters
  */
 
 #pragma once
@@ -9,12 +7,12 @@
 #include "StripElement.h"
 #include "StripRotary.h"
 
-class TrackNumberElement : public StripElement
+class StripTrackNumber : public StripElement
 {
   public:
     
-    TrackNumberElement(class TrackStrip* parent);
-    ~TrackNumberElement();
+    StripTrackNumber(class TrackStrip* parent);
+    ~StripTrackNumber();
 
     int getPreferredHeight() override;
     int getPreferredWidth() override;
@@ -24,12 +22,12 @@ class TrackNumberElement : public StripElement
   private:
 };
 
-class FocusLockElement : public StripElement
+class StripFocusLock : public StripElement
 {
   public:
     
-    FocusLockElement(class TrackStrip* parent);
-    ~FocusLockElement();
+    StripFocusLock(class TrackStrip* parent);
+    ~StripFocusLock();
 
     int getPreferredHeight() override;
     int getPreferredWidth() override;
@@ -41,12 +39,12 @@ class FocusLockElement : public StripElement
     bool focusLock = false;
 };
 
-class LoopRadarElement : public StripElement
+class StripLoopRadar : public StripElement
 {
   public:
     
-    LoopRadarElement(class TrackStrip* parent);
-    ~LoopRadarElement();
+    StripLoopRadar(class TrackStrip* parent);
+    ~StripLoopRadar();
 
     int getPreferredHeight() override;
     int getPreferredWidth() override;
@@ -61,12 +59,12 @@ class LoopRadarElement : public StripElement
 
 };
 
-class LoopThermometerElement : public StripElement
+class StripLoopThermometer : public StripElement
 {
   public:
     
-    LoopThermometerElement(class TrackStrip* parent);
-    ~LoopThermometerElement();
+    StripLoopThermometer(class TrackStrip* parent);
+    ~StripLoopThermometer();
 
     int getPreferredHeight() override;
     int getPreferredWidth() override;
@@ -80,88 +78,32 @@ class LoopThermometerElement : public StripElement
     long loopFrame = 0;
 
 };
-
-class OutputLevelElement : public StripRotary
+    
+class StripLoopStack : public StripElement
 {
   public:
     
-    OutputLevelElement(class TrackStrip* parent);
-    ~OutputLevelElement();
+    StripLoopStack(class TrackStrip* parent);
+    ~StripLoopStack();
+
+    void configure(class MobiusConfig* config);
+    void configure(UIConfig* config);
+    
+    int getPreferredHeight() override;
+    int getPreferredWidth() override;
 
     void update(MobiusState* state) override;
-    void sliderValueChanged(juce::Slider* slider) override;
-
+    void paint(juce::Graphics& g) override;
+    
   private:
 
-    long level = 0;
-
+    int maxLoops = 0;
+    class MobiusTrackState* track = nullptr;
+    int lastActive = -1;
+    long lastFrame = 0;
+    
 };
-    
-class InputLevelElement : public StripRotary
-{
-  public:
-    
-    InputLevelElement(class TrackStrip* parent);
-    ~InputLevelElement();
-
-    void update(MobiusState* state) override;
-    void sliderValueChanged(juce::Slider* slider) override;
-
-  private:
-
-    long level = 0;
-
-};
-    
-class FeedbackElement : public StripRotary
-{
-  public:
-    
-    FeedbackElement(class TrackStrip* parent);
-    ~FeedbackElement();
-
-    void update(MobiusState* state) override;
-    void sliderValueChanged(juce::Slider* slider) override;
-
-  private:
-
-    long level = 0;
-
-};
-    
-class SecondaryFeedbackElement : public StripRotary
-{
-  public:
-    
-    SecondaryFeedbackElement(class TrackStrip* parent);
-    ~SecondaryFeedbackElement();
-
-    void update(MobiusState* state) override;
-    void sliderValueChanged(juce::Slider* slider) override;
-
-  private:
-
-    long level = 0;
-
-};
-    
-class PanElement : public StripRotary
-{
-  public:
-    
-    PanElement(class TrackStrip* parent);
-    ~PanElement();
-
-    void update(MobiusState* state) override;
-    void sliderValueChanged(juce::Slider* slider) override;
-
-  private:
-
-    long level = 0;
-
-};
-    
-
-    
-    
         
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

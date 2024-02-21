@@ -220,8 +220,8 @@ Target* TargetPreset = &TargetPresetObj;
 Target TargetBindingsObj("bindings", "Bindings", true);
 Target* TargetBindings = &TargetBindingsObj;
 
-Target TargetUIControlObj("uiControl", "UI Control", true);
-Target* TargetUIControl = &TargetUIControlObj;
+//Target TargetUIControlObj("uiControl", "UI Control", true);
+//Target* TargetUIControl = &TargetUIControlObj;
 
 Target TargetUIConfigObj("uiConfig", "UI Config", true);
 Target* TargetUIConfig = &TargetUIConfigObj;
@@ -263,6 +263,7 @@ Target* Target::getBindable(const char* name)
  *                                                                          *
  ****************************************************************************/
 
+#if 0
 UIControl::UIControl()
 {
     init();
@@ -276,6 +277,7 @@ UIControl::UIControl(const char* name, int key) :
 
 void UIControl::init() {
 }
+#endif
 
 /****************************************************************************
  *                                                                          *

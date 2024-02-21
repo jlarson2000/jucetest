@@ -38,6 +38,7 @@ StatusArea::StatusArea(MobiusDisplay* parent)
     addElement(&meter);
     addElement(&counter);
     addElement(&floater);
+    addElement(&parameters);
 }
 
 void StatusArea::addElement(StatusElement* el)
@@ -49,6 +50,11 @@ void StatusArea::addElement(StatusElement* el)
 
 StatusArea::~StatusArea()
 {
+}
+
+class Supervisor* StatusArea::getSupervisor()
+{
+    return display->getSupervisor();
 }
 
 void StatusArea::update(MobiusState* state)
@@ -147,6 +153,18 @@ void StatusArea::configure(UIConfig* config)
     // add them and force them on so they can be positioned correctly
     for (int i = 0 ; i < elements.size() ; i++) {
         addMissing(elements[i]);
+    }
+
+    // todo: if this happens after the initial display, we shold force a repaint() right?
+}
+
+/**
+ * ParametersElement now wants things from this, only one 
+ */
+void StatusArea::configure(MobiusConfig* config)
+{
+    for (int i = 0 ; i < elements.size() ; i++) {
+        elements[i]->configure(config);
     }
 }
 

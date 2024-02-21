@@ -26,7 +26,17 @@ class LoopMeterElement : public StatusElement
 
   private:
 
-    juce::String current;
+    long savedFrames = 0;
+    long savedFrame = 0;
+
+    // for events just maintain a pointer directly to MobiusState
+    // which is known to live between udpate and paint
+    // can't easily do difference detection on this but we can
+    // for the frame pointer which triggers a full refresh
+    class MobiusLoopState* loop = nullptr;
+
+    int getMeterOffset(long frame);
+
 };
 
     

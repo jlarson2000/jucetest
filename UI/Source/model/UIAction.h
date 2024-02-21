@@ -75,7 +75,7 @@ typedef union {
     class FunctionDefinition* function;
     class Parameter* parameter;
     //class Bindable* bindable;
-    class UIControl* uicontrol;
+    //class UIControl* uicontrol;
 
 } TargetPointer;
 

@@ -167,6 +167,7 @@ void MainWindow::configure(UIConfig* config)
  */
 void MainWindow::configure(MobiusConfig* config)
 {
+    display.configure(config);
 }
 
 /**

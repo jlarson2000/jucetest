@@ -86,6 +86,11 @@ FunctionDefinition::~FunctionDefinition()
 // Since there is almost no implementation in these we don't need to
 // subclass them and can just make static objects direcdtly from the base class.
 //
+// They have historically not has display names, just use a nice name for them
+// The old code had static pointers for these, RecordFunction etc.
+// Try to avoid that in the UI and see if we can just look them up by name
+// since unlike Parameter there are rarely used in code.
+//
 //////////////////////////////////////////////////////////////////////
 
 FunctionDefinition AutoRecordDef {"AutoRecord"};

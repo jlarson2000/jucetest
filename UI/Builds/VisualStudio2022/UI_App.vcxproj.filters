@@ -664,6 +664,9 @@
     <ClCompile Include="..\..\Source\ui\display\ModeElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\ParametersElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\StatusArea.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -835,13 +838,13 @@
     <ClCompile Include="..\..\Source\model\Setup.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\model\SystemConstant.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\model\UIAction.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\UIConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\UIEventType.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp">
@@ -3339,6 +3342,9 @@
     <ClInclude Include="..\..\Source\ui\display\ModeElement.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\ParametersElement.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\StatusArea.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
@@ -3508,6 +3514,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UIConfig.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\UIEventType.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UserVariable.h">

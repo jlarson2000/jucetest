@@ -159,6 +159,7 @@
     <ClCompile Include="..\..\Source\ui\display\LoopMeterElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\MobiusDisplay.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ModeElement.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\ParametersElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\StatusArea.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\StatusElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\StripElement.cpp"/>
@@ -216,9 +217,9 @@
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
-    <ClCompile Include="..\..\Source\model\SystemConstant.cpp"/>
     <ClCompile Include="..\..\Source\model\UIAction.cpp"/>
     <ClCompile Include="..\..\Source\model\UIConfig.cpp"/>
+    <ClCompile Include="..\..\Source\model\UIEventType.cpp"/>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp"/>
     <ClCompile Include="..\..\Source\model\XmlRenderer.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -2504,6 +2505,7 @@
     <ClInclude Include="..\..\Source\ui\display\LoopMeterElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\MobiusDisplay.h"/>
     <ClInclude Include="..\..\Source\ui\display\ModeElement.h"/>
+    <ClInclude Include="..\..\Source\ui\display\ParametersElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\StatusArea.h"/>
     <ClInclude Include="..\..\Source\ui\display\StatusElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\StripElement.h"/>
@@ -2561,6 +2563,7 @@
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
     <ClInclude Include="..\..\Source\model\UIAction.h"/>
     <ClInclude Include="..\..\Source\model\UIConfig.h"/>
+    <ClInclude Include="..\..\Source\model\UIEventType.h"/>
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>

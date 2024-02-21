@@ -215,7 +215,7 @@ extern Target* TargetParameter;
 extern Target* TargetSetup;
 extern Target* TargetPreset;
 extern Target* TargetBindings;
-extern Target* TargetUIControl;
+//extern Target* TargetUIControl;
 extern Target* TargetUIConfig;
 extern Target* TargetScript;
 
@@ -255,6 +255,9 @@ extern Target* TargetScript;
  * a consistent way of dealing with both internal and UI functions.
  *
  */
+
+// think about these when we get the InstantParameter element online
+#if 0
 class UIControl : public SystemConstant {
 
   public:
@@ -267,6 +270,7 @@ class UIControl : public SystemConstant {
     void init();
 
 };
+#endif
 
 /****************************************************************************
  *                                                                          *

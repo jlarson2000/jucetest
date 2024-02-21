@@ -1,5 +1,16 @@
+/**
+ * Extend StripElement to add management or a rotary slider.
+ * The StripElementDefinition must be one that is associated with
+ * a Parameter.
+ *
+ * I don't see an immediate need to have these without a Paameter
+ * But could add more state to support that.
+ */
 
 #include <JuceHeader.h>
+
+#include "../../model/Parameter.h"
+#include "../../model/MobiusState.h"
 
 #include "Colors.h"
 #include "TrackStrip.h"
@@ -22,8 +33,8 @@ const int LabelGap = -10;
 StripRotary::StripRotary(class TrackStrip* parent, StripElementDefinition* def) :
     StripElement(parent, def)
 {
-    // set an inital range we'll change later
-    slider.setRange(0.0f, 127.0f, 1);
+    // these always correspond to Parameters with a 0-127 range
+    slider.setRange((float)def->parameter->low, (float)def->parameter->high); 
     slider.setColour(juce::Slider::ColourIds::textBoxTextColourId, juce::Colours::black);
     slider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
     // position, readOnly, width, height
@@ -43,9 +54,7 @@ StripRotary::StripRotary(class TrackStrip* parent, StripElementDefinition* def) 
     // hate these, figure out why it's necessary
     action.triggerMode = TriggerModeContinuous;
     action.target = TargetParameter;
-
-    // save this since we always want these labeled
-    label = (def->displayName != nullptr) ? def->displayName : def->name;
+    action.targetPointer.parameter = definition->parameter;
 
     dragging = false;
 }
@@ -64,6 +73,8 @@ int StripRotary::getPreferredWidth()
 {
     int maxWidth = 0;
     
+    // Parameters should always have display names
+    const char* label = definition->parameter->getDisplayableName();
     if (label != nullptr) {
         juce::Font font(LabelFontHeight);
         maxWidth = font.getStringWidth(label);
@@ -101,16 +112,12 @@ void StripRotary::paint(juce::Graphics& g)
     //g.setColour(juce::Colours::red);
     //g.drawRect(0, 0, getWidth(), RotaryDiameter);
     
+    const char* label = definition->parameter->getDisplayableName();
     int top = RotaryDiameter + LabelGap;
     g.setColour(juce::Colour(MobiusBlue));
     g.setFont(juce::Font(LabelFontHeight));
     g.drawText(juce::String(label), 0, top, getWidth(), LabelFontHeight,
                juce::Justification::centred);
-}
-
-// expected to be overridden to do something
-void StripRotary::sliderValueChanged(juce::Slider* slider)
-{
 }
 
 void StripRotary::sliderDragStarted(juce::Slider* slider)
@@ -122,3 +129,113 @@ void StripRotary::sliderDragEnded(juce::Slider* slider)
 {
     dragging = false;
 }
+
+/**
+ * Ask the subclass to pull the current value from MobiusState
+ * compare it to our current value and if different, update
+ * the slider and repaint.
+ */
+void StripRotary::update(MobiusState* state)
+{
+    if (!dragging) {
+        int tracknum = strip->getTrackNumber();
+        MobiusTrackState* track = &(state->tracks[tracknum]);
+
+        // subclass implements this
+        int current = getCurrentValue(track);
+
+        if (current != value) {
+            value = current;
+            slider.setValue((double)value);
+            slider.repaint();
+        }
+    }
+}
+
+/**
+ * After the slider changes, refresh out tracking value and
+ * perform an action on that parameter.
+ */
+void StripRotary::sliderValueChanged(juce::Slider* slider)
+{
+    // capture the value in local state so we don't 
+    // trigger a repaint on the next update
+    value = (int)slider->getValue();
+    
+    action.setValue(value);
+    
+    strip->doAction(&action);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Parameter Rotaries
+//
+// Only need these because Parameter doesn't know how to get things
+// out of a MobiusTrackState.
+//
+//////////////////////////////////////////////////////////////////////
+
+// Output
+
+StripOutput::StripOutput(class TrackStrip* parent) :
+    StripRotary(parent, StripDefinitionOutput)
+{
+}
+
+int StripOutput::getCurrentValue(MobiusTrackState* track)
+{
+    return track->outputLevel;
+}
+    
+// Input
+
+StripInput::StripInput(class TrackStrip* parent) :
+    StripRotary(parent, StripDefinitionInput)
+{
+}
+
+int StripInput::getCurrentValue(MobiusTrackState* track)
+{
+    return track->inputLevel;
+}
+    
+// Feedback
+
+StripFeedback::StripFeedback(class TrackStrip* parent) :
+    StripRotary(parent, StripDefinitionFeedback)
+{
+}
+
+int StripFeedback::getCurrentValue(MobiusTrackState* track)
+{
+    return track->feedback;
+}
+
+// AltFeedback
+
+StripAltFeedback::StripAltFeedback(class TrackStrip* parent) :
+    StripRotary(parent, StripDefinitionAltFeedback)
+{
+}
+
+int StripAltFeedback::getCurrentValue(MobiusTrackState* track)
+{
+    return track->altFeedback;
+}
+    
+// Pan
+
+StripPan::StripPan(class TrackStrip* parent) :
+    StripRotary(parent, StripDefinitionPan)
+{
+}
+
+int StripPan::getCurrentValue(MobiusTrackState* track)
+{
+    return track->pan;
+}
+    
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

@@ -14,8 +14,9 @@ void MobiusEventState::init()
 {
     type = nullptr;
     function = nullptr;
-    frame = 0;
     argument = 0;
+    frame = 0;
+    pending = false;
 }
 
 void MobiusLoopState::init()
@@ -29,8 +30,8 @@ void MobiusLoopState::init()
     cycle = 0;
     cycles = 0;
     frames = 0;
-    nextLoop = 0;
-    returnLoop = 0;
+    nextLoop = -1;
+    returnLoop = -1;
     overdub = false;
     mute = false;
     beatLoop = false;
@@ -46,7 +47,7 @@ void MobiusLoopState::init()
     pitch = false;
     mute = false;
 
-    eventCount = 0;
+     eventCount = 0;
     for (int i = 0 ; i < MaxEvents ; i++)
       events[i].init();
     

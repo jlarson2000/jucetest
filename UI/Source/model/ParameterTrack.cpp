@@ -124,11 +124,16 @@ class TrackParameter : public Parameter
         scope = PARAM_SCOPE_TRACK;
     }
 
+    TrackParameter(const char* name, const char* displayName) :
+        Parameter(name, displayName) {
+        scope = PARAM_SCOPE_TRACK;
+    }
+    
     /**
      * Overload the Parameter versions and cast to a SetupTrack.
      */
-	void getConfigValue(void* object, ExValue* value);
-	void setConfigValue(void* object, ExValue* value);
+	void getConfigValue(void* object, ExValue* value) override;
+	void setConfigValue(void* object, ExValue* value) override;
 
     /**
      * Overload the Parameter versions and resolve to a Track.
@@ -535,7 +540,7 @@ class FeedbackLevelParameterType : public TrackParameter
 };
 
 FeedbackLevelParameterType::FeedbackLevelParameterType() :
-    TrackParameter("feedback", MSG_PARAM_FEEDBACK_LEVEL)
+    TrackParameter("feedback", "Feedback")
 {
     bindable = true;
     control = true;
@@ -596,7 +601,7 @@ class AltFeedbackLevelParameterType : public TrackParameter
 };
 
 AltFeedbackLevelParameterType::AltFeedbackLevelParameterType() :
-    TrackParameter("altFeedback", MSG_PARAM_ALT_FEEDBACK_LEVEL)
+    TrackParameter("altFeedback", "Alt Feedback")
 {
     bindable = true;
     control = true;
@@ -656,7 +661,7 @@ class InputLevelParameterType : public TrackParameter
 };
 
 InputLevelParameterType::InputLevelParameterType() :
-    TrackParameter("input", MSG_PARAM_INPUT_LEVEL)
+    TrackParameter("input", "Input")
 {
     bindable = true;
     control = true;
@@ -716,7 +721,7 @@ class OutputLevelParameterType : public TrackParameter
 };
 
 OutputLevelParameterType::OutputLevelParameterType() :
-    TrackParameter("output", MSG_PARAM_OUTPUT_LEVEL)
+    TrackParameter("output", "Output")
 {
     bindable = true;
     control = true;
@@ -776,7 +781,7 @@ class PanParameterType : public TrackParameter
 };
 
 PanParameterType::PanParameterType() :
-    TrackParameter("pan", MSG_PARAM_PAN)
+    TrackParameter("pan", "Pan")
 {
     bindable = true;
     control = true;
@@ -1336,7 +1341,7 @@ Parameter* TrackPresetParameter = &TrackPresetParameterObj;
 
 TrackPresetParameterType::TrackPresetParameterType() :
     // this must match the TargetPreset name
-    TrackParameter("preset", MSG_PARAM_TRACK_PRESET)
+    TrackParameter("preset", "Preset")
 {
     bindable = true;
 	type = TYPE_STRING;

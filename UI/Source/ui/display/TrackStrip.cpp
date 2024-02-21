@@ -193,32 +193,33 @@ void TrackStrip::configure(UIConfig* config)
     for (int i = 0 ; i < elementNames->size() ; i++) {
         const char* name = elementNames->getString(i);
         StripElement* el = nullptr;
-        if (StringEqual(name, StripTrackNumber->name)) {
-            el = new TrackNumberElement(this);
+        StripElementDefinition* def = StripElementDefinition::find(name);
+        if (def == StripDefinitionTrackNumber) {
+            el = new StripTrackNumber(this);
         }
-        else if (StringEqual(name, StripFocusLock->name)) {
-            el = new FocusLockElement(this);
+        else if (def == StripDefinitionFocusLock) {
+            el = new StripFocusLock(this);
         }
-        else if (StringEqual(name, StripLoopRadar->name)) {
-            el = new LoopRadarElement(this);
+        else if (def == StripDefinitionLoopRadar) {
+            el = new StripLoopRadar(this);
         }
-        else if (StringEqual(name, StripLoopThermometer->name)) {
-            el = new LoopThermometerElement(this);
+        else if (def == StripDefinitionLoopThermometer) {
+            el = new StripLoopThermometer(this);
         }
-        else if (StringEqual(name, StripOutputLevel->name)) {
-            el = new OutputLevelElement(this);
+        else if (def == StripDefinitionOutput) {
+            el = new StripOutput(this);
         }
-        else if (StringEqual(name, StripInputLevel->name)) {
-            el = new InputLevelElement(this);
+        else if (def == StripDefinitionInput) {
+            el = new StripInput(this);
         }
-        else if (StringEqual(name, StripFeedback->name)) {
-            el = new FeedbackElement(this);
+        else if (def == StripDefinitionFeedback) {
+            el = new StripFeedback(this);
         }
-        else if (StringEqual(name, StripSecondaryFeedback->name)) {
-            el = new SecondaryFeedbackElement(this);
+        else if (def == StripDefinitionAltFeedback) {
+            el = new StripAltFeedback(this);
         }
-        else if (StringEqual(name, StripPan->name)) {
-            el = new PanElement(this);
+        else if (def == StripDefinitionLoopStack) {
+            el = new StripLoopStack(this);
         }
         
         if (el != nullptr) {

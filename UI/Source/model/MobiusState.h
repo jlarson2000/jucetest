@@ -87,7 +87,7 @@ const int MaxTracks = 32;
 
 /**
  * The maximum number of loops per track.
- */
+  */
 const int MaxLoops = 32;
 
 /**
@@ -124,7 +124,10 @@ class MobiusLayerState
     
     void init();
 
+    // true if this is a checkpoint layer, highlight it
     bool checkpoint;
+
+    // todo: mighe be nice to have the size or what caused it
 };
 
 /**
@@ -140,14 +143,25 @@ class MobiusEventState
     
     void init();
 
-    // todo: Do we need an EventDef here or just the name?
-    class SystemConstant* type;
-
-    // will need internal/external Function mappings
-    // just use ordinals here?
+    class UIEventType* type;
+    
+    // set when type is InvokeEvent
     class FunctionDefinition* function;
-    long      frame;
+
+    // option function arg, usually for replicated functions
     long      argument;
+
+    // when it happens
+    long      frame;
+
+    // true if this is pending with no known end frame
+    bool pending;
+
+    // todo: some things like the next loop after a loop
+    // switch are stored on MobiusLoopState rather than the
+    // event where they really area, consider moving?
+    // or also show as the argument
+
 };
 
 /**
@@ -175,6 +189,7 @@ class MobiusLoopState
     long    frames;
     int     nextLoop;
     int     returnLoop;
+    // why do we need to distinguish between recording and overdub
 	bool 	overdub;
 	bool	mute;
 	bool 	beatLoop;
@@ -190,13 +205,20 @@ class MobiusLoopState
     bool    speed;
     bool    pitch;
 
+    // in theory we could overflow this but I don't think
+    // it can happen in practice to be worth bothering with
+    // an overflow indiciator
     MobiusEventState events[MaxEvents];
 	int		eventCount;
 
+    // this is more likely to overflow so keep track
+    // of the number of layers we can't show
     MobiusLayerState layers[MaxLayers];
 	int		layerCount;
 	int 	lostLayers;
 
+    // would be nice if we could keep arrays the same
+    // and just have the redo point an index within it
     MobiusLayerState redoLayers[MaxRedoLayers];
 	int		redoCount;
 	int 	lostRedo;

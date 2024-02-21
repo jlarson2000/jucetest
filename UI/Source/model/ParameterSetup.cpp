@@ -72,8 +72,8 @@ class SetupParameter : public Parameter
     /**
      * Overload the Parameter versions and cast to a Setup.
      */
-	void getConfigValue(void* obj, ExValue* value);
-	void setConfigValue(void* obj, ExValue* value);
+	void getConfigValue(void* obj, ExValue* value) override;
+	void setConfigValue(void* obj, ExValue* value) override;
 
     /**
      * Overload the Parameter versions and resolve to a Setup.
@@ -197,7 +197,7 @@ int DEFAULT_SYNC_SOURCE_KEYS[] = {
 };
 
 DefaultSyncSourceParameterType::DefaultSyncSourceParameterType() :
-    SetupParameter("defaultSyncSource", MSG_PARAM_DEFAULT_SYNC_SOURCE)
+    SetupParameter("defaultSyncSource", "Default Sync Source")
 {
     bindable = true;
 	type = TYPE_ENUM;

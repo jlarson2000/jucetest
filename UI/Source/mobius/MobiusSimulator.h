@@ -22,6 +22,7 @@ class MobiusSimulator : public MobiusInterface
     void configure(class MobiusConfig* config);
     MobiusState* getState();
     void doAction(class UIAction* action);
+    int getParameter(Parameter* p, int tracknum = 0);
 
     void performMaintenance();
     void simulateInterrupt(float* input, float* output, int frames);
@@ -43,5 +44,17 @@ class MobiusSimulator : public MobiusInterface
     void play(class MobiusLoopState* loop, int bufferFrames);
     void notifyBeatListeners(class MobiusLoopState* loop, long bufferFrames);
     
+    void simulateEvents();
+    class MobiusEventState* simulateEvent(class MobiusLoopState* loop, class UIEventType* type, int q);
+
+    class MobiusTrackState* getTargetTrack(class UIAction* action);
+    void doSwitch(UIAction* action, int next);
+
+    // Parameters
+    class Setup* getActiveSetup();
+    class SetupTrack* getSetupTrack(int tracknum);
+    class Preset* getTrackPreset(class SetupTrack* track);
+    class Preset* getTrackPreset(int tracknum);
+
 };
 

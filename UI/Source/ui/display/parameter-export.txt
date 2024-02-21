@@ -1,0 +1,145 @@
+
+Parameters differ from MobiusState because they are updated rarely
+and it would be expensive to maintain a copy of the of the entire Preset
+just to convey runtime values back to the UI.
+
+Instead, UI will ask for them individually as needed
+
+
+   int MobiusInterface::getParameter(Parameter* p, int track);
+
+Don't really need all the information in UIAction, the scope can only
+be global or within the current track.  Right?  there are no loop specific parameters
+
+If we're getting a global parameter, which would be unusual I think, don't need to pass
+track but we're almost always going to have it.
+
+Does this always default to the active track?  When would you want a parameter value
+for something that isn't the active track?
+
+Current UI would not do this, I suppose host bindings might.
+
+Could have group scope parameter access I guess which gets messier.
+
+Parameters are still set with doAction, though we could be symetrical and
+have setParameter.  doAction still needs to be supported though for bindings.
+
+Parameter setting would never be quantized, though I suppose it could be.
+
+All parameter values reduce to integers, which ones are not?
+
+Global config parameters that might be nice to show
+  monitorAudio
+  autoFeedbackReduction
+  spreadRange
+  traceLevel
+  groupFocusLock
+
+  these are all pretty obscure can dispense with them
+
+Almost all Preset parameters need to be exportable
+
+Things that would be complicated to edit in the UI
+  loopCount
+  maxUndo
+  maxRedo
+    suppose we could allow changing these, but what if we're in the middle of recording
+  noLayerFlattening
+
+
+Preset parameters that are not integers
+  sustainFunctions
+  stepSequence
+  pitchSequence
+
+A lot of Preset parameters are obscure and don't need to clutter the UI with them
+need an "exportable" flag, I think we already have that
+
+Setup parameters are less likely to be exportable, some interesting ones are
+
+  bindings - now a function of the UI
+  activeTrack - could allow setting this as a parameter for host bindings
+  syncSource
+  syncUnit
+  trackSyncUnit
+  manualStart
+  minTempo
+  maxTempo
+  muteSyncMode
+  syncResizeAdjust
+  speedSyncAdjust
+  realignTime
+  outRealignMode
+
+Setup parameters that are not ints
+  resettables
+  
+
+SetupTrack parameters that might be interesting
+  currentPreset - use ordinals
+  group
+  focusLock
+  inputLevel, etc.  These are exposed as controls and use knobs in the UI
+  mono
+  audio/plugin ports
+  syncSource
+  syncTrackUnit
+  
+SetupTrack parameters that are not ints
+  name
+  currentPreset - use ordinals
+  user Variables
+
+
+The only complicated one regularly exposed as an instant parameter is the track preset.
+
+Let's keep this limited.  The only things that are exportable are integers for UI interaction
+and host/osc bindings.  That should get us the vast majority of what is needed outside
+of testing.
+
+Might even want an "advanced" flag in bindings to hide all the stuff I only use
+
+User variables are very interesting but a topic for another day.  String values
+should be possible but those would only be used in scripts and don't necessarily
+have to be exportable.
+
+
+The only immediate problem child is the track preset.  Need to export these
+as ordinals and do the name mapping in the UI.
+
+Ordinals are assumed to be stable until MobiusInterface::configure is called
+and when it is, the UI and the engine must be using the same lists.
+Briefly on MobiusInterface::configure
+
+  - I like the notion of the engine making a private copy of what is passed to the UI
+  - the UI must either discard it if it is a copy, or just keep it around for its own use
+  - it is NOT true that the object passed to configure() will be the same as the one used
+    internally, you can't just set a value in the passed object and expect it to be used
+  - Many parameters could be handled that way but not all
+  - non-int values would have threading issues when changing them, safest to not allow
+    direct modification of the engine objects
+
+Fresh Mobius install has these instant parameters
+
+    <Parameter name='preset'/>
+    <Parameter name='subcycles'/>
+    <Parameter name='quantize'/>
+    <Parameter name='switchQuantize'/>
+    <Parameter name='emptyLoopAction'/>
+    <Parameter name='defaultSyncSource'/>
+
+preset and defaultSyncSource are track/setup parameters
+
+
+What's the difference between PARAM_SCOPE_TRACK and PARAM_SCOPE_SETUP
+
+Setup seems to be where most of the exportable things are.  Parameter implementation
+expects a Setup object
+
+The ones we have implemented always target SetupTrack
+Ah, so that's the difference, one is for the Setup members and one for the SetupTrack members.
+
+track name is sort of interesting, but we have other ways to display that
+
+
+

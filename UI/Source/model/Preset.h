@@ -145,6 +145,9 @@ class Preset : public Bindable {
 	void setNext(Preset* p);
 	Preset* getNext();
 
+    // new, transient
+    int ordinal = 0;
+
     // 
     // Limits
     //

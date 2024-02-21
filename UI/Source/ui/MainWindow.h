@@ -46,6 +46,10 @@ class MainWindow : public juce::Component, public MainMenu::Listener
     MainWindow(class Supervisor* super);
     ~MainWindow();
 
+    class Supervisor* getSupervisor() {
+        return supervisor;
+    }
+        
     void resized() override;
 
     void configure(class MobiusConfig* config);

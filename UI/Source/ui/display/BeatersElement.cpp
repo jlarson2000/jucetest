@@ -64,7 +64,7 @@ const int BeaterExpectedTickMsec = 100;
  * If ticks come in every 100ms then a decay of 5 keeps the beater
  * lit for 1/2 second.
  */
-const int BeaterDecay = 4;
+const int BeaterDecay = 1;
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -31,15 +31,22 @@ class StripElementDefinition
   public:
 
     static std::vector<StripElementDefinition*> Elements;
-    static StripElementDefinition* getElement(const char* name);
+    static StripElementDefinition* find(const char* name);
 
+    StripElementDefinition(class Parameter* p);
     StripElementDefinition(const char* argName, const char* argDisplayName);
     
+    const char* getName();
+    const char* getDisplayName();
+
     ~StripElementDefinition() {};
 
-    // but if not, you have to supply a name
-    const char* name = nullptr;
-    const char* displayName = nullptr;
+    // most correspond to Parameters
+    class Parameter* parameter;
+    
+    // those that don't have names here
+    const char* name;
+    const char* displayName;
 
     // todo: flags to limit which elements can be in
     // the docked or floating strips
@@ -47,36 +54,40 @@ class StripElementDefinition
 };
 
 // the defaults for the floating strip
-extern StripElementDefinition* StripInputLevel;
-extern StripElementDefinition* StripOutputLevel;
-extern StripElementDefinition* StripFeedback;
-extern StripElementDefinition* StripSecondaryFeedback;
-extern StripElementDefinition* StripPan;
+extern StripElementDefinition* StripDefinitionInput;
+extern StripElementDefinition* StripDefinitionOutput;
+extern StripElementDefinition* StripDefinitionFeedback;
+extern StripElementDefinition* StripDefinitionAltFeedback;
+extern StripElementDefinition* StripDefinitionPan;
 
 // the defaults for the dock, also OutputLevel
-extern StripElementDefinition* StripTrackNumber;
-extern StripElementDefinition* StripLoopRadar;
-extern StripElementDefinition* StripLoopStatus;
-extern StripElementDefinition* StripOutputMeter;
+extern StripElementDefinition* StripDefinitionTrackNumber;
+extern StripElementDefinition* StripDefinitionLoopRadar;
+extern StripElementDefinition* StripDefinitionLoopStack;
+extern StripElementDefinition* StripDefinitionOutputMeter;
 
-// optional but popular
-extern StripElementDefinition* StripGroupName;
-extern StripElementDefinition* StripLoopThermometer;
+// optional but useful
+extern StripElementDefinition* StripDefinitionGroupName;
+extern StripElementDefinition* StripDefinitionLoopThermometer;
 
 // obscure options
 
 // this was a little button we don't need if the track
-// number is clickable for focus
-extern StripElementDefinition* StripFocusLock;
+// number is clickable for focus, but it is smaller if you
+// don't need numbers
+extern StripElementDefinition* StripDefinitionFocusLock;
 
-extern StripElementDefinition* StripPitchOctave;
-extern StripElementDefinition* StripPitchStep;
-extern StripElementDefinition* StripPitchBend;
-extern StripElementDefinition* StripSpeedOctave;
-extern StripElementDefinition* StripSpeedStep;
-extern StripElementDefinition* StripSpeedBend;
-extern StripElementDefinition* StripTimeStretch;
+// these are seldom used Parameters and Pitch doesn't work
+// very well, need to hide Pitch till I reimplement it
+extern StripElementDefinition* StripDefinitionPitchOctave;
+extern StripElementDefinition* StripDefinitionPitchStep;
+extern StripElementDefinition* StripDefinitionPitchBend;
+extern StripElementDefinition* StripDefinitionSpeedOctave;
+extern StripElementDefinition* StripDefinitionSpeedStep;
+extern StripElementDefinition* StripDefinitionSpeedBend;
+extern StripElementDefinition* StripDefinitionTimeStretch;
 
+// this would be better as a flag in the definittion
 extern const StripElementDefinition* StripDockDefaults[];
 
 //////////////////////////////////////////////////////////////////////
@@ -94,6 +105,7 @@ class StripElement : public juce::Component
 
     virtual void configure(class UIConfig* config);
     virtual void update(class MobiusState* state);
+    
     virtual int getPreferredWidth();
     virtual int getPreferredHeight();
 
@@ -101,7 +113,9 @@ class StripElement : public juce::Component
     
   protected:
 
+    StripElementDefinition* definition;
     class TrackStrip* strip;
+    
 };
 
 /****************************************************************************/

@@ -14,6 +14,7 @@
 #include "LoopMeterElement.h"
 #include "CounterElement.h"
 #include "FloatingStripElement.h"
+#include "ParametersElement.h"
 
 class StatusArea : public juce::Component
 {
@@ -22,7 +23,10 @@ class StatusArea : public juce::Component
     StatusArea(class MobiusDisplay*);
     ~StatusArea();
 
+    class Supervisor* getSupervisor();
+
     void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
     bool saveConfiguration(class UIConfig* config);
     
     void update(class MobiusState* state);
@@ -33,7 +37,7 @@ class StatusArea : public juce::Component
 
     void resized() override;
     void paint(juce::Graphics& g) override;
-    
+
   private:
 
     class MobiusDisplay* display;
@@ -44,6 +48,7 @@ class StatusArea : public juce::Component
     LoopMeterElement meter {this};
     CounterElement counter {this};
     FloatingStripElement floater {this};
+    ParametersElement parameters {this};
     
     void addElement(StatusElement* el);
     void addMissing(StatusElement* el);

@@ -35,6 +35,10 @@ void StatusElement::configure(UIConfig* config)
 {
 }
 
+void StatusElement::configure(MobiusConfig* config)
+{
+}
+
 void StatusElement::update(MobiusState* state)
 {
 }

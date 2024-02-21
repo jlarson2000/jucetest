@@ -159,6 +159,14 @@ class Parameter : public SystemConstant {
      */
     virtual void getJuceValue(void* object, juce::var& value);
     virtual void setJuceValue(void* object, juce::var& value);
+
+    /**
+     * New interface that deals strictly with ordinals.
+     * Default implementation is ugly because it has to undo what
+     * getConfigValue does to enums.  Need to redesign these.
+     */
+    virtual int getOrdinalValue(void* object);
+    virtual void setOrdinalValue(void* object, int value);
     
     // 
     // Coercion helpers

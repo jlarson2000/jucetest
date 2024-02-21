@@ -12,10 +12,12 @@
 #include "TrackStrip.h"
 #include "StripElement.h"
 
-
 //////////////////////////////////////////////////////////////////////
 //
 // Definitions
+//
+// A set of static objects that define things about the elements
+// that can be selected for display.  
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -26,15 +28,20 @@
 // them distinct, but need to rethink this
 
 /**
+ * Global registry
+ */
+std::vector<StripElementDefinition*> StripElementDefinition::Elements;
+
+/**
  * Find a strip element definition by name
  */
-StripElementDefinition* StripElementDefinition::getElement(const char* name)
+StripElementDefinition* StripElementDefinition::find(const char* name)
 {
 	StripElementDefinition* found = nullptr;
 	
 	for (int i = 0 ; i < Elements.size() ; i++) {
 		StripElementDefinition* d = Elements[i];
-		if (StringEqualNoCase(d->name, name)) {
+		if (StringEqualNoCase(d->getName(), name)) {
             found = d;
             break;
         }
@@ -42,7 +49,21 @@ StripElementDefinition* StripElementDefinition::getElement(const char* name)
 	return found;
 }
 
-std::vector<StripElementDefinition*> StripElementDefinition::Elements;
+/**
+ * For elements that correespond to Parameters, pull the names
+ * from the Parameter definition.
+ *
+ * Interesting order dependency here.  Both Parameter and StripElementDefinition
+ * are static objects and one references the other.  What is the order in
+ * which they are defined?  Is it certain that Parameter will be first?
+ */
+StripElementDefinition::StripElementDefinition(Parameter* p)
+{
+    parameter = p;
+    name = nullptr;
+    displayName = nullptr;
+    Elements.push_back(this);
+}
 
 /**
  * Name is how we refer to them internally in the UIConfig
@@ -50,86 +71,104 @@ std::vector<StripElementDefinition*> StripElementDefinition::Elements;
  */
 StripElementDefinition::StripElementDefinition(const char* argName, const char* argDisplayName)
 {
+    parameter = nullptr;
     name = argName;
     displayName = argDisplayName;
-    
     Elements.push_back(this);
 }
 
-StripElementDefinition StripInputLevelObj {"inputLevel", "Input Level"};
-StripElementDefinition* StripInputLevel = &StripInputLevelObj;
+const char* StripElementDefinition::getName()
+{
+    if (parameter != nullptr)
+      return parameter->getName();
+    else
+      return name;
+}
 
-StripElementDefinition StripOutputLevelObj {"outputLevel", "Output Level"};
-StripElementDefinition* StripOutputLevel = &StripOutputLevelObj;
+const char* StripElementDefinition::getDisplayName()
+{
+    if (parameter != nullptr)
+      return parameter->getDisplayableName();
+    else
+      return displayName;
+}
 
-StripElementDefinition StripFeedbackObj {"feedback", "Feedback"};
-StripElementDefinition* StripFeedback = &StripFeedbackObj;
+// I'm really growing to hate this little dance, find a better way!
 
-StripElementDefinition StripSecondaryFeedbackObj {"secondaryFeedback", "Secondary Feedback"};
-StripElementDefinition* StripSecondaryFeedback = &StripSecondaryFeedbackObj;
+StripElementDefinition StripInputObj {InputLevelParameter};
+StripElementDefinition* StripDefinitionInput = &StripInputObj;
 
-StripElementDefinition StripPanObj {"pan", "Pan"};
-StripElementDefinition* StripPan = &StripPanObj;
+StripElementDefinition StripOutputObj {OutputLevelParameter};
+StripElementDefinition* StripDefinitionOutput = &StripOutputObj;
 
+StripElementDefinition StripFeedbackObj {FeedbackLevelParameter};
+StripElementDefinition* StripDefinitionFeedback = &StripFeedbackObj;
+
+StripElementDefinition StripAltFeedbackObj {AltFeedbackLevelParameter};
+StripElementDefinition* StripDefinitionAltFeedback = &StripAltFeedbackObj;
+
+StripElementDefinition StripPanObj {PanParameter};
+StripElementDefinition* StripDefinitionPan = &StripPanObj;
 
 // the defaults for the dock, also OutputLevel
 StripElementDefinition StripTrackNumberObj {"trackNumber", "Track Number"};
-StripElementDefinition* StripTrackNumber = &StripTrackNumberObj;
+StripElementDefinition* StripDefinitionTrackNumber = &StripTrackNumberObj;
 
 StripElementDefinition StripLoopRadarObj {"loopRadar", "Loop Radar"};
-StripElementDefinition* StripLoopRadar = &StripLoopRadarObj;
+StripElementDefinition* StripDefinitionLoopRadar = &StripLoopRadarObj;
 
-StripElementDefinition StripLoopStatusObj {"loopStatus", "Loop Status"};
-StripElementDefinition* StripLoopStatus = &StripLoopStatusObj;
+// formerly called "loopStatus"
+StripElementDefinition StripLoopStackObj {"loopStack", "Loop Stack"};
+StripElementDefinition* StripDefinitionLoopStack = &StripLoopStackObj;
 
 StripElementDefinition StripOutputMeterObj {"outputMeter", "Output Meter"};
-StripElementDefinition* StripOutputMeter = &StripOutputMeterObj;
+StripElementDefinition* StripDefinitionOutputMeter = &StripOutputMeterObj;
 
 
 // optional but popular
 StripElementDefinition StripGroupNameObj {"groupName", "Group Name"};
-StripElementDefinition* StripGroupName = &StripGroupNameObj;
+StripElementDefinition* StripDefinitionGroupName = &StripGroupNameObj;
 
 StripElementDefinition StripLoopThermometerObj {"loopMeter", "Loop Meter"};
-StripElementDefinition* StripLoopThermometer = &StripLoopThermometerObj;
+StripElementDefinition* StripDefinitionLoopThermometer = &StripLoopThermometerObj;
 
 // obscure options
 
 // this was a little button we don't need if the track
 // number is clickable for focus
 StripElementDefinition StripFocusLockObj {"focusLock", "Focus Lock"};
-StripElementDefinition* StripFocusLock = &StripFocusLockObj;
+StripElementDefinition* StripDefinitionFocusLock = &StripFocusLockObj;
 
-StripElementDefinition StripPitchOctaveObj {"pitchOctave", "Pitch Octave"};
-StripElementDefinition* StripPitchOctave = &StripPitchOctaveObj;
+StripElementDefinition StripPitchOctaveObj {PitchOctaveParameter};
+StripElementDefinition* StripDefinitionPitchOctave = &StripPitchOctaveObj;
 
-StripElementDefinition StripPitchStepObj {"pitchStep", "Pitch Step"};
-StripElementDefinition* StripPitchStep = &StripPitchStepObj;
+StripElementDefinition StripPitchStepObj {PitchStepParameter};
+StripElementDefinition* StripDefinitionPitchStep = &StripPitchStepObj;
 
-StripElementDefinition StripPitchBendObj {"pitchBend", "Pitch Bend"};
-StripElementDefinition* StripPitchBend = &StripPitchBendObj;
+StripElementDefinition StripPitchBendObj {PitchBendParameter};
+StripElementDefinition* StripDefinitionPitchBend = &StripPitchBendObj;
 
-StripElementDefinition StripSpeedOctaveObj {"speedOctave", "Speed Octave"};
-StripElementDefinition* StripSpeedOctave = &StripSpeedOctaveObj;
+StripElementDefinition StripSpeedOctaveObj {SpeedOctaveParameter};
+StripElementDefinition* StripDefinitionSpeedOctave = &StripSpeedOctaveObj;
 
-StripElementDefinition StripSpeedStepObj {"speedStep", "Speed Step"};
-StripElementDefinition* StripSpeedStep = &StripSpeedStepObj;
+StripElementDefinition StripSpeedStepObj {SpeedStepParameter};
+StripElementDefinition* StripDefinitionSpeedStep = &StripSpeedStepObj;
 
-StripElementDefinition StripSpeedBendObj {"speedBend", "Speed Bend"};
-StripElementDefinition* StripSpeedBend = &StripSpeedBendObj;
+StripElementDefinition StripSpeedBendObj {SpeedBendParameter};
+StripElementDefinition* StripDefinitionSpeedBend = &StripSpeedBendObj;
 
-StripElementDefinition StripTimeStretchObj {"timeStretch", "Time Stretch"};
-StripElementDefinition* StripTimeStretch = &StripTimeStretchObj;
+StripElementDefinition StripTimeStretchObj {TimeStretchParameter};
+StripElementDefinition* StripDefinitionTimeStretch = &StripTimeStretchObj;
 
 // find a way to put these inside StripElement for namespace
 
 const StripElementDefinition* StripDockDefaults[] = {
-    StripTrackNumber,
-    // StripLoopRadar,
-    StripLoopThermometer,
-    StripLoopStatus,
-    StripOutputLevel,
-    StripOutputMeter,
+    StripDefinitionTrackNumber,
+    // StripDefinitionLoopRadar,
+    StripDefinitionLoopThermometer,
+    StripDefinitionLoopStack,
+    StripDefinitionOutput,
+    StripDefinitionOutputMeter,
     nullptr
 };
 
@@ -139,13 +178,20 @@ const StripElementDefinition* StripDockDefaults[] = {
 //
 //////////////////////////////////////////////////////////////////////
 
+/**
+ * Element that doesn't have a Parameter
+ * Put the definition name in ComponentID for searching
+ * with Juce::Component::findChildWithComponentID
+ * Put the name in Component::name for JuceUtil trace
+ */
 StripElement::StripElement(TrackStrip* parent, StripElementDefinition* def)
 {
-    setComponentID(def->name);
-    setName(def->name);
     strip = parent;
+    definition = def;
+    setComponentID(def->getName());
+    setName(def->getName());
 }
-
+        
 StripElement::~StripElement()
 {
 }

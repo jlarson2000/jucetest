@@ -2,6 +2,8 @@
 #include <JuceHeader.h>
 
 #include "../../util/Trace.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/UIConfig.h"
 #include "../../model/MobiusState.h"
 #include "../../model/Parameter.h"
 
@@ -16,26 +18,26 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-TrackNumberElement::TrackNumberElement(class TrackStrip* parent) :
-    StripElement(parent, StripTrackNumber)
+StripTrackNumber::StripTrackNumber(class TrackStrip* parent) :
+    StripElement(parent, StripDefinitionTrackNumber)
 {
 }
 
-TrackNumberElement::~TrackNumberElement()
+StripTrackNumber::~StripTrackNumber()
 {
 }
 
-int TrackNumberElement::getPreferredWidth()
-{
-    return 30;
-}
-
-int TrackNumberElement::getPreferredHeight()
+int StripTrackNumber::getPreferredWidth()
 {
     return 30;
 }
 
-void TrackNumberElement::paint(juce::Graphics& g)
+int StripTrackNumber::getPreferredHeight()
+{
+    return 30;
+}
+
+void StripTrackNumber::paint(juce::Graphics& g)
 {
     juce::Font font(getHeight());
 
@@ -55,26 +57,26 @@ void TrackNumberElement::paint(juce::Graphics& g)
 //
 //////////////////////////////////////////////////////////////////////
 
-FocusLockElement::FocusLockElement(class TrackStrip* parent) :
-    StripElement(parent, StripFocusLock)
+StripFocusLock::StripFocusLock(class TrackStrip* parent) :
+    StripElement(parent, StripDefinitionFocusLock)
 {
 }
 
-FocusLockElement::~FocusLockElement()
+StripFocusLock::~StripFocusLock()
 {
 }
 
-int FocusLockElement::getPreferredWidth()
-{
-    return 20;
-}
-
-int FocusLockElement::getPreferredHeight()
+int StripFocusLock::getPreferredWidth()
 {
     return 20;
 }
 
-void FocusLockElement::update(MobiusState* state)
+int StripFocusLock::getPreferredHeight()
+{
+    return 20;
+}
+
+void StripFocusLock::update(MobiusState* state)
 {
     int tracknum = strip->getTrackNumber();
     MobiusTrackState* track = &(state->tracks[tracknum]);
@@ -85,7 +87,7 @@ void FocusLockElement::update(MobiusState* state)
     }
 }
 
-void FocusLockElement::paint(juce::Graphics& g)
+void StripFocusLock::paint(juce::Graphics& g)
 {
     g.setColour(juce::Colours::white);
     g.drawEllipse((float)getX(), (float)getY(), (float)getWidth(), (float)getHeight(), 2.0f);
@@ -106,26 +108,26 @@ void FocusLockElement::paint(juce::Graphics& g)
 //
 //////////////////////////////////////////////////////////////////////
 
-LoopRadarElement::LoopRadarElement(class TrackStrip* parent) :
-    StripElement(parent, StripLoopRadar)
+StripLoopRadar::StripLoopRadar(class TrackStrip* parent) :
+    StripElement(parent, StripDefinitionLoopRadar)
 {
 }
 
-LoopRadarElement::~LoopRadarElement()
+StripLoopRadar::~StripLoopRadar()
 {
 }
 
-int LoopRadarElement::getPreferredWidth()
-{
-    return 30;
-}
-
-int LoopRadarElement::getPreferredHeight()
+int StripLoopRadar::getPreferredWidth()
 {
     return 30;
 }
 
-void LoopRadarElement::update(MobiusState* state)
+int StripLoopRadar::getPreferredHeight()
+{
+    return 30;
+}
+
+void StripLoopRadar::update(MobiusState* state)
 {
     int tracknum = strip->getTrackNumber();
     MobiusTrackState* track = &(state->tracks[tracknum]);
@@ -159,7 +161,7 @@ void LoopRadarElement::update(MobiusState* state)
  * Then multiply that by 2pi
  *    
  */
-void LoopRadarElement::paint(juce::Graphics& g)
+void StripLoopRadar::paint(juce::Graphics& g)
 {
     float twopi = 6.28318;
 
@@ -196,26 +198,26 @@ void LoopRadarElement::paint(juce::Graphics& g)
 //
 //////////////////////////////////////////////////////////////////////
 
-LoopThermometerElement::LoopThermometerElement(class TrackStrip* parent) :
-    StripElement(parent, StripLoopThermometer)
+StripLoopThermometer::StripLoopThermometer(class TrackStrip* parent) :
+    StripElement(parent, StripDefinitionLoopThermometer)
 {
 }
 
-LoopThermometerElement::~LoopThermometerElement()
+StripLoopThermometer::~StripLoopThermometer()
 {
 }
 
-int LoopThermometerElement::getPreferredWidth()
+int StripLoopThermometer::getPreferredWidth()
 {
     return 100;
 }
 
-int LoopThermometerElement::getPreferredHeight()
+int StripLoopThermometer::getPreferredHeight()
 {
     return 10;
 }
 
-void LoopThermometerElement::update(MobiusState* state)
+void StripLoopThermometer::update(MobiusState* state)
 {
     int tracknum = strip->getTrackNumber();
     MobiusTrackState* track = &(state->tracks[tracknum]);
@@ -230,7 +232,7 @@ void LoopThermometerElement::update(MobiusState* state)
     }
 }
 
-void LoopThermometerElement::paint(juce::Graphics& g)
+void StripLoopThermometer::paint(juce::Graphics& g)
 {
     float twopi = 6.28318;
 
@@ -253,216 +255,190 @@ void LoopThermometerElement::paint(juce::Graphics& g)
 
 //////////////////////////////////////////////////////////////////////
 //
-// OutputLevel
+// LoopStack
+//
+// Displays brief information about all loops in a track
 //
 //////////////////////////////////////////////////////////////////////
 
-OutputLevelElement::OutputLevelElement(class TrackStrip* parent) :
-    StripRotary(parent, StripOutputLevel)
+const int LoopStackRowHeight = 12;
+const int LoopStackNumberWidth = 12;
+const int LoopStackHorizontalGap = 10;
+const int LoopStackVerticalGap = 1;
+const int LoopStackRectangleWidth = 60;
+const int LoopStackBorderWidth = 1;
+
+StripLoopStack::StripLoopStack(class TrackStrip* parent) :
+    StripElement(parent, StripDefinitionLoopStack)
 {
-    min = 0;
-    max = 127;
-    slider.setRange((double)min, (double)max, 1);
 }
 
-OutputLevelElement::~OutputLevelElement()
+StripLoopStack::~StripLoopStack()
 {
 }
 
-void OutputLevelElement::update(MobiusState* state)
+int StripLoopStack::getPreferredWidth()
 {
-    if (!dragging) {
-        int tracknum = strip->getTrackNumber();
-        MobiusTrackState* track = &(state->tracks[tracknum]);
+    // needs to be called after configuration
+    if (maxLoops == 0) {
+        trace("LoopStack: maxLoops not configured!\n");
+        maxLoops = 4;
+    }
 
-        if (track->outputLevel != value) {
-            value = track->outputLevel;
-            slider.setValue((double)value);
-            slider.repaint();
-        }
+    return LoopStackNumberWidth + LoopStackHorizontalGap + LoopStackRectangleWidth;
+}
+
+/**
+ * todo: to prevent this from becomming excessively large, should support
+ * a maximum number of displayable loops and scroll within that.
+ */
+int StripLoopStack::getPreferredHeight()
+{
+    // needs to be called after configuration
+    if (maxLoops == 0) {
+        trace("LoopStack: maxLoops not configured!\n");
+        maxLoops = 4;
+    }
+
+    return (LoopStackRowHeight + LoopStackVerticalGap) * maxLoops;
+}
+
+/**
+ * Changing the number of loops effects the size of this component
+ * so this needs to trigger a resize of the containing TrackStrip
+ * and TrackStrips.  Until that is worked out, we require a restart.
+ * I think the containers just needs to expect that when
+ * configure is called anything inside can change size and it
+ * needs to go through the layout process again
+ */
+void StripLoopStack::configure(MobiusConfig* config)
+{
+    // only the first time, then require restart to resize
+    if (maxLoops == 0) {
+        maxLoops = config->getMaxLoops();
+    }
+}
+
+void StripLoopStack::configure(UIConfig* config)
+{
+}
+
+/**
+ * Like LoopMeter, we've got a more complex than usual substructure
+ * so it is harder to do difference detection.
+ * Update whenever the loop is moving for now.  This also gives us
+ * a way to do progress bars if desired.
+ */
+void StripLoopStack::update(MobiusState* state)
+{
+    int tracknum = strip->getTrackNumber();
+
+    // paint needs the entire track so save it locally
+    track = &(state->tracks[tracknum]);
+    MobiusLoopState* activeLoop = &(track->loops[track->activeLoop]);
+
+    if (lastActive != track->activeLoop ||
+        activeLoop->frame != lastFrame) {
+
+        lastActive = track->activeLoop;
+        lastFrame = activeLoop->frame;
+        repaint();
     }
 }
 
 /**
- * Where the rubber meets the sky...
- * Needing to know OutputLevelParameter here could
- * be avoided if the StripElementDefinition
- * we have to pass to the StripRotary constructor could contain
- * that.  We've got a set of ElementDefinitions that match
- * the Parameters, why not associate them there?  I guess
- * since we need parameter specific implementation anyway in update()
- * it's not so bad.
+ row for each loop with a filed rectangle representing loop state.
+ * Old code was pretty basic, we could do a lot more now.
  */
-void OutputLevelElement::sliderValueChanged(juce::Slider* slider)
+void StripLoopStack::paint(juce::Graphics& g)
 {
-    // capture the value in local state so we don't trigger a repaint
-    // on the next update
-    value = (int)slider->getValue();
+    // must have saved this in update
+    if (track == nullptr) {
+        trace("LoopStack: track not set\n");
+        return;
+    }
+
+    // in theory the number of loops in the track could be different
+    // than our original configuration, need to adapt to this?
+    int trackLoops = maxLoops;
+    if (track->loopCount < trackLoops)
+      trackLoops = track->loopCount;
     
-    // StripRotary will already have set TargetParameter
-    action.targetPointer.parameter = OutputLevelParameter;
-    // argument will be the same as our member object
-    action.setValue(value);
-    
-    strip->doAction(&action);
-}
+    for (int i = 0 ; i < trackLoops ; i++) {
+        MobiusLoopState* loop = &(track->loops[i]);
 
-//////////////////////////////////////////////////////////////////////
-//
-// InputLevel
-//
-//////////////////////////////////////////////////////////////////////
+        int rowTop = (LoopStackRowHeight + LoopStackVerticalGap) * i;
+        
+        // loop number
+        if (i == track->activeLoop)
+          g.setColour(juce::Colours::white);
+        else
+          g.setColour(juce::Colours::green);    // was a darker green
 
-InputLevelElement::InputLevelElement(class TrackStrip* parent) :
-    StripRotary(parent, StripInputLevel)
-{
-    min = 0;
-    max = 127;
-    slider.setRange((double)min, (double)max, 1);
-}
+        g.drawText(juce::String(i+1), 0, rowTop, LoopStackNumberWidth, LoopStackRowHeight,
+                   juce::Justification::centred);
+        
+        // border: white=active, black=inactive, yellow=switching, green=switchDestination
+        // if we're recording and switching yellow may not stand out enough
 
-InputLevelElement::~InputLevelElement()
-{
-}
-
-void InputLevelElement::update(MobiusState* state)
-{
-    if (!dragging) {
-        int tracknum = strip->getTrackNumber();
-        MobiusTrackState* track = &(state->tracks[tracknum]);
-
-        if (track->inputLevel != value) {
-            value = track->inputLevel;
-            slider.setValue((double)value);
-            slider.repaint();
+        // determine switch destination before iteration since we can go up
+        // although it is really a property of an event, summaraizer puts
+        // it here to make it easier to find, should really be on the track
+        // not sure why we made a distinction between switch and return, I guess
+        // there was a little "R" somewhere, here we don't care
+        int switchDestination = -1;
+        if (loop->nextLoop >= 0)
+          switchDestination = loop->nextLoop;
+        else if (loop->returnLoop >= 0)
+          switchDestination = loop->returnLoop;
+        
+        if (i == track->activeLoop) {
+            // It's possible to switch to the same loop, an alternate
+            // way to stack events, need a third color for this?
+            if (switchDestination >= 0)
+              g.setColour(juce::Colours::yellow);
+            else
+              g.setColour(juce::Colours::white);
         }
-    }
-}
-
-void InputLevelElement::sliderValueChanged(juce::Slider* slider)
-{
-    value = (int)slider->getValue();
-    action.targetPointer.parameter = InputLevelParameter;
-    action.setValue(value);
-    strip->doAction(&action);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Feedback
-//
-//////////////////////////////////////////////////////////////////////
-
-FeedbackElement::FeedbackElement(class TrackStrip* parent) :
-    StripRotary(parent, StripFeedback)
-{
-    min = 0;
-    max = 127;
-    slider.setRange((double)min, (double)max, 1);
-}
-
-FeedbackElement::~FeedbackElement()
-{
-}
-
-void FeedbackElement::update(MobiusState* state)
-{
-    if (!dragging) {
-        int tracknum = strip->getTrackNumber();
-        MobiusTrackState* track = &(state->tracks[tracknum]);
-
-        if (track->feedback != value) {
-            value = track->feedback;
-            slider.setValue((double)value);
-            slider.repaint();
+        else if (i == switchDestination) {
+            g.setColour(juce::Colours::green);
         }
-    }
-}
-
-void FeedbackElement::sliderValueChanged(juce::Slider* slider)
-{
-    value = (int)slider->getValue();
-    action.targetPointer.parameter = FeedbackLevelParameter;
-    action.setValue(value);
-    strip->doAction(&action);
-}
-//////////////////////////////////////////////////////////////////////
-//
-// SecondaryFeedback
-//
-//////////////////////////////////////////////////////////////////////
-
-SecondaryFeedbackElement::SecondaryFeedbackElement(class TrackStrip* parent) :
-    StripRotary(parent, StripSecondaryFeedback)
-{
-    min = 0;
-    max = 127;
-    slider.setRange((double)min, (double)max, 1);
-}
-
-SecondaryFeedbackElement::~SecondaryFeedbackElement()
-{
-}
-
-void SecondaryFeedbackElement::update(MobiusState* state)
-{
-    if (!dragging) {
-        int tracknum = strip->getTrackNumber();
-        MobiusTrackState* track = &(state->tracks[tracknum]);
-
-        if (track->feedback != value) {
-            value = track->feedback;
-            slider.setValue((double)value);
-            slider.repaint();
+        else {
+            // empty, leave it black, or just don't draw it
+            g.setColour(juce::Colours::black);
         }
-    }
-}
 
-void SecondaryFeedbackElement::sliderValueChanged(juce::Slider* slider)
-{
-    value = (int)slider->getValue();
-    action.targetPointer.parameter = AltFeedbackLevelParameter;
-    action.setValue(value);
-    strip->doAction(&action);
-}
-//////////////////////////////////////////////////////////////////////
-//
-// Pan
-//
-//////////////////////////////////////////////////////////////////////
+        int rectLeft = LoopStackNumberWidth + LoopStackHorizontalGap;
+        // adjust for available size or keep it fixed?
+        int rectWidth = getWidth() - rectLeft;
+        g.drawRect(rectLeft, rowTop, rectWidth, LoopStackRowHeight);
 
-PanElement::PanElement(class TrackStrip* parent) :
-    StripRotary(parent, StripPan)
-{
-    min = 0;
-    max = 127;
-    slider.setRange((double)min, (double)max, 1);
-}
+        // border inset
+        int blockLeft = rectLeft + LoopStackBorderWidth;
+        int blockTop = rowTop + LoopStackBorderWidth;
+        int blockWidth = rectWidth - (LoopStackBorderWidth * 2);
+        int blockHeight = LoopStackRowHeight - (LoopStackBorderWidth * 2);
 
-PanElement::~PanElement()
-{
-}
+        // block: black=empty, grey=full, green=play, red=record, blue=mute
+        // old code used grey to mean 1/2 speed
 
-void PanElement::update(MobiusState* state)
-{
-    if (!dragging) {
-        int tracknum = strip->getTrackNumber();
-        MobiusTrackState* track = &(state->tracks[tracknum]);
+        if (loop->frames > 0) {
+            juce::Colour color;
+            if (i != track->activeLoop)
+              color = juce::Colours::grey;
+            // why have both flags?
+            else if (loop->recording || loop->overdub)
+              color = juce::Colours::red;
+            if (loop->mute)
+              color = juce::Colours::blue;
+            else
+              color = juce::Colours::green;
+            g.setColour(color);
 
-        if (track->pan != value) {
-            value = track->pan;
-            slider.setValue((double)value);
-            slider.repaint();
+            g.drawRect(blockLeft, blockTop, blockWidth, blockHeight);
         }
+        // else empty, leave it black
     }
-}
-
-void PanElement::sliderValueChanged(juce::Slider* slider)
-{
-    value = (int)slider->getValue();
-    action.targetPointer.parameter = PanParameter;
-    action.setValue(value);
-    strip->doAction(&action);
 }
 
 /****************************************************************************/

@@ -145,6 +145,42 @@ Parameter::~Parameter()
 //
 /////////////////////////////////////////////////////////////////////
 
+/**
+ * Should only be calling this on something that is known to support ordinals.
+ * Most of the subclasses have this but it hasn't been virtual yet and I don't
+ * want to mess with it now.
+ */
+int Parameter::getOrdinalValue(void *object)
+{
+    ExValue ev;
+    
+    getConfigValue(object, &ev);
+
+    if (ev.getType() == EX_STRING) {
+        if (type == TYPE_ENUM) {
+            // undo the shit transformation
+            const char* str = ev.getString();
+            ordinal = getEnum(str);
+        }
+        else {
+            trace("Parameter::getOrdinalValue called on a string parameter\n");
+        }
+    }
+    else if (ev.getType() == EX_LIST) {
+        trace("Parameter::getOrdinalValue called on a multi-string parameter\n");
+    }
+    else {
+        ordinal = ev.getInt();
+    }
+
+    return ordinal;
+}
+
+void Parameter::setOrdinalValue(void* object, int value)
+{
+    trace("Parameter::setOrdinalValue not implemented\n");
+}
+
 void Parameter::getJuceValue(void* object, juce::var& value)
 {
 }
