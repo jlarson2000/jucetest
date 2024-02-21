@@ -16,6 +16,8 @@ MainComponent::MainComponent()
 {
     // Jeff's component tree debugging hack
     setName("MainComponent");
+
+    addKeyListener(this);
     
     // startup can do a lot of thigns, perhais we should have different
     // phases, first to load any configuration related to the initial window size
@@ -56,6 +58,21 @@ MainComponent::~MainComponent()
 
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+}
+
+/**
+ * Return true to indiciate that the key has been consumed.
+ */
+bool MainComponent::keyPressed(const juce::KeyPress& key, juce::Component* originator)
+{
+    trace("keyPressed: %d %s\n", key.getKeyCode(), key.getTextDescription().toUTF8());
+    return true;
+}
+
+bool MainComponent::keyStateChanged(bool isKeyDown, juce::Component* originator)
+{
+    trace("keyStateChanged: %s\n", (isKeyDown) ? "down" : "up");
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////

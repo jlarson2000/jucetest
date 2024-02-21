@@ -1,0 +1,13 @@
+Article on keyboard events
+
+https://forum.juce.com/t/keylistener-documentation-request/27360
+
+Can get them but the weirdness around getting specific key UP events
+is annoying
+
+https://forum.juce.com/t/provide-onkeystatechange-and-onmodifierstatechange-in-component/51715/2
+
+Auto-repeat is going to be a problem
+
+https://forum.juce.com/t/keyboard-repeat/5152/6
+

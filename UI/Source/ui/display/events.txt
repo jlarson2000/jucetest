@@ -294,6 +294,17 @@ provide the mapping
         this step can lookup by name rather than orrdinal so we don't have to clutter
         external arrays with placeholders
 
+What I want for the external model
+
+  UIEventType
+    name, display
+    icon
+    hidden
+    character
+    other stuff
+
+
+
 
 
 

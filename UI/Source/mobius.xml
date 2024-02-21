@@ -21,7 +21,7 @@
     pitchShiftRestart='false'
     pitchStepRange='24'
     pitchTransfer='follow'
-    quantize='subCycle'
+    quantize='cycle'
     speedBendRange='12'
     speedRecord='false'
     speedSequence='true'
