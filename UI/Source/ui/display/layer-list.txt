@@ -66,3 +66,4 @@ merge the two state arrays?
 don't need to go crazy here and add complexity, they'll start acting a lot
 like different loops
 
+
