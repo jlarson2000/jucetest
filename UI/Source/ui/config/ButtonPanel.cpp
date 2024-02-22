@@ -70,7 +70,7 @@ void ButtonPanel::load()
 {
     if (!loaded) {
         // let the target panel know the names of the things it can target
-        targets.init(editor->getMobiusConfig());
+        targets.configure(editor->getMobiusConfig());
         
         UIConfig* config = editor->getUIConfig();
 
@@ -155,7 +155,7 @@ void ButtonPanel::tableTouched(SimpleTable* argTable)
     UIButton* button = buttons[row];
     const char* name = button->getName();
     if (name == nullptr || strcmp(name, NewButtonName) == 0) {
-        targets.deselectTarget();
+        targets.reset();
     }
     else {
         targets.showSelectedTarget(button->getName());
@@ -186,7 +186,7 @@ void ButtonPanel::buttonClicked(juce::String name)
             // todo: alert and ignore, or go with
             // [New] and update it later?
             neu->setName(NewButtonName);
-            targets.deselectTarget();
+            targets.reset();
             // arg can't be null so build a var with void value
             arguments.setValue(juce::var());
         }

@@ -1,0 +1,49 @@
+There are three binding panels
+
+  Buttons
+  Keyboard
+  MIDI
+  Host/Plugin Parameters
+  
+liking moving BindingConfig to the UI since it is entirely a UI level implementation
+makes it easier to have it in UIConfig
+
+OscBindingSet also uses Binding, but I'm not ready to merge that yet
+
+Things in old Mobius that used Binding not directly in the UI
+
+ActionDispatcher
+  I think related to selecting the overlay bindings
+  this can move to the UI
+  there will always be a set of bindings specific to the UI
+
+BindingResolver
+  resolved things to Track and probably Preset and Setup
+  still need something like this but can work differently
+
+ControlSurface
+  never finished, but also completely UI
+
+Export
+  kind of in between engine and UI
+
+MobiusState
+  had the set of overlay bindings in it, but this doesn't have to be there
+  move to UIConfig
+
+Parameter
+  references to getBindingHigh
+  BindingsParameterType
+
+
+Project
+  included name of active bindings
+  this is interesting, should a Project contain parts of the UIConfig?
+
+Setup
+  could have a different set of bindings in each Setup
+  think about whether this belongs here
+  Bindings feel somewhat unrelated to track configuration, ports, levels, preset, etc.
+  they are almost always static and change based on the context of use, e.g.
+  different foot controllers, different laptops, alternative controllers
+  

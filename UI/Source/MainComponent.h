@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 
 #include "Supervisor.h"
+#include "KeyTracker.h"
 
 //==============================================================================
 /*
@@ -39,6 +40,7 @@ class MainComponent  : public juce::AudioAppComponent, public juce::KeyListener
   private:
 
     Supervisor supervisor {this};
+    KeyTracker keyTracker;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

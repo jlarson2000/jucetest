@@ -402,6 +402,7 @@ class Binding {
   public:
 	
 	Binding();
+	Binding(Binding* src);
 	virtual ~Binding();
 
 	void setNext(Binding* c);

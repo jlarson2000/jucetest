@@ -102,15 +102,12 @@ void MainWindow::mainMenuSelection(int id)
         break;
                 
         case MainMenu::MIDIControl: {
-            test.setVisible(true);
-            test.center();
-            JuceUtil::dumpComponent(&test);
+            configEditor.showMIDIBindings();
         }
         break;
         
         case MainMenu::KeyboardControl:  {
-            // table.show();
-            tabs.show();
+            configEditor.showKeyboardBindings();
         }
             break;
             
@@ -130,7 +127,12 @@ void MainWindow::mainMenuSelection(int id)
         case MainMenu::KeyBindings: break;
         case MainMenu::MIDIBindings: break;
         case MainMenu::RefreshUI: break;
-        case MainMenu::About: break;
+        case MainMenu::About: {
+            test.setVisible(true);
+            test.center();
+            JuceUtil::dumpComponent(&test);
+        }
+            break;
                 
         default: {
             trace("Unknown menu item: %d\n", id);

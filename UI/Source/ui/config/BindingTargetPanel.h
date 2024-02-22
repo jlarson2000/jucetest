@@ -12,13 +12,19 @@ class BindingTargetPanel : public SimpleTabPanel, public SimpleListBox::Listener
 
     BindingTargetPanel();
     ~BindingTargetPanel();
-    void init(class MobiusConfig* config);
     
-    bool isValidTarget(juce::String name);
+    void configure(class MobiusConfig* config);
+
+    void capture(class Binding* b);
+    void select(class Binding* b);
+    void reset();
+    
     bool isTargetSelected();
+
+    // temporary: used only for Button since it doesn't use Binding yet
+    bool isValidTarget(juce::String name);
     juce::String getSelectedTarget();
     void showSelectedTarget(juce::String target);
-    void deselectTarget();
     
     void selectedRowsChanged(SimpleListBox* box, int lastRow);
         

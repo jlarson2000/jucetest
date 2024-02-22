@@ -1,0 +1,59 @@
+
+Focus thoughts
+
+Focus is currently ad-hoc, you tell the track if it has focus lock
+or is a group member and the bindings automatically go there.
+
+Binding scope can override this to target specific groups or tracks.
+
+If we can scope down to single tracks, why not multiple?  Groups are
+just a symbolic name for multiple.
+
+Focus lock functions gives you control over which functions are focused or not.
+But is this global or more like binding scope.
+
+scope=active
+  the active track, default
+  
+scope=focused
+  any track with focus lock
+
+scope=group
+  any track in the group
+
+scope=track
+  specific track
+
+scope=track1,track2
+  set of tracks
+
+scope=track1-track4
+  range of tracks
+  often done in scripts
+
+Focus lock functions gives control over which functions implicitily obey scope=focused
+so you don't have to specify that in the bindings.  If we don't have that then
+you duplicate the focus scope in each binding, e.g. need one for both keyboard and MIDI.
+
+This could be combined.  The effective scope for a binding is
+  - explicitly specified scope, ignores focus lock functions
+  - default scope, looks at focus lock functions
+
+I like this, focus lock is relatively obscure and it should be off by default
+and you have to think about it before you start focusing tracks.
+
+Focus lock is really just a special unnamed group.  This can be generalized into a set
+of focus buttons per-track for each configured group.  Rather than a track always be in
+a group you can select all the groups the track is in on the fly.
+
+Yes liking this.  You can have several bindings for the same Function with different scopes.
+
+
+
+
+
+
+ * Might be intersting to have a binding option to ignore focus.
+ * This would eliminate the need for Focus Lock Functions.
+ * Think: is focus somethign relatively static you would want to capture
+ * in the binding, or is it more ad-hoc.  

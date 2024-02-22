@@ -326,6 +326,29 @@ Binding::Binding()
 	init();
 }
 
+/**
+ * Hacked this up for BindingTable, make sure it's complete
+ */
+Binding::Binding(Binding* src)
+{
+    init();
+    
+    // trigger
+    setTrigger(src->getTrigger());
+    setTriggerMode(src->getTriggerMode());
+    setValue(src->getValue());
+    setChannel(src->getChannel());
+    // target
+    setTarget(src->getTarget());
+    setName(src->getName());
+    setArgs(src->getArgs());
+    // todo: triggerPath for OSC
+
+    // scope
+    // need more for track/group scopes?
+    setScope(src->getScope());
+}
+
 Binding::~Binding()
 {
 	Binding *el, *next;

@@ -1,5 +1,5 @@
 /**
- * Panel to edit keyboard bindings
+ * Panel to edit MIDI bindings
  */
 
 #pragma once
@@ -13,11 +13,11 @@
 #include "ConfigPanel.h"
 #include "BindingPanel.h"
 
-class KeyboardPanel : public BindingPanel, public juce::KeyListener
+class MidiPanel : public BindingPanel
 {
   public:
-    KeyboardPanel(class ConfigEditor *);
-    ~KeyboardPanel();
+    MidiPanel(class ConfigEditor *);
+    ~MidiPanel();
 
     juce::String renderSubclassTrigger(Binding* b);
     bool isRelevant(class Binding* b);
@@ -26,12 +26,8 @@ class KeyboardPanel : public BindingPanel, public juce::KeyListener
     void captureSubclassFields(class Binding* b);
     void resetSubclassFields();
 
-    bool keyPressed(const juce::KeyPress& key, juce::Component* originator) override;
-    bool keyStateChanged(bool isKeyDown, juce::Component* originator) override;
-
   private:
 
     Field* key = nullptr;
-    Field* capture = nullptr;
-    
+
 };

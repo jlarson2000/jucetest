@@ -65,14 +65,12 @@ MainComponent::~MainComponent()
  */
 bool MainComponent::keyPressed(const juce::KeyPress& key, juce::Component* originator)
 {
-    trace("keyPressed: %d %s\n", key.getKeyCode(), key.getTextDescription().toUTF8());
-    return true;
+    return keyTracker.keyPressed(key, originator);
 }
 
 bool MainComponent::keyStateChanged(bool isKeyDown, juce::Component* originator)
 {
-    trace("keyStateChanged: %s\n", (isKeyDown) ? "down" : "up");
-    return true;
+    return keyTracker.keyStateChanged(isKeyDown, originator);
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ BindingTargetPanel::~BindingTargetPanel()
 {
 }
 
-void BindingTargetPanel::init(MobiusConfig* config)
+void BindingTargetPanel::configure(MobiusConfig* config)
 {
     initBox(&functions);
     addTab(juce::String("Functions"), &functions);
@@ -124,7 +124,7 @@ void BindingTargetPanel::deselectOtherTargets(SimpleListBox* active)
     }
 }
 
-void BindingTargetPanel::deselectTarget()
+void BindingTargetPanel::reset()
 {
     deselectOtherTargets(nullptr);
     showTab(0);
@@ -147,7 +147,7 @@ void BindingTargetPanel::showSelectedTarget(juce::String name)
     // maybe if the row had been selected previously,
     // we moved to a different tab, then back again it
     // won't show it?  weird and I'm too tired to figure it out
-    deselectTarget();
+    reset();
     
     for (int tab = 0 ; tab < tabs.getNumTabs() ; tab++) {
         SimpleListBox* box = boxes[tab];
@@ -168,7 +168,7 @@ void BindingTargetPanel::showSelectedTarget(juce::String name)
     if (!found) {
         // must have had an invalid name in the config file
         // clear any lingering target
-        deselectTarget();
+        reset();
     }
 }
 
@@ -200,4 +200,20 @@ bool BindingTargetPanel::isValidTarget(juce::String name)
     }
 
     return valid;
+}
+
+// New interface for Binding, need to retool ButtonPanel to use this
+
+void BindingTargetPanel::capture(Binding* b)
+{
+    juce::String name = getSelectedTarget();
+    b->setName(name.toUTF8());
+    // !! need to figure out what this is, function, parameter
+}
+
+void BindingTargetPanel::select(Binding* b)
+{
+    // !! need to use the Target type to select the tabs
+    // not just assume everything has a unique name
+    showSelectedTarget(b->getName());
 }

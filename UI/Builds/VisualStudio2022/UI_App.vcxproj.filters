@@ -610,11 +610,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\KeyTracker.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MainThread.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Supervisor.cpp">
       <Filter>UI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\BindingPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\BindingTable.cpp">
+      <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
@@ -629,6 +638,12 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp">
@@ -3285,11 +3300,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\KeyTracker.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainThread.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Supervisor.h">
       <Filter>UI\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\BindingPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\BindingTable.h">
+      <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h">
       <Filter>UI\Source\ui\config</Filter>
@@ -3304,6 +3328,12 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\MidiPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h">

@@ -46,6 +46,8 @@
 #include "PresetPanel.h"
 #include "SetupPanel.h"
 #include "ButtonPanel.h"
+#include "KeyboardPanel.h"
+#include "MidiPanel.h"
 
 class ConfigEditor
 {
@@ -68,7 +70,8 @@ class ConfigEditor
     void showScripts();
     void showSamples();
     void showButtons();
-
+    void showBindings();
+    
     void closeAll();
 
     // should be protected with friends for the panels
@@ -99,6 +102,8 @@ class ConfigEditor
     PresetPanel presets {this};
     SetupPanel setups {this};
     ButtonPanel buttons {this};
+    KeyboardPanel keyboard {this};
+    MidiPanel midi {this};
     
     // list of all active panels, we often need to iterate over these
     juce::Array<ConfigPanel*> panels;

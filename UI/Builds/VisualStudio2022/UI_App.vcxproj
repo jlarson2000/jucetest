@@ -141,13 +141,18 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\KeyTracker.cpp"/>
     <ClCompile Include="..\..\Source\MainThread.cpp"/>
     <ClCompile Include="..\..\Source\Supervisor.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\BindingPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\BindingTable.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ButtonPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigEditor.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
@@ -2486,13 +2491,18 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\KeyTracker.h"/>
     <ClInclude Include="..\..\Source\MainThread.h"/>
     <ClInclude Include="..\..\Source\Supervisor.h"/>
+    <ClInclude Include="..\..\Source\ui\config\BindingPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\BindingTable.h"/>
     <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ButtonPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigEditor.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\MidiPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>

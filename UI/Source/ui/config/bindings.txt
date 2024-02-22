@@ -1,0 +1,79 @@
+
+Rethinking bindings
+
+Bindings have these fundamental parts
+
+  trigger
+    what activates the binding: key, midi event, button, host parameter, OSC
+    different triggers may have extra information
+      midi: status, channel, value, velocity
+      key: modifier keys
+
+  target
+    where the trigger goes: Function, Parameter, Configuration
+    Configurations have a type: Preset, Setup, BindingSet
+    Functions may be subdivided into two sets: built-in and scripts
+    Parameters may be divided into: values, engine controls
+      No different internally between the two types but in the display it is
+      nice to split out controls (input, feedback, etc.) since they are very often
+      used in bindings and most parameters are not
+    Functions have an implicit scope: engine, UI
+    Parameters have an implicit scope: engine, UI, script?
+      script parameters are future, have called these "variables"
+    Parameters have implicit scope: global, preset, setup, track
+      track parameter are the same as controls?
+    Scriptlet: new, one line script executed above the engine
+       set track 3 input 42
+       anything you could do here you can't do with binding model?
+
+  scope
+    limits the target
+    focused, group, track, track range
+    some scopes don't make sense, if you bind to a global Parameter it can't be given
+     track scope
+
+  arguments
+    extra information passed to the target
+      parameter values
+      object selectors (track numbers, sample numbers)
+
+Trigger thoughts
+  pretty simple, limited by what we can interface with
+  to detect up/down transitions triggers must have a unique code
+  keys: key code + modifier keys
+  midi: all the midi bytes
+  triggers need jump tables for fast association with targets
+  trigger ids can't be used for jump tables since they can be numerically large
+  each binding type will need to supply it's own implementation of jump tables
+
+Target thoughts
+  each target could specify a model for arguments to allow for a concrete display
+    e.g. RunScript selects script name
+    SelectTrack selects track number
+    SelectLoop selects loop number
+
+    these are common and avoids having to have SelectTrack1, SelectTrack2 in the Function list
+      could also track/loop select with scope
+      ActivateTrack scope=track 1
+
+    Yes, you can do track activation just with scopes, don't need arguments
+    ActivateLoop is harder, it can have an optional scope but the loop number isn't
+      part of the scope.  Other than activation, there aren't may things you could have
+      that target a non-active loop
+        I supose you could apply certain functiosn to it "in the background" so it is ready
+        when you want to switch to it
+
+    Switch arguments!
+      yes, there is a lot of complexity around changing loops with stacking functions
+      this could be done in the bindings
+
+      target=ActivateLoop, loop=3, apply=CopyTime, Overdub
+        this could be very interesting, saves tap dancing to stack post-switch events
+        fuck, could even do parameters
+        quantize=off
+
+Until we refine a more concrete model for argument specification, the arguments
+need to be free text, parsed by the target
+
+
+     

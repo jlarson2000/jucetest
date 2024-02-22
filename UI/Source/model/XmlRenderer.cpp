@@ -658,9 +658,9 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 			c->addSetup(s);
 		}
 		else if (child->isName(EL_BINDING_CONFIG)) {
-			//BindingConfig* bc = new BindingConfig();
-            //parse(child, bc);
-			//c->addBindingConfig(bc);
+			BindingConfig* bc = new BindingConfig();
+            parse(child, bc);
+			c->addBindingConfig(bc);
 		}
 		else if (child->isName(EL_MIDI_CONFIG)) {
             // could handle this but they should have been

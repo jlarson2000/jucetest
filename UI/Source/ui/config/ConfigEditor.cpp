@@ -51,6 +51,8 @@ void ConfigEditor::init(Supervisor* super)
     addPanel(&presets);
     addPanel(&setups);
     addPanel(&buttons);
+    addPanel(&keyboard);
+    addPanel(&midi);
 }
 
 ConfigEditor::~ConfigEditor()
@@ -91,6 +93,16 @@ void ConfigEditor::showSetups()
 void ConfigEditor::showButtons()
 {
     show(&buttons);
+}
+
+void ConfigEditor::showKeyboardBindings()
+{
+    show(&keyboard);
+}
+
+void ConfigEditor::showMIDIBindings()
+{
+    show(&midi);
 }
 
 void ConfigEditor::closeAll()
