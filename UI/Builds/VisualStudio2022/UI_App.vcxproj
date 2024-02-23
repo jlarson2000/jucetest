@@ -153,6 +153,7 @@
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\MidiDevicesPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp"/>
@@ -2504,6 +2505,7 @@
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\MidiDevicesPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\MidiPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h"/>

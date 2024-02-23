@@ -36,6 +36,10 @@
           <FILE id="CdDmPy" name="KeyboardPanel.cpp" compile="1" resource="0"
                 file="Source/ui/config/KeyboardPanel.cpp"/>
           <FILE id="xnfHRb" name="KeyboardPanel.h" compile="0" resource="0" file="Source/ui/config/KeyboardPanel.h"/>
+          <FILE id="Az47GJ" name="MidiDevicesPanel.cpp" compile="1" resource="0"
+                file="Source/ui/config/MidiDevicesPanel.cpp"/>
+          <FILE id="XDzrVN" name="MidiDevicesPanel.h" compile="0" resource="0"
+                file="Source/ui/config/MidiDevicesPanel.h"/>
           <FILE id="JtxTWz" name="MidiPanel.cpp" compile="1" resource="0" file="Source/ui/config/MidiPanel.cpp"/>
           <FILE id="PtHgA2" name="MidiPanel.h" compile="0" resource="0" file="Source/ui/config/MidiPanel.h"/>
           <FILE id="aY7LcN" name="ParameterField.cpp" compile="1" resource="0"

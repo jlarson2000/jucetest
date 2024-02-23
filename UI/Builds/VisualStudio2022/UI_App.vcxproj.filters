@@ -646,6 +646,9 @@
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\MidiDevicesPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
@@ -3337,6 +3340,9 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\MidiDevicesPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\MidiPanel.h">

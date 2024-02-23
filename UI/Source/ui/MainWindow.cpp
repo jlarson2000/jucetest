@@ -121,7 +121,10 @@ void MainWindow::mainMenuSelection(int id)
         case MainMenu::Palette: break;
         case MainMenu::Scripts: break;
         case MainMenu::Samples: break;
-        case MainMenu::MIDIDevices: break;
+        case MainMenu::MIDIDevices: {
+            configEditor.showMIDIDevices();
+        }
+            break;
         case MainMenu::AudioDevices: break;
 
         case MainMenu::KeyBindings: break;
