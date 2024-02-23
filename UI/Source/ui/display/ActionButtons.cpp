@@ -134,8 +134,6 @@ void ActionButtons::layout(juce::Rectangle<int> bounds)
 
     // now adjust our height to only use what we needed
     setSize(availableWidth, topOffset);
-
-    JuceUtil::dumpComponent("ActionButtons::layout", this);
 }
 
 /**

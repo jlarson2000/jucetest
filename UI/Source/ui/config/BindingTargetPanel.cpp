@@ -1,6 +1,7 @@
 
 #include <JuceHeader.h>
 
+#include "../../util/Trace.h"
 #include "../../model/FunctionDefinition.h"
 #include "../../model/Parameter.h"
 #include "../../model/MobiusConfig.h"
@@ -104,6 +105,11 @@ Target* BindingTargetPanel::getSelectedTargetType()
     Target* target = nullptr;
     
     int tab = tabs.getCurrentTabIndex();
+    if (tab < 0) {
+        // see this when editing existing and not selecting any tabs
+        trace("!!! BindingTargetPanel: no tab selected\n");
+    }
+
     switch (tab) {
         case 0: target = TargetFunction; break;
         case 1: target = TargetScript; break;
@@ -136,6 +142,11 @@ juce::String BindingTargetPanel::getSelectedTargetName()
             target = cellName;
         }
     }
+    else {
+        // see this when editing existing and not selecting any tabs
+        trace("!!! BindingTargetPanel: no tab selected\n");
+    }
+    
     return target;
 }
 

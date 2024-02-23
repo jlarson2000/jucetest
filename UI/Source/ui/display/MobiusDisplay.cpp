@@ -103,7 +103,7 @@ void MobiusDisplay::resized()
     area.removeFromBottom(strips.getHeight());
     statusArea.setBounds(area);
     
-    JuceUtil::dumpComponent(this);
+    //JuceUtil::dumpComponent(this);
 }
 
 void MobiusDisplay::paint(juce::Graphics& g)

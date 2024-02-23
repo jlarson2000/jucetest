@@ -674,13 +674,13 @@ bool Binding::isValid()
 	bool valid = false;
 
     if (mName == nullptr) {
-        trace("Filtering binding with no name\n");
+        trace("Binding: Filtering binding with no name\n");
     }
     else if (mTrigger == nullptr) {
-        trace("Filtering binding with no trigger: %s\n", mName);
+        trace("Binding: Filtering binding with no trigger: %s\n", mName);
     }
     else if (mTarget == nullptr) {
-        trace("Filtering binding with no target: %s\n", mName);
+        trace("Binding: Filtering binding with no target: %s\n", mName);
     }
     else {
 		if (mTrigger == TriggerKey) {

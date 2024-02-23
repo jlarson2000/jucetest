@@ -287,6 +287,7 @@ void Supervisor::updateMobiusConfig()
 
         displayManager->configure(config);
         mobius->configure(config);
+        binderator.configure(config);
     }
 }
 

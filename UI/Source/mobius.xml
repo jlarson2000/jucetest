@@ -116,6 +116,10 @@
   <BindingConfig number='0'>
     <Binding target='function' name='Record' trigger='key' value='82'/>
     <Binding target='function' name='Reset' trigger='key' value='27'/>
+    <Binding target='function' name='NextLoop' trigger='key' value='65576'/>
+    <Binding target='function' name='PrevLoop' trigger='key' value='65574'/>
+    <Binding target='function' name='PrevTrack' trigger='key' value='65573'/>
+    <Binding target='function' name='NextTrack' trigger='key' value='65575'/>
   </BindingConfig>
   <ScriptConfig>
   </ScriptConfig>
