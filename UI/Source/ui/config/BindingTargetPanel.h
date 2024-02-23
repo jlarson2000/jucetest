@@ -20,6 +20,8 @@ class BindingTargetPanel : public SimpleTabPanel, public SimpleListBox::Listener
     void reset();
     
     bool isTargetSelected();
+    class Target* getSelectedTargetType();
+    juce::String getSelectedTargetName();
 
     // temporary: used only for Button since it doesn't use Binding yet
     bool isValidTarget(juce::String name);

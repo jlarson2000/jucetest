@@ -4,7 +4,6 @@
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../util/MidiUtil.h"
-#include "../../util/KeyCode.h"
 #include "../../model/Binding.h"
 #include "../common/ButtonBar.h"
 
@@ -74,10 +73,16 @@ Binding* BindingTable::captureBindings()
     Binding* capture = nullptr;
     Binding* last = nullptr;
 
-    for (int i = 0 ; i < bindings.size() ; i++) {
+    trace("BindingTable::capture %d\n", bindings.size());
+
+    while (bindings.size() > 0) {
         Binding* b = bindings.removeAndReturn(0);
+        // clearing lingering chain pointer for cascaded delete
+        b->setNext(nullptr);
+        trace("%s\n", b->getName());
         // filter out uninitialized rows
         if (StringEqual(b->getName(), NewBindingName)) {
+            trace("filering %s\n", b->getName());
             delete b;
         }
         else {

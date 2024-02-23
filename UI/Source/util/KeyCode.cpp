@@ -1,3 +1,18 @@
+/***
+  NOTE NOTE NOTE
+
+  This is old pre-Juce code and no longer works reliably.
+  I'm leaving it here for reference until we get to plugins and
+  see if the old VstKeyCode mappings are still relevant.  I hope not.
+
+  New code should always be using juce::KeyPress for codes, modifiers,
+  and symbolic names.
+
+  The KeyTracker class encapsulates the usual text mapping utilities
+  as static methods and provides the up transition detection Juce
+  unfortunately lacks.
+*/
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.

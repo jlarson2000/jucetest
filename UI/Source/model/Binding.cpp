@@ -220,8 +220,8 @@ Target* TargetPreset = &TargetPresetObj;
 Target TargetBindingsObj("bindings", "Bindings", true);
 Target* TargetBindings = &TargetBindingsObj;
 
-//Target TargetUIControlObj("uiControl", "UI Control", true);
-//Target* TargetUIControl = &TargetUIControlObj;
+Target TargetUIControlObj("uiControl", "UI Control", true);
+Target* TargetUIControl = &TargetUIControlObj;
 
 Target TargetUIConfigObj("uiConfig", "UI Config", true);
 Target* TargetUIConfig = &TargetUIConfigObj;
@@ -673,10 +673,21 @@ bool Binding::isValid()
 {
 	bool valid = false;
 
-	if (mTrigger != nullptr && mTarget != nullptr && mName != nullptr) {
+    if (mName == nullptr) {
+        trace("Filtering binding with no name\n");
+    }
+    else if (mTrigger == nullptr) {
+        trace("Filtering binding with no trigger: %s\n", mName);
+    }
+    else if (mTarget == nullptr) {
+        trace("Filtering binding with no target: %s\n", mName);
+    }
+    else {
 		if (mTrigger == TriggerKey) {
 			// key must have a non-zero value
 			valid = (mValue > 0);
+            if (!valid)
+              trace("Filtering binding with no value %s\n", mName);
 		}
 		else if (mTrigger == TriggerNote ||
 				 mTrigger == TriggerProgram ||
@@ -686,6 +697,8 @@ bool Binding::isValid()
 			// they didn't enter anything unless the UI uses negative
 			// must have a midi status
 			valid = (mValue >= 0);
+            if (!valid)
+              trace("Filtering binding with no value %s\n", mName);
 		}
         else if (mTrigger == TriggerPitch) {
             // doesn't need a value

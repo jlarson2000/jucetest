@@ -57,6 +57,10 @@ void Supervisor::start()
     // initial display update
     MobiusState* state = mobius->getState();
     displayManager->update(state);
+
+    // wait till everything is initialized before pumping events
+    binderator.configure(config);
+    binderator.start();
 }
 
 /**
@@ -64,6 +68,8 @@ void Supervisor::start()
  */
 void Supervisor::shutdown()
 {
+    binderator.stop();
+
     // stop the UI thread so we don't get any lingering events
     uiThread.stop();
 

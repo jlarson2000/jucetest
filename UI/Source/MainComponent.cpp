@@ -17,13 +17,15 @@ MainComponent::MainComponent()
     // Jeff's component tree debugging hack
     setName("MainComponent");
 
-    addKeyListener(this);
-    
     // startup can do a lot of thigns, perhais we should have different
     // phases, first to load any configuration related to the initial window size
     // and device configuration, and then another to start up the engine
-    
+    // having some ugly initialization timing issues trying to do too much
+    // in the MainComponent constructor, is there a convenient hook to defer that?
     supervisor.start();
+    
+    // redirect key events to the global listener
+    addKeyListener(&KeyTracker::Instance);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -46,7 +48,6 @@ MainComponent::MainComponent()
 
     // start with a size large enough to give us room but still display
     // on most monitors
-    
     setSize (1200, 800);
 }
 
@@ -58,19 +59,6 @@ MainComponent::~MainComponent()
 
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
-}
-
-/**
- * Return true to indiciate that the key has been consumed.
- */
-bool MainComponent::keyPressed(const juce::KeyPress& key, juce::Component* originator)
-{
-    return keyTracker.keyPressed(key, originator);
-}
-
-bool MainComponent::keyStateChanged(bool isKeyDown, juce::Component* originator)
-{
-    return keyTracker.keyStateChanged(isKeyDown, originator);
 }
 
 //////////////////////////////////////////////////////////////////////

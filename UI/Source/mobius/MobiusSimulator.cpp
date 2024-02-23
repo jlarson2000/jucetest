@@ -48,6 +48,8 @@ void MobiusSimulator::setListener(MobiusListener* l)
 void MobiusSimulator::configure(MobiusConfig* config)
 {
     // clone it so we can make internal modifications
+    // since we can be called after config editing delete the existing one
+    delete configuration;
     XmlRenderer xr;
     configuration = xr.clone(config);
 

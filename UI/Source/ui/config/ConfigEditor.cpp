@@ -126,7 +126,13 @@ void ConfigEditor::show(ConfigPanel* selected)
         ConfigPanel* other = panels[i];
         // note that this does not cancel an editing session, it
         // just hides it.  Some might want different behavior?
-        other->setVisible(other == selected);
+        bool showing = (other == selected);
+        // added this hook for KeyboardPanel to add/remove KeyTracker listener
+        if (showing)
+          other->showing();
+        else
+          other->hiding();
+        other->setVisible(showing);
     }
 
     // weird for Juce but since we defer rendering and don't do it the normal way
@@ -183,6 +189,7 @@ void ConfigEditor::close(ConfigPanel* closing)
         // that wasn't visible
     }
     else {
+        closing->hiding();
         closing->setVisible(false);
     
         for (int i = 0 ; i < panels.size() ; i++) {
@@ -194,6 +201,7 @@ void ConfigEditor::close(ConfigPanel* closing)
         }
 
         if (nextChanged != nullptr) {
+            nextChanged->showing();
             nextChanged->setVisible(true);
         }
         else {
@@ -202,6 +210,7 @@ void ConfigEditor::close(ConfigPanel* closing)
             bool showLoaded = true;
 
             if (showLoaded && nextLoaded != nullptr) {
+                nextLoaded->showing();
                 nextLoaded->setVisible(true);
             }
             else {

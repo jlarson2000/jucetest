@@ -18,7 +18,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent, public juce::KeyListener
+class MainComponent  : public juce::AudioAppComponent
 {
   public:
     //==============================================================================
@@ -34,13 +34,9 @@ class MainComponent  : public juce::AudioAppComponent, public juce::KeyListener
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-    bool keyPressed(const juce::KeyPress& key, juce::Component* originator) override;
-    bool keyStateChanged(bool isKeyDown, juce::Component* originator) override;
-
   private:
 
     Supervisor supervisor {this};
-    KeyTracker keyTracker;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

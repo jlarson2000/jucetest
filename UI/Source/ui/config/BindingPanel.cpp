@@ -66,10 +66,6 @@ BindingPanel::~BindingPanel()
 void BindingPanel::load()
 {
     if (!loaded) {
-        JuceUtil::dumpComponent(this);
-        // good a place as any
-        grabKeyboardFocus();
-        
         MobiusConfig* config = editor->getMobiusConfig();
         
         // let the target panel know the names of the things it can target
@@ -98,17 +94,105 @@ void BindingPanel::load()
 void BindingPanel::save()
 {
     if (changed) {
-        // harder than buttons, have to remove and replace just
-        // the TriggerKey bindings
-        //editor->saveUIConfig();
+        MobiusConfig* config = editor->getMobiusConfig();
+        // just look at the first one for now
+        BindingConfig* bindingConfig = config->getBindingConfigs();
+        if (bindingConfig == nullptr) {
+            // boostrap one
+            bindingConfig = new BindingConfig();
+            config->addBindingConfig(bindingConfig);
+        }
+
+        // note well: unlike most strings, setBingings() does
+        // NOT delete the current Binding list, it just takes the pointer
+        // so we can reconstruct the list and set it back without worrying
+        // about dual ownership.  deleting a Binding DOES however follow the
+        // chain so be careful with that.  Really need model cleanup
+        juce::Array<Binding*> newBindings;
+
+        Binding* original = bindingConfig->getBindings();
+        bindingConfig->setBindings(nullptr);
+        
+        while (original != nullptr) {
+            // take it out of the list to prevent cascaded delete
+            Binding* next = original->getNext();
+            original->setNext(nullptr);
+            if (!isRelevant(original))
+              newBindings.add(original);
+            else
+              delete original;
+            original = next;
+        }
+        //traceBindingList("filtered", newBindings);
+        
+        // now add back the edited ones, some may have been deleted or added
+        Binding* edited = bindings.captureBindings();
+        //traceBindingList("from table", edited);
+        while (edited != nullptr) {
+            newBindings.add(edited);
+            edited = edited->getNext();
+        }
+
+        //traceBindingList("merged", newBindings);
+
+        // link them back up
+        Binding* merged = nullptr;
+        Binding* last = nullptr;
+        for (int i = 0 ; i < newBindings.size() ; i++) {
+            Binding* b = newBindings[i];
+            // clear any residual chain
+            b->setNext(nullptr);
+            if (last == nullptr)
+              merged = b;
+            else
+              last->setNext(b);
+            last = b;
+        }
+
+        //traceBindingList("final", merged);
+
+        // store the merged list back
+        bindingConfig->setBindings(merged);
+        
+        editor->saveMobiusConfig();
         changed = false;
+        loaded = false;
     }
+    else if (loaded) {
+        // throw away the copies
+        cancel();
+    }
+}
+
+void BindingPanel::traceBindingList(const char* title, Binding* blist)
+{
+    int count = 0;
+    trace("*** Bindings %s\n", title);
+    while (blist != nullptr) {
+        trace("%s\n", blist->getName());
+        blist = blist->getNext();
+        count++;
+    }
+    trace("*** %s %d total bindings\n", title, count);
+}
+
+void BindingPanel::traceBindingList(const char* title, juce::Array<Binding*> &blist)
+{
+    trace("*** Bindings %s\n", title);
+    for (int i = 0 ; i < blist.size() ; i++) {
+        Binding* b = blist[i];
+        trace("%s\n", b->getName());
+    }
+    trace("*** %s %d total bindings\n", title, blist.size());
 }
 
 void BindingPanel::cancel()
 {
-    bindings.clear();
+    // throw away the copies
+    Binding* blist = bindings.captureBindings();
+    delete blist;
     changed = false;
+    loaded = false;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -243,7 +327,8 @@ void BindingPanel::bindingUpdate(Binding* b)
 
 void BindingPanel::bindingDelete(Binding* b)
 {
-    resetForm();}
+    resetForm();
+}
 
 /**
  * Field::Listener callback

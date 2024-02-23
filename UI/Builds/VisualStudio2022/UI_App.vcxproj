@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Binderator.cpp"/>
     <ClCompile Include="..\..\Source\KeyTracker.cpp"/>
     <ClCompile Include="..\..\Source\MainThread.cpp"/>
     <ClCompile Include="..\..\Source\Supervisor.cpp"/>
@@ -2491,6 +2492,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Binderator.h"/>
     <ClInclude Include="..\..\Source\KeyTracker.h"/>
     <ClInclude Include="..\..\Source\MainThread.h"/>
     <ClInclude Include="..\..\Source\Supervisor.h"/>

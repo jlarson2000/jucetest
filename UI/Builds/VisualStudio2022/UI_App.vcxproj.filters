@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Binderator.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\KeyTracker.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -3300,6 +3303,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Binderator.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\KeyTracker.h">
       <Filter>UI\Source</Filter>
     </ClInclude>

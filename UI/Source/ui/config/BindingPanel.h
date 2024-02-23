@@ -15,6 +15,9 @@ class BindingPanel : public ConfigPanel, public BindingTable::Listener, public F
 {
   public:
 
+    void traceBindingList(const char* title, Binding* blist);
+    void traceBindingList(const char* title, juce::Array<Binding*> &blist);
+
     // hmm, tried to make these pure virtual but got an abort when called
     // something about base classes calling down to their subclass, wtf?
     virtual juce::String renderSubclassTrigger(class Binding* b) = 0;

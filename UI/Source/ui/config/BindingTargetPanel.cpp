@@ -18,6 +18,10 @@ BindingTargetPanel::~BindingTargetPanel()
 {
 }
 
+/**
+ * Tabs are: Functions, Scripts, Controls, Parameters, Configurations
+ * !! uiControl isn't going to work
+ */
 void BindingTargetPanel::configure(MobiusConfig* config)
 {
     initBox(&functions);
@@ -89,7 +93,33 @@ bool BindingTargetPanel::isTargetSelected()
     return selected;
 }
 
-juce::String BindingTargetPanel::getSelectedTarget()
+/**
+ * Tabs are: Functions, Scripts, Controls, Parameters, Configurations
+ * Don't like the dependency here, we assume the tab will still
+ * be selected when the Update button is pressed.  If you navigate away
+ * we'll be looking at the wrong ListBox, same for name
+ */
+Target* BindingTargetPanel::getSelectedTargetType()
+{
+    Target* target = nullptr;
+    
+    int tab = tabs.getCurrentTabIndex();
+    switch (tab) {
+        case 0: target = TargetFunction; break;
+        case 1: target = TargetScript; break;
+        case 2: target = TargetParameter; break; // !! visual only, still a Parameter
+        case 3: target = TargetParameter; break; 
+        case 4: {
+            // here the Binding wants the specific bindable type
+            // TargetSetup, TargetPreset, TargetBindings
+            // have to get the name and undo the prefix
+        }
+            break;
+    }
+    return target;
+}
+
+juce::String BindingTargetPanel::getSelectedTargetName()
 {
     juce::String target;
     
@@ -109,6 +139,12 @@ juce::String BindingTargetPanel::getSelectedTarget()
     return target;
 }
 
+// temporary until we fix Buttons
+juce::String BindingTargetPanel::getSelectedTarget()
+{
+    return getSelectedTargetName();
+}
+    
 void BindingTargetPanel::selectedRowsChanged(SimpleListBox* box, int lastRow)
 {
     deselectOtherTargets(box);
@@ -206,9 +242,9 @@ bool BindingTargetPanel::isValidTarget(juce::String name)
 
 void BindingTargetPanel::capture(Binding* b)
 {
-    juce::String name = getSelectedTarget();
+    b->setTarget(getSelectedTargetType());
+    juce::String name = getSelectedTargetName();
     b->setName(name.toUTF8());
-    // !! need to figure out what this is, function, parameter
 }
 
 void BindingTargetPanel::select(Binding* b)

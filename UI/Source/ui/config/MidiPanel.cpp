@@ -89,9 +89,6 @@ juce::String MidiPanel::renderSubclassTrigger(Binding* b)
  */
 void MidiPanel::addSubclassFields()
 {
-    //key = new Field("Key", Field::Type::String);
-    //key->setWidthUnits(4);
-    //form.add(key);
 }
 
 /**
@@ -100,7 +97,6 @@ void MidiPanel::addSubclassFields()
  */
 void MidiPanel::refreshSubclassFields(class Binding* b)
 {
-    //key->setValue(renderTriggerCell(b));
 }
 
 /**
@@ -109,13 +105,10 @@ void MidiPanel::refreshSubclassFields(class Binding* b)
  */
 void MidiPanel::captureSubclassFields(class Binding* b)
 {
-    //juce::var value = key->getValue();
-    //b->setValue(GetKeyCode(value.toString().toUTF8()));
 }
 
 void MidiPanel::resetSubclassFields()
 {
-    //key->setValue(juce::var());
 }
 
 /****************************************************************************/

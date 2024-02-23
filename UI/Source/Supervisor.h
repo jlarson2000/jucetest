@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 
 #include "MainThread.h"
+#include "Binderator.h"
 
 class Supervisor
 {
@@ -50,6 +51,8 @@ class Supervisor
 
     juce::Component* mainComponent;
 
+    Binderator binderator {this};
+    
     // explore using std::unique_ptr here so we don't have to rely on delete
     // and could defer constructing until we need something, I'd like to
     // keep Supervisor relatively free of compile time dependencies for the caller

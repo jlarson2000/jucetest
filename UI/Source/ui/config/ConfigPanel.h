@@ -174,6 +174,13 @@ class ConfigPanel : public juce::Component
     void selectorButtonClicked(ObjectSelector::ButtonType button);
     void objectSelected(juce::String name);
 
+    // called by ConfigEditor when the panel is to become visible or hidden
+    // in case it needs to make preparations
+    virtual void showing() {
+    }
+    virtual void hiding() {
+    }
+    
     bool isLoaded() {
         return loaded;
     }

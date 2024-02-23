@@ -4,8 +4,8 @@
 #include <string>
 #include <sstream>
 
+#include "../../KeyTracker.h"
 #include "../../util/Trace.h"
-#include "../../util/KeyCode.h"
 #include "../common/Form.h"
 
 #include "ConfigEditor.h"
@@ -20,12 +20,33 @@ KeyboardPanel::KeyboardPanel(ConfigEditor* argEditor) :
     // now that BindingPanel is fully constructed
     // initialize the form so it can call down to our virtuals
     initForm();
-
-    addKeyListener(this);
 }
 
 KeyboardPanel::~KeyboardPanel()
 {
+    // make sure this doesn't linger
+    KeyTracker::removeListener(this);
+}
+
+/**
+ * Called by ConfigEditor when we're about to be made visible.
+ * Since we're not using the usual Juce component dispatching
+ * for keyboard events have to add/remove our listener to the
+ * global key tracker.  Don't really like this but there aren't
+ * many places that need to mess with keyboard tracking and this
+ * makes it easier.
+ */
+void KeyboardPanel::showing()
+{
+    KeyTracker::addListener(this);
+}
+
+/**
+ * Called by ConfigEditor when we're about to be made invisible.
+ */
+void KeyboardPanel::hiding()
+{
+    KeyTracker::removeListener(this);
 }
 
 /**
@@ -43,11 +64,8 @@ bool KeyboardPanel::isRelevant(Binding* b)
  */
 juce::String KeyboardPanel::renderSubclassTrigger(Binding* b)
 {
-    // not sure if this old utility works with Juce modifiers
-    // assume unmodified for now
-    char buf[32];
-    GetKeyString(b->getValue(), buf);
-    return juce::String(buf);
+    // not currently storing modifiers in the Binding
+    return KeyTracker::getKeyText(b->getValue(), 0);
 }
 
 /**
@@ -76,13 +94,17 @@ void KeyboardPanel::refreshSubclassFields(class Binding* b)
 }
 
 /**
- * Put the value of the key field into the Binding
- * Undo the symbolic name transformation
+ * Capture current editing fields into the Binding.
+ * Can be called with an empty [New] binding so must
+ * initialize everything so it won't be filtered later
+ * in XML rendering.
  */
 void KeyboardPanel::captureSubclassFields(class Binding* b)
 {
+    b->setTrigger(TriggerKey);
     juce::var value = key->getValue();
-    b->setValue(GetKeyCode(value.toString().toUTF8()));
+    // todo: modifiers
+    b->setValue(KeyTracker::parseKeyText(value.toString()));
 }
 
 void KeyboardPanel::resetSubclassFields()
@@ -94,11 +116,8 @@ bool KeyboardPanel::keyPressed(const juce::KeyPress& keypress, juce::Component* 
 {
     trace("Here %s\n", keypress.getTextDescription().toUTF8());
 
-    char buf[32];
-    GetKeyString(keypress.getKeyCode(), buf);
-
     if (capture->getBoolValue())
-      key->setValue(juce::var(buf));
+      key->setValue(juce::var(keypress.getTextDescription()));
     
     return false;
 }
@@ -106,7 +125,22 @@ bool KeyboardPanel::keyPressed(const juce::KeyPress& keypress, juce::Component* 
 bool KeyboardPanel::keyStateChanged(bool isKeyDown, juce::Component* originator)
 {
     return false;
- }
+}
+
+void KeyboardPanel::keyTrackerDown(int code, int modifiers)
+{
+    //trace("KeyboardPanel::keyTrackerDown %d %d\n", code, modifiers);
+    if (capture->getBoolValue())
+      key->setValue(juce::var(KeyTracker::getKeyText(code, modifiers)));
+}
+
+void KeyboardPanel::keyTrackerUp(int code, int modifiers)
+{
+    //trace("KeyboardPanel::keyTrackerUp %d %d\n", code, modifiers);
+}
+
+
+
 
 /****************************************************************************/
 /****************************************************************************/
