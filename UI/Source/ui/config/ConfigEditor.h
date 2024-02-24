@@ -49,6 +49,7 @@
 #include "KeyboardPanel.h"
 #include "MidiPanel.h"
 #include "MidiDevicesPanel.h"
+#include "AudioDevicesPanel.h"
 
 class ConfigEditor
 {
@@ -65,13 +66,14 @@ class ConfigEditor
     void showGlobal();
     void showPresets();
     void showSetups();
-    void showMIDIBindings();
+    void showMidiBindings();
     void showKeyboardBindings();
     void showPluginParameters();
     void showScripts();
     void showSamples();
     void showButtons();
-    void showMIDIDevices();
+    void showMidiDevices();
+    void showAudioDevices();
     
     void closeAll();
 
@@ -89,6 +91,7 @@ class ConfigEditor
     void show(ConfigPanel* panel);
     const char* getConfigFilePath();
     const char* getWriteConfigFilePath();
+
     const char* getUIConfigFilePath();
     const char* getWriteUIConfigFilePath();
     
@@ -106,6 +109,7 @@ class ConfigEditor
     KeyboardPanel keyboard {this};
     MidiPanel midi {this};
     MidiDevicesPanel midiDevices {this};
+    AudioDevicesPanel audioDevices {this};
     
     // list of all active panels, we often need to iterate over these
     juce::Array<ConfigPanel*> panels;

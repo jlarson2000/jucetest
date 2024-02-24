@@ -87,6 +87,10 @@ void MainWindow::mainMenuSelection(int id)
         case MainMenu::ReloadOSC: break;
         case MainMenu::Exit: break;
 
+        case MainMenu::GlobalParameters: {
+            configEditor.showGlobal();
+        }
+        break;
         case MainMenu::Presets: {
             configEditor.showPresets();
         }
@@ -95,14 +99,8 @@ void MainWindow::mainMenuSelection(int id)
             configEditor.showSetups();
         }
         break;
-                
-        case MainMenu::GlobalParameters: {
-            configEditor.showGlobal();
-        }
-        break;
-                
         case MainMenu::MIDIControl: {
-            configEditor.showMIDIBindings();
+            configEditor.showMidiBindings();
         }
         break;
         
@@ -122,10 +120,13 @@ void MainWindow::mainMenuSelection(int id)
         case MainMenu::Scripts: break;
         case MainMenu::Samples: break;
         case MainMenu::MIDIDevices: {
-            configEditor.showMIDIDevices();
+            configEditor.showMidiDevices();
         }
             break;
-        case MainMenu::AudioDevices: break;
+        case MainMenu::AudioDevices: {
+            configEditor.showAudioDevices();
+        }
+            break;
 
         case MainMenu::KeyBindings: break;
         case MainMenu::MIDIBindings: break;

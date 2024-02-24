@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\Source\KeyTracker.cpp"/>
     <ClCompile Include="..\..\Source\MainThread.cpp"/>
     <ClCompile Include="..\..\Source\Supervisor.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\AudioDevicesPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\BindingPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\BindingTable.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp"/>
@@ -2500,6 +2501,7 @@
     <ClInclude Include="..\..\Source\KeyTracker.h"/>
     <ClInclude Include="..\..\Source\MainThread.h"/>
     <ClInclude Include="..\..\Source\Supervisor.h"/>
+    <ClInclude Include="..\..\Source\ui\config\AudioDevicesPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\BindingPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\BindingTable.h"/>
     <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h"/>

@@ -54,6 +54,7 @@ void ConfigEditor::init(Supervisor* super)
     addPanel(&keyboard);
     addPanel(&midi);
     addPanel(&midiDevices);
+    addPanel(&audioDevices);
 }
 
 ConfigEditor::~ConfigEditor()
@@ -101,14 +102,19 @@ void ConfigEditor::showKeyboardBindings()
     show(&keyboard);
 }
 
-void ConfigEditor::showMIDIBindings()
+void ConfigEditor::showMidiBindings()
 {
     show(&midi);
 }
 
-void ConfigEditor::showMIDIDevices()
+void ConfigEditor::showMidiDevices()
 {
     show(&midiDevices);
+}
+
+void ConfigEditor::showAudioDevices()
+{
+    show(&audioDevices);
 }
 
 void ConfigEditor::closeAll()

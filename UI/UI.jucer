@@ -16,6 +16,10 @@
       <FILE id="qYO2SW" name="Supervisor.h" compile="0" resource="0" file="Source/Supervisor.h"/>
       <GROUP id="{65649B8C-FFE3-B772-6B79-EF729D3BCE34}" name="ui">
         <GROUP id="{C154E97D-0CEE-20FA-DFB7-9667274BF918}" name="config">
+          <FILE id="YtRrYA" name="AudioDevicesPanel.cpp" compile="1" resource="0"
+                file="Source/ui/config/AudioDevicesPanel.cpp"/>
+          <FILE id="BNTYC1" name="AudioDevicesPanel.h" compile="0" resource="0"
+                file="Source/ui/config/AudioDevicesPanel.h"/>
           <FILE id="QuaeIT" name="BindingPanel.cpp" compile="1" resource="0"
                 file="Source/ui/config/BindingPanel.cpp"/>
           <FILE id="q7bVeN" name="BindingPanel.h" compile="0" resource="0" file="Source/ui/config/BindingPanel.h"/>

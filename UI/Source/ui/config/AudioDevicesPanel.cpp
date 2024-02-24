@@ -15,19 +15,19 @@
 #include "ConfigEditor.h"
 #include "LogPanel.h"
  
-#include "MidiDevicesPanel.h"
+#include "AudioDevicesPanel.h"
 
-MidiDevicesPanel::MidiDevicesPanel(ConfigEditor* argEditor) :
-    ConfigPanel{argEditor, "MIDI Devices", ConfigPanelButton::Save | ConfigPanelButton::Cancel, true}
+AudioDevicesPanel::AudioDevicesPanel(ConfigEditor* argEditor) :
+    ConfigPanel{argEditor, "Audio Devices", ConfigPanelButton::Save | ConfigPanelButton::Cancel, true}
 {
-    setName("MidiDevicesPanel");
+    setName("AudioDevicesPanel");
     render();
 }
 
-MidiDevicesPanel::~MidiDevicesPanel()
+AudioDevicesPanel::~AudioDevicesPanel()
 {
     // members will delete themselves
-    // remove the MidiManager log if we were still showing
+    // remove the AudioManager log if we were still showing
     hiding();
 }
 
@@ -39,51 +39,42 @@ MidiDevicesPanel::~MidiDevicesPanel()
 
 /**
  * Called by ConfigEditor when we're about to be made visible.
- * Give our log to MidiManager
- *
- * This is kind of dangerous since MidiManager is a singleton
- * and we could have a limited lifetime, though we don't right now
- * listener model might be better, but it's really about the same
- * as what KeyboardPanel does.
  */
-void MidiDevicesPanel::showing()
+void AudioDevicesPanel::showing()
 {
-    MidiManager* mm = Supervisor::Instance->getMidiManager();
-    mm->setLog(&log);
+    //AudioManager* mm = Supervisor::Instance->getAudioManager();
+    //mm->setLog(&log);
 }
 
 /**
  * Called by ConfigEditor when we're about to be made invisible.
  */
-void MidiDevicesPanel::hiding()
+void AudioDevicesPanel::hiding()
 {
-    MidiManager* mm = Supervisor::Instance->getMidiManager();
-    mm->setLog(nullptr);
+    //AudioManager* mm = Supervisor::Instance->getAudioManager();
+    //mm->setLog(nullptr);
 }
 
 /**
  * Called by ConfigEditor when asked to edit devices.
  * Unlike most other config panels, we don't have a lot of complex state to manage.
  */
-void MidiDevicesPanel::load()
+void AudioDevicesPanel::load()
 {
     if (!loaded) {
 
-        MidiManager* mm = Supervisor::Instance->getMidiManager();
-        mm->load();
-
         MobiusConfig* config = editor->getMobiusConfig();
         if (config != nullptr) {
-            const char* inputName = config->getMidiInput();
-            const char* outputName = config->getMidiOutput();
+            const char* inputName = config->getAudioInput();
+            const char* outputName = config->getAudioOutput();
 
             inputField->setValue(juce::String(inputName));
             // should have already been set to the current value
-            mm->setInput(juce::String(inputName));
+            //mm->setInput(juce::String(inputName));
             
             // mm->setOutput(juce::String(outputName));
             // do we really need this?
-            //const char* thruName = config->getMidiThrough();
+            //const char* thruName = config->getAudioThrough();
         }
         
         loaded = true;
@@ -96,13 +87,13 @@ void MidiDevicesPanel::load()
  * Called by the Save button in the footer.
  * Tell the ConfigEditor we are done.
  */
-void MidiDevicesPanel::save()
+void AudioDevicesPanel::save()
 {
     if (changed) {
         MobiusConfig* config = editor->getMobiusConfig();
         
-        config->setMidiInput(inputField->getStringValue().toUTF8());
-        // config->setMidiOutput(...selected...);
+        config->setAudioInput(inputField->getStringValue().toUTF8());
+
         editor->saveMobiusConfig();
 
         loaded = false;
@@ -116,7 +107,7 @@ void MidiDevicesPanel::save()
 /**
  * Throw away all editing state.
  */
-void MidiDevicesPanel::cancel()
+void AudioDevicesPanel::cancel()
 {
     loaded = false;
     changed = false;
@@ -129,7 +120,7 @@ void MidiDevicesPanel::cancel()
 //////////////////////////////////////////////////////////////////////
 
 /**
- * MidiDevicesContent is a wrapper around the Form used to select
+ * AudioDevicesContent is a wrapper around the Form used to select
  * devices and a LogPanel used to display MIDI events.  Necessary
  * because ConfigPanel only allows a single child of it's content
  * component and we want to control layout of the form relative
@@ -143,7 +134,7 @@ void MidiDevicesPanel::cancel()
  * like how Form works.  Think about a good pattern for this if
  * it happens more.
  */
-void MidiDevicesContent::resized()
+void AudioDevicesContent::resized()
 {
     // the form will have sized itself to the minimum bounds
     // necessary for the fields
@@ -172,16 +163,16 @@ void MidiDevicesContent::resized()
 //
 //////////////////////////////////////////////////////////////////////
 
-void MidiDevicesPanel::render()
+void AudioDevicesPanel::render()
 {
     initForm();
     form.render();
 
-    mdcontent.addAndMakeVisible(form);
-    mdcontent.addAndMakeVisible(log);
+    adcontent.addAndMakeVisible(form);
+    adcontent.addAndMakeVisible(log);
 
     // place it in the ConfigPanel content panel
-    content.addAndMakeVisible(mdcontent);
+    content.addAndMakeVisible(adcontent);
 
     // have been keeping the same size for all ConfigPanels
     // rather than having them shrink to fit, should move this
@@ -189,31 +180,14 @@ void MidiDevicesPanel::render()
     setSize (900, 600);
 }
 
-const char* NoDeviceSelected = "[Select Device]";
-
-void MidiDevicesPanel::initForm()
+void AudioDevicesPanel::initForm()
 {
     inputField = new Field("Input device", Field::Type::String);
     form.add(inputField);
-
-    MidiManager* mm = Supervisor::Instance->getMidiManager();
-    juce::StringArray names = mm->getInputNames();
-    names.insert(0, juce::String(NoDeviceSelected));
-    
-    inputField->setAllowedValues(names);
-    inputField->addListener(this);
-    
 }
 
-void MidiDevicesPanel::fieldChanged(Field* field)
+void AudioDevicesPanel::fieldChanged(Field* field)
 {
-    // can only be the input field
-    juce::String name = field->getStringValue();
-    if (name != NoDeviceSelected) {
-        MidiManager* mm = Supervisor::Instance->getMidiManager();
-        mm->setInput(name);
-        // todo: need method to enable/disable logging
-    }
 }
 
 /****************************************************************************/
