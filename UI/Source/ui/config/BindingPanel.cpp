@@ -67,7 +67,10 @@ void BindingPanel::load()
 {
     if (!loaded) {
         MobiusConfig* config = editor->getMobiusConfig();
-        
+
+        maxTracks = config->getTracks();
+        maxGroups = config->getTrackGroups();
+
         // let the target panel know the names of the things it can target
         targets.configure(config);
 
@@ -204,16 +207,39 @@ void BindingPanel::cancel()
 /**
  * Build out the form containing scope, subclass specific files
  * binding arguments.
+ *
+ * Don't have a Form interface that allows static Field objects
+ * so we have to allocate them and let the Form own them.
  */
 void BindingPanel::initForm()
 {
-    // todo: scope
+    // scope always goes first
+    juce::StringArray scopeNames;
+    scopeNames.add("Global");
 
-    // subclass must override this
+    if (maxTracks == 0) maxTracks = 8;
+    for (int i = 0 ; i < maxTracks ; i++)
+      scopeNames.add("Track " + juce::String(i+1));
+
+    if (maxGroups == 0) maxGroups = 2;
+    for (int i = 0 ; i < maxGroups ; i++) {
+        // passing a char to the String constructor didn't work,
+        // it rendered the numeric value of the character
+        // operator += works
+        // juce::String((char)('A' + i)));
+        juce::String letter;
+        letter += (char)('A' + i);
+        scopeNames.add("Group " + letter);
+    }
+    
+    scope = new Field("Scope", Field::Type::String);
+    scope->setAllowedValues(scopeNames);
+    form.add(scope);
+
+    // subclass gets to add it's fields
     addSubclassFields();
 
-    // don't have an interface that allows static fields not
-    // owned by the Form
+    // arguments last
     arguments = new Field("Arguments", Field::Type::String);
     arguments->setWidthUnits(15);
     form.add(arguments);
@@ -225,8 +251,9 @@ void BindingPanel::initForm()
  */
 void BindingPanel::resetForm()
 {
+    scope->setValue(0);
+    
     targets.reset();
-    // todo: scope
 
     resetSubclassFields();
     
@@ -235,9 +262,32 @@ void BindingPanel::resetForm()
 
 /**
  * Refresh form to have values for the selected binding
+ *
+ * Binding model represents scopes as a string, then parses
+ * that into track or group numbers.  
  */
 void BindingPanel::refreshForm(Binding* b)
 {
+    const char* scopeName = b->getScope();
+    if (scopeName == nullptr) {
+        scope->setValue(0);
+    }
+    else {
+        // can assume these have been set as a side effect
+        // of calling setScope(char), don't like this
+        // track and group numbers are 1 based if they are set
+        int tracknum = b->getTrack();
+        if (tracknum > 0) {
+            // element 0 is "global" so track number works
+            scope->setValue(tracknum);
+        }
+        else {
+            int groupnum = b->getGroup();
+            if (groupnum > 0)
+              scope->setValue(maxTracks + groupnum);
+        }
+    }
+    
     targets.select(b);
     refreshSubclassFields(b);
     
@@ -249,10 +299,33 @@ void BindingPanel::refreshForm(Binding* b)
 
 /**
  * Copy what we have displayed for targets, scopes, and arguments
- * into a Binding
+ * into a Binding.
+ *
+ * Binding currently wants scopes represented as a String
+ * with tracks as numbers "1", "2", etc. and groups as
+ * letters "A", "B", etc.
+ *
+ * Would prefer to avoid this, have bindings just store
+ * the two numbers would make it easier to deal with but
+ * not as readable in the XML.
  */
 void BindingPanel::captureForm(Binding* b)
 {
+    // item 0 global, tracks, groups
+    int item = scope->getIntValue();
+    if (item == 0) {
+        // global, this ensures both track and group are cleared
+        b->setScope(nullptr);
+    }
+    else if (item <= maxTracks) {
+        // this will format the track letter
+        b->setTrack(item);
+    }
+    else {
+        // the group number in the Binding starts with 1
+        b->setGroup(item - maxTracks);
+    }
+
     targets.capture(b);
 
     // todo: scope
@@ -317,12 +390,9 @@ Binding* BindingPanel::bindingNew()
 
 void BindingPanel::bindingUpdate(Binding* b)
 {
-    if (!targets.isTargetSelected()) {
-        // todo: try an alert here?
-    }
-    else {
-        captureForm(b);
-    }
+    // was ignoring this if !target.isTargetSelected
+    // but I suppose we can go ahead and capture what we have
+    captureForm(b);
 }
 
 void BindingPanel::bindingDelete(Binding* b)
@@ -337,7 +407,7 @@ void BindingPanel::bindingDelete(Binding* b)
  * now that we have a Form this would have to be a lot more
  * complicated
  */
-void BindingPanel::fieldSet(Field* field)
+void BindingPanel::fieldChanged(Field* field)
 {
 }
 
@@ -365,7 +435,9 @@ void BindingPanel::resized()
     bindings.setBounds(area.getX(), area.getY(), width, height);
 
     area.removeFromLeft(bindings.getWidth() + 50);
-    targets.setBounds(area.getX(), area.getY(), 300, 400);
+    // need enough room for arguments so shorten it
+    // could try to adapt to the size of the argumnts Form instead
+    targets.setBounds(area.getX(), area.getY(), 300, 300);
 
     //form->render();
     form.setTopLeftPosition(area.getX(), targets.getY() + targets.getHeight() + 10);

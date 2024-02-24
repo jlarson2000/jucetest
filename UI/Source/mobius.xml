@@ -1,4 +1,4 @@
-<MobiusConfig midiInput='3- ReMOTE' midiOutput='3- Black Box MIDI Out' audioInput='ASIO:M-Audio USB ASIO' audioOutput='ASIO:M-Audio USB ASIO' quickSave='mobiusloop' noiseFloor='13' suggestedLatencyMsec='5' inputLatency='0' outputLatency='0' maxSyncDrift='2048' tracks='8' trackGroups='2' maxLoops='4' longPress='500' monitorAudio='false' pluginPins='16' autoFeedbackReduction='false' 16BitWaveFile='false' spreadRange='48' tracePrintLevel='1' traceDebugLevel='2' saveLayers='false' driftCheckPoint='loop' midiRecordMode='average' dualPluginWindow='true' midiExport='false' hostMidiExport='false' groupFocusLock='false' oscInputPort='0' oscOutputPort='0' oscTrace='false' oscEnable='false' sampleRate='44100' setup='Default'>
+<MobiusConfig midiInput='Arturia MiniLab mkII' midiOutput='3- Black Box MIDI Out' audioInput='ASIO:M-Audio USB ASIO' audioOutput='ASIO:M-Audio USB ASIO' quickSave='mobiusloop' noiseFloor='13' suggestedLatencyMsec='5' inputLatency='0' outputLatency='0' maxSyncDrift='2048' tracks='8' trackGroups='2' maxLoops='4' longPress='500' monitorAudio='false' pluginPins='16' autoFeedbackReduction='false' 16BitWaveFile='false' spreadRange='48' tracePrintLevel='1' traceDebugLevel='2' saveLayers='false' driftCheckPoint='loop' midiRecordMode='average' dualPluginWindow='true' midiExport='false' hostMidiExport='false' groupFocusLock='false' oscInputPort='0' oscOutputPort='0' oscTrace='false' oscEnable='false' sampleRate='44100' setup='Default'>
   <Preset name='Default'
     altFeedbackEnable='false'
     autoRecordBars='1'
@@ -120,6 +120,7 @@
     <Binding target='function' name='PrevLoop' trigger='key' value='65574'/>
     <Binding target='function' name='PrevTrack' trigger='key' value='65573'/>
     <Binding target='function' name='NextTrack' trigger='key' value='65575'/>
+    <Binding target='function' name='Record' trigger='note' value='48' channel='0'/>
   </BindingConfig>
   <ScriptConfig>
   </ScriptConfig>

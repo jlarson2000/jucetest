@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MidiManager.cpp"/>
     <ClCompile Include="..\..\Source\Binderator.cpp"/>
     <ClCompile Include="..\..\Source\KeyTracker.cpp"/>
     <ClCompile Include="..\..\Source\MainThread.cpp"/>
@@ -153,6 +154,7 @@
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\LogPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\MidiDevicesPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
@@ -2493,6 +2495,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MidiManager.h"/>
     <ClInclude Include="..\..\Source\Binderator.h"/>
     <ClInclude Include="..\..\Source\KeyTracker.h"/>
     <ClInclude Include="..\..\Source\MainThread.h"/>
@@ -2505,6 +2508,7 @@
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\LogPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\MidiDevicesPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\MidiPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>

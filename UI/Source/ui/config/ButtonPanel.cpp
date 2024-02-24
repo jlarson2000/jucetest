@@ -231,7 +231,7 @@ void ButtonPanel::buttonClicked(juce::String name)
     }
 }
 
-void ButtonPanel::fieldSet(Field* field)
+void ButtonPanel::fieldChanged(Field* field)
 {
 }
 

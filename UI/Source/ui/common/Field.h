@@ -43,13 +43,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-class Field : public juce::Component
+class Field : public juce::Component, public juce::ComboBox::Listener
 {
   public:
     
     class Listener {
       public:
-        virtual void fieldSet(Field* f) = 0;
+        virtual void fieldChanged(Field* f) = 0;
     };
 
     enum class Type {Integer, Boolean, String};
@@ -61,7 +61,7 @@ class Field : public juce::Component
     ~Field();
 
     void addListener(Listener* l) {
-        listener = l;
+        fieldListener = l;
     }
     
     const juce::String& getName() {
@@ -183,6 +183,8 @@ class Field : public juce::Component
     void resized() override;
     void paint (juce::Graphics& g) override;
 
+    // ComboBox
+    void comboBoxChanged(juce::ComboBox* box);
     
   private:
     
@@ -193,7 +195,7 @@ class Field : public juce::Component
     void renderBool();
     void loadValue();
     
-    Listener* listener = nullptr;
+    Listener* fieldListener = nullptr;
     juce::String name;
     juce::String displayName;
     Type type = Type::Integer;

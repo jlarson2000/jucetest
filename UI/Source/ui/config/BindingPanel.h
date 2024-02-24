@@ -45,14 +45,18 @@ class BindingPanel : public ConfigPanel, public BindingTable::Listener, public F
     class Binding* bindingNew();
 
     // Field
-    void fieldSet(Field* field);
+    void fieldChanged(Field* field);
     
   protected:
 
     BindingTable bindings;
     BindingTargetPanel targets;
     Form form;
+    Field* scope = nullptr;
     Field* arguments = nullptr;
+    int maxTracks = 0;
+    int maxGroups = 0;
+
     void initForm();
     
   private:

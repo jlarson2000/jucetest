@@ -522,6 +522,11 @@ void Binding::parseScope()
     }
 }
 
+/**
+ * If you call setTrack or setGroup rather
+ * than setScope, it can set the other number
+ * as a side effect.
+ */
 void Binding::setTrack(int t) 
 {
     if (t > 0) {

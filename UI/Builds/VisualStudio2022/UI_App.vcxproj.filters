@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\MidiManager.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Binderator.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -644,6 +647,9 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\LogPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\MidiDevicesPanel.cpp">
@@ -3306,6 +3312,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\MidiManager.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Binderator.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
@@ -3340,6 +3349,9 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\LogPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\MidiDevicesPanel.h">

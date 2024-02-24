@@ -1,0 +1,115 @@
+
+We have a few singleton objects
+
+Supervisor
+  - the main coordination point for everything
+
+KeyTracker
+  - handles keyboard input, does press/release transitions, and
+    supresses auto-repeat
+
+MidiManager
+  - handles MIDI devices
+
+Probably will have one for AudioDevices too
+
+All are managed by Supervisor
+
+A few internal components need access to these
+  KeyboardPanel to capture keyboard input when editing bindings
+  Binderator to get keyboard and MIDI events
+  MidiDevicePanel to get information about devices and select them
+  AudioDevicePanel eventually
+
+Almost nothing else should need direct access to the managerse
+  rename KeyTracker to KeyManager
+
+Since the display Component hierarchy can be deep and changing, I
+dislike having to pass Supervisor down all the way just so something
+at the bottom can get to it.  Some uses
+
+  register a temporary key listener
+  register a temporary MIDI listener
+  obtain information about available devices
+
+
+It makes sense to have Supervisor be a known singleton with
+a static Instance that can be referenced at any level
+
+The other managers can be access through that
+I suppose it doesn't hurt to allow them to have an Instance too,
+doing that now with KeyboardManager but it seems nicer to have a single
+point of control
+
+Supervisor can then use static initialization
+
+doAction is kind of an exception since display components might want
+to intercept them on the way up and avoid getting Supervisor involved
+
+Alternatvely they could always start at Supervisor and work their way down
+
+Kind of like that since events could come from above or below
+
+   ActionButton is a bottom up event
+     the action is for a display component like ParametersElement
+     it can pass it up to MainDisplay, then have it pass it down to ParametersElement
+     or it can simply start at Supervisor and let each level on the way down
+     decide to handle it or propagate down
+     liking this, it's more like how other messages work, can reduce the
+     number of doAction levels on the way up as structure changes
+
+  Binderator/Keyboard Event
+    also want to bind keys to control ParametersElement so these start from
+    a higher level and work down, so need to be able to walk down, why have both?
+
+    I suppose if it requires each level to have a doAction it doesn't matter
+
+Supervisor instantiation
+
+Does it make itself, or let someone else do it
+
+Currently MainCmponenent has a static instance member
+Kind of nice RAII but it has the usual issues with static initialization
+and Supervisor does a LOT of stuff, doesn't seem to be a good hook
+for post construction initiliaztion though so that may be the way it is
+
+Sub components need to be able to call Supervisor::getInstance
+or Supervisor::Instance.
+
+If MainComponent allocates it staically, then the Instance pointer needs to
+be set at some point, either by MainComponent or by Supervisor itself
+
+   Supervisor::Supervisor() {
+      if (Instance != nullptr)
+         // duplicate instantiation
+         Instance = this;
+         }
+
+I think most examples use a factory method
+
+  MainComponent
+     Supervisor::getInstance
+       does about the same as the constructor above
+     static initialization moves to Supervisor
+     kind of like having MainComponent allocate it, makes it more obvious
+     and looks like other components
+
+
+!! Static initialization order
+
+I'm a little confused about how we're wiring objects together and the
+order they'll be deconstrcutred
+
+MainComponent
+  has a bunch of child Components
+  has a Supervisor
+
+Some of the child components want to refer to things managed by Supervisor
+like KeyManager and MidiManager to register usually temporary listeners and loggers
+
+As MainComponent destructs, which come first Components or Supervisor?
+  if Components go first, then they can prune references in Supervisor with no problems
+  if Supervisor goes first, then when the Components call out to it to deregister
+  listeners it will be gone
+
+  Think we're okay since we would have had this problem by now, but read up on this

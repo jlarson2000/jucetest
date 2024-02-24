@@ -1,0 +1,31 @@
+
+The number of possible groups is configured in MobiusConfig
+
+Groups cannot currently be named, the UI will auto generate
+generate names "Group A", "Group B", etc.
+
+Engine does not need to know anything about groups other than just the number
+
+Groups only really relevant for binding propagation, UIAction can carry the
+group number, but it's just as easy for the UI to replicate them and give them
+track scope.
+
+Scripts need to know group numbers for iteration
+
+for group 1
+
+could allow scripts to reference groups symbolicially
+
+for group "Bass"
+
+If the UI replicates group actions then we need to dynamically allocate them
+So while the binding has group 1, when MobiusInterface is called
+it will need several actions copied from the main, and often static action,
+
+Since the engine always copies information out of the UIAction, it can be deleted
+right away or we can pool them.
+
+Unsure if scripts need to do this group replication, when a track is
+targeted with for, I think that alwayas ends up replicating with internal Actions
+allocated from the pool.
+

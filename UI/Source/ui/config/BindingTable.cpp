@@ -334,7 +334,10 @@ juce::String BindingTable::getCellText(int row, int columnId)
  */ 
 juce::String BindingTable::formatScopeText(Binding* b)
 {
-    return juce::String(b->getScope());
+    if (b->getScope() == nullptr)
+      return juce::String("Global");
+    else
+      return juce::String(b->getScope());
 }
 
 //////////////////////////////////////////////////////////////////////

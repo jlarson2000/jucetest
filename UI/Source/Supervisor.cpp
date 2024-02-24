@@ -2,6 +2,13 @@
  * A singleton object that provides services and coordinates
  * activities between the various sub-components of the Mobius application
  *
+ * Note that the main component is expected to be an AudioAppComponent which
+ * it will be when using Projucer's generated main code when asking for a standalone
+ * audio app.  Plugins won't have this.  This is necessary to get to the singleton
+ * of AudioDeviceManager which is normally used to deal with MIDI devices.
+ * Interesting to see how this plays out when we get to plugins.  You won't ever want
+ * audio devices there, but I have liked to open private MIDI devices outside of the host.
+ * 
  */
 
 #include <JuceHeader.h>
@@ -20,8 +27,16 @@
 
 #include "Supervisor.h"
 
-Supervisor::Supervisor(juce::Component* main)
+// what do static pointers get filled with?
+Supervisor* Supervisor::Instance = nullptr;
+
+Supervisor::Supervisor(juce::AudioAppComponent* main)
 {
+    if (Instance != nullptr)
+      trace("Attempt to instantiate more than one Supervisor!\n");
+    else
+      Instance = this;
+    
     mainComponent = main;
 //    uiThread.setSupervisor(this);
 }
@@ -43,6 +58,8 @@ void Supervisor::start()
     mobius = MobiusInterface::getMobius();
     mobius->configure(config);
 
+    // this hasn't been static initialized, don't remember why
+    // it may have some dependencies 
     displayManager.reset(new DisplayManager(this, mainComponent));
     
     // load the initial configuration and tell everyone about it
@@ -61,6 +78,11 @@ void Supervisor::start()
     // wait till everything is initialized before pumping events
     binderator.configure(config);
     binderator.start();
+
+    // if this is going to open devices probably need to defer
+    // that so it doesn't start piping events back to us until
+    // we're done initializing
+    midiManager.configure(config);
 }
 
 /**
@@ -69,7 +91,8 @@ void Supervisor::start()
 void Supervisor::shutdown()
 {
     binderator.stop();
-
+    midiManager.shutdown();
+    
     // stop the UI thread so we don't get any lingering events
     uiThread.stop();
 
@@ -93,6 +116,18 @@ void Supervisor::shutdown()
     // mobiusConfig and uiConfig are smart pointers
 }
 
+/**
+ * Return the AudioDeviceManager owned by the MainComponent.
+ * Used only by MidiManager
+ * Need to figure out how this will work if we're a plugin and
+ * won't have access to AudioAppComponent.  Most of the code should
+ * be okay as long as it goes through MidiManager, may need to refactor
+ * this to have different MidiManagers to hide the standalone/plugin differences.
+ */
+juce::AudioDeviceManager& Supervisor::getAudioDeviceManager()
+{
+    return mainComponent->deviceManager;
+}
 
 /**
  * Called by the MobiusThread to process events.
@@ -288,6 +323,7 @@ void Supervisor::updateMobiusConfig()
         displayManager->configure(config);
         mobius->configure(config);
         binderator.configure(config);
+        midiManager.configure(config);
     }
 }
 

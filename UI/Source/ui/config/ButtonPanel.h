@@ -29,7 +29,7 @@ class ButtonPanel :
 
     void tableTouched(SimpleTable* table);
     void buttonClicked(juce::String name);
-    void fieldSet(Field* field);
+    void fieldChanged(Field* field);
     
   private:
 

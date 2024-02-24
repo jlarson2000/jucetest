@@ -1,0 +1,30 @@
+Here is the raw dump from getAvailableDevices
+
+MIDI Input Devices
+  UC Midi Port 1 \\?\usb#vid_2a39&pid_3fce#be579aa8e3538c8#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\ffusbmidi1
+  UC Midi Port 2 \\?\usb#vid_2a39&pid_3fce#be579aa8e3538c8#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\ffusbmidi2
+  Midinous Thru Port \\?\bomebus#bomemidi#03#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\bomemidiin
+  Arturia MiniLab mkII \\?\usb#vid_1c75&pid_0289&mi_00#7&108e726&0&0000#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\global
+  Midinous Clock Port \\?\bomebus#bomemidi#02#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\bomemidiin
+  Arturia MicroFreak \\?\tusbaudio_enum#vid_1c75&pid_0601&ks#5703400407020550#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\midi_in_00_00
+  Seaboard RISE 49 \\?\usb#vid_2af4&pid_0210#8&34b712eb&0&1#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\seaboardrise49
+  Midinous Port \\?\bomebus#bomemidi#01#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\bomemidiin
+
+MIDI Output Devices
+  Microsoft GS Wavetable Synth Microsoft GS Wavetable Synth
+  UC Midi Port 1 \\?\usb#vid_2a39&pid_3fce#be579aa8e3538c8#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\ffusbmidi1
+  UC Midi Port 2 \\?\usb#vid_2a39&pid_3fce#be579aa8e3538c8#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\ffusbmidi2
+  Arturia MiniLab mkII \\?\usb#vid_1c75&pid_0289&mi_00#7&108e726&0&0000#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\global
+  Midinous Clock Port \\?\bomebus#bomemidi#02#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\bomemidiout
+  Arturia MicroFreak \\?\tusbaudio_enum#vid_1c75&pid_0601&ks#5703400407020550#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\midi_out_00_00
+  Seaboard RISE 49 \\?\usb#vid_2af4&pid_0210#8&34b712eb&0&1#{6994ad04-93ef-11d0-a3cc-00a0c9223196}\seaboardrise49
+
+Not sure what device.identifier is, but it doesn't seem useful.  Maybe a more
+persistent global id if they want to change names?  Or maybe the OS has some leeway
+on what they name them.
+
+Will need to keep two sets, one for Mac and one for Windows
+
+I suppose we could maintain several MidiDeviceConfig objects like we do with Presets
+and let you select from multiples.
+

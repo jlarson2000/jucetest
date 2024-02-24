@@ -278,7 +278,13 @@ void Field::renderString()
         combobox.setColour(juce::ComboBox::ColourIds::arrowColourId, juce::Colours::black);
         combobox.setColour(juce::ComboBox::ColourIds::focusedOutlineColourId, juce::Colours::red);
 
-        combobox.setSize(maxChars * charWidth, charHeight + 4);
+        // need to support widthUnits like simple Strings
+        // the box also needs to be wide enough to show the pull-down chevron on the right
+        // not sure how wide the default is
+        // for the channel selector with single digits 20 was the minimum
+        int arrowWidth = 24;
+        combobox.setSize((maxChars * charWidth) + arrowWidth, charHeight + 4);
+        combobox.addListener(this);
     }
     else {
         renderType = RenderType::List;
@@ -453,6 +459,18 @@ int Field::getRenderWidth()
     return renderer->getWidth();
 }
 
+/**
+ * Listener when we're configured as a ComboBox
+ * Pass it along to our listener
+ */
+void Field::comboBoxChanged(juce::ComboBox* box)
+{
+    // note that just "listener" is inherited from Component so
+    // had to qualify the member name, or could have used a prefix
+    if (fieldListener != nullptr)
+      fieldListener->fieldChanged(this);
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Layout
@@ -503,7 +521,20 @@ void Field::paint(juce::Graphics& g)
  */
 void Field::setValue(juce::var argValue)
 {
-    value = argValue;
+    // hack, if this is a combobox, allow the value to be
+    // an integer item index
+    if (renderer == &combobox && argValue.isInt()) {
+        int index = (int)argValue;
+        if (index >= 0 && index < allowedValues.size())
+          value = allowedValues[index];
+        else {
+            // out of range, ignore
+        }
+    }
+    else {
+        value = argValue;
+    }
+
     loadValue();
 }
 
@@ -594,12 +625,30 @@ juce::var Field::getValue()
     return value;
 }
 
-// Convenience casters
-// note that you must call getValue since the var member will be stale
-
+/**
+ * If this is a text field coerce to an integer.
+ * If tis is a combobox, return the selected item index.
+ * For listBox, could return index if this isn't a multi-select
+ * but I don't have a use for that at the moment.
+ */
 int Field::getIntValue()
 {
-    return (int)getValue();
+    int ival = 0;
+    
+    if (renderer == &combobox) {
+        // returns zero if no item selected
+        int selected = combobox.getSelectedId();
+        // this should match getValue above which will
+        // auto select the first one if nothing selected
+        if (selected > 0)
+          ival = selected - 1;
+    }
+    else {
+        // this may coerce for text fields of type Integer
+        ival = (int)getValue();
+    }
+
+    return ival;
 }
 
 juce::String Field::getStringValue()

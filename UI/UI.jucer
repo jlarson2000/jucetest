@@ -4,6 +4,8 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <FILE id="gYasMO" name="MidiManager.cpp" compile="1" resource="0" file="Source/MidiManager.cpp"/>
+      <FILE id="hGkh3H" name="MidiManager.h" compile="0" resource="0" file="Source/MidiManager.h"/>
       <FILE id="IuZuwY" name="Binderator.cpp" compile="1" resource="0" file="Source/Binderator.cpp"/>
       <FILE id="aN84BY" name="Binderator.h" compile="0" resource="0" file="Source/Binderator.h"/>
       <FILE id="Ugflnj" name="KeyTracker.cpp" compile="1" resource="0" file="Source/KeyTracker.cpp"/>
@@ -36,6 +38,8 @@
           <FILE id="CdDmPy" name="KeyboardPanel.cpp" compile="1" resource="0"
                 file="Source/ui/config/KeyboardPanel.cpp"/>
           <FILE id="xnfHRb" name="KeyboardPanel.h" compile="0" resource="0" file="Source/ui/config/KeyboardPanel.h"/>
+          <FILE id="uXmVmw" name="LogPanel.cpp" compile="1" resource="0" file="Source/ui/config/LogPanel.cpp"/>
+          <FILE id="l9ojKZ" name="LogPanel.h" compile="0" resource="0" file="Source/ui/config/LogPanel.h"/>
           <FILE id="Az47GJ" name="MidiDevicesPanel.cpp" compile="1" resource="0"
                 file="Source/ui/config/MidiDevicesPanel.cpp"/>
           <FILE id="XDzrVN" name="MidiDevicesPanel.h" compile="0" resource="0"

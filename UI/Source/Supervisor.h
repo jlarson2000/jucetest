@@ -14,10 +14,13 @@
 
 #include "MainThread.h"
 #include "Binderator.h"
+#include "MidiManager.h"
 
 class Supervisor
 {
   public:
+
+    static Supervisor* Instance;
 
     /**
      * Constructed by MainComponent
@@ -27,7 +30,7 @@ class Supervisor
      * setting operational parameters after construction.  The
      * shutdown() method must be called when the application closes.
      */
-    Supervisor(juce::Component* main);
+    Supervisor(juce::AudioAppComponent* main);
     ~Supervisor();
 
     void start();
@@ -41,17 +44,27 @@ class Supervisor
     class MobiusInterface* getMobius() {
         return mobius;
     }
+
+    class MidiManager* getMidiManager() {
+        return &midiManager;
+    }
     
+    // propagate an action to either MobiusInterface or DisplayManager
     void doAction(class UIAction*);
 
     // only to be called by MainThread
     void advance();
     
+    juce::AudioDeviceManager& getAudioDeviceManager();
+
   private:
 
-    juce::Component* mainComponent;
+    juce::AudioAppComponent* mainComponent;
 
     Binderator binderator {this};
+
+    // new pattern, assume Instance is accessible
+    MidiManager midiManager;
     
     // explore using std::unique_ptr here so we don't have to rely on delete
     // and could defer constructing until we need something, I'd like to
