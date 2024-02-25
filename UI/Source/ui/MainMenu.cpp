@@ -109,7 +109,7 @@ juce::PopupMenu MainMenu::getMenuForIndex (int menuIndex, const juce::String& me
         menu.addItem(SaveProject, "Save Project...");
         menu.addItem(QuickSave, "Quick Save");
         menu.addItem(ReloadScripts, "Reload Scripts");
-        menu.addItem(ReloadOSC, "Reload OSC");
+        //menu.addItem(ReloadOSC, "Reload OSC");
         menu.addItem(Exit, "Exit");
     }
     else if (menuIndex == menuIndexSetup)
@@ -134,25 +134,25 @@ juce::PopupMenu MainMenu::getMenuForIndex (int menuIndex, const juce::String& me
     }
     else if (menuIndex == menuIndexConfig)
     {
+        menu.addItem(GlobalParameters, "Global Parameters");
         menu.addItem(Presets, "Presets");
         menu.addItem(TrackSetups, "Track Setups");
-        menu.addItem(GlobalParameters, "Global Parameters");
-        menu.addItem(MIDIControl, "MIDI Control");
+        menu.addItem(MidiControl, "MIDI Control");
         menu.addItem(KeyboardControl, "Keyboard Control");
-        menu.addItem(PluginParamters, "Plugin Parameters");
-        menu.addItem(Buttons, "Buttons");
-        menu.addItem(DisplayComponents, "Display Components");
-        menu.addItem(Palette, "Palette");
+        //menu.addItem(PluginParamters, "Plugin Parameters");
+        menu.addItem(Buttons, "UI Buttons");
+        menu.addItem(DisplayComponents, "Display Configuration");
+        // menu.addItem(Palette, "Palette");
         menu.addItem(Scripts, "Scripts");
         menu.addItem(Samples, "Samples");
-        menu.addItem(MIDIDevices, "MIDI Devices");
+        menu.addItem(MidiDevices, "MIDI Devices");
         menu.addItem(AudioDevices, "Audio Devices");
     }
     else if (menuIndex == menuIndexHelp)
     {
         menu.addItem(KeyBindings, "Key Bindings");
-        menu.addItem(MIDIBindings, "MIDI Bindings");
-        menu.addItem(RefreshUI, "Refresh UI");
+        menu.addItem(MidiBindings, "MIDI Bindings");
+        menu.addItem(DiagnosticWindow, "Diagnostic Window");
         menu.addItem(About, "About");
     }
 

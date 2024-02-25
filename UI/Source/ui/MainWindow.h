@@ -78,5 +78,7 @@ class MainWindow : public juce::Component, public MainMenu::Listener
     TestPanel test;
     TableTest table;
     TabTest tabs;
+
+    class DiagnosticWindow* diagWindow = nullptr;
     
 };    

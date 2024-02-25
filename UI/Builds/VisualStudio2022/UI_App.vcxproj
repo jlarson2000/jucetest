@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\DiagnosticWindow.cpp"/>
     <ClCompile Include="..\..\Source\MidiManager.cpp"/>
     <ClCompile Include="..\..\Source\Binderator.cpp"/>
     <ClCompile Include="..\..\Source\KeyTracker.cpp"/>
@@ -2496,6 +2497,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\DiagnosticWindow.h"/>
     <ClInclude Include="..\..\Source\MidiManager.h"/>
     <ClInclude Include="..\..\Source\Binderator.h"/>
     <ClInclude Include="..\..\Source\KeyTracker.h"/>

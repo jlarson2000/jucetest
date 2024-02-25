@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\DiagnosticWindow.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\MidiManager.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -3315,6 +3318,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\DiagnosticWindow.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MidiManager.h">
       <Filter>UI\Source</Filter>
     </ClInclude>

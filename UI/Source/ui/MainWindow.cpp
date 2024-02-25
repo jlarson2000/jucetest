@@ -19,6 +19,7 @@
 #include "JuceUtil.h"
 #include "MainMenu.h"
 #include "config/ConfigEditor.h"
+#include "../DiagnosticWindow.h"
 
 // temporary testing panels
 #include "TestPanel.h"
@@ -72,19 +73,12 @@ void MainWindow::mainMenuSelection(int id)
 {
     switch (id)
     {
-        case MainMenu::OpenLoop:
-        {
-        }
-        break;
-        case MainMenu::OpenProject:
-        {
-        }
-        break;
+        case MainMenu::OpenLoop: break;
+        case MainMenu::OpenProject: break;
         case MainMenu::SaveLoop: break;
         case MainMenu::SaveProject: break;
         case MainMenu::QuickSave: break;
         case MainMenu::ReloadScripts: break;
-        case MainMenu::ReloadOSC: break;
         case MainMenu::Exit: break;
 
         case MainMenu::GlobalParameters: {
@@ -99,7 +93,7 @@ void MainWindow::mainMenuSelection(int id)
             configEditor.showSetups();
         }
         break;
-        case MainMenu::MIDIControl: {
+        case MainMenu::MidiControl: {
             configEditor.showMidiBindings();
         }
         break;
@@ -116,10 +110,9 @@ void MainWindow::mainMenuSelection(int id)
 
         case MainMenu::PluginParamters: break;
         case MainMenu::DisplayComponents: break;
-        case MainMenu::Palette: break;
         case MainMenu::Scripts: break;
         case MainMenu::Samples: break;
-        case MainMenu::MIDIDevices: {
+        case MainMenu::MidiDevices: {
             configEditor.showMidiDevices();
         }
             break;
@@ -129,8 +122,11 @@ void MainWindow::mainMenuSelection(int id)
             break;
 
         case MainMenu::KeyBindings: break;
-        case MainMenu::MIDIBindings: break;
-        case MainMenu::RefreshUI: break;
+        case MainMenu::MidiBindings: break;
+        case MainMenu::DiagnosticWindow: {
+            DiagnosticWindow::launch();
+        }
+            break;
         case MainMenu::About: {
             test.setVisible(true);
             test.center();

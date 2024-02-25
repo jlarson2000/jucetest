@@ -1,3 +1,25 @@
+Need to have the midi device lists be multi valued so we can
+move between machines more easily.
+
+keep a csv, I think we used to do this
+
+In the device configuration panel show ALL midi devices available
+and allow you to select more tha one.
+
+For those referenced in config, show in another panel with checkboes
+to retain or delete.
+
+So we can dynamically plug in MIDI devices checck to see
+if AudioDeviceManager rebuilds the available device list whenever it
+is called.  If so, then we should do that too and not cache the name list
+
+This can also have a BroadcastChangeListnener which might be interesting
+
+
+
+
+----------------------------------------------------------------------
+
 Here is the raw dump from getAvailableDevices
 
 MIDI Input Devices

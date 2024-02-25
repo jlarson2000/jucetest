@@ -60,28 +60,27 @@ class MainMenu : public juce::Component, public juce::MenuBarModel
         SaveProject,
         QuickSave,
         ReloadScripts,
-        ReloadOSC,
+        //ReloadOSC,
         Exit,
 
         // Configuration
+        GlobalParameters,
         Presets,
         TrackSetups,
-        GlobalParameters,
-        MIDIControl,
+        MidiControl,
         KeyboardControl,
         PluginParamters,
         Buttons,
         DisplayComponents,
-        Palette,
         Scripts,
         Samples,
-        MIDIDevices,
+        MidiDevices,
         AudioDevices,
 
         // Help
         KeyBindings,
-        MIDIBindings,
-        RefreshUI,
+        MidiBindings,
+        DiagnosticWindow,
         About
         };
     
