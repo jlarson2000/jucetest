@@ -300,6 +300,9 @@ ObjectSelector::ObjectSelector(ConfigPanel* parent)
 
     addAndMakeVisible(newButton);
     newButton.addListener(this);
+    
+    addAndMakeVisible(deleteButton);
+    deleteButton.addListener(this);
 }
 
 ObjectSelector::~ObjectSelector()
@@ -325,6 +328,9 @@ void ObjectSelector::resized()
 
     newButton.setBounds(combobox.getX() + combobox.getWidth() + 4, area.getY(),
                         30, comboHeight);
+
+    deleteButton.setBounds(newButton.getX() + newButton.getWidth() + 4, area.getY(),
+                           50, comboHeight);
 
 }
 

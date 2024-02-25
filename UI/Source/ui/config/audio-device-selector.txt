@@ -1,0 +1,198 @@
+Sat Feb 24 12:42:55 2024
+
+Trying to use juce::AudioDeviceSelector and find a good size
+to put it in.  This is really annoying and obscure.
+
+Executive summary: the minimum height seems to be 270 and
+a reasonable width of 500 let's the device names not truncate too much
+
+----------------------------------------------------------------------
+Width
+----------------------------------------------------------------------
+
+I put it in a wide area and it partially justifies to the right
+with a 4 or 5 character gap, and it widens the combo boxes.
+
+The widest thigns in there are the names of the audio device type:
+  Windows Audio (Low Latency Mode)
+and the device names
+  Realtek Digital Output (Realtek USB Audio)
+
+With a width of 300 it compresses with elipses in the channel labels
+but the combo boxes keep reasonable size with truncation in the longer
+device names.
+
+400 starts to be usable
+
+500 gives the device names some room and looks nice
+
+There still seems to be some padding on the left, since most of the visual
+weight is in the combo boxes, it looks best shifted left in the available space
+
+After centering 500, a good left shift is 100
+
+----------------------------------------------------------------------
+Height
+----------------------------------------------------------------------
+
+This captures my flailing around with this trying to analyze
+component bounds with JuceUtil
+
+Within AudioDevicesPanel we're in a ConfigPanel.content component
+with a default size of 900x526
+
+Started by giving it 360 height which was too tall for it
+
+Usage label was then at 380, (360-20 gap) with a height of 20
+Log was at 400, 360 + 20 gap + 20 usage and got the remaining 526-400 - 126 height
+
+But the selector component change it's size to 165
+Gave it 200, it still said 165 but was occluded by the log
+Interior component heights 24, 24, 78 = a
+
+Component dump:
+
+AudioDevicesContent: 0 0 900 526
+  AudioDevicesSelectorCompoent: 0 0 900 165
+    ???: 315 15 540 24
+      ???: 1 1 510 22
+    ???: 189 15 126 24
+    ???: 0 57 900 78
+      ???: 315 0 484 24
+        ???: 1 1 454 22
+      ???: 256 0 59 24
+      Test: 805 0 50 24
+      ???: 315 30 484 24
+        ???: 1 1 454 22
+      ???: 266 30 49 24
+      ???: 805 30 50 24
+  LogPanel: 0 240 900 286
+    ???: 1 1 896 284
+      ???: 0 0 896 284
+        ???: 0 0 896 18
+      ???: 896 0 8 284 INVISIBLE
+      ???: 0 284 896 8 INVISIBLE
+  UsageLabel: 0 220 90 20
+  UsageText: 90 220 20 20
+
+So ADSC thinks it is 165 tall
+The immediate children are
+
+    ???: 315 15 540 24
+    ???: 189 15 126 24
+    ???: 0 57 900 78
+
+Total 126 which is way too small
+
+This looks like the "Audio device type" line
+    ???: 315 15 540 24   selector
+      ???: 1 1 510 22
+
+    ???: 189 15 126 24   label
+
+
+Changed JuceUtil to use typeid and get this
+
+AudioDevicesContent: 0 0 900 526
+  AudioDevicesSelectorCompoent: 0 0 900 165
+    class juce::ComboBox: 315 15 540 24
+      class juce::Label: 1 1 510 22
+    class juce::Label: 189 15 126 24
+    class juce::AudioDeviceSettingsPanel: 0 57 900 78
+      class juce::ComboBox: 315 0 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 256 0 59 24
+      Test: 805 0 50 24
+      class juce::ComboBox: 315 30 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 266 30 49 24
+      struct juce::SimpleDeviceManagerInputLevelMeter: 805 30 50 24
+  LogPanel: 0 240 900 286
+    struct juce::TextEditor::TextEditorViewport: 1 1 896 284
+      class juce::Viewport::AccessibilityIgnoredComponent: 0 0 896 284
+        struct juce::TextEditor::TextHolderComponent: 0 0 896 18
+      class juce::ScrollBar: 896 0 8 284 INVISIBLE
+      class juce::ScrollBar: 0 284 896 8 INVISIBLE
+  UsageLabel: 0 220 90 20
+  UsageText: 90 220 20 20
+
+So pick this apart
+
+  AudioDevicesSelectorCompoent: 0 0 900 165
+    class juce::ComboBox: 315 15 540 24
+      class juce::Label: 1 1 510 22
+    class juce::Label: 189 15 126 24
+    class juce::AudioDeviceSettingsPanel: 0 57 900 78
+      class juce::ComboBox: 315 0 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 256 0 59 24
+      Test: 805 0 50 24
+      class juce::ComboBox: 315 30 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 266 30 49 24
+      struct juce::SimpleDeviceManagerInputLevelMeter: 805 30 50 24
+
+The outer component thinks it is 165
+
+This part is the "Audio device type:" combobox with label
+    class juce::ComboBox: 315 15 540 24
+      class juce::Label: 1 1 510 22
+    class juce::Label: 189 15 126 24
+
+it has some internal width justification, box label starts at 189 and goes 127
+combobox starts at 315 and goes to 540  so it does try to fill a proportion of
+the available width but leaves quite a bit of gap on the left, it only needed 126
+for the label and it stuck 189 in front
+
+    class juce::AudioDeviceSettingsPanel: 0 57 900 78
+
+this is where most of it is, it starts at 57
+  so 24 for the height of the combo, 15 for a top gap is 39
+  leave an 18 gap between the combo and the settings panel, looks right,
+  very slightly taller than the top gap avove the device type combo
+
+within the settings panel there is
+
+      class juce::ComboBox: 315 0 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 256 0 59 24
+this is the output combo
+
+      Test: 805 0 50 24
+this is the Test button next to it
+
+      class juce::ComboBox: 315 30 484 24
+        class juce::Label: 1 1 454 22
+      class juce::Label: 266 30 49 24
+this is the input combo at 30, so 24 +6 gap
+
+struct juce::SimpleDeviceManagerInputLevelMeter: 805 30 50 24
+this is the meter next to it, same height
+
+Now it gets weird, the following are displayed but do not appear
+to have Components as children of AudioDeviceSettingsPanel
+
+Active output channels, Active input channels, sample rate, Audio buffer size
+
+the last two are labeled combos so they're 24 with a 6 gap
+
+the first two are bordered panels with checkboxes and two lines
+for each input and output channel, they're probably 24 each with a little gap for borders
+
+So there is 48 * 2 for the channels, 12 for gaps
+24*2 for the rate/buffer size, with a 6 gap between and a larger around 12 gap
+betwen these and the channels
+
+96 + 12 + 48 + 6 + 12 = 174 total after the input level meter
+
+  AudioDevicesSelectorCompoent: 0 0 900 165
+    class juce::ComboBox: 315 15 540 24
+      class juce::Label: 1 1 510 22
+    class juce::Label: 189 15 126 24
+    class juce::AudioDeviceSettingsPanel: 0 57 900 78
+
+So the entire settings panel says it is 78 high but it draws around 174
+It starts at 57 so the total height is 231
+
+240 was not enough, 250 still not enough, 270 seems about right
+

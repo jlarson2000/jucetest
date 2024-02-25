@@ -35,10 +35,6 @@
           <FILE id="Du70TA" name="ConfigEditor.cpp" compile="1" resource="0"
                 file="Source/ui/config/ConfigEditor.cpp"/>
           <FILE id="zqWOpM" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/config/ConfigEditor.h"/>
-          <FILE id="RuAg8q" name="ConfigObjectSelector.cpp" compile="1" resource="0"
-                file="Source/ui/config/ConfigObjectSelector.cpp"/>
-          <FILE id="tl0Vkh" name="ConfigObjectSelector.h" compile="0" resource="0"
-                file="Source/ui/config/ConfigObjectSelector.h"/>
           <FILE id="xcIb02" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ui/config/ConfigPanel.cpp"/>
           <FILE id="EB8YDo" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/config/ConfigPanel.h"/>
           <FILE id="UrIXNZ" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/config/GlobalPanel.cpp"/>

@@ -643,9 +643,6 @@
     <ClCompile Include="..\..\Source\ui\config\ConfigEditor.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ui\config\ConfigObjectSelector.cpp">
-      <Filter>UI\Source\ui\config</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
@@ -3349,9 +3346,6 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\ConfigEditor.h">
-      <Filter>UI\Source\ui\config</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\ui\config\ConfigObjectSelector.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h">

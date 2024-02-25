@@ -1,0 +1,50 @@
+
+Currently there can be multiple BindingConfig objects
+with different sets of keyboard and MIDI bindings
+There is only one UIConfig which is where the UIButton bindings live
+
+if we merge these then if you create a new BindingConfig you
+will lose all the buttons which is probably not what you want
+
+Binding configs really only make sense for MIDI if you want to swap
+between controllers.
+
+You can also just add mulitple controllers in a single config if you
+make sure they use different MIDI keys and controller numbers.  That's
+what I would normaally do.
+
+key bindings make less sense to swap out, once you set those up
+you always want them, in effect it is like a MIDI controller that never goes away
+and there can only be one of
+
+I suppose you might want different key bindings for different machines, like
+desktop vs. laptop but that is unlikely
+
+For testing, it makes more sense to have different button sets.
+You might want buttons to test certain things or run certain scripts.
+
+For testing, it is not as likely to want different key or MIDI bindings.
+
+so key bindings never change, button bindings change only for testing
+and MIDI bindinds don't NEED to change unless you're swapping a lot of controllers
+
+Compare this with binding overlays, that was originally intended
+for different controllers.  but could also be used for buttons
+
+
+Yes this gets you there, for bindings there is always a single "base" binding
+set that for almost everyone has everything.
+
+If you want to add test buttons add an overlay
+If you have controllers with overlapping MIDI events make several overlays and
+either keep those events out of the base bindings or let the overlay overwrite them.
+
+that works for keys too though I don't need them
+
+it CAN make sense to have multiple UI configurations, to change the layouts of things
+but this would be independent of bindings
+
+So yes, keep bidnings in one place and use overlays
+
+Eventually allow multiple UIConfigs but these won't contain bindings
+

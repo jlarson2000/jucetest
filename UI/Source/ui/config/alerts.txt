@@ -1,0 +1,21 @@
+
+Modal dialogs in general are bad for plugins, and you can't even get
+to juce::AlertWindow::show..  functions for modal dialogs because
+they're compiled out.
+
+Can find a way to put those in for standalone, but they're not allowed
+for plugins so don't bother.
+
+Better to have "alerts" just be normal components and use flags
+to simulate modality in whatever config editor you're using.
+
+It's hard to prevent you from continuing to interact with components
+underneath the window, but it's not that bad since you would normally
+want to dismiss the alert popup asap.
+
+Would be nice to reuse some of the presentation graphics though.
+
+Simpler is just to have a label near whatever caused it that
+can optionally display red text, and use a Timer to make it go away
+after awhile.
+

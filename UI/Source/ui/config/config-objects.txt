@@ -1,0 +1,160 @@
+
+Desired
+
+All named configuration objects need to share a common base class
+  most do now, Bindable so start there but maybe rename it
+
+Allow UIConfig to have more than one object so we can have different
+layouts
+
+UIConfig has astuff that is not related to display and can
+be removed or moved to a global UIConfig
+
+  refreshInterval
+  alertInterval
+  messageDuration
+     - the last two are related to a general alert/confirmation/error system
+       we need
+
+  windowWidth, windowHeight
+    - global, can only be changed running standalone
+
+
+Things that are display only
+
+  locations
+    I think the presence of something on this list implies that it is enabled
+    don't have a separate list of visible/invisible flags
+    component selector can use this to show what is and is not visible
+    
+  buttons - no longer used
+
+  parameters - the instant parameters editor
+  
+  floating strip
+  floatStrip2
+    - allow any number of floating strips
+    - simpler than Bindables but should have a name
+
+
+  dockedStrip
+  
+Things in MobiusConfig that shouldn't be there
+
+  bindings
+    move to UIConfig, but don't want multiples of these
+    since this is it's own Bindables list we will need a
+    single UIConfig to wrap it and can put the global UI options
+    like alert intervals there
+
+
+  language - remove
+  history - what was this for?
+
+  integerWaveFile - determines how we save projects and files so more like UI
+  
+  isolateOverdubs - project option?
+
+  spreadRange - related to bindings so definately UI, could have a default then
+    let the overlays change it
+
+
+  groups - mostly UI/bindings except for scripts, can this be moved out of the engine?
+
+
+  trace/debug level
+    move these to a new diagnostic window, but still need the settings stored
+    somewhere
+
+  saveLayers - project file option
+
+  OscConfig - move out, to UIConfig or just keep it separate
+
+  quickSave - UI
+
+  focusLockFunctions
+    since focus lock is just an unnamed group, can this be UI?
+
+  dualPluginWindow - UI if at all
+
+  customMessageFile - gone
+
+  midiExport
+  hostMidiExport
+    - I think we can move these up, MIDIExport isn't that dependent on
+      high accuracy timing, we're not sending clocks this way
+
+  all the Osc related stuff that isn't already outside
+    enable, trace, inputPort, outputPort, outputHist
+
+  logStatus - what is this?
+
+
+The group concept needs to be in Track at least as a number, hmm, or does it,
+this could be entirely UI
+
+Group is part of the Setup and Project.
+
+Still can be in the Setup.  Setup now contains things for both the engine and the UI,
+that's fine.
+
+Ah, Function::Solo knows about groups, but just the number
+
+TrackGroupFunction
+  wtf does this do?
+  just sets the track group number from an Action
+
+This is probably settable from a script, I seem to recall scripts being
+able to fire off any Action, since some can be UI actions, like groups if we
+can move them all up there, the actions can both go into and come out of the engine
+
+ScriptConfig/SampleConfig
+
+the UI needs to edit these and save file paths
+
+Mobius core can't know about files, these must be loaded by the time it hits core
+
+Mobius supervisor could deal with paths, but these could also be pushed into the UI
+but it means that the UI must
+   - compile scripts, and create the Script runtime model or pass the text in
+   - load the samples and create Audio objects
+
+Both feel possible in the UI but it exposes a lot of model, particularly for scripts
+
+Audio is a generally useful thing to have above Mobius
+Scripts could be useful in other plugins so think about that too
+
+Generalizing the parameter/functeion/script model for non-Mobius plugins is interesting,
+leave that as a longer term goal but keep it in mind.
+
+engine->core
+  passes compiled scripts and loaded Samples
+  in both cases ScriptConfig and SampleConfig are not relevant
+  so will need an internal model maybe ScriptLibrary and SampleLibrary
+    - generated from ScriptConfig/SampleConfig, maintains resolved pointers
+      to internal objects
+      
+ui->engine
+  if ui does not do script compilation or sample loading
+  need a model to pass in strings of script source
+  doesn't work as well for samples since you can't load them,
+  engine would still need to access files
+
+Hmm, project save/load is similar to Samples
+  an Audio object needs to pass up to the UI to handle the files
+
+Capturing projects has thread implications, the engine can't really be doing
+anything while the file is being captured
+  engine can build the Project/Audio model and pass it up
+  UI needs to understand the Audio model again
+
+So Audio is different than a compiled script, it needs to pass up
+so if that happens it may as well be able to pass down, Audio must
+be in the UI model.
+
+More Samples
+  - get this out of MobiusConfig, what is currently SampleConfig
+    is entirely UI
+  - UI loads sample files and builds a SampleLibrary (SampleSet, ResolvedSamples
+    or just a List<Sample> and gives that to the engine Samples are thereafter referenced
+    only by number
