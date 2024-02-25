@@ -74,6 +74,8 @@ void BindingPanel::load()
         // let the target panel know the names of the things it can target
         targets.configure(config);
 
+        upgradeBindings();
+        
         // just look at the first one for now
         BindingConfig* bindingConfig = config->getBindingConfigs();
         if (bindingConfig != nullptr) {
@@ -92,6 +94,15 @@ void BindingPanel::load()
         // force this true for testing
         changed = true;
     }
+}
+
+/**
+ * ButtonPanel will overload this to upgrade the
+ * button list from UIConfig to MobiusConfig so it can live
+ * in harmony with all the other bindings.
+ */
+void BindingPanel::upgradeBindings()
+{
 }
 
 void BindingPanel::save()
@@ -158,6 +169,12 @@ void BindingPanel::save()
         bindingConfig->setBindings(merged);
         
         editor->saveMobiusConfig();
+
+        // temporary upgrades from UIButtons in the UIConfig
+        // to Bindings in the MobiusConfig, let ButtonPanel
+        // remove the old ones
+        saveBindingUpgrades();
+        
         changed = false;
         loaded = false;
     }
@@ -165,6 +182,10 @@ void BindingPanel::save()
         // throw away the copies
         cancel();
     }
+}
+
+void BindingPanel::saveBindingUpgrades()
+{
 }
 
 void BindingPanel::traceBindingList(const char* title, Binding* blist)
@@ -251,7 +272,7 @@ void BindingPanel::initForm()
  */
 void BindingPanel::resetForm()
 {
-    scope->setValue(0);
+    scope->setValue(juce::var(0));
     
     targets.reset();
 
@@ -270,7 +291,7 @@ void BindingPanel::refreshForm(Binding* b)
 {
     const char* scopeName = b->getScope();
     if (scopeName == nullptr) {
-        scope->setValue(0);
+        scope->setValue(juce::var(0));
     }
     else {
         // can assume these have been set as a side effect
@@ -279,12 +300,12 @@ void BindingPanel::refreshForm(Binding* b)
         int tracknum = b->getTrack();
         if (tracknum > 0) {
             // element 0 is "global" so track number works
-            scope->setValue(tracknum);
+            scope->setValue(juce::var(tracknum));
         }
         else {
             int groupnum = b->getGroup();
             if (groupnum > 0)
-              scope->setValue(maxTracks + groupnum);
+              scope->setValue(juce::var(maxTracks + groupnum));
         }
     }
     

@@ -152,6 +152,7 @@
     <ClCompile Include="..\..\Source\ui\config\BindingTargetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ButtonPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigEditor.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\ConfigObjectSelector.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp"/>
@@ -2507,6 +2508,7 @@
     <ClInclude Include="..\..\Source\ui\config\BindingTargetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ButtonPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigEditor.h"/>
+    <ClInclude Include="..\..\Source\ui\config\ConfigObjectSelector.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h"/>

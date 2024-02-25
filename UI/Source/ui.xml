@@ -7,14 +7,6 @@
     <Location name='FloatingStripElement' x='0' y='0' disabled='0'/>
     <Location name='ParametersElement' x='788' y='39' disabled='0'/>
   </Locations>
-  <Buttons>
-    <Button target='Record'/>
-    <Button target='Reset'/>
-    <Button target='NextLoop'/>
-    <Button target='PrevLoop'/>
-    <Button target='NextTrack'/>
-    <Button target='PrevTrack'/>
-  </Buttons>
   <InstantParameters>
     <String>preset</String>
     <String>subcycles</String>

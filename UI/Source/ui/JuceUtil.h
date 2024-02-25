@@ -10,6 +10,7 @@ class JuceUtil
 {
   public:
 
+    static juce::String JuceUtil::getComponentClassName(juce::Component* c);
     static void dumpComponent(juce::Component* c, int indent = 0);
     static void dumpComponent(const char* title, juce::Component* c, int indent = 0);
 

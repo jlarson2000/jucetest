@@ -107,7 +107,7 @@ class ContentPanel : public juce::Component
  * for editing.  Is there such a thing as a combo with editable items?
  * There is a set of buttons for acting on the object list.
  */
-class ObjectSelector : public juce::Component
+class ObjectSelector : public juce::Component, juce::Button::Listener, juce::ComboBox::Listener
 {
   public:
 
@@ -124,15 +124,20 @@ class ObjectSelector : public juce::Component
 
     void resized() override;
     void paint (juce::Graphics& g) override;
-    void buttonClicked(juce::Button* b);
 
     int getPreferredHeight();
 
     // set the names to display in the combo box
     // currently reserving "[New]" to mean an object that
     // does not yet have a name
-    void setObjectNames(juce::Array<juce::String> names);
+    void setObjectNames(juce::StringArray names);
 
+    // Button Listener
+    void buttonClicked(juce::Button* b);
+
+    // Combobox Listener
+    void comboBoxChanged(juce::ComboBox* combo);
+    
   private:
 
     class ConfigPanel* parentPanel;
@@ -140,7 +145,7 @@ class ObjectSelector : public juce::Component
     juce::ComboBox combobox;
     juce::Label nameEditor;
 
-    juce::TextButton newButton;
+    juce::TextButton newButton {"New"};
     juce::TextButton deleteButton;
     juce::TextButton copyButton;
     juce::TextButton revertButton;

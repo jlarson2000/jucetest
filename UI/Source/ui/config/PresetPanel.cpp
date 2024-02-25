@@ -57,8 +57,13 @@ void PresetPanel::load()
             while (plist != nullptr) {
                 // we shouldn't need to use an XML transform,
                 // just make Preset copyable
-                XmlRenderer xr;
-                Preset* p = xr.clone(plist);
+                // start using the Prest(Preset) method, copy needs
+                // work for revert
+                // XmlRenderer xr;
+                //Preset* p = xr.clone(plist);
+                Preset* p = new Preset();
+                p->copy(plist);
+                
                 // it shouldn't have one but make sure it doesn't have
                 // a lingering next pointer
                 p->setNext(NULL);
@@ -73,6 +78,9 @@ void PresetPanel::load()
         // this will also auto-select the first one
         objectSelector.setObjectNames(names);
 
+        // load the first one, do we need to bootstrap one if
+        // we had an empty config?
+        selectedPreset = 0;
         loadPreset(selectedPreset);
 
         loaded = true;
@@ -145,20 +153,73 @@ void PresetPanel::cancel()
 // 
 //////////////////////////////////////////////////////////////////////
 
+/**
+ * Called when the combobox changes.
+ */
 void PresetPanel::selectObject(int ordinal)
 {
+    if (ordinal != selectedPreset) {
+        savePreset(selectedPreset);
+        selectedPreset = ordinal;
+        loadPreset(selectedPreset);
+    }
 }
 
 void PresetPanel::newObject()
 {
+#if 0    
+    int newOrdinal = plist.size();
+    Preset* neu = new Preset();
+    neu->setName("[New]");
+
+    // copy the current preset into the new one, I think
+    // this is more convenient than initializing it, could have an init button?
+    // or a copy button distinct from new
+    //neu->copy(presets[selectedPreset]);
+
+    presets.add(neu);
+    // make another copy for revert
+    Preset* revert = new Preset();
+    revert->copy(neu);
+    revertPresets.add(revert);
+    
+    objectSelector.addItem(juce::String(neu->getName()), newOrdinal + 1);
+    objectSelector.setSelectedId(newOrdinal + 1);
+    selectedPreset = newOrdinal;
+    loadPreset(selectedPreset);
+#endif
 }
 
+/**
+ * Delete is somewhat complicated.
+ * You can't undo it unless we save it somewhere.
+ * An alert would be nice, ConfigPanel could do that.
+ */
 void PresetPanel:: deleteObject()
 {
+    if (presets.size() == 1) {
+        // must have at least one preset
+    }
+    else {
+        presets.remove(selectedPreset);
+        revertPresets.remove(selectedPreset);
+        // leave the index where it was and show the next one,
+        // if we were at the end, move back
+        int newOrdinal = selectedPreset;
+        if (newOrdinal >= presets.size())
+          newOrdinal = presets.size() - 1;
+        selectedPreset = newOrdinal;
+        loadPreset(selectedPreset);
+    }
 }
 
 void PresetPanel::revertObject()
 {
+    Preset* dest = presets[selectedPreset];
+    Preset* revert = revertPresets[selectedPreset];
+    dest->copy(revert);
+    // what about the name?
+    loadPreset(selectedPreset);
 }
 
 void PresetPanel::renameObject(juce::String newName)
@@ -187,9 +248,6 @@ void PresetPanel::loadPreset(int index)
             pf->loadValue(p);
         }
     }
-
-    // at this point the combobox is in sync
-    selectedPreset = 0;
 }
 
 /**

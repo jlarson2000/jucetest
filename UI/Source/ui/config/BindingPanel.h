@@ -47,6 +47,11 @@ class BindingPanel : public ConfigPanel, public BindingTable::Listener, public F
     // Field
     void fieldChanged(Field* field);
     
+    // subclass may overload this to massage the Binding list
+    // only for ButtonPanel
+    virtual void upgradeBindings();
+    virtual void saveBindingUpgrades();
+
   protected:
 
     BindingTable bindings;

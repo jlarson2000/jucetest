@@ -1,0 +1,22 @@
+AudioDeviceManager tutorial used a Timer
+
+The main component inherited from Timer
+
+Docs:
+
+Makes repeated callbacks to a virtual method at a specified time interval.
+
+A Timer's timerCallback() method will be repeatedly called at a given interval. When you create a Timer object, it will do nothing until the startTimer() method is called, which will cause the message thread to start making callbacks at the specified interval, until stopTimer() is called or the object is deleted.
+
+The time interval isn't guaranteed to be precise to any more than maybe 10-20ms, and the intervals may end up being much longer than requested if the system is busy. Because the callbacks are made by the main message thread, anything that blocks the message queue for a period of time will also prevent any timers from running until it can carry on.
+
+If you need to have a single callback that is shared by multiple timers with different frequencies, then the MultiTimer class allows you to do that - its structure is very similar to the Timer class, but contains multiple timers internally, each one identified by an ID number.
+
+Jsl:
+
+So it's a periodic ping from the message thread, similar to my MainThread
+This is probably enough for UI refreshes think about using this instead
+of my own thread to simplify things.
+
+It does not appear to allocate any resources or new threads, it just makes this
+listen for event loop calls, so it seems pretty lightweight.

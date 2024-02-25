@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <typeinfo>
+
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
@@ -18,6 +20,33 @@ void JuceUtil::dumpComponent(const char* title, juce::Component* c, int indent)
 }
 
 /**
+ * Saw this on the forum for getting the class name of a Component that
+ * doesn't have a name.
+ * Commentor said this is "really slow to execute" so it should be in
+ * debug code only.
+ *
+ * void print (Component* component) { std::cout << typeid (*component).name() << std::endl; }
+ *
+ * Fuck yeah, typeid
+ * https://en.cppreference.com/w/cpp/language/typeid
+ * needs include <typeinfo>
+ *
+ * it is considered an operator, example:
+ * const std::type_info& ti1 = typeid(A);
+ *
+ * type_info has ==, before, hash_code, and name
+ * So for our purposes name is the only thing of interest
+ * name is a const char*
+ *
+ * Not sure what the lifespan of that is so wrap it in a juce::String
+ * Not sure why we have to dereference the object pointer
+ */
+juce::String JuceUtil::getComponentClassName(juce::Component* c)
+{
+    return juce::String(typeid(*c).name());
+}
+
+/**
  * Dump a component hierarchy.
  * Would be nice to figure out typeid or dynamic cast or
  * some fucking way to get the text class name like debuggers do.
@@ -29,10 +58,17 @@ void JuceUtil::dumpComponent(juce::Component* c, int indent)
     for (int i = 0 ; i < indent ; i++)
       s += " ";
 
-    if (c->getName().length() > 0)
-      s += c->getName();
-    else
-      s += "???";
+    if (c->getName().length() > 0) {
+        s += c->getName();
+    }
+    else {
+        // try this
+        juce::String className = getComponentClassName(c);
+        if (!className.isEmpty())
+          s += className;
+        else
+          s += "???";
+    }
     
     s += ": ";
     s += c->getX();

@@ -121,6 +121,12 @@
     <Binding target='function' name='PrevTrack' trigger='key' value='65573'/>
     <Binding target='function' name='NextTrack' trigger='key' value='65575'/>
     <Binding target='function' name='Record' trigger='note' value='48' channel='0'/>
+    <Binding target='function' name='Record' trigger='ui' value='0'/>
+    <Binding target='function' name='Reset' trigger='ui' value='0'/>
+    <Binding target='function' name='NextLoop' trigger='ui' value='0'/>
+    <Binding target='function' name='PrevLoop' trigger='ui' value='0'/>
+    <Binding target='function' name='NextTrack' trigger='ui' value='0'/>
+    <Binding target='function' name='PrevTrack' trigger='ui' value='0'/>
   </BindingConfig>
   <ScriptConfig>
   </ScriptConfig>

@@ -1,0 +1,11 @@
+Need to understand std::function and lambda expressions, more recent Juce
+code uses this and it looks extremely useful
+
+https://stackoverflow.com/questions/20353210/what-is-the-purpose-of-stdfunction-and-how-do-i-use-it
+
+First encountered in MainComponent RuntimePermissions::Callback
+
+Some words on "type erasure"
+
+https://davekilian.com/cpp-type-erasure.html
+

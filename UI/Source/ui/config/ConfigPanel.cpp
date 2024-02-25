@@ -294,6 +294,12 @@ ObjectSelector::ObjectSelector(ConfigPanel* parent)
 {
     setName("ObjectSelector");
     parentPanel = parent;
+
+    addAndMakeVisible(combobox);
+    combobox.addListener(this);
+
+    addAndMakeVisible(newButton);
+    newButton.addListener(this);
 }
 
 ObjectSelector::~ObjectSelector()
@@ -302,11 +308,24 @@ ObjectSelector::~ObjectSelector()
 
 int ObjectSelector::getPreferredHeight()
 {
-    return 0;
+    return 30;
 }
 
 void ObjectSelector::resized()
 {
+    juce::Rectangle<int> area = getLocalBounds();
+
+    // todo: calculate max width for object names?
+    int comboWidth = 200;
+    int comboHeight = 20;
+
+    int centerLeft = (getWidth() - comboWidth) / 2;
+
+    combobox.setBounds(centerLeft, area.getY(), comboWidth, comboHeight);
+
+    newButton.setBounds(combobox.getX() + combobox.getWidth() + 4, area.getY(),
+                        30, comboHeight);
+
 }
 
 void ObjectSelector::paint(juce::Graphics& g)
@@ -319,8 +338,11 @@ void ObjectSelector::paint(juce::Graphics& g)
  * When the combobox is changed we call the selectObject overload.
  * This also auto-selects the first name in the list.
  */
-void ObjectSelector::setObjectNames(juce::Array<juce::String> names)
+void ObjectSelector::setObjectNames(juce::StringArray names)
 {
+    // item ids must start from 1
+    combobox.addItemList(names, 1);
+    combobox.setSelectedId(1, juce::NotificationType::dontSendNotification);
 }
 
 /**
@@ -342,8 +364,20 @@ void ObjectSelector::buttonClicked(juce::Button* b)
     }
 }
 
+void ObjectSelector::comboBoxChanged(juce::ComboBox* combo)
+{
+    int id = combobox.getSelectedId();
+    if (id == 0) {
+        // no item selected, how would this happen, just
+        // leave the current object selected
+    }
+    else {
+        // ids are 1 based
+        parentPanel->selectObject(id - 1);
+    }
+}
+
 // TODO: give the name label a listener to call renameObject
-// TODO: give the combobox a listener to call selectObject
 
 /****************************************************************************/
 /****************************************************************************/

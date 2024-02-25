@@ -39,6 +39,8 @@ class PresetPanel : public ConfigPanel
     Preset* getSelectedPreset();
     
     juce::OwnedArray<Preset> presets;
+    // another copy for revert
+    juce::OwnedArray<Preset> revertPresets;
     int selectedPreset = 0;
 
     Form form;
