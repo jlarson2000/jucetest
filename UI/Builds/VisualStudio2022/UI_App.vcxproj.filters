@@ -649,6 +649,9 @@
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\DisplayPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
@@ -668,6 +671,12 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\SamplePanel.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\ScriptPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp">
@@ -3360,6 +3369,9 @@
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\DisplayPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
@@ -3379,6 +3391,12 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\SamplePanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\ScriptPanel.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h">

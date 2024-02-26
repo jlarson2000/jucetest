@@ -109,9 +109,19 @@ void MainWindow::mainMenuSelection(int id)
         break;
 
         case MainMenu::PluginParamters: break;
-        case MainMenu::DisplayComponents: break;
-        case MainMenu::Scripts: break;
-        case MainMenu::Samples: break;
+
+        case MainMenu::DisplayComponents: {
+            configEditor.showDisplay();
+        }
+            break;
+        case MainMenu::Scripts: {
+            configEditor.showScripts();
+        }
+            break;
+        case MainMenu::Samples: {
+            configEditor.showSamples();
+        }
+            break;
         case MainMenu::MidiDevices: {
             configEditor.showMidiDevices();
         }

@@ -50,6 +50,9 @@
 #include "MidiPanel.h"
 #include "MidiDevicesPanel.h"
 #include "AudioDevicesPanel.h"
+#include "ScriptPanel.h"
+#include "SamplePanel.h"
+#include "DisplayPanel.h"
 
 class ConfigEditor
 {
@@ -74,6 +77,7 @@ class ConfigEditor
     void showButtons();
     void showMidiDevices();
     void showAudioDevices();
+    void showDisplay();
     
     void closeAll();
 
@@ -110,6 +114,9 @@ class ConfigEditor
     MidiPanel midi {this};
     MidiDevicesPanel midiDevices {this};
     AudioDevicesPanel audioDevices {this};
+    ScriptPanel scripts {this};
+    SamplePanel samples {this};
+    DisplayPanel display {this};
     
     // list of all active panels, we often need to iterate over these
     juce::Array<ConfigPanel*> panels;

@@ -5,19 +5,24 @@ Go over the model
      UIFunction vs. Function
      conflict beween using UI to mean "part of the UI model" and "something in
      the UI model that targets something managed by the UI"
-     The UIFunction nextParameter has target='UI' and would not be implemented by
-      the engine
-      but when we talk about UIfunctions, sometimes we mean "functions that can only
-      have TargetUI
+       - solve this with Op and scope
+       OpActivation can reference a UI structure
+       scope='ui' refers to something implemented in the UI
+       
+     The UIFunction nextParameter has target='UI' and would not be implemented by engine
+       - now it has OpFunction scope='ui'
+     but when we talk about UIfunctions, sometimes we mean "functions that can only
+       have TargetUI
       Ext makes this a little clearer, you have ExtFunction meaning part of the external
       model
-  - remove old internal junk
 
-
-Diagnostic log async window
+- remove old internal junk
+  still need to weed UIAction, take out all OSC for now
 
 Generalize Object Selectors in ConfigPanel
   - will require the model refinement for Bindable
+
+Diagnostic log async window
 
 Display Configuration
   - will reqire model refinement of UIConfigs
@@ -33,8 +38,6 @@ UI/engine configuration passing
   - make this clean
 
 Script/Sample configuration UI
-
-Take out Palette
 
 Bindings help
   take out RefreshUI

@@ -154,6 +154,7 @@
     <ClCompile Include="..\..\Source\ui\config\ButtonPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigEditor.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ConfigPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\DisplayPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\GlobalPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\KeyboardPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\LogPanel.cpp"/>
@@ -161,6 +162,8 @@
     <ClCompile Include="..\..\Source\ui\config\MidiPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\SamplePanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\ScriptPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
@@ -2511,6 +2514,7 @@
     <ClInclude Include="..\..\Source\ui\config\ButtonPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigEditor.h"/>
     <ClInclude Include="..\..\Source\ui\config\ConfigPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\DisplayPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\GlobalPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\KeyboardPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\LogPanel.h"/>
@@ -2518,6 +2522,8 @@
     <ClInclude Include="..\..\Source\ui\config\MidiPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\SamplePanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\ScriptPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButton.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h"/>

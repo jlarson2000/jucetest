@@ -1,0 +1,42 @@
+
+UI edits MobiusConfig
+  calls mobius->configure
+
+Mobius
+  if there is a pending core configuration
+    coming in too fast or core not running
+    warn and ignore
+    can't replace pending without a csect, and even ten it's tricky
+    
+  copies MobiusConfiguration for internal use above the interrpt
+  makes another copy and sets it pending for the core
+
+Core
+  wakes up on an audio buffer and ckecks to see if it has a pending config
+  takes it and clears the pending pointer
+
+  safe mode
+    does a global reset
+    reconfigures tracks
+    copies setup and preset parameters into the tracks
+
+
+  smart mode
+    if track count or loop changed
+      global reset...
+    else
+      copy parameters into the tracks
+      only "non structural" parameters are copied
+
+
+fundamental concent!
+  scheduled events either need to carry with them critical parameters
+  from the last active preset, or they need to behave gradcefully if the
+  parameter changes afer it was scheduled and before it runs
+
+  same applies to setting parameters from scripts so should be okay
+
+
+core global reset
+  revert presets copied into tracks so what is in the master core config
+  

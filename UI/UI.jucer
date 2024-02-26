@@ -41,6 +41,9 @@
           <FILE id="zqWOpM" name="ConfigEditor.h" compile="0" resource="0" file="Source/ui/config/ConfigEditor.h"/>
           <FILE id="xcIb02" name="ConfigPanel.cpp" compile="1" resource="0" file="Source/ui/config/ConfigPanel.cpp"/>
           <FILE id="EB8YDo" name="ConfigPanel.h" compile="0" resource="0" file="Source/ui/config/ConfigPanel.h"/>
+          <FILE id="uTQSAz" name="DisplayPanel.cpp" compile="1" resource="0"
+                file="Source/ui/config/DisplayPanel.cpp"/>
+          <FILE id="yQzNQ6" name="DisplayPanel.h" compile="0" resource="0" file="Source/ui/config/DisplayPanel.h"/>
           <FILE id="UrIXNZ" name="GlobalPanel.cpp" compile="1" resource="0" file="Source/ui/config/GlobalPanel.cpp"/>
           <FILE id="GsBQz3" name="GlobalPanel.h" compile="0" resource="0" file="Source/ui/config/GlobalPanel.h"/>
           <FILE id="CdDmPy" name="KeyboardPanel.cpp" compile="1" resource="0"
@@ -60,6 +63,10 @@
                 file="Source/ui/config/ParameterField.h"/>
           <FILE id="s6l7RT" name="PresetPanel.cpp" compile="1" resource="0" file="Source/ui/config/PresetPanel.cpp"/>
           <FILE id="NT6kia" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/config/PresetPanel.h"/>
+          <FILE id="Zf2ti7" name="SamplePanel.cpp" compile="1" resource="0" file="Source/ui/config/SamplePanel.cpp"/>
+          <FILE id="rJ1VuB" name="SamplePanel.h" compile="0" resource="0" file="Source/ui/config/SamplePanel.h"/>
+          <FILE id="LMAEQ5" name="ScriptPanel.cpp" compile="1" resource="0" file="Source/ui/config/ScriptPanel.cpp"/>
+          <FILE id="bUHoC6" name="ScriptPanel.h" compile="0" resource="0" file="Source/ui/config/ScriptPanel.h"/>
           <FILE id="exr3oW" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/config/SetupPanel.cpp"/>
           <FILE id="F0YB7p" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/config/SetupPanel.h"/>
         </GROUP>
