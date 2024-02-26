@@ -55,9 +55,10 @@ void Binderator::configure(MobiusConfig* config)
         noteActions.set(i, nullptr);
     }
     
-    BindingConfig* bindingConfig = config->getBindingConfigs();
-    if (bindingConfig != nullptr) {
-        Binding* bindings = bindingConfig->getBindings();
+    // only pay attention to the base set for now
+    BindingSet* baseBindings = config->getBindingSets();
+    if (baseBindings != nullptr) {
+        Binding* bindings = baseBindings->getBindings();
         while (bindings != nullptr) {
             installAction(bindings);
             bindings = bindings->getNext();
@@ -67,14 +68,14 @@ void Binderator::configure(MobiusConfig* config)
 
 void Binderator::installAction(Binding* b)
 {
-    Trigger* trigger = b->getTrigger();
+    Trigger* trigger = b->trigger;
 
-    const char* name = b->getName();
+    const char* name = b->getOperationName();
     if (name == nullptr) {
         trace("Binderator: Ignoring Bidning with no name\n");
     }
     else if (trigger == TriggerKey) {
-        int code = b->getValue();
+        int code = b->triggerValue;
         // could check the upper range too
         if (code <= 0) {
             trace("Binderator: Ignoring Binding with invalid value %s\n", name);
@@ -83,13 +84,13 @@ void Binderator::installAction(Binding* b)
             // mask off all but the bottom byte to get rid of bit 17 for extended chars
             code &= 0xFF;
 
-            Target* target = b->getTarget();
-            if (target == nullptr) {
-                trace("Binderator: Ignoring Binding with no target %s\n", name);
+            Operation* op = b->op;
+            if (op == nullptr) {
+                trace("Binderator: Ignoring Binding with no operation %s\n", name);
             }
-            else if (target != TargetFunction) {
+            else if (op != OpFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function target %s\n", name);
+                trace("Binderator: Ignoring Binding for non-function operation %s\n", name);
             }
             else {
                 FunctionDefinition* func = FunctionDefinition::getFunction(name);
@@ -99,8 +100,8 @@ void Binderator::installAction(Binding* b)
                 else {
                     UIAction* action = new UIAction();
                     action->trigger = trigger;
-                    action->target = target;
-                    action->targetPointer.function = func;
+                    action->op = op;
+                    action->implementation.function = func;
                     // todo: scope and args
                     keyActions.set(code, action);
                 }
@@ -110,18 +111,18 @@ void Binderator::installAction(Binding* b)
     else if (trigger == TriggerNote) {
         // todo: channels, do we really need 16 arrays for all this or should
         // we pile them into one and have a list?
-        int note = b->getValue();
+        int note = b->triggerValue;
         if (note < 0 || note > 0xFF) {
             trace("Binderator: Invalid MIDI note %d\n", note);
         }
         else {
-            Target* target = b->getTarget();
-            if (target == nullptr) {
-                trace("Binderator: Ignoring Binding with no target %s\n", name);
+            Operation* op = b->op;
+            if (op == nullptr) {
+                trace("Binderator: Ignoring Binding with no operation %s\n", name);
             }
-            else if (target != TargetFunction) {
+            else if (op != OpFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function target %s\n", name);
+                trace("Binderator: Ignoring Binding for non-function operation %s\n", name);
             }
             else {
                 FunctionDefinition* func = FunctionDefinition::getFunction(name);
@@ -131,8 +132,8 @@ void Binderator::installAction(Binding* b)
                 else {
                     UIAction* action = new UIAction();
                     action->trigger = trigger;
-                    action->target = target;
-                    action->targetPointer.function = func;
+                    action->op = op;
+                    action->implementation.function = func;
                     // todo: scope and args
                     noteActions.set(note, action);
                 }

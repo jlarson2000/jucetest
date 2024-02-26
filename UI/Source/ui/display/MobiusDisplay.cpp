@@ -40,7 +40,6 @@ class Supervisor* MobiusDisplay::getSupervisor()
  */
 void MobiusDisplay::configure(UIConfig* config)
 {
-    buttons.configure(config);
     statusArea.configure(config);
     strips.configure(config);
     
@@ -62,6 +61,7 @@ bool MobiusDisplay::saveConfiguration(UIConfig* config)
 void MobiusDisplay::configure(MobiusConfig* config)
 {
     statusArea.configure(config);
+    buttons.configure(config);
     
     // force resized to reorganize the add/remove of any buttons
     // or track strip elements

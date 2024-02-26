@@ -1,106 +1,79 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Model for binding triggers to functions, controls, parameters,
- * and configuration objects within Mobius.
+ * Model for associationg triggers, operations, and destinations.
  *
+ * I'd like to keep as much awareness of this model out of the engine
+ * as possible.  The only exceptions may be these old Trigger types
+ *
+ *   TriggerScript
+ *   TriggerEvent
+ *   TriggerThread
+ *   TriggerUnknown
+ *
+ * I forget how these were used, try to get rid of them.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <math.h>
+//#include <ctype.h>
 
 #include <vector>
 
 #include "../util/Util.h"
 #include "../util/Trace.h"
-#include "../util/MidiUtil.h"  // MidiNoteName
-#include "../util/KeyCode.h"   // GetKeyString
 
+#include "Structure.h"
 #include "Binding.h"
 
-/****************************************************************************
- *                                                                          *
- *   							   BINDABLE                                 *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Triggers
+//
+//////////////////////////////////////////////////////////////////////
 
-#define ATT_NAME "name"
-#define ATT_NUMBER "number"
-
-Bindable::Bindable()
-{
-	mNumber	= 0;
-	mName	= nullptr;
-}
-
-Bindable::~Bindable()
-{
-	delete mName;
-}
-
-void Bindable::setNumber(int i)
-{
-	mNumber = i;
-}
-
-int Bindable::getNumber()
-{
-	return mNumber;
-}
-
-void Bindable::setName(const char* s)
-{
-	delete mName;
-	mName = CopyString(s);
-}
-
-const char* Bindable::getName()
-{
-	return mName;
-}
-
-void Bindable::clone(Bindable* src)
-{
-	setName(src->mName);
-	mNumber = src->mNumber;
-}
-
-/****************************************************************************
- *                                                                          *
- *   							   TRIGGERS                                 *
- *                                                                          *
- ****************************************************************************/
-
-Trigger::Trigger(const char* name, const char* display, bool isBindable) :
+/**
+ * Do we really need display names for these?
+ * We don't currently show a consolidated table of all
+ * merged bindings and even if we did the internal name is enough.
+ */
+Trigger::Trigger(const char* name, const char* display) :
     SystemConstant(name, display)
 {
     Triggers.push_back(this);
-    bindable = isBindable;
 }
 
 /**
- * Lookup a bindable trigger by name.
+ * This formerly tested a "bindable" flag and filtered
+ * those out.  Unbindables were things like TriggerEvent
+ * and TriggerThread which I don't think we need.
  */
-Trigger* Trigger::getBindable(const char* name) 
+Trigger* Trigger::find(const char* name) 
 {
 	Trigger* found = nullptr;
 	if (name != nullptr) {
 		for (int i = 0 ; Triggers.size() ; i++) {
 			Trigger* t = Triggers[i];
-			if (t->bindable && !strcmp(t->getName(), name)) {
+			if (!strcmp(t->getName(), name)) {
 				found = t;
 				break;
 			}
 		}
 	}
 	return found;
+}
+
+/**
+ * Until we decide to stop using concrete MIDI event types
+ * for trigger types, provide a convenient type tester.
+ */
+bool Trigger::isMidi(Trigger* t)
+{
+    return (t == TriggerMidi ||
+            t == TriggerNote ||
+            t == TriggerProgram ||
+            t == TriggerControl ||
+            t == TriggerPitch);
 }
 
 std::vector<Trigger*> Trigger::Triggers;
@@ -110,64 +83,75 @@ std::vector<Trigger*> Trigger::Triggers;
 // everything really wants to deal with a pointer to them and I don't want
 // to mess with reference conversion right now
 
-Trigger TriggerKeyObj("key", "Key", true);
+Trigger TriggerKeyObj("key", "Key");
 Trigger* TriggerKey = &TriggerKeyObj;
 
-Trigger TriggerMidiObj("midi", "MIDI", false);
+Trigger TriggerMidiObj("midi", "MIDI");
 Trigger* TriggerMidi = &TriggerMidiObj;
 
-Trigger TriggerNoteObj("note", "Note", true);
-Trigger* TriggerNote = &TriggerNoteObj;
-
-Trigger TriggerProgramObj("program", "Program", true);
-Trigger* TriggerProgram = &TriggerProgramObj;
-
-Trigger TriggerControlObj("control", "Control", true);
-Trigger* TriggerControl = &TriggerControlObj;
-
-Trigger TriggerPitchObj("pitch", "Pitch Bend", true);
-Trigger* TriggerPitch = &TriggerPitchObj;
-
-Trigger TriggerHostObj("host", "Host", true);
+Trigger TriggerHostObj("host", "Host");
 Trigger* TriggerHost = &TriggerHostObj;
 
-Trigger TriggerOscObj("osc", "OSC", false);
+Trigger TriggerOscObj("osc", "OSC");
 Trigger* TriggerOsc = &TriggerOscObj;
 
-Trigger TriggerUIObj("ui", "UI", true);
+Trigger TriggerUIObj("ui", "UI");
 Trigger* TriggerUI = &TriggerUIObj;
 
-Trigger TriggerScriptObj("script", "Script", false);
+// have been using these in Bindings to make it
+// easier to identify the most common trigger types
+// rather than just trigger="midi" 
+// think about converting this to just trigger='midi' with midiType='note'
+
+Trigger TriggerNoteObj("note", "Note");
+Trigger* TriggerNote = &TriggerNoteObj;
+
+Trigger TriggerProgramObj("program", "Program");
+Trigger* TriggerProgram = &TriggerProgramObj;
+
+Trigger TriggerControlObj("control", "Control");
+Trigger* TriggerControl = &TriggerControlObj;
+
+Trigger TriggerPitchObj("pitch", "Pitch Bend");
+Trigger* TriggerPitch = &TriggerPitchObj;
+
+// these were special-case triggers that may not be necessary
+// revisit with the engine porting is complete
+
+Trigger TriggerScriptObj("script", "Script");
 Trigger* TriggerScript = &TriggerScriptObj;
 
-Trigger TriggerAlertObj("alert", "Alert", false);
+Trigger TriggerAlertObj("alert", "Alert");
 Trigger* TriggerAlert = &TriggerAlertObj;
 
-Trigger TriggerEventObj("event", "Event", false);
+Trigger TriggerEventObj("event", "Event");
 Trigger* TriggerEvent = &TriggerEventObj;
 
-Trigger TriggerThreadObj("thread", "Mobius Thread", false);
+Trigger TriggerThreadObj("thread", "Mobius Thread");
 Trigger* TriggerThread = &TriggerThreadObj;
 
-Trigger TriggerUnknownObj("unknown", "unknown", false);
+Trigger TriggerUnknownObj("unknown", "unknown");
 Trigger* TriggerUnknown = &TriggerUnknownObj;
 
-/****************************************************************************
- *                                                                          *
- *                               TRIGGER MODES                              *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Trigger Modes
+//
+// These were part of the old model and not currently used in the UI.
+// It seems useful though so keep it around.
+//
+//////////////////////////////////////////////////////////////////////
 
 std::vector<TriggerMode*> TriggerMode::TriggerModes;
-
-TriggerMode TriggerModeContinuousObj("continuous", "Continuous");
-TriggerMode* TriggerModeContinuous = &TriggerModeContinuousObj;
 
 TriggerMode TriggerModeOnceObj("once", "Once");
 TriggerMode* TriggerModeOnce = &TriggerModeOnceObj;
 
 TriggerMode TriggerModeMomentaryObj("momentary", "Momentary");
 TriggerMode* TriggerModeMomentary = &TriggerModeMomentaryObj;
+
+TriggerMode TriggerModeContinuousObj("continuous", "Continuous");
+TriggerMode* TriggerModeContinuous = &TriggerModeContinuousObj;
 
 TriggerMode TriggerModeToggleObj("toggle", "Toggle");
 TriggerMode* TriggerModeToggle = &TriggerModeToggleObj;
@@ -182,7 +166,7 @@ TriggerMode::TriggerMode(const char* name, const char* display) :
     TriggerModes.push_back(this);
 }
 
-TriggerMode* TriggerMode::get(const char* name) 
+TriggerMode* TriggerMode::find(const char* name) 
 {
 	TriggerMode* found = nullptr;
 	if (name != nullptr) {
@@ -197,59 +181,30 @@ TriggerMode* TriggerMode::get(const char* name)
 	return found;
 }
 
-/****************************************************************************
- *                                                                          *
- *   							   TARGETS                                  *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Operations
+//
+//////////////////////////////////////////////////////////////////////
 
-std::vector<Target*> Target::Targets;
+std::vector<Operation*> Operation::Operations;
 
-Target TargetFunctionObj("function", "Function", true);
-Target* TargetFunction = &TargetFunctionObj;
-
-Target TargetParameterObj("parameter", "Parameter", true);
-Target* TargetParameter = &TargetParameterObj;
-
-Target TargetSetupObj("setup", "Setup", true);
-Target* TargetSetup = &TargetSetupObj;
-
-Target TargetPresetObj("preset", "Preset", true);
-Target* TargetPreset = &TargetPresetObj;
-
-Target TargetBindingsObj("bindings", "Bindings", true);
-Target* TargetBindings = &TargetBindingsObj;
-
-Target TargetUIControlObj("uiControl", "UI Control", true);
-Target* TargetUIControl = &TargetUIControlObj;
-
-Target TargetUIConfigObj("uiConfig", "UI Config", true);
-Target* TargetUIConfig = &TargetUIConfigObj;
-
-// this is for internal use, can't be used in bindings
-Target TargetScriptObj("script", "Script", false);
-Target* TargetScript = &TargetScriptObj;
-
-Target::Target(const char* name, const char* display, bool argBindable) :
+Operation::Operation(const char* name, const char* display) :
     SystemConstant(name, display)
 {
-    Targets.push_back(this);
-    bindable = argBindable;
+    Operations.push_back(this);
 }
 
-Target* Target::getBindable(const char* name) 
+// can't we push this shit into SystemConstant and share it!?
+Operation* Operation::find(const char* name) 
 {
-	Target* found = nullptr;
-
-    // auto upgrade old bindings
-    if (StringEqual(name, "control"))
-      name = "parameter";
+	Operation* found = nullptr;
 
 	if (name != nullptr) {
-		for (int i = 0 ; i < Targets.size() ; i++) {
-			Target* t = Targets[i];
-			if (t->bindable && !strcmp(t->getName(), name)) {
-				found = t;
+		for (int i = 0 ; i < Operations.size() ; i++) {
+			Operation* op = Operations[i];
+			if (!strcmp(op->getName(), name)) {
+				found = op;
 				break;
 			}
 		}
@@ -257,114 +212,86 @@ Target* Target::getBindable(const char* name)
 	return found;
 }
 
-/****************************************************************************
- *                                                                          *
- *                                 UI CONTROL                               *
- *                                                                          *
- ****************************************************************************/
+Operation OpFunctionObj("function", "Function");
+Operation* OpFunction = &OpFunctionObj;
 
-#if 0
-UIControl::UIControl()
-{
-    init();
-}
+Operation OpParameterObj("parameter", "Parameter");
+Operation* OpParameter = &OpParameterObj;
 
-UIControl::UIControl(const char* name, int key) :
-    SystemConstant(name, key)
-{
-    init();
-}
+Operation OpActivationObj("activation", "Activation");
+Operation* OpActivation = &OpActivationObj;
 
-void UIControl::init() {
-}
-#endif
+Operation OpScriptObj("script", "Script");
+Operation* OpScript = &OpScriptObj;
 
-/****************************************************************************
- *                                                                          *
- *                                UI PARAMETER                              *
- *                                                                          *
- ****************************************************************************/
+// should just be an enumeration or another SystemConstant
 
-UIParameter::UIParameter(const char* name, int key) :
-    SystemConstant(name, key)
-{
-}
+Operation OpPresetObj("preset", "Preset");
+Operation* OpPreset = &OpPresetObj;
 
-/****************************************************************************
- *                                                                          *
- *   							   BINDING                                  *
- *                                                                          *
- ****************************************************************************/
+Operation OpSetupObj("setup", "Setup");
+Operation* OpSetup = &OpSetupObj;
 
-void Binding::init()
-{
-	mNext = nullptr;
+Operation OpBindingsObj("bindings", "Bindings");
+Operation* OpBindings = &OpBindingsObj;
 
-	// trigger
-	mTrigger = nullptr;
-    mTriggerMode = nullptr;
-    mTriggerPath = nullptr;
-	mValue = 0;
-	mChannel = 0;
-
-	// target
-    mTargetPath = nullptr;
-	mTarget = nullptr;
-	mName = nullptr;
-
-	// scope
-    mScope = nullptr;
-	mTrack = 0;
-	mGroup = 0;
-
-    // arguments
-	mArgs = nullptr;
-}
+//////////////////////////////////////////////////////////////////////
+//
+// Binding
+//
+//////////////////////////////////////////////////////////////////////
 
 Binding::Binding()
 {
-	init();
-}
-
-/**
- * Hacked this up for BindingTable, make sure it's complete
- */
-Binding::Binding(Binding* src)
-{
-    init();
+    trigger = nullptr;
+    triggerMode = nullptr;
+    triggerValue =  0;
+    midiChannel = 0;
+    op = nullptr;
+    trackNumber = 0;
+    groupOrdinal = 0;
     
-    // trigger
-    setTrigger(src->getTrigger());
-    setTriggerMode(src->getTriggerMode());
-    setValue(src->getValue());
-    setChannel(src->getChannel());
-    // target
-    setTarget(src->getTarget());
-    setName(src->getName());
-    setArgs(src->getArgs());
-    // todo: triggerPath for OSC
-
-    // scope
-    // need more for track/group scopes?
-    setScope(src->getScope());
+	mNext = nullptr;
+    mOperationName = nullptr;
+    mArguments = nullptr;
+    mScope = nullptr;
 }
 
 Binding::~Binding()
 {
 	Binding *el, *next;
 
-    delete mTriggerPath;
-    delete mTargetPath;
-	delete mName;
+	delete mOperationName;
+    delete mArguments;
     delete mScope;
-	delete mArgs;
 
 	for (el = mNext ; el != nullptr ; el = next) {
 		next = el->getNext();
 		el->setNext(nullptr);
 		delete el;
 	}
+}
 
+Binding::Binding(Binding* src)
+{
+	mNext = nullptr;
+    mOperationName = nullptr;
+    mArguments = nullptr;
+    mScope = nullptr;
+    
+    trigger = src->trigger;
+    triggerMode = src->triggerMode;
+    triggerValue = src->triggerValue;
+    midiChannel = src->midiChannel;
+
+    op = src->op;
+    setOperationName(src->getOperationName());
+    setArguments(src->getArguments());
+    setScope(src->getScope());
+
+    // trackNumber, groupOrdinal set as a side
+    // effect of setScope if we can, if not
+    // should we trust the src?
 }
 
 void Binding::setNext(Binding* c)
@@ -377,108 +304,27 @@ Binding* Binding::getNext()
 	return mNext;
 }
 
-//
-// Trigger
-//
-
-void Binding::setTrigger(Trigger* t) 
+void Binding::setOperationName(const char *name) 
 {
-	mTrigger = t;
+	delete mOperationName;
+	mOperationName = CopyString(name);
 }
 
-Trigger* Binding::getTrigger()
+const char* Binding::getOperationName()
 {
-	return mTrigger;
+	return mOperationName;
 }
 
-void Binding::setValue(int v) 
+void Binding::setArguments(const char* args) 
 {
-	mValue = v;
+	delete mArguments;
+	mArguments = CopyString(args);
 }
 
-int Binding::getValue()
+const char* Binding::getArguments() 
 {
-	return mValue;
+	return mArguments;
 }
-
-void Binding::setChannel(int c) 
-{
-	mChannel = c;
-}
-
-int Binding::getChannel()
-{
-	return mChannel;
-}
-
-bool Binding::isMidi()
-{
-	return (mTrigger == TriggerNote ||
-			mTrigger == TriggerProgram ||
-			mTrigger == TriggerControl ||
-			mTrigger == TriggerPitch);
-}
-
-void Binding::setTriggerPath(const char* s)
-{
-    delete mTriggerPath;
-    mTriggerPath = CopyString(s);
-}
-
-const char* Binding::getTriggerPath()
-{
-    return mTriggerPath;
-}
-
-void Binding::setTriggerMode(TriggerMode* t)
-{
-    mTriggerMode = t;
-}
-
-TriggerMode* Binding::getTriggerMode()
-{
-    return mTriggerMode;
-}
-
-//
-// Target
-//
-
-void Binding::setTargetPath(const char* s)
-{
-    delete mTargetPath;
-    mTargetPath = CopyString(s);
-}
-
-const char* Binding::getTargetPath()
-{
-    return mTargetPath;
-}
-
-void Binding::setTarget(Target* t) 
-{
-	mTarget = t;
-}
-
-Target* Binding::getTarget()
-{
-	return mTarget;
-}
-
-void Binding::setName(const char *name) 
-{
-	delete mName;
-	mName = CopyString(name);
-}
-
-const char* Binding::getName()
-{
-	return mName;
-}
-
-// 
-// Scope
-//
 
 void Binding::setScope(const char* s)
 {
@@ -499,24 +345,24 @@ const char* Binding::getScope()
  */
 void Binding::parseScope()
 {
-    mTrack = 0;
-    mGroup = 0;
+    trackNumber = 0;
+    groupOrdinal = 0;
 
     if (mScope != nullptr) {
         int len = strlen(mScope);
         if (len > 1) {
             // must be a number 
-            mTrack = atoi(mScope);
+            trackNumber = atoi(mScope);
         }
         else if (len == 1) {
             char ch = mScope[0];
             if (ch >= 'A') {
-                mGroup = (ch - 'A') + 1;
+                groupOrdinal = (ch - 'A') + 1;
             }
             else {
                 // normally an integer, anything else
                 // collapses to zero
-                mTrack = atoi(mScope);
+                trackNumber = atoi(mScope);
             }
         }
     }
@@ -536,11 +382,6 @@ void Binding::setTrack(int t)
     }
 }
 
-int Binding::getTrack()
-{
-	return mTrack;
-}
-
 void Binding::setGroup(int t) 
 {
     if (t > 0) {
@@ -550,124 +391,17 @@ void Binding::setGroup(int t)
     }
 }
 
-int Binding::getGroup()
-{
-	return mGroup;
-}
-
-//
-// Arguments
-//
-
-void Binding::setArgs(const char* args) 
-{
-	delete mArgs;
-	mArgs = CopyString(args);
-}
-
-const char* Binding::getArgs() 
-{
-	return mArgs;
-}
-
 //
 // Utilities
 //
 
-void Binding::getSummary(char* buffer)
+bool Binding::isMidi()
 {
-	strcpy(buffer, "");
-
-	// we display channel consistenly everywhere as 1-16
-	int channel = mChannel + 1;
-
-	if (mTrigger == TriggerNote) {
-		char note[128];
-		MidiNoteName(mValue, note);
-		sprintf(buffer, "%d:%s", channel, note);
-	}
-	else if (mTrigger == TriggerProgram) {
-		sprintf(buffer, "%d:Program %d", channel, mValue);
-	}
-	else if (mTrigger == TriggerControl) {
-		sprintf(buffer, "%d:Control %d", channel, mValue);
-	}
-	else if (mTrigger == TriggerKey) {
-		// UI should actually overload this with a smarter key 
-		// rendering utility
-		sprintf(buffer, "Key %d", mValue);
-	}
-    else if (mTrigger == TriggerOsc) {
-        sprintf(buffer, "OSC %s", mTriggerPath);
-    }
-
+	return (trigger == TriggerNote ||
+			trigger == TriggerProgram ||
+			trigger == TriggerControl ||
+			trigger == TriggerPitch);
 }
-
-void Binding::getMidiString(char* buffer, bool includeChannel)
-{
-	strcpy(buffer, "");
-
-	// we display channel consistenly everywhere as 1-16
-	int channel = mChannel + 1;
-
-	if (mTrigger == TriggerControl) {
-		int value = getValue();
-		if (value >= 0 && value < 128)
-		  sprintf(buffer, "%d:Control %d", channel, value);
-	}
-	else if (mTrigger == TriggerNote) {
-		char note[128];
-		int value = getValue();
-		if (value >= 0 && value < 128) {
-			MidiNoteName(value, note);
-			sprintf(buffer, "%d:%s", channel, note);
-		}
-	}
-	else if (mTrigger == TriggerProgram) {
-		int value = getValue();
-		if (value >= 0 && value < 128)
-		  sprintf(buffer, "%d:Program %d", channel, value);
-	}
-}
-
-
-/**
- * Render a TriggerKey value as a readable string.
- */
-void Binding::getKeyString(char* buffer, int max)
-{
-    strcpy(buffer, "");
-
-    if (mValue == 0) {
-        // this can't be bound  
-    }
-    else {
-        GetKeyString(mValue, buffer);
-        if (strlen(buffer) == 0)
-          sprintf(buffer, "%d", mValue);
-    }
-}
-
-/****************************************************************************
- *                                                                          *
- *   							 BINDING XML                                *
- *                                                                          *
- ****************************************************************************/
-
-#define EL_BINDING "Binding"
-#define ATT_DISPLAY_NAME "displayName"
-#define ATT_TRIGGER "trigger"
-#define ATT_VALUE "value"
-#define ATT_CHANNEL "channel"
-#define ATT_TRIGGER_VALUE "triggerValue"
-#define ATT_TRIGGER_PATH "triggerPath"
-#define ATT_TRIGGER_TYPE "triggerType"
-#define ATT_TARGET_PATH "targetPath"
-#define ATT_TARGET "target"
-#define ATT_ARGS "args"
-#define ATT_SCOPE "scope"
-#define ATT_TRACK "track"
-#define ATT_GROUP "group"
 
 /**
  * Check to see if this object represents a valid binding.
@@ -678,45 +412,45 @@ bool Binding::isValid()
 {
 	bool valid = false;
 
-    if (mName == nullptr) {
+    if (mOperationName == nullptr) {
         trace("Binding: Filtering binding with no name\n");
     }
-    else if (mTrigger == nullptr) {
-        trace("Binding: Filtering binding with no trigger: %s\n", mName);
+    else if (trigger == nullptr) {
+        trace("Binding: Filtering binding with no trigger: %s\n", mOperationName);
     }
-    else if (mTarget == nullptr) {
-        trace("Binding: Filtering binding with no target: %s\n", mName);
+    else if (op == nullptr) {
+        trace("Binding: Filtering binding with no operation: %s\n", mOperationName);
     }
     else {
-		if (mTrigger == TriggerKey) {
+		if (trigger == TriggerKey) {
 			// key must have a non-zero value
-			valid = (mValue > 0);
+			valid = (triggerValue > 0);
             if (!valid)
-              trace("Filtering binding with no value %s\n", mName);
+              trace("Filtering binding with no value %s\n", mOperationName);
 		}
-		else if (mTrigger == TriggerNote ||
-				 mTrigger == TriggerProgram ||
-				 mTrigger == TriggerControl) {
+		else if (trigger == TriggerNote ||
+				 trigger == TriggerProgram ||
+				 trigger == TriggerControl) {
 
 			// hmm, zero is a valid value so no way to detect if
 			// they didn't enter anything unless the UI uses negative
 			// must have a midi status
-			valid = (mValue >= 0);
+			valid = (triggerValue >= 0);
             if (!valid)
-              trace("Filtering binding with no value %s\n", mName);
+              trace("Filtering binding with no value %s\n", mOperationName);
 		}
-        else if (mTrigger == TriggerPitch) {
+        else if (trigger == TriggerPitch) {
             // doesn't need a value
             valid = true;
         }
-		else if (mTrigger == TriggerHost) {
+		else if (trigger == TriggerHost) {
 			valid = true;
 		}
-        else if (mTrigger == TriggerOsc) {
+        else if (trigger == TriggerOsc) {
             // anythign?
             valid = true;
         }
-        else if (mTrigger == TriggerUI) {
+        else if (trigger == TriggerUI) {
             valid = true;
         }
 		else {
@@ -727,68 +461,59 @@ bool Binding::isValid()
 	return valid;
 }
 
-/****************************************************************************
- *                                                                          *
- *   							BINDING CONFIG                              *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// BindingSet
+//
+//////////////////////////////////////////////////////////////////////
 
-BindingConfig::BindingConfig()
+BindingSet::BindingSet()
 {
-	init();
-}
-
-void BindingConfig::init()
-{
-	mNext = nullptr;
-	mName = nullptr;
 	mBindings = nullptr;
 }
 
-BindingConfig::~BindingConfig()
+BindingSet::~BindingSet()
 {
-	BindingConfig *el, *next;
-
 	delete mBindings;
-
-	for (el = mNext ; el != nullptr ; el = next) {
-		next = el->getNext();
-		el->setNext(nullptr);
-		delete el;
-	}
 }
 
-Target* BindingConfig::getTarget()
+BindingSet::BindingSet(BindingSet* src)
 {
-	return TargetBindings;
+    mBindings = nullptr;
+
+    Binding* last = nullptr;
+    Binding* srcBinding = src->getBindings();
+    while (srcBinding != nullptr) {
+        Binding* copy = new Binding(srcBinding);
+        if (last == nullptr)
+          mBindings = copy;
+        else
+          last->setNext(copy);
+        last = copy;
+        srcBinding = srcBinding->getNext();
+    }
 }
 
-void BindingConfig::setNext(BindingConfig* c)
+Structure* BindingSet::clone()
 {
-	mNext = c;
+    return new BindingSet(this);
 }
 
-BindingConfig* BindingConfig::getNext()
-{
-	return mNext;
-}
-
-Bindable* BindingConfig::getNextBindable()
-{
-	return mNext;
-}
-
-Binding* BindingConfig::getBindings()
+Binding* BindingSet::getBindings()
 {
 	return mBindings;
 }
 
-void BindingConfig::setBindings(Binding* b)
+/**
+ * !! Does not delete the current bindings
+ * this is inconsistent
+ */
+void BindingSet::setBindings(Binding* b)
 {
 	mBindings = b;
 }
 
-void BindingConfig::addBinding(Binding* b) 
+void BindingSet::addBinding(Binding* b) 
 {
     if (b != nullptr) {
         // keep them ordered
@@ -802,7 +527,7 @@ void BindingConfig::addBinding(Binding* b)
     }
 }
 
-void BindingConfig::removeBinding(Binding* b)
+void BindingSet::removeBinding(Binding* b)
 {
     if (b != nullptr) {
         Binding *prev = nullptr;
@@ -819,60 +544,12 @@ void BindingConfig::removeBinding(Binding* b)
         }
         else {
             // not on the list, should we still nullptr out the next pointer?
-            Trace(1, "BindingConfig::removeBinding binding not found!\n");
+            Trace(1, "BindingSet::removeBinding binding not found!\n");
         }
 
         b->setNext(nullptr);
     }
 }
-
-/**
- * Search for a binding for a given trigger and value.
- * This is intended for upgrading old KeyBinding objects, once that
- * has passed we can delete this.
- */
-Binding* BindingConfig::getBinding(Trigger* trigger, int value)
-{
-	Binding* found = nullptr;
-
-	for (Binding* b = mBindings ; b != nullptr ; b = b->getNext()) {
-		if (b->getTrigger() == trigger && b->getValue() == value) {
-            found = b;
-            break;
-		}
-	}
-
-	return found;
-}
-
-// need to support this eventually
-#if 0
-BindingConfig* BindingConfig::clone()
-{
-	BindingConfig* clone = new BindingConfig();
-
-	XmlBuffer* b = new XmlBuffer();
-	toXml(b);
-	char* xml = b->stealString();
-	delete b;
-	XomParser* p = new XomParser();
-	XmlDocument* d = p->parse(xml);
-	if (d != nullptr) {
-		XmlElement* e = d->getChildElement();
-		clone = new BindingConfig(e);
-		delete d;
-	}
-    else {
-        // must have been a parser error, not supposed
-        // to happen
-        Trace(1, "Parse error while cloning BindingConfig!!\n");
-    }
-	delete p;
-	delete xml;
-
-	return clone;
-}
-#endif
 
 /****************************************************************************/
 /****************************************************************************/

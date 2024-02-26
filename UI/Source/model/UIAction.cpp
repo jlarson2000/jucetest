@@ -105,11 +105,10 @@ void UIAction::init()
     repeat = false;
     longPress = false;
 
-    // Target
-    target = nullptr;
-    strcpy(targetName, "");
-    targetPointer.object = nullptr;
-    targetOrdinal = 0;
+    // Operation
+    op = nullptr;
+    strcpy(operationName, "");
+    implementation.object = nullptr;
     longFunction = nullptr;
 
     // Scope
@@ -139,14 +138,14 @@ void UIAction::init(Binding* b)
 {
     init();
 
-    trigger = b->getTrigger();
-    triggerMode = b->getTriggerMode();
-    setMidiStatus(b->getValue());
-    setMidiChannel(b->getChannel());
+    trigger = b->trigger;
+    triggerMode = b->triggerMode;
+    setMidiStatus(b->triggerValue);
+    setMidiChannel(b->midiChannel);
 
-    target = b->getTarget();
-    CopyString(b->getName(), targetName, sizeof(targetName));
-    CopyString(b->getArgs(), bindingArgs, sizeof(bindingArgs));
+    op = b->op;
+    CopyString(b->getOperationName(), operationName, sizeof(operationName));
+    CopyString(b->getArguments(), bindingArgs, sizeof(bindingArgs));
 
     // more as we bring on Binders
 }
@@ -166,18 +165,18 @@ void UIAction::reset()
 }
 
 /**
- * Resolve the target pointer if we haven't already.
+ * Resolve the operation implementation pointer if we haven't already.
  */
 void UIAction::resolve()
 {
-    if (targetPointer.object == nullptr) {
-        if (target == TargetFunction) {
-            targetPointer.function = FunctionDefinition::getFunction(targetName);
+    if (implementation.object == nullptr) {
+        if (op == OpFunction) {
+            implementation.function = FunctionDefinition::getFunction(operationName);
         }
     }
 
-    if (targetPointer.object == nullptr) {
-        trace("Unresolved target: %s\n", targetName);
+    if (implementation.object == nullptr) {
+        trace("Unresolved operation: %s\n", operationName);
     }
 }
 
@@ -212,7 +211,7 @@ void UIAction::getDisplayName(char* buffer, int max)
     // TODO: add a trigger prefix!
     buffer[0] = 0;
 
-    AppendString(targetName, buffer, max);
+    AppendString(operationName, buffer, max);
 
     if (strlen(bindingArgs) > 0) {
         // unparsed, unusual
@@ -251,14 +250,17 @@ bool UIAction::isSustainable()
 }
 
 /**
- * Return true if our target is the same as another.
+ * Return true if our operation is the same as another.
  * The action must be resolved by now.
  * Used by BindingResolver to filter redundant bindings.
+ *
+ * !! This does more than just the target, it's a combo
+ * of operation and scope
  */
 bool UIAction::isTargetEqual(UIAction* other)
 {
-    return (target == other->target &&
-            targetPointer.object == other->targetPointer.object &&
+    return (op == other->op &&
+            implementation.object == other->implementation.object &&
             scopeTrack == other->scopeTrack &&
             scopeGroup == other->scopeGroup);
 }
@@ -321,8 +323,8 @@ void UIAction::setMidiKey(int i)
 bool UIAction::isSpread() 
 {
 	bool spread = false;
-    if (target == TargetFunction) {
-        FunctionDefinition* f = targetPointer.function;
+    if (op == OpFunction) {
+        FunctionDefinition* f = implementation.function;
         if (f != nullptr)
           spread = f->isSpread();
     }

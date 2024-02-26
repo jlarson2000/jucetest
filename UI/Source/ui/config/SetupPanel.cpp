@@ -48,18 +48,10 @@ void SetupPanel::load()
             // convert the linked list to an OwnedArray
             Setup* plist = config->getSetups();
             while (plist != nullptr) {
-                // we shouldn't need to use an XML transform,
-                // just make these copyable
-                XmlRenderer xr;
-                Setup* s = xr.clone(plist);
-                // it shouldn't have one but make sure it doesn't have
-                // a lingering next pointer
-                s->setNext(NULL);
+                Setup* s = new Setup(plist);
                 setups.add(s);
-                // note this needs to be in a local to prevent a leak
-                juce::String js(plist->getName());
-                names.add(js);
-                plist = plist->getNext();
+                names.add(juce::String(plist->getName()));
+                plist = (Setup*)(plist->getNext());
             }
         }
         

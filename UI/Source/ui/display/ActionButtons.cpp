@@ -7,7 +7,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../model/UIConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "../JuceUtil.h"
 #include "ActionButton.h"
 #include "ActionButtons.h"
@@ -30,12 +30,14 @@ void ActionButtons::add(ActionButton* b)
 }
 
 /**
- * Read the button bindings from the UIConfig and build the list
+ * Read the button bindings from the MobiusConfig and build the list
  * of ActionButtons.  This can be called after the component is
- * constructed to add/remove buttons.  The UIConfig is not
- * under our control and must not be remembered.
+ * constructed to add/remove buttons.
+ *
+ * Formerly implemented against UIConfig.buttons
+ * Now get them from the BindingSet in MobiusConfig
  */
-void ActionButtons::configure(UIConfig* config)
+void ActionButtons::configure(MobiusConfig* config)
 {
     // remove the current set of buttons
     for (int i = 0 ; i < buttons.size() ; i++) {
@@ -43,18 +45,21 @@ void ActionButtons::configure(UIConfig* config)
     }
     buttons.clear();
 
-    std::vector<std::unique_ptr<UIButton>>* uiButtons = config->getButtons();
-	if (uiButtons->size() > 0) {
-		for (int i = 0 ; i < uiButtons->size() ; i++) {
-            UIButton* button = uiButtons->at(i).get();
-            ActionButton* b = new ActionButton(button);
-            // could use a Listener pattern or just point it
-            // back to us since we're the only ones that use them
-            b->addListener(this);
-            addAndMakeVisible(b);
-            buttons.add(b);
-		}
-	}
+    BindingSet* baseBindings = config->getBindingSets();
+    if (baseBindings != nullptr) {
+        Binding* binding = baseBindings->getBindings();
+        while (binding != nullptr) {
+            if (binding->trigger == TriggerUI) {
+                ActionButton* b = new ActionButton(binding);
+                // could use a Listener pattern or just point it
+                // back to us since we're the only ones that use them
+                b->addListener(this);
+                addAndMakeVisible(b);
+                buttons.add(b);
+            }
+            binding = binding->getNext();
+        }
+    }
 }
 
 /**

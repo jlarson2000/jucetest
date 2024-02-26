@@ -1,0 +1,637 @@
+
+Several ways to implement UI targets
+
+  target='UI'
+  name='NextParameter'
+
+Implies one-shot function behavior.  There are currently no UI parameters
+in theory some might be
+
+  backgroundColor = cycles though a predetermined set of color numbers
+  displayStyle - sets different UI layout styles
+    - but this is what selecting a UIConfig also does
+    - colors could be done with a set of Palette ConfigObjects
+
+  target='function'
+  scope='UI'
+  name='NextParameter'
+
+More specific about what nature of the target is, a one-shot function vs. Parameter
+
+really function vs. parameter are higher level target "classes"
+
+  function - performs potentially complex behavior
+             may be either "one shot" usually performed immediately then ends
+             "sustainable" which may have start and end points with complex state in between
+
+  parameter - holds a value for an indefinite amount of time
+
+functions may be static or scripts
+parameters may be static or user defined variables
+
+functions are normally bound to keys, notes, or other things with on/off behavior
+parameters are normally bound to controls or things with ranged behavior
+
+Think in terms of programming, a function and a variable
+  library function vs. user function
+  static or system variable vs. user variable
+
+Config objects are then "structures", collections of variables
+
+In C++ "classes" are structures that include functions
+
+Yeah, I like the term Structure instead of ConfigObject
+
+In languages functions and variables can have namespaces or packages
+  similar to scopes
+  so scope='ui' means the function is part of the UI namespace
+  scope='engine' is the plugin implementation
+  scope='track'
+    now it breaks down, almost all functions are track functions it is implied
+    by the implementation of the function
+    you would not need to specify scope='global' for something that isn't track specific
+
+
+Ah, now we're getting close to OSC paths, targets are actually complex paths
+
+   engine/track1/loop2
+
+   ui/track1/outputlevel
+
+   engine/preset/default
+
+   ui/layout/simple
+
+With OSC, everything is a path and the difference between "behavior starting" and "value holding"
+is implied by the path
+
+Modes are interesting
+  modes are "value holding" but initiated by a function
+  they're really global variables that can't be set directly but are set as a side
+  effect of calling a function
+
+Yes, variable is a named value
+
+Parameter is a variable that may be set by the user
+
+Variables that are not parameters are set by the engine and are read only to the user
+
+OSC is going to need a set of variable definitions for things that can exported
+but can't be directly set
+  loopFrames
+  loopFrame
+  etc.
+
+There are many internal variables, but only a small number will be exported
+
+Triggers are not variables or functions, they are more like "events"
+Or you can think of events as what you create in response to a trigger
+
+in computers the "mouse" is a piece of hardware that generates  a "mouse event" to
+be processed
+
+  event here is what I've been calling action
+
+Events are less well defined, there can be many kinds of event implementations
+
+  an event initiated by hardware
+  an event scheduled by the engine in response to a function
+  an event on the UI thread to refresh
+
+Don't think we need to generalize this "event" is an amorphous term
+"action" we can nail down what that means, an "action" is something the UI tells
+the engine to do and an "event" is something the engine can do in the future that the UI might
+want to display
+
+Okay back to functions and variables...
+
+current model has
+     TargetFunction
+     TargetParameter
+
+those still works
+
+     TargetScript
+       really TargetFunction with a script name, the difference isn't important to the UI
+       exctpt that the names aren't fixed
+       class='function' name='doSomething' library='user'
+       class='function' name='Record' library='system'
+       
+     TargetStructure
+       really TargetFunction with name='select' and value='something'
+       class='function' name='select' library='system' arg1='Preset' arg2='Default'
+
+OR is this the function name
+
+      class='function' name'SelectPreset' library='system' arg1='Default'
+
+Yes, in programming you would define functions whose names imply things about what it does
+ selectPreset("name")
+ selectPreset("name", track2);
+
+so my term "scope" is realy a function argument
+
+  record(1);
+
+  record("groupname");
+
+Or is it purely a binding model concept
+
+  there are implicit scopes in the system engine/track/loop
+  binding.scope is a model for that that uses symbolic names '1' "groupa"
+  osc.path is a model for that that uses path expressions
+
+  yes thinking of binding scope as different than logical scopes
+  a binding scope is an arbitrary representation of a logical scope specific to
+    the implementation of that binding type, binding type=trigger
+
+TargetStructure
+  logically it is class='function' name'SelectPreset' arg1='default'
+  if you think of this as implying class='function' with name='Select" then
+  you still need to convey "preset"
+    class='function' name='select' scope='preset' arg='default'
+    The old TargetPreset fits better there it is shorthand for
+      class='function' name='select' scope='preset'
+      that then only needs the name
+    To factor out Preset from the target it has to have two args
+      class='function' name'select' type='preset' arg='default'
+
+Scope breaks down because it can be used to define the scope of the function
+when targeting an object
+   class='function' name='select' scope='preset' arg='default' otherScope='track3'
+   "call the function select to set preset default in track 3"
+   two scopes here: the type of thing to select, and the destination track to set it
+
+TargetUI
+  shorthand for class='function' scope='ui'
+  here, scope makes more sense, it is directing the action to a particular part of the
+  system where scope='preset' is specifying the "type of thing" to direct to a part of the system
+
+
+ah, yes, config objects are not really targets, they are the things you want to send to the targets
+  I want to call this fuction on track 1
+  I want to set this parameter in track 3
+  I want to activate this preset in track 4
+
+Destination - where an action goes
+  not a formal concept, each plugin could have different destinations defined by the implementation'
+  it's an object model
+    call a function on this track is like call a method on this object
+
+  track is a destination,
+
+  scopes allow you to specify complex destinations, one track, all tracks, active track
+
+Yeah, kind of liking Destination rather than Scope
+
+What if the Destination is a Strucdture?
+  makes sense for the configuration editor, but not really for the runtime?
+  setting a track preset is more like setting a parameter
+  trackPreset is a parameter whose value is the name of a preset
+
+
+Yeah, this is where it has conflict
+
+  class='parameter' name='preset' value='default' destination='track1'
+
+vs.
+
+  class='function' name='setPreset' value='default' destination='track1'
+
+Kind of like getters/setters  you can think of setting the value
+of a variable as calling a function to set the variable.
+
+So really every target is a function, it's just that the function does something
+that persists, sets a named value
+
+this fits with the notion of triggers that have only on/off behavior like UI buttons
+or notes.  you can only logically call functions for those triggers, if you bind
+a button to a paremeter you can only set a specific value, not sweep a range of values
+
+Now we're getting to function vs. action
+
+An action is something you want the system to do so really a binding is an association
+between a trigger and an action
+  the trigger is a MIDI note, the action is "call a function" or "set a parameter"
+   or "call a function to set a parameter"
+
+Actions have destinations, ui, track 1,
+
+Trigger/Action/Destination
+
+That is the fundamental binding model
+
+Trigger has a concrete model for defining how the trigger behaves
+  is it momentary or continuous
+  an it be told when something happens?  hmm maybe but I think exports is better for this,
+    though an export could have as it's destination much of the same iformation as a trigger
+    export this thing to MIDI note 42
+    export this thing to MIDI CC 43
+    export this thign to OSC path asdfasdfasdf
+
+Destination has a fixed model
+  a track in the engine
+     set this thing in track 1
+  a loop in a track
+     start recording in track 2, loop 4
+  a widget in the UI
+     move the cursor to parameter 3
+     here destinations will have a model that is less fixed than the engine
+
+  destinations may be further refined
+     track is a type of destination, 1 is a specific track, A is a group of tracks
+     this is Destination Scope, Scopes are destinations are similar but need to
+     distinguish between a fundamental destination type (global/track/loop)
+       and the scope (track number, loop number)
+     or are destinations just inherhency complex paths
+
+Yes destinations are paths in programming
+   object->object->object->primitive
+
+
+What I call "scope" is really just shorthand for part of the path
+
+  engine->tracks->loops is a destination path
+
+scope='1' is shorthand for the path
+  engine->tracks[1]->activeLoop
+  
+or
+  engine->tracks[1]->loops[activeLoop]
+
+
+fundamentally you are always calling a function on a path
+setting a parameter is calling a function to change a value in a path
+exporting a variable is calling a function to retrieve a value from a path
+
+paths can be sources or destinations (fits with OSC)
+
+paths specify HOW you traverse through an arbitrary model 
+
+Actions have a model
+  what do you want to send to the destination
+  
+
+This is why I don't like Target
+  Target implies destination, and destinations are paths
+  what is the thing you want to DO to the destination
+    call a function
+    the destination isn't the function, the destination or target is a track
+    how about Operation
+
+
+When a MIDI note is pressed, I want to perform this Operation on this Track
+
+Operation is call a function or set a parameter
+Operations must have names
+
+Fits with c++ functions have names, operators are like functions with a special
+syntax rather than a name
+
+Liking this need to seprate Operation and Destination
+A binding has these things
+
+    Trigger - what causes this
+    Operation - what to perform
+    Destination - where it goes
+
+Operation is pretty much what I now call Target but I don't like Target because
+it sounds like destination
+
+Destination is more or less what I now call Scope
+
+Operation and Action are kind of ambiguous, in the model
+
+an Action is the encapsulation of a Trigger, Operation, and Destination that can
+be passed around, alternative: Command
+
+Think more about Operations...
+
+still just two types Function and Parameter
+each type of Operation has a model for defining how it behaves
+yes, Operation is BEHAVIOR on the destination
+Operation is a method on the model
+Functions and parameters are methods on an object
+
+objects are collections of values, objects may be named
+objects may have methods that can be performed on them????
+
+so a Function is a method that can be performed on an object
+
+Record is a method on loop
+SelectTrack is a method on engine
+SetParameter is a method on Preset, Track, or Engine
+
+
+Destination is a path into the model on which you want to call a method
+
+In my model what is a Target
+  it is a method/operation with two fundamental types function/parameter
+  TargetScript is just a user defined function
+  TargetParameter is a function that sets a parameter
+  TargetConfig is a function that sets a parameter to an object
+  TargetUI is a DESTINATION not an operation!!!
+    yes, this is what I've been struggling with
+    the UI is not an operation to perform, it is where the operation goes
+
+TargetConfig is not an operation to perform, it is the name of an object
+you want to pass to a destination
+
+
+When when you think of bindings, Target seems to be where you want the trigger to
+go, but it isn't, it is the operation you want the trigger to perform, target is
+where you want it to go
+
+Scope is an abstract term for a set of destinations
+  track scope means the destination is one or more tracks
+  global scope currently means all tracks
+  group scope is a named collection of tracks
+
+Parameter Scope is messy
+  Parameters and Functions can have contexts in which they are relevant
+  subcycles is a parameter that can be set in a track or a preset
+  track and preset are destinations but for bindings only track is relevant
+  Functions can only be performed in certaion destinations
+     ui, engine, track, loop
+
+So maybe scope isn't so bad, it is a restriction on the set of possible
+destinations, some scopes are implicit and some are expliclt
+
+   subcycles can have several scopes: all tracks, track 3
+   inputLevel has only track scope but it can be APPLIED to multipile definitions
+
+Parameter scope is a fundamental restriction on the destination paths to
+which the parameter can be applied or sourced
+
+Tangent: Parameters, unlike functions can be both written and read
+they are written to a destination scope and read from a source  scope,
+though in practice source scope can only be a single destination.
+
+Hmm, destinations can be "specific" or "collective".  "Track 1" is a specific
+destination, "group B" is a collective destination.
+
+Scopes are either specific or collective destination.
+
+Parameters have implied scope in that they can only be applied to
+certain destinations.  Not really implied scope but Scope Limits
+or Scope Restrictions.
+
+So UI is a destination but can it also be a Limit?  Can you send
+the same Function to both the UI and the engine?
+
+How about Scope Class.  Restrictions on the destination path.
+Only things under UI, only things under track, etc.
+
+Up for air, I think we're good on
+
+Trigger - what happened
+Destination - where you want it to go
+Operation - what you want to perform
+
+Command/Action
+  encapsulation of something to do
+  combines trigger, operation, destination
+
+Export
+  encapsulation of something you want to send
+  leave this for later, it also has a source which is a path
+  like destination, but the destination here is less clear
+    ui, osc, midi,
+  you don't export operations, but you could export that an operation happened
+  is that what an event is, an operation that has happened?
+
+So trigger/destination is good broadly
+
+Destination is a path that can have limits, or scopes
+
+Scopes can be specific or collecdtive
+
+UI - is it s scope or a destination?
+
+Okay, back to the messy model, Target
+
+If we convert Target to Operation then what are the Operations
+  Operations have a type that defines HOW the operation is performed
+    Function - call a function (or script)
+    Parameter - set a parameter
+    Structure - apply a structure
+
+Okay that last one is where we're stuck.  What is "activating a preset"
+Need to be able to bind triggers to structures: preset certainly,
+setups less so but why not, UIConfig very unlikely but what the heck
+
+In theory could define custom structures, "I want this bag of parameters"
+applied.
+
+So the Operation in this case is Parameter, it's just that you are setting
+more than one.  Thing about Activation.
+
+What is the Operation?  I want to activate this preset.  Fundamentally
+it is setting a parameter
+
+  set parameter activePreset foo in destination track 3
+
+or
+
+  operation=setParameter name=preset value=default destination=track1
+
+which can be thought of as
+
+  opertation=function name=setParameter value=preset destination=track1 argument=default
+
+so really by promoting setParameter to an operation we're shifting "default" from the
+argument to the "value"
+
+it's a syntactic shorthand similar to
+
+    setParameter(foo, value)
+
+and
+
+    set(parameterName, foo, value)
+
+or
+
+    setFoo(value)
+
+and paths go here
+
+    track[1].setParameter(foo, value)
+
+that's what we're doing, paths are expressions that result in a destination or target
+
+So Target, Destination, Scope are all similar concepts, where you want it to go.
+
+Operation is not a Target.
+
+Jeez, you really need to focus
+
+Trigger - okay
+Operation - refine
+Target - where you want it to go or come from, same as Destination
+
+In the binding UI anything talking about Targets is wrong, that needs to be Operation
+
+Operations are
+  Function
+  Parameter
+  ...activate a structure...
+
+In the old UI, the "target" tabs were
+
+  Functions, Scripts, Controls, Parameters, Configurations
+
+Scripts are just a visual convenience for a class of functions
+Controls are just visual convenience for a class of parameters
+The functions whose scope was restricted to the UI had a "UI" prefix
+but were in the function list which makes sense
+
+Controls were just parameters but it was the ones everyone wanted to bind
+
+Configurations were the merge set of Preset and Setup names.
+
+So I think it makes visual and conceptual sense to have the notion
+of "activate a preset" rather than "set the parameter preset to..."
+
+Conceptually the flow should go trigger/Operation/target from top to bottom
+but since operation will always be the same and trigger will vary the UI
+jumps around less if you put operation first, then destination/scope, then trigger
+
+So there is a logical model and a binding model and they don't have to be
+exactly the same.  The Binding model can be simplifed to weed out
+implied restrictions on destinations, but internally we should refer to the
+with names that make sense
+
+ Activation is an Operation that means to apply one of the configuration objects
+ in the UI and in bindings but in scripts you can treat it like a parameter
+
+   set preset foo 1   (set a parameter)
+
+ or
+
+   Preset foo         (call a function to set a preset)
+
+
+ or
+
+   Activate preset foo
+
+The last one is new and matches how we would display them in the UI but we don't need it.
+
+So Activation is an operator that means to locate a named structure and send it to the
+appropriate destination
+
+It is shorthand for either a function or parameter that does the same thing.
+
+In the physical model we need objects to represent these things
+
+  class Trigger
+
+what it is now
+
+  class Function
+
+defines the built-in functional operations
+
+  class Parameter
+
+defines the built-in parameter operations
+
+  class Structure
+
+defines the built-in structure that can be applied
+
+Structure is what we currently call Bindable which is still sensible
+but makes it sounds like it is only relevant for bindigns which it isn't
+
+ConfigObject is more accurate, but we might want structures someday that
+aren't just ConfigObjects.  Though what would they be if not things you can configure.
+
+MobiusConfig
+  still the root of the global configuration
+
+UIConfig
+  the root of the UI configuration, though could put this inside MobiusConfig
+
+  has a few "global" UI parameters (any) and a set of Display objects
+    only one Display can be active at a time though we could refine the model here
+    Display is made up  of Components or Elements
+    model can be pretty arbitrary here since the displays might vary widely in future releases
+    actually different UI implementations may need completely different substructure
+      yes they will!
+      so there needs to be a common Display superclass with differnet properties
+      and the configuration UIs will have to be written for them, later   for now there is only
+      one Display, could also call these Themes though that usually just means fonts and colors
+
+  Layout
+
+
+Hmm, it makes sense to move BindingConfigs out of MobiusConfig and into UIConfig
+but if you make radically different UI implementations then the bindings for one
+won't apply to the bindings for another assuming you allow bindings to UI components.
+
+That may mean that each Display may have it's own set of Bindings underneath.  The
+structure of the Binding can stay the same but the names of functions and parameters
+may be different.  We can simplify this for now and assume that all Bindings live
+in a global set.  Going to need that anyway for midi/key bidnings which are
+independent of the display style.
+
+UIConfig
+  common parameters
+  BindingSets
+    BindingSet
+      Binding
+
+Kind of like BindingSet rather than BindingConfig, "config" is too generic, what it is
+is a list or set of bindings you want to apply in different combinations.
+
+There can be more than one binding set that are merged.  The base set is always there
+and one or more secondary binding sets can be activated.
+
+Here we are with "activation" again.  I like it, what do you think when you want to start
+using a set of bindings.  I have this list of things and I want to start using it.
+
+"Use" is a logical term but doesn't flow well in programming terms
+
+  I want to use this so my Operation type is Use
+
+  OperationFunction
+  OperationParameter
+  OperationUse
+
+vs
+
+  OperationActivate
+
+Again I don't like OpConfig because it sounds like you want to confgure
+something rather than apply a configuration.
+
+Hmm, "op codes" could be extensible for interesting things:
+
+  OpLoad
+
+really the same as op=Function name=LoadLoop
+
+OpActivate - liking this
+
+OpApply - too vague
+OpSelect - same
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    
+
+  

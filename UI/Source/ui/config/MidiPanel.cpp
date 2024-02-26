@@ -8,6 +8,7 @@
 #include "../../util/Trace.h"
 #include "../../util/MidiUtil.h"
 #include "../common/Form.h"
+#include "../../model/Binding.h"
 
 #include "ConfigEditor.h"
 #include "BindingPanel.h"
@@ -55,16 +56,16 @@ void MidiPanel::hiding()
 
 /**
  * Called by BindingPanel as it iterates over all the bindings
- * stored in a BindingConfig list.  Return true if this is for keys.
+ * stored in a BindingSet.  Return true if this is for keys.
  */
 bool MidiPanel::isRelevant(Binding* b)
 {
     // TriggerMidi is defined for some reason
     // but I don't think that can be seen in saved bindings
-    return (b->getTrigger() == TriggerNote ||
-            b->getTrigger() == TriggerProgram ||
-            b->getTrigger() == TriggerControl ||
-            b->getTrigger() == TriggerPitch);
+    return (b->trigger == TriggerNote ||
+            b->trigger == TriggerProgram ||
+            b->trigger == TriggerControl ||
+            b->trigger == TriggerPitch);
 }
 
 /**
@@ -74,36 +75,36 @@ bool MidiPanel::isRelevant(Binding* b)
 juce::String MidiPanel::renderSubclassTrigger(Binding* b)
 {
     juce::String text;
-    Trigger* trigger = b->getTrigger();
+    Trigger* trigger = b->trigger;
     
     if (trigger == TriggerNote) {
         // old utility
         char buf[32];
-        MidiNoteName(b->getValue(), buf);
+        MidiNoteName(b->triggerValue, buf);
         // fuck, really need to figure out the proper way to concatenate strings
-        text += juce::String(b->getChannel());
+        text += juce::String(b->midiChannel);
         text += ":";
         text += buf;
         // not interested in velocity
     }
     else if (trigger == TriggerProgram) {
-        text += juce::String(b->getChannel());
+        text += juce::String(b->midiChannel);
         text += ":";
         text += "Pgm ";
-        text += juce::String(b->getValue());
+        text += juce::String(b->triggerValue);
     }
     else if (trigger == TriggerControl) {
-        text += juce::String(b->getChannel());
+        text += juce::String(b->midiChannel);
         text += ":";
         text += "CC ";
-        text += juce::String(b->getValue());
+        text += juce::String(b->triggerValue);
     }
     else if (trigger == TriggerPitch) {
         // did anyone really use this?
-        text += juce::String(b->getChannel());
+        text += juce::String(b->midiChannel);
         text += ":";
         text += "Pitch ";
-        text += juce::String(b->getValue());
+        text += juce::String(b->triggerValue);
     }
     return text;
 }
@@ -151,7 +152,7 @@ void MidiPanel::addSubclassFields()
  */
 void MidiPanel::refreshSubclassFields(class Binding* b)
 {
-    Trigger* trigger = b->getTrigger();
+    Trigger* trigger = b->trigger;
     if (trigger == TriggerNote) {
         messageType->setValue(0);
     }
@@ -169,8 +170,8 @@ void MidiPanel::refreshSubclassFields(class Binding* b)
         messageType->setValue(0);
     }
 
-    messageChannel->setValue(b->getChannel());
-    messageValue->setValue(juce::String(b->getValue()));
+    messageChannel->setValue(b->midiChannel);
+    messageValue->setValue(juce::String(b->triggerValue));
 }
 
 /**
@@ -180,14 +181,14 @@ void MidiPanel::captureSubclassFields(class Binding* b)
 {
     int index = messageType->getIntValue();
     switch (index) {
-        case 0: b->setTrigger(TriggerNote); break;
-        case 1: b->setTrigger(TriggerControl); break;
-        case 2: b->setTrigger(TriggerProgram); break;
-        case 3: b->setTrigger(TriggerPitch); break;
+        case 0: b->trigger = TriggerNote; break;
+        case 1: b->trigger = TriggerControl; break;
+        case 2: b->trigger = TriggerProgram; break;
+        case 3: b->trigger = TriggerPitch; break;
     }
 
-    b->setChannel(messageChannel->getIntValue());
-    b->setValue(messageValue->getIntValue());
+    b->midiChannel = messageChannel->getIntValue();
+    b->triggerValue = messageValue->getIntValue();
 }
 
 void MidiPanel::resetSubclassFields()

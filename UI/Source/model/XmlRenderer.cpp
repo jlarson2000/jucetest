@@ -168,6 +168,11 @@ UIConfig* XmlRenderer::parseUIConfig(const char* xml)
     return config;
 }
 
+/**
+ * Don't need XML based cloners any more but could use this
+ * to verify that the class cloners work properly
+ */
+#if 0
 Preset* XmlRenderer::clone(Preset* src)
 {
     Preset* copy = nullptr;
@@ -213,6 +218,7 @@ Setup* XmlRenderer::clone(Setup* src)
     
     return copy;
 }
+#endif
 
 /**
  * Really hating this repetition, figure out a way to share this
@@ -377,32 +383,33 @@ void XmlRenderer::renderList(XmlBuffer* b, const char* elname, StringList* list)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Bindable
+// Structure (formerly Bindable)
 //
 //////////////////////////////////////////////////////////////////////
 
 #define ATT_NAME "name"
-#define ATT_NUMBER "number"
+#define ATT_ORDINAL "ordinal"
 
 /**
- * For Bindables, add the name or number.
+ * For Bindables, add the name.
+ * The ordinal is runtime only but old comments say to include
+ * it if the name is not set.  Can't think of the circumstances
+ * where that would be necessary.
  */
-void XmlRenderer::renderBindable(XmlBuffer* b, Bindable* bindable)
+void XmlRenderer::renderStructure(XmlBuffer* b, Structure* structure)
 {
-    // old comments, what does this mean?
-    // the number is transient on the way to generating a name, 
-	// but just in case we don't have a name, serialize it
-    const char* name = bindable->getName();
+    const char* name = structure->getName();
     if (name != nullptr)
 	  b->addAttribute(ATT_NAME, name);
 	else
-	  b->addAttribute(ATT_NUMBER, bindable->getNumber());
+	  b->addAttribute(ATT_ORDINAL, structure->ordinal);
 }
 
-void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
+void XmlRenderer::parseStructure(XmlElement* e, Structure* structure)
 {
-	b->setName(e->getAttribute(ATT_NAME));
-	b->setNumber(e->getIntAttribute(ATT_NUMBER));
+	structure->setName(e->getAttribute(ATT_NAME));
+    if (structure->getName() == nullptr)
+      structure->ordinal = e->getIntAttribute(ATT_ORDINAL);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -434,6 +441,11 @@ void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
 #define EL_CONFIRMATION_FUNCTIONS "ConfirmationFunctions"
 #define EL_ALT_FEEDBACK_DISABLES "AltFeedbackDisables"
 
+// old name
+#define EL_BINDING_CONFIG "BindingConfig"
+// new name
+#define EL_BINDING_SET "BindingSet"
+
 #define EL_SCRIPT_CONFIG "ScriptConfig"
 #define EL_SCRIPT_REF "ScripRef"
 #define ATT_FILE "file"
@@ -448,17 +460,10 @@ void XmlRenderer::parseBindable(XmlElement* e, Bindable* b)
 #define ATT_LOG_STATUS "logStatus"
 #define ATT_EDPISMS "edpisms"
 
-// obsolete element for MidiConfig objects that
-// should have been converted to BindingConfig by now
-#define EL_MIDI_CONFIG "MidiConfig"
-
 void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 {
 	b->addOpenStartTag(EL_MOBIUS_CONFIG);
 
-    // never was a formal parameter, get rid of this
-    b->addAttribute(ATT_LANGUAGE, c->getLanguage());
-    
     render(b, MidiInputParameter, c->getMidiInput());
     render(b, MidiOutputParameter, c->getMidiOutput());
     render(b, MidiThroughParameter, c->getMidiThrough());
@@ -468,9 +473,6 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
     render(b, AudioInputParameter, c->getAudioInput());
     render(b, AudioOutputParameter, c->getAudioOutput());
 
-    // what does this do?  we can't have more than one
-	b->addAttribute(ATT_UI_CONFIG, c->getUIConfig());
-    
     render(b, QuickSaveParameter, c->getQuickSave());
     render(b, CustomMessageFileParameter, c->getCustomMessageFile());
     render(b, UnitTestsParameter, c->getUnitTests());
@@ -521,14 +523,10 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
     // active setup name
     // old notes say if the preset has been overridden this is not
     // saved in the config
-    Setup* setup = c->getCurrentSetup();
-	if (setup != nullptr)
-	  b->addAttribute(ATT_SETUP, setup->getName());
+    b->addAttribute(ATT_SETUP, c->getActiveSetup());
 
     // active binding overlay name
-    BindingConfig* overlay = c->getOverlayBindingConfig();
-	if (overlay != nullptr)
-	  b->addAttribute(ATT_OVERLAY_BINDINGS, overlay->getName());
+    b->addAttribute(ATT_OVERLAY_BINDINGS, c->getOverlayBindings());
 
     // not an official Parameter yet
     if (c->isEdpisms())
@@ -537,14 +535,14 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 	b->add(">\n");
 	b->incIndent();
 
-	for (Preset* p = c->getPresets() ; p != nullptr ; p = p->getNext())
+	for (Preset* p = c->getPresets() ; p != nullptr ; p = (Preset*)(p->getNext()))
 	  render(b, p);
 
-	for (Setup* s = c->getSetups() ; s != nullptr ; s = s->getNext())
+	for (Setup* s = c->getSetups() ; s != nullptr ; s = (Setup*)(s->getNext()))
 	  render(b, s);
 
-	for (BindingConfig* bc = c->getBindingConfigs() ; bc != nullptr ; bc = bc->getNext())
-	  render(b, bc);
+	for (BindingSet* bs = c->getBindingSets() ; bs != nullptr ; bs = (BindingSet*)(bs->getNext()))
+	  render(b, bs);
 
 	if (c->getScriptConfig() != nullptr)
       render(b, c->getScriptConfig());
@@ -576,15 +574,10 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 
 void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 {
-    // note that the current setup and binding ocnfig names
-    // are parsed at the end after the corresponding Setup and BindingConfig
-    // objects hae been created
-
     // save this for upgrade
     // this is part of OldBinding, get rid of this?
     // c->setSelectedMidiConfig(e->getAttribute(ATT_MIDI_CONFIG));
     
-	c->setLanguage(e->getAttribute(ATT_LANGUAGE));
 	c->setMidiInput(parseString(e, MidiInputParameter));
 	c->setMidiOutput(parseString(e, MidiOutputParameter));
 	c->setMidiThrough(parseString(e, MidiThroughParameter));
@@ -657,15 +650,11 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
             parse(child, s);
 			c->addSetup(s);
 		}
-		else if (child->isName(EL_BINDING_CONFIG)) {
-			BindingConfig* bc = new BindingConfig();
-            parse(child, bc);
-			c->addBindingConfig(bc);
-		}
-		else if (child->isName(EL_MIDI_CONFIG)) {
-            // could handle this but they should have been
-            // ugpraded by now
-            Trace(1, "Configuration still has MidiConfig\n");
+		else if (child->isName(EL_BINDING_CONFIG) ||
+                 child->isName(EL_BINDING_SET)) {
+			BindingSet* bs = new BindingSet();
+            parse(child, bs);
+			c->addBindingSet(bs);
 		}
 		else if (child->isName(EL_SCRIPT_CONFIG)) {
 			ScriptConfig* sc = new ScriptConfig();
@@ -706,13 +695,11 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
             c->setAltFeedbackDisables(parseStringList(child));
 		}
 	}
-    
-    // do these last since setting them has the side effect
-    // of locating the corresponding object and caching it in
-    // a pointer, not sure I like this
-    // NO, I absolutely do not like this, revisit when we get to the core
-    c->setCurrentSetup(e->getAttribute(ATT_SETUP));
-    c->setOverlayBindingConfig(e->getAttribute(ATT_OVERLAY_BINDINGS));
+
+    // formerly had to do these last after the object lists
+    // were built, now they're just names
+    c->setActiveSetup(e->getAttribute(ATT_SETUP));
+    c->setOverlayBindings(e->getAttribute(ATT_OVERLAY_BINDINGS));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -726,7 +713,7 @@ void XmlRenderer::render(XmlBuffer* b, Preset* p)
 	b->addOpenStartTag(EL_PRESET);
 
 	// name, number
-	renderBindable(b, p);
+	renderStructure(b, p);
 	b->setAttributeNewline(true);
 
     render(b, AltFeedbackEnableParameter, p->isAltFeedbackEnable());
@@ -787,7 +774,7 @@ void XmlRenderer::render(XmlBuffer* b, Preset* p)
 
 void XmlRenderer::parse(XmlElement* e, Preset* p)
 {
-	parseBindable(e, p);
+	parseStructure(e, p);
 
     p->setAltFeedbackEnable(parse(e, AltFeedbackEnableParameter));
     p->setAutoRecordBars(parse(e, AutoRecordBarsParameter));
@@ -869,7 +856,7 @@ void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 {
 	b->addOpenStartTag(EL_SETUP);
 
-	renderBindable(b, setup);
+	renderStructure(b, setup);
 
     // these haven't been defined as Parameters, now that we're
     // doing that for the sync options could do these...
@@ -911,17 +898,10 @@ void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 
 void XmlRenderer::parse(XmlElement* e, Setup* setup)
 {
-	parseBindable(e, setup);
+	parseStructure(e, setup);
 
 	setup->setActiveTrack(e->getIntAttribute(ATT_ACTIVE));
-
-    // recognize the old MidiConfig name, the MidiConfigs will
-    // have been upgraded to BindingConfigs by now
-    // ?? still need this
-    const char* bindings = e->getAttribute(ATT_BINDINGS);
-    if (bindings == nullptr)
-      bindings = e->getAttribute(ATT_MIDI_CONFIG);
-	setup->setBindings(bindings);
+	setup->setBindings(e->getAttribute(ATT_BINDINGS));
 
 	const char* csv = e->getAttribute(ATT_RESETABLES);
 	if (csv != nullptr)
@@ -1092,11 +1072,10 @@ void XmlRenderer::parse(XmlElement* e, UserVariables* container)
 
 //////////////////////////////////////////////////////////////////////
 //
-// BindingConfig
+// BindingSet
 //
 //////////////////////////////////////////////////////////////////////
 
-#define EL_BINDING_CONFIG "BindingConfig"
 #define EL_BINDING "Binding"
 
 #define ATT_DISPLAY_NAME "displayName"
@@ -1108,77 +1087,72 @@ void XmlRenderer::parse(XmlElement* e, UserVariables* container)
 #define ATT_TRIGGER_TYPE "triggerType"
 #define ATT_TARGET_PATH "targetPath"
 #define ATT_TARGET "target"
+#define ATT_OPERATION "op"
 #define ATT_ARGS "args"
 #define ATT_SCOPE "scope"
 #define ATT_TRACK "track"
 #define ATT_GROUP "group"
 
-void XmlRenderer::render(XmlBuffer* b, BindingConfig* c)
+void XmlRenderer::render(XmlBuffer* b, BindingSet* c)
 {
-	b->addOpenStartTag(EL_BINDING_CONFIG);
+	b->addOpenStartTag(EL_BINDING_SET);
 
-	// name, number
-	renderBindable(b, c);
+	renderStructure(b, c);
 
 	b->add(">\n");
 	b->incIndent();
 
 	for (Binding* binding = c->getBindings() ; binding != nullptr ; binding = binding->getNext()) {
-        if (binding->isValid()) {
-            render(b, binding);
-        }
+        // this was annoying during testing, should be checking validity above
+        // so we can at least see what went wrong
+        // if (binding->isValid()) {
+        render(b, binding);
+        // }
     }
 
 	b->decIndent();
-	b->addEndTag(EL_BINDING_CONFIG);
+	b->addEndTag(EL_BINDING_SET);
 }
 
 /**
- * Note that Binding is shared by both BindingConfig and OscConfig
+ * Note that Binding is shared by both BindingSet and OscConfig
+ *
+ * What is now "operationName" has historically been saved as just "name"
+ * which is usually obvious.  Continue with that.
  */
 void XmlRenderer::render(XmlBuffer* b, Binding* binding)
 {
     b->addOpenStartTag(EL_BINDING);
 
-    // it reads better to lead with the target
-    if (binding->getTargetPath() != nullptr) {
-        b->addAttribute(ATT_TARGET_PATH, binding->getTargetPath());
-    }
-    else {
-        b->addAttribute(ATT_SCOPE, binding->getScope());
-        Target* t = binding->getTarget();
-        if (t != nullptr) {
-            b->addAttribute(ATT_TARGET, t->getName());
-        }
-        b->addAttribute(ATT_NAME, binding->getName());
+    // it reads better to lead with the operation
+    if (binding->op != nullptr)
+      b->addAttribute(ATT_OPERATION, binding->op->getName());
+
+    b->addAttribute(ATT_NAME, binding->getOperationName());
+    b->addAttribute(ATT_SCOPE, binding->getScope());
+
+    if (binding->trigger != nullptr) {
+        b->addAttribute(ATT_TRIGGER, binding->trigger->getName());
     }
 
-    Trigger* trig = binding->getTrigger();
-    if (trig != nullptr) {
-        b->addAttribute(ATT_TRIGGER, trig->getName());
-    }
-
-    TriggerMode* tmode = binding->getTriggerMode();
-    if (tmode != nullptr) {
-        b->addAttribute(ATT_TRIGGER_TYPE, tmode->getName());
+    if (binding->triggerMode != nullptr) {
+        b->addAttribute(ATT_TRIGGER_TYPE, binding->triggerMode->getName());
     }
             
-    // will have one of these but not both
-    b->addAttribute(ATT_TRIGGER_PATH, binding->getTriggerPath());
-    b->addAttribute(ATT_VALUE, binding->getValue());
+    b->addAttribute(ATT_VALUE, binding->triggerValue);
 
-    if (trig == TriggerNote || trig == TriggerProgram || trig == TriggerControl) {
-        b->addAttribute(ATT_CHANNEL, binding->getChannel());
+    if (binding->trigger != nullptr && Trigger::isMidi(binding->trigger)) {
+        b->addAttribute(ATT_CHANNEL, binding->midiChannel);
     }
             
-    b->addAttribute(ATT_ARGS, binding->getArgs());
+    b->addAttribute(ATT_ARGS, binding->getArguments());
 
     b->add("/>\n");
 }
 
-void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
+void XmlRenderer::parse(XmlElement* e, BindingSet* c)
 {
-	parseBindable(e, c);
+	parseStructure(e, c);
 
 	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
 		 child = child->getNextElement()) {
@@ -1197,31 +1171,20 @@ void XmlRenderer::parse(XmlElement* e, BindingConfig* c)
 void XmlRenderer::parse(XmlElement* e, Binding* b)
 {
     // trigger
-    b->setTrigger(Trigger::getBindable(e->getAttribute(ATT_TRIGGER)));
-    b->setTriggerMode(TriggerMode::get(e->getAttribute(ATT_TRIGGER_TYPE)));
-    b->setValue(e->getIntAttribute(ATT_VALUE));
-    b->setChannel(e->getIntAttribute(ATT_CHANNEL));
+    b->trigger = Trigger::find(e->getAttribute(ATT_TRIGGER));
+    b->triggerMode = TriggerMode::find(e->getAttribute(ATT_TRIGGER_TYPE));
+    b->triggerValue = e->getIntAttribute(ATT_VALUE);
+    b->midiChannel = e->getIntAttribute(ATT_CHANNEL);
 
-    // upgrade old name to new
-    const char* path = e->getAttribute(ATT_TRIGGER_PATH);
-    if (path == nullptr)
-      path = e->getAttribute(ATT_TRIGGER_VALUE);
-    b->setTriggerPath(path);
+    // operation, ATT_TARGET was the old name
+    const char* opname = e->getAttribute(ATT_OPERATION);
+    if (opname == nullptr)
+      opname = e->getAttribute(ATT_TARGET);
+    b->op = Operation::find(opname);
+    b->setOperationName(e->getAttribute(ATT_NAME));
 
-    // target
-    b->setTargetPath(e->getAttribute(ATT_TARGET_PATH));
-    b->setTarget(Target::getBindable(e->getAttribute(ATT_TARGET)));
-    b->setName(e->getAttribute(ATT_NAME));
-
-    // scope
     b->setScope(e->getAttribute(ATT_SCOPE));
-
-    // temporary backward compatibility
-    b->setTrack(e->getIntAttribute(ATT_TRACK));
-    b->setGroup(e->getIntAttribute(ATT_GROUP));
-
-    // arguments
-    b->setArgs(e->getAttribute(ATT_ARGS));
+    b->setArguments(e->getAttribute(ATT_ARGS));
 }
 
 //////////////////////////////////////////////////////////////////////

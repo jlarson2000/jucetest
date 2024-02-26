@@ -55,23 +55,10 @@ void PresetPanel::load()
             // convert the linked list to an OwnedArray
             Preset* plist = config->getPresets();
             while (plist != nullptr) {
-                // we shouldn't need to use an XML transform,
-                // just make Preset copyable
-                // start using the Prest(Preset) method, copy needs
-                // work for revert
-                // XmlRenderer xr;
-                //Preset* p = xr.clone(plist);
-                Preset* p = new Preset();
-                p->copy(plist);
-                
-                // it shouldn't have one but make sure it doesn't have
-                // a lingering next pointer
-                p->setNext(NULL);
+                Preset* p = new Preset(plist);
                 presets.add(p);
-                // note this needs to be in a local to prevent a leak
-                juce::String js(plist->getName());
-                names.add(js);
-                plist = plist->getNext();
+                names.add(juce::String(plist->getName()));
+                plist = (Preset*)(plist->getNext());
             }
         }
         
@@ -167,8 +154,7 @@ void PresetPanel::selectObject(int ordinal)
 
 void PresetPanel::newObject()
 {
-#if 0    
-    int newOrdinal = plist.size();
+    int newOrdinal = presets.size();
     Preset* neu = new Preset();
     neu->setName("[New]");
 
@@ -179,15 +165,14 @@ void PresetPanel::newObject()
 
     presets.add(neu);
     // make another copy for revert
-    Preset* revert = new Preset();
-    revert->copy(neu);
+    Preset* revert = new Preset(neu);
     revertPresets.add(revert);
     
-    objectSelector.addItem(juce::String(neu->getName()), newOrdinal + 1);
-    objectSelector.setSelectedId(newOrdinal + 1);
+    objectSelector.addObjectName(juce::String(neu->getName()));
+    // select the one we just added
+    objectSelector.setSelectedObject(newOrdinal);
     selectedPreset = newOrdinal;
     loadPreset(selectedPreset);
-#endif
 }
 
 /**
@@ -215,9 +200,8 @@ void PresetPanel:: deleteObject()
 
 void PresetPanel::revertObject()
 {
-    Preset* dest = presets[selectedPreset];
-    Preset* revert = revertPresets[selectedPreset];
-    dest->copy(revert);
+    Preset* reverted = new Preset(revertPresets[selectedPreset]);
+    presets.set(selectedPreset, reverted);
     // what about the name?
     loadPreset(selectedPreset);
 }

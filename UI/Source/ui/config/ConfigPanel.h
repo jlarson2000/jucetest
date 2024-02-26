@@ -131,13 +131,15 @@ class ObjectSelector : public juce::Component, juce::Button::Listener, juce::Com
     // currently reserving "[New]" to mean an object that
     // does not yet have a name
     void setObjectNames(juce::StringArray names);
-
+    void addObjectName(juce::String name);
+    void setSelectedObject(int ordinal);
+    
     // Button Listener
     void buttonClicked(juce::Button* b);
 
     // Combobox Listener
     void comboBoxChanged(juce::ComboBox* combo);
-    
+  
   private:
 
     class ConfigPanel* parentPanel;

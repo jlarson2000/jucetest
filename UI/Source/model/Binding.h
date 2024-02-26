@@ -1,115 +1,96 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
+ * A model for defining associations between external stimuli like MIDI,
+ * or keyboard events, internal responses like calling a function or changing
+ * a parameter.
+ *
+ * See model-final.txt for more complete notes.
+ *
+ * Logically a binding consnts of three things: trigger, operation, destination
+ *
+ * Triggers are things that cause something to happen.
+ * There are several fundamantal trigger types defined by a set of system constant
+ * objects.
+ *
+ *    TriggerMidi   - a MIDI event
+ *    TriggerKey    - a computer keyboard key
+ *    TriggerUI     - something originating in the user interface
+ *    TriggerHost   - a VST or AU plugin parameter
+ *    TriggerOSC    - the Open Sound Control interface
+ *    TriggerScript - a Mobius script
+ *
+ * Each trigger type may store additional information about the trigger in the binding
+ * for example the MIDI event type (note, program, control) and event value (key number,
+ * program number, controller number).
+ *
+ * Operations are what you want the trigger to do.  They are defined
+ * by these system constant objects.
+ *
+ *    OpFunction       - call a built-in function
+ *    OpScript         - call a user defined function (script)
+ *    OpParameter      - set the value of a parameter
+ *    OpActivation     - apply a collection of parameters (preset, setup, binding set)
+ *
+ * Destinations are where you want the operation to go.
+ *
+ * These are more abstract than triggers and operations but fundamentally think
+ * of them as "paths" that identify something within the system
+ * that can receive a request to perform an operation.  Some examples:
+ *
+ *    the active track
+ *    the specific track 4
+ *    the collection of tracks 1,2,3
+ *    a group of gracks named "Background"
+ *    loop number 2 in track 3
+ *    a graphical item in the user interface
+ *
+ * There are two broad categories of destinations, those in the user interface and
+ * those in the looping engine.  Most destinations are in the engine.  
+ *
+ * Scopes are a simplified representation of a destination that are represented
+ * in the binding model as a string of text.
  * 
- * ---------------------------------------------------------------------
- * 
- * A model for defining bindings between external triggers like MIDI,
- * keyboard, and OSC events with Mobius targets like functions and
- * parameters.  This model is only for the definitions of the bindings
- * and is persisted in mobius.xml.  At runtime we build the 
- * Action model which is transient.  
- * 
- * The relevant classes are:
+ * Because most destinations are in the engine which has a fixed internal structure.
+ * We define a set of value conventions for the scope property.
  *
- *   Trigger				constant objects for triggers
- *   Target					constant object for targets
- *   Bindable				abstract class for bindable config objects
- *   Binding				trigger, target, bindable
- *   BindingConfig 			collection of Bindings
+ *    digit - a track number
+ *    name  - a track group name
+ *    "ui"  - the user interface
  *
- * OLD MODEL
- *
- * Before BindingConfig we used MidiConfig which was funtionally
- * similar but only supported MIDI bindings.  We keep this model
- * around in OldBinding.* so that we can parse old XML config files
- * anc convert it to the new BindingConfig model.  This is done
- * in Mobius::loadConfiguration.
- *
- * MobiusConfig
- *   MidiConfig				now BindingConfig
- *     MidiBinding			now Binding
- * 
- * ===
- * 
- * A binding is composed of three main parts: Trigger, Target, and Scope.
- *
- * The binding triggers are:
- *
- *    Key - a key on the computer keyboard, may include shift qualifiers
- *    Note - a MIDI note
- *    Controller - a MIDI continuous controller
- *    Program - a MIDI program change
- *    Host - a parameter automation event from a plugin host
- *    UI - a button in the user interface
- *    Mouse - a button on the mouse or alternate input device
- *    Wheel - the scroll wheel of a mouse or input device
- *            don't like this in retrospect, use wheel for changing the
- *            selected UI element
- *
- * Mouse and Wheel are defined but not currently used.
- *
- * In addition we also define these trigger types for various internal
- * triggers, these cannot be dynamically bound to targets with a
- * Binding object, binding is either implicit or done with a different
- * kind of configuration object.
- *
- *    Script - an executing script (only for calling functions)
- *    Alert - an interesting engine state is reached (always bound to scripts)
- *
- * The binding targets are:
- *
- *    Function - a Mobius function, may have selector argument
- *    Parameter - A Global, Preset,  track parameter, or control
- *    Setup - a Setup configuration object
- *    Preset - a Preset configuration object
- *    Bindings - a BindingConfig configuration object
- *    UI Control - a UI control (cursor up/down, value up/down)
- *
- * The binding scopes are:
- *
- *   Global 
- *     No specific track assignment, applied to the current track and
- *     any track with focus lock or in the same group as the selected track.
- *
- *   Track
- *     A specific track number is included in the binding.  Only that
- *     track is affected.
- *
- *   Group
- *     A specific group number is included in the binding.  All tracks
- *     in that group are affected.
- *
+ * If a scope is not defined the operation is assumed to be targted at the
+ * active track in the engine.
+ * Scope specifiers may become more flexible than this in the future.
  */
 
-#ifndef BINDING_H
-#define BINDING_H
+#pragma once
 
 #include <vector>
 
+#include "Structure.h"
 #include "SystemConstant.h"
 
-/****************************************************************************
- *                                                                          *
- *                                  TRIGGER                                 *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Trigger
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Triggers are the "who" of a binding.
  * They define where the trigger came from which in turn may
  * imply things about the way the action should be processed.
+ *
+ * Do we realy need display names for these?  
  */
 class Trigger : public SystemConstant {
   public:
 
-    Trigger(const char* name, const char* display, bool isBindable);
+    Trigger(const char* name, const char* display);
 
     static std::vector<Trigger*> Triggers;
-    static Trigger* getBindable(const char* name);
+    static Trigger* find(const char* name);
 
-    bool bindable;
+    static bool isMidi(Trigger* t);
+    
 };
 
 // these have historically been global constants
@@ -128,22 +109,19 @@ extern Trigger* TriggerControl;
 extern Trigger* TriggerPitch;
 
 // internal triggers not used in bindings
+// not all of these may be used when we finish porting
+// weed them out
 extern Trigger* TriggerScript;
 extern Trigger* TriggerThread;
 extern Trigger* TriggerAlert;
 extern Trigger* TriggerEvent;
 extern Trigger* TriggerUnknown;
 
-/****************************************************************************
- *                                                                          *
- *                                TRIGGER MODE                              *
- *                                                                          *
- ****************************************************************************/
-
-// todo: do we really need this much information about a trigger
-// for the action?  other than momentary vs. sustain why
-// would the engine care?  For that matter, if it's sustain that
-// can't this all be handled in the Binding layer?
+//////////////////////////////////////////////////////////////////////
+//
+// Trigger Mode
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Defines the behavior of the trigger over time.
@@ -156,211 +134,78 @@ extern Trigger* TriggerUnknown;
  * Others like TriggerOsc and TriggerUI are more generic.  They
  * may have several behaviors.  
  *
- * If an Binding is created with an ambiguous Trigger, a TriggerMode
- * must also be specified.  If not then TriggerTypeButton is assumed.
- *
- * TODO: I think I'd rather do MIDI triggers like this:
- *
- *    TriggerNote = TriggerMidi + TriggerModeMomentary
- *    TriggerProgram = TriggerMidi + TriggerModeButton
- *    TriggerControl = TriggerMidi = TriggerModeContiuous;
+ * If a Binding is created with an ambiguous Trigger, a TriggerMode
+ * must also be specified.  If not then TriggerTypeOnce is assumed.
  *
  */
 class TriggerMode : public SystemConstant {
   public:
 
     static std::vector<TriggerMode*> TriggerModes;
-    static TriggerMode* get(const char* name);
+    static TriggerMode* find(const char* name);
 
     TriggerMode(const char* name, const char* display);
 };
 
-extern TriggerMode* TriggerModeContinuous;
+// the trigger happens a single time
 extern TriggerMode* TriggerModeOnce;
+
+// the trigger has both on/pressed and up/released transitions
 extern TriggerMode* TriggerModeMomentary;
+
+// the trigger sweeps through a range of values
+extern TriggerMode* TriggerModeContinuous;
+
+// the trigger is momentary, but sustains for an indefinite period of time
 extern TriggerMode* TriggerModeToggle;
+
+// the trigger is continues but sweeps through two ranges of values (never used)
 extern TriggerMode* TriggerModeXY;
 
-/****************************************************************************
- *                                                                          *
- *   							   TARGETS                                  *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Operations
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
- * A Target represents the various things within Mobius that can 
- * be bound to a Trigger or used in an Export.
- *
- * UIConfig is not currrently used.
- *
- * You can also set setups, presets, and bindings through Parameters
- * named "setup", "preset", and "bindings".  The only reason these are
- * exposed as individual targets is to make it easier to bind 
- * MIDI events directly to them, the alternative would be to bind go 
- * Parameter:setup and use an argument with the setup name.
+ * An operation defines what you would like the binding to do.
  */
-class Target : public SystemConstant {
+class Operation : public SystemConstant {
   public:
 
-    static std::vector<Target*> Targets;
-	static Target* getBindable(const char* name);
+    static std::vector<Operation*> Operations;
+	static Operation* find(const char* name);
 
-	Target(const char* name, const char* display, bool isBindable);
-
-    bool bindable;
+	Operation(const char* name, const char* display);
 };
 
-extern Target* TargetFunction;
-extern Target* TargetParameter;
-extern Target* TargetSetup;
-extern Target* TargetPreset;
-extern Target* TargetBindings;
-//extern Target* TargetUIControl;
-extern Target* TargetUIConfig;
-extern Target* TargetScript;
+extern Operation* OpFunction;
+extern Operation* OpParameter;
+extern Operation* OpActivation;
+extern Operation* OpScript;
 
-/****************************************************************************
- *                                                                          *
- *                                 UI CONTROL                               *
- *                                                                          *
- ****************************************************************************/
+// until we can refactor all the old uses of TargetPreset
+// and decide on the right concrete model, define these
+// here just so we have a place to store the names
+// they aren't really Operations
 
-/**
- * Defines a control managed by the UI that may be a binding target.
- * These are given to Mobius during initialization, the core code
- * does not have any predefined knowledge of what these are.
- *
- * These are functionally the same as a Function or Parameter objects,
- * so they don't really belong with the Binding definition classes
- * but I don't have a better place for it.  UITypes.h shouldn't be used
- * because that has things in it specific to the UI which core Mobius
- * shouldn't know about.
- * 
- * There are two types of controls: instant and continuous.
- * Instant controls are like Mobius functions, they are one-shot
- * actions that do not have a range of values.
- *
- * Continuous controls are like Mobius controls, they have a range
- * of values.
- *
- * NOTE: Continuous controls have never been used, the current
- * controls are: nextParameter, prevParameter, incParameter, decParameter,
- * spaceDrag (aka Move Display Components).
- *
- * We don't have a way to define min/max ranges even if we did have
- * continuous controls and we don't have a way to define sustain behavior.
- * Basically we'd need things from Function and Parameter combined, 
- * this isn't such a bad thing but it may be better to have the UI
- * give us Function and Parameter objects instead so we have
- * a consistent way of dealing with both internal and UI functions.
- *
- */
+extern Operation* OpSetup;
+extern Operation* OpPreset;
+extern Operation* OpBindings;
 
-// think about these when we get the InstantParameter element online
-#if 0
-class UIControl : public SystemConstant {
-
-  public:
-
-	UIControl();
-	UIControl(const char* name, int key);
-
-  private:
-
-    void init();
-
-};
-#endif
-
-/****************************************************************************
- *                                                                          *
- *                                UI PARAMETER                              *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// Binding
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
- * Defines a UI parameter that may be manipulated abstractly in the dialogs.
- * This is analogous to Parameter in Mobius, but for the UI.  We don't
- * have many of these but I wanted to start getting the abstraction
- * going since I can envision more of these.
+ * Defines a binding between a trigger, operation, and destination.
+ * A list of these is contained in a BindingSet
  *
- * !! Rethink this.  Can this just be a Parameter subclass so we don't
- * have to deal with SystemConstant and another binding type?
- * If we can bind to these then this needs to go in Binding.h with UIControl.
- */
-
-class UIParameter : public SystemConstant {
-
-  public:
-
-    UIParameter(const char* name, int key);
-
-    // never existed...
-	//static UIParameter** getParameters();
-	//static UIParameter* getParameter(const char* name);
-	//static void localizeAll(class MessageCatalog* cat);
-
-  private:
-
-};
-
-/****************************************************************************
- *                                                                          *
- *   							   BINDABLE                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Common base class for configuration objects that can be selected
- * with Triggers.
- *
- * Currently this is Setup, Preset, and BindingConfig.
- *
- * Like UIControl, this isn't part of the Binding model so it doesn't
- * really belong here, but I don't have a better place for it.
- */
-class Bindable {
-
-  public:
-
-	Bindable();
-	~Bindable();
-	void clone(Bindable* src);
-
-	void setNumber(int i);
-	int getNumber();
-
-	void setName(const char* name);
-	const char* getName();
-
-    virtual Bindable* getNextBindable() = 0;
-	virtual class Target* getTarget() = 0;
-
-  protected:
-
-	/**
-	 * A non-persistent internal number.
-	 * Used to uniquely identity presets that may not have names
-	 * or have ambiguous names.
-	 */
-	int mNumber;
-
-	/**
-	 * Let configurations be named.
-	 */
-	char* mName;
-
-};
-
-/****************************************************************************
- *                                                                          *
- *   							   BINDING                                  *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Defines a binding between a trigger and a target.
- * These are owned by a BindingConfig or an OscBindingSet object.
+ * Formerly had OSC support in here but I removed it and we can revisit
+ * the design later to keep things clean.
  *
  * OSC bindings were added later, need to revisit the design and consider
  * using "paths" consistently everywhere rather than breaking it down
@@ -387,7 +232,7 @@ class Bindable {
  *
  * MIDI triggers may have an additional channel number.
  *
- * Some Targets may have an additional numeric argument.
+ * Some operations may have an additional numeric argument.
  *   - only functions like Track ?
  *
  * OSC bindings use targetPath instead of discrete target, name, scope, 
@@ -405,150 +250,100 @@ class Binding {
 	Binding(Binding* src);
 	virtual ~Binding();
 
+    // keep these on a linked list for now, convert to vector later
 	void setNext(Binding* c);
 	Binding* getNext();
 
+    // true if the binding is filled out enough to be useful
 	bool isValid();
+
+    // true if this represents a MIDI binding
 	bool isMidi();
 
-	//
 	// trigger
-	//
 
-	void setTrigger(Trigger* t);
-	Trigger* getTrigger();
+    Trigger *trigger;
+    TriggerMode* triggerMode;
 
-    // for MIDI, key, and host parameter triggers
-	void setValue(int v);
-	int getValue();
+    // key number, midi note number
+    int triggerValue;
 
-	// only for MIDI triggers
-	void setChannel(int c);
-	int getChannel();
+    // for TriggerMidi, the MIDI channel
+    // todo: eventually want the note/program/control types as seperate
+    // values rather than overloading Trigger
+    int midiChannel;
 
-    // only for OSC triggers
-    void setTriggerPath(const char* s);
-    const char* getTriggerPath();
+    // Operation
+    
+    // todo: eventually get rid of OpPreset and instead just
+    // use OpActivation and store activationType?
+    Operation *op;
+    
+    void setOperationName(const char* s);
+	const char* getOperationName();
 
-    // only for OSC triggers
-    void setTriggerMode(TriggerMode* tt);
-    TriggerMode* getTriggerMode();
+	void setArguments(const char* c);
+	const char* getArguments();
 
-	//
-	// target
-	//
-
-    void setTargetPath(const char* s);
-    const char* getTargetPath();
-
-	void setTarget(Target* t);
-	Target* getTarget();
-
-	void setName(const char* s);
-	const char* getName();
-
-	void setArgs(const char* c);
-	const char* getArgs();
-
-	//
 	// scope
-	//
 
-    const char* getScope();
     void setScope(const char* s);
+    const char* getScope();
 
     // parsed scopes
-	void setTrack(int t);
-	int getTrack();
-	void setGroup(int g);
-	int getGroup();
+    // !! won't be able to do this automatically once we allow
+    // groups to have user defined names
+    int trackNumber;
+    int groupOrdinal;
 
-	//
-	// Utils
-	//
 
-	void getSummary(char* buffer);
-    void getMidiString(char* buffer, bool includeChannel);
-    void getKeyString(char* buffer, int max);
+    // utilities to take a number and convert it to a scope string
+    void setTrack(int t);
+    void setGroup(int g);
 
   private:
 
-	void init();
     void parseScope();
 
 	Binding* mNext;
-
-	// trigger
-	Trigger* mTrigger;
-    TriggerMode* mTriggerMode;
-    char* mTriggerPath;
-	int mValue;
-	int mChannel;
-
-	// target
-    char* mTargetPath;
-	Target* mTarget;
-	char* mName;
-
-	// scope, tracks and groups are both numberd from 1
-    // both zero means "currently selected track"
+	char* mOperationName;
+    char* mArguments;
     char* mScope;
-	int mTrack;
-	int mGroup;
-
-    // arguments
-	char* mArgs;
 
 };
 
-/****************************************************************************
- *                                                                          *
- *   							BINDING CONFIG                              *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * XML Name for BindingConfig.
- * Public so we can parse it in MobiusConfig.
- */
-#define EL_BINDING_CONFIG "BindingConfig"
+//////////////////////////////////////////////////////////////////////
+//
+// BindingSet
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * An object managing a named collection of Bindings, with convenience
  * methods for searching them.
  */
-class BindingConfig : public Bindable {
+class BindingSet : public Structure {
 
   public:
 
-	BindingConfig();
-	~BindingConfig();
-	BindingConfig* clone();
+	BindingSet();
+	BindingSet(BindingSet* src);
+	~BindingSet();
 
-    Bindable* getNextBindable();
-	Target* getTarget();
-	
-	void setNext(BindingConfig* c);
-	BindingConfig* getNext();
+    Structure* clone();
+    
+    Binding* getBindings();
+	void setBindings(Binding* b);
 
 	void addBinding(Binding* c);
 	void removeBinding(Binding* c);
 
-	Binding* getBindings();
-	void setBindings(Binding* b);
-
-    Binding* getBinding(Trigger* trig, int value);
-
   private:
 
-	void init();
-
-	BindingConfig* mNext;
 	Binding* mBindings;
 	
 };
 
-#endif
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

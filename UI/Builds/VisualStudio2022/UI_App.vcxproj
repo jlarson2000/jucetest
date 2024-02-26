@@ -228,6 +228,7 @@
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
+    <ClCompile Include="..\..\Source\model\Structure.cpp"/>
     <ClCompile Include="..\..\Source\model\UIAction.cpp"/>
     <ClCompile Include="..\..\Source\model\UIConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\UIEventType.cpp"/>
@@ -2582,6 +2583,7 @@
     <ClInclude Include="..\..\Source\model\SampleConfig.h"/>
     <ClInclude Include="..\..\Source\model\ScriptConfig.h"/>
     <ClInclude Include="..\..\Source\model\Setup.h"/>
+    <ClInclude Include="..\..\Source\model\Structure.h"/>
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
     <ClInclude Include="..\..\Source\model\UIAction.h"/>
     <ClInclude Include="..\..\Source\model\UIConfig.h"/>

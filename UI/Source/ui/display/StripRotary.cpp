@@ -53,8 +53,8 @@ StripRotary::StripRotary(class TrackStrip* parent, StripElementDefinition* def) 
     action.trigger = TriggerUI;
     // hate these, figure out why it's necessary
     action.triggerMode = TriggerModeContinuous;
-    action.target = TargetParameter;
-    action.targetPointer.parameter = definition->parameter;
+    action.op = OpParameter;
+    action.implementation.parameter = definition->parameter;
 
     dragging = false;
 }

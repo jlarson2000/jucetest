@@ -79,7 +79,6 @@ void MobiusConfig::init()
     mError[0] = 0;
     mDefault = false;
     mHistory = nullptr;
-	mLanguage = nullptr;
 	mMidiInput = nullptr;
 	mMidiOutput = nullptr;
 	mMidiThrough = nullptr;
@@ -110,10 +109,9 @@ void MobiusConfig::init()
 	mAltFeedbackDisables = nullptr;
 
 	mPresets = nullptr;
-	mPreset = nullptr;
 	mSetups = nullptr;
-	mSetup = nullptr;
-	mBindingConfigs = nullptr;
+    mActiveSetup = nullptr;
+	mBindings = nullptr;
     mOverlayBindings = nullptr;
     mScriptConfig = nullptr;
     mSampleConfig = nullptr;
@@ -168,7 +166,6 @@ MobiusConfig::~MobiusConfig()
 		delete el;
 	}
 
-	delete mLanguage;
     delete mMidiInput;
     delete mMidiOutput;
     delete mMidiThrough;
@@ -188,7 +185,9 @@ MobiusConfig::~MobiusConfig()
 	delete mAltFeedbackDisables;
 	delete mPresets;
     delete mSetups;
-    delete mBindingConfigs;
+    delete mActiveSetup;
+    delete mBindings;
+    delete mOverlayBindings;
     delete mScriptConfig;
 	delete mOscConfig;
 	delete mSampleConfig;
@@ -198,26 +197,6 @@ bool MobiusConfig::isDefault()
 {
     return mDefault;
 }
-
-// will need this eventually
-#if 0
-MobiusConfig* MobiusConfig::clone()
-{
-    char* xml = toXml();
-    MobiusConfig* clone = new MobiusConfig(xml);
-    delete xml;
-
-    clone->setCurrentPreset(getCurrentPresetIndex());
-	clone->setCurrentSetup(getCurrentSetupIndex());
-    clone->setOverlayBindingConfig(getOverlayBindingConfigIndex());
-
-    // these aren't handled by XML serialization
-    clone->mNoPresetChanges = mNoPresetChanges;
-    clone->mNoSetupChanges = mNoSetupChanges;
-
-    return clone;
-}
-#endif
 
 void MobiusConfig::setHistory(MobiusConfig* config)
 {
@@ -235,35 +214,6 @@ int MobiusConfig::getHistoryCount()
     for (MobiusConfig* c = this ; c != nullptr ; c = c->getHistory())
       count++;
     return count;
-}
-
-/**
- * Number the presets, setups, or binding configs after editing.
- */
-void MobiusConfig::numberThings(Bindable* things)
-{
-	int count = 0;
-	for (Bindable* b = things ; b != nullptr ; b = b->getNextBindable())
-	  b->setNumber(count++);
-}
-
-int MobiusConfig::countThings(Bindable* things)
-{
-    int count = 0;
-    for (Bindable* b = things ; b != nullptr ; b = b->getNextBindable())
-      count++;
-    return count;
-}
-
-const char* MobiusConfig::getLanguage()
-{
-	return mLanguage;
-}
-
-void MobiusConfig::setLanguage(const char* lang)
-{
-	delete mLanguage;
-	mLanguage = CopyString(lang);
 }
 
 void MobiusConfig::setMonitorAudio(bool b)
@@ -771,62 +721,6 @@ bool MobiusConfig::isGroupFocusLock() {
 	return mGroupFocusLock;
 }
 
-/**
- * Ensure that all of the presets and midi configs have names.
- * Necessary so they can be identified in a GUI.
- */
-void MobiusConfig::generateNames()
-{
-    generateNames(mPresets, "Preset", nullptr);
-    generateNames(mSetups, "Setup", nullptr);
-    generateNames(mBindingConfigs, "Bindings", MIDI_COMMON_BINDINGS_NAME);
-}
-
-/**
- * Generate unique names for a list of bindables.
- * This isn't as simple as just genering "Foo N" names based
- * on list position since the previously generated names may still 
- * exist in the list but in a different position.
- *
- * In theory this is an ineffecient algorithm if the list is long
- * and the number of previously generated names is large.  That isn't
- * normal or advised, so screw 'em.
- */
-void MobiusConfig::generateNames(Bindable* bindables, 
-                                         const char* prefix,
-                                         const char* baseName)
-{
-    char buf[128];
-    int count = 1;
-
-	for (Bindable* b = bindables ; b != nullptr ; b = b->getNextBindable()) {
-        if (baseName && b == bindables) {
-            // force the name of the first one
-            if (!StringEqual(baseName, b->getName()))
-              b->setName(baseName);
-        }
-        else if (b->getName() == nullptr) {
-            Bindable* existing;
-            do {
-                // search for name in use
-                existing = nullptr;
-                sprintf(buf, "%s %d", prefix, count);
-                for (Bindable* b2 = bindables ; b2 != nullptr ; 
-                     b2 = b2->getNextBindable()) {
-                    if (StringEqual(buf, b2->getName())) {
-                        existing = b2;
-                        break;
-                    }
-                }
-                if (existing != nullptr)
-                  count++;
-            } while (existing != nullptr);
-
-            b->setName(buf);
-        }
-    }
-}
-
 void MobiusConfig::setNoPresetChanges(bool b) {
 	mNoPresetChanges = b;
 }
@@ -935,156 +829,17 @@ Preset* MobiusConfig:: getPresets()
 	return mPresets;
 }
 
-int MobiusConfig::getPresetCount()
-{
-    return countThings(mPresets);
-}
-
 void MobiusConfig::setPresets(Preset* list)
 {
     if (list != mPresets) {
 		delete mPresets;
 		mPresets = list;
-		numberThings(mPresets);
-        // this invalidates the current preset
-        mPreset = nullptr;
     }
 }
 	
 void MobiusConfig::addPreset(Preset* p) 
 {
-	int count = 0;
-
-	// keep them ordered
-	Preset *prev;
-	for (prev = mPresets ; prev != nullptr && prev->getNext() != nullptr ; 
-		 prev = prev->getNext());
-
-	if (prev == nullptr)
-	  mPresets = p;
-	else
-	  prev->setNext(p);
-
-    if (mPreset == nullptr)
-      mPreset = p;
-
-	numberThings(mPresets);
-}
-
-/**
- * Note that this should only be called on a cloned MobiusConfig that
- * the interrupt handler can't be using.
- */
-void MobiusConfig::removePreset(Preset* preset) 
-{
-	Preset* prev = nullptr;
-	for (Preset* p = mPresets ; p != nullptr ; p = p->getNext()) {
-		if (p != preset)
-		  prev = p;
-		else {
-			if (prev == nullptr)
-			  mPresets = p->getNext();
-			else 
-			  prev->setNext(p->getNext());
-			p->setNext(nullptr);
-
-			if (p == mPreset)
-			  mPreset = mPresets;
-		}
-	}
-	numberThings(mPresets);
-}
-
-Preset* MobiusConfig::getPreset(const char* name)
-{
-	Preset* found = nullptr;
-	if (name != nullptr) {
-		for (Preset* p = mPresets ; p != nullptr ; p = p->getNext()) {
-            if (StringEqualNoCase(name, p->getName())) {
-				found = p;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-Preset* MobiusConfig::getPreset(int index)
-{
-    Preset* found = nullptr;
-    int i = 0;
-
-    for (Preset* p = mPresets ; p != nullptr ; p = p->getNext(), i++) {
-        if (i == index) {
-            found = p;
-            break;
-        }
-    }
-    return found;
-}
-
-/**
- * Get the first preset, bootstrapping if we have to.
- */
-Preset* MobiusConfig::getDefaultPreset()
-{
-    if (mPresets == nullptr)
-      mPresets = new Preset("Default");
-    return mPresets;
-}
-
-/**
- * Get what is considered to be the current preset.
- * This is used only when conveying preset selection between
- * Mobius and the PresetDialog.
- */
-Preset* MobiusConfig::getCurrentPreset()
-{
-	if (mPreset == nullptr) {
-		if (mPresets == nullptr)
-		  mPresets = new Preset("Default");
-		mPreset = mPresets;
-	}
-	return mPreset;
-}
-
-int MobiusConfig::getCurrentPresetIndex()
-{
-    int index = 0;
-    int i = 0;
-
-	if (mPreset == nullptr)
-	  mPreset = mPresets;
-
-    // don't need to do it this way if we can assume they're numbered!?
-    for (Preset* p = mPresets ; p != nullptr ; p = p->getNext(), i++) {
-        if (p == mPreset) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-void MobiusConfig::setCurrentPreset(Preset* p)
-{
-	mPreset = p;
-}
-
-Preset* MobiusConfig::setCurrentPreset(int index)
-{
-    Preset* p = getPreset(index);
-    if (p != nullptr) 
-	  mPreset = p;
-    return mPreset;
-}
-
-Preset* MobiusConfig::setCurrentPreset(const char* name)
-{
-	mPreset = getPreset(name);
-
-	// would it be more useful to return the previous preset?
-	return mPreset;
+    mPresets = (Preset*)Structure::append(mPresets, p);
 }
 
 /****************************************************************************
@@ -1098,163 +853,29 @@ Setup* MobiusConfig::getSetups()
 	return mSetups;
 }
 
-int MobiusConfig::getSetupCount()
-{
-    return countThings(mSetups);
-}
-
 void MobiusConfig::setSetups(Setup* list)
 {
     if (list != mSetups) {
 		delete mSetups;
 		mSetups = list;
-		numberThings(mSetups);
-
-        // this invalidates the current setup pointer cache
-        mSetup = nullptr;
-        
+        // setting the list might invalidate the activeSetup name
     }
 }
 	
-void MobiusConfig::addSetup(Setup* p) 
+void MobiusConfig::addSetup(Setup* s) 
 {
-	int count = 0;
-
-	// keep them ordered
-	Setup *prev;
-	for (prev = mSetups ; prev != nullptr && prev->getNext() != nullptr ; 
-		 prev = prev->getNext());
-
-	if (prev == nullptr)
-	  mSetups = p;
-	else
-	  prev->setNext(p);
-
-    if (mSetup == nullptr)
-      mSetup = p;
-
-    numberThings(mSetups);
+    mSetups = (Setup*)Structure::append(mSetups, s);
 }
 
-/**
- * Note that this should only be called on a cloned MobiusConfig that
- * the interrupt handler can't be using.
- *
- * Doint WAY too much work to maintan the mSetups "current" setup.
- * Need to get rid of tis.
- */
-void MobiusConfig::removeSetup(Setup* preset) 
+const char*  MobiusConfig::getActiveSetup()
 {
-	Setup* prev = nullptr;
-	for (Setup* p = mSetups ; p != nullptr ; p = p->getNext()) {
-		if (p != preset)
-		  prev = p;
-		else {
-			if (prev == nullptr)
-			  mSetups = p->getNext();
-			else 
-			  prev->setNext(p->getNext());
-			p->setNext(nullptr);
-
-			if (p == mSetup)
-			  mSetup = mSetups;
-		}
-	}
-    numberThings(mSetups);
+    return mActiveSetup;
 }
 
-Setup* MobiusConfig::getSetup(const char* name)
+void MobiusConfig::setActiveSetup(const char* name)
 {
-	Setup* found = nullptr;
-	if (name != nullptr) {
-		for (Setup* p = mSetups ; p != nullptr ; p = p->getNext()) {
-			if (StringEqualNoCase(name, p->getName())) {
-				found = p;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-Setup* MobiusConfig::getSetup(int index)
-{
-    Setup* found = nullptr;
-    int i = 0;
-
-    for (Setup* p = mSetups ; p != nullptr ; p = p->getNext(), i++) {
-        if (i == index) {
-            found = p;
-            break;
-        }
-    }
-    return found;
-}
-
-/**
- * If there is no currently selected setup, we pick the first one.
- *
- * Should NOT be boostrapping an empty Setup here, this needs to be
- * accessible in the interrupt.  Move this...
- */
-Setup* MobiusConfig::getCurrentSetup()
-{
-	if (mSetup == nullptr) {
-		if (mSetups == nullptr)
-		  mSetups = new Setup();
-		mSetup = mSetups;
-	}
-	return mSetup;
-}
-
-int MobiusConfig::getCurrentSetupIndex()
-{
-    int index = 0;
-    int i = 0;
-
-	if (mSetup == nullptr)
-	  mSetup = mSetups;
-
-    for (Setup* p = mSetups ; p != nullptr ; p = p->getNext(), i++) {
-        if (p == mSetup) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-/**
- * Normally we'll be given an object that is on our list
- * but we make sure.  We have historically chosen the object
- * with a matching name whether or not it was the same object.
- * Note that this means you have to generate names first if you've
- * just added something.
- */
-void MobiusConfig::setCurrentSetup(Setup* p)
-{
-	if (p != nullptr) {
-		// these should be the same object, but make sure
-        Setup* cur = getSetup(p->getName());
-		if (cur != nullptr) 
-		  mSetup= cur;
-	}
-}
-
-Setup* MobiusConfig::setCurrentSetup(int index)
-{
-    Setup* p = getSetup(index);
-    if (p != nullptr) 
-	  mSetup = p;
-    return mSetup;
-}
-
-Setup* MobiusConfig::setCurrentSetup(const char* name)
-{
-	mSetup = getSetup(name);
-
-	// would it be more useful to return the previous preset?
-	return mSetup;
+    delete mActiveSetup;
+    mActiveSetup = CopyString(name);
 }
 
 /****************************************************************************
@@ -1268,157 +889,28 @@ Setup* MobiusConfig::setCurrentSetup(const char* name)
  * configuration may also be selected.
  */
 
-BindingConfig* MobiusConfig::getBindingConfigs()
+BindingSet* MobiusConfig::getBindingSets()
 {
-	return mBindingConfigs;
+	return mBindings;
 }
 
-/**
- * Number of possible binding configs.
- * Currently used only by OscConfig to gether tha max value for
- * selectable binding configs.
- */
-int MobiusConfig::getBindingConfigCount()
+// no set function, I guess to enforce that you can't take the
+// first one away, not really necessary
+
+void MobiusConfig::addBindingSet(BindingSet* bs) 
 {
-    return countThings(mBindingConfigs);
+    mBindings = (BindingSet*)Structure::append(mBindings, bs);
 }
 
-void MobiusConfig::addBindingConfig(BindingConfig* c) 
+const char* MobiusConfig::getOverlayBindings()
 {
-	// keep them ordered
-	BindingConfig *prev;
-	for (prev = mBindingConfigs ; prev != nullptr && prev->getNext() != nullptr ; 
-		 prev = prev->getNext());
-	if (prev == nullptr)
-	  mBindingConfigs = c;
-	else
-	  prev->setNext(c);
-
-    numberThings(mBindingConfigs);
-}
-
-/**
- * This should ONLY be called for secondary BindingConfigs, the first
- * one on the list is not supposed to be removable.
- */
-void MobiusConfig::removeBindingConfig(BindingConfig* config) 
-{
-	BindingConfig* prev = nullptr;
-	for (BindingConfig* p = mBindingConfigs ; p != nullptr ; p = p->getNext()) {
-		if (p != config)
-		  prev = p;
-		else {
-			if (prev == nullptr) {
-                // UI should have prevented this
-                Trace(1, "Removing base BindingConfig!!\n");
-                mBindingConfigs = p->getNext();
-            }
-			else 
-			  prev->setNext(p->getNext());
-
-			p->setNext(nullptr);
-
-			if (p == mOverlayBindings)
-			  mOverlayBindings = nullptr;
-		}
-	}
-    numberThings(mBindingConfigs);
-}
-
-BindingConfig* MobiusConfig::getBindingConfig(const char* name)
-{
-	BindingConfig* found = nullptr;
-    if (name == nullptr) {
-        // always the base config
-        found = mBindingConfigs;
-    }
-    else {
-		for (BindingConfig* p = mBindingConfigs ; p != nullptr ; p = p->getNext()) {
-			if (StringEqualNoCase(name, p->getName())) {
-				found = p;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-BindingConfig* MobiusConfig::getBindingConfig(int index)
-{
-    BindingConfig* found = nullptr;
-    int i = 0;
-
-    for (BindingConfig* c = mBindingConfigs ; c != nullptr ; c = c->getNext(), i++) {
-        if (i == index) {
-            found = c;
-            break;
-        }
-    }
-    return found;
-}
-
-/**
- * The "base" binding config is always the first.
- */
-BindingConfig* MobiusConfig::getBaseBindingConfig()
-{
-    if (mBindingConfigs == nullptr)
-      mBindingConfigs = new BindingConfig();
-	return mBindingConfigs;
-}
-
-BindingConfig* MobiusConfig::getOverlayBindingConfig()
-{
-    // it is important this self-heal if it got corrupted
-    if (mOverlayBindings == mBindingConfigs)
-      mOverlayBindings = nullptr;
 	return mOverlayBindings;
 }
 
-int MobiusConfig::getOverlayBindingConfigIndex()
+void MobiusConfig::setOverlayBindings(const char* name)
 {
-    BindingConfig* overlay = getOverlayBindingConfig();
-
-    int index = 0;
-    int i = 0;
-    for (BindingConfig* b = mBindingConfigs ; b != nullptr ; 
-         b = b->getNext(), i++) {
-
-        if (b == overlay) {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-void MobiusConfig::setOverlayBindingConfig(BindingConfig* b)
-{
-    // ignore if it's the base
-    // it is important we do this so it can self-heal if the
-    // XML got screwed up or when processing dynamic Actions with a
-    // bad overlay number
-    if (b == mBindingConfigs)
-      mOverlayBindings = nullptr;
-    else
-      mOverlayBindings = b;
-}
-
-BindingConfig* MobiusConfig::setOverlayBindingConfig(const char* name)
-{
-    setOverlayBindingConfig(getBindingConfig(name));
-	// would it be more useful to return the previous config?
-	return mOverlayBindings;
-}
-
-BindingConfig* MobiusConfig::setOverlayBindingConfig(int index)
-{
-    BindingConfig* b = getBindingConfig(index);
-    // ignore invalid indexes, don't reset to the base?
-    if (b != nullptr)
-      setOverlayBindingConfig(b);
-
-    return mOverlayBindings;
+    delete mOverlayBindings;
+    mOverlayBindings = CopyString(name);
 }
 
 /****************************************************************************/

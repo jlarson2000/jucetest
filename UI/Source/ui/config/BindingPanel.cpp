@@ -26,6 +26,7 @@
 #include "../../util/Trace.h"
 #include "../../model/UIConfig.h"
 #include "../../model/MobiusConfig.h"
+#include "../../model/Binding.h"
 #include "../common/Form.h"
 #include "../JuceUtil.h"
 
@@ -76,10 +77,11 @@ void BindingPanel::load()
 
         upgradeBindings();
         
-        // just look at the first one for now
-        BindingConfig* bindingConfig = config->getBindingConfigs();
-        if (bindingConfig != nullptr) {
-            Binding* blist = bindingConfig->getBindings();
+        // until we support overlay editing, just start with
+        // the first base binding set
+        BindingSet* baseBindings = config->getBindingSets();
+        if (baseBindings != nullptr) {
+            Binding* blist = baseBindings->getBindings();
             while (blist != nullptr) {
                 // subclass overload
                 if (isRelevant(blist)) {
@@ -109,12 +111,13 @@ void BindingPanel::save()
 {
     if (changed) {
         MobiusConfig* config = editor->getMobiusConfig();
-        // just look at the first one for now
-        BindingConfig* bindingConfig = config->getBindingConfigs();
-        if (bindingConfig == nullptr) {
+
+        // only dealing with the base binding set atm
+        BindingSet* baseBindings = config->getBindingSets();
+        if (baseBindings == nullptr) {
             // boostrap one
-            bindingConfig = new BindingConfig();
-            config->addBindingConfig(bindingConfig);
+            baseBindings = new BindingSet();
+            config->addBindingSet(baseBindings);
         }
 
         // note well: unlike most strings, setBingings() does
@@ -124,8 +127,8 @@ void BindingPanel::save()
         // chain so be careful with that.  Really need model cleanup
         juce::Array<Binding*> newBindings;
 
-        Binding* original = bindingConfig->getBindings();
-        bindingConfig->setBindings(nullptr);
+        Binding* original = baseBindings->getBindings();
+        baseBindings->setBindings(nullptr);
         
         while (original != nullptr) {
             // take it out of the list to prevent cascaded delete
@@ -166,7 +169,7 @@ void BindingPanel::save()
         //traceBindingList("final", merged);
 
         // store the merged list back
-        bindingConfig->setBindings(merged);
+        baseBindings->setBindings(merged);
         
         editor->saveMobiusConfig();
 
@@ -193,7 +196,7 @@ void BindingPanel::traceBindingList(const char* title, Binding* blist)
     int count = 0;
     trace("*** Bindings %s\n", title);
     while (blist != nullptr) {
-        trace("%s\n", blist->getName());
+        trace("%s\n", blist->getOperationName());
         blist = blist->getNext();
         count++;
     }
@@ -205,7 +208,7 @@ void BindingPanel::traceBindingList(const char* title, juce::Array<Binding*> &bl
     trace("*** Bindings %s\n", title);
     for (int i = 0 ; i < blist.size() ; i++) {
         Binding* b = blist[i];
-        trace("%s\n", b->getName());
+        trace("%s\n", b->getOperationName());
     }
     trace("*** %s %d total bindings\n", title, blist.size());
 }
@@ -297,13 +300,13 @@ void BindingPanel::refreshForm(Binding* b)
         // can assume these have been set as a side effect
         // of calling setScope(char), don't like this
         // track and group numbers are 1 based if they are set
-        int tracknum = b->getTrack();
+        int tracknum = b->trackNumber;
         if (tracknum > 0) {
             // element 0 is "global" so track number works
             scope->setValue(juce::var(tracknum));
         }
         else {
-            int groupnum = b->getGroup();
+            int groupnum = b->groupOrdinal;
             if (groupnum > 0)
               scope->setValue(juce::var(maxTracks + groupnum));
         }
@@ -312,7 +315,7 @@ void BindingPanel::refreshForm(Binding* b)
     targets.select(b);
     refreshSubclassFields(b);
     
-    juce::var args = juce::var(b->getArgs());
+    juce::var args = juce::var(b->getArguments());
     arguments->setValue(args);
     // used this in old code, now that we're within a form still necessary?
     // arguments.repaint();
@@ -353,7 +356,7 @@ void BindingPanel::captureForm(Binding* b)
     captureSubclassFields(b);
     
     juce::var value = arguments->getValue();
-    b->setArgs(value.toString().toUTF8());
+    b->setArguments(value.toString().toUTF8());
 }
 
 //////////////////////////////////////////////////////////////////////

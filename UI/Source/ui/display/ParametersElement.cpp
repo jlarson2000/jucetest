@@ -56,7 +56,7 @@ void ParametersElement::configure(UIConfig* config)
  * Rather than having to go back to MobiusConfig down
  * in paint() just capture them here.  There are a very
  * small handful os parameters that need this support.
- * Presets, Setups, and BindingConfigs can all have names
+ * Presets, Setups, and BindingSets can all have names
  * but only TrackPreset is likely to be shown.
  */
 void ParametersElement::configure(MobiusConfig* config)
@@ -71,7 +71,7 @@ void ParametersElement::configure(MobiusConfig* config)
         preset->ordinal = ordinal;
         ordinal++;
         presetNames.add(juce::String(preset->getName()));
-        preset = preset->getNext();
+        preset = (Preset*)(preset->getNext());
     }
 }
 

@@ -1,19 +1,15 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
  * Model for a "track setup", a collection of parameters that apply to 
  * all tracks.
  *
+ * This is still used in engine code so avoid changes until we can
+ * finish porting that.
+ *
  */
 
-#ifndef SETUP_H
-#define SETUP_H
+#pragma once
 
-#include "Binding.h"
+#include "Structure.h"
 
 /****************************************************************************
  *                                                                          *
@@ -145,21 +141,18 @@ typedef enum {
  *                                                                          *
  ****************************************************************************/
 
-class Setup : public Bindable {
+class Setup : public Structure {
 
   public:
 
     Setup();
-    void reset(class Preset* p);
-	// Setup* clone();
+    Setup(Setup* src);
     ~Setup();
 
-    Bindable* getNextBindable();
-	class Target* getTarget();
-	void select();
-
-	void setNext(Setup* p);
-	Setup* getNext();
+    Structure* clone();
+    
+    // put it it the standard state for the unit tests
+    void reset(class Preset* p);
 
 	void setBindings(const char* name);
 	const char* getBindings();
@@ -219,18 +212,12 @@ class Setup : public Bindable {
 
   private:
 
-	void init();
 	void initParameters();
-
-	/**
-	 * Next setup in the chain.
-	 */
-	Setup* mNext;
 
 	/**
 	 * Currently active track.
 	 */
-	int mActive;
+	int mActiveTrack;
 
 	/**
 	 * User defined group names. (not used yet)
@@ -249,7 +236,7 @@ class Setup : public Bindable {
 	class SetupTrack* mTracks;
 
 	/**
-	 * Currently overlay BindingConfig.
+	 * Currently overlay BindingSet
 	 */
 	char* mBindings;
 
@@ -345,6 +332,7 @@ class SetupTrack {
   public:
 
 	SetupTrack();
+	SetupTrack(SetupTrack* src);
 	~SetupTrack();
 	// SetupTrack* clone();
 	void reset();
@@ -410,8 +398,6 @@ class SetupTrack {
 
   private:
 
-	void init();
-
 	SetupTrack* mNext;
 	char* mName;
 	char* mPreset;
@@ -442,4 +428,3 @@ class SetupTrack {
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

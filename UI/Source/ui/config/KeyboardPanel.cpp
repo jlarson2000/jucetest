@@ -6,6 +6,7 @@
 
 #include "../../KeyTracker.h"
 #include "../../util/Trace.h"
+#include "../../model/Binding.h"
 #include "../common/Form.h"
 
 #include "ConfigEditor.h"
@@ -51,11 +52,11 @@ void KeyboardPanel::hiding()
 
 /**
  * Called by BindingPanel as it iterates over all the bindings
- * stored in a BindingConfig list.  Return true if this is for keys.
+ * stored in a BindingSet.  Return true if this is for keys.
  */
 bool KeyboardPanel::isRelevant(Binding* b)
 {
-    return (b->getTrigger() == TriggerKey);
+    return (b->trigger == TriggerKey);
 }
 
 /**
@@ -65,7 +66,7 @@ bool KeyboardPanel::isRelevant(Binding* b)
 juce::String KeyboardPanel::renderSubclassTrigger(Binding* b)
 {
     // not currently storing modifiers in the Binding
-    return KeyTracker::getKeyText(b->getValue(), 0);
+    return KeyTracker::getKeyText(b->triggerValue, 0);
 }
 
 /**
@@ -101,10 +102,10 @@ void KeyboardPanel::refreshSubclassFields(class Binding* b)
  */
 void KeyboardPanel::captureSubclassFields(class Binding* b)
 {
-    b->setTrigger(TriggerKey);
+    b->trigger = TriggerKey;
     juce::var value = key->getValue();
     // todo: modifiers
-    b->setValue(KeyTracker::parseKeyText(value.toString()));
+    b->triggerValue = KeyTracker::parseKeyText(value.toString());
 }
 
 void KeyboardPanel::resetSubclassFields()

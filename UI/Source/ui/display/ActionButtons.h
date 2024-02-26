@@ -19,7 +19,7 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     ActionButtons(class MobiusDisplay*);
     ~ActionButtons();
 
-    void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
     int getPreferredHeight(juce::Rectangle<int>);
     void layout(juce::Rectangle<int>);
     

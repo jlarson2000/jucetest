@@ -871,6 +871,9 @@
     <ClCompile Include="..\..\Source\model\Setup.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\Structure.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\UIAction.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
@@ -3571,6 +3574,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Setup.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Structure.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\SystemConstant.h">

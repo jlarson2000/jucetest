@@ -7,7 +7,7 @@
 #include "../../model/MobiusConfig.h"
 #include "../../model/Preset.h"
 #include "../../model/Setup.h"
-
+#include "../../model/Binding.h"
 #include "BindingTargetPanel.h"
 
 BindingTargetPanel::BindingTargetPanel()
@@ -64,7 +64,7 @@ void BindingTargetPanel::configure(MobiusConfig* config)
         // need to find a better way to do string concatenation
         juce::String item = juce::String("Preset:") + juce::String(presets->getName());
         configurations.add(item);
-        presets = presets->getNext();
+        presets = (Preset*)(presets->getNext());
     }
     
     Setup* setups = config->getSetups();
@@ -72,7 +72,7 @@ void BindingTargetPanel::configure(MobiusConfig* config)
         // need to find a better way to do string concatenation
         juce::String item = juce::String("Setup:") + juce::String(setups->getName());
         configurations.add(item);
-        setups = setups->getNext();
+        setups = (Setup*)(setups->getNext());
     }
 }
 
@@ -100,9 +100,10 @@ bool BindingTargetPanel::isTargetSelected()
  * be selected when the Update button is pressed.  If you navigate away
  * we'll be looking at the wrong ListBox, same for name
  */
-Target* BindingTargetPanel::getSelectedTargetType()
+// !! rename this
+Operation* BindingTargetPanel::getSelectedTargetType()
 {
-    Target* target = nullptr;
+    Operation* op = nullptr;
     
     int tab = tabs.getCurrentTabIndex();
     if (tab < 0) {
@@ -111,18 +112,19 @@ Target* BindingTargetPanel::getSelectedTargetType()
     }
 
     switch (tab) {
-        case 0: target = TargetFunction; break;
-        case 1: target = TargetScript; break;
-        case 2: target = TargetParameter; break; // !! visual only, still a Parameter
-        case 3: target = TargetParameter; break; 
+        case 0: op = OpFunction; break;
+        case 1: op = OpScript; break;
+        case 2: op = OpParameter; break; // !! visual only, still a Parameter
+        case 3: op = OpParameter; break; 
         case 4: {
             // here the Binding wants the specific bindable type
             // TargetSetup, TargetPreset, TargetBindings
             // have to get the name and undo the prefix
+            
         }
             break;
     }
-    return target;
+    return op;
 }
 
 juce::String BindingTargetPanel::getSelectedTargetName()
@@ -253,14 +255,14 @@ bool BindingTargetPanel::isValidTarget(juce::String name)
 
 void BindingTargetPanel::capture(Binding* b)
 {
-    b->setTarget(getSelectedTargetType());
+    b->op = getSelectedTargetType();
     juce::String name = getSelectedTargetName();
-    b->setName(name.toUTF8());
+    b->setOperationName(name.toUTF8());
 }
 
 void BindingTargetPanel::select(Binding* b)
 {
     // !! need to use the Target type to select the tabs
     // not just assume everything has a unique name
-    showSelectedTarget(b->getName());
+    showSelectedTarget(b->getOperationName());
 }

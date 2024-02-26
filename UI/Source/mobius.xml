@@ -113,7 +113,7 @@
   </Setup>
   <Setup name='Another' active='0' beatsPerBar='0' defaultSyncSource='none' defaultTrackSyncUnit='subcycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
   </Setup>
-  <BindingConfig number='0'>
+  <BindingSet number='0'>
     <Binding target='function' name='Record' trigger='key' value='82'/>
     <Binding target='function' name='Reset' trigger='key' value='27'/>
     <Binding target='function' name='NextLoop' trigger='key' value='65576'/>
@@ -127,7 +127,7 @@
     <Binding target='function' name='PrevLoop' trigger='ui' value='0'/>
     <Binding target='function' name='NextTrack' trigger='ui' value='0'/>
     <Binding target='function' name='PrevTrack' trigger='ui' value='0'/>
-  </BindingConfig>
+  </BindingSet>
   <ScriptConfig>
   </ScriptConfig>
   <FocusLockFunctions>

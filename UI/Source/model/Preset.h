@@ -1,18 +1,16 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- *
+/**
  * Model for a collection of named parameters.
+ *
+ * This is stil used by the engine so avoid making too many
+ * changes until we have a chance to fully port that.
+ *
+ * IMPORTANT: rethink SustaionFunctions which is a fixed char array
  *
  */
 
-#ifndef PRESET_H
-#define PRESET_H
+#pragma once
 
-#include "Binding.h"
+#include "Structure.h"
 
 //
 // Things formerly in other core files
@@ -125,29 +123,19 @@ class StepSequence {
  * To make it easier to maintain copies of presets this class should
  * have no references to other objects.
  */
-class Preset : public Bindable {
+class Preset : public Structure {
     
   public:
 
     Preset();
-    Preset(const char* name);
+    Preset(Preset* src);
     ~Preset();
 
-	void init();
-	void reset();
-	void copy(Preset* p);
-	Preset* clone();
+    Structure* clone();
 
-    Bindable* getNextBindable();
-	class Target* getTarget();
-	void select();
-
-	void setNext(Preset* p);
-	Preset* getNext();
-
-    // new, transient
-    int ordinal = 0;
-
+    void reset();
+    void copyNoAlloc(Preset* src);
+    
     // 
     // Limits
     //
@@ -499,11 +487,6 @@ class Preset : public Bindable {
 
   private:
 
-	/**
-	 * Next preset in the chain.
-	 */
-	Preset* mNext;
-
     //
     // Limits
     //
@@ -559,7 +542,7 @@ class Preset : public Bindable {
      * and OverdubMode=Sustain parameters.
      * !! Think about how big this needs to be.  
      */
-    char mSustainFunctions[128];
+    char mSustainFunctions[256];
 
     //
     // Quantization
@@ -882,4 +865,3 @@ class Preset : public Bindable {
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

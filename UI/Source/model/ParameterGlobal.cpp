@@ -51,6 +51,7 @@
 #include "Parameter.h"
 #include "Setup.h"
 #include "MobiusConfig.h"
+#include "Binding.h"
 
 // we propagate some things to Track*
 // hide this for awhile and refactor
@@ -257,31 +258,37 @@ SetupNameParameterType::SetupNameParameterType() :
 
 int SetupNameParameterType::getOrdinalValue(MobiusConfig* c)
 {
-    Setup* setup = c->getCurrentSetup();
-    return setup->getNumber();
+    int ordinal = 0;
+    
+    const char* active = c->getActiveSetup();
+    if (active != nullptr)
+      ordinal = Structure::getOrdinal(c->getSetups(), active);
+
+    return ordinal;
 }
 
 void SetupNameParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = c->getCurrentSetup();
-	value->setString(setup->getName());
+	value->setString(c->getActiveSetup());
 }
 
 /**
  * For scripts accept a name or a number.
  * Number is 1 based like SetupNumberParameter.
+ * !!!!!!!!! need to nail down ordinal bases
+ * 0 in places and 1 in others
  */
 void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
 {
     Setup* setup = nullptr;
 
     if (value->getType() == EX_INT)
-      setup = c->getSetup(value->getInt());
+      setup = (Setup*)Structure::get(c->getSetups(), value->getInt());
     else 
-      setup = c->getSetup(value->getString());
+      setup = (Setup*)Structure::find(c->getSetups(), value->getString());
 
     if (setup != nullptr)
-      c->setCurrentSetup(setup);
+      c->setActiveSetup(setup->getName());
 }
 
 /**
@@ -402,8 +409,13 @@ SetupNumberParameterType::SetupNumberParameterType() :
 
 void SetupNumberParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = c->getCurrentSetup();
-    value->setInt(setup->getNumber());
+    int ordinal = 0;
+    
+    const char* active = c->getActiveSetup();
+    if (active != nullptr)
+      ordinal = Structure::getOrdinal(c->getSetups(), active);
+
+    value->setInt(ordinal);
 }
 
 /**
@@ -559,9 +571,12 @@ BindingsParameterType::BindingsParameterType() :
 int BindingsParameterType::getOrdinalValue(MobiusConfig* c)
 {
     int value = 0;
-	BindingConfig* bindings = c->getOverlayBindingConfig();
-    if (bindings != nullptr) 
-	  value = bindings->getNumber();
+
+    const char* name = c->getOverlayBindings();
+    if (name != nullptr) {
+        BindingSet* bindings = c->getBindingSets();
+        value = Structure::getOrdinal(bindings, name);
+    }
     return value;
 }
 
@@ -570,23 +585,18 @@ int BindingsParameterType::getOrdinalValue(MobiusConfig* c)
  */
 void BindingsParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-	BindingConfig* bindings = c->getOverlayBindingConfig();
-    if (bindings != nullptr) 
-	  value->setString(bindings->getName());
-	else
-      value->setNull();
+    value->setString(c->getOverlayBindings());
 }
 
 void BindingsParameterType::setValue(MobiusConfig* c, ExValue* value)
 {
-    if (value->getType() == EX_INT) {
-        // assume it's an int, these are numbered from zero but zero 
-        // is always the base binding
-        int index = value->getInt();
-        c->setOverlayBindingConfig(index);
+    if (value->getType() == EX_STRING) {
+        c->setOverlayBindings(value->getString());
     }
     else {
-        c->setOverlayBindingConfig(value->getString());
+        // if this is an int we could in theory be bound to a host
+        // parameter or control that wants to deal with ordinals
+        // really should be needing that
     }
 }
 

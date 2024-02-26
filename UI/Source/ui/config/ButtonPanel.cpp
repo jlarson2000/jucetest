@@ -56,11 +56,11 @@ void ButtonPanel::upgradeBindings()
             // create a temporary Binding to hold the converted
             // UIButton, this will be copied by BindingTable
             Binding b;
-            b.setTrigger(TriggerUI);
-            // we could only have had Function targets
-            b.setTarget(TargetFunction);
-            b.setName(button->getName());
-            b.setArgs(button->getArguments());
+            b.trigger = TriggerUI;
+            // we could only have had Function ops
+            b.op = OpFunction;
+            b.setOperationName(button->getName());
+            b.setArguments(button->getArguments());
 
             bindings.add(&b);
         }
@@ -83,7 +83,7 @@ void ButtonPanel::saveBindingUpgrades()
 
 /**
  * Called by BindingPanel as it iterates over all the bindings
- * stored in a BindingConfig list.  Return true if this is for keys.
+ * stored in a BindingSet.  Return true if this is for keys.
  *
  * Since button bindings are stored in UIConfig as UIButton objects
  * rather than in MobiusConfig as Bindings, they will all be relevant.
@@ -91,7 +91,7 @@ void ButtonPanel::saveBindingUpgrades()
  */
 bool ButtonPanel::isRelevant(Binding* b)
 {
-    return (b->getTrigger() == TriggerUI);
+    return (b->trigger == TriggerUI);
 }
 
 /**
@@ -123,11 +123,11 @@ void ButtonPanel::refreshSubclassFields(Binding* b)
  * initialize everything so it won't be filtered later
  * in XML rendering.
  *
- * Button bindings do not have a value, only a target.
+ * Button bindings do not have a value, only an operation.
  */
 void ButtonPanel::captureSubclassFields(class Binding* b)
 {
-    b->setTrigger(TriggerUI);
+    b->trigger = TriggerUI;
 }
 
 void ButtonPanel::resetSubclassFields()

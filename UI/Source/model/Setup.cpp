@@ -1,12 +1,9 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Model for a "track setup", a collection of parameters for for
+ * Model for a "track setup", a collection of parameters that apply to 
  * all tracks.
+ *
+ * This is still used in engine code so avoid changes until we can
+ * finish porting that.
  *
  */
 
@@ -23,11 +20,11 @@
 
 #include "Parameter.h"
 
-#include "Binding.h"
 #include "ExValue.h"
 #include "Preset.h"
 #include "UserVariable.h"
 
+#include "Structure.h"
 #include "Setup.h"
 
 /****************************************************************************
@@ -94,33 +91,24 @@ const char* GetSyncSourceName(SyncSource src)
 
 Setup::Setup()
 {
-	init();
+	mTracks = nullptr;
+	mActiveTrack = 0;
+	mResetables = nullptr;
+	mBindings = nullptr;
+
+    initParameters();
 }
 
 Setup::~Setup()
 {
-	Setup *el, *next;
-
-	for (el = mNext ; el != nullptr ; el = next) {
-		next = el->getNext();
-		el->setNext(nullptr);
-		delete el;
-	}
-
 	delete mTracks;
 	delete mBindings;
     delete mResetables;
 }
 
-void Setup::init()
+Structure* Setup::clone()
 {
-	mNext = nullptr;
-	mTracks = nullptr;
-	mActive = 0;
-	mResetables = nullptr;
-	mBindings = nullptr;
-
-    initParameters();
+    return new Setup(this);
 }
 
 /**
@@ -143,12 +131,57 @@ void Setup::initParameters()
 	mOutRealignMode		= REALIGN_RESTART;
 }
 
+Setup::Setup(Setup* src)
+{
+	mTracks = nullptr;
+	mBindings = nullptr;
+	mResetables = nullptr;
+
+    setName(src->getName());
+
+    // note well! historcally set(StringList)
+    // functions don't copy the list, they take ownership
+    // this is unlike const char*
+    // need to fix this!
+    StringList* sl = src->getResetables();
+    if (sl != nullptr)
+      setResetables(new StringList(sl));
+
+    mActiveTrack = src->getActiveTrack();
+    setBindings(src->getBindings());
+    mSyncSource = src->getSyncSource();
+    mSyncUnit = src->getSyncUnit();
+    mSyncTrackUnit = src->getSyncTrackUnit();
+    mManualStart = src->isManualStart();
+    mMinTempo = src->getMinTempo();
+    mMaxTempo = src->getMaxTempo();
+    mBeatsPerBar = src->getBeatsPerBar();
+    mMuteSyncMode = src->getMuteSyncMode();
+    mResizeSyncAdjust = src->getResizeSyncAdjust();
+    mSpeedSyncAdjust = src->getSpeedSyncAdjust();
+    mRealignTime = src->getRealignTime();
+    mOutRealignMode = src->getOutRealignMode();
+
+
+    SetupTrack* last = nullptr;
+    SetupTrack* srcTrack = src->getTracks();
+    while (srcTrack != nullptr) {
+        SetupTrack* copy = new SetupTrack(srcTrack);
+        if (last == nullptr)
+          mTracks = copy;
+        else
+          last->setNext(copy);
+        last = copy;
+        srcTrack = srcTrack->getNext();
+    }
+}
+
 /**
  * Put the setup into the standard state for unit tests.
  */
 void Setup::reset(Preset* p)
 {
-	mActive = 0;
+	mActiveTrack = 0;
 
     // need a default list of these?
     setResetables(nullptr);
@@ -159,6 +192,8 @@ void Setup::reset(Preset* p)
     // start over with a new SetupTrack list
     setTracks(nullptr);
 
+    // note that getTrack(i) will bootstrap a track at
+    // that location if one doesn't exist
     for (int i = 0 ; i < DEFAULT_TRACK_COUNT ; i++) {
         SetupTrack* t = getTrack(i);
         t->reset();
@@ -167,65 +202,6 @@ void Setup::reset(Preset* p)
     }
 
     initParameters();
-}
-
-Target* Setup::getTarget()
-{
-	return TargetSetup;
-}
-
-void Setup::setNext(Setup* s) 
-{
-	mNext = s;
-}
-
-Setup* Setup::getNext()
-{
-	return mNext;
-}
-
-Bindable* Setup::getNextBindable()
-{
-	return mNext;
-}
-
-void Setup::setBindings(const char* name)
-{
-	delete mBindings;
-	mBindings = CopyString(name);
-}
-
-const char* Setup::getBindings()
-{
-	return mBindings;
-}
-
-int Setup::getActiveTrack()
-{
-	return mActive;
-}
-
-void Setup::setActiveTrack(int i)
-{
-	mActive = i;
-}
-
-void Setup::setResetables(StringList* l)
-{
-	if (mResetables != l) {
-		delete mResetables;
-		mResetables = l;
-	}
-}
-
-StringList* Setup::getResetables()
-{
-	return mResetables;
-}
-
-bool Setup::isResetable(Parameter* p)
-{
-	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
 }
 
 SetupTrack* Setup::getTracks()
@@ -274,6 +250,45 @@ SetupTrack* Setup::getTrack(int index)
  *                              SETUP PARAMETERS                            *
  *                                                                          *
  ****************************************************************************/
+
+void Setup::setBindings(const char* name)
+{
+	delete mBindings;
+	mBindings = CopyString(name);
+}
+
+const char* Setup::getBindings()
+{
+	return mBindings;
+}
+
+int Setup::getActiveTrack()
+{
+	return mActiveTrack;
+}
+
+void Setup::setActiveTrack(int i)
+{
+	mActiveTrack = i;
+}
+
+void Setup::setResetables(StringList* l)
+{
+	if (mResetables != l) {
+		delete mResetables;
+		mResetables = l;
+	}
+}
+
+StringList* Setup::getResetables()
+{
+	return mResetables;
+}
+
+bool Setup::isResetable(Parameter* p)
+{
+	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
+}
 
 SyncSource Setup::getSyncSource()
 {
@@ -407,47 +422,6 @@ OutRealignMode Setup::getOutRealignMode() {
 	return mOutRealignMode;
 }
 
-/**
- * This one had a clone method that didn't use XML for some reason
- * !! don't like this
- * Not used by XmlRenderer
- */
-#if 0
-Setup* Setup::clone()
-{
-	Setup* clone = new Setup();
-	SetupTrack* tracks = nullptr;
-	SetupTrack* last = nullptr;
-
-	// name, number
-	clone->Bindable::clone(this);
-	
-    // can leverage the Parameter list to do the clone
-    // not as effiient but saves hard codeing them again
-	for (int i = 0 ; Parameter::Parameters[i] != nullptr ; i++) {
-		Parameter* p = Parameter::Parameters[i];
-        if (p->scope == PARAM_SCOPE_SETUP) {
-            ExValue value;
-            p->getConfigValue(this, &value);
-            p->setConfigValue(clone, &value);
-        }
-    }
-
-	for (SetupTrack* t = mTracks ; t != nullptr ; t = t->getNext()) {
-		SetupTrack* cloneTrack = t->clone();
-		if (tracks == nullptr)
-		  tracks = cloneTrack;
-		else
-		  last->setNext(cloneTrack);
-		last = cloneTrack;
-	}
-
-	clone->setTracks(tracks);
-
-    return clone;
-}
-#endif
-
 /****************************************************************************
  *                                                                          *
  *                                SETUP TRACK                               *
@@ -456,16 +430,54 @@ Setup* Setup::clone()
 
 SetupTrack::SetupTrack()
 {
-	init();
-}
-
-void SetupTrack::init()
-{
 	mNext = nullptr;
     mName = nullptr;
 	mPreset = nullptr;
 	mVariables = nullptr;
 	reset();
+}
+
+SetupTrack::~SetupTrack()
+{
+	SetupTrack *el, *next;
+
+	delete mName;
+	delete mPreset;
+	delete mVariables;
+
+	for (el = mNext ; el != nullptr ; el = next) {
+		next = el->getNext();
+		el->setNext(nullptr);
+		delete el;
+	}
+}
+
+SetupTrack::SetupTrack(SetupTrack* src)
+{   
+	mNext = nullptr;
+    mName = nullptr;
+	mPreset = nullptr;
+	mVariables = nullptr;
+    
+    setName(src->getName());
+    setPreset(src->getPreset());
+
+	mFocusLock = src->isFocusLock();
+	mGroup = src->getGroup();
+	mInputLevel = src->getInputLevel();
+	mOutputLevel = src->getOutputLevel();
+	mFeedback = src->getFeedback();
+	mAltFeedback = src->getAltFeedback();
+	mPan = src->getPan();
+	mMono = src->isMono();
+	mAudioInputPort = src->getAudioInputPort();
+	mAudioOutputPort = src->getAudioOutputPort();
+	mPluginInputPort = src->getPluginInputPort();
+	mPluginOutputPort = src->getPluginOutputPort();
+    mSyncSource = src->getSyncSource();
+    mSyncTrackUnit = src->getSyncTrackUnit();
+
+	// !! TODO: copy mVariables
 }
 
 /**
@@ -498,6 +510,8 @@ void SetupTrack::reset()
 
 /**
  * Capture the state of an active Track.
+ * Don't like having this here, move out to where
+ * all the state export stuff can live
  */
 #if 0
 void SetupTrack::capture(MobiusState* state)
@@ -538,52 +552,7 @@ void SetupTrack::capture(MobiusState* state)
 }
 #endif
 
-SetupTrack::~SetupTrack()
-{
-	SetupTrack *el, *next;
 
-	delete mName;
-	delete mPreset;
-	delete mVariables;
-
-	for (el = mNext ; el != nullptr ; el = next) {
-		next = el->getNext();
-		el->setNext(nullptr);
-		delete el;
-	}
-}
-
-// new UI uses XmlRenderer for cloning, do we still need this?
-#if 0
-SetupTrack* SetupTrack::clone()
-{
-	SetupTrack* t = new SetupTrack();
-
-	// everything but mNext
-	t->setName(mName);
-	t->setPreset(mPreset);
-
-    // consider using a Parameter loop like we do in Setup
-	t->mFocusLock = mFocusLock;
-	t->mGroup = mGroup;
-	t->mInputLevel = mInputLevel;
-	t->mOutputLevel = mOutputLevel;
-	t->mFeedback = mFeedback;
-	t->mAltFeedback = mAltFeedback;
-	t->mPan = mPan;
-	t->mMono = mMono;
-	t->mAudioInputPort = mAudioInputPort;
-	t->mAudioOutputPort = mAudioOutputPort;
-	t->mPluginInputPort = mPluginInputPort;
-	t->mPluginOutputPort = mPluginOutputPort;
-    t->mSyncSource = mSyncSource;
-    t->mSyncTrackUnit = mSyncTrackUnit;
-
-	// !! TODO: copy mVariables
-
-	return t;
-}
-#endif
 
 void SetupTrack::setNext(SetupTrack* s) 
 {

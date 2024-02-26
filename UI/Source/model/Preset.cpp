@@ -1,11 +1,8 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- *
  * Model for a collection of named parameters.
+ *
+ * This is stil used by the engine so avoid making too many
+ * changes until we have a chance to fully port that.
  *
  */
 
@@ -13,8 +10,7 @@
 
 #include "../util/Util.h"
 
-#include "Binding.h"
-#include "Parameter.h"
+#include "Structure.h"
 
 #include "Preset.h"
 
@@ -26,35 +22,30 @@
 
 Preset::Preset()
 {
-	init();
-}
-
-Preset::Preset(const char* name)
-{
-    init();
-    setName(name);
-}
-
-void Preset::init()
-{
-	mNext = nullptr;
 	reset();
 }
 
 Preset::~Preset()
 {
-	Preset *el, *next;
-
-	for (el = mNext ; el != nullptr ; el = next) {
-		next = el->getNext();
-		el->setNext(nullptr);
-		delete el;
-	}
+    // Structure handles the name and chain pointer
+    // we have nothing else that is dynamic
 }
 
-Target* Preset::getTarget()
+/**
+ * This one is used by the UI so it includes the name.
+ */
+Preset::Preset(Preset* src)
 {
-	return TargetPreset;
+    setName(src->getName());
+    copyNoAlloc(src);
+}
+
+/**
+ * This is required by Structure, also for the UI
+ */
+Structure* Preset::clone()
+{
+    return new Preset(this);
 }
 
 /**
@@ -135,20 +126,28 @@ void Preset::reset()
 }
 
 /**
- * Copy one preset to another.
- * Do not copy name here, only the parameters.
- * This is used to make a snapshot of operating parameters, if you
- * need a full clone use the clone() method.
+ * Copy one preset to another leaving out anything that requires
+ * dynamic storage allocation.  In practice it is only the name
+ * that is left out.
+ *
+ * This is still used by the engine to duplicate the preset for
+ * each track that uses it, so that the tracks make may independent
+ * change to it without changing the master preset.  Since we are
+ * in the audio thread must not allocate storage.
+ *
+ * If you want a full copy use Structure::clone()
  *
  * Tried to use memcpy here, but that didn't seem to work, not
  * sure what else is in "this".
  */
-void Preset::copy(Preset* src)
+void Preset::copyNoAlloc(Preset* src)
 {
-    // do not copy mNext or mName since those are object references
+    // don't need to reset name or next here, Track
+    // will have started with an empty object
+    
     // do copy mNumber so we can correlate this back to the master preset
     // to get the name if we need it
-    mNumber = src->mNumber;
+    ordinal = src->ordinal;
 
     // Limits
 	mLoops = src->mLoops;
@@ -215,20 +214,11 @@ void Preset::copy(Preset* src)
     mWindowEdgeAmount = src->mWindowEdgeAmount;
 }
 
-Bindable* Preset::getNextBindable()
-{
-	return mNext;
-}
-
-Preset* Preset::getNext()
-{
-	return mNext;
-}
-
-void Preset::setNext(Preset* p)
-{
-	mNext = p;
-}
+//////////////////////////////////////////////////////////////////////
+//
+// Preset Parameters
+//
+//////////////////////////////////////////////////////////////////////
 
 void Preset::setSubcycles(int i) 
 {

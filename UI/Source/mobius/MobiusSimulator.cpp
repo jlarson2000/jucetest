@@ -100,10 +100,10 @@ MobiusState* MobiusSimulator::getState()
  */
 void MobiusSimulator::doAction(UIAction* action)
 {
-    if (action->target == TargetFunction) {
-        FunctionDefinition* f = action->targetPointer.function;
+    if (action->op == OpFunction) {
+        FunctionDefinition* f = action->implementation.function;
         if (f == nullptr) {
-            trace("Unresolved function: %s\n", action->targetName);
+            trace("Unresolved function: %s\n", action->operationName);
         }
         else if (StringEqual(f->getName(), "GlobalReset")) {
             globalReset();
@@ -153,10 +153,10 @@ void MobiusSimulator::doAction(UIAction* action)
             trace("Unimplemented function: %s\n", f->getName());
         }
     }
-    else if (action->target == TargetParameter) {
-        Parameter* p = action->targetPointer.parameter;
+    else if (action->op == OpParameter) {
+        Parameter* p = action->implementation.parameter;
         if (p == nullptr) {
-            trace("Unresolved parameter: %s\n", action->targetName);
+            trace("Unresolved parameter: %s\n", action->operationName);
         }
         else if (p == OutputLevelParameter) {
             int tracknum = action->scopeTrack;
@@ -175,7 +175,7 @@ void MobiusSimulator::doAction(UIAction* action)
             
     }
     else {
-        trace("Unexpected action target %s\n", action->target->getName());
+        trace("Unexpected action operation %s\n", action->op->getName());
     }
 
     // until we support queuing make sure this is clean
@@ -611,11 +611,7 @@ Preset* MobiusSimulator::getTrackPreset(SetupTrack* track)
     Preset* preset = nullptr;
 
     // kludge: make sure ordinals are assigned
-    int ordinal = 0;
-    for (Preset* p = configuration->getPresets() ; p != nullptr ; p = p->getNext()) {
-        p->ordinal = ordinal;
-        ordinal++;
-    }
+    Structure::ordinate(configuration->getPresets());
     
     const char* pname = track->getPreset();
     if (pname == nullptr) {
@@ -625,12 +621,7 @@ Preset* MobiusSimulator::getTrackPreset(SetupTrack* track)
     }
     else {
         // find the named Preset from the global config
-        for (Preset* p = configuration->getPresets() ; p != nullptr ; p = p->getNext()) {
-            if (StringEqual(pname, p->getName())) {
-                preset = p;
-                break;
-            }
-        }
+        Preset* preset = (Preset*)Structure::find(configuration->getPresets(), pname);
 
         if (preset == nullptr)
           trace("Preset not found %s\n", pname);

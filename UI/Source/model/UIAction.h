@@ -48,12 +48,12 @@ extern ActionOperator* OperatorPermanent;
 
 //////////////////////////////////////////////////////////////////////
 //
-// TargetPointer
+// OperationObject
 //
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Union of possible target pointers.
+ * Union of possible operation implementation pointers.
  * This is set during the resolution of the symbolic references
  * in the Binding (or UIButton) objects to the concrete objects
  * that are named.
@@ -64,7 +64,7 @@ extern ActionOperator* OperatorPermanent;
  * when necessary, it is nice in the debugger to have these
  * in a union so we can see what they are.
  *
- * Formerly had Bindable in here but I didn't like ugly cache
+ * Formerly had Bindable (now Structure) in here but I didn't like ugly cache
  * invalidation when the configuration objects are replaced.
  * Until it seems necessary, just remember the name and look them
  * up at runtime.  
@@ -74,10 +74,10 @@ typedef union {
     void* object;
     class FunctionDefinition* function;
     class Parameter* parameter;
+    int ordinal;
     //class Bindable* bindable;
-    //class UIControl* uicontrol;
 
-} TargetPointer;
+} OperationImplementation;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -235,35 +235,26 @@ class UIAction {
 	bool longPress;
 
     //////////////////////////////////////////////////////////////////////
-    // Target
+    // Operation
     //////////////////////////////////////////////////////////////////////
 
     /**
-     * The type of Target to take action on.  Function, Parameter, etc.
-     * todo: refine the concepts of a "static target" and a "dynamic target"
+     * The type of Operation to perform (Function, Parameter, or Activate)
      */
-    Target* target;
+    Operation* op;
 
     /**
-     * The name of the target captured from the Binding
-     * For most targets this will be resolved to a TargetPointer
-     * to a static target system constant
+     * The name of the operation to perform
      */
-    char targetName[MAX_TARGET_NAME];
+    char operationName[MAX_TARGET_NAME];
 
     /**
      * A resolved pointer to a system constant object like Function
-     * or Parameter.
+     * or Parameter that implements the Operation.  For Structures
+     * that can be activated, it will be ordinal of the object.
+     * 
      */
-    TargetPointer targetPointer;
-
-    /**
-     * For dynamic targets (configuration objects) an optional ordinal
-     * number that may be calculated for faster lookup.
-     * Ordinals begin with 1, zero means there is no ordinal assigned
-     * and lookup must be performed by name.
-     */
-    int targetOrdinal;
+    OperationImplementation implementation;
     
     /**
      * Alternate function to have the up transition after a long press.  
@@ -300,7 +291,7 @@ class UIAction {
 
     /**
      * Internal field set by BindingResolver to indicate which
-     * BindingConfig overlay this action came from.
+     * BindingSet overlay this action came from.
      * todo: do we need this any more?
      */
     int bindingOverlay;

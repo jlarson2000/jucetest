@@ -1,0 +1,66 @@
+Sun Feb 25 11:57:28 2024
+
+Logical and concrete model notes after much internal discussion
+This file represents the latest thinking on this and supercedes the
+innumerable thought capture file that are strewn around.
+
+Trigger
+  external stimulus that causes something to happen
+
+Operation
+  what you want to happen
+
+Destination
+  where you want it to go
+
+Properties
+  named values on the definitions of triggers, operations, and destinations
+  part of the logical model used when talking about these things
+  and may be in a concrete model for defining those things
+
+
+Triggers have types
+  keyboard, midi, UI, osc
+
+Each Trigger type has additional properties
+  key, note number, program number, etc.
+
+
+Operations have types
+  function, parameter, activation
+
+All operations have a name property
+  function name, parameter name, activation type (preset, setup, bindingSet)
+
+Opertions may have a required value
+  parameter value, activation structure type, destination object number (e.g. track number)
+
+Each operation type may have additional properties
+  parameter value range, function arguments, trigger restrictions (sustainable)
+  activation structure name
+
+Operations may have arguments
+  arbitrary for functions and parameters, none for activations
+
+
+Destinations are fundamentally complex paths to things on which to perform operations
+
+Destinations can be specific (targeting one thing) or collective (targeting multiple things)
+
+Destinations are broadly divided into two categories
+  ui, engine
+
+Scope is a concrete model for specifying destinations in the engine
+  active, track, group
+
+
+Structures
+  - collections of values that may be Activated
+  - values may have concrete definitons as Parameters or may
+    just be internal control variables
+  - structures may have multiples in which case they must have a name
+
+Binding
+  an association between a trigger, operation, and destination
+
+

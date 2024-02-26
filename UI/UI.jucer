@@ -243,6 +243,8 @@
         <FILE id="rxHb7c" name="ScriptConfig.h" compile="0" resource="0" file="Source/model/ScriptConfig.h"/>
         <FILE id="OZh5wr" name="Setup.cpp" compile="1" resource="0" file="Source/model/Setup.cpp"/>
         <FILE id="I3HQ2E" name="Setup.h" compile="0" resource="0" file="Source/model/Setup.h"/>
+        <FILE id="RWjxQk" name="Structure.cpp" compile="1" resource="0" file="Source/model/Structure.cpp"/>
+        <FILE id="UvI59d" name="Structure.h" compile="0" resource="0" file="Source/model/Structure.h"/>
         <FILE id="JZYXKm" name="SystemConstant.h" compile="0" resource="0"
               file="Source/model/SystemConstant.h"/>
         <FILE id="AbOPmx" name="UIAction.cpp" compile="1" resource="0" file="Source/model/UIAction.cpp"/>

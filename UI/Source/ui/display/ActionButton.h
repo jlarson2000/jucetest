@@ -15,7 +15,7 @@ class ActionButton : public juce::TextButton
   public:
 
     ActionButton();
-    ActionButton(class UIButton* src);
+    ActionButton(class Binding* src);
     ~ActionButton();
 
     int getPreferredWidth(int height);
@@ -31,8 +31,7 @@ class ActionButton : public juce::TextButton
 
     void paintButton(juce::Graphics& g, juce::Colour background, juce::Colour text);
 
-    juce::String formatButtonName(UIButton *src);
-    void initAction(UIButton* src);
+    juce::String formatButtonName(class Binding *src);
     
 };
 

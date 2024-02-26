@@ -52,6 +52,8 @@
 
 #include "../../model/UIConfig.h"
 #include "../../model/UIAction.h"
+#include "../../model/Binding.h"
+
 #include "Colors.h"
 #include "ActionButton.h"
 
@@ -60,21 +62,20 @@ ActionButton::ActionButton()
 }
 
 /**
- * Initialize the button to trigger an action defined by UIButton.
- * We do not retain a refernce to the UIButton.
+ * Initialize the button to trigger an action defined by a Binding.
  */
-ActionButton::ActionButton(UIButton* uib)
+ActionButton::ActionButton(Binding* binding)
 {
     setName("ActionButton");
     
     // don't wait for mouse up
     setTriggeredOnMouseDown(true);
-    if (uib == nullptr) {
+    if (binding == nullptr) {
         setButtonText(juce::String("empty"));
     }
     else {
-        setButtonText(formatButtonName(uib));
-        initAction(uib);
+        setButtonText(formatButtonName(binding));
+        action.init(binding);
     }
 }
 
@@ -162,9 +163,9 @@ void ActionButton::paintButton(juce::Graphics& g, juce::Colour background, juce:
  * Not storing the target type yet
  * Probably should be on Binding for consistency in logging.
  */
-juce::String ActionButton::formatButtonName(UIButton *src)
+juce::String ActionButton::formatButtonName(Binding *src)
 {
-    juce::String name = juce::String(src->getName());
+    juce::String name = juce::String(src->getOperationName());
     if (src->getArguments() != nullptr) {
         // formatting here could be more complicated with
         // normalization and capitalization
@@ -173,36 +174,6 @@ juce::String ActionButton::formatButtonName(UIButton *src)
         name += ")";
     }
     return name;
-}
-
-/**
- * Initialize the action we request when clicked.
- * Button bindings used to be stored in the Binding list
- * but I went back to maintaining UIButton objects in UI
- * config.  Since most of the action parsing logic is related
- * to Binding, convert the UIButton contents to a Binding
- * to initialize the UIAction.
- * 
- */
-void ActionButton::initAction(UIButton* src)
-{
-    Binding binding;
-
-    binding.setTrigger(TriggerUI);
-    // todo: could support Momentary for SUS functions
-    // comments say this was used only for OSC but I guess
-    // it applies to this now too
-    binding.setTriggerMode(TriggerModeOnce);
-    // buttons do not have a trigger value, channel
-
-    // the new UIButton model does not have a target type yet
-    // geez, I'm starting to think going back to a common Binding
-    // model is better
-    binding.setTarget(TargetFunction);
-    binding.setName(src->getName());
-    binding.setArgs(src->getArguments());
-                    
-    action.init(&binding);
 }
 
 UIAction* ActionButton::getAction()

@@ -1991,6 +1991,7 @@ int XmlMiniParser::parse(void)
             // if e != ERR_XMLP_EOF, its an odd error?
             mErrorCode = e;
             sprintf(mError, "Internal Error %d", mErrorCode);
+            trace("%s\n", mError);
         }
 	}
     catch (AppException& e) {
@@ -2001,12 +2002,14 @@ int XmlMiniParser::parse(void)
         CopyString(e.getMessage(), mError, sizeof(mError));
         // can't delete these, what happens to them?
         //delete e;
+        trace("%s\n", mError);
     }
     catch (AppException* e) {
         // Had to start using pointers for some reason, C++ sucks
         mErrorCode = e->getCode();
         CopyString(e->getMessage(), mError, sizeof(mError));
         delete e;
+        trace("%s\n", mError);
     }
     
     return mErrorCode;

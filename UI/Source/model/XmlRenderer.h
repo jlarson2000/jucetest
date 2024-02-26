@@ -10,7 +10,7 @@
  * Setup
  *   a collection of operational parameters for tracks
  *
- * BindingConfig
+ * BindingSet
  *   a collection of bindings between external triggers and internal targets
  */
 
@@ -47,8 +47,8 @@ class XmlRenderer {
     class StringList* parseStringList(class XmlElement* e);
     void renderList(class XmlBuffer* b, const char* elname, class StringList* list);
 
-    void renderBindable(class XmlBuffer* b, class Bindable* bindable);
-    void parseBindable(class XmlElement* e, class Bindable* b);
+    void renderStructure(class XmlBuffer* b, class Structure* s);
+    void parseStructure(class XmlElement* e, class Structure* s);
 
     // main objects
 
@@ -67,8 +67,8 @@ class XmlRenderer {
     void render(class XmlBuffer* b, class UserVariables* container);
     void parse(class XmlElement* e, class UserVariables* container);
 
-    void parse(class XmlElement* e, class BindingConfig* c);
-    void render(class XmlBuffer* b, class BindingConfig* c);
+    void parse(class XmlElement* e, class BindingSet* c);
+    void render(class XmlBuffer* b, class BindingSet* c);
 
     void parse(class XmlElement* e, class Binding* c);
     void render(class XmlBuffer* b, class Binding* c);

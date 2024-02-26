@@ -8,11 +8,6 @@
  * Model for the Mobius core configuration.
  * UIConfig has a model for most of the UI configuration.
  *
- * NEW
- *
- * I hate how MobiusConfig keeps a "current" pointer to Preset, Setup, and BindingConfig
- * to an object within those lists.  I'd rather this just keep a number or name
- * so it can be a pure data model.  Too much depends on this in core code, revisit laber.
  */
 
 #ifndef MOBIUS_CONFIG_H
@@ -216,6 +211,9 @@ class MobiusConfig {
     MobiusConfig(bool dflt);
     ~MobiusConfig();
     
+    // !! wtf does this do?
+	void generateNames();
+	
     const char* getError();
     MobiusConfig* clone();
 
@@ -223,9 +221,6 @@ class MobiusConfig {
     void setHistory(MobiusConfig* config);
     MobiusConfig* getHistory();
     int getHistoryCount();
-
-	void setLanguage(const char *name);
-	const char* getLanguage();
 
 	void setMonitorAudio(bool b);
 	bool isMonitorAudio();
@@ -297,45 +292,20 @@ class MobiusConfig {
 	bool isSaveLayers();
 
 	class Preset* getPresets();
-    int getPresetCount();
     void setPresets(class Preset* list);
-    class Preset* getDefaultPreset();
-	class Preset* getPreset(const char* name);
-	class Preset* getPreset(int index);
 	void addPreset(class Preset* p);
-	void removePreset(class Preset* p);
-	class Preset* getCurrentPreset();
-	int getCurrentPresetIndex();
-	void setCurrentPreset(class Preset* p);
-	class Preset* setCurrentPreset(const char *name);
-	class Preset* setCurrentPreset(int index);
 
 	class Setup* getSetups();
-    int getSetupCount();
 	void setSetups(class Setup* list);
 	void addSetup(class Setup* p);
-	void removeSetup(class Setup* preset);
-	class Setup* getSetup(const char* name);
-	class Setup* getSetup(int index);
-	class Setup* getCurrentSetup();
-	int getCurrentSetupIndex();
-	void setCurrentSetup(class Setup* p);
-	class Setup* setCurrentSetup(int index);
-	class Setup* setCurrentSetup(const char* name);
+    const char* getActiveSetup();
+    void setActiveSetup(const char* name);
 
-	class BindingConfig* getBindingConfigs();
-    int getBindingConfigCount();
-	class BindingConfig* getBindingConfig(const char* name);
-	class BindingConfig* getBindingConfig(int index);
-	void addBindingConfig(class BindingConfig* p);
-	void removeBindingConfig(class BindingConfig* p);
+	class BindingSet* getBindingSets();
+	void addBindingSet(class BindingSet* bs);
 
-	class BindingConfig* getBaseBindingConfig();
-	class BindingConfig* getOverlayBindingConfig();
-	int getOverlayBindingConfigIndex();
-	void setOverlayBindingConfig(class BindingConfig* c);
-	class BindingConfig* setOverlayBindingConfig(const char* name);
-	class BindingConfig* setOverlayBindingConfig(int index);
+    const char* getOverlayBindings();
+    void setOverlayBindings(const char* name);
 
     class ScriptConfig* getScriptConfig();
     void setScriptConfig(class ScriptConfig* c);
@@ -352,9 +322,6 @@ class MobiusConfig {
 	void setQuickSave(const char* s);
 	const char* getQuickSave();
 
-    // !! this sees pretty important to bury down here
-	void generateNames();
-	
 	void setFocusLockFunctions(class StringList* functions);
 	StringList* getFocusLockFunctions();
 
@@ -427,17 +394,15 @@ class MobiusConfig {
   private:
 
 	void init();
-    void generateNames(class Bindable* bindables, const char* prefix, 
-                       const char* baseName);
-	
-    void numberThings(class Bindable* things);
-    int countThings(class Bindable* things);
+    //void generateNames(class Bindable* bindables, const char* prefix, 
+    //const char* baseName);
+    //void numberThings(class Bindable* things);
+    //int countThings(class Bindable* things);
 
     char mError[256];
     bool mDefault;
     MobiusConfig* mHistory;
     
-	char* mLanguage;
 	char* mMidiInput;
 	char* mMidiOutput;
 	char* mMidiThrough;
@@ -483,20 +448,18 @@ class MobiusConfig {
      * was selected when the config was saved. 
      */
 	class Setup* mSetups;
-	class Setup* mSetup;
+    char* mActiveSetup;
 
-    /**
-     * We have a list of presets, and one considered globally selected.
-     * The selected preset is weird, it is not used internally it is only
-     * used by the UI to set the current preset when editing in
-     * the preset window.  This will not override what is in the setup
-     * after a global refresh.
-     */
 	class Preset* mPresets;
-	class Preset* mPreset;
 
-	class BindingConfig* mBindingConfigs;
-	class BindingConfig* mOverlayBindings;
+    // there is always (and usually) a sigle BindingSet
+    // if there is more than one, those are considered "overlay"
+    // bindings that can be merged with the base set
+    // historically there could be only one overlay binding set
+    // but I'm moving this to a flag on the BindingSet to you
+    // can have more than one
+	class BindingSet* mBindings;
+    char* mOverlayBindings;
 
     class ScriptConfig* mScriptConfig;
 	class SampleConfig* mSampleConfig;

@@ -383,6 +383,16 @@ void ObjectSelector::comboBoxChanged(juce::ComboBox* combo)
     }
 }
 
+void ObjectSelector::addObjectName(juce::String name)
+{
+    combobox.addItem(name, combobox.getNumItems() + 1);
+}
+
+void ObjectSelector::setSelectedObject(int ordinal)
+{
+    combobox.setSelectedId(ordinal + 1);
+}
+
 // TODO: give the name label a listener to call renameObject
 
 /****************************************************************************/
