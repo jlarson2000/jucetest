@@ -1,0 +1,274 @@
+
+The key pieces of interface infrustructure that need to
+be implemented are
+
+   MobiusContext
+     - this abstracted away OS specific things like the command line,
+       installation paths, but most importantly the following device interfaces
+     - now that we've removed config file processing up to the UI layer can stub those
+       or simulate them
+     - there is some command line processing in Mobius that we can simulate
+     
+   AudioInterface
+     - how Mobius expects to deal with audio streams
+     - defined in <oldMobius>/src/audio
+     - implemented using PortAudio
+     - given to MobiusContext
+     - AbstractAudioInterface implements a good chunk of the common stuff
+       will need an implementation for JuceAudioApp
+     - a lot of thigns in here deal with device configuration that we no longer need
+       since that moved up to the UI layer
+     - when running as a plugin this acted as a Proxy to the host application's
+       audio buffers, don't need the difference now, Juce handles both
+
+   AudioStream
+    - part of the audio abstraction, implemented by AudioInterface
+       
+   MidiInterface
+     - this was only used standalone
+     - implemented with my interface
+
+   HostMidiInterface
+     - a wrapper around VST2, was a kludge because it was different enough
+       that it couldn't be under MidiInterface
+     - don't need either of these with Juce
+
+
+Will need to move the interface definitions out of /audio and /midi or wherever
+and put them under an interface folder
+
+Once we build a MobiusContext you create a MobiusInterface that wrapped Mobius
+
+MobiusInterface had a lot of stuff in it for dealing with bindings, all that
+can be stubbed
+
+There is logic to defer "starting" the engine after construction because
+plugin hosts would instantiate the plugin to probe it for information without
+actually using it.
+
+MobiusInterface.start was where we read the config files and opened the devices
+and allocated memory
+
+Some things this has that we probably don't need
+
+  HostConfigs
+
+
+	virtual void setFullConfiguration(class MobiusConfig* config) = 0;
+    
+    /**
+     * Apply changes to an external copy of the configuration object
+     * but not anything related to presets, setups, or bindings.
+     */
+	virtual void setGeneralConfiguration(class MobiusConfig* config) = 0;
+
+    /**
+     * Apply changes to an external copy of the configuration object
+     * related to presets only.
+     */
+	virtual void setPresetConfiguration(class MobiusConfig* config) = 0;
+
+This is the configuration mess, can simplify this hopefully
+
+The interfaces are marginally useful but could just do internal
+checks on what changed.
+
+    // Binding Targets
+
+    virtual class Function** getFunctions() = 0;
+    virtual class Function* getFunction(const char* name) = 0;
+
+    virtual class Parameter** getParameters() = 0;
+    virtual class Parameter* getParameter(const char* name) = 0;
+    virtual class Parameter* getParameterWithDisplayName(const char* name) = 0;
+
+    virtual class MobiusMode** getModes() = 0;
+    virtual class MobiusMode* getMode(const char* name) = 0;
+
+Can get rid of all this, unless the engine sticks things in there
+that aren't static
+
+The Action/Export resolution shit probably needs to stay for awhile but
+it would be way nicer to factor this out
+
+    /**
+     * Special interface just for the standard UI that returns
+     * Actions for every script that declare itself as a !button
+     */
+    virtual Action* getScriptButtonActions() = 0;
+
+This was necessary when the engine loaded the script config and handled compilation.
+Probably still need to let it do compilation but work on exporting that
+
+    /**
+     * Process a MIDI event.
+     * This is only used by MobiusPlugin to convert events from the host
+     * into MidiEvents.  When dealing directly with MIDI devices, Mobius
+     * will internally register itself as a MidiListener which bypass the
+     * MobiusInterface.
+     */
+	virtual void doMidiEvent(class MidiEvent* e) = 0;
+
+I think we can make it look like we're always in a plugin for Juce.  Although
+we really dont' need this at all now for bindings.  The only thing that
+may still be relevant is clocks for synchronization.
+
+    /**
+     * Process a key event.
+     * Called by the UI when keys are pressed and released.
+     * Mobius internally maintains a BindingResolver to quickly map
+     * keys to previous build Actions.
+     */
+    virtual void doKeyEvent(int key, bool down, bool repeat) = 0;
+
+    /**
+     * Process a key event.
+     * Called by the UI when keys are pressed and released.
+     * Mobius internally maintains a BindingResolver to quickly map
+     * keys to previous build Actions.
+     */
+    virtual void doKeyEvent(int key, bool down, bool repeat) = 0;
+
+not necessary any more
+
+
+Ugh, it's going to be really hard to do this top down.
+MobiusInterface is only implemented by Mobius and it wants everything.
+
+Have to start by taking Mobius and looping off huge chunks of it, then
+adding it back gradually.  Mobius will essentailly become MobiusSimulator
+
+
+MobiusInterface/MobiusShell
+
+  MobiusShell implements the MobiusInterface
+
+Ugh, I don't see a good way to wrap this without so many stubs a "skeleton"
+implementation basically just becomes the new container for Tracks, etc.
+
+That's what we need to do Mobius is a complete reimplementation
+that lose all the things we've pushed up to the UI.  Tracks are the last things to add.
+
+This will deal with the issues of who owns Function, Parameter, MobiusMode.
+
+AudioInterface and HostMidiInterface are still useful things to keep
+
+Also HostInterface which was an attempt to provide a plugin framework but is
+now all Juce
+
+Recorder needs AudioInterface, it's the first internal layer
+  * Builds upon AudioInterface to provide a basic multi-track audio recorder.
+
+Yes, this is where SampleTrack lives, that would be a good first step
+load and play samples.
+
+Track
+* An extension of RecorderTrack that adds Mobius functionality.
+
+Yes, good, start with Mobius/Recorder/Sample and get that working cleanly, everything
+else is underneath that
+
+Also a reasonable framework for other plugins
+
+Next is Audio/AudioPool will need that for samples
+
+Yes start breaking this down into components, can still keep most of the old code
+but it needs a new structure
+
+  MobiusContext
+    provides AudioInterface and MidiInterface without device management, just audio streams
+
+  HostInterface
+    might be a merger with MobiusContext at some point, to the extent possible all
+    code should rely on HostInterface and pretend we're a plugin
+
+   Recorder
+     basic multi-track recorder/player
+
+   LoopTrack
+     extends RecorderTrack where all hell breaks loose
+
+Get to the point where you can record something and play it back this is a good foundation
+
+Will need to flesh out
+
+   configuration management above/below interrupt
+   communication thread with thread events
+   generic audio model and pool
+
+The audio model is where it starts getting real and we have the worst compatibility issues
+EVERYING used Audio, have to start there and live with it, but it is relatively standalone.
+
+For MobiusX and other plugins, the notion of exporting Functions and Parameters
+so we can reuse all the Binding and Action infrastructure above is interesting.
+That part is relatively independent, it's realy like another plugin host layer.
+
+Plugns have: functions, parameters
+
+  Functions we don't have to know much about to build a generic UI, just their
+   names and binding behavior (sustainable)
+   The UI doesn't need Function poitners at all, a plugin just returns a list of Functions
+   it supports and we use Actions to call them
+
+  Parameters we don't need to know much about to build a UI.  What they are, data types,
+    rendering hints, in simple cases we could build a generic ui that is entirely
+    data driven and uses Maps for the model, which is what hosts basically do
+
+  Where it gets complicated is the presentation of each parameter because some can have
+  side effects on each other.  Hard to generalize that which is why hosts don't do that either
+  the plugin has to provide a window.
+
+  The data model Mobius uses is also one of the artifacts of the UI, the UI must be designed
+  to reflect that model, though it could still use Maps internally and convert that back
+  to MobiusConfig only when it needs to send it to the engine.  That would solve a lot of problems.
+
+Hmm...think about this.  Move confirmation to Map or whatever Juce calls it and provide
+transforms between that and MobiusConfig.
+
+UIConfig doesn't have to be in XML any more.  The entire infrastructure around Binding and Action
+can be used for any plugin.
+
+So many tangents...
+
+But yes, keep everything as far away from Mobius internal structures as possible so we can
+reuse it elsewhere.
+
+This means we need UIParameter and UIFunction
+
+MobiusMode doesn't need to be concrete, it's just a name returned by MobiusState.
+
+ParameterGlobal etc.  None of that needs to be the same except for ordinals.
+
+same with Function
+
+All the weird value getters we can have complete control over, lop out all the old code.
+
+The only things that needs to pass between UI/engine are:
+
+  MobiusConfig
+    ScriptConfig
+    SampleConfig
+    Structure
+    Setup
+    Preset
+    
+  SystemConstant
+    - weird one, doesn't really need to be there but provides the way
+      to share a name and an ordinal, that's really the purpose
+
+  UserVariable - eventually
+
+  MobiusState
+
+  ExValue - could be temporary
+
+These don't pass we just use them to hold names, not sure why
+  MobiusMode
+
+These should not be used at all by the engine
+  Binding
+  OscConfig
+
+What we currently do with Function and Parameter are entirely outside the engine
+with ordinals to map between them.  The engine uses internal objects for function pointers
+but probably also some data like min/max.
