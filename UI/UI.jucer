@@ -169,6 +169,22 @@
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
+        <FILE id="KIQeYN" name="AudioInterface.cpp" compile="1" resource="0"
+              file="Source/mobius/AudioInterface.cpp"/>
+        <FILE id="YNsZkw" name="AudioInterface.h" compile="0" resource="0"
+              file="Source/mobius/AudioInterface.h"/>
+        <FILE id="VwXvZa" name="HostMidiInterface.h" compile="0" resource="0"
+              file="Source/mobius/HostMidiInterface.h"/>
+        <FILE id="hKnCYU" name="JuceAudioInterface.cpp" compile="1" resource="0"
+              file="Source/mobius/JuceAudioInterface.cpp"/>
+        <FILE id="oQbfkl" name="JuceAudioInterface.h" compile="0" resource="0"
+              file="Source/mobius/JuceAudioInterface.h"/>
+        <FILE id="tUjiJx" name="MidiInterface.cpp" compile="1" resource="0"
+              file="Source/mobius/MidiInterface.cpp"/>
+        <FILE id="pBtqkt" name="MidiInterface.h" compile="0" resource="0" file="Source/mobius/MidiInterface.h"/>
+        <FILE id="vqQDpR" name="MobiusContext.cpp" compile="1" resource="0"
+              file="Source/mobius/MobiusContext.cpp"/>
+        <FILE id="GTJPIU" name="MobiusContext.h" compile="0" resource="0" file="Source/mobius/MobiusContext.h"/>
         <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusInterface.cpp"/>
         <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"

@@ -23,6 +23,8 @@
 #include "model/MobiusState.h"
 
 #include "ui/DisplayManager.h"
+
+#include "mobius/JuceAudioInterface.h"
 #include "mobius/MobiusInterface.h"
 
 #include "Supervisor.h"
@@ -54,7 +56,8 @@ void Supervisor::start()
     MobiusConfig* config = getMobiusConfig();
 
     MobiusInterface::startup();
-
+    initMobiusContext();
+    
     mobius = MobiusInterface::getMobius();
     mobius->configure(config);
 
@@ -359,6 +362,189 @@ void Supervisor::doAction(UIAction* action)
     action->resolve();
 
     mobius->doAction(action);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// MobiusContext
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Initialize a MobiusContext to pass into MobiusInterface
+ * We have MobiusContext and JuceAudioInterface members to set up.
+ */
+void Supervisor::initMobiusContext()
+{
+    // things related to the command line and files will be left empty
+    mobiusContext.setAudioInterface(&mobiusAudioInterface);
+    // todo:
+    // mobiusContext.setMidiInterface(mobiusMidiInterface);
+    // might want this too?
+    // mobiusContext.setHostMidiInterface(mobiusMidiInterface);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Audio Thread
+//
+//////////////////////////////////////////////////////////////////////
+
+// Web chatter...
+//
+//There are no other guarantees. Some streams will call prepareToPlay()/releaseResources()
+// repeatedly if they stop and start, others will not. It is possible for
+// releaseResources() to be called when prepareToPlay() has not.
+// Or another way to look at it that I find a little more intuitive:
+// An AudioStream can only have two states, prepared and released,
+// An AudioStream must always start and end its life in the released state…
+// …but getNextAudioBlock() can only be called if the AudioStream is in the prepared state.
+// prepareToPlay() puts the AudioStream into the prepared state;
+// releaseResources() puts it in the released state.
+// prepareToPlay() and releaseResources() can be called at any time, in any order.
+
+/**
+ * This function will be called when the audio device is started, or when
+ * its settings (i.e. sample rate, block size, etc) are changed.
+ *
+ * The prepareToPlay() method is guaranteed to be called at least once on an 'unprepared'
+ * source to put it into a 'prepared' state before any calls will be made to
+ * getNextAudioBlock(). This callback allows the source to initialise any resources it
+ * might need when playing.
+ * 
+ * Once playback has finished, the releaseResources() method is called to put the stream
+ * back into an 'unprepared' state.
+ *
+ * Note that this method could be called more than once in succession without a matching
+ * call to releaseResources(), so make sure your code is robust and can handle that kind
+ * of situation.
+ *
+ * samplesPerBlockExpected
+ *   the number of samples that the source will be expected to supply each time
+ *   its getNextAudioBlock() method is called. This number may vary slightly, because it
+ *   will be dependent on audio hardware callbacks, and these aren't guaranteed to always
+ *   use a constant block size, so the source should be able to cope with small variations.
+ *
+ * sampleRate
+ *  the sample rate that the output will be used at - this is needed by sources such
+ *  as tone generators.
+ */
+void Supervisor::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
+{
+    if (audioPrepared) {
+        trace("Supervisor::prepareToPlay called again\n");
+        trace("samplesPerBlockExpected %d sampleRate %lf\n", samplesPerBlockExpected, sampleRate);
+    }
+    else {
+        trace("Supervisor::prepareToPlay called for the first time\n");
+        trace("samplesPerBlockExpected %d sampleRate %lf\n", samplesPerBlockExpected, sampleRate);
+
+        //mobius.corePrepare(samplesPerBlockExpected, sampleRate);
+
+        mobiusAudioInterface.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        
+        audioPrepared = true;
+    }
+}
+
+/**
+ * AudioSourceChannelInfo is a simple struct with attributes
+ *    AudioBuffer<float>* buffer
+ *    int startSample
+ *      the first sample in the buffer from which the callback is expected to write data
+ *    int numSamples
+ *      the number of samples in the buffer which the callback is expected to fill with data
+ *
+ * AudioBuffer
+ *    packages the buffer arrays and various sizing info
+ */
+void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
+{
+    audioBlocksReceived++;
+
+    // this clears everything we are expected to write to
+    // until the engine is fully functional, start with this to avoid noise
+    // NO: unclear whether this just clears the output buffers or the inputs
+    // too, need to read more, till then let the test scaffolding handle it
+    //bufferToFill.clearActiveBufferRegion();
+
+    // outer object has a startSample and numSamples
+    // the buffer can apparently be larger than the amount we're asked to fill
+    if (audioLastSourceStartSample != bufferToFill.startSample) {
+        trace("Supervisor: audio source start sample %d\n", bufferToFill.startSample);
+        audioLastSourceStartSample = bufferToFill.startSample;
+    }
+    if (audioLastSourceNumSamples != bufferToFill.numSamples) {
+        trace("Supervisor: audio source num samples %d\n", bufferToFill.numSamples);
+        audioLastSourceNumSamples = bufferToFill.numSamples;
+    }
+
+    // this has the raw float data, arranged in channels
+    // interestingly, the AudioBuffer class does not seem to be in the header
+    // file path generated by projucer, examples do not do this, they do:
+    // auto* inBuffer = bufferToFill.buffer->getReadPointer (actualInputChannel,
+    
+    // AudioBuffer<float>& buffer = bufferToFill.buffer;
+
+    // number of channels, I think this should match MainComponent asked for in setAudioChannels
+    // currently 4 input and 2 output
+    // always getting 2 here, which means that this callback can't support
+    // different numbers for input and output channels?  makes sense for this interface
+    // but I think you can actually configure the hardware to have different numbers internally,
+    // works well enough for now, I alwaysd used 8 for both
+    int channels = bufferToFill.buffer->getNumChannels();
+    if (audioLastBufferChannels != channels) {
+        trace("Supervisor: audio buffer channels %d\n", channels);
+        audioLastBufferChannels = channels;
+    }
+
+    // number of channels of audio data that this buffer contains
+    // this may not match what the source wants us to fill?
+    // clearActiveBufferRegion seems to imply that
+    int samples = bufferToFill.buffer->getNumSamples();
+    if (audioLastBufferSamples != samples) {
+        trace("Supervisor: audio buffer samples %d\n", samples);
+        audioLastBufferSamples = samples;
+    }
+    
+    if (samples > audioLastSourceNumSamples) {
+        trace("Supervisor: buffer is larger than requested\n");
+        // startSample should be > 0 then because we're only
+        // filling a portion of the buffer
+        // doesn't really matter, Juce may want to deal with larger
+        // buffers for some reason but it raises latency questions
+    }
+    
+    // you can call setSample and various gain utility methods
+    // buffer.setSample(destChannel, int destSample, valueToAdd)
+    // I don't think this is required, float* getWritePointer
+    // just returns the raw array
+
+    // buffer.getReadPointer(channel, sampleIndex)
+    // returns a pointer to an array of read-only samples of one channel,
+    // KEY POINT: Unlike PortAudio, the samples are not interleaved into "frames"
+    // containing samples for all channels.  You will have to build that
+
+    if (!audioPrepared) {
+        if (!audioUnpreparedBlocksTrace) {
+            trace("Supervisor::getNextAudioBlock called in an unprepared state\n");
+            audioUnpreparedBlocksTrace = true;
+        }
+    }
+    else {
+        // mobius.coreProcess(bufferToFill);
+        mobiusAudioInterface.getNextAudioBlock(bufferToFill);
+    }
+}
+
+void Supervisor::releaseResources()
+{
+    //mobius.coreStop();
+    trace("Supervisor::releaseResources\n");
+
+    mobiusAudioInterface.releaseResources();
+    
+    audioPrepared = false;
 }
 
 /****************************************************************************/

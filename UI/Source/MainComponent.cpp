@@ -149,6 +149,7 @@ MainComponent::~MainComponent()
  */
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
+    supervisor.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 /**
@@ -172,7 +173,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
  */
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    bufferToFill.clearActiveBufferRegion();
+    // bufferToFill.clearActiveBufferRegion();
+    supervisor.getNextAudioBlock(bufferToFill);
 }
 
 /**
@@ -191,6 +193,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
  */
 void MainComponent::releaseResources()
 {
+    supervisor.releaseResources();
 }
 
 //////////////////////////////////////////////////////////////////////

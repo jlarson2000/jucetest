@@ -1,3 +1,6 @@
+// this has a reduced version of the original code to remove some things
+// I don't want to deal with yet
+
 /*
  * Interface that wraps an implementation of the Mobius engine.
  * Keeps the UI clean and makes it easier to swap in a stub implementation

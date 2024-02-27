@@ -200,6 +200,10 @@
     <ClCompile Include="..\..\Source\ui\TableTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TabTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\AudioInterface.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\JuceAudioInterface.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\MidiInterface.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\MobiusContext.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusSimulator.cpp"/>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp"/>
@@ -2561,6 +2565,11 @@
     <ClInclude Include="..\..\Source\ui\TableTest.h"/>
     <ClInclude Include="..\..\Source\ui\TabTest.h"/>
     <ClInclude Include="..\..\Source\ui\TestPanel.h"/>
+    <ClInclude Include="..\..\Source\mobius\AudioInterface.h"/>
+    <ClInclude Include="..\..\Source\mobius\HostMidiInterface.h"/>
+    <ClInclude Include="..\..\Source\mobius\JuceAudioInterface.h"/>
+    <ClInclude Include="..\..\Source\mobius\MidiInterface.h"/>
+    <ClInclude Include="..\..\Source\mobius\MobiusContext.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusSimulator.h"/>
     <ClInclude Include="..\..\Source\util\FileUtil.h"/>

@@ -12,6 +12,9 @@
 
 #include <JuceHeader.h>
 
+#include "mobius/MobiusContext.h"
+#include "mobius/JuceAudioInterface.h"
+
 #include "MainThread.h"
 #include "Binderator.h"
 #include "MidiManager.h"
@@ -57,6 +60,15 @@ class Supervisor
     
     juce::AudioDeviceManager& getAudioDeviceManager();
 
+    // audio thread callbacks
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill);
+    void releaseResources();
+
+    int getAudioBlocksReceived() {
+        return audioBlocksReceived;
+    }
+    
   private:
 
     juce::AudioAppComponent* mainComponent;
@@ -76,6 +88,9 @@ class Supervisor
     // the singleton instance is managed by MobiusInterface::shutdown
     // do not make this a unique_ptr
     class MobiusInterface* mobius;
+    MobiusContext mobiusContext;
+    JuceAudioInterface mobiusAudioInterface;
+    void initMobiusContext();
     
     MainThread uiThread {this};
 
@@ -83,6 +98,16 @@ class Supervisor
     std::unique_ptr<class MobiusConfig> mobiusConfig;
     std::unique_ptr<class UIConfig> uiConfig;
 
+    // Audio Thread
+    bool audioPrepared = false;
+    int audioBlocksReceived = 0;
+    
+    bool audioUnpreparedBlocksTrace = false;
+    int audioLastSourceStartSample = 0;
+    int audioLastSourceNumSamples = 0;
+    int audioLastBufferChannels = 0;
+    int audioLastBufferSamples = 0;
+    
     juce::String findMobiusInstallationPath();
 
     // config file management

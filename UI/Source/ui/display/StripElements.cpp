@@ -281,6 +281,7 @@ int StripLoopStack::getPreferredWidth()
 {
     // needs to be called after configuration
     if (maxLoops == 0) {
+        // not configured, odd
         trace("LoopStack: maxLoops not configured!\n");
         maxLoops = 4;
     }
@@ -296,7 +297,6 @@ int StripLoopStack::getPreferredHeight()
 {
     // needs to be called after configuration
     if (maxLoops == 0) {
-        trace("LoopStack: maxLoops not configured!\n");
         maxLoops = 4;
     }
 
