@@ -787,6 +787,12 @@
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\Audio.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\AudioInterface.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -803,6 +809,12 @@
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\MobiusSimulator.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\Recorder.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\WaveFile.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp">
@@ -3522,6 +3534,9 @@
     <ClInclude Include="..\..\Source\ui\TestPanel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\Audio.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\AudioInterface.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
@@ -3541,6 +3556,12 @@
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\MobiusSimulator.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\Recorder.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\WaveFile.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\FileUtil.h">

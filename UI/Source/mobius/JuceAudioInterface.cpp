@@ -53,6 +53,7 @@
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
+#include "../Supervisor.h"
 
 #include "JuceAudioInterface.h"
 
@@ -293,10 +294,10 @@ void JuceAudioInterface::getNextAudioBlock (const juce::AudioSourceChannelInfo& 
     int startSample = bufferToFill.startSample;
 
     // leave the result in our inputBuffer array
-    interleaveInputBuffers(bufferToFill, &inputBuffer);
+    interleaveInputBuffers(bufferToFill, inputBuffer);
     
     // clear the interleaved output buffer just in case the handler is bad
-    clearInterleavedBuffer(nextBlockSamples, &outputBuffer);
+    clearInterleavedBuffer(nextBlockSamples, outputBuffer);
 
     // call the handler which will immediately call back to 
     // getInterruptFrames and getInterruptBuffers
@@ -312,7 +313,7 @@ void JuceAudioInterface::getNextAudioBlock (const juce::AudioSourceChannelInfo& 
     // the Juce buffer, if we don't have a handler we'll copy the
     // empty output buffer left by clearInterleavedBuffer and clear
     // the channel buffers we didn't use
-    deinterleaveOutputBuffers(bufferToFill, &outputBuffer);
+    deinterleaveOutputBuffers(bufferToFill, outputBuffer);
 
     // pray
 }
@@ -327,7 +328,7 @@ void JuceAudioInterface::getNextAudioBlock (const juce::AudioSourceChannelInfo& 
  * Our internal buffer will actually be larger than this (up to 4096 frames) but
  * just do what we need.
  */
-void JuceAudioInterface::clearInterleavedBuffer(int numSamples, float* buffer);
+void JuceAudioInterface::clearInterleavedBuffer(int numSamples, float* buffer)
 {
     // is it still fashionable to use memset?
     int totalSamples = numSamples * 2;
@@ -448,12 +449,12 @@ void JuceAudioInterface::clearInterleavedBuffer(int numSamples, float* buffer);
  * Instead we'll iterate and remember just the channel numbers, then call getReadPointer
  * in the next loop where we need to access the samples
  */
-void JuceAudioInterface::interleaveInputBuffers(juce::AudioSourceChannelInfo& bufferToFill,
+void JuceAudioInterface::interleaveInputBuffers(const juce::AudioSourceChannelInfo& bufferToFill,
                                                 float* resultBuffer)
 {
     // to do the active channel folderol, we need to get to the AudioDeviceManager
-    juce::AudioDeviceManager* deviceManager = Supervisor::Instance->getAudioDeviceManager();
-    auto* device = deviceManager->getCurrentAudioDevice();
+    juce::AudioDeviceManager& deviceManager = Supervisor::Instance->getAudioDeviceManager();
+    auto* device = deviceManager.getCurrentAudioDevice();
     auto activeInputChannels = device->getActiveInputChannels();
     auto activeOutputChannels = device->getActiveOutputChannels();
     auto maxInputChannels = activeInputChannels.getHighestBit() + 1;
@@ -474,9 +475,9 @@ void JuceAudioInterface::interleaveInputBuffers(juce::AudioSourceChannelInfo& bu
         if (activeInputChannels[channel]) {
             // okay, here's one
             auto* buffer = bufferToFill.buffer->getReadPointer(channel, bufferToFill.startSample);
-            for (int i = 0 ; i < bufferToFill.numSamples, i++) {
+            for (int i = 0 ; i < bufferToFill.numSamples ; i++) {
                 int frameOffset = i * 2;
-                resultBuffer[frameOffset + interleavedChanel] = buffer[i];
+                resultBuffer[frameOffset + interleavedChannel] = buffer[i];
             }
             interleavedChannel++;
             if (interleavedChannel >= 2)
@@ -500,14 +501,14 @@ void JuceAudioInterface::interleaveInputBuffers(juce::AudioSourceChannelInfo& bu
  * with zeros.  I think that is required because they're not cleared
  * by default.  Or we could put a jaunty tune in there.
  */
-void JuceAudioInterface::deinterleaveOutputBuffers(juce::AudioSourceChannelInfo& bufferToFill,
+void JuceAudioInterface::deinterleaveOutputBuffers(const juce::AudioSourceChannelInfo& bufferToFill,
                                                    float* sourceBuffer)
 {
     // to do the active channel folderol, we need to get to the AudioDeviceManager
     // once this is working, can save some of this so we don't have to do it all again
     // but it should be fast enough
-    juce::AudioDeviceManager* deviceManager = Supervisor::Instance->getAudioDeviceManager();
-    auto* device = deviceManager->getCurrentAudioDevice();
+    juce::AudioDeviceManager& deviceManager = Supervisor::Instance->getAudioDeviceManager();
+    auto* device = deviceManager.getCurrentAudioDevice();
     auto activeInputChannels = device->getActiveInputChannels();
     auto activeOutputChannels = device->getActiveOutputChannels();
     auto maxInputChannels = activeInputChannels.getHighestBit() + 1;
@@ -520,14 +521,14 @@ void JuceAudioInterface::deinterleaveOutputBuffers(juce::AudioSourceChannelInfo&
         if (activeOutputChannels[channel]) {
             auto* buffer = bufferToFill.buffer->getWritePointer(channel, bufferToFill.startSample);
             if (interleavedChannel < 2) {
-                for (int i = 0 ; i < bufferToFill.numSamples, i++) {
+                for (int i = 0 ; i < bufferToFill.numSamples ; i++) {
                     int frameOffset = i * 2;
                     buffer[i] = sourceBuffer[frameOffset + interleavedChannel];
                 }
             }
             else {
                 // an extra one, clear it
-                for (int i = 0 ; i < bufferToFill.numSamples, i++) {
+                for (int i = 0 ; i < bufferToFill.numSamples ; i++) {
                     buffer[i] = 0.0f;
                 }
             }

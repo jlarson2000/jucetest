@@ -144,8 +144,8 @@ class JuceAudioInterface : public AudioInterface, public AudioStream
     float outputBuffer[JuceAudioMaxSamplesPerBuffer];
     
     void clearInterleavedBuffer(int numSamples, float* buffer);
-    void interleaveInputBuffers(juce::AudioSourceChannelInfo& bufferToFill, float* resultBuffer);
-    void deinterleaveOutputBuffers(juce::AudioSourceChannelInfo& bufferToFill, float* sourceBuffer);
+    void interleaveInputBuffers(const juce::AudioSourceChannelInfo& bufferToFill, float* resultBuffer);
+    void deinterleaveOutputBuffers(const juce::AudioSourceChannelInfo& bufferToFill, float* sourceBuffer);
 
 
 };

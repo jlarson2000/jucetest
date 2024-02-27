@@ -169,6 +169,9 @@
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
+        <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
+        <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
+        <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>
         <FILE id="KIQeYN" name="AudioInterface.cpp" compile="1" resource="0"
               file="Source/mobius/AudioInterface.cpp"/>
         <FILE id="YNsZkw" name="AudioInterface.h" compile="0" resource="0"
@@ -193,6 +196,10 @@
               file="Source/mobius/MobiusSimulator.cpp"/>
         <FILE id="r8q8Kh" name="MobiusSimulator.h" compile="0" resource="0"
               file="Source/mobius/MobiusSimulator.h"/>
+        <FILE id="w8ViL0" name="Recorder.cpp" compile="1" resource="0" file="Source/mobius/Recorder.cpp"/>
+        <FILE id="wmtmEF" name="Recorder.h" compile="0" resource="0" file="Source/mobius/Recorder.h"/>
+        <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>
+        <FILE id="F6kToV" name="WaveFile.h" compile="0" resource="0" file="Source/mobius/WaveFile.h"/>
       </GROUP>
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
