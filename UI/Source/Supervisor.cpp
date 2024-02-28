@@ -13,6 +13,7 @@
 
 #include <JuceHeader.h>
 
+//#include "util/DataModel.h"
 #include "util/Trace.h"
 #include "util/FileUtil.h"
 
@@ -56,7 +57,6 @@ void Supervisor::start()
     MobiusConfig* config = getMobiusConfig();
 
     MobiusInterface::startup();
-    initMobiusContext();
     
     mobius = MobiusInterface::getMobius();
     mobius->configure(config);
@@ -86,6 +86,9 @@ void Supervisor::start()
     // that so it doesn't start piping events back to us until
     // we're done initializing
     midiManager.configure(config);
+
+    // temporary porting check
+    //DataModelDump();
 }
 
 /**
@@ -362,26 +365,6 @@ void Supervisor::doAction(UIAction* action)
     action->resolve();
 
     mobius->doAction(action);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// MobiusContext
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Initialize a MobiusContext to pass into MobiusInterface
- * We have MobiusContext and JuceAudioInterface members to set up.
- */
-void Supervisor::initMobiusContext()
-{
-    // things related to the command line and files will be left empty
-    mobiusContext.setAudioInterface(&mobiusAudioInterface);
-    // todo:
-    // mobiusContext.setMidiInterface(mobiusMidiInterface);
-    // might want this too?
-    // mobiusContext.setHostMidiInterface(mobiusMidiInterface);
 }
 
 //////////////////////////////////////////////////////////////////////

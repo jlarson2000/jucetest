@@ -1,9 +1,23 @@
+//
 // This defines one of two main interfaces between the engine and the UI layer
 // it abstracts the audio interface.  It will be implemented by JuceAudioInterface
 // to provide the mapping between the Juce interface and what Mobius has
 // traditionally used.
 //
-// Avoid modifications to this and if you do, document them up here
+// This is a mess but I'm keeping it around temporarily as porting progresses.
+// It should be possible to completely redesign this but need to start weeding
+// out references in old code.  
+//
+// There are things in here releated to device management which are no longer used.
+// New code should assume we're always in a Juce/Plugin environment where the host
+// controls the audio devices.
+//
+// Revisit the AUDIO_BEGIN_NAMESPACE stuff for Mac which comments suggest
+// wasn't really needed
+//
+// Commented out AUDIO_FRAMES_PER_BUFFER since it is unreliable and should
+// not be used
+//
 
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
@@ -52,7 +66,7 @@ AUDIO_BEGIN_NAMESPACE
  * interface, the size is under control of the VST driver and it will
  * often be 512, but usually not higher.
  */
-#define AUDIO_FRAMES_PER_BUFFER	(256)
+//#define AUDIO_FRAMES_PER_BUFFER	(256)
 
 /**
  * The maximum number of frames for an audio interface buffer.

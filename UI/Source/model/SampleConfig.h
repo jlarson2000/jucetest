@@ -1,14 +1,41 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Sample is a model for sample files that can be loaded for triggering.
+/**
+ * This is a refactoring of the original Sample model to make a clean
+ * seperation between the UI and the engine.
  *
- * SampleTrack is an extension of RecorderTrack that adds basic sample
- * playback capabilities to Mobius
+ * Conceptually a sample is a block of audio that may be played by the engine.
+ * Normally as a "one shot" from beginning to end.
+ *
+ * The UI normally loads samples from the file system, then gives them
+ * to the engine to be managed.
+ *
+ * The Sample object encapsulates these things:
+ *
+ *    - the path to the file where the sample audio is read from
+ *    - an optional block of audio data, represented as a dynamically allocated
+ *      array of float values
+ *
+ * A Sample may be in two states: loaded (has data) or unloaded (has only a filename).
+ *
+ * A SampleConfig contains a number of unloaded Samples.
+ * This is what we store in the a configuration file and edit in the UI.
+ * This was formerly called just "Samples".
+ *
+ * During initialization or when requested by the user, the SampleConfig
+ * is read and all of the Samples it contain are loaded.  The loaded Samples
+ * are then given to the Mobius engine.
+ *
+ * Currently the SampleConfig is stored within the MobiusConfig object and
+ * in the mobius.xml file.  Since this is now just a UI concept it can
+ * be moved to ui.xml.
+ *
+ * NOTES:
+ *
+ * I wanted use Audio out here but it just drags too much along with it related
+ * to pooling and cursoring.  It is extremely sensitive core code that can't
+ * be redesigned right now.  Unfortunately that means we lose the notion of
+ * dividing the audio data into multiple blocks.  That could be added but
+ * for now we'll just assume samples are of reasonable size and can be allocated
+ * in a single heap block.
  *
  */
 
@@ -21,9 +48,8 @@
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Encapsulates a collection of samples for configuration storage.
+ * Encapsulates a collection of Samples for configuration storage.
  * One of these can be the MoibusConfig as well as local to a Project.
- * This will also be given to SampleTrack.
  */
 class SampleConfig
 {
@@ -51,7 +77,7 @@ class SampleConfig
 //////////////////////////////////////////////////////////////////////
 
 /**
- * The definition of a sample that can be played by SampleTrack.
+ * The definition of a sample that can be played by the engine.
  * A list of these will be found in a Samples object which in turn
  * will be in the MobiusConfig.
  *
@@ -79,6 +105,9 @@ class Sample
 
     void setConcurrent(bool b);
     bool isConcurrent();
+
+    float* getData();
+    void setData(float* data);
 
   private:
 	
@@ -122,6 +151,11 @@ class Sample
      * to implement pitch adjusted playback of the same sample.
      */
     bool mConcurrent;
+
+    /**
+     * Optional loaded sample data to pass to the engine.
+     */
+    float* mData;
 
 };
 

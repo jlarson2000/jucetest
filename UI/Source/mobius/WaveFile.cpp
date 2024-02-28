@@ -1,3 +1,7 @@
+//
+// cleaned up includes
+// 
+
 /**
  * Copyright (C) 2005 Jeff Larson.  All rights reserved.
  *
@@ -10,18 +14,27 @@
  * 
  */
 
+#include "../util/Trace.h"
+
+// FILE, fopen, etc.
 #include <stdio.h>
+
+// memset, strncmp, strncpy
 #include <string.h>
-#include <ctype.h>
-#include <fcntl.h>
-#include <string.h>
+
+//#include <ctype.h>
+//#include <fcntl.h>
+//#include <string.h>
+
+// ceil()
 #include <math.h>
+
 //#include <sys/types.h>
 //#include <sys/stat.h>
 //#include <io.h>
 //#include "util.h"
 
-// for CopyString
+// CopyString
 #include "../util/Util.h"
 
 #include "WaveFile.h"

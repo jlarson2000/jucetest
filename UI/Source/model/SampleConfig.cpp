@@ -1,12 +1,6 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Sample is a model for sample files that can be loaded for triggering.
- *
+/**
+ * Configuration model for Samples that can be sent to the Mobius engine
+ * for playback.
  */
 
 #include "../util/Util.h"
@@ -82,11 +76,13 @@ void Sample::init()
 	mSustain = false;
 	mLoop = false;
 	mConcurrent = false;
+    mData =  nullptr;
 }
 
 Sample::~Sample()
 {
 	delete mFilename;
+    delete mData;
 	
     Sample* next = nullptr;
     for (Sample* s = mNext ; s != nullptr ; s = next) {
@@ -145,6 +141,17 @@ void Sample::setConcurrent(bool b)
 bool Sample::isConcurrent()
 {
 	return mConcurrent;
+}
+
+float* Sample::getData()
+{
+    return mData;
+}
+
+void Sample::setData(float* data)
+{
+    delete mData;
+    mData = data;
 }
 
 /****************************************************************************/

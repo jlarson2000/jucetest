@@ -1,6 +1,17 @@
 /*
  * Trace utilities.
  * 
+ * This is old and due for a rewrite but I use it EVERYWHERE and it's
+ * really handy for debugging.
+ *
+ * Use trace() for simple explicitly requested messages that need to
+ * go the debug output stream.
+ *
+ * Use Trace(1,... for things in the audio thread that always have the
+ * potential to queue messages, but may be filtered depending on desired
+ * trace level.  Trace queues the messages so they can be printed
+ * outside of the audio thread.
+ * 
  */
 
 #ifndef TRACE_H

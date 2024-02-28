@@ -1,3 +1,5 @@
+// cleaned includes, removed PUBLIC
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -10,12 +12,13 @@
  *
  */
 
-#include <stdio.h>
-#include <memory.h>
-#include <math.h>
-
 #include "../util/Util.h"
 #include "../util/Trace.h"
+
+//#include <stdio.h>
+//#include <memory.h>
+//#include <math.h>
+
 #include "Audio.h"
 
 /****************************************************************************

@@ -1258,6 +1258,7 @@ void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
         b->addAttribute(ATT_SUSTAIN, s->isSustain());
         b->addAttribute(ATT_LOOP, s->isLoop());
         b->addAttribute(ATT_CONCURRENT, s->isConcurrent());
+        // note that the data block is NOT serialized or parsed
         b->add("/>\n");
     }
 

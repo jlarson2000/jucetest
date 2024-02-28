@@ -12,7 +12,6 @@
 
 #include <JuceHeader.h>
 
-#include "mobius/MobiusContext.h"
 #include "mobius/JuceAudioInterface.h"
 
 #include "MainThread.h"
@@ -88,9 +87,7 @@ class Supervisor
     // the singleton instance is managed by MobiusInterface::shutdown
     // do not make this a unique_ptr
     class MobiusInterface* mobius;
-    MobiusContext mobiusContext;
     JuceAudioInterface mobiusAudioInterface;
-    void initMobiusContext();
     
     MainThread uiThread {this};
 

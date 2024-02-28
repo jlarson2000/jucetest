@@ -176,22 +176,21 @@
               file="Source/mobius/AudioInterface.cpp"/>
         <FILE id="YNsZkw" name="AudioInterface.h" compile="0" resource="0"
               file="Source/mobius/AudioInterface.h"/>
-        <FILE id="VwXvZa" name="HostMidiInterface.h" compile="0" resource="0"
-              file="Source/mobius/HostMidiInterface.h"/>
         <FILE id="hKnCYU" name="JuceAudioInterface.cpp" compile="1" resource="0"
               file="Source/mobius/JuceAudioInterface.cpp"/>
         <FILE id="oQbfkl" name="JuceAudioInterface.h" compile="0" resource="0"
               file="Source/mobius/JuceAudioInterface.h"/>
-        <FILE id="tUjiJx" name="MidiInterface.cpp" compile="1" resource="0"
-              file="Source/mobius/MidiInterface.cpp"/>
-        <FILE id="pBtqkt" name="MidiInterface.h" compile="0" resource="0" file="Source/mobius/MidiInterface.h"/>
-        <FILE id="vqQDpR" name="MobiusContext.cpp" compile="1" resource="0"
-              file="Source/mobius/MobiusContext.cpp"/>
-        <FILE id="GTJPIU" name="MobiusContext.h" compile="0" resource="0" file="Source/mobius/MobiusContext.h"/>
+        <FILE id="KAI4RP" name="KernelCommunicator.cpp" compile="1" resource="0"
+              file="Source/mobius/KernelCommunicator.cpp"/>
+        <FILE id="a4sBIH" name="KernelCommunicator.h" compile="0" resource="0"
+              file="Source/mobius/KernelCommunicator.h"/>
         <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusInterface.cpp"/>
         <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"
               file="Source/mobius/MobiusInterface.h"/>
+        <FILE id="vFnGFJ" name="MobiusKernel.cpp" compile="1" resource="0"
+              file="Source/mobius/MobiusKernel.cpp"/>
+        <FILE id="jXxZsV" name="MobiusKernel.h" compile="0" resource="0" file="Source/mobius/MobiusKernel.h"/>
         <FILE id="vwntMP" name="MobiusSimulator.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusSimulator.cpp"/>
         <FILE id="r8q8Kh" name="MobiusSimulator.h" compile="0" resource="0"
@@ -203,6 +202,8 @@
       </GROUP>
       <GROUP id="{C2774EF2-26A9-D212-66D8-2739B345DE5E}" name="core"/>
       <GROUP id="{AA148867-8C9E-F915-82DD-CBE33D79A966}" name="util">
+        <FILE id="Zkkfco" name="DataModel.cpp" compile="1" resource="0" file="Source/util/DataModel.cpp"/>
+        <FILE id="wDfiXs" name="DataModel.h" compile="0" resource="0" file="Source/util/DataModel.h"/>
         <FILE id="MCgODr" name="FileUtil.cpp" compile="1" resource="0" file="Source/util/FileUtil.cpp"/>
         <FILE id="hbiDF8" name="FileUtil.h" compile="0" resource="0" file="Source/util/FileUtil.h"/>
         <FILE id="MOqVSP" name="KeyCode.cpp" compile="1" resource="0" file="Source/util/KeyCode.cpp"/>

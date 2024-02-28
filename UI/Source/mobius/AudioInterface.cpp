@@ -1,6 +1,7 @@
-// modifications during porting
-// removed unnecessary includes and documented what we need
-// removed PRIVATE and PUBLIC
+// 
+// Removed unnecessary includes and documented what we need
+// Removed PRIVATE and PUBLIC
+// Changed printf to trace
 
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
@@ -13,11 +14,13 @@
  *
  */
 
+#include "../util/Trace.h"
+
 // for strcmp
 #include <string.h>
 
 // for printf
-#include <stdio.h>
+//#include <stdio.h>
 
 // for memset
 #include <memory.h>
@@ -266,11 +269,11 @@ AbstractAudioStream::~AbstractAudioStream()
 
 void AbstractAudioStream::printStatistics()
 {
-	printf("%ld interrupts %ld input underflows %ld input overflows"
-		   " %ld output underflows %ld output overflows\n",
-		   mInterrupts,
-		   mInputUnderflows, mInputOverflows,
-		   mOutputUnderflows, mOutputOverflows);
+	trace("%ld interrupts %ld input underflows %ld input overflows"
+          " %ld output underflows %ld output overflows\n",
+          mInterrupts,
+          mInputUnderflows, mInputOverflows,
+          mOutputUnderflows, mOutputOverflows);
 
 }
 
@@ -492,25 +495,25 @@ void AbstractAudioInterface::printDevices()
 	getDevices();
 
 	if (mDevices == NULL) {
-		printf("No audio devices detected!\n");
+		trace("No audio devices detected!\n");
 	}
 	else {
-		printf("%d audio devices.\n", mDeviceCount);
+		trace("%d audio devices.\n", mDeviceCount);
 
 		for (int i = 0 ; i < mDeviceCount ; i++) {
 			AudioDevice* d = mDevices[i];
-			printf("----------------------------------------------\n");
-			printf("Device %d name '%s' api %s", d->getId(), d->getName(), 
-				   d->getApiName());
+			trace("----------------------------------------------\n");
+			trace("Device %d name '%s' api %s", d->getId(), d->getName(), 
+                  d->getApiName());
 
 			if (d->isDefaultInput())
-			  printf(" (default input)");
+			  trace(" (default input)");
 			if (d->isDefaultOutput())
-			  printf(" (default output)");
-			printf("\n");
+			  trace(" (default output)");
+			trace("\n");
 
-			printf("Input channels %d, Output channels %d\n", 
-				   d->getInputChannels(), d->getOutputChannels());
+			trace("Input channels %d, Output channels %d\n", 
+                  d->getInputChannels(), d->getOutputChannels());
 		}
 	}
 }

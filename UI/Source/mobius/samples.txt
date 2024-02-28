@@ -1,0 +1,333 @@
+
+Need to move Sample file loading above the engine.
+
+In the UI, read the MobiusConfig and add/remove files
+
+Add a new MobiusInterface function to install a pre-loaded SamplePack.
+
+Hmm, no SamplePack and SamplePlayer have engine assumptions
+and don't need to be out here.
+
+Extend the Sample model to have an optional Audio for the loaded data.
+
+Ugh, to make an Audio need an AudioPool and Mobius controls that.
+
+Would be nice to be able to manage Audio objects that are not associated
+with a pool and just new/delete their buffers.
+
+----
+
+Mobius does not deal with SampleConfig at all
+
+It has the ability to receive a Sample from the outsside and will install
+it in the desited sample slot
+
+  - new concept Sample Slot
+  - any number of Audio objects that will be played as a one shot
+  - samples can be added at any time, replaced, or removed
+  - the object used to convey this must be loaded
+  - Audio will continue to be used for all audio transfer into and out
+    of the engine for now
+
+  - MobiusInterface::installSample(Sample* s, int slotNumber);
+    MobiusInterface::releaseSample(int slowNumber);
+    - don't need a getSample since these can't be changed but someday
+      might be nice to have an on the fly "resampling" that can capture
+      a fragment of audio and store it in a slot, those would
+      then need to be saved
+
+Same mechanism can be used to set loops.
+
+   MobiusInterface::setLoop(Sample* s, int trackNumber, int loopNumber);
+
+Instlling a loop/sample does some internal housekeeping above the interrupt
+then phases it in during the next interrupt.
+
+Samples are owned by the engine once they have been sent and a are freed when
+the engine terminates.
+
+What is now SampleConfig can move outside MobiusConfig, it is just a UI convenience
+to package a collection of file names.  Could have several "sample packs" containing
+different samples and select those.
+
+Unfortunately already used SamplePack in the engine, really need to be adding namespaces here.
+
+Current model
+
+  Sample - just has a file name and some flags that are probably not used?
+     sustain: playback continues only as long as the trigger is held
+     loop: playback loops as long as the trigger is held rather than ending
+     concurrent: multiple overlapping playbacks of the same sample are allowed
+
+
+  Samples - a collection of Sample
+    can move to the UI
+
+  SampleTrigger
+    internal, used by SamplePlayer
+
+  SamplePlayer
+    internal, contains the loaded Audio of a Sample
+    methods for trigger() and play()
+    various playback state: fadeFrames, latencies
+    flags copied from Sample
+    triggers
+    has two SampleCursors
+    does NOT contain a Sample, it copies things from it
+
+  SampleCursor
+    internal, encapsulates the state of oe trigger of the sample
+
+
+  SampleTrack
+    internal, an extension of RecorderTrack for playing samples
+
+
+All but the first two are internal and deal with how Samples are used
+There are a few lingering connections between them.
+
+Sample/Samples
+  need Sample or something like it to be the interface between the UI and the engine
+
+Samples
+  don't need this in the interface, the UI can just call setSample several times, though
+  packaging them makes it easier to phase multiples into the interrupt
+
+SamplePlayer
+  has a "homedir"
+  this is where loading happens
+	if (mFilename != NULL) {
+		// always check CWD or always relative to homedir?
+		char buffer[1024 * 8];
+		MergePaths(homedir, mFilename, buffer, sizeof(buffer));
+		Trace(2, "Loading sample %s\n", buffer);
+		mAudio = pool->newAudio(buffer);
+	}
+  the file access is actually deferred to the Audio object which is way
+  to low to be doing this
+
+  It asks the AudioPool to create the Audio
+    - work through ownership of Audio blocks
+
+SampleTrack
+  bool SampleTrack::isDifference(Samples* samples)
+  this is the only internal dependency on Samples and uses the filename from SamplePlayer
+    - used to optimize file loading and interrupt phasing if the MobiusConfig was changed
+      but no samples were changed
+    - all this can be removed, if you call setSample it will do it
+    - difference detection if we do it at all moves to the UI
+
+  void SampleTrack::setSamples(SamplePack* pack)
+    installs all samples in the pack into the player
+    this expects the full set not incremental
+
+---
+
+Next Steps
+
+clean sepration beteen the configuration model and the runtime model
+  remove all file handling
+
+MobiusInterface for managing samples
+
+this is where start needing the concept of interrupt "phasing" passing things
+from above to the interrupt for processing on the next block, this was done rather ad-hoc
+in the old engine and is not a fundamental part of the sensitive looping code so we can
+redesign this  when "pushing down" we don't need a thread, just have a general "pending"
+object you can put things in from above and consume them from below
+
+Actually this could be used the other way too
+
+Sample sending didn't use a critical section because it was assumed there was
+a single pointer to the entire block of things to be done
+
+this is good and flexible, some of what we did with MobiusThread can just be phased
+objects that pass back and forth, a useful thing for any plugin  would be nice to have
+a PhasedObject for consistent management but that then requires a type or downcasting
+or polymorphism to deal with on both sides
+
+we're getting to a pretty significant redesign of all code above the Track but that's
+where all the sensitive code lives
+
+I'm also really liking an introduction of MobiusCore which encapsulates all the
+state and logic that the core can use safely, if calls need to be made between
+MobiusCore and Mobius, they need to use phasing or threads, or be extremely careful
+about what they do.  Core code does not point to Mobius any more, it points to MobiusCore.
+
+hmm, that's really nice but distruptive, ugh but so much nicer for maintenance
+we're going to port gradually anyway so can just start small and bring functions online
+one at a time, YES, don't boil the ocean
+
+When a Function action is received, it looks at the registered Function objects to see
+if they have an implementation and if so calls them.  Yes, this is another good
+argument for seperating the definition from the implementation.  You don't call
+UIFunction->invoke you call UIFunction->Function->invoke
+
+MultiplyFunction is a Function subclass, Function subclasses should not be referenced
+by code that is not Multiply it can refer to "the thing that implements multiply"
+with a UIFunction
+
+Need to break the static registration of Function implementations.
+
+UIFunction
+  - the definitions of all possible functions, need them for binding definition
+  - need static objects in an array, but don't need pointer constants, they
+    can always be looked up by name in the UI with this "resolution" stored
+    in the UIAction
+  
+Function the implementation of a UIFunction
+  - usually corresponds to a UIFunction though we could have
+    internal only Functions, this could a way to replace the "bindable" concept
+    if you can't bind to it, then the UI doesn't need to know about it
+  - maintained in an array of installed functions
+     do we need an array here?  when would the UI need to iterate over all istalled functions
+
+YES! this is feeling like linking
+
+Function linking, the process where we associate the UIFunction list with
+the internal Function list.  Maybe could be done with ordinals.
+
+    - UI defines ordinals through static instantiation as now
+    - engine must "register" Functions that are ready for implementation
+    - registry is an array with the same element slots s the UI functions but
+      some of them may be null
+    - a given Function subclass could self register during construction?
+
+This is what we do now:
+
+class MultiplyFunction : public Function {
+  public:
+	MultiplyFunction(bool sus, bool unrounded);
+
+PUBLIC Function* Multiply = new MultiplyFunction(false, false);
+
+This again sucks because we have a leak so will want to fix that.  Have that
+fucking Obj/pointer pattern I hate to do it statically but that works.  Need to
+retain the notion that Multiply is a global pointer to a Function that implements
+multiply and can be stored in an Action.
+
+Mobius::start can set up the registry
+
+    std::vector<Function*> functions;
+
+    register(Multiply);
+    register(Insert);
+    ...
+
+    register(Function* f)
+        int ordinal = UIFunctions.find(f->getName());
+        functions[ordinal] = f;
+    }
+
+then in doAction
+
+   int ordinal = uifunction->ordinal;
+   Function* impl = functions[ordinal];
+   impl->doSomething();
+
+Moves most of the model disruption up high, individual Function subclasses
+can stay mostly the same
+
+This is good, but has nothing to do with samples, sigh.
+
+Cirling back:
+
+clean sepration beteen the configuration model and the runtime model
+  remove all file handling
+
+MobiusInterface for managing samples
+
+I'm liking the OS terminology "shell" and "kernel".  Shell is what interacts with the user
+and traditonally performs memory management.  "kernel" is what performs process mangement.
+
+So the Mobius shell is the code that sits above the audio thread and the kernel is what
+runs inside.  Unlike an OS, the "kernel" does not interface with hardware so the analogy
+isn't entirely accurate but it's easy enough to understand.
+
+Implement KernelCommunication object to hold things that need to pass between the shell and the kernel.  Only needs to be one right now and it doesn't have to be general yet.  Anything that touches
+the inside of this is guarded by a CriticalSection.
+
+Divide the code between shell (Mobius) and kernel (MobiusKernel).
+
+Object pools sit in between guarded by CriticalSections.
+
+Complex objects pass from the kernel to the shell in only one way:
+   - kernel allocates an object from a pool, initializes it, and places it in KernelCommunication
+   - shell takes the object out of KernelCommunication, processes it, and returns it to the pool
+   - shell may also choose to dynamically allocate an object and send it through the 
+   
+Complex objects from the shell to the kernel
+  - shell normally uses a pooled object
+  - in some cases a shell may wish to use an object that is not pooled
+    it is allocated dynamically and then placed in the comm buffer
+    kernel does what it needs to and when it is done it places the object
+    back into the comm buffer, in effect "discarding" it
+  - shell looks for discarded objects and deletes them
+
+Back to Samples
+  UI builds a Sample object containing an Audio
+  the Audio in this case contains memory that is not pooled because we don't want to
+  require the UI to know about pooling
+
+  UI gives the Sample to Mobius shell
+    - ownership of the entire object transfers
+
+  Mobius shell builds internal objects to handle the Sample (SampleTrack) and places the Audio
+  inside it, SampleTrack is given to the kernel
+
+  Kernel consumes the SampleTrack and installs it, if a SampleTrack is being replaced it can either
+    - return the Audio to the pool
+       requires that Audio not know about the pool it came from, you don't say
+        audio->returnToPool()
+       you would say
+         pool->addAudio();
+
+       "poolness" is not a property of the Audio
+       hmm, well yes it sort of is?
+       If an Audio has blocks that came from a pool and the pool remembers those, e.g.
+       the blocks were allocated in an array that the pool manages, then the blocks must
+       be "returned" to the pool
+       if the blocks were allocated dynamically they can simply be deleted
+       if the pool allows "foreign" objects to become part of the pool they can be added
+
+So a pool can behave in two ways:
+
+  - loose
+      pool maintains a collection of objects, but once an object is removed from the
+      pool it loses all connection to it and the object must be deleted manually or
+      returned to the pool
+
+      while an object is in the pool it may contain state to represent the pool
+      containment, but when it is out of the pool that state is uninitialized
+
+  - tight
+      pool has struct control of objects that it manages and objects must be returned
+      to the pool when they are no longer needed
+      the pool is responsible for deleting all objects it has ever managed, not just the ones
+      that have been released
+
+      this would be the case for objects allocated in arrays or some other structure that
+      is not what you would get just by calling new/delete
+
+For my purposes, loose ownership works best, but need to look at how AudioPool works
+It allows the UI to build an object and have those artifacts placed in a pool when the
+engine is done with them.
+
+
+
+
+
+
+  
+  
+
+  
+
+
+
+
+      
+
+  
+  
+

@@ -1,3 +1,10 @@
+//
+// Replaced CriticalSection with Juce CriticalSection/ScopedLock
+// Lingering issues about where to get io.h and windows.h for DebugOutputStream
+// Forced it on for now, but when we get to the Mac port this will need
+// to be addressed.  Need something in Juce we can test for selective includes.
+//
+
 /*
  * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -5,9 +12,6 @@
  * 
  * ---------------------------------------------------------------------
  * 
- * !! Critical section support has been commented out pending design of
- * how to integgrate Juce for this
- *
  * Trace utilities.
  * 
  * This is used to send messages to the Windows debug output stream which
@@ -37,10 +41,13 @@
  *
  */
 
+// CriticalSection/ScopedLocked
+#include <JuceHeader.h>
+
 #include <stdio.h>
 #include <stdarg.h>
 
-// why is this not defined?
+// where can we get this now?
 #define _WIN32 1
 
 #ifdef _WIN32
@@ -48,8 +55,7 @@
 #include <windows.h>
 #endif
 
-// Used for CriticalSection, need to work on this
-// it was leaking
+// Formerly for CriticalSection
 //#include "Thread.h"
 
 #include "Util.h"
@@ -187,8 +193,9 @@ TraceRecord TraceRecords[MAX_TRACE_RECORDS];
  * You must only flush trace from one thread.
  */
 
-//jsl - need to figure something out here that doesn't leak
+// converted to Juce, and also it no longer leaks
 //CriticalSection* TraceCsect = new CriticalSection("Trace");
+juce::CriticalSection TraceCriticalSection;
 
 /**
  * Index into TraceRecords of the first active record.
@@ -216,10 +223,11 @@ void TraceBreakpoint()
 
 void ResetTrace()
 {
-//    TraceCsect->enter();
-	TraceHead = 0;
-	TraceTail = 0;
-//    TraceCsect->leave();
+    //TraceCsect->enter();
+    const juce::ScopedLock lock (TraceCriticalSection);
+    TraceHead = 0;
+    TraceTail = 0;
+    //TraceCsect->leave();
 }
 
 /**
@@ -273,7 +281,11 @@ void AddTrace(TraceContext* context, int level,
         // until we've fully initialized the record or else
         // the flush thread can try to render a partially
         // initialized record
-//        TraceCsect->enter();
+        //TraceCsect->enter();
+        // note: the new Juce csect will have a longer scope
+        // than the old one, we released it early if we had a buffer overflow,
+        // shouldn't matter
+        const juce::ScopedLock lock (TraceCriticalSection);
 
 		TraceRecord* r = &TraceRecords[TraceTail];
 
@@ -289,7 +301,10 @@ void AddTrace(TraceContext* context, int level,
             // a sprintf format/argument mismatch.  This can
             // only happen when the refresh thread is bogged down 
             // or excessive trace is being generated
-//            TraceCsect->leave();
+
+            // used to leave the csect early, but it's easier just to let
+            // it extend to the original scope
+            // TraceCsect->leave();
             const char* warning = "WARNING: Trace record buffer overflow!!\n";
 #ifdef _WIN32
 			OutputDebugString(warning);
@@ -334,7 +349,7 @@ void AddTrace(TraceContext* context, int level,
 
             // only change the tail after the record is fully initialized
             TraceTail = nextTail;
-//            TraceCsect->leave();
+            //TraceCsect->leave();
         }
 
 		// spot to hang a breakpoint

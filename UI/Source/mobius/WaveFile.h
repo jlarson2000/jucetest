@@ -1,3 +1,11 @@
+//
+// This was a simple utility to read and write 16-bit .wav files
+// Juce had more on this, should migrate to that.  File handling doesn't
+// belong at this level anyway
+//
+// Brought over myuint32 and other defines from port.h
+//
+
 /**
  * Copyright (C) 2005 Jeff Larson.  All rights reserved.
  *
@@ -36,6 +44,9 @@
 class WaveFile {
 
   public:
+
+    // for initial port testing
+    static void traceSizes();
 
 	WaveFile();
 	WaveFile(const char* file);

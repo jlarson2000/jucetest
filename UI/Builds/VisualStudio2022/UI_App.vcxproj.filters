@@ -799,13 +799,13 @@
     <ClCompile Include="..\..\Source\mobius\JuceAudioInterface.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\MidiInterface.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\MobiusContext.cpp">
+    <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\MobiusSimulator.cpp">
@@ -816,6 +816,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\WaveFile.cpp">
       <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\DataModel.cpp">
+      <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp">
       <Filter>UI\Source\util</Filter>
@@ -3540,19 +3543,16 @@
     <ClInclude Include="..\..\Source\mobius\AudioInterface.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\HostMidiInterface.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\JuceAudioInterface.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\MidiInterface.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\MobiusContext.h">
+    <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\MobiusKernel.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\MobiusSimulator.h">
@@ -3563,6 +3563,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\WaveFile.h">
       <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\DataModel.h">
+      <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\FileUtil.h">
       <Filter>UI\Source\util</Filter>

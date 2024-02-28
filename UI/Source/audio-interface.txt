@@ -1,0 +1,37 @@
+
+We've go the touchpoints between Supervisor and Mobius down to this
+
+  MobiusInterface::getMobius
+    // instantiates just enough of the shell to respond to further configuration
+    // all further communication is done through this object, and indirectly by
+    AudioInterface
+
+  AudioInterface
+    an old information that we need to start pruning, given to Mobius by the container
+    it primarily provides an AudioStream
+
+  AudioStream
+    primarily provides the setHandler(AudioHandler) function to register an interrupt
+    callback
+    MobiusInterface implements this
+
+This could be simplified to
+
+  MobiusContainer
+    interface implemented by something to provide information about the runtime environment
+    I don't see the need for this to maintain more than one "stream" so the functionality
+    of AudioInterface and AudioStream can be merged
+    The MobiusContainer receives setAudioHandler to register the object to receive audio
+     buffers
+    It can also receive setMidiHandler to receive MIDI events that are not processed elsewhere
+      I think this can be reduced to just timing events for the Synchronizer
+
+So MobiusInterface is how we push UI events to the engine
+
+MobiusContainer is how the engine asynchronously pulls things from the UI (not many of those)
+  but more importantly where it registers interesting in receiving audio and unprocessed MIDI data
+
+Yes, AudioInterface was sparingly used if at all by the kernel, it can be converted
+
+
+  

@@ -1,3 +1,23 @@
+// Porting notes
+//
+// Include JuceHeader for Criticalsection
+//
+// Commented out SampleBufferPool, this was a new framework
+// for common management of pooled objects that had problems.
+// The OldPooledBuffer struct I think refers to it using the original
+// buffer pool and not the new one.
+//
+// This is a relatively general way to manage potentially large
+// logically contiguous audio data in multiple blocks, but there
+// is too much entwined in this related to buffer pooling and cursoring
+// to expose to the UI.  Need to redesign this to be more standalone and
+// move pooling to a higher level, but it is extremely sensitive core code
+// I dan't modify right now.
+//
+// Things related to reading and writing .wav files was retained but
+// should no longer be used except for testing.
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -12,7 +32,6 @@
 
 // for CriticalSection
 #include <JuceHeader.h>
-
 
 /****************************************************************************
  *                                                                          *
@@ -558,6 +577,7 @@ class AudioPool {
 
     //class CriticalSection* mCsect;
     juce::CriticalSection mCsect;
+    
     OldPooledBuffer* mPool;
     //class SampleBufferPool* mNewPool;
     int mAllocated;

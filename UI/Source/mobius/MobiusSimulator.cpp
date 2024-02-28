@@ -18,6 +18,12 @@
 
 #include "MobiusSimulator.h"
 
+//////////////////////////////////////////////////////////////////////
+//
+// Initialization
+//
+//////////////////////////////////////////////////////////////////////
+
 MobiusSimulator::MobiusSimulator()
 {
     // this is given to us later
@@ -29,31 +35,60 @@ MobiusSimulator::~MobiusSimulator()
     delete configuration;
 }
 
+void MobiusSimulator::setListener(MobiusListener* l)
+{
+    listener = l;
+}
+
+void MobiusSimulator::setAudioInterface(AudioInterface* ai)
+{
+    // do we need to retain this?
+    audioInterface = ai;
+    
+    // one of the few times we're allowed to touch kernel directly
+    kernel.setAudioInterface(ai);
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Configuration
 //
 //////////////////////////////////////////////////////////////////////
 
-void MobiusSimulator::setListener(MobiusListener* l)
-{
-    listener = l;
-}
-
 /**
  * This always makes an internal copy of the passed object.
  * It is the responsibility of the caller to either free it
  * or keep using it.
+ *
+ * Two copies are made, one for the shell and one for the kernel.
+ * The kernel copy must be phased in through the comm buffer.
+ * Unless this is the first call during startup.
+ *
+ * !! not liking this guessing about whether this is the first
+ * call or not.  startup processing needs to be defined better.
  */
 void MobiusSimulator::configure(MobiusConfig* config)
 {
+    bool firstTime =  (configuration == nullptr);
+    
     // clone it so we can make internal modifications
     // since we can be called after config editing delete the existing one
+    // give this class a proper clone() method so we don't have to use XML
     delete configuration;
     XmlRenderer xr;
     configuration = xr.clone(config);
 
     state.init();
+
+    // clone it again and give it to the kernel
+    // now we're starting to do non-simulated stuff that will eventually
+    // be real, is there any utility in giving the kernel a copy BEFORE
+    // we start pumping audio at it and can avoid the comm buffer?
+    MobiusConfig* kernelCopy = xr.clone(config);
+    if (firstTime)
+      kernel.setInitialConfiguration(kernelCopy);
+    else
+      kernelConfigure(kernelCopy);
 
     // supposed to pull this from config
     state.trackCount = 8;
@@ -69,6 +104,29 @@ void MobiusSimulator::configure(MobiusConfig* config)
     globalReset();
 }
 
+void MobiusSimulator::installSamples(SampleConfig* samples)
+{
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Maintenance
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Expected to be called at regular small intervals by a thread
+ * managed in the UI, usually 1/10 second.
+ * 
+ * Since Juce is already leaking down here could consider using the
+ * Timer directly and registring ourselves rather than having
+ * MainThread do it.
+ */
+void MobiusSimulator::performMaintenance()
+{
+    consumeCommunications();
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // State
@@ -78,6 +136,32 @@ void MobiusSimulator::configure(MobiusConfig* config)
 MobiusState* MobiusSimulator::getState()
 {
     return &state;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Kernel communication
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Consume any state sent back from the kernel.
+ */
+void MobiusSimulator::consumeCommunications()
+{
+    MobiusConfig* stale = communicator.acceptConfiguration();
+    if (stale != nullptr) {
+        delete stale;
+    }
+}
+
+/**
+ * Send the kernel its copy of the MobiusConfig
+ * The object is already a copy
+ */
+void MobiusSimulator::kernelConfigure(MobiusConfig* config)
+{
+    communicator.sendConfiguration(config);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -561,16 +645,6 @@ MobiusEventState* MobiusSimulator::simulateEvent(MobiusLoopState* loop, UIEventT
     }
     
     return ev;
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Maintenance
-//
-//////////////////////////////////////////////////////////////////////
-
-void MobiusSimulator::performMaintenance()
-{
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -1,3 +1,16 @@
+// Porting notes
+//
+// Changed CriticalSection to use Juce CriticalSection/ScopedLock
+// Cleaned up includes, remove PUBLIC
+// Removed SampleBufferPool
+// Changed printf to trace
+//
+// moved file format settings down under the FILES section
+// needs WaveFile for file IO code, should move that out and use Juce
+// but WaveFile is fairly standalone.  This is not used directly by the UI
+// any more so can remove eventually.
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -11,18 +24,15 @@
  *
  */
 
-#include <stdio.h>
-#include <memory.h>
-
 // for CriticalSection/ScopedLock
 #include <JuceHeader.h>
-
 #include "../util/Trace.h"
-// for CopyString
-#include "../util/Util.h"
 
+//#include <stdio.h>
+//#include <memory.h>
 //#include "util.h"
-//#include "Thread.h"
+//#include "Thread.h"   formerly for CriticalSection
+
 #include "WaveFile.h"
 
 // getting CD_SAMPLE_RATE and AUDIO_MAX_CHANNELS from here
@@ -78,33 +88,6 @@ short SampleFloatToInt16(float sample)
  *   								AUDIO                                   *
  *                                                                          *
  ****************************************************************************/
-
-/**
- * A global that defines the default file format for writing audio files.
- * This may be shared by multiple plugins.
- */
-int Audio::WriteFormat = WAV_FORMAT_IEEE;
-
-/**
- * May be used to set the default setting for writting the file.
- * Must be one of the format constants defined in WaveFile.h.
- */
-void Audio::setWriteFormat(int fmt)
-{
-	if (fmt == WAV_FORMAT_IEEE || fmt == WAV_FORMAT_PCM)
-	  WriteFormat = fmt;
-}
-
-/**
- * More conveinent interface since we only support two values now.
- */
-void Audio::setWriteFormatPCM(bool pcm)
-{
-	if (pcm)
-	  WriteFormat = WAV_FORMAT_PCM;
-	else
-	  WriteFormat = WAV_FORMAT_IEEE;
-}
 
 Audio::Audio() 
 {
@@ -737,6 +720,33 @@ long Audio::prepareFrame(long frame, int* retIndex,
  ****************************************************************************/
 
 /**
+ * A global that defines the default file format for writing audio files.
+ * This may be shared by multiple plugins.
+ */
+int Audio::WriteFormat = WAV_FORMAT_IEEE;
+
+/**
+ * May be used to set the default setting for writting the file.
+ * Must be one of the format constants defined in WaveFile.h.
+ */
+void Audio::setWriteFormat(int fmt)
+{
+	if (fmt == WAV_FORMAT_IEEE || fmt == WAV_FORMAT_PCM)
+	  WriteFormat = fmt;
+}
+
+/**
+ * More conveinent interface since we only support two values now.
+ */
+void Audio::setWriteFormatPCM(bool pcm)
+{
+	if (pcm)
+	  WriteFormat = WAV_FORMAT_PCM;
+	else
+	  WriteFormat = WAV_FORMAT_IEEE;
+}
+
+/**
  * Load a wave file.
  * Formerly used libsndfile, now have WaveFile.
  * Only supporting 16 bit PCM or IEEE single float, 2 channel, 44.1Khz.
@@ -931,8 +941,8 @@ void Audio::applyFeedback(float* buffer, int feedback)
 
 void Audio::dump() 
 {
-	printf("Audio\n");
-	printf("Sample rate %d, Channels %d, Frames %ld StartFrame %ld\n",
+	trace("Audio\n");
+	trace("Sample rate %d, Channels %d, Frames %ld StartFrame %ld\n",
 		   mSampleRate, mChannels, mFrames, mStartFrame);
 
 	int allocated = 0;
@@ -943,7 +953,7 @@ void Audio::dump()
 		}
 	}
 
-	printf("Buffer size %d, Buffers reserved %d Buffers allocated %d\n",
+	trace("Buffer size %d, Buffers reserved %d Buffers allocated %d\n",
 		   mBufferSize, mBufferCount, allocated);
 
 	fflush(stdout);
@@ -970,11 +980,11 @@ void Audio::dump(TraceBuffer* b)
 void Audio::diff(Audio* a)
 {
 	if (mFrames != a->getFrames()) {
-		printf("Frame counts differ this=%ld other=%ld\n",
+		trace("Frame counts differ this=%ld other=%ld\n",
 			   mFrames, a->getFrames());
 	}
 	else if (mChannels != a->getChannels()) {
-		printf("Channel counts differ this=%d other=%d\n",
+		trace("Channel counts differ this=%d other=%d\n",
 			   (int)mChannels, (int)a->getChannels());
 	}
 	else {
@@ -998,7 +1008,7 @@ void Audio::diff(Audio* a)
 			
 			for (int j = 0 ; j < mChannels && !stop ; j++) {
 				if (f1[j] != f2[j]) {
-					printf("Difference at frame %d\n", i);
+					trace("Difference at frame %d\n", i);
 					stop = true;
 				}
 			}
@@ -1238,8 +1248,8 @@ AudioPool::AudioPool()
  */
 AudioPool::~AudioPool()
 {
-//    delete mCsect;
-//    delete mNewPool;
+    // delete mCsect;
+    // delete mNewPool;
 
     OldPooledBuffer* next = NULL;
     for (OldPooledBuffer* p = mPool ; p != NULL ; p = next) {
@@ -1287,13 +1297,15 @@ float* AudioPool::newBuffer()
 	float* buffer;
 
     /*
-	if (mNewPool) {
-		buffer = mNewPool->allocSamples();
-	}
-	else {
+      if (mNewPool) {
+      buffer = mNewPool->allocSamples();
+      }
+      else {
     */
-		// mCsect->enter();
-        { const juce::ScopedLock lock (mCsect);
+
+    // mCsect->enter();
+    { const juce::ScopedLock lock (mCsect);
+        
 		if (mPool == NULL) {
 			int bytesize = sizeof(OldPooledBuffer) + (BUFFER_SIZE * sizeof(float));
 			char* bytes = new char[bytesize];
@@ -1312,13 +1324,14 @@ float* AudioPool::newBuffer()
 		}
 		mInUse++;
 		//mCsect->leave();
-        }
+    }
 
-		// in both cases, make sure its empty
-		// !! these are big, need to keep the list clean and do it
-		// in a worker thread
-		memset(buffer, 0, BUFFER_SIZE * sizeof(float));
-//	}
+    // in both cases, make sure its empty
+    // !! these are big, need to keep the list clean and do it
+    // in a worker thread
+    memset(buffer, 0, BUFFER_SIZE * sizeof(float));
+
+    //	}
 
 	return buffer;
 }
@@ -1334,21 +1347,22 @@ void AudioPool::freeBuffer(float* buffer)
         //mNewPool->freeSamples(buffer);
         //}
 		//else {
-			OldPooledBuffer* pb = (OldPooledBuffer*)
-				(((char*)buffer) - sizeof(OldPooledBuffer));
+        
+        OldPooledBuffer* pb = (OldPooledBuffer*)
+            (((char*)buffer) - sizeof(OldPooledBuffer));
 
-			if (pb->pooled)
-			  Trace(1, "Audio buffer already in pool!\n");
-			else {
-                const juce::ScopedLock lock (mCsect);
-				//mCsect->enter();
-				pb->next = mPool;
-				pb->pooled = 1;
-				mPool = pb;
-				mInUse--;
-                //mCsect->leave();
-			}
-//		}
+        if (pb->pooled)
+          Trace(1, "Audio buffer already in pool!\n");
+        else {
+            const juce::ScopedLock lock (mCsect);
+            //mCsect->enter();
+            pb->next = mPool;
+            pb->pooled = 1;
+            mPool = pb;
+            mInUse--;
+            //mCsect->leave();
+        }
+        // }
 	}
 }
 
@@ -1356,29 +1370,30 @@ void AudioPool::dump()
 {
 	//if (mNewPool != NULL) {
     // need a dump method for the new one
-    //printf("NewBufferPool: %d in use ?? in pool\n", mInUse);
-//}
+    //trace("NewBufferPool: %d in use ?? in pool\n", mInUse);
+    //}
 	//else {
-        int pooled = 0;
-        { const juce::ScopedLock lock (mCsect);
-            //mCsect->enter();
-            for (OldPooledBuffer* p = mPool ; p != NULL ; p = p->next)
-              pooled++;
-            //mCsect->leave();
-        }
+    
+    int pooled = 0;
+    { const juce::ScopedLock lock (mCsect);
+        
+        //mCsect->enter();
+        for (OldPooledBuffer* p = mPool ; p != NULL ; p = p->next)
+          pooled++;
+        //mCsect->leave();
+    }
 
-        int used = mAllocated - pooled;
+    int used = mAllocated - pooled;
 
-		printf("AudioPool: %d buffers allocated, %d in the pool, %d in use\n",
-               mAllocated, pooled, used);
+    trace("AudioPool: %d buffers allocated, %d in the pool, %d in use\n",
+           mAllocated, pooled, used);
 
-        // this should match
-        if (used != mInUse)
-          printf("AudioPool: Unmatched usage counters %d %d\n",
-                 used, mInUse);
+    // this should match
+    if (used != mInUse)
+      trace("AudioPool: Unmatched usage counters %d %d\n",
+             used, mInUse);
 
-		fflush(stdout);
-//	}
+    //}
 }
 
 /**

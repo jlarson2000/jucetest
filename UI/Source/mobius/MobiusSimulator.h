@@ -9,6 +9,8 @@
 
 #include "../model/MobiusState.h"
 
+#include "KernelCommunicator.h"
+#include "MobiusKernel.h"
 #include "MobiusInterface.h"
 
 class MobiusSimulator : public MobiusInterface
@@ -19,22 +21,37 @@ class MobiusSimulator : public MobiusInterface
     ~MobiusSimulator();
 
     void setListener(class MobiusListener* l);
+    void setAudioInterface(class AudioInterface* ai);
     void configure(class MobiusConfig* config);
+    
     MobiusState* getState();
     void doAction(class UIAction* action);
     int getParameter(Parameter* p, int tracknum = 0);
 
+    void installSamples(SampleConfig* samples);
     void performMaintenance();
+    
+    // temporary test interfaces
     void simulateInterrupt(float* input, float* output, int frames);
-
     void test();
     
   private:
 
-    class MobiusConfig* configuration = nullptr;
-    MobiusState state;
+    AudioInterface* audioInterface = nullptr;
     MobiusListener* listener = nullptr;
+    class MobiusConfig* configuration = nullptr;
+
+    MobiusState state;
+    KernelCommunicator communicator;
+    MobiusKernel kernel {this, &communicator};
     
+    // kernel communication
+    void consumeCommunications();
+    void kernelConfigure(class MobiusConfig* config);
+    
+    // from here on down is total simulation
+    // above is evolving toward being real
+
     void globalReset();
     void doReset(class UIAction* action);
     void reset(class MobiusLoopState* loop);

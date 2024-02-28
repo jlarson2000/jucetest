@@ -1,6 +1,9 @@
-// commented out SleepMillis in calibrate, need to revisit
-// commented out MidiInterface which was just used to get a millisedond
-// clock for timing, implement something more standalone
+//
+// Commented out MidiInterface which was just used to get a millisedond
+// clock for timing, use juce::Time::getMillisecondCounter
+//
+// Replaced SleepMillis with juce::Time call
+// Changed printf to trace
 
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
@@ -19,16 +22,22 @@
  *
  */ 
 
+// for Time::getMillisecondCounter
+#include <JuceHeader.h>
 
-#include <stdio.h>
-#include <memory.h>
+//#include <stdio.h>
+//#include <memory.h>
 
 #include "../util/Util.h"
 #include "../util/Trace.h"
+
+// formerly for SleepMillis
 //#include "Thread.h"
 
 #include "Audio.h"
 #include "AudioInterface.h"
+
+// formerly for a millisecond timer
 //#include "MidiInterface.h"
 
 #include "Recorder.h"
@@ -55,7 +64,7 @@ void Recorder::processAudioBuffers(AudioStream* stream)
 	mInInterrupt = true;
 
 	// long start = ((mMidi != NULL) ? mMidi->getMilliseconds() : 0);
-    long start = 0;
+    long start = juce::Time::getMillisecondCounter();
     
 	if (TraceInterruptTime && mLastInterruptTime > 0) {
 		long delta = start - mLastInterruptTime;
@@ -86,7 +95,7 @@ void Recorder::processAudioBuffers(AudioStream* stream)
 
     if (TraceInterruptTime) {
 		// long end = ((mMidi != NULL) ? mMidi->getMilliseconds() : 0);
-        long end = 0;
+        long end = juce::Time::getMillisecondCounter();
 		long elapsed = end - start;
 		if (elapsed > 1) {
 			// happens commonly in debugging so make it level 2, 
@@ -279,11 +288,12 @@ void Recorder::calibrateInterrupt(float *input, float *output, long frames)
 			else {
 				// still haven't found it, wait at most one second
 				long delta = mFrame - mPingFrame;
+                // hiding previous declaration warning
 				long samples = delta / channels;
 				int seconds = samples / rate;
 				if (seconds > 0) {
 					mCalibrating = false;
-					printf("Calibration timeout!\n");
+					trace("Calibration timeout!\n");
 				}
 			}
 		}
@@ -722,18 +732,18 @@ bool Recorder::checkAudio(Audio *a)
         // first one in gets to determine the configuration
         // !! assuming 2 channel ports
         if (a->getChannels() != 2) {
-            printf("ERROR: Audio with %d channels!!\n", a->getChannels());
+            trace("ERROR: Audio with %d channels!!\n", a->getChannels());
             fflush(stdout);
         }
 		mStream->setSampleRate(a->getSampleRate());
     }
     else if (a->getChannels() != 2) {
-        printf("Unable to load audio, incompatible channels.\n");
+        trace("Unable to load audio, incompatible channels.\n");
         fflush(stdout);
         ok = false;
     }
     else if (mStream->getSampleRate() != a->getSampleRate()) {
-        printf("Unable to load audio, incompatible sample rate.\n");
+        trace("Unable to load audio, incompatible sample rate.\n");
         fflush(stdout);
         ok = false;
     }
@@ -876,8 +886,13 @@ RecorderCalibrationResult* Recorder::calibrate()
 
 	start();
 
-//	for (int i = 0 ; i < 5 && mCalibrating ; i++)
-//	  SleepMillis(1000);
+    // dire interwebz warnings about using sleep of any kind, which are true
+    // but calibration is a very special case that is not used normally
+    // and I don't want to mess with Timer events
+	for (int i = 0 ; i < 5 && mCalibrating ; i++) {
+        //SleepMillis(1000);
+        juce::Time::waitForMillisecondCounter(juce::Time::getMillisecondCounter() + 1000);
+    }
 
 	result->noiseFloor = mNoiseAmplitude;
 

@@ -1,3 +1,8 @@
+//
+// Added Util.h
+// Commented out MidiInterface, this was only used to get a millisecond timer
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -21,6 +26,7 @@
 #include <stdio.h>
 
 #include "../util/Util.h"
+
 #include "Audio.h"
 #include "AudioInterface.h"
 
