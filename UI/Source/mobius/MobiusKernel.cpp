@@ -10,6 +10,7 @@
 #include "Recorder.h"
 #include "Audio.h"
 
+#include "MobiusContainer.h"
 #include "MobiusKernel.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ MobiusKernel::MobiusKernel(MobiusSimulator* argShell, KernelCommunicator* comm)
  */
 MobiusKernel::~MobiusKernel()
 {
-    // we do not own shell or AudioInterface
+    // we do not own shell, communicator, or container
     delete configuration;
     
     delete mRecorder;
@@ -40,22 +41,17 @@ MobiusKernel::~MobiusKernel()
 }
 
 /**
- * Shell gives us a handle to this mess to register a listener.
+ * Link the objects together and do any pre-active configuration
+ * necessary.  We keep ownership of the configuration.
  */
-void MobiusKernel::setAudioInterface(AudioInterface* ai)
+void MobiusKernel::initialize(MobiusContainer* cong, MobiusConfig* config)
 {
-    audioInterface = ai;
-}
-
-/**
- * This may be called directdly by the shell during startup
- * before the audio thread starts.
- */
-void MobiusKernel::setInitialConfiguration(MobiusConfig* config)
-{
-    // shouldn't have one yet but be safe
-    delete configuration;
+    container = cont;
     configuration = config;
+
+    // todo: register ourselves as the AudioListener
+    // or maybe we don't care and register the Recorder instead which
+    // is how it used to work
 }
 
 /**
@@ -84,9 +80,13 @@ void MobiusKernel::reconfigure()
 
 //////////////////////////////////////////////////////////////////////
 //
-// AudioInterface::Listener
+// MobiusContainer::AudioListener
 //
 //////////////////////////////////////////////////////////////////////
+
+void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
+{
+}
 
 //////////////////////////////////////////////////////////////////////
 //

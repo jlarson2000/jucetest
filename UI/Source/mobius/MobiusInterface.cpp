@@ -8,11 +8,18 @@ MobiusInterface::~MobiusInterface()
 {
 }
 
-void MobiusInterface::startup()
+MobiusInterface* MobiusInterface::getMobius(MobiusContainer* container)
 {
     if (Singleton == nullptr) {
-        Singleton = new MobiusSimulator();
+        Singleton = new MobiusSimulator(container);
     }
+    return Singleton;
+}
+
+void MobiusInterface::startup()
+{
+    // formerly created the Singleton here but moved it to getMobius
+    // what more do we need here, tell Singleton to do something?
 }
 
 void MobiusInterface::shutdown()
@@ -31,7 +38,3 @@ MobiusInterface::~MobiusInterface()
 }
 */
 
-MobiusInterface* MobiusInterface::getMobius()
-{
-    return Singleton;
-}

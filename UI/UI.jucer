@@ -4,6 +4,10 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="NUIV6l" name="UI">
     <GROUP id="{CE56572D-2E17-35BB-3F2F-9778BF27F9C3}" name="Source">
+      <FILE id="lBKcTa" name="JuceMobiusContainer.cpp" compile="1" resource="0"
+            file="Source/JuceMobiusContainer.cpp"/>
+      <FILE id="oBBR7J" name="JuceMobiusContainer.h" compile="0" resource="0"
+            file="Source/JuceMobiusContainer.h"/>
       <FILE id="NNPAXk" name="DiagnosticWindow.cpp" compile="1" resource="0"
             file="Source/DiagnosticWindow.cpp"/>
       <FILE id="Hk9F8Y" name="DiagnosticWindow.h" compile="0" resource="0"
@@ -172,14 +176,6 @@
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
         <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>
-        <FILE id="KIQeYN" name="AudioInterface.cpp" compile="1" resource="0"
-              file="Source/mobius/AudioInterface.cpp"/>
-        <FILE id="YNsZkw" name="AudioInterface.h" compile="0" resource="0"
-              file="Source/mobius/AudioInterface.h"/>
-        <FILE id="hKnCYU" name="JuceAudioInterface.cpp" compile="1" resource="0"
-              file="Source/mobius/JuceAudioInterface.cpp"/>
-        <FILE id="oQbfkl" name="JuceAudioInterface.h" compile="0" resource="0"
-              file="Source/mobius/JuceAudioInterface.h"/>
         <FILE id="KAI4RP" name="KernelCommunicator.cpp" compile="1" resource="0"
               file="Source/mobius/KernelCommunicator.cpp"/>
         <FILE id="a4sBIH" name="KernelCommunicator.h" compile="0" resource="0"

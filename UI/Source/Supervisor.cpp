@@ -25,7 +25,7 @@
 
 #include "ui/DisplayManager.h"
 
-#include "mobius/JuceAudioInterface.h"
+#include "mobius/JuceMobiusContainer.h"
 #include "mobius/MobiusInterface.h"
 
 #include "Supervisor.h"
@@ -58,7 +58,7 @@ void Supervisor::start()
 
     MobiusInterface::startup();
     
-    mobius = MobiusInterface::getMobius();
+    mobius = MobiusInterface::getMobius(&mobiusContainer);
     mobius->configure(config);
 
     // this hasn't been static initialized, don't remember why
@@ -106,7 +106,8 @@ void Supervisor::shutdown()
     MobiusInterface::shutdown();
     // this is now invalid
     mobius = nullptr;
-
+    // any cleanup in mobiusContainer?
+    
     // save any UI configuration changes that were made during use
     // in practice this is only for StatusArea but might have others someday
     UIConfig* config = getUIConfig();
@@ -424,7 +425,7 @@ void Supervisor::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 
         //mobius.corePrepare(samplesPerBlockExpected, sampleRate);
 
-        mobiusAudioInterface.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        mobiusContainer.prepareToPlay(samplesPerBlockExpected, sampleRate);
         
         audioPrepared = true;
     }
@@ -515,8 +516,7 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
         }
     }
     else {
-        // mobius.coreProcess(bufferToFill);
-        mobiusAudioInterface.getNextAudioBlock(bufferToFill);
+        mobiusContainer.getNextAudioBlock(bufferToFill);
     }
 }
 
@@ -525,7 +525,7 @@ void Supervisor::releaseResources()
     //mobius.coreStop();
     trace("Supervisor::releaseResources\n");
 
-    mobiusAudioInterface.releaseResources();
+    mobiusContainer.releaseResources();
     
     audioPrepared = false;
 }

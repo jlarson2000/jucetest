@@ -1,5 +1,9 @@
 /**
  * A simulator of the Mobius engine for UI testing.
+ *
+ * This is actually evoloving into a "real" engine with more
+ * impleentation and fewer simulations.  Factor out the simulation
+ * parts as we go along.
  */
 
 #include "../util/Trace.h"
@@ -16,6 +20,9 @@
 #include "../model/XmlRenderer.h"
 #include "../model/UIEventType.h"
 
+#include "MobiusContainer.h"
+#include "MobiusKernel.h"
+
 #include "MobiusSimulator.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -24,8 +31,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-MobiusSimulator::MobiusSimulator()
+MobiusSimulator::MobiusSimulator(MobiusContainer* cont)
 {
+    container = cont;
     // this is given to us later
     configuration = nullptr;
 }
@@ -38,15 +46,6 @@ MobiusSimulator::~MobiusSimulator()
 void MobiusSimulator::setListener(MobiusListener* l)
 {
     listener = l;
-}
-
-void MobiusSimulator::setAudioInterface(AudioInterface* ai)
-{
-    // do we need to retain this?
-    audioInterface = ai;
-    
-    // one of the few times we're allowed to touch kernel directly
-    kernel.setAudioInterface(ai);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -66,6 +65,7 @@ void MobiusSimulator::setAudioInterface(AudioInterface* ai)
  *
  * !! not liking this guessing about whether this is the first
  * call or not.  startup processing needs to be defined better.
+ * Kernel instantiation vs. initialization is messy, work on this
  */
 void MobiusSimulator::configure(MobiusConfig* config)
 {
@@ -78,19 +78,17 @@ void MobiusSimulator::configure(MobiusConfig* config)
     XmlRenderer xr;
     configuration = xr.clone(config);
 
-    state.init();
-
     // clone it again and give it to the kernel
-    // now we're starting to do non-simulated stuff that will eventually
-    // be real, is there any utility in giving the kernel a copy BEFORE
-    // we start pumping audio at it and can avoid the comm buffer?
     MobiusConfig* kernelCopy = xr.clone(config);
-    if (firstTime)
-      kernel.setInitialConfiguration(kernelCopy);
-    else
-      kernelConfigure(kernelCopy);
-
+    if (firstTime) {
+        kernel.initialize(container, kernelCopy);
+    }
+    else {
+        kernelConfigure(kernelCopy);
+    }
+    
     // supposed to pull this from config
+    state.init();
     state.trackCount = 8;
     state.activeTrack = 0;
 

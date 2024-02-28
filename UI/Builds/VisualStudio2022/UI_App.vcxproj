@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp"/>
     <ClCompile Include="..\..\Source\DiagnosticWindow.cpp"/>
     <ClCompile Include="..\..\Source\MidiManager.cpp"/>
     <ClCompile Include="..\..\Source\Binderator.cpp"/>
@@ -202,8 +203,6 @@
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\AudioInterface.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\JuceAudioInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp"/>
@@ -2510,6 +2509,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\JuceMobiusContainer.h"/>
     <ClInclude Include="..\..\Source\DiagnosticWindow.h"/>
     <ClInclude Include="..\..\Source\MidiManager.h"/>
     <ClInclude Include="..\..\Source\Binderator.h"/>
@@ -2571,8 +2571,6 @@
     <ClInclude Include="..\..\Source\ui\TabTest.h"/>
     <ClInclude Include="..\..\Source\ui\TestPanel.h"/>
     <ClInclude Include="..\..\Source\mobius\Audio.h"/>
-    <ClInclude Include="..\..\Source\mobius\AudioInterface.h"/>
-    <ClInclude Include="..\..\Source\mobius\JuceAudioInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusKernel.h"/>

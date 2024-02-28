@@ -9,6 +9,7 @@
 
 #include "../model/MobiusState.h"
 
+#include "MobiusContainer.h"
 #include "KernelCommunicator.h"
 #include "MobiusKernel.h"
 #include "MobiusInterface.h"
@@ -17,11 +18,10 @@ class MobiusSimulator : public MobiusInterface
 {
   public:
 
-    MobiusSimulator();
+    MobiusSimulator(class MobiusContainer* container);
     ~MobiusSimulator();
 
     void setListener(class MobiusListener* l);
-    void setAudioInterface(class AudioInterface* ai);
     void configure(class MobiusConfig* config);
     
     MobiusState* getState();
@@ -37,7 +37,7 @@ class MobiusSimulator : public MobiusInterface
     
   private:
 
-    AudioInterface* audioInterface = nullptr;
+    class MobiusContainer* container = nullptr;
     MobiusListener* listener = nullptr;
     class MobiusConfig* configuration = nullptr;
 

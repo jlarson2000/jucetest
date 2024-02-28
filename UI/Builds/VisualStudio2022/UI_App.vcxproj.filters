@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\DiagnosticWindow.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -791,12 +794,6 @@
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\AudioInterface.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\JuceAudioInterface.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp">
@@ -3357,6 +3354,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\JuceMobiusContainer.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\DiagnosticWindow.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
@@ -3538,12 +3538,6 @@
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Audio.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\AudioInterface.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\JuceAudioInterface.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h">

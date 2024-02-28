@@ -1,6 +1,7 @@
 //
+// Significant retooling to replace AudioInterface, AudioStream, MidiInterface
+// with MobiusContainer
 // Added Util.h
-// Commented out MidiInterface, this was only used to get a millisecond timer
 //
 
 /*
@@ -28,7 +29,7 @@
 #include "../util/Util.h"
 
 #include "Audio.h"
-#include "AudioInterface.h"
+#include "MobiusContainer.h"
 
 /****************************************************************************
  *                                                                          *
@@ -195,7 +196,7 @@ class RecorderTrack {
     virtual bool isPriority();
 
 	// to be called only by Recorder
-	virtual void processBuffers(class AudioStream* stream, 
+	virtual void processBuffers(class MobiusContainer* stream, 
 								float* input, float* output, 
 								long bufferFrames, long frameOffset);
 
@@ -272,8 +273,8 @@ class RecorderMonitor {
 
   public:
 
-	virtual void recorderMonitorEnter(AudioStream* stream) = 0;
-	virtual void recorderMonitorExit(AudioStream* stream) = 0;
+	virtual void recorderMonitorEnter(MobiusContainer* stream) = 0;
+	virtual void recorderMonitorExit(MobiusContainer* stream) = 0;
 
 };
 
@@ -307,13 +308,13 @@ class RecorderCalibrationResult {
  *                                                                          *
  ****************************************************************************/
 
-class Recorder : public AudioHandler {
+class Recorder : public MobiusContainer::AudioHandler {
 
   public:
 
 	//Recorder(class AudioInterface* ai, class MidiInterface* mi,
     //class AudioPool* pool);
-	Recorder(class AudioInterface* ai, class AudioPool* pool);
+	Recorder(class MobiusContainer* cont, class AudioPool* pool);
 	~Recorder();
 	void shutdown();
 
@@ -326,16 +327,16 @@ class Recorder : public AudioHandler {
 
     // Audio device specification
 
-	class AudioInterface* getAudioInterface();
-	class AudioStream* getStream();
-	void setSuggestedLatencyMsec(int i);
-	bool setInputDevice(int id);
-    bool setInputDevice(const char* name);
-	bool setOutputDevice(int id);
-	bool setOutputDevice(const char* name);
-	class AudioDevice* getInputDevice();
-	class AudioDevice* getOutputDevice();
-    class AudioPool* getAudioPool();
+	//class AudioInterface* getAudioInterface();
+	//class AudioStream* getStream();
+	//void setSuggestedLatencyMsec(int i);
+	//bool setInputDevice(int id);
+    //bool setInputDevice(const char* name);
+	//bool setOutputDevice(int id);
+	//bool setOutputDevice(const char* name);
+	//class AudioDevice* getInputDevice();
+	//class AudioDevice* getOutputDevice();
+    //class AudioPool* getAudioPool();
 
     // Status
 

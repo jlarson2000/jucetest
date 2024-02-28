@@ -10,8 +10,11 @@
 #pragma once
 
 /**
- * A listener callback that may be given to the engine to receive
- * notifications when certain interesting things happen.
+ * Normally used by the UI to receive notifications when something
+ * happens within the engine that is interesting for the display.
+ * Now that we have MobiusContainer, could make that bi-directional
+ * and allow information to be pushed back through that rather than needing
+ * another listener?
  */
 class MobiusListener {
   public:
@@ -28,15 +31,16 @@ class MobiusInterface {
 
   public:
 
+    /**
+     * Factory method called during application initialization to obtain
+     * a handle to the Mobius engine.  This will be a singleton that
+     * must not be deleted.  Call shutdown() when no longer needed.
+     */
+    static class MobiusInterface* getMobius(class MobiusContainer* container);
+
     // must have a virtual destructor to avoid a warning
     virtual ~MobiusInterface();
     
-    /**
-     * Called while the application runs to obtain a handle to the
-     * Mobius engine.  It must not be deleted.
-     */
-    static class MobiusInterface* getMobius();
-
     /**
      * This must be called once during main application initialization.
      * It is imporant to keep the full startup side effects out of the
@@ -58,18 +62,6 @@ class MobiusInterface {
      */
     virtual void setListener(MobiusListener* l) = 0;
 
-    /**
-     * Supply an object encapsulating the audio interface.
-     * 
-     * Very messy and stubbed right now, but gets us started.
-     * The AudioInterface provides us with an AudioStream and we
-     * register oursleives as a Listener to receive callback when
-     * audio events come in from the hardware.
-     * Need to completely rethink how things are wired together now
-     * and weed out any references to the the old AudioInterface.
-     */
-    virtual void setAudioInterface(class AudioInterface* ai) = 0;
-    
     /**
      * Reconfigure the Mobius engine.
      * Called during application startup after loading the initial MobiusConfig

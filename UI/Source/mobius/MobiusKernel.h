@@ -36,25 +36,24 @@ class MobiusKernel
     ~MobiusKernel();
 
     /**
-     * Give the kernel an object representing the audio interface.
+     * Initialize the kernel prior to it being active.
+     * The difference between this and what we pass in the constructor
+     * is kind of arbitrary, consider doing it one way or the other.
+     * Or just pulling it from the MobiusShell
      */
-     void setAudioInterface(class AudioInterface* ai);
-    
-    /**
-     * Allow the kernel to configure itself after construction.
-     * This copy of MobiusConfig will be owned by the Kernel and
-     * is different than the copy owned by the shell.
-     */
-    void setInitialConfiguration(class MobiusConfig* config);
+    void initialize(class MobiusContainer* cont, class MobiusConfiguration* config);
 
     // normally this should be private, but leave it open for the shell for testing
     void consumeCommunications();
 
-  private:
+    // MobiusContainer::AudioListener
+    void containerAudioAvailable(class MobiusContainer* cont);
+
+    private:
 
     class MobiusSimulator* shell = nullptr;
     class KernelCommunicator* communicator = nullptr;
-    class AudioInterface* audioInterface = nullptr;
+    class MobiusContainer* container = nullptr;
     class MobiusConfig* configuration = nullptr;
 
     // slowly start dragging stuff over
