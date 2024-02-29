@@ -1,0 +1,24 @@
+
+Nasty configuration ordering problem
+
+Almost all display elements configure themselves from UIConfig
+A few need MobiusConfig
+
+LoopStack is weird because it wants MobiusConfig to get the maximum
+number of possible loops per track, but this isn't available until AFTER the
+UIConfig update propagagates down
+
+LoopStack::getPreferredSize wants maxLoops and this is called during the
+initial layout during the UIConfig walk
+
+But we can't just flip the order of the UIConfig and MobiusConfig walks
+because TrackStrip doesn't even know what child components to create until
+after UIConfig is processed.
+
+It really needs both at the same time.
+
+I guess we could just let it default to 4 and let it resize itself after we
+do the MobiusConfig walk, which we would have to do anyway if you edit the
+config after the UI is built.
+
+still seems messy
