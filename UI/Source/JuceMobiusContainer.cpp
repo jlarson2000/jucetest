@@ -25,7 +25,7 @@
 #include "mobius/MobiusContainer.h"
 
 #include "Supervisor.h"
-#include "JuceAudioInterface.h"
+#include "JuceMobiusContainer.h"
 
 JuceMobiusContainer::JuceMobiusContainer(Supervisor* s)
 {
@@ -40,9 +40,9 @@ JuceMobiusContainer::~JuceMobiusContainer()
  * Register the listener to receive notifications as
  * audio buffers come in.
  */
-void JuceMobiusContainer::setlistener(MobiusContainer::Listener* l)
+void JuceMobiusContainer::setAudioListener(MobiusContainer::AudioListener* l)
 {
-    listener = l;
+    audioListener = l;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -50,6 +50,26 @@ void JuceMobiusContainer::setlistener(MobiusContainer::Listener* l)
 // MobiusContainer
 //
 //////////////////////////////////////////////////////////////////////
+
+/**
+ * Counter used for internal runtime monitoring.
+ */
+int JuceMobiusContainer::getMillisecondCounter()
+{
+    return juce::Time::getMillisecondCounter();
+}
+
+/**
+ * Used in very rare cases to delay for a period of time.
+ * Yes, I'm aware of the horrors of thread blocking, this
+ * is not used in normal control flow.
+ * One example is latency calibration, which could be implemented
+ * a different way, but why?
+ */
+void JuceMobiusContainer::sleep(int millis)
+{
+    juce::Time::waitForMillisecondCounter(juce::Time::getMillisecondCounter() + millis);
+}
 
 int JuceMobiusContainer::getInputPorts()
 {
@@ -184,8 +204,8 @@ void JuceMobiusContainer::getNextAudioBlock (const juce::AudioSourceChannelInfo&
 
     // call the handler which will immediately call back to 
     // getInterruptFrames and getInterruptBuffers
-    if (handler != nullptr) {
-        handler->processAudioBuffers(this);
+    if (audioListener != nullptr) {
+        audioListener->containerAudioAvailable(this);
     }
     else {
         // inject a temporary test

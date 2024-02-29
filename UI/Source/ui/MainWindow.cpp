@@ -20,6 +20,7 @@
 #include "MainMenu.h"
 #include "config/ConfigEditor.h"
 #include "../DiagnosticWindow.h"
+#include "../Supervisor.h"
 
 // temporary testing panels
 #include "TestPanel.h"
@@ -128,6 +129,10 @@ void MainWindow::mainMenuSelection(int id)
             break;
         case MainMenu::AudioDevices: {
             configEditor.showAudioDevices();
+        }
+            break;
+        case MainMenu::InstallSamples: {
+            supervisor->installSamples();
         }
             break;
 

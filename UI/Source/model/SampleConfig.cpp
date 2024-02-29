@@ -77,6 +77,7 @@ void Sample::init()
 	mLoop = false;
 	mConcurrent = false;
     mData =  nullptr;
+    mFrames = 0;
 }
 
 Sample::~Sample()
@@ -148,10 +149,16 @@ float* Sample::getData()
     return mData;
 }
 
-void Sample::setData(float* data)
+int Sample::getFrames()
+{
+    return mFrames;
+}
+
+void Sample::setData(float* data, int frames)
 {
     delete mData;
     mData = data;
+    mFrames = frames;
 }
 
 /****************************************************************************/

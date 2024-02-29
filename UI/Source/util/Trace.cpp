@@ -67,14 +67,17 @@
  *                                                                          *
  ****************************************************************************/
 
+//
+// Simple non-buffering trace used in non-critical UI threads
+// Added support for juce::String
+//
+
 bool TraceToDebug = true;
 bool TraceToStdout = false;
 
-void vtrace(const char *string, va_list args)
+// internal method that deals with a single char array
+void traceInternal(const char* buf)
 {
-	char buf[1024];
-	vsprintf(buf, string, args);
-
 	if (TraceToStdout) {
 		printf("%s", buf);
 		fflush(stdout);
@@ -92,7 +95,13 @@ void vtrace(const char *string, va_list args)
 		}
 #endif
 	}
+}
 
+void vtrace(const char *string, va_list args)
+{
+	char buf[1024];
+	vsprintf(buf, string, args);
+    traceInternal(buf);
 }
 
 void trace(const char *string, ...)
@@ -101,6 +110,13 @@ void trace(const char *string, ...)
     va_start(args, string);
 	vtrace(string, args);
     va_end(args);
+}
+
+void trace(juce::String& s)
+{
+    // hack, these typically are using String concatenation and don't have newlines
+    s += "\n";
+    traceInternal(s.toUTF8());
 }
 
 /****************************************************************************

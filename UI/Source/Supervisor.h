@@ -58,15 +58,14 @@ class Supervisor
     
     juce::AudioDeviceManager& getAudioDeviceManager();
 
+    // some menu implementations
+    void installSamples();
+
     // audio thread callbacks
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill);
     void releaseResources();
 
-    int getAudioBlocksReceived() {
-        return audioBlocksReceived;
-    }
-    
   private:
 
     juce::AudioAppComponent* mainComponent;
@@ -94,15 +93,22 @@ class Supervisor
     std::unique_ptr<class MobiusConfig> mobiusConfig;
     std::unique_ptr<class UIConfig> uiConfig;
 
-    // Audio Thread
+    // Audio callback statistics
+    int prepareToPlayCalls = 0;
+    int getNextAudioBlockCalls = 0;
+    int releaseResourcesCalls = 0;
+    int preparedSamplesPerBlock = 0;
+    double preparedSampleRate = 0.0f;
     bool audioPrepared = false;
-    int audioBlocksReceived = 0;
     
-    bool audioUnpreparedBlocksTrace = false;
+    bool audioUnpreparedBlocksTraced = false;
     int audioLastSourceStartSample = 0;
     int audioLastSourceNumSamples = 0;
     int audioLastBufferChannels = 0;
     int audioLastBufferSamples = 0;
+    
+    void traceDeviceStatus();
+    void traceFinalStatistics();
     
     juce::String findMobiusInstallationPath();
 

@@ -107,7 +107,9 @@ class Sample
     bool isConcurrent();
 
     float* getData();
-    void setData(float* data);
+    int getFrames();
+    
+    void setData(float* data, int frames);
 
   private:
 	
@@ -156,7 +158,8 @@ class Sample
      * Optional loaded sample data to pass to the engine.
      */
     float* mData;
-
+    int mFrames;
+    
 };
 
 /****************************************************************************/

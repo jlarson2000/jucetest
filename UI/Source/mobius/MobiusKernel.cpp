@@ -5,7 +5,7 @@
 #include "../model/MobiusConfig.h"
 
 // what is now the "shell"
-#include "MobiusSimulator.h"
+#include "MobiusShell.h"
 
 #include "Recorder.h"
 #include "Audio.h"
@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-MobiusKernel::MobiusKernel(MobiusSimulator* argShell, KernelCommunicator* comm)
+MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
 {
     shell = argShell;
     communicator = comm;
@@ -36,7 +36,6 @@ MobiusKernel::~MobiusKernel()
     delete configuration;
     
     delete mRecorder;
-    delete mAudioPool;
     //delete mSampleTrack;
 }
 
@@ -44,14 +43,14 @@ MobiusKernel::~MobiusKernel()
  * Link the objects together and do any pre-active configuration
  * necessary.  We keep ownership of the configuration.
  */
-void MobiusKernel::initialize(MobiusContainer* cong, MobiusConfig* config)
+void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
 {
     container = cont;
     configuration = config;
 
-    // todo: register ourselves as the AudioListener
-    // or maybe we don't care and register the Recorder instead which
-    // is how it used to work
+    // set up the initial Recorder configuration
+    // this is what will listen for audio events
+    initRecorder();
 }
 
 /**
@@ -67,6 +66,11 @@ void MobiusKernel::consumeCommunications()
         configuration = newconfig;
         reconfigure();
     }
+
+    // this doesn't use the comm buffer, it's easier
+    SamplePack* pack = shell->consumePendingSamplePack();
+    if (pack != nullptr)
+      installSamples(pack);
 }
 
 /**
@@ -80,16 +84,6 @@ void MobiusKernel::reconfigure()
 
 //////////////////////////////////////////////////////////////////////
 //
-// MobiusContainer::AudioListener
-//
-//////////////////////////////////////////////////////////////////////
-
-void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
-{
-}
-
-//////////////////////////////////////////////////////////////////////
-//
 // Recorder
 // Start slowly dragging stuff over
 //
@@ -97,18 +91,21 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 
 /**
  * Setup the Recorder and initialize various things.
- * This is approxomatley what Mobius::start did
+ * This is approxomatley what the old Mobius::start did
+ * We could be statically allocating Recorder now.
  */
 void MobiusKernel::initRecorder()
 {
     if (mRecorder == nullptr) {
 
-        initObjectPools();
-
         // formerly setup a listener for Midi events and started a timer
 
-        // formerly passed MidiInterface to get a timer
-		mRecorder = new Recorder(audioInterface, mAudioPool);
+		mRecorder = new Recorder();
+
+        // broke construction and initialization out in case we want
+        // to static construct
+        // note that we get the shared AudioPool from the shell
+        mRecorder->initialize(container, shell->getAudioPool());
 
         // need to implement this or punt
 		//mRecorder->setMonitor(this);
@@ -146,54 +143,79 @@ void MobiusKernel::initRecorder()
     }
 }
 
-void MobiusKernel::initObjectPools()
-{
-}
+//////////////////////////////////////////////////////////////////////
+//
+// MobiusContainer::AudioListener aka "the interrupt"
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
- * This logic was in Mobius::installConfiguration
- * Meant to be called after any major MobiusConfig change
+ * Kernel installs itself as the one AudioListener in the MobiusContainer
+ * to receive notifications of audio blocks.
+ * What we used to call the "interrupt".
+ *
+ * There are three phases:
+ *
+ *     start of interrupt housekeeping like phasing in communications from the shell,
+ *      and scheduling events
+ *
+ *     tell the Recorder to process the new buffers and advance the state
+ *       of the tracks
+ *
+ *     end of interrupt housekeeping like passing information back to the shell
+ *     and updating MobiusState
+ *
  */
-#if 0
-void MobiusKernel::installSamples()
+void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 {
-	// load the samples
-    // note that installation has to be deferred to the interrupt handler
-    SamplePack* newSamples = nullptr;
-	Samples* samples = configuration->getSamples();
-    if (samples != NULL) {
-        // only reload if there was a difference in order or files 
-        // we could be smarter and only reread things that are new
-        // but this isn't a commonly used features
-        if (mSampleTrack->isDifference(samples))
-          newSamples = new SamplePack(mAudioPool, getHomeDirectory(), samples);
-    }
-    else {
-        // in order to remove current samples we need a non-null
-        // SamplePack object to pass to the interrupt
-        if (mSampleTrack->getSampleCount() > 0)
-          newSamples = new SamplePack();
-    }
+    interruptStart();
 
-    if (newSamples != NULL) {
-        // this is bad, it would be safer just to ignore the shift
-        // but then we couldn't edit samples before we add audio devices
-        // !! ignore if we're receiving interrupts but allow otherwise
-        // this can happen if you're messing with configs and don't have
-        // an audio device selected
-        Trace(2, "Mobius: phasing in sample changes\n");
-        if (mPendingSamples != NULL) {
-            if (mInterrupts > 0)
-              Trace(1, "Mobius: Overflow installing samples\n");
-            else
-              delete mPendingSamples;
-        }
-        mPendingSamples = newSamples;
-    }
+    // this isn't a listener, but we make the interface use the same signature
+    recorder->containerAudioAvailable(cont);
 
+    interruptEnd();
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Interrupt Start
+//
+//////////////////////////////////////////////////////////////////////
+
+
+/**
+ * Do various tasks at the start of each audio interface.
+ * This is what old mobius called recorderMonitorEnter
+ */
+
+//////////////////////////////////////////////////////////////////////
+//
+// Interrupt End
+//
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+//
+// Samples
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * We've just consumed the pending SamplePack from the shell.
+ * Spray it into the SampleTrack
+ */
+void MobiusKernel::installSamples(SamplePack* pack)
+{
+    if (pack != nullptr) {
+        // !!!!!!!!! as expected this deletes the current SamplePlayers
+        // and isntalls new ones from the pack, then deletes the pack
+        // need a defecation method where when the kernel consumes new objects
+        // it carefully replaces them, the returns the old ones back to the shell
+        // where they can be deleted
+        // mSampleTrack->setSamples(pack);
+    }
 
 }
-#endif
 
 /****************************************************************************/
 /****************************************************************************/

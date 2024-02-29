@@ -359,7 +359,7 @@ void AudioDevicesContent::resized()
     // log gets the remainder
     logpanel->setBounds(area);
 
-    JuceUtil::dumpComponent(this);
+    //JuceUtil::dumpComponent(this);
 }
 
 /**

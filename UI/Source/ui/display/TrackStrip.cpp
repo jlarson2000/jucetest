@@ -227,8 +227,30 @@ void TrackStrip::configure(UIConfig* config)
             elements.add(el);
         }
     }
+
+    // now let each element configure
+    for (int i = 0 ; i < elements.size() ; i++) {
+        StripElement* el = elements[i];
+        el->configure(config);
+    }
 }
         
+/**
+ * A few of them like LoopStack need MobiusConfig
+ * This MUST be called after configure(UIConfig) which
+ * is what builds the elements in the first place
+ * ugh, don't like the order dependency, can't we have just
+ * one configure() that passes both?
+ */
+void TrackStrip::configure(MobiusConfig* config)
+{
+    // now let each element configure
+    for (int i = 0 ; i < elements.size() ; i++) {
+        StripElement* el = elements[i];
+        el->configure(config);
+    }
+}
+
 /**
  * Called by one of the sub elements to perform an action.
  * Here we'll add the track scope and pass it along up

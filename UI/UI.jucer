@@ -69,6 +69,8 @@
           <FILE id="NT6kia" name="PresetPanel.h" compile="0" resource="0" file="Source/ui/config/PresetPanel.h"/>
           <FILE id="Zf2ti7" name="SamplePanel.cpp" compile="1" resource="0" file="Source/ui/config/SamplePanel.cpp"/>
           <FILE id="rJ1VuB" name="SamplePanel.h" compile="0" resource="0" file="Source/ui/config/SamplePanel.h"/>
+          <FILE id="d9dR5l" name="SampleTable.cpp" compile="1" resource="0" file="Source/ui/config/SampleTable.cpp"/>
+          <FILE id="zM7JM5" name="SampleTable.h" compile="0" resource="0" file="Source/ui/config/SampleTable.h"/>
           <FILE id="LMAEQ5" name="ScriptPanel.cpp" compile="1" resource="0" file="Source/ui/config/ScriptPanel.cpp"/>
           <FILE id="bUHoC6" name="ScriptPanel.h" compile="0" resource="0" file="Source/ui/config/ScriptPanel.h"/>
           <FILE id="exr3oW" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/config/SetupPanel.cpp"/>
@@ -187,12 +189,15 @@
         <FILE id="vFnGFJ" name="MobiusKernel.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusKernel.cpp"/>
         <FILE id="jXxZsV" name="MobiusKernel.h" compile="0" resource="0" file="Source/mobius/MobiusKernel.h"/>
-        <FILE id="vwntMP" name="MobiusSimulator.cpp" compile="1" resource="0"
-              file="Source/mobius/MobiusSimulator.cpp"/>
-        <FILE id="r8q8Kh" name="MobiusSimulator.h" compile="0" resource="0"
-              file="Source/mobius/MobiusSimulator.h"/>
+        <FILE id="RZNLnz" name="MobiusShell.cpp" compile="1" resource="0" file="Source/mobius/MobiusShell.cpp"/>
+        <FILE id="TK5FKu" name="MobiusShell.h" compile="0" resource="0" file="Source/mobius/MobiusShell.h"/>
         <FILE id="w8ViL0" name="Recorder.cpp" compile="1" resource="0" file="Source/mobius/Recorder.cpp"/>
         <FILE id="wmtmEF" name="Recorder.h" compile="0" resource="0" file="Source/mobius/Recorder.h"/>
+        <FILE id="i2vJj3" name="Sample.cpp" compile="1" resource="0" file="Source/mobius/Sample.cpp"/>
+        <FILE id="HUErun" name="Sample.h" compile="0" resource="0" file="Source/mobius/Sample.h"/>
+        <FILE id="JOsfQX" name="SampleReader.cpp" compile="1" resource="0"
+              file="Source/mobius/SampleReader.cpp"/>
+        <FILE id="RDP88j" name="SampleReader.h" compile="0" resource="0" file="Source/mobius/SampleReader.h"/>
         <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>
         <FILE id="F6kToV" name="WaveFile.h" compile="0" resource="0" file="Source/mobius/WaveFile.h"/>
       </GROUP>

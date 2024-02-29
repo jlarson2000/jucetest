@@ -59,8 +59,9 @@ class JuceMobiusContainer : public MobiusContainer
     void releaseResources();
 
     // MobiusContainer
-
     void setAudioListener(class MobiusContainer::AudioListener* l);
+    int getMillisecondCounter();
+    void sleep(int millis);
     int getInputPorts();
     int getOutputPorts();
     int getSampleRate();
@@ -69,7 +70,7 @@ class JuceMobiusContainer : public MobiusContainer
 
     double getStreamTime();
     double getLastInterruptStreamTime();
-    class AudioTime* getTime();
+    class AudioTime* getAudioTime();
 	long getInterruptFrames();
 	void getInterruptBuffers(int inport, float** input, 
                                      int outport, float** output);
@@ -77,7 +78,7 @@ class JuceMobiusContainer : public MobiusContainer
   private:
 
     class Supervisor* supervisor = nullptr;
-    class MobiusContainer::AudioListener* listener = nullptr;
+    class MobiusContainer::AudioListener* audioListener = nullptr;
 
     // these are captured in prepareToPlay
     int sampleRate = 0;
@@ -88,7 +89,10 @@ class JuceMobiusContainer : public MobiusContainer
 
     // interleaved sample buffers large enough to hold whatever comes
     // in from Juce.  Old code had a pair of these for each "port", we'll
-    // start by assuming just one port.  
+    // start by assuming just one port.
+    // todo: it looks like the expectation is that buffer allocation
+    // be done in prepareToPlay, though since we will never not be allocating
+    // buffers and involved in audio streams, it matters less
     float inputBuffer[JuceAudioMaxSamplesPerBuffer];
     float outputBuffer[JuceAudioMaxSamplesPerBuffer];
     

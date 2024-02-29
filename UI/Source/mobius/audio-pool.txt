@@ -1,0 +1,25 @@
+
+AudioPool is the first example of an object pool that needs to be shared
+by the shell and the kernel.
+
+I think the way pools need to work is this...
+
+MobiusShell
+  - creates all object pools and fills them with a good starting set of objects
+
+MobiusKernel
+  - can request/release objects from the pool, but must not allocate any new ones
+    this won't work yet since we've always let it, but need to work on the interface
+    to prevent this, or at the very least trace loudly when it happens
+
+pools don't have to be phased between shell/kernel but they must have all
+access synchronized with a CriticalSection
+
+MobiusShell::performMaintenance
+
+look at all the object pools to see if they are in danger of being depleted and
+fill them, this should prevent MobiusKernel from running out and needing to allocate
+
+Thought for awhile that the pools should be managed by Kernel since that's what uses
+them the most.  May still be a good idea but shell does need them on occasion.
+

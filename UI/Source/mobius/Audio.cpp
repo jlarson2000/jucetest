@@ -26,28 +26,41 @@
 
 // for CriticalSection/ScopedLock
 #include <JuceHeader.h>
+
 #include "../util/Trace.h"
+#include "../model/SampleConfig.h"
 
 //#include <stdio.h>
 //#include <memory.h>
 //#include "util.h"
 //#include "Thread.h"   formerly for CriticalSection
 
+// temporary, should no longer be used
 #include "WaveFile.h"
 
-// getting CD_SAMPLE_RATE and AUDIO_MAX_CHANNELS from here
-// !! this all needs to be redesigned to 1) allow flexible
-// channels and 2) not allocate damn stack buffers
-#include "AudioInterface.h"
+// experiment that didn't work
+//#include "ObjectPool.h"
 
 #include "Audio.h"
-//#include "ObjectPool.h"
 
 /****************************************************************************
  *                                                                          *
  *   							  CONSTANTS                                 *
  *                                                                          *
  ****************************************************************************/
+
+// formerly defined in AudioInterface.h
+// need to pick a better home for these if any
+
+#define CD_SAMPLE_RATE 		(44100)
+
+// formerly defined in AudioInterface.h
+/**
+ * The maximum number of channels we will have to deal with.
+ * Since this is used for working buffer sizing, don't raise this until
+ * we're ready to deal with surround channels everywhere.
+ */
+#define AUDIO_MAX_CHANNELS 2 
 
 /**
  * The number of Audio frames per buffer.
@@ -108,6 +121,13 @@ Audio::Audio(AudioPool* pool, const char *filename)
 	init();
     mPool = pool;
 	read(filename);
+}
+
+Audio::Audio(AudioPool* pool, Sample* src) 
+{
+	init();
+    mPool = pool;
+	install(src);
 }
 
 void Audio::init() 
@@ -185,6 +205,29 @@ bool Audio::isEmpty()
 		  empty = false;
 	}
 	return empty;
+}
+
+/**
+ * Copy the data from a loaded Sample into the Audio blocks.
+ * This is a simplification of read() for the new world where
+ * we no longer read files but instead are passed Sample objects
+ * with the data already read.
+ *
+ * We can assume that the sample rate was appropriate
+ * and that channel count was 2.  
+ */
+void Audio::install(Sample* src)
+{
+    AudioBuffer b;
+
+    reset();
+    initIndex();
+
+    b.buffer = src->getData();
+    b.frames = src->getFrames();
+    b.channels = 2;
+    
+    append(&b);
 }
 
 /****************************************************************************
@@ -1274,6 +1317,16 @@ Audio* AudioPool::newAudio()
 Audio* AudioPool::newAudio(const char* file)
 {
     return new Audio(this, file);
+}
+
+/**
+ * Allocate a new Audio in this pool and convert the
+ * contents of a loaded Sample.
+ * this is the new interface, no longer reading files
+ */
+Audio* AudioPool::newAudio(Sample* src)
+{
+    return new Audio(this, src);
 }
 
 /**

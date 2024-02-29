@@ -1,0 +1,140 @@
+
+Need to refine how the Juce application and Juce plugin interact with
+the Mobius engine during startup and shutdown and when things happen.
+
+The current process for the standalone application is this:
+
+  Main (JUCEApplication)
+    creates MainWindow (DocumentWindow)
+      creates MainComponent (JuceAudioAppComponent)
+        creates uninitialized Supervisor
+        calls Supervisor::start
+        calls setAudioChannels
+        enters main event loop
+
+Unclear when MainComponent first starts receiving audio notifications, it
+could be during construction, as soon as setAudioChannels is called, immediately after
+the container stack finishes construction, or later in the event loop.
+
+I doubt it happens before construction finishes, but Supervisor needs
+to ignore anything that happens until start() is called and finishes.
+
+MainComponent/setAudioChannels happens after Supervisor::start without
+consulting any configuration, it just guesses 4 input channels and 2 output
+channels.  This can be changed later, but it is unclear how this relates
+to the internal initialization of AudioDeviceManager.
+
+We don't currently call AudioDeviceManager during startup, but it seems to remember
+the last device selected (Windows type, RME device, pairs of input and output channels).
+The ports we requiest in setAudioChannels don't seem to influence this, you can ask
+for 4 input ports, but if the device only has 2, that's all that will be sent
+in getNextAudioBlock.
+
+At some point in Supervisor::start, we need to read the MobiusConfig and influence
+which device Juce will receive audio from and the channel counts we'd like to
+be dealing with.
+
+Supervisor's interaction with MobiusInterface during start() is a bit messy and needs
+thought, the current process is:
+
+  Supervisor::start
+
+    MobiusInterface::startup();
+      does nothing, formerly created the singleton
+      
+    MobiusInterface::getMobius(MobiusContainer)
+      creates and returns the singleton (MobiusShell)
+      
+    MobiusInterface::configure(MobiusConfig)
+      main engine startup
+
+All three of these MobiusInterface calls could be done at the same time,
+what would startup() do that getMobius() doesn't?
+
+configure() does need to be separate since we can push new configurations after
+startup, the singleton could be created in either startup or getMobius.
+
+Would startup/getMboius need the MobiusConfig to decide how to start?
+
+Need to think about how VST hosts usually instantiate a plugin just to probe it
+for information without actually using it.  Then instantiate it again when the user
+selects it.  In the first information gathering phase we shouldn't be doing any
+expensive engine or UI configuration just to have it thrown away.
+
+The shutdown sequence is:
+
+  MainWindow::closeButtonPressed
+    JUCEApplication::systemRequestedQuit
+      you can choose to ignore the close button
+      this seems to start the object destruction process
+      
+  MainWindow destructor
+    MainComponent destructor
+      Supervisor::shutdown
+
+
+The wiring between Mobius and Supervisor happen in this sequence:
+
+  MobiusInterface::getMobius(MobiusContext)
+    creates MobiusShell(MobiusContext)
+      // saves the context pointer
+      creates MobiusKernel(MobiusShell, KernelCommunicator)
+        // saves the shell and communicator   
+
+  MobiusSimulator::configure(MobiusContext)
+    if (firstTime)
+       calls MobiusKernel::intialize(MobiusContainer, MobiusContext)
+         saves container and configuration
+    else
+       posts new configuration in the kernel message queue
+
+
+What is missing right now is the registration of a MobiusContainer::AudioListener
+this needs to be done by either MobiusKernel or Recorder which is the internal
+component that actually wants to receive audio.
+
+Kernel doesn't atm have anything interesting to do with audio streams to it can just
+give it to recorder:
+
+  MobiusKernel::initialize(MobiusContainer cont)
+    create Recorder
+    call cont.setAudioListener(Recorder)
+    or
+    call mRecorder->setMobiusContainer(cont)
+      and have Recorder add itself as the listener
+
+    it doesn't seem to matter whether Recorder just wakes up being an AudioListener
+    or if it needs more control over the process, keep it in Kernel so that connection
+    is high and visible
+
+    when we get to the point where we flesh out more complex RecorderTracks this
+    will need the MobiusConfig to decide how many tracks and how many loops
+
+
+Recorder currently wants to be constructed with:
+
+	Recorder(class MobiusContainer* cont, class AudioPool* pool);
+
+it used to be passed an AudioStream from which it got the sample rate and
+did other controlling operations that no longer exist.
+
+Recorder WILL want to know about sample rates and ports so it needs all that.
+Ports could be obtained from MobiusConfig but it is unclear whether the
+MobiusContainer will obey that, so always go back to MobiusContainer to see
+what we're going to actually receive.
+
+MobiusContainer is authoritative over anything related to the audio device,
+MobiusConfig only controls how many tracks and loops we will create.
+
+Since Recorder must receive a MobiusContainer, we may as well let it add itself
+as the listener.
+
+Until we support track/loop reconfiguration, this can be done the first time
+then it sticks till restart.
+
+MobiusKernel will always keep the same Recorder instance until it destructs
+
+Kernel needs to be in control of the AudioPool
+
+
+    

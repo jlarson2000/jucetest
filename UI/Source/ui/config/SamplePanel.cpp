@@ -20,8 +20,7 @@ SamplePanel::SamplePanel(ConfigEditor* argEditor) :
     // debugging hack
     setName("SamplePanel");
 
-    // place it in the content panel
-    // content.addAndMakeVisible(form);
+    content.addAndMakeVisible(table);
 
     // we can either auto size at this point or try to
     // make all config panels a uniform size
@@ -42,8 +41,13 @@ void SamplePanel::load()
     if (!loaded) {
         MobiusConfig* config = editor->getMobiusConfig();
 
-        // capture SampleConfig
+        SampleConfig* sconfig = config->getSampleConfig();
+        if (sconfig != nullptr) {
+            // this makes it's own copy
+            table.setSamples(sconfig);
+        }
 
+        loaded = true;
         // force this true for testing
         changed = true;
     }
@@ -54,18 +58,41 @@ void SamplePanel::save()
     if (changed) {
         MobiusConfig* config = editor->getMobiusConfig();
 
-        // save SampleConfig
+        SampleConfig* newConfig = table.capture();
+        config->setSampleConfig(newConfig);
 
         editor->saveMobiusConfig();
+        loaded = false;
         changed = false;
     }
 }
 
 void SamplePanel::cancel()
 {
+    table.clear();
+    loaded = false;
     changed = false;
 }
 
+void SamplePanel::resized()
+{
+    ConfigPanel::resized();
+    
+    juce::Rectangle<int> area = getLocalBounds();
+
+    // leave some space at the top
+    area.removeFromTop(20);
+    // and on the left
+    area.removeFromLeft(20);
+
+    // let's fix the size of the table for now rather
+    // adapt to our size
+    int width = table.getPreferredWidth();
+    int height = table.getPreferredHeight();
+    table.setBounds(area.getX(), area.getY(), width, height);
+
+    // noting eles right now
+}    
 
 /****************************************************************************/
 /****************************************************************************/

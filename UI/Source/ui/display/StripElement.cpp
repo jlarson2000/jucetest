@@ -200,6 +200,10 @@ void StripElement::configure(UIConfig* config)
 {
 }
 
+void StripElement::configure(MobiusConfig* config)
+{
+}
+
 void StripElement::update(MobiusState* state)
 {
 }

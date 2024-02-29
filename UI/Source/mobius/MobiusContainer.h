@@ -62,6 +62,16 @@ class MobiusContainer
      */
     virtual void setAudioListener(AudioListener* l) = 0;
 
+    // General information provided by the container
+
+    // this is used to monitor run times of internal components,
+    // it is not expected to have any particular base value, just that
+    // it always increments with an accurate milliseond interval
+    virtual int getMillisecondCounter() = 0;
+
+    // used in rare cases to synchronously delay for a short time
+    virtual void sleep(int millis) = 0;
+    
     // General non-real time informaton about the connected audio stream
     // these can be called at any time from any thread
     

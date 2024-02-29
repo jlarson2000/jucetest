@@ -113,23 +113,32 @@
   </Setup>
   <Setup name='Another' active='0' beatsPerBar='0' defaultSyncSource='none' defaultTrackSyncUnit='subcycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
   </Setup>
-  <BindingSet number='0'>
-    <Binding target='function' name='Record' trigger='key' value='82'/>
-    <Binding target='function' name='Reset' trigger='key' value='27'/>
-    <Binding target='function' name='NextLoop' trigger='key' value='65576'/>
-    <Binding target='function' name='PrevLoop' trigger='key' value='65574'/>
-    <Binding target='function' name='PrevTrack' trigger='key' value='65573'/>
-    <Binding target='function' name='NextTrack' trigger='key' value='65575'/>
-    <Binding target='function' name='Record' trigger='note' value='48' channel='0'/>
-    <Binding target='function' name='Record' trigger='ui' value='0'/>
-    <Binding target='function' name='Reset' trigger='ui' value='0'/>
-    <Binding target='function' name='NextLoop' trigger='ui' value='0'/>
-    <Binding target='function' name='PrevLoop' trigger='ui' value='0'/>
-    <Binding target='function' name='NextTrack' trigger='ui' value='0'/>
-    <Binding target='function' name='PrevTrack' trigger='ui' value='0'/>
+  <BindingSet ordinal='0'>
+    <Binding op='function' name='Record' trigger='key' value='82'/>
+    <Binding op='function' name='Reset' trigger='key' value='27'/>
+    <Binding op='function' name='NextLoop' trigger='key' value='65576'/>
+    <Binding op='function' name='PrevLoop' trigger='key' value='65574'/>
+    <Binding op='function' name='PrevTrack' trigger='key' value='65573'/>
+    <Binding op='function' name='NextTrack' trigger='key' value='65575'/>
+    <Binding op='function' name='Record' trigger='note' value='48' channel='0'/>
+    <Binding op='function' name='Record' trigger='ui' value='0'/>
+    <Binding op='function' name='Reset' trigger='ui' value='0'/>
+    <Binding op='function' name='NextLoop' trigger='ui' value='0'/>
+    <Binding op='function' name='PrevLoop' trigger='ui' value='0'/>
+    <Binding op='function' name='NextTrack' trigger='ui' value='0'/>
+    <Binding op='function' name='PrevTrack' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
   </ScriptConfig>
+  <SampleConfig>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\base.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\short1.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\short2.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\medium.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\medium2.wav'/>
+    <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\long.wav'/>
+  </SampleConfig>
   <FocusLockFunctions>
     <String>Reset</String>
     <String>TrackReset</String>

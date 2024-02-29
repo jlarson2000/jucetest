@@ -1,29 +1,34 @@
-//
-// Commented out MidiInterface which was just used to get a millisedond
-// clock for timing, use juce::Time::getMillisecondCounter
-//
-// Replaced SleepMillis with juce::Time call
-// Changed printf to trace
-
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Builds upon AudioInterface to provide a basic multi-track audio recorder.
- * 
- * UPDATE: The default track handling is all obsolte now, Mobius tracks
- * overload all the methods.
+/**
+ * A basic multi-track audio recorder and player.
  *
- * I don't like this level of abstraction any more but it's been around
- * so long and it works.
+ * This is mostly the same as it used to be with significant retooling
+ * to replace AudioInterface, AudioStream, and MidiInterface with
+ * MobiusContainer.
  *
- */ 
-
-// for Time::getMillisecondCounter
-#include <JuceHeader.h>
+ * There will be references in the code to "stream" which used to be
+ * an AudioStream, but is now a MobiusContainer.
+ *
+ * This will be created by the Kernel and live for the duration of the kernel.
+ * It is given a MobiusContainer during initialization where it will
+ * register itself as a listener for audio events.
+ * 
+ * This is then the primary entry point between Juce and the engine.
+ * The kernel itself doesn't do much beyond managing configuration and
+ * communication with the shell.
+ *
+ * This could use some redesign but it's still a relatively simple and
+ * useful layer between the container and the looping tracks where
+ * all the complexity lies.  It is more general than I ever used it for
+ * the main thing it provides beyond a container for the loopers
+ * is the SampleTrack which is how we inject pre-loaded samples into the
+ * audio stream.
+ *
+ * NOTE: There is memory management in here, but it should only be happening
+ * during initialization outside of the audio thread so it's safe.
+ * Need more work to make this more flexible, but it has never done
+ * much within the engine and doesn't need to be redesigned right now.
+ *
+ */
 
 //#include <stdio.h>
 //#include <memory.h>
@@ -31,19 +36,13 @@
 #include "../util/Util.h"
 #include "../util/Trace.h"
 
-// formerly for SleepMillis
-//#include "Thread.h"
-
 #include "Audio.h"
-#include "AudioInterface.h"
-
-// formerly for a millisecond timer
-//#include "MidiInterface.h"
-
 #include "Recorder.h"
 
 /**
  * Emit warnings if we take too long between interrupts.
+ *
+ * old comments:
  * This is usually good to have on but I started getting it
  * frequently after upgrading to the monster graphics card
  * on my Windows dev machine.  Need to figure out what that is doing,
@@ -51,20 +50,44 @@
  */
 static bool TraceInterruptTime = false;
 
-/****************************************************************************
- *                                                                          *
- *   							AUDIO HANDLER                               *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// MobiusContainer::AudioListener
+//
+//////////////////////////////////////////////////////////////////////
 
-void Recorder::processAudioBuffers(AudioStream* stream)
+/**
+ * This is where the party starts.
+ * After registering ouselves with MobiusContainer as the AudioListener
+ * we'll start receiving callbacks as audio blocks come in.
+ * The container provides model transformation between Juce buffers
+ * and the old model we expect.
+ *
+ * The container is passed, which we don't need since we saved
+ * a pointer during initialization.  Call back to the container to
+ * get the buffers and other information about the stream.
+ *
+ * The container organizes audio data into "ports" which are collections
+ * of mono channels, either input or output.  We have only ever supported
+ * ports with two stereo channels.  The MobiusConfig/TrackSetup can
+ * set which ports tracks receive on and send to.
+ *
+ * The acutal number of channels currently configured in the hardware may not
+ * match that so if we ask for port data that doesn't exist the container
+ * is expected to return something empty.  We should probably allow it
+ * to return nullptr to indiciate port misconfiguration.  At the moment,
+ * we're only supporting a single port, which will always be there.
+ * We'll ask for whatever port happens to be configured, but the container
+ * may not give us that one.
+ */
+void Recorder::containerAudioAvailable(MobiusContainer* cont)
 {
 	if (mInInterrupt) 
 	  Trace(1, "Recorder::interrupt reentry!\n");
 	mInInterrupt = true;
 
 	// long start = ((mMidi != NULL) ? mMidi->getMilliseconds() : 0);
-    long start = juce::Time::getMillisecondCounter();
+    long start = cont->getMillisecondCounter();
     
 	if (TraceInterruptTime && mLastInterruptTime > 0) {
 		long delta = start - mLastInterruptTime;
@@ -73,11 +96,12 @@ void Recorder::processAudioBuffers(AudioStream* stream)
 	}
 	mLastInterruptTime = start;
 
-	long frames = stream->getInterruptFrames();
+    // I'm forgetting what RecorderMonitor was for
+	long frames = cont->getInterruptFrames();
 	if (mMonitor != NULL)
-	  mMonitor->recorderMonitorEnter(stream);
+	  mMonitor->recorderMonitorEnter(cont);
 
-    // we leave the stream live all the time, the running flag
+    // the audio stream is live all the time, the running flag
     // determines whether we actually do anything
 
     if (mRunning) {
@@ -85,17 +109,17 @@ void Recorder::processAudioBuffers(AudioStream* stream)
 			// calibration only on the first port
 			float* input = NULL;
 			float* output = NULL;
-			stream->getInterruptBuffers(0, &input, 0, &output);
+			cont->getInterruptBuffers(0, &input, 0, &output);
 			calibrateInterrupt(input, output, frames);
 		}
         else
-		  processTracks(stream);
+		  processTracks(cont);
 
     }
 
     if (TraceInterruptTime) {
 		// long end = ((mMidi != NULL) ? mMidi->getMilliseconds() : 0);
-        long end = juce::Time::getMillisecondCounter();
+        long end = cont->getMillisecondCounter();
 		long elapsed = end - start;
 		if (elapsed > 1) {
 			// happens commonly in debugging so make it level 2, 
@@ -106,7 +130,7 @@ void Recorder::processAudioBuffers(AudioStream* stream)
 	}
 
 	if (mMonitor != NULL)
-	  mMonitor->recorderMonitorExit(stream);
+	  mMonitor->recorderMonitorExit(cont);
 
 	mFrame += frames;
 	mInInterrupt = false;
@@ -124,7 +148,7 @@ void Recorder::processAudioBuffers(AudioStream* stream)
  * to other tracks (via scripts for example).  So have to keep
  * a processed flag of our own.
  */
-void Recorder::processTracks(AudioStream* stream)
+void Recorder::processTracks(MobiusContainer* stream)
 {
 	RecorderTrack* selected = NULL;
 	bool allFinished = true;
@@ -209,7 +233,7 @@ void Recorder::calibrateInterrupt(float *input, float *output, long frames)
 {
     // !! assuming 2 channel ports
 	int channels = 2;
-	int rate = mStream->getSampleRate();
+	int rate = mContainer->getSampleRate();
 	long samples = frames * channels;
 
 	// capture inputs for offline analysis
@@ -349,12 +373,12 @@ void RecorderTrack::initRecorderTrack()
 void RecorderTrack::initAudio()
 {
 	if (mAudio == NULL && mRecorder == NULL) {
-		AudioStream* s = mRecorder->getStream();
+		MobiusContainer* stream = mRecorder->getStream();
         AudioPool* p = mRecorder->getAudioPool();
 		mAudio = p->newAudio();
         // !! assuming 2 channel ports
 		mAudio->setChannels(2);
-		mAudio->setSampleRate(s->getSampleRate());
+		mAudio->setSampleRate(stream->getSampleRate());
 	}
 }
 
@@ -371,7 +395,7 @@ void RecorderTrack::setRecording(bool b)
 {
 	mRecording = b;
 	if (mRecording && mAudio == NULL && mRecorder != NULL) {
-		AudioStream* s = mRecorder->getStream();
+		MobiusContainer* s = mRecorder->getStream();
         AudioPool* p = mRecorder->getAudioPool();
 		mAudio = p->newAudio();
         // !! assuming 2 channel ports
@@ -402,9 +426,9 @@ void RecorderTrack::inputBufferModified(float* buffer)
 {
 }
 
-void RecorderTrack::processBuffers(AudioStream* stream, 
-								float *input, float* output, long frames, 
-								long startFrame)
+void RecorderTrack::processBuffers(MobiusContainer* stream, 
+                                   float *input, float* output, long frames, 
+                                   long startFrame)
 {
 	if (mAudio == NULL)
 	  mFinished = true;
@@ -537,20 +561,15 @@ void SignalTrack::fillOutputBuffer(float *out, long frames, long frameOffset)
  ****************************************************************************/
 
 /**
- * A MidiInterface is supplied just to so we have access to a millisecond
- * tiemr.  Could simply the timer interface?
+ * Build out the Recorder with a container and a pool
+ * What is now MobiusContainer used to be AudioInterface and we
+ * had more control over how it was configured.  Now we take what we get.
+ * Defer complex initialization to initialize()
  */
-//Recorder::Recorder(AudioInterface* ai, MidiInterface* midi, AudioPool* pool)
-Recorder::Recorder(AudioInterface* ai, AudioPool* pool)
+Recorder::Recorder()
 {
-	int i;
-
-    mAudio = ai;
-	//mMidi = midi;
-    mAudioPool = pool;
-	  
-	mStream = mAudio->getStream();
-	mStream->setHandler(this);
+    mContainer = nullptr;
+    mAudioPool = nullptr;
 
 	mMonitor = NULL;
 	mLatency = 0;
@@ -567,10 +586,15 @@ Recorder::Recorder(AudioInterface* ai, AudioPool* pool)
 	mLastInterruptTime = 0;
 
 	mTrackCount = 0;
-	for (i = 0 ; i < MAX_RECORDER_TRACKS ; i++)
+	for (int i = 0 ; i < MAX_RECORDER_TRACKS ; i++)
 	  mTracks[i] = NULL;
 }
 
+/**
+ * We're doing memory management here, so this can only be done
+ * outside the audio thread.  In practice the kernel creates
+ * one Recorder and uses it for it's lifespan so we're safe.
+ */
 Recorder::~Recorder() 
 {
 	shutdown();
@@ -584,21 +608,34 @@ Recorder::~Recorder()
 }
 
 /**
- * Note that we do not ask the MidiInterface and AudioInterface
- * to shut down, the creator owns those and is responsible.  
+ * Initialize the Recorder after construction.
+ * Here the relevant objects have finished construction (static or dynamic)
+ * and it's safe to start wiring things together.
+ * Formerly done in the constructor, which is probably still safe.
+ *
+ * Where are we supposed to know about the track configuration?
+ */
+void Recorder::initialize(MobiusContainer* cont, AudioPool* pool)
+{
+    mContainer = cont;
+    mAudioPool = pool;
+
+    // wait on this till we're ready
+    //if (mContainer != nullptr)
+    //mContainer->setAudioListener(this);
+}
+
+/**
+ * Unclear where this was called in old code.  I don't think
+ * you could just randomly initialize and shutdown the Recorder,
+ * but if you can there is more state here that would need to be reset.
+ * It formerly closed the audio streams if we were in control over them.
  */
 void Recorder::shutdown() 
 {
 	stop();
-
-	mMonitor = NULL;
-
-	if (mStream != NULL) {
-		// should we even be closing this since it 
-        // wasn't allocated by us?
-		mStream->close();
-		mStream = NULL;
-	}
+	mMonitor = nullptr;
+    mContainer = nullptr;
 }
 
 void Recorder::setMonitor(RecorderMonitor* m)
@@ -606,29 +643,18 @@ void Recorder::setMonitor(RecorderMonitor* m)
 	mMonitor = m;
 }
 
+/**
+ * What once once just a stream, has metamorphasized into
+ * a beatiful container.
+ */
+MobiusContainer* Recorder::getStream()
+{
+	return mContainer;
+}
+
 AudioPool* Recorder::getAudioPool()
 {
     return mAudioPool;
-}
-
-AudioInterface* Recorder::getAudioInterface()
-{
-	return mAudio;
-}
-
-AudioStream* Recorder::getStream()
-{
-	return mStream;
-}
-
-AudioDevice* Recorder::getInputDevice()
-{
-	return mStream->getInputDevice();
-}
-
-AudioDevice* Recorder::getOutputDevice()
-{
-	return mStream->getOutputDevice();
 }
 
 long Recorder::getFrame() 
@@ -650,39 +676,8 @@ void Recorder::setEcho(bool b) {
 	mEcho = b;
 }
 
-void Recorder::setSampleRate(int rate) 
-{
-	if (rate != mStream->getSampleRate())
-	  mStream->setSampleRate(rate);
-}
-
 void Recorder::setAutoStop(bool b) {
 	mAutoStop = b;
-}
-
-void Recorder::setSuggestedLatencyMsec(int i)
-{
-	mStream->setSuggestedLatencyMsec(i);
-}
-
-bool Recorder::setInputDevice(int id)
-{
-	return mStream->setInputDevice(id);
-}
-
-bool Recorder::setInputDevice(const char* name)
-{
-	return mStream->setInputDevice(name);
-}
-
-bool Recorder::setOutputDevice(int id)
-{
-	return mStream->setOutputDevice(id);
-}
-
-bool Recorder::setOutputDevice(const char* name)
-{
-	return mStream->setOutputDevice(name);
 }
 
 /****************************************************************************
@@ -690,6 +685,13 @@ bool Recorder::setOutputDevice(const char* name)
  *                                   TRACKS                                 *
  *                                                                          *
  ****************************************************************************/
+
+//
+// NOTE: There is memory management going on here, but this can't
+// in practice after initialization so it's safe though it looks
+// scary for what is mostly audio-thread code in this file.  Shold
+// try to clean this up so it is clearer when things happen
+//
 
 /**
  * Mark one of the tracks as selected.  Down here, this will
@@ -723,6 +725,8 @@ bool Recorder::add(RecorderTrack *t)
 
 /**
  * Verify that an Audio can be played by this recorder configuration.
+ * This is proably more anal than it needs to be, but in practice we never
+ * dealt with Audio data that didn't conform.
  */
 bool Recorder::checkAudio(Audio *a) 
 {
@@ -735,17 +739,19 @@ bool Recorder::checkAudio(Audio *a)
             trace("ERROR: Audio with %d channels!!\n", a->getChannels());
             fflush(stdout);
         }
-		mStream->setSampleRate(a->getSampleRate());
+
+        // formerly tried to make the stream follow the sample rate
+        // stored in the audio file, I don't think this ever really worked
+		//mStream->setSampleRate(a->getSampleRate());
     }
     else if (a->getChannels() != 2) {
         trace("Unable to load audio, incompatible channels.\n");
-        fflush(stdout);
         ok = false;
     }
-    else if (mStream->getSampleRate() != a->getSampleRate()) {
-        trace("Unable to load audio, incompatible sample rate.\n");
-        fflush(stdout);
-        ok = false;
+    else if (mContainer->getSampleRate() != a->getSampleRate()) {
+        // we used to bail here, now just ignore it
+        trace("Warning: RecorderTrack audio had ideas about sample rate\n");
+        // ok = false;
     }
 
 	return ok;
@@ -830,7 +836,7 @@ void Recorder::setFrame(long f) {
 
 void Recorder::setTime(int seconds) 
 {
-    setFrame(seconds * mStream->getSampleRate());
+    setFrame(seconds * mContainer->getSampleRate());
 }
 
 bool Recorder::isRunning() 
@@ -850,10 +856,6 @@ void Recorder::start()
 		}
         mRunning = true;
 	}
-
-	// the stream can be closed after we start "running" if you
-	// change configuration so make sure it is open
- 	mStream->open();
 }
 
 void Recorder::stop() 
@@ -890,8 +892,7 @@ RecorderCalibrationResult* Recorder::calibrate()
     // but calibration is a very special case that is not used normally
     // and I don't want to mess with Timer events
 	for (int i = 0 ; i < 5 && mCalibrating ; i++) {
-        //SleepMillis(1000);
-        juce::Time::waitForMillisecondCounter(juce::Time::getMillisecondCounter() + 1000);
+        mContainer->sleep(1000);
     }
 
 	result->noiseFloor = mNoiseAmplitude;

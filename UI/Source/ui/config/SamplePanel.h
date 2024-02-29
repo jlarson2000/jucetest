@@ -6,8 +6,8 @@
 
 #include <JuceHeader.h>
 
-#include "../common/Form.h"
 #include "ConfigPanel.h"
+#include "SampleTable.h"
 
 class SamplePanel : public ConfigPanel 
 {
@@ -20,6 +20,11 @@ class SamplePanel : public ConfigPanel
     void save();
     void cancel();
 
+    void resized() override;
+
   private:
+
+    SampleTable table;
+    juce::String lastFolder;
 
 };

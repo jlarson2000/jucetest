@@ -76,6 +76,7 @@ class MainMenu : public juce::Component, public juce::MenuBarModel
         Samples,
         MidiDevices,
         AudioDevices,
+        InstallSamples,
 
         // Help
         KeyBindings,

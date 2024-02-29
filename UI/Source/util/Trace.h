@@ -18,6 +18,8 @@
 #define TRACE_H
 
 #include <stdarg.h>
+// for juce::String
+#include <JuceHeader.h>
 
 extern bool TraceToDebug;
 extern bool TraceToStdout;
@@ -31,6 +33,7 @@ extern bool TraceToStdout;
 void trace(const char *string, ...);
 void vtrace(const char *string, va_list args);
 
+void trace(juce::String& js);
 
 /****************************************************************************
  *                                                                          *

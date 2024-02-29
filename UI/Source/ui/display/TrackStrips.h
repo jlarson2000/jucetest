@@ -18,6 +18,7 @@ class TrackStrips : public juce::Component
     ~TrackStrips();
 
     void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
     void layout(juce::Rectangle<int>);
     void update(class MobiusState* state);
     void doAction(class UIAction* action);

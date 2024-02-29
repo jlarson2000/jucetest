@@ -1,28 +1,14 @@
-//
-// Significant retooling to replace AudioInterface, AudioStream, MidiInterface
-// with MobiusContainer
-// Added Util.h
-//
-
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Builds upon AudioInterface to provide a basic multi-track audio recorder.
- * 
- * UPDATE: The default track handling is all obsolte now, Mobius tracks
- * overload all the methods.
+/**
+ * A basic multi-track audio recorder and player.
  *
- * I don't like this level of abstraction any more but it's been around
- * so long and it works.
- *
- */ 
+ * This will be created by the Kernel and live for the duration of the kernel.
+ * It is given a MobiusContainer during initialization where it will
+ * register itself as a listener for audio events.
+ * 
+ * This is then the primary entry point between Juce and the engine.
+ */
 
-#ifndef AUDIO_RECORDER_H
-#define AUDIO_RECORDER_H
+#pragma once
 
 #include <stdio.h>
 
@@ -263,11 +249,14 @@ class SignalTrack : public RecorderTrack {
 
 /**
  * Interface of an object that may be installed to monitor audio interrupts.
- * This is similar to an RecorderTrack but doesn't usually affect the output 
+ * This is similar to a RecorderTrack but doesn't usually affect the output 
  * buffer.  It is intended to encapsulate code that needs to perform
  * operations on the RecorderTracks prior to the Recorder calling them
  * to process the audio buffers.  It will be called exactly once within the
  * interrupt handler before the RecorderTracks are processed.
+ *
+ * jsl - what was this for?
+ * 
  */
 class RecorderMonitor {
 
@@ -308,35 +297,28 @@ class RecorderCalibrationResult {
  *                                                                          *
  ****************************************************************************/
 
-class Recorder : public MobiusContainer::AudioHandler {
+class Recorder : public MobiusContainer::AudioListener {
 
   public:
 
-	//Recorder(class AudioInterface* ai, class MidiInterface* mi,
-    //class AudioPool* pool);
-	Recorder(class MobiusContainer* cont, class AudioPool* pool);
+	Recorder();
 	~Recorder();
+    
+    void initialize(class MobiusContainer* cont, class AudioPool* pool);
 	void shutdown();
 
-	// Configuration
+    // MobiusContainer::AudioListener
+    void containerAudioAvailable(MobiusContainer* cont);
 
-	void setSampleRate(int rate);
+    // Configuration
+
 	void setAutoStop(bool b);
 	void setEcho(bool b);
 	void setMonitor(RecorderMonitor* m);
 
-    // Audio device specification
-
-	//class AudioInterface* getAudioInterface();
-	//class AudioStream* getStream();
-	//void setSuggestedLatencyMsec(int i);
-	//bool setInputDevice(int id);
-    //bool setInputDevice(const char* name);
-	//bool setOutputDevice(int id);
-	//bool setOutputDevice(const char* name);
-	//class AudioDevice* getInputDevice();
-	//class AudioDevice* getOutputDevice();
-    //class AudioPool* getAudioPool();
+    // container access for internal components
+    class MobiusContainer* getStream();
+    class AudioPool* getAudioPool();
 
     // Status
 
@@ -368,20 +350,18 @@ class Recorder : public MobiusContainer::AudioHandler {
 	void inputBufferModified(RecorderTrack* track, float* buffer);
 
 	// AudioHandler interface
-	void processAudioBuffers(AudioStream* stream);
+	void processAudioBuffers(MobiusContainer* stream);
 
  private:
 
     bool checkAudio(Audio* audio);
 	bool removeTrack(int n);
-	void processTracks(AudioStream* stream);
+	void processTracks(MobiusContainer* stream);
 	void calibrateInterrupt(float *input, float *output, long frames);
 
-	class AudioInterface* mAudio;
-	//class MidiInterface* mMidi;
+    class MobiusContainer* mContainer;
     class AudioPool* mAudioPool;
 
-	class AudioStream* mStream;
 	RecorderMonitor* mMonitor;
 
 	int mLatency;			// latency correction in milliseconds
@@ -412,4 +392,3 @@ class Recorder : public MobiusContainer::AudioHandler {
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

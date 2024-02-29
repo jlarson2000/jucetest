@@ -1,6 +1,6 @@
 
 #include "MobiusInterface.h"
-#include "MobiusSimulator.h"
+#include "MobiusShell.h"
 
 MobiusInterface* MobiusInterface::Singleton = nullptr;
 
@@ -11,7 +11,7 @@ MobiusInterface::~MobiusInterface()
 MobiusInterface* MobiusInterface::getMobius(MobiusContainer* container)
 {
     if (Singleton == nullptr) {
-        Singleton = new MobiusSimulator(container);
+        Singleton = new MobiusShell(container);
     }
     return Singleton;
 }

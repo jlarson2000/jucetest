@@ -450,6 +450,7 @@ void XmlRenderer::parseStructure(XmlElement* e, Structure* structure)
 #define EL_SCRIPT_REF "ScripRef"
 #define ATT_FILE "file"
 
+// old name was just "Samples" not bothering with an upgrade
 #define EL_SAMPLE_CONFIG "SampleConfig"
 
 #define EL_CONTROL_SURFACE "ControlSurface"
@@ -694,6 +695,9 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 		else if (child->isName(EL_ALT_FEEDBACK_DISABLES)) {
             c->setAltFeedbackDisables(parseStringList(child));
 		}
+        else {
+            trace("Unknnown element %s\n", child->getName());
+        }
 	}
 
     // formerly had to do these last after the object lists
@@ -1237,7 +1241,7 @@ void XmlRenderer::parse(XmlElement* e, ScriptConfig* c)
 //
 //////////////////////////////////////////////////////////////////////
 
-#define EL_SAMPLES "Samplea"
+// old name, now render EL_SAMPLE_CONFIG
 #define EL_SAMPLE "Sample"
 #define ATT_PATH "path"
 #define ATT_SUSTAIN "sustain"
@@ -1248,7 +1252,7 @@ void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
 {
     // I changed the class name to SampleConfig but for backward
     // compatibility the element and class name were originally Samples
-	b->addStartTag(EL_SAMPLES);
+	b->addStartTag(EL_SAMPLE_CONFIG);
 	b->incIndent();
 
     for (Sample* s = c->getSamples() ; s != nullptr ; s = s->getNext()) {
@@ -1263,7 +1267,7 @@ void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
     }
 
 	b->decIndent();
-	b->addEndTag(EL_SAMPLES);
+	b->addEndTag(EL_SAMPLE_CONFIG);
 }
 
 void XmlRenderer::parse(XmlElement* e, SampleConfig* c)
@@ -1276,10 +1280,10 @@ void XmlRenderer::parse(XmlElement* e, SampleConfig* c)
 
 		Sample* s = new Sample();
 
-        s->setFilename(e->getAttribute(ATT_PATH));
-        s->setSustain(e->getBoolAttribute(ATT_SUSTAIN));
-        s->setLoop(e->getBoolAttribute(ATT_LOOP));
-        s->setConcurrent(e->getBoolAttribute(ATT_CONCURRENT));
+        s->setFilename(child->getAttribute(ATT_PATH));
+        s->setSustain(child->getBoolAttribute(ATT_SUSTAIN));
+        s->setLoop(child->getBoolAttribute(ATT_LOOP));
+        s->setConcurrent(child->getBoolAttribute(ATT_CONCURRENT));
 
         if (last == nullptr)
 		  samples = s;

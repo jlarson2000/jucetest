@@ -39,6 +39,14 @@ void TrackStrips::configure(UIConfig* config)
     }
 }
 
+void TrackStrips::configure(MobiusConfig* config)
+{
+    for (int i = 0 ; i < tracks.size() ; i++) {
+        TrackStrip* strip = tracks[i];
+        strip->configure(config);
+    }
+}
+
 void TrackStrips::update(MobiusState* state)
 {
     for (int i = 0 ; i < tracks.size() ; i++) {

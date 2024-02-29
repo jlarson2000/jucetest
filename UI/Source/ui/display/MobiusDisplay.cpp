@@ -62,6 +62,8 @@ void MobiusDisplay::configure(MobiusConfig* config)
 {
     statusArea.configure(config);
     buttons.configure(config);
+    // LoopStack needs this
+    strips.configure(config);
     
     // force resized to reorganize the add/remove of any buttons
     // or track strip elements

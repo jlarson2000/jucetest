@@ -147,6 +147,10 @@ juce::PopupMenu MainMenu::getMenuForIndex (int menuIndex, const juce::String& me
         menu.addItem(Samples, "Samples");
         menu.addItem(MidiDevices, "MIDI Devices");
         menu.addItem(AudioDevices, "Audio Devices");
+
+        // temporary until it works well enough to do automatically
+        // maybe useful after that too
+        menu.addItem(InstallSamples, "Install Samples");
     }
     else if (menuIndex == menuIndexHelp)
     {

@@ -9,9 +9,6 @@
  * Juce migration it didn't really make sense to retain any of that so
  * we'll start evolving things to the new model as they are ported over.
  *
- * While this is currently part of MobiusSimulator, it is really the slow
- * evolution of the real kernel.
- *
  * Extreme caution should be made calling functions on this object.
  * That should only be done by kernel code.  Shell code normally uses
  * the a KernelCommunication object to pass information back and forth
@@ -32,7 +29,7 @@ class MobiusKernel
 {
   public:
 
-    MobiusKernel(class MobiusSimulator* shell, class KernelCommunicator* comm);
+    MobiusKernel(class MobiusShell* shell, class KernelCommunicator* comm);
     ~MobiusKernel();
 
     /**
@@ -41,17 +38,14 @@ class MobiusKernel
      * is kind of arbitrary, consider doing it one way or the other.
      * Or just pulling it from the MobiusShell
      */
-    void initialize(class MobiusContainer* cont, class MobiusConfiguration* config);
+    void initialize(class MobiusContainer* cont, class MobiusConfig* config);
 
     // normally this should be private, but leave it open for the shell for testing
     void consumeCommunications();
 
-    // MobiusContainer::AudioListener
-    void containerAudioAvailable(class MobiusContainer* cont);
-
     private:
 
-    class MobiusSimulator* shell = nullptr;
+    class MobiusShell* shell = nullptr;
     class KernelCommunicator* communicator = nullptr;
     class MobiusContainer* container = nullptr;
     class MobiusConfig* configuration = nullptr;
@@ -59,13 +53,11 @@ class MobiusKernel
     // slowly start dragging stuff over
     // use static members eventually
     class Recorder* mRecorder = nullptr;
-    class AudioPool* mAudioPool = nullptr;
     //class SampleTrack* mSampleTrack = nullptr;
 
     void reconfigure();
-    void initObjectPools();
     void initRecorder();
-    void installSamples();
+    void installSamples(class SamplePack* pack);
 
 };
 

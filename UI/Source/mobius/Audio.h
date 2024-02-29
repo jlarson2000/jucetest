@@ -364,6 +364,9 @@ class Audio {
 	Audio();
 	Audio(class AudioPool* pool);
 	Audio(class AudioPool* pool, const char *filename);
+    // the new interface
+    Audio(class AudioPool* pool, class Sample* src);
+
 	~Audio();
     void free();
 	
@@ -440,6 +443,7 @@ class Audio {
 	static int WriteFormat;
 
 	void init();
+    void install(Sample* src);
 	void decacheCursors();
 	void freeBuffers();
     void freeBuffer(float* b);
@@ -568,6 +572,7 @@ class AudioPool {
 
     Audio* newAudio();
     Audio* newAudio(const char* file);
+    Audio* newAudio(Sample* src);
     void freeAudio(Audio* a);
 
     float* newBuffer();

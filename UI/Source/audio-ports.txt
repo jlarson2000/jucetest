@@ -1,0 +1,14 @@
+Notes on the "ports" concept
+
+ * The container organizes audio data into "ports" which are collections
+ * of mono channels, either input or output.  We have only ever supported
+ * ports with two stereo channels.  The MobiusConfig/TrackSetup can
+ * set which ports tracks receive on and send to.
+ *
+ * The acutal number of channels currently configured in the hardware may not
+ * match that so if we ask for port data that doesn't exist the container
+ * is expected to return something empty.  We should probably allow it
+ * to return nullptr to indiciate port misconfiguration.  At the moment,
+ * we're only supporting a single port, which will always be there.
+ * We'll ask for whatever port happens to be configured, but the container
+ * may not give us that one.

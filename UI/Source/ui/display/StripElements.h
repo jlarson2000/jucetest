@@ -86,8 +86,8 @@ class StripLoopStack : public StripElement
     StripLoopStack(class TrackStrip* parent);
     ~StripLoopStack();
 
-    void configure(class MobiusConfig* config);
-    void configure(UIConfig* config);
+    void configure(UIConfig* config) override;
+    void configure(class MobiusConfig* config) override;
     
     int getPreferredHeight() override;
     int getPreferredWidth() override;

@@ -104,6 +104,7 @@ class StripElement : public juce::Component
     ~StripElement();
 
     virtual void configure(class UIConfig* config);
+    virtual void configure(class MobiusConfig* config);
     virtual void update(class MobiusState* state);
     
     virtual int getPreferredWidth();

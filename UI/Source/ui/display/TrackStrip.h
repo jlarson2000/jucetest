@@ -24,6 +24,7 @@ class TrackStrip : public juce::Component
     int getTrackNumber();
 
     void configure(class UIConfig* config);
+    void configure(class MobiusConfig* config);
     void layout(juce::Rectangle<int>);
     void update(class MobiusState* state);
 

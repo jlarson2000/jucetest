@@ -164,6 +164,7 @@
     <ClCompile Include="..\..\Source\ui\config\ParameterField.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\PresetPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SamplePanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\SampleTable.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ScriptPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
@@ -206,8 +207,10 @@
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\MobiusSimulator.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\MobiusShell.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Recorder.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\Sample.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\SampleReader.cpp"/>
     <ClCompile Include="..\..\Source\mobius\WaveFile.cpp"/>
     <ClCompile Include="..\..\Source\util\DataModel.cpp"/>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp"/>
@@ -2532,6 +2535,7 @@
     <ClInclude Include="..\..\Source\ui\config\ParameterField.h"/>
     <ClInclude Include="..\..\Source\ui\config\PresetPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SamplePanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\SampleTable.h"/>
     <ClInclude Include="..\..\Source\ui\config\ScriptPanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButton.h"/>
@@ -2574,8 +2578,10 @@
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusKernel.h"/>
-    <ClInclude Include="..\..\Source\mobius\MobiusSimulator.h"/>
+    <ClInclude Include="..\..\Source\mobius\MobiusShell.h"/>
     <ClInclude Include="..\..\Source\mobius\Recorder.h"/>
+    <ClInclude Include="..\..\Source\mobius\Sample.h"/>
+    <ClInclude Include="..\..\Source\mobius\SampleReader.h"/>
     <ClInclude Include="..\..\Source\mobius\WaveFile.h"/>
     <ClInclude Include="..\..\Source\util\DataModel.h"/>
     <ClInclude Include="..\..\Source\util\FileUtil.h"/>

@@ -1,4 +1,23 @@
 
+Model SampleConfig which contains Sample
+
+Sample can be loaded to have a float* of the sample content
+
+UI edited SampleConfig/Sample without loading
+
+at some point UI loads sample files and builds another SampleConfig with loaded Samples
+  - could have another container for this, but reuse it for now
+
+UI calls MobiusInterface::installSamples
+  - full ownership of the SampleConfig is taken
+
+
+
+
+
+----------------------------------------------------------------------
+previous thought process...
+
 Need to move Sample file loading above the engine.
 
 In the UI, read the MobiusConfig and add/remove files
