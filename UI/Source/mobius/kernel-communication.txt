@@ -1,0 +1,54 @@
+KernelCommunicator is turning out to be a royal pain
+  with send/receive, return/accept for everything
+
+The old way of just using a shared pointer and testing it works for
+single objects okay, but requires a bunch of transfer fields
+
+message passing is starting to feel best, an expansion of the old
+MobusThread and ThreadEvent
+
+KernelMessage
+  - communication object maintained in a pool with two lists
+
+  kernelMessagesIn
+    linked list of messages to pass into the kernel
+  kernelMessageOut
+    linked list of message to return from the kernel
+
+Could reuse the KernelCommunicator for this, in fact it could be the pool manager
+
+KernelMEssage
+  common object for all message passing
+  maintained on a linked list but keep that inside the comm objedt so we could use
+  a vector as a ring buffer if we wanted
+
+  has a fixed substructure for most common things
+  can have void* to pass arbitary objects
+
+  has a MsgType to indicate the type of message and what the void* means
+
+very flexible and easy and can be encapsulated nicely in the Communicator
+
+takes the place of ThreadEvent
+
+MsgConfiguration
+  - new MobiusConfig is being either sent or discarded
+
+MsgSample
+  - new SamplePack is being sent or discarded
+
+Old Event types
+
+	TE_NONE,
+	TE_WAIT,
+    TE_SAVE_LOOP,
+    TE_SAVE_AUDIO,
+    TE_SAVE_PROJECT,
+    TE_SAVE_CONFIG,
+    TE_LOAD,
+    TE_DIFF,
+    TE_DIFF_AUDIO,
+	TE_TIME_BOUNDARY,
+	TE_ECHO,
+	TE_PROMPT,
+	TE_GLOBAL_RESET
