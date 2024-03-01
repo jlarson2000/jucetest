@@ -38,9 +38,9 @@ class Simulator
     void notifyBeatListeners(class MobiusLoopState* loop, long bufferFrames);
     
     void simulateEvents();
-    class class MobiusEventState* simulateEvent(class MobiusLoopState* loop, class UIEventType* type, int q);
+    class MobiusEventState* simulateEvent(class MobiusLoopState* loop, class UIEventType* type, int q);
 
-    class class MobiusTrackState* getTargetTrack(class class UIAction* action);
+    class MobiusTrackState* getTargetTrack(class UIAction* action);
     void doSwitch(class UIAction* action, int next);
 
     // Parameters

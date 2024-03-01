@@ -263,6 +263,7 @@ void AudioFade::inc(long frame, bool reverse)
 	}
 }
 
+#if 0
 void AudioFade::saveFadeAudio(Audio* a, const char* type)
 {
 	char name[1024];
@@ -273,6 +274,7 @@ void AudioFade::saveFadeAudio(Audio* a, const char* type)
 
 	a->write(name);
 }
+#endif
 
 /**
  * Apply a forward fade to a block of frames in an AudioBuffer.
@@ -322,6 +324,7 @@ void AudioFade::fade(AudioBuffer* buf, long curFrame)
 		char filename[128];
 		Audio* save = NULL;
 
+#if 0
 		bool trace = false;
 		if (trace) {
 			printf("Layer fade %s: %ld offset %ld frames %s\n",
@@ -334,9 +337,11 @@ void AudioFade::fade(AudioBuffer* buf, long curFrame)
 			sprintf(filename, "fade-before-%d.wav", FadeCount);
 			save->write(filename);
 		}
-
+#endif
+        
 		fade(fadeDest, buf->channels, 0, fadeFrames, fadeOffset, up);
 
+#if 0
 		if (save != NULL) {
 			save->reset();
 			save->put(fadeDest, fadeFrames, 0);
@@ -344,6 +349,7 @@ void AudioFade::fade(AudioBuffer* buf, long curFrame)
 			save->write(filename);
 			delete save;
 		}
+#endif        
 		FadeCount++;
 	}
 }

@@ -1,0 +1,102 @@
+
+The way this is handled right now is way too hacky, can let it
+go for testing but it needs to be addressed asap.  Among the problems:
+
+- when changing SampleConfig we need to replace the existing SampleTrack
+with a new one reated in the shell, there is no way to tell
+which RecorderTrack is the current SampleTrack without testing isPrority
+
+- there is probbly an assumption about the order of RecorderTracks in
+the Recorder::mTracks array being the same as the Track array in Mobius
+
+Old Mobus kept a pointer to the SampleTradk I think so it could directly
+modify it and trigger playback
+
+There was no concept of seding Actions to the track in a general way
+it touched it directly.  That's also how loop Track works too.  Recorder
+doesn't do anything beyond just asking them to produce audio, it can't
+send actions to them
+
+This is proabbly not too bad, simplifies having to type them and
+not know where they are after installation
+
+The way the track was controlled was terrible
+
+/**
+ * SampleTrigger global function handler.
+ * 
+ * OLD NOTES: not accurate?
+ * We will copy the sample content into both the input and output
+ * buffers of the interrupt handler, the input buffer so we can inject
+ * content for testing, and the output buffer so we can hear it.
+ * But the input and output "cursors" are both starting from the first
+ * frame in the same when they should be offset by
+ * InputLatecny + OutputLatency.  What this means is that any recorded
+ * content will play back at a slightly different location than what
+ * was heard during recording.   This is generally not noticeable
+ * except for a slight difference in the character of the "phasing" at
+ * the start of the loop if the recording was ended with an overdub
+ * and the overdub continues into the next layer.  It will sound
+ * one way when first recorded and different on the next playback.  
+ * Fixing this requires that we maintain a pair of record/play cursors
+ * like we do for Loops.  I don't think that's worth messing with.
+ */
+PUBLIC void Mobius::sampleTrigger(Action* action, int index)
+{
+	mSampleTrack->trigger(mInterruptStream, index, action->down);
+}
+
+/**
+ * This if for the script interpreter so it can know
+ * the number of frames in the last triggered sample.
+ */
+PUBLIC long Mobius::getLastSampleFrames()
+{
+	return mSampleTrack->getLastSampleFrames();
+}
+
+	// prepare the tracks before running scripts
+	mSampleTrack->prepareForInterrupt();
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->prepareForInterrupt();
+	}
+
+PRIVATE void Mobius::propagateInterruptConfig() 
+{
+    // turn monitoring on or off
+	if (mRecorder != NULL)
+      mRecorder->setEcho(mInterruptConfig->isMonitorAudio());
+
+    // track changes to input and output latency
+    if (mSampleTrack != NULL)
+      mSampleTrack->updateConfiguration(mInterruptConfig);
+
+
+void SampleTriggerFunction::invoke(Action* action, Mobius* m)
+{
+	if (action->down) {
+		trace(action, m);
+
+        int sampleIndex = index;
+        if (sampleIndex == 0)
+          sampleIndex = action->arg.getInt();
+
+        // args are 1 based, convert
+        sampleIndex--;
+
+        if (sampleIndex >= 0)
+          m->sampleTrigger(action, sampleIndex);
+    }
+}
+
+
+So we still sent an Adtion in, action->invoke was called, we
+looped back around to Mobius::sampleTrigger
+
+
+It feels okay to allow the RecorderTrack pointers to remain stable, Recorder
+won't replace these without permission
+
+Where actions get applied to them needs to be in the kernel
+

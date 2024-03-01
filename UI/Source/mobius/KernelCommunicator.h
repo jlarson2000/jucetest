@@ -65,13 +65,13 @@ class KernelMessage
   public:
 
     // message list chain, nullptr if not on a list
-    KernelMessage next = nullptr;
+    KernelMessage* next = nullptr;
 
     // what it is
     MessageType type = MsgNone;
 
     // what it has
-    MessageObject object.pointer = nullptr;
+    MessageObject object;
 
     // todo: a few fixed arguments so we don't have to pass objects
 

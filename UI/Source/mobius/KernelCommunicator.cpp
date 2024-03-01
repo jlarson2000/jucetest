@@ -86,11 +86,11 @@ void KernelCommunicator::deleteList(KernelMessage* list)
  * anomolies.  I suppose we might trigger growth a little too soon but
  * if we're that close we're probably going to grow anyway.
  */
-KernelCommunicator::checkCapacity()
+void KernelCommunicator::checkCapacity()
 {
     if (totalAllocated == 0) {
         // we're initialzing
-        for (int i = ; i < KernelPoolInitialSize ; i++) {
+        for (int i = 0 ; i < KernelPoolInitialSize ; i++) {
             KernelMessage* msg = new KernelMessage();
             free(msg);
         }

@@ -67,8 +67,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
     void interruptEnd();
 
     // KernelMessage handling
-    void reconfigure();
-    void initRecorder();
+    void reconfigure(class KernelMessage*);
+    void initRecorder(class KernelMessage*);
     //void installSamples(class SamplePack* pack);
 
 };

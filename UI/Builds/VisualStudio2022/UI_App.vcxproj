@@ -209,7 +209,6 @@
     <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusShell.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Recorder.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\Sample.cpp"/>
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp"/>
     <ClCompile Include="..\..\Source\mobius\WaveFile.cpp"/>
     <ClCompile Include="..\..\Source\util\DataModel.cpp"/>
@@ -2580,7 +2579,6 @@
     <ClInclude Include="..\..\Source\mobius\MobiusKernel.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusShell.h"/>
     <ClInclude Include="..\..\Source\mobius\Recorder.h"/>
-    <ClInclude Include="..\..\Source\mobius\Sample.h"/>
     <ClInclude Include="..\..\Source\mobius\SampleReader.h"/>
     <ClInclude Include="..\..\Source\mobius\WaveFile.h"/>
     <ClInclude Include="..\..\Source\util\DataModel.h"/>

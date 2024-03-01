@@ -95,15 +95,17 @@ void MobiusKernel::consumeCommunications()
  * not really important and I don't think worth messing with different
  * styles of consumption.
  */
-void MobiusKernel::reconfigure(MobiusConfig* request)
+void MobiusKernel::reconfigure(KernelMessage* request)
 {
+  
+    
     // build a message to return the old one
     KernelMessage* response = communicator.alloc();
-    response.type = MsgConfigure;
-    response.object.configuration = configuration;
+    response->type = MsgConfigure;
+    response->object.configuration = configuration;
 
     // take the new one
-    configuration = request.object.configuration;
+    configuration = request->object.configuration;
 
     // send the old one back
     communicator.pushShell(response);

@@ -193,8 +193,6 @@
         <FILE id="TK5FKu" name="MobiusShell.h" compile="0" resource="0" file="Source/mobius/MobiusShell.h"/>
         <FILE id="w8ViL0" name="Recorder.cpp" compile="1" resource="0" file="Source/mobius/Recorder.cpp"/>
         <FILE id="wmtmEF" name="Recorder.h" compile="0" resource="0" file="Source/mobius/Recorder.h"/>
-        <FILE id="i2vJj3" name="Sample.cpp" compile="1" resource="0" file="Source/mobius/Sample.cpp"/>
-        <FILE id="HUErun" name="Sample.h" compile="0" resource="0" file="Source/mobius/Sample.h"/>
         <FILE id="JOsfQX" name="SampleReader.cpp" compile="1" resource="0"
               file="Source/mobius/SampleReader.cpp"/>
         <FILE id="RDP88j" name="SampleReader.h" compile="0" resource="0" file="Source/mobius/SampleReader.h"/>

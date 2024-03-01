@@ -814,9 +814,6 @@
     <ClCompile Include="..\..\Source\mobius\Recorder.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\Sample.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -3565,9 +3562,6 @@
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Recorder.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\Sample.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\SampleReader.h">
