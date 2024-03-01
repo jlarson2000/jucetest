@@ -363,18 +363,12 @@ class Audio {
 
 	Audio();
 	Audio(class AudioPool* pool);
-	Audio(class AudioPool* pool, const char *filename);
-    // the new interface
-    Audio(class AudioPool* pool, class Sample* src);
+    //Audio(class AudioPool* pool, const char *filename);
 
 	~Audio();
     void free();
 	
     class AudioPool* getPool();
-
-    // set the global default file write format
-	static void setWriteFormat(int fmt);
-	static void setWriteFormatPCM(bool b);
 
 	// Audio Characteristics
 
@@ -397,14 +391,20 @@ class Audio {
 	void reset();
 	void zero();
 	void splice(long startFrame, long frames);
-	void copy(Audio* src);
-	void copy(Audio* src, int feedback);
+
+    // try to get rid of these
+    // void copy(Audio* src);
+	// void copy(Audio* src, int feedback);
 
 	// FIle IO
+    // no longer available
 
-	int read(const char *filename);
-	int write(const char *filename);
-	int write(const char *filename, int format);
+    // set the global default file write format
+	//static void setWriteFormat(int fmt);
+	//static void setWriteFormatPCM(bool b);
+	// int read(const char *filename);
+	// int write(const char *filename);
+	// int write(const char *filename, int format);
 
 	// Convenience operations using builtin AudioCursor
 	// These should only be used in simple cases
@@ -436,14 +436,13 @@ class Audio {
 	/**
 	 * Quickly write a sample buffer to a file.
 	 */
-	static void write(const char* filename, float* buffer, long length);
+	// static void write(const char* filename, float* buffer, long length);
 
   protected:
 
-	static int WriteFormat;
+	// static int WriteFormat;
 
 	void init();
-    void install(Sample* src);
 	void decacheCursors();
 	void freeBuffers();
     void freeBuffer(float* b);
@@ -536,57 +535,6 @@ class Audio {
 	 */
 	AudioCursor* mPlay;
 	AudioCursor* mRecord;
-
-};
-
-/****************************************************************************
- *                                                                          *
- *                                    POOL                                  *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * This structure is allocated at the top of every Audio buffer.
- */
-struct OldPooledBuffer {
-
-	// todo, pool status, statistics
-	OldPooledBuffer* next;
-	int pooled;
-
-};
-
-/**
- * Maintains a pool of audio buffers.
- * There is normally only one of these in a Mobius instance.
- */
-class AudioPool {
-    
-  public:
-
-    AudioPool();
-    ~AudioPool();
-
-    void init(int buffers);
-    void dump();
-
-    Audio* newAudio();
-    Audio* newAudio(const char* file);
-    Audio* newAudio(Sample* src);
-    void freeAudio(Audio* a);
-
-    float* newBuffer();
-    void freeBuffer(float* b);
-
-  private:
-
-    //class CriticalSection* mCsect;
-    juce::CriticalSection mCsect;
-    
-    OldPooledBuffer* mPool;
-    //class SampleBufferPool* mNewPool;
-    int mAllocated;
-	int mInUse;
 
 };
 

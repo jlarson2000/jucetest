@@ -1,130 +1,31 @@
 /**
- * Classes related to shell/kernel management of samples
- * defined in the SampleConfig.  Mostly the same as the original
- * with refactoring for file loading and the shell/kernel.
+ * outstanding issues:
+ *   SampleTrack::updateConfiguration
+ * 
+ * This file contains the implementation of SampleTrack methods
+ * related to runtime execution.
+ *
+ * Code for building a SampleTrack is in SampleTrackBuilder
+ *
  */
-
-//#include <stdio.h>
-//#include <memory.h>
 
 #include "../util/Trace.h"
 #include "../util/Util.h"
+#include "../util/MobiusConfig.h"
 #include "../model/SampleConfig.h"
 
-//#include "Mobius.h"
-//#include "MobiusConfig.h"
 #include "MobiusContainer.h"
 
 #include "Audio.h"
 #include "Recorder.h"
-#include "Sample.h"
 
-//////////////////////////////////////////////////////////////////////
-//
-// SamplePack
-//
-//////////////////////////////////////////////////////////////////////
-
-SamplePack::SamplePack()
-{
-    mSamples = nullptr;
-}
-
-/**
- * Build a SamplePack by converting the Samples from a SampleConfig
- * into a list of SamplePlayers containing Audio objects.
- * Use the provided pool to allocate Audio.
- */
-SamplePack::SamplePack(AudioPool* pool, SampleConfig* samples)
-{
-    mSamples = nullptr;
-
-	SamplePlayer* last = nullptr;
-
-    if (samples != nullptr) {
-        for (Sample* s = samples->getSamples() ; s != nullptr ; s = s->getNext()) {
-            SamplePlayer* p = new SamplePlayer(pool, s);
-            if (last == nullptr)
-              mSamples = p;
-            else
-              last->setNext(p);
-            last = p;
-        }
-    }
-}
-
-SamplePack::~SamplePack()
-{
-    // currently we always make one of these and call stealSamples so
-    // techniqlly we don't need to free anything, but we should 
-}
-
-SamplePlayer* SamplePack::getSamples()
-{
-    return mSamples;
-}
-
-SamplePlayer* SamplePack::stealSamples()
-{
-    SamplePlayer* samples = mSamples;
-    mSamples = nullptr;
-    return samples;
-}
+#include "SampleTrack.h"
 
 //////////////////////////////////////////////////////////////////////
 //
 // SamplePlayer
 //
 //////////////////////////////////////////////////////////////////////
-
-SamplePlayer::SamplePlayer(AudioPool* pool, Sample* src)
-{
-	init();
-	
-    mFilename = CopyString(src->getFilename());
-	mSustain = src->isSustain();
-	mLoop = src->isLoop();
-	mConcurrent = src->isConcurrent();
-    mAudio = pool->newAudio(src);
-}
-
-void SamplePlayer::init()
-{
-	mNext = nullptr;
-    mFilename = nullptr;
-	mAudio = nullptr;
-	mSustain = false;
-	mLoop = false;
-	mConcurrent = false;
-
-    mCursors = nullptr;
-    mCursorPool = nullptr;
-    mTriggerHead = 0;
-    mTriggerTail = 0;
-	mDown = false;
-
-	mFadeFrames = 0;
-    mInputLatency = 0;
-    mOutputLatency = 0;
-}
-
-SamplePlayer::~SamplePlayer()
-{
-    delete mFilename;
-	delete mAudio;
-
-    // if we had a global cursor pool, this should
-    // return it to the pool instead of deleting
-    delete mCursors;
-    delete mCursorPool;
-
-    SamplePlayer* nextp = nullptr;
-    for (SamplePlayer* sp = mNext ; sp != nullptr ; sp = nextp) {
-        nextp = sp->getNext();
-		sp->setNext(nullptr);
-        delete sp;
-    }
-}
 
 const char* SamplePlayer::getFilename()
 {
@@ -391,55 +292,6 @@ void SamplePlayer::freeCursor(SampleCursor* c)
  * possibilities.
  */
 
-/**
- * Constructor for record cursors.
- */
-SampleCursor::SampleCursor()
-{
-    init();
-}
-
-/**
- * Constructor for play cursors.
- * UPDATE: I haven't been back here for a long time, but it looks like
- * we're always creating combo play/record cursors.
- */
-SampleCursor::SampleCursor(SamplePlayer* s)
-{
-    init();
-	mRecord = new SampleCursor();
-	setSample(s);
-}
-
-
-/**
- * Initialize a freshly allocated cursor.
- */
-void SampleCursor::init()
-{
-    mNext = nullptr;
-    mRecord = nullptr;
-    mSample = nullptr;
-	mAudioCursor = new AudioCursor();
-    mStop = false;
-    mStopped = false;
-    mFrame = 0;
-    mMaxFrames = 0;
-}
-
-SampleCursor::~SampleCursor()
-{
-	delete mAudioCursor;
-    delete mRecord;
-
-    SampleCursor *el, *next;
-    for (el = mNext ; el != nullptr ; el = next) {
-        next = el->getNext();
-		el->setNext(nullptr);
-        delete el;
-    }
-}
-
 void SampleCursor::setNext(SampleCursor* c)
 {
     mNext = c;
@@ -660,30 +512,16 @@ void SampleCursor::play(float* outbuf, long frames)
 //
 //////////////////////////////////////////////////////////////////////
 
-// SampleTrack::SampleTrack(Mobius* mob) 
-SampleTrack::SampleTrack() 
+/**
+ * Don't need this.  mSampleCount was calculated at constructed and you
+ * can't change the list after that.
+ */
+int SampleTrack::getSampleCount()
 {
-	init();
-	//mMobius = mob;
-}
-
-void SampleTrack::init() 
-{
-    initRecorderTrack();
-
-	//mMobius = nullptr;
-	mPlayerList = nullptr;
-	mSampleCount = 0;
-	mLastSample = -1;
-	mTrackProcessed = false;
-
-	for (int i = 0 ; i < MAX_SAMPLES ; i++)
-	  mPlayers[i] = nullptr;
-}
-
-SampleTrack::~SampleTrack()
-{
-	delete mPlayerList;
+    int count = 0;
+    for (SamplePlayer* p = mPlayerList ; p != nullptr ; p = p->getNext())
+      count++;
+    return count;
 }
 
 /**
@@ -693,93 +531,6 @@ SampleTrack::~SampleTrack()
 bool SampleTrack::isPriority()
 {
     return true;
-}
-
-/**
- * Compare the sample definitions in a Samples object with the
- * active loaded samples.  If there are any differences it is a signal
- * the caller to reload the samples and phase them in to the next interrupt.
- *
- * Differencing is relatively crude, any order or length difference is
- * considered to be enough to reload the samples.  In theory if we have lots
- * of samples and people make small add/remove actions we could optimize
- * the rereading but for now that's not very important.
- *
- */
-bool SampleTrack::isDifference(SampleConfig* samples)
-{
-    bool difference = false;
-    
-    if (samples == nullptr) {
-        // diff if we have anything
-        if (mPlayerList != nullptr)
-          difference = true;
-    }
-    else {
-        int srcCount = 0;
-        for (Sample* s = samples->getSamples() ; s != nullptr ; s = s->getNext())
-          srcCount++;
-
-        int curCount = 0;
-        for (SamplePlayer* p = mPlayerList ; p != nullptr ; p = p->getNext())
-          curCount++;
-
-        if (srcCount != curCount) {
-            // doesn't matter what changed
-            difference = true;
-        }
-        else {
-            Sample* s = samples->getSamples();
-            SamplePlayer* p = mPlayerList;
-            while (s != nullptr && !difference) {
-                // note that we're comparing against the relative path
-                // not the absolute path we built in the SamplePlayer
-                // constructor 
-                if (!StringEqual(s->getFilename(), p->getFilename())) {
-                    difference = true;
-                }
-                else {
-                    s = s->getNext();
-                    p = p->getNext();
-                }
-            }
-        }
-    }
-
-    return difference;
-}
-
-/**
- * This MUST be called from within the audio interrupt handler.
- */
-void SampleTrack::setSamples(SamplePack* pack)
-{
-	delete mPlayerList;
-	mPlayerList = pack->stealSamples();
-    delete pack;
-
-	mSampleCount = 0;
-	mLastSample = -1;
-
-	if (mPlayerList != nullptr) {
-		// index them for easier access
-		for (SamplePlayer* sp = mPlayerList ; 
-			 sp != nullptr && mSampleCount < MAX_SAMPLES ;
-			 sp = sp->getNext()) {
-			mPlayers[mSampleCount++] = sp;
-		}
-
-		for (int i = mSampleCount ; i < MAX_SAMPLES ; i++)
-		  mPlayers[i] = nullptr;
-	}
-}
-
-int SampleTrack::getSampleCount()
-{
-    int count = 0;
-    for (SamplePlayer* p = mPlayerList ; p != nullptr ; p = p->getNext())
-      count++;
-    return count;
 }
 
 /**

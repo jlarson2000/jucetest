@@ -11,6 +11,25 @@ at some point UI loads sample files and builds another SampleConfig with loaded 
 UI calls MobiusInterface::installSamples
   - full ownership of the SampleConfig is taken
 
+Old control flow:
+
+Mobius built a SamplePack from Samples/SampleConfig
+
+SamplePack::SamplePack(AudioPool* pool, const char* homedir, Samples* samples)
+
+for each Sample in Samples it created a SamplePlayer
+
+            SamplePlayer* p = new SamplePlayer(pool, homedir, s);
+
+It can still do all that just take out sample loading
+
+SamplePlayer converts the Sample into an Audio
+
+New Process:
+
+  MobiusShell
+    converts the loaded SampleConfig into a SamplePack
+    
 
 
 

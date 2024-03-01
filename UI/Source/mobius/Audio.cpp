@@ -1,5 +1,26 @@
+// Allocation issues
+//
+// void Audio::init()
+//    creates two AudioCursors
+// Audio::initIndex
+//    creates a float* of all the buffers for fast access
+//
+//  void Audio::growIndex(int count, bool up)
+//     extends the index
+//
+// Audio::allocBuffer
+//    allocates a buffer if there is no pool
+//
+// delete issues
+//
+// ~Audio
+//    says "these aren't actually pooled, just delete the buffers"
+//  growIndes
+//  file stuff
+//
 // Porting notes
 //
+// Factored AudioPool out to AudioPool.cpp
 // Changed CriticalSection to use Juce CriticalSection/ScopedLock
 // Cleaned up includes, remove PUBLIC
 // Removed SampleBufferPool
@@ -24,11 +45,7 @@
  *
  */
 
-// for CriticalSection/ScopedLock
-#include <JuceHeader.h>
-
 #include "../util/Trace.h"
-#include "../model/SampleConfig.h"
 
 //#include <stdio.h>
 //#include <memory.h>
@@ -36,7 +53,7 @@
 //#include "Thread.h"   formerly for CriticalSection
 
 // temporary, should no longer be used
-#include "WaveFile.h"
+//#include "WaveFile.h"
 
 // experiment that didn't work
 //#include "ObjectPool.h"
@@ -115,20 +132,14 @@ Audio::Audio(AudioPool* pool)
     mPool = pool;
 }
 
-
+#if 0
 Audio::Audio(AudioPool* pool, const char *filename) 
 {
 	init();
     mPool = pool;
 	read(filename);
 }
-
-Audio::Audio(AudioPool* pool, Sample* src) 
-{
-	init();
-    mPool = pool;
-	install(src);
-}
+#endif
 
 void Audio::init() 
 {
@@ -205,29 +216,6 @@ bool Audio::isEmpty()
 		  empty = false;
 	}
 	return empty;
-}
-
-/**
- * Copy the data from a loaded Sample into the Audio blocks.
- * This is a simplification of read() for the new world where
- * we no longer read files but instead are passed Sample objects
- * with the data already read.
- *
- * We can assume that the sample rate was appropriate
- * and that channel count was 2.  
- */
-void Audio::install(Sample* src)
-{
-    AudioBuffer b;
-
-    reset();
-    initIndex();
-
-    b.buffer = src->getData();
-    b.frames = src->getFrames();
-    b.channels = 2;
-    
-    append(&b);
 }
 
 /****************************************************************************
@@ -762,6 +750,9 @@ long Audio::prepareFrame(long frame, int* retIndex,
  *                                                                          *
  ****************************************************************************/
 
+// this compiles but commenting it out to enforce that we shouldn't be using it
+#if 0
+
 /**
  * A global that defines the default file format for writing audio files.
  * This may be shared by multiple plugins.
@@ -913,6 +904,7 @@ int Audio::write(const char *name, int format)
 	delete wav;
 	return error;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -925,6 +917,7 @@ int Audio::write(const char *name, int format)
  *
  */
 
+#if 0
 /**
  * Copy the contents of one Audio into another.
  * Note that this assumes the buffer doesn't have a lot of wasted
@@ -975,6 +968,7 @@ void Audio::applyFeedback(float* buffer, int feedback)
 		  buffer[i] = buffer[i] * modifier;
 	}
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -1257,204 +1251,6 @@ void Audio::insert(Audio* audio, long insertFrame)
 			put(audio, insertFrame);
         }
     }
-}
-
-/****************************************************************************/
-/****************************************************************************
- *                                                                          *
- *                                    POOL                                  *
- *                                                                          *
- ****************************************************************************/
-/****************************************************************************/
-
-/**
- * Create an initially empty audio pool.
- * There is normally only one of these in a Mobius instance.
- * Should have another list for all buffers outstanding?
- */
-AudioPool::AudioPool()
-{
-    // mCsect = new CriticalSection("AudioPool");
-    // juce::CriticalSection is a member object
-    mPool = NULL;
-    mAllocated = 0;
-    mInUse = 0;
-
-    // needs more testing
-    // !! channels
-    //mNewPool = new SampleBufferPool(FRAMES_PER_BUFFER * 2);
-    //mNewPool = NULL;
-}
-
-/**
- * Release the kracken.
- */
-AudioPool::~AudioPool()
-{
-    // delete mCsect;
-    // delete mNewPool;
-
-    OldPooledBuffer* next = NULL;
-    for (OldPooledBuffer* p = mPool ; p != NULL ; p = next) {
-        next = p->next;
-        delete p;
-    }
-}
-
-/**
- * Allocate a new Audio in this pool.
- * We could pool the outer Audio object too, but the buffers are
- * the most important.
- */
-Audio* AudioPool::newAudio()
-{
-    return new Audio(this);
-}
-
-/**
- * Allocate a new Audio in this pool and read a file.
- */
-Audio* AudioPool::newAudio(const char* file)
-{
-    return new Audio(this, file);
-}
-
-/**
- * Allocate a new Audio in this pool and convert the
- * contents of a loaded Sample.
- * this is the new interface, no longer reading files
- */
-Audio* AudioPool::newAudio(Sample* src)
-{
-    return new Audio(this, src);
-}
-
-/**
- * Return an Audio to the pool.
- * These aren't actually pooled, just free the buffers which
- * will happen in the destructor.
- */
-void AudioPool::freeAudio(Audio* a)
-{
-    a->free();
-}
-
-/**
- * Allocate a new buffer, using the pool if available.
- * In theory have to have a different pool for each size, assume only
- * one for now.
- * !! channels
- */
-float* AudioPool::newBuffer()
-{
-	float* buffer;
-
-    /*
-      if (mNewPool) {
-      buffer = mNewPool->allocSamples();
-      }
-      else {
-    */
-
-    // mCsect->enter();
-    { const juce::ScopedLock lock (mCsect);
-        
-		if (mPool == NULL) {
-			int bytesize = sizeof(OldPooledBuffer) + (BUFFER_SIZE * sizeof(float));
-			char* bytes = new char[bytesize];
-			OldPooledBuffer* pb = (OldPooledBuffer*)bytes;
-			pb->next = NULL;
-			pb->pooled = 0;
-			buffer = (float*)(bytes + sizeof(OldPooledBuffer));
-            mAllocated++;
-		}
-		else {
-			buffer = (float*)(((char*)mPool) + sizeof(OldPooledBuffer));
-			if (!mPool->pooled)
-			  Trace(1, "Audio buffer in pool not marked as pooled!\n");
-			mPool->pooled = 0;
-			mPool = mPool->next;
-		}
-		mInUse++;
-		//mCsect->leave();
-    }
-
-    // in both cases, make sure its empty
-    // !! these are big, need to keep the list clean and do it
-    // in a worker thread
-    memset(buffer, 0, BUFFER_SIZE * sizeof(float));
-
-    //	}
-
-	return buffer;
-}
-
-/**
- * Return a buffer to the pool.
- */
-void AudioPool::freeBuffer(float* buffer)
-{
-	if (buffer != NULL) {
-
-		//if (mNewPool != NULL) {
-        //mNewPool->freeSamples(buffer);
-        //}
-		//else {
-        
-        OldPooledBuffer* pb = (OldPooledBuffer*)
-            (((char*)buffer) - sizeof(OldPooledBuffer));
-
-        if (pb->pooled)
-          Trace(1, "Audio buffer already in pool!\n");
-        else {
-            const juce::ScopedLock lock (mCsect);
-            //mCsect->enter();
-            pb->next = mPool;
-            pb->pooled = 1;
-            mPool = pb;
-            mInUse--;
-            //mCsect->leave();
-        }
-        // }
-	}
-}
-
-void AudioPool::dump()
-{
-	//if (mNewPool != NULL) {
-    // need a dump method for the new one
-    //trace("NewBufferPool: %d in use ?? in pool\n", mInUse);
-    //}
-	//else {
-    
-    int pooled = 0;
-    { const juce::ScopedLock lock (mCsect);
-        
-        //mCsect->enter();
-        for (OldPooledBuffer* p = mPool ; p != NULL ; p = p->next)
-          pooled++;
-        //mCsect->leave();
-    }
-
-    int used = mAllocated - pooled;
-
-    trace("AudioPool: %d buffers allocated, %d in the pool, %d in use\n",
-           mAllocated, pooled, used);
-
-    // this should match
-    if (used != mInUse)
-      trace("AudioPool: Unmatched usage counters %d %d\n",
-             used, mInUse);
-
-    //}
-}
-
-/**
- * Warm the buffer pool with some number of buffers.
- * Was never implemented.
- */
-void AudioPool::init(int buffers)
-{
 }
 
 /****************************************************************************/

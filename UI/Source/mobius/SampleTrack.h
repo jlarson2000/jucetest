@@ -1,67 +1,50 @@
 /**
- * Classes related to shell/kernel management of samples
- * defined in the SampleConfig.  Heavily modified from the original..
+ * outstanding issues:
+ * 
+ * SamplePlayer wants to receive notifications when the input/output
+ * latencies change
+ *
+ * The notion of SampleTrigger might not be necessary any more,
+ * comments inticate it was at least partially replaced by Actions
+ *
+ * SampleTrack::updateConfiguration
+ *       void updateConfiguration(class MobiusConfig* config);
+ *   what does it do?
+ *     
+ *
+ * ---
+ * 
+ * A RecorderTrack extension that allows the playback of
+ * read-only fragments of audio.
+ *
+ * This is built from a set of sample files defined in
+ * the SampleConfig object.
+ *
+ * There are two execution contexts for the code in these
+ * classes and I don't like it, but just get it working and
+ * refine it later.
+ *
+ * The construction of the objects is always done in the UI
+ * thread by the MobiusShell where memory allocation is allowed.
+ * Once constructed the entire SampleTrack is passed to kernel
+ * through a KernelMessage.
+ *
+ * The Kernel then installs the track and starts using it.
+ * Most of the code in these classes is related to actually
+ * using it, not building it.
  *
  * Loading the sample data from .wav files has been moved to
  * SampleReader and is expected to be done by the UI.  When
  * SampleConfig is passed to MobiusInterface it is expected to
  * contain loaded buffers of sample data.
- *
- * MobiusShell first constructs a SamplePack containing
- * SamplePlayer objects for each Sample.
- *
- * The SamplePack is then passed through the shell/kernel boundary.
- *
- * The Kernel places the list of SamplePlayers into the special
- * SampleTrack which is installed in the Recorder.
- *
- * NOTE:
- *
- * There is not a clean separation of shell/kernel code in here.
- * Shell needs only to build the SamplePlayer and pass it down,
- * the majority of what that class does is intended to be run
- * only within the kernel.
- *
- * What The shell mostly does is convert the unadorned float*
- * buffers from the Sample the UI passed in, into pooled Audio
- * objects for use within the kernel.  But the number of
- * SamplePlayers needed will vary based on the number of samples
- * so those have to be allocated and initialized before passing
- * them to the kernel.
  */
 
 #pragma once
 
 //#include <stdio.h>
 
+#include "../model/SampleConfig.h"
 #include "Recorder.h"
-
-//////////////////////////////////////////////////////////////////////
-//
-// SamplePack
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * A temporary structure used to pass a list of SamplePlayers
- * from the UI thread that has been editing samples into the 
- * audio interrupt handler.  A SamplePack may be empty which
- * indicates to the kernel that current sample state should be discarded.
- */
-class SamplePack {
-  public:
-
-    SamplePack();
-    SamplePack(class AudioPool* pool, class SampleConfig* samples);
-    ~SamplePack();
-
-    class SamplePlayer* getSamples();
-    class SamplePlayer* stealSamples();
-
-  private:
-    
-    class SamplePlayer* mSamples;
-};
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -109,15 +92,10 @@ typedef struct {
 
 /**
  * Represents one loaded sample that can be played by SampleTrack.
- * 
- * These are built from the SampleConfig in the MobiusConfig and do not
- * retain any references to it.  A list of these is phased into the
- * kernel with a SamplePack object.
  *
  * old comment:
  * Might be interesting to give this capabilities like Segemnt
  * or Layer so we could dynamically define samples from loop material.
- * 
  */
 class SamplePlayer
 {
@@ -130,12 +108,13 @@ class SamplePlayer
 
     // !! revisit this
     // supposed to respond to reconfiguration of the audio device
-    // while in the kernel, can't happen yet
+    // while in the kernel, doesn't happen yet
     void updateConfiguration(int inputLatency, int outputLatency);
 
 	void setNext(SamplePlayer* sp);
 	SamplePlayer* getNext();
 
+    // filename saved only for different detection
     const char* getFilename();
 
 	void setAudio(Audio* a);
@@ -150,6 +129,7 @@ class SamplePlayer
 
     void setConcurrent(bool b);
     bool isConcurrent();
+    
 	void trigger(bool down);
 	void play(float* inbuf, float* outbuf, long frames);
 
@@ -158,12 +138,11 @@ class SamplePlayer
     //
     // Configuration caches.
     // I don't really like having these here but I don't want to 
-    // introduce a dependency on Mobius at this level.  Although these
-    // are only used by SampleCursor, they're maintained here to 
+    // introduce a dependency on MobiusConfig or MobiusContainer at this level.
+    // Although these are only used by SampleCursor, they're maintained here to 
     // make them easier to update.
-    // jsl - not sure what that means
     //
-
+    
 	/**
 	 * Number of frames to perform a gradual fade out when ending
 	 * the playback early.  Supposed to be synchronized with
@@ -172,7 +151,7 @@ class SamplePlayer
 	long mFadeFrames;
 
     /**
-     * Number of frames of input latency.
+     * Number of frames of input latency, taken from the audio stream (MobiusContainer)
      */
     long mInputLatency;
 
@@ -188,10 +167,10 @@ class SamplePlayer
     void freeCursor(class SampleCursor* c);
 
 	SamplePlayer* mNext;
-    char* mFilename;
 	Audio* mAudio;
 
 	// flags copied from the Sample
+    char* mFilename;
 	bool mSustain;
 	bool mLoop;
     bool mConcurrent;
@@ -305,18 +284,20 @@ class SampleTrack : public RecorderTrack {
 
   public:
 
-    // should not be needing a Mobius handle
-	//SampleTrack(class Mobius* mob);
-	SampleTrack();
+    // These are constructed in the UI thread from a SampleConfig
+    // and can pull information from the MobiusConfig and the container
+	SampleTrack(class SampleConfig* samples);
 	~SampleTrack();
 
-    // no longer need difference detction at this level, should
-    // have been done by the UI
+    // return true if the contents of this track are different
+    // than what is defined in the SampleConfig
+    // this was an optimization when we didn't have a more granular
+    // way to update the sub-parts of the MobiusConfig, should
+    // no longer be necessary and could have been done by the UI
     bool isDifference(class SampleConfig* samples);
 
 	bool isPriority();
     int getSampleCount();
-	void setSamples(class SamplePack* pack);
 
     // todo: unclear what this does
     void updateConfiguration(class MobiusConfig* config);
@@ -334,7 +315,8 @@ class SampleTrack : public RecorderTrack {
 	 */
     void trigger(MobiusContainer* stream, int index, bool down);
 
-	void prepareForInterrupt();
+
+    void prepareForInterrupt();
 	void processBuffers(class MobiusContainer* stream,
 						float* inbuf, float *outbuf, long frames, 
 						long frameOffset);

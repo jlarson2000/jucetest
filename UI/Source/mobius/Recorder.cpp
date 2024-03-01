@@ -680,6 +680,29 @@ void Recorder::setAutoStop(bool b) {
 	mAutoStop = b;
 }
 
+/**
+ * Replace the special SampleTrack with a new one sent after the
+ * configuration changed.
+ */
+SampleTrack* Recorder::replaceSampletrack(SampleTrack* neu)
+{
+}
+
+	mSampleTrack = NULL;
+		mSampleTrack = new SampleTrack(this);
+		mRecorder->add(mSampleTrack);
+
+        if (mSampleTrack->isDifference(samples))
+          newSamples = new SamplePack(mAudioPool, getHomeDirectory(), samples);
+
+mPendingSamples = newSamples;
+
+
+	SamplePack* samples = mPendingSamples;
+	mPendingSamples = NULL;
+	if (samples != NULL) 
+	  mSampleTrack->setSamples(samples);
+
 /****************************************************************************
  *                                                                          *
  *                                   TRACKS                                 *

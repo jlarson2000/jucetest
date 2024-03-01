@@ -1,0 +1,334 @@
+
+Clips - an evolution of Samples
+
+non modifiable audio fragments
+can be played in response to an external event
+can loop endlessly
+can loop for a defined number of times
+playback can be quantized to a timing pulse
+
+can be stopped immediately
+can be stopped on a timing pulse
+
+can be muted while still advancing
+mute/unmute can be quantized to a timing pulse
+
+can be paused to halt advancing
+pause/unpause can be quantized to a timing pulse
+
+playback can be corrected to adust for timing pulse drift
+
+Some of these are general functions that apply to a track
+regardless of how it generates sound
+
+Move a basic level of synchronization out of Synchronizer
+
+Need the concept of a timeline that applies to all tracks
+Events can be scheduled on the timeline and applied to
+tracks
+
+Or are there simply pulses you give to tracks and let them
+manage independent timelines
+
+Key Concepts
+
+MobiusContainer
+  provides an Audio Stream
+  the stream is constantly running
+  audio can be read from or written to the stream
+  audio organized as interleaved blocks of samples called frames
+  stream is divided into ports
+  streams have characteristics like sample rate
+  number of input ports
+  number of output ports
+    all ports share the same sample rate
+  port may have any number of channels
+    for simplicity ports will always have two channels but try not to hard code that assumption
+
+  the stream cannot be controlled from underneath the container
+  stream normally has fixed duration for the lifespan of the application
+    can support notification of stream configuration changes, but not worth it yet
+    if a stream configuration changes the entire engine will be reset
+
+  engine should generally not care about the sample rate, other than for timing
+  audio data can be assumed to match the stream sample rate
+
+  when running standalone
+    streams can be configured above the engine in a user interface to some degree
+      sample rate, number of channels, mapping of hardware channels to ports
+      stream configuration can be saved in a file
+
+  when running as a plugin
+    fundamental characters about the stream like audio device and sample rate cannot be configured
+    plugin can request but may not receive a number a number of logical input and output channels
+    channels are mono
+    logical channels are arranged into ports like standalone
+    plugin port cofiguration can be stored in a file
+
+  container provides MIDI I/O
+
+  container provides two execution contexts in which code runs
+    hardware
+       real time, must not allocate memory or perform expensive calculations
+       must not access most OS resources
+    user
+       full access to container resources, may allocate memory
+    these concepts are basically the same as shell and kernel 
+    two contexts may be implemented as system threads, but may not but can be logically
+      thought of as threads
+    hardware context may have two logical threads
+      audio - provides a continuous stream of audio
+      midi - provides a continuous stream of midi events
+      both logical threads may be combined
+    user
+      may be implemented with several threads, typically
+        UI - a user interface event loop
+        timer - a periodic timer
+
+MobiusEngine
+  resides within the container, divided into two parts: shell and kernel
+  shell operates outside the hardware context
+  shell receives all communication from user context threads
+  shell handles issues if there is more than one user context thread
+  kernel operates in the hardware context
+    mostly can assume it is operating in the audio thread
+    midi complicates this, if the kernel can receive midi directly there would be thread issues
+    since the kernel can't do much that isn't synchronized to audio stream blocks the shell
+    can handle midi and post events to the kernel
+    ! yes key point, kernel operates within a single audio thread
+  communication between the shell and kernel is handled through a limited set of
+    shared objects with critical sections
+
+
+Recorder
+  the primary structure of the kernel is the Recorder which receives and sends audio to the stream
+  the recorder contains multiple Tracks
+  each Track may have a different way of consuming and generating audio but are limited
+    to the characteristics of the stream
+  track configuration is fixed for the duration of a Session
+
+Session
+  a configuration of tracks managed by the Recorder
+  not liking Recorder since tracks don't have to be recording
+    TrackManager would be more generic but Recorder is easier to type and logically correct
+  track configuration cannot be changed while a session is active
+  a session may either be active or inactive
+    an inactive session neither consumes or produces audio
+    changes in configuration that would result in disruptions to the audio stream must
+    be done while the session is inactive
+  memory within an active session is stable for the duration of that session with
+    the exception of object pools which may grow under control of the shell as necessary
+  consider whether track configuration can be performed while sessions are active
+    tracks could be removed or added on interrupt boundaries with other tracks allowed to
+    continue running
+  session does not have to be a concrete code concept, just a logical one that defines
+    assumptions that code can make
+
+Track
+  an audio producer/consumer managed by the recorder
+  tracks can have an arbitrary implementation provided that they obey a common interface
+  tracks do not communicate with each other directly
+    - this needs thought, looping tracks will need some form of inter-track communication
+      for things like TrackCopy
+    - ideally tracks should communicate with each other by posting events that are
+      consumed by the Recorder
+        "copy me to track 2"
+    - or are these Recorder functions that tracks are unaware of?
+      operations like state copy could be implemented generically but have polymorphic limitations
+  tracks can be started and stopped
+  starting and stopping can be synchronzed
+  tracks may keep an internal timeline and be told it needs adjustment for external sync drift
+  much of the discussion above on clips are really track behavior
+    clips are just a form of track that play read-only audio fragments
+
+Timeline
+  the Recorder maintains a common timeline that can be used to synchronize track operations
+  the timeline has characteristics like "stream time" that defined by the audio stream
+  the timeline may monitor and be sensitive to external timing pulses
+  the timeline may be sensitive to internal timing pulses provided by each track
+  significant actions that must be performed at specific times are modeled as Events
+  on the timeline
+  external stimulus may place events on the timeline
+    midi clocks are a timeline event
+    host beat/bar pulses
+    potentially any MIDI event could be timeline events rather than just being
+    at the start of the interrupt
+  there are two implicit timeline events managed by the Recorder
+    start interrupt and end interrupt
+    these events happen at the beginning and end of each block being processed
+      in the audio stream, "interrupt" is an old term that isn't accurate "block"
+      would be more accurate but too generic, no I'm liking interrupt
+    
+  events on the timeline may be be scheduled for concrete and logical times
+    a concrete time is 10 seconds from now, well that's a relative time
+    logical time is "on the next beat pulse"
+
+  tracks respond to timeline events at the start of every interrupt
+  tracks may place new events on the timeline
+  tracks do not normally remove timeline events
+    - a track that schedules an event for itself may want to cancel those events
+    - in rare cases a track may want to remove events that were not scheduled by that track
+      anything here?
+  a track may consume timeline events in one of two ways
+    free - tracks examples all events in the timeline relevant for the current audio block
+      and adjusts it's play/record accordingly
+    segmented - recorder breaks up the audio block on event boundaries
+      and allows the track to advice for only the amount of audio between those boundaries
+      then sends the track the events active at that boundary
+    push vs. pull model, needs more thought
+
+  track may choose to implement it's own internal timeline and ignore recorder timeline events
+  OG mobius tracks will start by maintaining their own timeline
+    - what is now known as the event list
+
+  sample tracks can be reimplemented using the new timeline
+
+ClipTrack
+  an evoluation of the SampleTrack that manages a collection of read-only audio fragments
+  see clip notes at the start of this mess
+
+-- now we get to the meat of this digression
+
+During initialization and at rare occasions during the lifetime of the application,
+the shell will need to completely reconfigure the Recorder and it's Tracks.  All memory
+for the tracks is constructed in the shell and phased to the kernel for installation
+into the Recorder.
+
+The Recorder object itself does not need to be replaced, but it may reset internal
+state when it is reconfigured.
+
+For ClipTracks it is very desireable to be able to reconfigure them without disrupting
+any of the other tracks.  You can have loop tracks live at the same time as you
+are loading new clips.
+
+Communication from the shell to the kernel are always handled through the KernelCommunicator
+message passer.
+
+On initial configuration
+  Shell builds a complete set of Track objects (looping or clip) and passes them to the
+  kernel
+
+On sample configuration update
+  Shell builds only the clip track and passes it down
+
+It should be possible to replace tracks while the session is active
+It should be possible, but not required initially to add tracks with an active session
+It could be possible but not required to remove tracks from an active session
+  - complicated by tracks that schedule events and are now removed
+
+OG loop tracks are unusuall in that there are extensive assumptions being made about how
+control can pass between them that is not possible to reimplement using outer timeline events.
+Adding these tracks, particularly removing them cannot be done in an active session.
+  Need to work on this in the future
+
+Any disruption of track configuration can result in "audio discontinuity" if the a track
+is removed or replaced and was formerly producing audio.
+  concepts: tracks can be "producers" and "consumers" or both
+  producer must be able to deal with audio discontinuity
+
+Discontinuity mitigation is done by applying a "fade"
+If configuration always happens at the beginning of an interrupt, a track being
+removed would need to provide to the Recorder a "tail" which is played on behalf of the
+removed track on the next interrupt.
+
+If confguration were done at the end of the interrupt, the fade could be applied retroactively
+to the content produced by that track.  This requires the maintenance of a fade buffer
+containing a portion of the audio produced by that track during the interrupt without
+any of the audio produced by other tracks.  This could be done internally to the track
+or by the Recorder.  If the track handles it, the recorder must not also handle it.
+
+OG tracks have a complex internal mechanism for fade maintenance but I don't think that
+applied to track reconfiguration, you would always have to be in global reset to reconfigure
+tracks.  That can continue.
+
+For now, since track reconfiguration is rare, we don't need to spend time on this, if you
+reconfigure tracks during an active session there may be discontinuity.  The exception
+is the new CliepTrack which would be nice to allow.
+
+Need to think hard about algorithmic fade injection that is not dependent on track production.
+e.g. if the track content ended at level 20,000, then inject a tradual ramp from 20,000 back to
+zero.  Since this would not follow the contours of the original waveform, this may have audible
+artifacts.  It could perhaps be interpolated, but this would require another fade buffer of
+some kind.
+
+Alright, back to the immediate problme: Shell needs to tell the kernel to replace a ClipTrack.
+
+Shell can
+   - replace the entire clip track
+   - have awareness of the inside of the clip track and build only the things that need
+     changing, like the Audio objects representing the clips
+   - yeah, now that I think about it, Shell shouldn't have to know how tracks are implemented
+     only that a new one needs to be created based on some configuration coming in from outside
+     shell should not have to be aware of the track configuration model either
+     configuration model awareness is a little complicated due to polymorphism, shell/recorder
+     would like to not care about what a ScriptConfig is, just that it makes a RecorderTrack
+     from one of them and installs it.
+   - have the usual model vs. implementation problem could have a base TrackConfig object
+     with a subclass defining the model and how it is consumed, but the UI needs to be able
+     to edit these without dragging over all the implementation
+   - since we're dealing with so few track types right now can hard code this
+     there is a fixed C++ model for the configuration of a particular track type
+        SampleConfig or ClipTrackConfig
+        Setup
+     key point: desireable for the track configuration object to be entirely consumed
+       by the conversion from the model to a concrete RecorderTrack and not be necessary
+       at runtime, do OG tracks need to keep referring back to the Setup or can the just
+       run within a Track?
+   - Shell receives one of the few specific track configuration models and constructs
+     the suitable RecorderTrack for it, then passes that to the Recorder
+     can address polymorphism later
+   - with everything living inside MobiusConfig it is currently difficult to know which
+     parts have changed after UI editing.  Would like to have the Shell not be in the
+     business of difference detection, but may need to.  For complex models like Setup
+     this may require saving the original model.
+   - this will be important since MobiusConfig is edited all the time
+
+Bottom line, Shell should construct complete RecorderTracks and pass them down
+Change Sample.h/.cpp to SampleTrack
+
+OG Track might not have to directly implement the new RecorderTrack so we can play around
+with the interface.  That could be done with an OGTrackWrapper
+
+key point: we need to start evolving the shell/kernel concept and not pollute it with
+the original implementation.  Store all classes not considered parts of the
+new framework under a folder and allow them to have little awareness of it.  Since so much
+of the old code is built around a Mobiius class object, allow that to continue without forcing
+it to use MobiusKernel.  Mobius will be a radically reduced version of it's former self,
+but will maintain the same interfaces required by old code.  For things we don't want
+to duplicate it can have a pointer back to MobiusKernel and proxy the calls.
+
+Scripts are going to really complicate this.  In the future Scripts need to be a special
+service provided by the shell/kernel and operate independently of the implementation of
+the recorder/track concepts with pluggable implementations.   The most substantial
+problem is the notion of Function and Parameter which will have to be dynamic.  That's
+a stretch goal.
+
+Audio is a problem.  It's sort of at both the very bottom and the very top of the
+architecture and I can't evolve it withoug serious diruption to the old code.  Maybe not
+too bad, just rename it for ClipTrack.
+
+The thread event stuff is another complicated touchpoint.  Let's make the new one and see
+how hard it's going to be to modify old code to use it.  Vs adjust the old code to
+use the old model, but without the thread, and with a proxy between the old event model
+and the new one.
+
+I think OG code can be considered to live completely in the kernel.  Anything that comes in from
+the outside will have to pass through the shell first.
+
+Name collisions are a problem since we never did namespaces right.   Keep all the old names
+except for a few fundamental concepts like AudioStream, though we could probably keep that too.
+
+MobiusConfig can be largely the same and I don't want to mess with model conversion though we could.
+
+ScriptConfig is a hard one because it involves file IO, nothing else does.
+
+Projects and other state saves will be hard, defer for now.
+
+
+
+
+  
+   
+
+    
+  

@@ -297,6 +297,10 @@ class RecorderCalibrationResult {
  *                                                                          *
  ****************************************************************************/
 
+/**
+ * Not registered as a listener but MobiusKernel is and will
+ * forward the notice along when it is done with it.
+ */
 class Recorder : public MobiusContainer::AudioListener {
 
   public:
@@ -307,7 +311,10 @@ class Recorder : public MobiusContainer::AudioListener {
     void initialize(class MobiusContainer* cont, class AudioPool* pool);
 	void shutdown();
 
-    // MobiusContainer::AudioListener
+    // replace the SampleTrack after reconfiguration, return the old one
+    class SampleTrack* replaceSampleTrack(class SampleTrack* track);
+    
+    // MobiusContainer::AudioListener via MobiusKernel
     void containerAudioAvailable(MobiusContainer* cont);
 
     // Configuration

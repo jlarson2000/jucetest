@@ -22,10 +22,9 @@
 
 #pragma once
 
-// for CriticalSection
-#include <JuceHeader.h>
+#include "MobiusContainer.h"
 
-class MobiusKernel
+class MobiusKernel : public MobiusContainer::AudioListener
 {
   public:
 
@@ -43,21 +42,34 @@ class MobiusKernel
     // normally this should be private, but leave it open for the shell for testing
     void consumeCommunications();
 
-    private:
+    // AudioListener
+    void containerAudioAvailable(MobiusContainer*cont);
 
+  private:
+
+    // stuff we are either passed or pull from the shell
     class MobiusShell* shell = nullptr;
     class KernelCommunicator* communicator = nullptr;
     class MobiusContainer* container = nullptr;
     class MobiusConfig* configuration = nullptr;
-
+    class AudioPool* audioPool = nullptr;
+    
+    // internal state
+    //
     // slowly start dragging stuff over
     // use static members eventually
+    
     class Recorder* mRecorder = nullptr;
     //class SampleTrack* mSampleTrack = nullptr;
 
+    // AudioListener activities
+    void interruptStart();
+    void interruptEnd();
+
+    // KernelMessage handling
     void reconfigure();
     void initRecorder();
-    void installSamples(class SamplePack* pack);
+    //void installSamples(class SamplePack* pack);
 
 };
 
