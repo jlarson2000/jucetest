@@ -1,7 +1,62 @@
 <parameters>
 
+  <!-- Global
+       setup/setupName
+       setupNumber
+       selectedTrack
+       customMode
+       
+  -->
   <parameter name='altFeedbackEnable'/>
   <parameter name='autoRecordBars'/>
 
-</parameters>
+  <parameter name='logsStatus' type='bool' options='noBinding'/>
+
+  <Parameter name='bindings' type='string'
+            get='getOverlayBindings' set='setOverlayBindings'>
+    Also known as "overlay bindings"
+    implicit type const char*
+    values come from the list of overlay binding objects
+    so specify how to generate that list
+  </Parameter>
+
+  <Parameter name='fadeFrames' type='int' high='1024'/>
+  <Parameter name='maxSyncDrift' type='int' high='16000'>
+    The low end is dependent on the sync source, for
+    Host sync you could set this to zero and get good results,   
+    for MIDI sync the effective minimum has to be around 512 due
+    to jitter.  Unfortunately we can't know that context here so
+    leave the low at zero.
+  </Parameter>
+
+  <Parameter name='driftCheckPoint' values='loop,external'/>
+  <Parameter name='noiseFloor' high='15359'/>
+  <Parameter name='pluginPorts low='1' high='8'/>
+  <Parameter name='midiExport' type='bool'/>
+  <Parameter name='hostMidiExport' type='bool'/>
+  <Parameter name='longPress' low='250' high='10000'/>
+  <Parameter name='spreadRange' low='1' high='128'/>
+  <Parameter name='traceDebutLevel' high='4'/>
+  <Parameter name='tracePrintLevel' high='4'/>
+  <Parameter name='autoFeedbackReduction' type='bool'/>
+  <Parameter name='isolateOverdubs' type='bool'/>
+  <Parameter name='monitorAudio' type='bool'/>
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+  <Parameter name='
+    
+
+  </parameters>
 

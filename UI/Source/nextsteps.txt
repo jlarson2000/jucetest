@@ -1,4 +1,24 @@
 
+UIParameter and UIFunction generator
+
+add scope='ui' for UI specific parameters and functions
+  don't necessarily need get/set for these
+
+weed UIAction
+
+ModeDefininition
+  - need this out here?
+  - MobiusState track/loop/mode
+  - ui/display/ModeElement - displays the state value
+     only really need a string here
+     rename this UIMode?
+  - Simulator puts it in state
+
+UIEventType
+  - duplication of EventType because it's in MobiusState
+  
+
+
 Go over the model
   - clean separation between UI and internal class names
      UIParameter vs. Parameter
@@ -19,9 +39,6 @@ Go over the model
 - remove old internal junk
   still need to weed UIAction, take out all OSC for now
 
-Generalize Object Selectors in ConfigPanel
-  - will require the model refinement for Bindable
-
 Diagnostic log async window
 
 Display Configuration
@@ -34,17 +51,10 @@ Track/Preset selection menus
 
 Binderator support for all MIDI types
 
-UI/engine configuration passing
-  - make this clean
-
-Script/Sample configuration UI
+Script configuration UI
 
 Bindings help
   take out RefreshUI
-
-Sample loading
-  - move Audio out to the external model
-  - can wait for awhile
 
 Start the engine!
 

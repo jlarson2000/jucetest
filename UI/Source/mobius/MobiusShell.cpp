@@ -10,7 +10,6 @@
 
 #include "../model/MobiusConfig.h"
 #include "../model/MobiusState.h"
-#include "../model/ModeDefinition.h"
 #include "../model/FunctionDefinition.h"
 #include "../model/Parameter.h"
 #include "../model/Setup.h"
