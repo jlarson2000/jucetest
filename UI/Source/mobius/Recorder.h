@@ -311,9 +311,6 @@ class Recorder : public MobiusContainer::AudioListener {
     void initialize(class MobiusContainer* cont, class AudioPool* pool);
 	void shutdown();
 
-    // replace the SampleTrack after reconfiguration, return the old one
-    class SampleTrack* replaceSampleTrack(class SampleTrack* track);
-    
     // MobiusContainer::AudioListener via MobiusKernel
     void containerAudioAvailable(MobiusContainer* cont);
 
@@ -341,7 +338,8 @@ class Recorder : public MobiusContainer::AudioListener {
 	int getTrackCount();
 	RecorderTrack* getTrack(int i);
 	void select(RecorderTrack* track);
-
+    bool replace(RecorderTrack* old, RecorderTrack* neu);
+    
 	// Transport
 
 	void setFrame(long f);

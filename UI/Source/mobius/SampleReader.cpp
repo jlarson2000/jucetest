@@ -36,6 +36,7 @@ SampleConfig* SampleReader::loadSamples(SampleConfig* src)
                     }
                 }
             }
+            srcSample = srcSample->getNext();
         }
     }
 

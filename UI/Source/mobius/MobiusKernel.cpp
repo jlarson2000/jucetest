@@ -2,13 +2,17 @@
  * An evolving object that wraps "kernel" state and functions.
  */
 
+#include "../util/Trace.h"
 #include "../model/MobiusConfig.h"
+#include "../model/FunctionDefinition.h"
+#include "../model/UIAction.h"
 
 #include "MobiusContainer.h"
 #include "MobiusShell.h"
 
 #include "Recorder.h"
 #include "Audio.h"
+#include "SampleTrack.h"
 
 #include "MobiusKernel.h"
 
@@ -39,7 +43,12 @@ MobiusKernel::~MobiusKernel()
     delete configuration;
     
     delete mRecorder;
-    //delete mSampleTrack;
+
+    // sampleTrack will be deleted by mRecorder destructor
+
+    // stop listening
+    if (container != nullptr)
+      container->setAudioListener(this);
 }
 
 /**
@@ -68,19 +77,22 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
 /**
  * Consume any messages from the shell at the beginning of each
  * audio listener interrupt.
+ * Each message handler is responsible for calling communicator->free
+ * when it is done, but often it will reuse the same message to
+ * send a reply.
  */
 void MobiusKernel::consumeCommunications()
 {
-    KernelMessage* msg = communicator.popKernel();
+    KernelMessage* msg = communicator->popKernel();
     while (msg != nullptr) {
         switch (msg->type) {
 
             case MsgConfigure: reconfigure(msg); break;
-            case MsgSampleTrack: isntallSampleTrack(msg); break;
+            case MsgSampleTrack: installSampleTrack(msg); break;
+            case MsgAction: doAction(msg); break;
         }
         
-        communicator.free(msg);
-        msg = communicator.popKernel();
+        msg = communicator->popKernel();
     }
 }
 
@@ -95,20 +107,19 @@ void MobiusKernel::consumeCommunications()
  * not really important and I don't think worth messing with different
  * styles of consumption.
  */
-void MobiusKernel::reconfigure(KernelMessage* request)
+void MobiusKernel::reconfigure(KernelMessage* msg)
 {
-  
-    
-    // build a message to return the old one
-    KernelMessage* response = communicator.alloc();
-    response->type = MsgConfigure;
-    response->object.configuration = configuration;
+    MobiusConfig* old = configuration;
 
     // take the new one
-    configuration = request->object.configuration;
+    configuration = msg->object.configuration;
+    
+    // reuse the request message to respond with the
+    // old one to be deleted
+    msg->object.configuration = old;
 
     // send the old one back
-    communicator.pushShell(response);
+    communicator->pushShell(msg);
 
     // this would be the place where make changes for
     // the new configuration, nothing right now
@@ -211,7 +222,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
     interruptStart();
 
     // this isn't a listener, but we make the interface use the same signature
-    recorder->containerAudioAvailable(cont);
+    mRecorder->containerAudioAvailable(cont);
 
     interruptEnd();
 }
@@ -229,7 +240,6 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 void MobiusKernel::interruptStart()
 {
     consumeCommunications();
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -252,17 +262,80 @@ void MobiusKernel::interruptEnd()
  * We've just consumed the pending SampleTrack from the shell.
  * Spray it into the Recorder
  */
-void MobiusKernel::installSamples(KernelMesage* msg)
+void MobiusKernel::installSampleTrack(KernelMessage* msg)
 {
-    SampleTrack* neu = msg.object.sampleTrack;
-    SampleTrack* old = mRecorder->replaceSampleTrack(neu);
+    SampleTrack* old = sampleTrack;
+    sampleTrack = msg->object.sampleTrack;
 
-    if (old != nullptr) {
-        KernelMessage* reply = communicator.alloc();
-        reply.type = MsgSampleTrack;
-        reply.object.sampleTrack = old;
-        communicator.pushShell(reply);
+    // have to replace it within the Recorder too
+    if (old == nullptr) {
+        // first time, just add it
+        mRecorder->add(sampleTrack);
+        // nothing to return
+        communicator->free(msg);
     }
+    else {
+        bool replaced = mRecorder->replace(old, sampleTrack);
+        if (replaced) {
+            // return the old one
+            msg->object.sampleTrack = old;
+            communicator->pushShell(msg);
+        }
+        else {
+            // wasn't isntalled, should not happen
+            // we can add it, but since sampleTrack was set we've
+            // been using something that the recorder didn't have
+            // which is a problem
+            Trace(1, "MobiusKernel: SampleTrack replacement failed!\n");
+            mRecorder->add(sampleTrack);
+            // return the old as usual, but could also not add it
+            // and return the new one too since we're in a weird state
+            msg->object.sampleTrack = old;
+            communicator->pushShell(msg);
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Actions
+//
+//////////////////////////////////////////////////////////////////////
+
+void MobiusKernel::doAction(KernelMessage* msg)
+{
+    UIAction* action = msg->object.action;
+
+    // todo: more flexitility in targeting tracks
+    // upper tracks vs. core tracks etc.
+
+    if (action->op == OpFunction) {
+        FunctionDefinition* f = action->implementation.function;
+        if (f == SamplePlay) {
+            if (sampleTrack != nullptr) {
+                // start one of the samples playing
+                // when we had replicated Sample1, Sample2 functions the
+                // sample index was embedded in the Function object, now
+                // we require it in the action argument
+                // UIAction::init was supposed to parse bindingArgs into
+                // a number left in the ExValue arg
+                int number = action->arg.getInt();
+                // don't remember what I used to do but it is more obvious
+                // for users to enter 1 based sample numbers
+                // SampleTrack wants zero based
+                // if they didn't set an arg, then just play the first one
+                int index = (number > 0) ? number - 1 : 0;
+                // mSampleTrack->trigger(mInterruptStream, index, action->down);
+                sampleTrack->trigger(index, action->down);
+            }
+        }
+    }
+    
+    // if not handled above this is where we send it
+    // to the CoreConverter
+
+    // return it to the shell for deletion
+    communicator->pushShell(msg);
 }
 
 /****************************************************************************/

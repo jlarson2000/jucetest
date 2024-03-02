@@ -92,6 +92,56 @@ UIAction::~UIAction()
     delete scriptArgs;
 }
 
+/**
+ * Needed when actions pass from the UI to the kernel tiers.
+ * todo: This is simple enough we really need to be looking
+ * at starting to use copy constructors and letting the compiler
+ * handle this.
+ */
+UIAction::UIAction(UIAction* src)
+{
+    // Trigger
+    id = src->id;
+    trigger = src->trigger;
+    triggerMode = src->triggerMode;
+    passOscArg = src->passOscArg;
+    triggerValue = src->triggerValue;
+    triggerOffset = src->triggerOffset;
+    down = src->down;
+    repeat = src->repeat;
+    longPress = src->longPress;
+
+    // Operation
+    op = src->op;
+    strcpy(operationName, src->operationName);
+    implementation.object = src->implementation.object;
+    longFunction = src->longFunction;
+
+    // Scope
+    scopeTrack = src->scopeTrack;
+    scopeGroup = src->scopeGroup;
+
+    // Extension
+    strcpy(extension, src->extension);
+    bindingOverlay = src->bindingOverlay;
+    
+    // Time
+    escapeQuantization = src->escapeQuantization;
+    noLatency = src->noLatency;
+    noSynchronization = src->noSynchronization;
+    
+    // Arguments
+    strcpy(bindingArgs, src->bindingArgs);
+    actionOperator = src->actionOperator;
+    arg.setNull();
+
+    // todo: I don't think this is used in the UI
+    // if so hide it under functions
+    // it's an ExValueList and I don't want to mess with copying it yet
+    scriptArgs = nullptr;
+}
+
+
 void UIAction::init()
 {
     // Trigger
@@ -146,6 +196,12 @@ void UIAction::init(Binding* b)
     op = b->op;
     CopyString(b->getOperationName(), operationName, sizeof(operationName));
     CopyString(b->getArguments(), bindingArgs, sizeof(bindingArgs));
+
+    // initially at least, all binding argument strings will be numbers
+    // and code to handle actions expects that in the ExValue arg
+    // need to be smarter about this and possibly make Operator do the parsing
+    if (strlen(bindingArgs) > 0)
+      arg.setInt(ToInt(bindingArgs));
 
     // more as we bring on Binders
 }

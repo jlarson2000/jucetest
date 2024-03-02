@@ -15,17 +15,24 @@ class Simulator
     Simulator(class MobiusShell* shell);
     ~Simulator();
 
+    void setListener(class MobiusListener* l);
+    
     // ownership is retained by the shell, could also
     // just call back for this
     void initialize(class MobiusConfig* config);
 
     void doAction(class UIAction* action);
+    int getParameter(class Parameter* p, int tracknum);
+
+    void simulateInterrupt(float* input, float* output, int frames);
+    void test();
 
   private:
 
     class MobiusShell* shell = nullptr;
     class MobiusConfig* configuration = nullptr;
     class MobiusState* state = nullptr;
+    class MobiusListener* listener = nullptr;
     
     void initState();
     void globalReset();

@@ -1,0 +1,53 @@
+
+Ugh, I REALLY want the UI model to be independent of the core model
+so we're going to have to change the names of everything, this includes Trigger
+and anything else in UIAction.
+
+I'm disliking have Function always contain the code for invocation,
+at least in the new model.
+
+It makes the definition of the function brittle since in order to build
+it and use it in anyway way you need to compile all of it's runtime dependencies
+Also the layers that handle functions may be set up enough just to test
+the function identity ratyer than redirect through it and end up back there.
+
+For most code above core, function invocation speed is not critical
+and the overhread of a switch is not bad.  Can have flags on it
+to specify the execution context
+
+    shell=true
+    core=true
+    invokes=true
+       means call the invoke() method, requires a subclass
+
+That means that for anything above core we need a definition pointer
+constant that we can reference so we don't have to keep doing name comparisons.
+Even some core Functions may requires some special preprocessing.
+
+So there are two classes of functions
+  - those the engine implements directly
+  - those the engine pre-processes then sends to the core
+  - those that are core specific
+
+For core specific functions we need nothing beyond the name and runtime characteristics
+  sustainable, etc.
+
+There will be a mixture of "constant" functions and "dynamic functions"
+
+The FunctionDefinition array needs to include both, and it would be nice to able
+to extend it dynamically, continue to dislike static definitions for these
+really an initFunctions() that dynamically builds them is not bad provided theyre
+in a collection that will be released automatically.  The bulk of the code needs
+
+
+    extrern FunctionDefinition*   Someththing;
+
+for the things it needs to be aware of
+
+    FunctionDefinition* FunctionDefinition::find(name)
+
+for the things that are dynamic or core to the engine that don't require constants
+
+initFunctions, initParameters can be called by Supervisor.
+
+

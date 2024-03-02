@@ -23,12 +23,13 @@
 
 #include "../util/Trace.h"
 #include "../util/Util.h"
-#include "../util/MobiusConfig.h"
+#include "../model/MobiusConfig.h"
 #include "../model/SampleConfig.h"
 
 #include "MobiusContainer.h"
 
 #include "Audio.h"
+#include "AudioPool.h"
 #include "Recorder.h"
 
 #include "SampleTrack.h"
@@ -239,73 +240,6 @@ SamplePlayer::~SamplePlayer()
         nextp = sp->getNext();
 		sp->setNext(nullptr);
         delete sp;
-    }
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// SampleCursor
-//
-//////////////////////////////////////////////////////////////////////
-
-/*
- * Each cursor represents the playback of one trigger of the
- * sample.  To implement the insertion of the sample into
- * the recorded audio stream, we'll actually maintain two cursors.
- * The outer cursor handles the realtime playback of the sample, 
- * the inner cursor handles the "recording" of the sample into the
- * input stream.  
- *
- * Implementing this as cursor pairs was easy since they have to 
- * do almost identical processing, and opens up some interesting
- * possibilities.
- */
-
-/**
- * Constructor for record cursors.
- */
-SampleCursor::SampleCursor()
-{
-    init();
-}
-
-/**
- * Constructor for play cursors.
- * UPDATE: I haven't been back here for a long time, but it looks like
- * we're always creating combo play/record cursors.
- */
-SampleCursor::SampleCursor(SamplePlayer* s)
-{
-    init();
-	mRecord = new SampleCursor();
-	setSample(s);
-}
-
-/**
- * Initialize a freshly allocated cursor.
- */
-void SampleCursor::init()
-{
-    mNext = nullptr;
-    mRecord = nullptr;
-    mSample = nullptr;
-	mAudioCursor = new AudioCursor();
-    mStop = false;
-    mStopped = false;
-    mFrame = 0;
-    mMaxFrames = 0;
-}
-
-SampleCursor::~SampleCursor()
-{
-	delete mAudioCursor;
-    delete mRecord;
-
-    SampleCursor *el, *next;
-    for (el = mNext ; el != nullptr ; el = next) {
-        next = el->getNext();
-		el->setNext(nullptr);
-        delete el;
     }
 }
 

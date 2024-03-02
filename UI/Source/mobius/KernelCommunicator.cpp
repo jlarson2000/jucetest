@@ -88,7 +88,7 @@ void KernelCommunicator::deleteList(KernelMessage* list)
  */
 void KernelCommunicator::checkCapacity()
 {
-    if (totalAllocated == 0) {
+    if (totalCreated == 0) {
         // we're initialzing
         for (int i = 0 ; i < KernelPoolInitialSize ; i++) {
             KernelMessage* msg = new KernelMessage();
@@ -107,7 +107,7 @@ void KernelCommunicator::checkCapacity()
                   totalCreated, available);
         }
 
-        for (int i = 0 ; i < KernePoolReliefSize ; i++) {
+        for (int i = 0 ; i < KernelPoolReliefSize ; i++) {
             KernelMessage* msg = new KernelMessage();
             free(msg);
         }

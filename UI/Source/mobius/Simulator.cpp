@@ -26,6 +26,11 @@ Simulator::~Simulator()
 {
 }
 
+void Simulator::setListener(MobiusListener* l)
+{
+    listener = l;
+}
+
 void Simulator::initialize(MobiusConfig* config)
 {
     // we don't write to it so don't have to copy

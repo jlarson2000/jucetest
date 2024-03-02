@@ -31,9 +31,9 @@ class AudioPool {
     void init(int buffers);
     void dump();
 
-    Audio* newAudio();
-    Audio* newAudio(const char* file);
-    void freeAudio(Audio* a);
+    class Audio* newAudio();
+    // class Audio* newAudio(const char* file);
+    void freeAudio(class Audio* a);
 
     float* newBuffer();
     void freeBuffer(float* b);

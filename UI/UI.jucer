@@ -178,6 +178,8 @@
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
         <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>
+        <FILE id="TZns7W" name="AudioPool.cpp" compile="1" resource="0" file="Source/mobius/AudioPool.cpp"/>
+        <FILE id="dBer2Q" name="AudioPool.h" compile="0" resource="0" file="Source/mobius/AudioPool.h"/>
         <FILE id="KAI4RP" name="KernelCommunicator.cpp" compile="1" resource="0"
               file="Source/mobius/KernelCommunicator.cpp"/>
         <FILE id="a4sBIH" name="KernelCommunicator.h" compile="0" resource="0"
@@ -196,6 +198,12 @@
         <FILE id="JOsfQX" name="SampleReader.cpp" compile="1" resource="0"
               file="Source/mobius/SampleReader.cpp"/>
         <FILE id="RDP88j" name="SampleReader.h" compile="0" resource="0" file="Source/mobius/SampleReader.h"/>
+        <FILE id="JDq469" name="SampleTrack.cpp" compile="1" resource="0" file="Source/mobius/SampleTrack.cpp"/>
+        <FILE id="g30EuW" name="SampleTrack.h" compile="0" resource="0" file="Source/mobius/SampleTrack.h"/>
+        <FILE id="Ww1hcO" name="SampleTrackBuilder.cpp" compile="1" resource="0"
+              file="Source/mobius/SampleTrackBuilder.cpp"/>
+        <FILE id="YMzqJ9" name="Simulator.cpp" compile="1" resource="0" file="Source/mobius/Simulator.cpp"/>
+        <FILE id="UuGokK" name="Simulator.h" compile="0" resource="0" file="Source/mobius/Simulator.h"/>
         <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>
         <FILE id="F6kToV" name="WaveFile.h" compile="0" resource="0" file="Source/mobius/WaveFile.h"/>
       </GROUP>

@@ -37,6 +37,7 @@ typedef enum {
      */
     MsgNone = 0,
     MsgConfigure,
+    MsgAction,
     MsgSampleTrack
 
 } MessageType;
@@ -51,6 +52,7 @@ typedef union {
     void* pointer;
     class MobiusConfig* configuration;
     class SampleTrack* sampleTrack;
+    class UIAction* action;
     
 } MessageObject;
 

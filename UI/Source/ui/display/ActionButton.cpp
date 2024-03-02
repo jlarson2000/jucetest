@@ -76,6 +76,8 @@ ActionButton::ActionButton(Binding* binding)
     else {
         setButtonText(formatButtonName(binding));
         action.init(binding);
+        // buttons can't be sustain yet
+        action.down = true;
     }
 }
 

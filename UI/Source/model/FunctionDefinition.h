@@ -1,3 +1,9 @@
+// comments need revisiting
+// need to split out "constant" vs. "dynamic" functions so
+// some can be opaque and run with an invoke() method
+// and other have global constant pointers so they can be
+// tested without string comparison
+
 /* 
  * Model for function definitions.
  *
@@ -57,6 +63,14 @@ class FunctionDefinition : public SystemConstant {
   private:
 
 };
+
+//////////////////////////////////////////////////////////////////////
+//
+// Constant Functions
+//
+//////////////////////////////////////////////////////////////////////
+
+extern FunctionDefinition* SamplePlay;
 
 //////////////////////////////////////////////////////////////////////
 //

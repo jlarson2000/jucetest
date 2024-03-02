@@ -65,6 +65,27 @@
  */
 #define AUDIO_DEFAULT_FADE_FRAMES 128
 
+/**
+ * The number of Audio frames per buffer.
+ * Actual size of the buffer will depend on the number of channels,
+ * which will usually be 2.
+ * Probably will want to make this variable and tune it to reduce
+ * fragmentation.
+ */
+#define FRAMES_PER_BUFFER  1024 * 64
+
+/**
+ * Number of channels in a buffer.
+ */
+#define BUFFER_CHANNELS 2
+
+/**
+ * The size of one buffer.  In theory the AudioPool should
+ * be able to decide this but let's keep it simple and assume
+ * a size with stereo channels;
+ */
+#define BUFFER_SIZE (FRAMES_PER_BUFFER * BUFFER_CHANNELS)
+
 /****************************************************************************
  *                                                                          *
  *   							  UTILITIES                                 *

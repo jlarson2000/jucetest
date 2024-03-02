@@ -89,16 +89,16 @@ MainComponent::MainComponent()
 
 MainComponent::~MainComponent()
 {
-    // I guess do this before audio shutdown to make sure we're
-    // not getting any lingering interrupts
-    supervisor.shutdown();
-
     // Projucer: This shuts down the audio device and clears the audio source.
     // Docs:
     // Shuts down the audio device and clears the audio source.
     // This method should be called in the destructor of the derived class
     // otherwise an assertion will be triggered.
     shutdownAudio();
+
+    // this must be done AFTER shutdownAudio so we don't delete things
+    // out from under active audio threads
+    supervisor.shutdown();
 }
 
 //////////////////////////////////////////////////////////////////////

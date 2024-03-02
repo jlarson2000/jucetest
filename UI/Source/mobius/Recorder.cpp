@@ -1,11 +1,11 @@
 //
 // issues
-// The hacky inputBufferModified call that SampleTrack
-// does is not good endapsulation.  If tracks are allowed
-// do this they should declare it and require that they
-// be processed first, so we don't have to go back to the other
-// tracks a second time and make them advancde again
-// revisit this
+// 
+// The hacky inputBufferModified call that SampleTrack was awful
+// and removed, revisit when we get to unit test sample injection
+//
+// calibrate wants to write a .wav file and Audio no longer supports write()
+// either add it back or do calibration a different way
 //
 
 /**
@@ -46,6 +46,7 @@
 #include "../util/Util.h"
 #include "../util/Trace.h"
 
+#include "AudioPool.h"
 #include "Audio.h"
 #include "SampleTrack.h"
 
@@ -61,47 +62,6 @@
  * but disable for now so we can debug things.
  */
 static bool TraceInterruptTime = false;
-
-/**
- * At the front because it sucks and I need to think about it.
- * Replace the special SampleTrack with a new one sent after the
- * configuration changed.
- *
- * This is a horrible kludge but gets things going.
- * There is no way to identify which of the current tracks
- * are the SampleTrack other than testing the isPriority flag
- * which will only be set for the SampleTrack.  As we generalize
- * RecorderTrack need to give them a type or an identifier of some kind
- * so they can be replaced or removed at any time.  I suppose MobiusShell
- * could keep the pointer to the tracks it creates and pass that down, but
- * it means that Recorder must maintain that exact track object and the
- * shell needs to refresh it's pointer if we ever change it.
- *
- * Also assuming that add() will not allocate memory, it only puts things
- * into the mTracks array which is okay as long as the max sixe of this array
- * is large enough which it is for now.
- */
-SampleTrack* Recorder::replaceSampleTrack(SampleTrack* neu)
-{
-    RecorderTrack* existing = nullptr;
-    int existingIndex = -1;
-
-    for (int i = 0 ; i < mTrackCount ; i++) {
-        RecorderTrack *rt = mTracks[i];
-        if (rt != nullptr && rt->isPriority()) {
-            existing = rt;
-            mTracks[i] = neu;
-            break;
-        }
-    }
-
-    if (existing == nullptr) {
-        // must be a first time installation
-        add(neu);
-    }
-
-    return existing;
-}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -444,6 +404,10 @@ void RecorderTrack::setRecorder(class Recorder *r) {
 	mRecorder = r;
 }
 
+// removed this since it wanted to create an Audio without a pool
+// I think this is a leftover from when we thought this could become
+// a more full featured recorder
+#if 0
 void RecorderTrack::setRecording(bool b)
 {
 	mRecording = b;
@@ -456,6 +420,7 @@ void RecorderTrack::setRecording(bool b)
 		mAudio->setSampleRate(s->getSampleRate());
 	}
 }
+#endif
 
 void RecorderTrack::dump() 
 {
@@ -824,6 +789,32 @@ RecorderTrack* Recorder::add(Audio *a)
 }
 
 /**
+ * New for SampleTrack in the kernel.
+ * We've built an entirely new SampleTrack object containing
+ * samples and need to replace the old one.  This is the only
+ * track type that will have this treatment at the moment.
+ * The old track is NOT deleted.
+ * Kind of inconsistent with the way other Juce containers
+ * work that normally own things when they delete them.
+ * Would be more accurate to say replaceNoDelete
+ * or have a deleteIt=false argument to specify this.
+ */
+bool Recorder::replace(RecorderTrack* old, RecorderTrack* neu)
+{
+    bool replaced = false;
+    
+    for (int i = 0 ; i < mTrackCount ; i++) {
+        RecorderTrack *rt = mTracks[i];
+        if (rt == old) {
+            mTracks[i] = neu;
+            replaced = true;
+            break;
+        }
+    }
+    return replaced;
+}
+
+/**
  * Remove a track by number.
  */
 bool Recorder::removeTrack(int n) 
@@ -960,7 +951,9 @@ RecorderCalibrationResult* Recorder::calibrate()
 		result->latency = latency;
 	}
 
-	mCalibrationInput->write("calibration.wav");
+    // don't have write() anymore, revisit this
+	//mCalibrationInput->write("calibration.wav");
+    
     mAudioPool->freeAudio(mCalibrationInput);
     mCalibrationInput = NULL;
     mCalibrating = false;

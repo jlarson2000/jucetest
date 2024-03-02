@@ -131,6 +131,7 @@ class UIAction {
   public:
 
 	UIAction();
+    UIAction(UIAction* src);
 	~UIAction();
 
     void init(class Binding* b);

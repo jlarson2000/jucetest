@@ -12,6 +12,7 @@
 
 #include "MobiusContainer.h"
 #include "KernelCommunicator.h"
+#include "AudioPool.h"
 #include "MobiusKernel.h"
 #include "MobiusInterface.h"
 #include "Simulator.h"
@@ -56,7 +57,12 @@ class MobiusShell : public MobiusInterface
     // kernel communication and shared state
     KernelCommunicator communicator;
     MobiusState state;
-    class AudioPool* audioPool = nullptr;
+
+    // note that AudioPool must be declared before
+    // Kernel so that they are destructed in reverse
+    // order and Kernel can return things to the pool
+    // before it is destructed
+    class AudioPool audioPool;
     
     // the kernel itself
     // todo: try to avoid passing this down, can we do
@@ -70,8 +76,9 @@ class MobiusShell : public MobiusInterface
     // internal functions
     //
     
-    void sendKernelConfigure(class MobiusConfig* config);
     void consumeCommunications();
+    void sendKernelConfigure(class MobiusConfig* config);
+    void doKernelAction(UIAction* action);
     
 };
 

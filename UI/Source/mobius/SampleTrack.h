@@ -286,7 +286,7 @@ class SampleTrack : public RecorderTrack {
 
     // These are constructed in the UI thread from a SampleConfig
     // and can pull information from the MobiusConfig and the container
-	SampleTrack(class SampleConfig* samples);
+	SampleTrack(class AudioPool* pool, class SampleConfig* samples);
 	~SampleTrack();
 
     // return true if the contents of this track are different
@@ -306,7 +306,7 @@ class SampleTrack : public RecorderTrack {
 	 * Triggering by internal sample index.
 	 * TODO: Trigger by MIDI note with velocity!
 	 */
-	void trigger(int index);
+    void trigger(int index, bool down);
 	long getLastSampleFrames();
 
 	/**

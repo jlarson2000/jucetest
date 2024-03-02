@@ -119,7 +119,23 @@ void Supervisor::shutdown()
     // stop the UI thread so we don't get any lingering events
     uiThread.stop();
 
-    // stop the Mobius engine, mobius object is a smart pointer
+    // race condition here
+    // MobiusInterface::getMobius was passed our JuceMobiusContainer
+    // and then registered the MobiusShell as a listener for the container
+    // MoibusInterface::shutdown deletes the instance but JuceMobiusContainer
+    // still has a pointer to it as a listener
+    // the audio thread can still be pumping events to us which we forward to the
+    // container which forwards to the listener which is now gone
+    // the MobiusShell destructor now removes it's listener but I think
+    // we could have still "gotten into it" just before we got the call to shut down
+    // so the audio thread could be using it while the UI thread is deleting it
+    // I think the bug was that ~MainComponent wasn't calling shutdownAudio before
+    // calling Supervisor::shutdown
+    // I fixed the listener reference and changed the order so I think it's good
+    // but if you see random access violations during shutdown, look here
+    // don't like the control flow, MobiusShell needs to pull things from the container
+    // but it doesn't really need to be a listener, we can just push things at it
+    mobiusContainer.setAudioListener(nullptr);
     MobiusInterface::shutdown();
     // this is now invalid
     mobius = nullptr;

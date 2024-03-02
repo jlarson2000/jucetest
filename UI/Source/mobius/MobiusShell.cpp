@@ -23,6 +23,7 @@
 #include "MobiusKernel.h"
 #include "SampleTrack.h"
 #include "Simulator.h"
+#include "AudioPool.h"
 
 #include "MobiusShell.h"
 
@@ -38,20 +39,66 @@ MobiusShell::MobiusShell(MobiusContainer* cont)
     // this is given to us later
     configuration = nullptr;
 
-    audioPool = new AudioPool();
+    // see notes below on destructor subtleties
+    // keep this on the stack rather than the heap
+    // audioPool = new AudioPool();
 }
 
+/**
+ * Destruction subtelty.
+ * Because MobiusKernel is a member object (or whatever those are called)
+ * rather than a dynamically allocated pointer, it will be destructed AFTER
+ * MobiusShell is destructed.  The problem is that the AudioPool is shared between
+ * them.  Originally AudioPool was a stack object with a member pointer,
+ * and we deleted it here in the destructor.  But when we did that it will be invalid
+ * when Kernel wants to delete the Recorder which returns things to the pool.
+ * This didn't seem to crash in my testing, maybe because it still looks enough
+ * like it did before it was returned to the heap, still surpised we didn't get
+ * an access violation.
+ *
+ * So MobiusKernel needs to be destructed, or at least have all it's resources released
+ * BEFORE we delete the AudioPool.
+ *
+ * If it were just a pointer to a heap object we could do that here and control the order
+ * but if it's on the stack there are two options
+ *    - call a reset() method on the kernel to force it to delete everything early
+ *      then when it's destructor eventually gets called there won't be anything left to do
+ *    - put AudioPool on the stack to, paying attention to member order so it gets deleted
+ *      last
+ *
+ * Seems to be one of the downsides to RAII, it makes destruction control less obvious
+ * if there is a mixture of stack and heap objects and those things point to each other
+ *
+ * AudioPool is pretty simple so it can live fine on the stack, just pay careful attention
+ * to lexical declaration order.
+ *
+ * From this thread:
+ *  https://stackoverflow.com/questions/2254263/order-of-member-constructor-and-destructor-calls
+ *  Yes to both. See 12.6.2
+ *
+ * "non-static data members shall be initialized in the order they were declared in the
+ *  class definition"
+ *
+ * And then they are destroyed in reverse order.
+ *
+ * Note to self: the official term for that thing I've been calling "member objects"
+ * is "data members".
+ *
+ * So for our purposes, MobiusKernel must be declared AFTER AudioPool in MobiusShell.
+ * And AudioPool is now a data member.
+ */
 MobiusShell::~MobiusShell()
 {
     delete configuration;
 
-    audioPool->dump();
-    delete audioPool;
+    audioPool.dump();
 }
 
 void MobiusShell::setListener(MobiusListener* l)
 {
+    // we don't actually use this, give it to the simulator
     listener = l;
+    simulator.setListener(l);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -121,7 +168,7 @@ void MobiusShell::configure(MobiusConfig* config)
  */
 void MobiusShell::installSamples(SampleConfig* samples)
 {
-    SampleTrack* track = new SampleTrack(audioPool, samples);
+    SampleTrack* track = new SampleTrack(&audioPool, samples);
 
     // SampleTrack took what it needed and left this behind
     // it didn't actually steal the float buffers
@@ -177,19 +224,19 @@ MobiusState* MobiusShell::getState()
  */
 AudioPool* MobiusShell::getAudioPool()
 {
-    return audioPool;
+    return &audioPool;
 }
 
 /**
  * Send the kernel its copy of the MobiusConfig
  * The object is already a copy
  */
-void MobiusShell::sendKernelConfgure(MobiusConfig* config)
+void MobiusShell::sendKernelConfigure(MobiusConfig* config)
 {
     KernelMessage* msg = communicator.alloc();
     if (msg != nullptr) {
-        msg.type = MsgConfigure;
-        msg.object.configuration = config;
+        msg->type = MsgConfigure;
+        msg->object.configuration = config;
         communicator.pushKernel(msg);
     }
     // else, pool exhaustion, already traced
@@ -213,6 +260,10 @@ void MobiusShell::consumeCommunications()
                 // kernel is giving us back the old SampleTrack
                 delete msg->object.sampleTrack;
             }
+            case MsgAction: {
+                // kernel returns a processed action
+                delete msg->object.action;
+            }
                 break;
         }
         
@@ -221,7 +272,94 @@ void MobiusShell::consumeCommunications()
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+//
+// Actions
+//
+//////////////////////////////////////////////////////////////////////
 
+/**
+ * Actions may be perfomed at several levels: 
+ *   shell, kernel, RecorderTrack, Core
+ *
+ * If an action makes it to Core it will be converted
+ * from a UIAction to the old Action.
+ *
+ * There are currently no shell actions so we pass
+ * it immediately to the kernel.
+ *
+ * A tempoary large redirect is made into the Simulator
+ * but this will be phased out soon.
+ */
+void MobiusShell::doAction(UIAction* action)
+{
+    
+    if (action->op == OpFunction) {
+        FunctionDefinition* f = action->implementation.function;
+        if (f == nullptr) {
+            trace("Unresolved function: %s\n", action->operationName);
+        }
+        else if (f == SamplePlay) {
+            // this one we can handle
+            doKernelAction(action);
+        }
+        else {
+            // send it to the simulator
+            simulator.doAction(action);
+        }
+    }
+    else {
+        simulator.doAction(action);
+    }
+}
+
+int MobiusShell::getParameter(Parameter* p, int trackNumber)
+{
+    return simulator.getParameter(p, trackNumber);
+}
+
+/**
+ * Ah, the first UIAction problem.
+ * UI retains control of the passed object,
+ * once we pass into the kernel boundary access is lost so we
+ * have to make a copy, this is where interning
+ * could be nice like the old engine does.
+ * The problem is that each action can have different arguments and
+ * flags so we can't intern just based on the function ordinal.
+ * We've also got storage allocation problems, if we pass it to the kernel
+ * it needs to be passed back for reclamation which isn't so bad.   Actually
+ * that works out okay, we can do interning or not.  But start clarifying
+ * the status of objects passed to the kernel
+ *     does not take ownership but assumes indefinite lifespan
+ *        can't modify those
+ *     takes ownership and will either return it or destroy it when it is destroyed
+ */
+
+void MobiusShell::doKernelAction(UIAction* action)
+{
+    KernelMessage* msg = communicator.alloc();
+    msg->type = MsgAction;
+
+    // REALLY need a copy operator on these
+    msg->object.action = new UIAction(action);
+    communicator.pushKernel(msg);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Simulator
+//
+//////////////////////////////////////////////////////////////////////
+
+void MobiusShell::test()
+{
+    simulator.test();
+}
+
+void MobiusShell::simulateInterrupt(float* input, float* output, int frames)
+{
+    simulator.simulateInterrupt(input, output, frames);
+}
 
 /****************************************************************************/
 /****************************************************************************/

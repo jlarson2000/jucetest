@@ -11,7 +11,7 @@
 
 #include "../util/Trace.h"
 #include "../util/Util.h"
-#include "../util/MobiusConfig.h"
+#include "../model/MobiusConfig.h"
 #include "../model/SampleConfig.h"
 
 #include "MobiusContainer.h"
@@ -558,6 +558,17 @@ void SampleTrack::updateConfiguration(MobiusConfig* config)
 
 /**
  * Trigger a sample to begin playing.
+ * Called by the SamplePlay action in the interrupt.
+ *
+ * There used to be some extremely contorted logic in here to do processing
+ * of the AudioStream buffers early, which would possibly (always) modify the
+ * input buffer to inject the sample into the input then call back to
+ * Recorder::inputBufferModified for some obscure reason to cause reprocessing
+ * of tracks for the new input, which shouldn't have been necessary if we were
+ * processed first.  I gave up trying to understand it all, ripped it out and
+ * started over.
+ *
+ * Comments in old code
  *
  * !!! This feels full of race conditions.  The unit tests do this
  * in scripts so often we will be inside the interrupt.  But the
@@ -587,33 +598,14 @@ void SampleTrack::updateConfiguration(MobiusConfig* config)
  * but wait for SampleTrack::processBuffers below.
  */
 
-void SampleTrack::trigger(MobiusContainer* stream, int index, bool down)
+void SampleTrack::trigger(int index, bool down)
 {
 	if (index < mSampleCount) {
 		mPlayers[index]->trigger(down);
 		mLastSample = index;
 
-		// KLUDGE: With the original script implementation, we would
-		// begin playing the sample immediately if we were still in the
-		// interrupt handler, after the SampleTrack buffers were processed.
-		
-		// test hack, if we're still in an interrupt, process it now
-		if (mTrackProcessed && stream != nullptr) {
-			long frames = stream->getInterruptFrames();
-			float* inbuf;
-			float* outbuf;
-
-			// always port 0, any need to change?
-			stream->getInterruptBuffers(0, &inbuf, 0, &outbuf);
-
-			mPlayers[index]->play(inbuf, outbuf, frames);
-
-			// only the initial trigger needs to notify the other tracks,
-			// after ward we're the first one so we've modified it before
-			// the others start copying
-			mRecorder->inputBufferModified(this, inbuf);
-		}
-
+        // see old code about filling buffers early if you think
+        // this is necessary again
 	}
 	else {
 		// this is sometimes caused by a misconfiguration of the

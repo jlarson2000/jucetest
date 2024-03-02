@@ -5,6 +5,8 @@
 // for CriticalSection/ScopedLock
 #include <JuceHeader.h>
 
+#include "../util/Trace.h"
+
 #include "Audio.h"
 #include "AudioPool.h"
 
@@ -55,10 +57,12 @@ Audio* AudioPool::newAudio()
 /**
  * Allocate a new Audio in this pool and read a file.
  */
+#if 0
 Audio* AudioPool::newAudio(const char* file)
 {
     return new Audio(this, file);
 }
+#endif
 
 /**
  * Return an Audio to the pool.

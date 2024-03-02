@@ -171,7 +171,7 @@ FunctionDefinition ResumeScriptDef {"ResumeScript"};
 FunctionDefinition ReverseDef {"Reverse"};
 // thisDefinition was formerly SampleN, Sample1, etc.
 FunctionDefinition SamplePlayDef {"SamplePlay"};
-
+FunctionDefinition* SamplePlay = &SamplePlayDef;
 FunctionDefinition SaveCaptureDef {"SaveCapture"};
 FunctionDefinition SaveLoopDef {"SaveLoop"};
 FunctionDefinition ShuffleDef {"Shuffle"};

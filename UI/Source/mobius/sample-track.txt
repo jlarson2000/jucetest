@@ -1,3 +1,329 @@
+This is unbelievably complcated in old code, see a partial analysis below but
+here is how I want it to work...
+
+In normal conceptual flow it is works like this
+
+  MobiusKernel is notified of audio buffers
+  Kernel notifies Recorder
+  Recorder notifies each track which consumes and modifies things buffers
+  
+Looping tracks have complex substructure to determine what to put into the buffers
+So does SampleTrack
+
+SampleTrack has a list of Players for each sample and Players have a list
+  of Cursors over the sample, one cursor for each activation of that sample
+  if they are playing concurrently
+
+SampleTrack does not consume any input audio, it only plays it
+
+Where it gets weird is that SampleTrack can also INJECT audio into the
+INPUT buffers which will then get picked up by the other tracks that record things
+
+In this respect it operates like a filter on the input before it hits the other tracks
+
+
+
+
+
+----------------------------------------------------------------------
+Analysis of old code
+
+ * new: old function received Mobius::mInterruptStream as the first argument
+ * it used that to call stream->getInterruptFrames() and getInterruptBuffers,
+ * modified the buffers, then called mRecorder->inputBuffersModified.
+ * This was to inject the audio into the interrupt buffers as if it had been
+ * received from the outside.  This is both the mechanism to start playing
+ * the sample in the output buffer AND inject it into the input so that if
+ * a loop track is recording it will receive the sample data too.
+ *
+ * This is very magic, unique to SampleTrack and need to generalize this concept.
+ * mInterruptStream was set in Mobius::recorderMonitorEnter to the
+ * AudioStream that was passed to the Recorder's monitor.  This was a bass-ackwards
+ * way of doing things when Recorder was in charge of the AudioInterface
+ * and Moibus needed to inject itself into interrupt handling.
+ *
+ *    Mobius get a MobiusContext containing an AudioIterface which wrapped PortAudio
+ *    Mobius constructs a Recorder passing AudioInterface
+ *    Recorder called AudioInterface->getStream to get an AudioStream which is
+ *      where the buffers lived
+ *    Recorder called AudioStream->setHandler to register a callback
+ *
+ * The runtime sequence looked like this
+ *
+ *   PortAudio/AudioInterface gets a hardware interrupt and notifies an AudioStream
+ *   AudioStream looks for an AudioHandler, in this case Recorder
+ *   Recorder::processAudioBuffers is called with an AudioStream
+ *   processAudioBuffer calls monitor->recorderMonitorEnter
+ *   Mobius::recorderMonitorEnter saves the AudioStream
+ *   recorderMonitorEnter calls SampleTrack->prepareForInterrupt
+ *   recordrMonitorEnter process Actions
+ *   The Action for Function::SamplePlay is invoked
+ *   SamplePlay calls Mobius::sampleTrigger
+ *   sampleTrigger calls SampleTrack::trigger passing the AudioStream it
+ *    received up in recorderMonitorEnter
+ *   SampleTrack::trigger locates the SamplePlayer for the desired sample
+ *     and tells it to start playing
+ *   contols retuns to recorderMonitorEnter
+ *   recorderMonitor retusn to Recorder::ProcessAudioBuffers
+ *   Recorder process the rest of the tracks with the modified buffers
+ *   Recorder gets to SampleTrack and calls SampleTrack::processBuffers
+ *   SampleTrack let's all the Players play into the output buffers
+ * 
+ * Sweet Jesus on a Unicycle, this makes me tired and angry and I wrote this mess.
+ * And it gets worse.  That's the "simple" without the "test hack"
+ *
+ * So far, beyond the twisted control flow SampleTrack has behaved pretty much
+ * like a normal track, it gets notified when buffers are ready by the Recorder
+ * and puts things in the output buffers.  The Players are the things that
+ * send output as they cursor through their sample.  In the new world, ignoring
+ * triggers it looks like this:
+ *
+ * MobiusKernel is notified that audio buffers are available
+ * MobiusKernel tells Recorder
+ * Recorder tells SampleTrack
+ * SampleTrack tells Players
+ * Players tell Cursors
+ * Cursors put things in the output buffer AND the input buffer if they are "recording" cursors
+ *
+ * With triggers it is the same except that triggers are processed
+ * before the recorder tracks advance and they may activate Players to play something new
+ *
+ * Oh and SampleTrack is flagged as "priority" so it is processed before the others
+ * which is how it can inject things into the input buffer.
+ *
+ * Now we have the "test hack"
+ * 
+ * SampleTrack::trigger starts the Player as before
+ * If mTrackProcessed
+ *  
+ *   SampleTrack::trigger calls AudioStream::getInterruptFrames and getInterruptBuffers
+ *      and modifies the PortAudio buffers passed to AudioStream way up there
+ *   SampleTrack calls Recorder->inputBuffersModified to tell it what it did
+ *   Recorder uses inputBufferModified to tell the tracks to process buffers AGAIN
+ *    if they were doing rate scaling, or something like
+ *
+ * I give up, this was a terrible hack to begin with and it won't be retained
+
+Comments in old code
+
+ * !!! This feels full of race conditions.  The unit tests do this
+ * in scripts so often we will be inside the interrupt.  But the
+ * SampleTrigger function is declared as global so if triggered
+ * from MIDI it will be run outside the interrupt.
+ * 
+ * If we are being run during the script pass at the start of the interrupt,
+ * then the sample will be immediately played into the input/output buffers in
+ * the processBufffers interrupt handler below.  This is normally done
+ * for testing with scripts using the "Wait block" statement to ensure
+ * that the sample is aligned with an interrupt block.
+ *
+ * For scripts triggered with MIDI, keys, or buttons, we will trigger them
+ * but won't actually begin playing until the next interrupt when 
+ * processBuffers is run again.  This means that for predictable content
+ * in the unit tests you must use "Wait block" 
+ *
+ * KLUDGE: Originally triggering always happened during processing of a Track
+ * after we had called the SamplerTrack interrupt handler.  So we could begin
+ * hearing the sample in the current block we begin proactively playing it here
+ * rather than waiting for the next block.  This is arguably incorrect, we should
+ * just queue it up and wait for the next interrupt.  But unfortunately we have
+ * a lot of captured unit tests that rely on this.  Until we're prepared
+ * to recapture the test files, follow the old behavior.  But note that we have
+ * to be careful *not* to do this twice in one interupt.  Now that scripts
+ * are called before any tracks are processed, we may not need to begin playing, 
+ * but wait for SampleTrack::processBuffers below.
+
+----------------------------------------------------------------------
+
+
+Who owns the SampleTrack after it has been installed?
+
+Recorder manages a list of SampleTracks
+  - the only thing it knows about them is that they're called to
+    consume/produce audio on each interrupt
+    - some may have priority
+    - processed in the order on the list, but otherwise order independent
+    - does not know what they are, given from above
+    - creator is allowed to retain a pointer to them and make them do things
+      - no formal interface yet to cause the track to do something other
+        than calling it directly by something that knows what it is
+    - all recorder does is feed them audio and maintain a timeline
+
+
+For simple things like SampleTrack there is no kernel code that knows
+what it is and calls it directly, only code in the shell responding
+to actions calls it, in old code an Action of class SamplePlay is received
+the invoke() method is called  and it calls Mobius::sampleTrigger
+
+Mobius::sampleTrigger does
+  mSampleTrack->trigger(mInterruptStream, index, action->down);
+
+So this is shell code touching a track directly.
+
+Logic in Mobius::doAction
+   else if (f->global && f->outsideInterrupt) {
+
+so it does try to recognize where it is
+
+interesting, kernel code might want to cause Actions, rather than going all the
+way back to the top, could send it directly to Kernel if it had a doAction method
+
+doAction tests various thigns to decide whether to defer, then adds it
+to an action list
+
+        mCsect->enter("doAction");
+        if (mLastAction == NULL)
+          mActions = a;
+        else 
+          mLastAction->setNext(a);
+        mLastAction = a;
+        mCsect->leave("doAction");
+
+then later
+
+/**
+ * Process the action list when we're inside the interrupt.
+ */
+PRIVATE void Mobius::doInterruptActions()
+
+So yes, actions are passed from what is logically the shell to the kernel
+
+and doInterruptActions is done in recorderMonitorEnter
+
+Interesting: recorderMonitorEnter has some order that may be important
+
+  - if there is an mPendingInterruptConfig it takes it
+    and calls propagateInterruptConfig
+  - install watchers
+  - install pending Setup
+  - install pending Samples
+  - install pending Project
+  - noExternalInterrupt hack for testing without connected input
+    zeros the input buffers and only uses sample input
+    - this is interesting, could push this higher and have
+      JuceMobiusContainer be aware of this
+  - Synchronizer->interruptStart
+  - SampleTrack->prepareForInterrupt
+  - doInterruptActions
+  - TriggerState->advance
+  - doScriptMaintenance
+
+Look at this:
+    // interrupts may come in during initialization before we've had
+    // a chance to install the configuration, ignore these interrupts
+    // KLUDGE: Need a better way of detecting this than the stupid
+    // default flag...
+    if (mInterruptConfig->isDefault()) {
+        Trace(2, "Mobius: Igoring audio interrupt before config loaded\n");
+        return;
+    }
+
+When initializing Kernel, it would be good to have a flag or something
+that prevents it from processing audio until it is ready
+
+So I believe when shell receives a SamplePlay action, it puts it on the
+kernel action list processed at the beginning of the next interrupt but
+AFTER phasing in pending configuration changes.
+
+Since we now use the communicator message queue for everything, order
+is not stable.  Unlikely it would be conflict but in theory
+
+   - user submits a configuration change
+   - user presses sample trigger at the same time
+   - both are queued
+   - sample trigger is processed first
+
+I don't think this should matter.  Actions should not be sensitive to the
+configuration beyond configured track numbers, group names, basically any
+destination could change while the action is being processed.  but you don't
+in practice do configuration changes at the same time as you are submitting actions
+I don't think even the test scripts do that.  since both of these are random
+and user initiated and user can't know about interrupt timing, it can't matter
+
+So old way
+  - user presses a sample key submits an Action
+  - Mobius puts the Action on the interrupt action list
+  - interrupt calls doInterrupt actions at interrupt start
+  - doActionNow(action), completeAction(action);
+    - doFunction
+       stuff related to TriggerState and long functions
+       SampleTrigger is global=true so Function->invoke is called
+       Function::SampleTrigger calls if action is "down"
+         m->sampleTrigger(action, sampleIndex);
+
+In the old model, track targeting is handled by looking for a resolved
+track or iterating over groups and focus and calling
+            doFunction(a, f, mTrack);
+
+doFunction(track)
+  various down/long handling
+  then f->invoke or f->invokeLong on the current Loop of that track
+              // normal down invocation
+            f->invoke(action, t->getLoop());
+
+So ultimately it only uses Track to get the Loop then calls
+Function->invoke with the Action and the Loop
+
+In the new model we could let actions be sent to the
+RecorderTrack and let them handle it  The new SampleTrack
+then just has the logic without needing to call back to Mobius
+OG Track can be given a new method that calls invoke on itself.
+
+Key points
+  focus/group handling clones the action and are independent
+  so this could be moved entirely up levels, the invocation
+  context does not know or care whether it was in a group, though
+  the Action we pass down will still have that, I doubt it is sensitive
+
+  all of the up/down/long logic in new code
+
+  reaching a state where all old code is in the kernel, everything
+  that was above is being replaced
+
+This is good, mobius/core folder contains old relatively unmodified code
+core/Mobius still exists to provide the object everything expects but
+will be massively reduced with things added only as necessary.  Part of
+Kernel's job will be to prepare Mobius at the start of each interrupt
+then send it actions.  That's all Mobius needs to do, respond to actions
+and maintain the Track list and it's old configuration.
+
+core/Mobius no longer maintains a Recorder or does any interrupt handling
+if a core component needs Recorder or anything we've moved up, it can
+proxy back to Kernel.
+
+The UIAction model can continue to be used for everything until
+it reaches core.  Then there is a conversion to old Action.
+
+Core model compoents needed by the UI continue to be complications.
+We need them for configuration but not behavior and the names can't
+conflict.  This is going to be impossible to unwind.
+
+Configuration objects can be shared but not Function and Parameter.
+
+Everything uses a new model until it reaches the core boundary,
+then it has to do mapping.  core/Mobius is the choke point, nothing
+in kernel can touch anything inside core without going through Mobius.
+Could put model conversion in Mobius, or have a CoreManager that acts
+as a proxy to contain all the communication code.  Probably doesn't
+matter unless Mobius starts containing so much old code it's hard to
+see the difference.  This should work, the highest level old code
+can go is Mobius so all we need to do make make something that looks like that.
+
+The only reason we had to bring Audio up is for SampleTrack, which drug
+in Recorder, but that needed to be done anyway to deal with streams.
+
+AudioStream will continue to be hard, but we can make a proxy that wraps
+MobiusContainer in core.
+
+We've already got FunctionDefinition can do ParameterDefinition
+
+Core code other than Mobius has very few references to Recorder.  Look
+at Stream which has some assumptions about things it expects to be called onit.
+
+
+   
+
+----------------------------------------------------------------------
 
 The way this is handled right now is way too hacky, can let it
 go for testing but it needs to be addressed asap.  Among the problems:
