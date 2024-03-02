@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="Ld0wYp" name="mobu" projectType="consoleapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+  <MAINGROUP id="wjSIR7" name="mobu">
+    <GROUP id="{3D7E7447-13BF-FF04-B2E6-5F2E39D9999B}" name="Source">
+      <FILE id="WTbZiO" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="mobu"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="mobu"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
