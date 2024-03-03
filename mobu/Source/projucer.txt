@@ -1,0 +1,48 @@
+Projucer project hacks to get mobu to build with references into UI
+without making libraries.
+
+Under Exporters/Visual Studio 2022/Debug
+
+Locate Header Search Paths and add
+
+c:\dev\jucetest\UI\Source\model
+
+Locate "Configuration-specific Linker Flags"
+
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ExValue.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Util.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Vbuf.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\List.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Preset.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Structure.obj
+
+Somehow got an unresolved on juce::Colour of all things
+only thing I could find in those related to juce was juce::var
+
+Added juce_graphics and juce_gui_basics to the modules list
+
+
+The resulting .exe is in
+
+c:\dev\jucetest\mobu\Builds\VisualStudio2022\x64\Debug\ConsoleApp\mobu.exe
+
+
+To get things in C++ 20 like std::format you have to bump
+up the language standard
+
+In the gear icon look for "C++ Language Standard"
+
+The default is C++17
+
+C++20 is an option but not C++23
+
+std::format is C++20
+std::print is apparently C++23
+
+Tried C++20 and started getting errors in Juce source, abandon
+Fuck it, just use cout
+
+An example for when you forget...
+
+    // endl is marginally better than "\n" except if you're not using std:
+    std::cout << "File 4 is " + file4.getFullPathName() << std::endl;

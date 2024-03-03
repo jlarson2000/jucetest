@@ -1,0 +1,119 @@
+Generation process
+
+Read the definition .xml file, parse for basic validation
+
+Generate .h and .cpp fragments in memory
+
+If both generations succeed
+
+  read header/code files up to the marker
+  replace content after the marker
+  write the merged file blocks
+
+Generated file updates are independent of the objects inside it,
+this can be shared by Parameter, Function, etc.
+
+Files do not even need to be opened until after the fragment generation
+is complete without errors into the memory buffer
+
+
+
+
+
+
+The Parameter subclasses are only there to provide scope and getters
+that downcase to Preset.  These just static cast anyway so we don't need
+a class for that.  Might supply some other defaults but can generate those
+Don't need subclasses.
+
+Want generated files to have a preamble that is not touched.
+
+/*
+ * Comments about what the file does.
+ */
+
+includes
+class definitions
+
+// !GENERATE
+
+// commands to the generator can start with ! but need to be in a comment
+// if you want to keep the preamble in a compilable file
+
+class Parameter
+
+----------------------------------------------------------------------
+
+class PresetParameter : public Parameter 
+{
+  public:
+
+    PresetParameter(const char* name, int key) :
+        Parameter(name, key) {
+        scope = PARAM_SCOPE_PRESET;
+    }
+
+    PresetParameter(const char* name, const char* displayName) :
+        Parameter(name, displayName) {
+        scope = PARAM_SCOPE_PRESET;
+    }
+
+    /**
+     * Overload the Parameter versions and cast to a Preset.
+     */
+	void getConfigValue(void* object, ExValue* value);
+	void setConfigValue(void* object, ExValue* value);
+
+    /**
+     * These must always be overloaded.
+     */
+	virtual void getValue(Preset* p, ExValue* value) = 0;
+	virtual void setValue(Preset* p, ExValue* value) = 0;
+
+    /**
+     * This must be overloaded by anything that supports ordinals.
+     */
+	virtual int getOrdinalValue(Preset* p);
+
+
+};
+
+class SubCycleParameterType : public PresetParameter 
+{
+  public:
+	SubCycleParameterType();
+    int getOrdinalValue(Preset* p);
+	void getValue(Preset* p, ExValue* value);
+	void setValue(Preset* p, ExValue* value);
+};
+
+SubCycleParameterType::SubCycleParameterType() :
+    PresetParameter("subcycles", "Subcycles")
+{
+    bindable = true;
+	type = TYPE_INT;
+	low = 1;
+	// originally 1024 but I can't imagine needing it that
+	// big and this doesn't map into a host parameter well
+	high = 128;
+
+    addAlias("8thsPerCycle");
+}
+
+int SubCycleParameterType::getOrdinalValue(Preset* p)
+{
+	return p->getSubcycles();
+}
+
+void SubCycleParameterType::getValue(Preset* p, ExValue* value)
+{
+	value->setInt(p->getSubcycles());
+}
+
+void SubCycleParameterType::setValue(Preset* p, ExValue* value)
+{
+	p->setSubcycles(value->getInt());
+}
+
+SubCycleParameterType SubCycleParameterObj;
+Parameter* SubCycleParameter = &SubCycleParameterObj;

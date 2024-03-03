@@ -41,9 +41,9 @@
 class SystemConstant {
   public:
 
-    int ordinal;
-    const char* name;
-    const char* displayName;
+    int ordinal = 0;
+    const char* name = nullptr;
+    const char* displayName = nullptr;
 
     // these are simple enough, could just use member initialization
     // SystemConstant();
@@ -56,6 +56,8 @@ class SystemConstant {
         name = argName;
         displayName = nullptr;
     }
+
+    SystemConstant() {};
 
     // accessor for old code that still uses them
     const char* getName() {

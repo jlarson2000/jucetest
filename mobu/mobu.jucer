@@ -1,28 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="Ld0wYp" name="mobu" projectType="consoleapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              headerPath="c:/dev/jucetest/UI/Source/model&#10;c:/dev/jucetest/UI/Source/util&#10;">
   <MAINGROUP id="wjSIR7" name="mobu">
     <GROUP id="{3D7E7447-13BF-FF04-B2E6-5F2E39D9999B}" name="Source">
+      <FILE id="IPJWQi" name="CodeGenerator.cpp" compile="1" resource="0"
+            file="Source/CodeGenerator.cpp"/>
+      <FILE id="cl9tTl" name="CodeGenerator.h" compile="0" resource="0" file="Source/CodeGenerator.h"/>
       <FILE id="WTbZiO" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="sBd56X" name="Mobu.cpp" compile="1" resource="0" file="Source/Mobu.cpp"/>
+      <FILE id="GHUTT8" name="Mobu.h" compile="0" resource="0" file="Source/Mobu.h"/>
+      <FILE id="RdLg60" name="ParameterGenerator.cpp" compile="1" resource="0"
+            file="Source/ParameterGenerator.cpp"/>
+      <FILE id="im6YkP" name="ParameterGenerator.h" compile="0" resource="0"
+            file="Source/ParameterGenerator.h"/>
+      <FILE id="WH2rs1" name="UIParameter.cpp" compile="1" resource="0" file="Source/UIParameter.cpp"/>
+      <FILE id="E1AC8i" name="UIParameter.h" compile="0" resource="0" file="Source/UIParameter.h"/>
+      <FILE id="TbOWTx" name="UIParameterClasses.cpp" compile="1" resource="0"
+            file="Source/UIParameterClasses.cpp"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="mobu"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="mobu" extraLinkerFlags="c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ExValue.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Util.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Vbuf.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\List.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Preset.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Structure.obj&#10;"
+                       headerPath="c:\dev\jucetest\UI\Source\model&#10;c:\dev\jucetest\UI\Source\util&#10;"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="mobu"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
         <MODULEPATH id="juce_data_structures" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
         <MODULEPATH id="juce_events" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Juce/juce-7.0.9-windows/JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

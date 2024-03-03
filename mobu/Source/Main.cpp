@@ -8,15 +8,17 @@
 
 #include <JuceHeader.h>
 
+#include "Mobu.h"
+
 //==============================================================================
 int main (int argc, char* argv[])
 {
-    juce::String xml = "<parameter name='foo'/>";
-    juce::XmlDocument doc(xml);
+    // jsl - expecting more here, I guess because we didn't
+    // ask for any modules that required more of an environment?
 
-    std::unique_ptr<juce::XmlElement> el = doc.getDocumentElement();
-    printf("Element %s\n", el->getTagName().toUTF8());
-
+    Mobu* mobu = new Mobu(argc, argv);
+    mobu->run();
+    delete mobu;
 
     return 0;
 }
