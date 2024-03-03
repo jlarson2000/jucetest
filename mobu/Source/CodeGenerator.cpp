@@ -7,6 +7,38 @@ using std::endl;
 
 #include "CodeGenerator.h"
 
+// old way, works out here but not as a class member initializer
+const char* DRIFT_CHECK_POINT_NAMES[] = {
+	"loop", "external", nullptr
+};
+
+
+class Something
+{
+  public:
+    // this works, but don't know if it's null terminated
+    const char* values[2] =  {"x", "y"};
+    const char* more[3] =  {"x", "y", nullptr};
+    const char* another[2];
+    // this works
+    std::vector<const char*> stuff {"x", "y"};
+    std::vector<const char*> morestuff;
+
+    //  seems to work
+    void doSomething() {
+        morestuff = {"x", "y"};
+        // doesn't work
+        //another = {"x", "y"};
+
+    }
+};
+
+// vedtor is just better all around
+// initializes easy can test size, and don't need trailing nullptr
+// I think it does dynamically allocate but it will be destructed
+// if it's in a statc object right?
+
+
 CodeGenerator::CodeGenerator()
 {
 }

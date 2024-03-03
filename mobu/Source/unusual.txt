@@ -1,0 +1,307 @@
+//////////////////////////////////////////////////////////////////////
+//
+// SetupName
+//
+//////////////////////////////////////////////////////////////////////
+
+SetupNameParameterType::SetupNameParameterType() :
+    // this must match the TargetSetup name
+    GlobalParameter("setup", MSG_PARAM_SETUP)
+{
+	type = TYPE_STRING;
+    bindable = true;
+	dynamic = true;
+}
+
+int SetupNameParameterType::getOrdinalValue(MobiusConfig* c)
+{
+    int ordinal = 0;
+    
+    const char* active = c->getActiveSetup();
+    if (active != nullptr)
+      ordinal = Structure::getOrdinal(c->getSetups(), active);
+
+    return ordinal;
+}
+
+void SetupNameParameterType::getValue(MobiusConfig* c, ExValue* value)
+{
+	value->setString(c->getActiveSetup());
+}
+
+/**
+ * For scripts accept a name or a number.
+ * Number is 1 based like SetupNumberParameter.
+ * !!!!!!!!! need to nail down ordinal bases
+ * 0 in places and 1 in others
+ */
+void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
+{
+    Setup* setup = nullptr;
+
+    if (value->getType() == EX_INT)
+      setup = (Setup*)Structure::get(c->getSetups(), value->getInt());
+    else 
+      setup = (Setup*)Structure::find(c->getSetups(), value->getString());
+
+    if (setup != nullptr)
+      c->setActiveSetup(setup->getName());
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// SetupNumber
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Provided so scripts can deal with setups as numbers if necessary
+ * though I would expect usually they will be referenced using names.
+ * 
+ * !! NOTE: For consistency with TrackPresetNumber the setup numbers
+ * are the zero based intenral numbers.  This is unlike how
+ * tracks and loops are numbered from 1.
+ */
+class SetupNumberParameterType : public GlobalParameter
+{
+  public:
+	SetupNumberParameterType();
+
+	void getValue(MobiusConfig* c, ExValue* value);
+	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
+	void setValue(Action* action);
+#endif    
+};
+
+SetupNumberParameterType SetupNumberParameterObj;
+Parameter* SetupNumberParameter = &SetupNumberParameterObj;
+
+SetupNumberParameterType::SetupNumberParameterType() :
+    GlobalParameter("setupNumber", MSG_PARAM_SETUP_NUMBER)
+{
+	type = TYPE_INT;
+    // not displayed in the UI, don't include it in the XML
+    transient = true;
+    // dynmic means it can change after the UI is initialized
+    // I don't think we need to say this if it isn't bindable
+	dynamic = true;
+}
+
+void SetupNumberParameterType::getValue(MobiusConfig* c, ExValue* value)
+{
+    int ordinal = 0;
+    
+    const char* active = c->getActiveSetup();
+    if (active != nullptr)
+      ordinal = Structure::getOrdinal(c->getSetups(), active);
+
+    value->setInt(ordinal);
+}
+
+/**
+ * This is a fake parameter so we won't edit them in the config.
+ */
+void SetupNumberParameterType::setValue(MobiusConfig* c, ExValue* value)
+{
+}
+
+#ifndef HIDE_EXPORT
+void SetupNumberParameterType::setValue(Action* action)
+{
+    Mobius* m = action->mobius;
+    // validate using the external config
+    MobiusConfig* config = m->getConfiguration();
+    int index = action->arg.getInt();
+    Setup* setup = config->getSetup(index);
+
+    if (setup != nullptr) {
+        // we're always in the interrupt so can set it now
+        m->setSetupInternal(index);
+    }
+}
+#endif
+
+//////////////////////////////////////////////////////////////////////
+//
+// Track
+//
+// !! Not sure I like this.  We already have the track select
+// functions but those have TrackCopy semantics so maybe it makes
+// sense to have this too (which doesn't).  This also gives us a way
+// to switch tracks more easilly through the plugin interface.
+//
+//////////////////////////////////////////////////////////////////////
+
+class TrackParameterType : public GlobalParameter
+{
+  public:
+	TrackParameterType();
+	void getValue(MobiusConfig* c, ExValue* value);
+	void setValue(MobiusConfig* c, ExValue* value);
+#ifndef HIDE_EXPORT
+	void getValue(Export* exp, ExValue* value);
+    int getOrdinalValue(Export* exp);
+	void setValue(Action* action);
+#endif
+};
+
+TrackParameterType::TrackParameterType() :
+	// changed from "track" to "selectedTrack" to avoid ambiguity
+	// with the read-only variable
+    GlobalParameter("selectedTrack", MSG_PARAM_TRACK)
+{
+	type = TYPE_INT;
+	low = 1;
+	high = 16;
+    // not in XML
+    transient = true;
+    // but a good one for CC bindings
+    bindable = true;
+}
+
+void TrackParameterType::getValue(MobiusConfig* c, ExValue* value)
+{
+    // transient, shouldn't be here, 
+    // !! the selected track from the Setup could be the same as this
+    // think!
+    Trace(1, "TrackParameterType::getValue!\n");
+}
+
+void TrackParameterType::setValue(MobiusConfig* c, ExValue* value)
+{
+    // transient, shouldn't be here, 
+    Trace(1, "TrackParameterType::setValue!\n");
+}
+
+#ifndef HIDE_EXPORT
+void TrackParameterType::getValue(Export* exp, ExValue* value)
+{
+	// let this be 1 based in the script
+    Mobius* m = (Mobius*)exp->getMobius();
+	Track* t = m->getTrack(m->getActiveTrack());
+	if (t != nullptr)
+	  value->setInt(t->getDisplayNumber());
+	else {
+		// assume zero
+		value->setInt(1);
+	}
+}
+
+void TrackParameterType::setValue(Action* action)
+{
+    Mobius* m = (Mobius*)action->mobius;
+	// let this be 1 based in the script
+	int ivalue = action->arg.getInt() - 1;
+	m->setTrack(ivalue);
+}
+
+/**
+ * We'll be here since we're bindable and each interrupt
+ * may have an Export that will try to export our ordinal value.
+ */
+int TrackParameterType::getOrdinalValue(Export *exp)
+{
+    ExValue v;
+    getValue(exp, &v);
+    return v.getInt();
+}
+#endif
+
+TrackParameterType TrackParameterObj;
+Parameter* TrackParameter = &TrackParameterObj;
+
+//////////////////////////////////////////////////////////////////////
+//
+// Bindings
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * This is a funny one because ordinal value 0 means "no overlay"
+ * and we want to show that and treat it as a valid value.
+ */
+class BindingsParameterType : public GlobalParameter
+{
+  public:
+	BindingsParameterType();
+
+    int getOrdinalValue(MobiusConfig* c);
+#ifndef HIDE_MOBIUS
+	int getHigh(MobiusInterface* m);
+    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+#endif
+	void getValue(MobiusConfig* c, ExValue* value);
+	void setValue(MobiusConfig* c, ExValue* value);
+
+#ifndef HIDE_EXPORT
+	void setValue(Action* action);
+#endif    
+};
+
+BindingsParameterType::BindingsParameterType() :
+    // formerly "midiConfig" but don't bother with an alias
+    // this must match the TargetBindings name
+    GlobalParameter("bindings", MSG_PARAM_BINDINGS)
+{
+	type = TYPE_STRING;
+    bindable = true;
+    dynamic = true;
+}
+
+int BindingsParameterType::getOrdinalValue(MobiusConfig* c)
+{
+    int value = 0;
+
+    const char* name = c->getOverlayBindings();
+    if (name != nullptr) {
+        BindingSet* bindings = c->getBindingSets();
+        value = Structure::getOrdinal(bindings, name);
+    }
+    return value;
+}
+
+/**
+ * This will return null to mean "no overlay".
+ */
+void BindingsParameterType::getValue(MobiusConfig* c, ExValue* value)
+{
+    value->setString(c->getOverlayBindings());
+}
+
+void BindingsParameterType::setValue(MobiusConfig* c, ExValue* value)
+{
+    if (value->getType() == EX_STRING) {
+        c->setOverlayBindings(value->getString());
+    }
+    else {
+        // if this is an int we could in theory be bound to a host
+        // parameter or control that wants to deal with ordinals
+        // really should be needing that
+    }
+}
+
+
+/**
+ * Given an ordinal, map it into a display label.
+ */
+void BindingsParameterType::getOrdinalLabel(MobiusInterface* m,
+                                                   int i, ExValue* value)
+{
+	MobiusConfig* config = m->getConfiguration();
+	BindingConfig* bindings = config->getBindingConfig(i);
+    if (i == 0) {
+        // This will be "Common Bindings" but we want to display
+        // this as "No Overlay"
+        value->setString("No Overlay");
+    }
+    else if (bindings != nullptr)
+	  value->setString(bindings->getName());
+	else
+	  value->setString("???");
+}
+#endif
+
+BindingsParameterType BindingsParameterObj;
+Parameter* BindingsParameter = &BindingsParameterObj;
+

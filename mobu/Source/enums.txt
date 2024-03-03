@@ -1,0 +1,303 @@
+FIrst one is driftCheckPoint and it's nice and simple
+
+const char* DRIFT_CHECK_POINT_NAMES[] = {
+	"loop", "external", nullptr
+};
+
+DriftCheckPointParameterType::DriftCheckPointParameterType() :
+    GlobalParameter("driftCheckPoint", 0)
+{
+    // don't bother making this bindable
+	type = TYPE_ENUM;
+	values = DRIFT_CHECK_POINT_NAMES;
+}
+
+void DriftCheckPointParameterType::getValue(MobiusConfig* c, ExValue* value)
+{
+	value->setString(values[c->getDriftCheckPoint()]);
+}
+
+void DriftCheckPointParameterType::setValue(MobiusConfig* c, ExValue* value)
+{
+    DriftCheckPoint dcp = (DriftCheckPoint)getEnum(value);
+    c->setDriftCheckPoint(dcp);
+}
+
+
+
+Internally these are numbers, so it's reasonable to have the default
+get/set behavior numbers.
+
+The values list would be specified as
+
+  <Parameter name='foo' values='one,two,three'>
+
+There is no need for an explicit type='enum' because that can inferred
+from having a values list.  The same could apply to UI forms too.
+
+Currently the default value representation is String containing the
+text representation of the enumeration element.  For the UI that isn't
+neccary, we're going through effort to map between internal and display
+names already, it isn't that mucch to map between ordinals and display names.
+
+Tjat means getValue can be the default ordinal accessor and we don't need
+a separate getOrdinal since that is the common case.
+
+If the default setter uses ExValue or juce::var we can support either
+with a utility method
+
+   void setValue(void*obj juce:var value)
+     obj->setSomething(getOrdinal(avlue));
+       // returns int if it is an int otherwise does symbolic value mapping
+
+The only thing that needs the symbolic names is XML transformation.
+Since that is the special case make that call something different:
+
+  void getSymbolicValue(void* obj, juce::var)
+    // if this is an enum return a string
+    // ints and bools are returned as ints
+    // strings are strings
+
+   void setSymbolicValue(...)
+      don't need this if the generated setValue can handle
+      both int and string
+
+So UIActions just deal with ordinals
+
+Actions that get the value from teh argument list should allow
+symbols, can we do that?
+
+   bind MIDI key 42 to multiplyMode arg='whatever'
+     - yes that shold be allowed
+       anything typed in by the user needs to support symbols
+
+Old code had a minor optimizaton for ordinals with
+
+   int getOrdinal)
+
+that avoided the ExValue container.  since parameter values really
+don't change much I don't think that's worth it for Actions
+for the UI and XML it doesn't matter
+
+the only time ordinals can't be used is type='string' with no
+allowed values, but we shouldn't hav used type='string' for that anyway.
+there are very few of those  get/set must always desl with strings.
+
+type='string' cannot be bound to host parameters
+
+type='string could be bound to a momentary trigger using
+the arg='xxx' for the string value but I'm not seeing a need
+Maybe for user variables where you want to display text or for
+custom modes.  Seems reasonable not to allow bindings on these.
+
+type=string in the UI is just a text field.  Here the Parameter
+could have size hints maxChars=10 could be smaller than maxChars=1000
+I suppose we could overload high for this too.
+
+Parameters whose values are structure names are the weird ones
+and they are more common than type='string' with no other qualifiers.
+
+The value must be symbolic in xml and arguments, but these DO have
+ordinals.  The value of "seelctedPreset" can be the index/ordinal of
+the object in the list of presets.  This doesn't work for bindings
+since we want those to not be sensitive to add/remove of objects.
+
+But we could use that for host parameters, letting you sweep
+over a 0-high integer parameter which selects the preset by ordinal.
+
+These are the dynamic='true' parameters
+low is always zero but high is config dependent
+In the form UI this has a list of allowed values but it is not an enum
+and the value list must be calculated at runtime.
+
+To determine the high, or to enumerate the allowed values more
+context than just the parameter scope must be available.
+
+selectedPreset is a scope='setup' parameter bit to implement
+
+   stringArray = parameter->getAllowedValues()
+
+you have to pass in the MobiusConfig.
+
+Currently all of the examples of this can be satisfied with MobiusConfig
+but if we shift overlay bindings to the UIConfig then that breaks.
+
+Parameters with dynmaic='true' can also have dynamicContext='UIConfig'
+and grow a function that overrloads a stubb one from UIParameter.  The
+UI needs to keep at that and call that method, a special getHigh(MboiusConfig)
+or getHigh(UIConfig)
+
+Snice UIParameter needs stub implementations of these there is a hard wired
+limit on the number of context objects.  You can't just go inventing
+a new config container without updating UIParameter to understand it.
+
+For XML or arg validation we can just use whatever symbol is there but
+it would be possible to validation if you pass in the context object.
+Or sine these are obsure and values are almost never typed in by hand,
+just leave them there and ignore them at runtime.
+
+So UIParameter must implement these methods
+
+  int getHigh(UIconfig*)
+  int getHigh(MobiusConfig*)
+    which in the default implementation just return high and would
+    normally never be called
+
+  when the UI or host binding manager sees dynamic=true and
+  dynamicContext=something the code just call the appropriate getHigh
+  method after obtaining a handle to the right config object
+
+dynamic=true always implies most (all?) of type=enum behavior
+  - value can be an ordinal
+  - value can be symbolic
+
+could this be a type instead?
+
+   type=dynamic
+
+
+is just type=enum with special functions required to get the allowed values
+and high ordinal
+
+Seems better than type=string dynamic=true
+
+alternatvely since these are always? config objects this is more obvious
+
+
+    type=structure  structureContext=MobiusCOnfig
+
+The Parameter implementation knows what class of structure this
+is we don't need
+
+   type=structure structureClass=Preset
+
+
+there aren't any parameters that can have the name of ANY structure
+
+though this could be a more flexible way to specify structure context
+
+
+    type=structure class=Preset
+
+means the structure context is whatever it is that contains a Preset
+well no, the code needs to know whether to obtain and pass a MobiusConfig
+or UIConfig either way so we can't hide the location
+
+trackName and trackNumger are strange and probaly a holdover of a binding
+kludge when ordinals were less well defined.  You only need one parameter,
+the code can call getValue or getSymbolicValue if symbols are important.
+
+If we do that it may break the shell/core parameter association but
+it probabky isn't bad
+
+those two can continue to exist, but we'll only ever associate with
+trackNumber and use ordinals at the boundary.
+
+To generate the code for type=structure we could just accept the full
+text of the function.  If everything is a structure linked list then
+this could be templatized with
+
+  type=structure
+     values are a list of object names
+  structureContext=MobiusConfig
+     the list is in MobiusCOnfig
+  structureClass=Preset
+     the list is obtain by calling getPresets on MobiusConfig
+     and the result is a linked list of Preset objects
+
+this assumes that all types of structures are stored as linked lists
+and the getter name is the same as the class name.  That doesn't work
+for SetupTrack.   The object class is SetupTrack but the name of
+the getter is just getTracks so we would need to override the default
+generation with
+   structureGetter=Track
+   strutureClass=SetupTrack
+
+Will need that for overlayBindings
+  structureClass=BindingSet
+  structureAccessor=OverlayBindings
+
+
+Examples
+  <Parameter name='preset'
+             scope='setup'
+             type='structure'
+             structureContext=MobiusConfig
+
+that gets us what we need
+
+  getPresets can be derived from the name
+  as can class Preset
+
+ <Parameter name='overlayBindings'
+   scope=global
+   type=structure
+   structureContext=MobiusConfig, UIConfig, global, ui
+   structureClass=BindingSet
+   structureAccessor=OberlayBindings, BindingOverlays, Bindings
+
+   this one is interesting because it can be options=multi
+
+ <Parameter name='setup'
+            scope='global'
+            type=structure
+            structureContext=MobiusCOnfig
+            structureClass=Setup
+            structureAccessor=Setups
+
+ <Parameter name='scriptLibrariy' options=multi type=string
+   don't have this but might be nice, here the values are NOT structures
+   they are file paths
+
+   no I don't think we need these
+
+but "The preset used by track 2 in setup foo" is necessary for the UI
+
+As is "the default preset unless overridden by the setup"
+
+"active overlay bindings" could just have a custom UI for it rather
+than a ParameterField.  Don't need this to be accessible as a host parameter
+or any other kind of bound parameter.
+
+Enum casting?
+
+Parameters that are enums have usually used casting in their setters
+and in XML
+
+   setValue
+      obj->setSomething((EnumName)var->getInt());
+
+The ENumName will quite often not match the parameter name and this
+is something we can't change.
+
+I think it isn't necessary though, compiler will convert an int
+but we may get warnings.
+
+  would needd enumName='SomethingEnum'
+
+In cases where the UI name is chosen to make it easier for code generation
+and conceptually but it doesn't match an old legacy core name you can have
+
+    <Parameter name='subcycles'
+               coreName=8thsPerCycle
+
+This would not be used for structure getters (neessarily), it would only
+be required for the initialization of the parameter object mapping table.
+
+Only need parameter mappings for UIAction/Acction though could
+also use them in scripts where the two obejcts are like aliases of each other.
+You can use either name in scripts.
+
+Need a better way to do string list literals currently do:
+
+const char* DRIFT_CHECK_POINT_NAMES[] = {
+	"loop", "external", nullptr
+};
+
+
+would like to do
+
+   const char** values = {x,y,z};
+   
+
+

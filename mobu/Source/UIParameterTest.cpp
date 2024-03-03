@@ -111,6 +111,7 @@ UIParameter* UIParameter::findDisplay(const char* name)
 }
 /*** GENERATED ***/
 
+
 ////////////// Foo
 
 class UIParameterFooClass : public UIParameter
@@ -137,6 +138,7 @@ void UIParameterFooClass::setValue(void* obj, ExValue* value)
 }
 UIParameterFooClass UIParameterFooObj;
 UIParameter* UIParameterFoo = &UIParameterFooObj;
+
 ////////////// Bar
 
 class UIParameterBarClass : public UIParameter

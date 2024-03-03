@@ -1,4 +1,19 @@
-<parameters>
+<Parameters>
+  <ParameterScope name='global'>
+
+    <Parameter name='logStatus'
+               type='bool' options='noBinding'/>
+    
+    <Parameter name='fadeFrames'
+               high='1024' options='nobinding'>
+      In practie this will probably have an enforced lower bound that
+      won't be part of the definition, though maybe setting it to zero
+      would be interesring for testing?
+    </Parameter>
+    
+    <Parameter name='maxSyncDrift'
+               high='10000' options='nobinding'/>
+    
 
   <!-- Global
        setup/setupName
