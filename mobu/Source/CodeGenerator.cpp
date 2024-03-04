@@ -100,6 +100,8 @@ bool CodeGenerator::generate(juce::String filename, bool testMode)
 bool CodeGenerator::generate(juce::String fileName, bool testMode, bool isHeader)
 {
     juce::String inFile = fileName;
+    if (!isHeader)
+      inFile += "Classes";
     inFile += (isHeader ? ".h" : ".cpp");
 
     juce::String filebuf = readFile(inFile);

@@ -78,6 +78,30 @@ bool ParameterGenerator::parseParameters(juce::XmlElement* el)
     if (expect(el, "Parameters")) {
         juce::XmlElement* child = el->getFirstChildElement();
         while (child != nullptr) {
+            success = parseParameterScope(child);
+            child = child->getNextElement();
+            if (!success)
+              break;
+        }
+    }
+    return success;
+}
+
+bool ParameterGenerator::parseParameterScope(juce::XmlElement* el)
+{
+    bool success = false;
+    
+    if (expect(el, "ParameterScope")) {
+        scope = el->getStringAttribute("name");
+        cout << "Entering scope " << scope << endl;
+
+        // don't need to do this for hreaders but code needs
+        // to be broken up
+        code.targetCode();
+        code.add("\n//******************** " + scope + "\n\n");
+
+        juce::XmlElement* child = el->getFirstChildElement();
+        while (child != nullptr) {
             success = parseParameter(child);
             child = child->getNextElement();
             if (!success)
@@ -137,19 +161,26 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     code.decIndent();
     code.add("};\n");
 
-    // dfeault thesel
+    // default these
     juce::String typeValue = el->getStringAttribute("type");
-    if (typeValue.length() == 0)
-      typeValue = "int";
+    if (typeValue.length() == 0) {
+        if (el->getStringAttribute("values").length() > 0)
+          typeValue = "enum";
+        else
+          typeValue = "int";
+    }
 
-    juce::String scopeValue = el->getStringAttribute("scope");
-    if (scopeValue.length() == 0)
-      scopeValue = "preset";
+    bool isMulti = (el->getStringAttribute("multi").length() > 0);
     
+    // should ignore this now, use ParameterScope name
+    //juce::String scopeValue = el->getStringAttribute("scope");
+    //if (scopeValue.length() == 0)
+    //scopeValue = "preset";
+
     // constructor
     
     juce::String typeCodeName = formatType(typeValue);
-    juce::String scopeClassName = formatScope(scopeValue);
+    juce::String scopeClassName = formatScope(scope);
     
     code.add(className + "::" + className + "()\n");
     code.add("{\n");
@@ -158,7 +189,7 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     code.indent("name = \"" + name + "\";\n");
     code.indent("displayName = \"" + formatDisplayName(name) + "\";\n");
     // note that this isn't the code class name, it's just the upcased xml name
-    code.indent("scope = Scope" + formatScopeEnum(scopeValue) + ";\n");
+    code.indent("scope = Scope" + formatScopeEnum(scope) + ";\n");
     code.indent("type = Type" + typeCodeName + ";\n");
     addInitializer(el, "low");
     addInitializer(el, "high");
@@ -179,9 +210,13 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     code.add("void " + className + "::getValue(void* obj, ExValue* value)\n");
     code.add("{\n");
     code.incIndent();
-    code.indent("value->set" + typeCodeName + "(((");
-    code.add(scopeClassName + "*)obj)->get" + codeName + "());\n");
-    code.decIndent();
+    // wait on Structure
+    if (typeCodeName != "Structure" && !isMulti) {
+        code.indent("value->set" + typeCodeName + "(((");
+        juce::String getter = (typeCodeName == "Bool") ? "is" : "get";
+        code.add(scopeClassName + "*)obj)->" + getter + codeName + "());\n");
+        code.decIndent();
+    }
     code.add("}\n");
     
     // setValue
@@ -189,9 +224,23 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     code.add("void " + className + "::setValue(void* obj, ExValue* value)\n");
     code.add("{\n");
     code.incIndent();
-    code.indent("((" + scopeClassName + "*)obj->set" + codeName +  "(");
-    code.add("value->get" + typeCodeName + "());\n");
-    code.decIndent();
+    if (typeCodeName != "Structure" && !isMulti) {
+        code.indent("((" + scopeClassName + "*)obj)->set" + codeName +  "(");
+        if (typeValue == "enum") {
+            code.add("(");
+            juce::String enumName = el->getStringAttribute("enumName");
+            if (enumName.length() == 0) {
+                // Preset enumerations are inside the Preset
+                if (scope == "preset")
+                  enumName += "Preset::";
+                enumName += codeName;
+            }
+            code.add(enumName);
+            code.add(")");
+        }
+        code.add("value->get" + typeCodeName + "());\n");
+        code.decIndent();
+    }
     code.add("}\n");
 
     // static object
@@ -205,7 +254,7 @@ void ParameterGenerator::addInitializer(juce::XmlElement* el, const char* name)
 {
     juce::String jname(name); 
     if (el->hasAttribute(jname)) 
-      code.add(jname + " = " + el->getStringAttribute(jname) + ";\n");
+      code.indent(jname + " = " + el->getStringAttribute(jname) + ";\n");
 }
 
 void ParameterGenerator::addOption(juce::XmlElement* el, const char* name)
@@ -314,7 +363,7 @@ juce::String ParameterGenerator::formatType(juce::String xmlName)
       typeName = "Int";
 
     else if (xmlName == juce::String("bool"))
-      typeName = "Boolean";
+      typeName = "Bool";
 
     else if (xmlName == juce::String("string"))
       typeName = "String";
@@ -322,6 +371,9 @@ juce::String ParameterGenerator::formatType(juce::String xmlName)
     else if (xmlName == juce::String("enum")) {
         // this becomes Int with extra casting
         typeName = "Int";
+    }
+    else if (xmlName == juce::String("structure")) {
+        typeName = "Structure";
     }
 
     return juce::String(typeName);

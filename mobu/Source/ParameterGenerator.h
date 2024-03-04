@@ -14,11 +14,13 @@ class ParameterGenerator
   private:
 
     CodeGenerator code;
-
+    juce::String scope;
+    
     bool expect(juce::XmlElement* el, const char* elementName);
     juce::String require(juce::XmlElement* el, const char* attname);
 
     bool parseParameters(juce::XmlElement* el);
+    bool parseParameterScope(juce::XmlElement* el);
     bool parseParameter(juce::XmlElement* el);
 
     void generateOldCode(juce::XmlElement* el);

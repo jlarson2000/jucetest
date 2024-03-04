@@ -13,13 +13,12 @@
   <!-- =======================================================================
        GLOBAL
   ============================================================================ -->
-  
   <ParameterScope name='global'>
 
     <Parameter name='logStatus' type='bool'>
       Diagnostic option to dump periodic engine status
     </Parameter>
-    
+
     <Parameter name='activeSetup'
                type='structure' structureClass='Setup'
                coreName='setup'>
@@ -27,6 +26,7 @@
       In runtime context changes the setup.
     </Parameter>
 
+<!--
     <Parameter name='activeTrack' options='dynamic'>
       In model context defines the initial active track, almost always zero.
       Range depends on trackCount
@@ -34,7 +34,8 @@
       incurrent track-copy behavior.  Compare with the TrackSelect function
       which I'd like to start calling TrackShift.
       Unclear if this needs core mapping.
-    </Parameter>
+      </Parameter>
+      -->
 
     <Parameter name='activeOverlay'
                type='structure' structureClass='BindingSet'
@@ -56,7 +57,7 @@
     <Parameter name='driftCheckPoint' values='loop,external'>
       Where we do sync drift correction
     </Parameter>
-    
+
     <Parameter name='pluginPorts' low='1' high='8'>
       The number of ports (stereo channel pairs) we will advertise to the plugin host.
       Arguably belongs in a separate device configuration model.
@@ -73,11 +74,13 @@
       Belongs in UIConfig with the other BInding parameters.
     </Parameter>
 
+<!-- traceDebugLevel
     <Parameter name='traceLevel'
                coreName='traceDebugLevel'>
       Controls the granularity of trace logging to the debug output stream on Windows
       or the console on Mac.  Core also has tracePrintLevel, try to merge these.
-    </Parameter>
+      </Parameter>
+      -->
 
     <Parameter name='autoFeedbackReduction' type='bool'>
       Forget what this does, I think feedback is automatically reduced when in
@@ -102,16 +105,18 @@
       Move to UI
     </Parameter>
 
-    <Parameter name='integerWaveFile'
+    <Parameter name='integerWaveFile' type='bool'
                coreName='16BitWaveFile'>
       Old project option, may not be used.
     </Parameter>
     
-    <Parameter name='altFeedbackDisable' type='bool'
+<!-- StringList, also "Disaables" in the model
+    <Parameter name='altFeedbackDisable' type='bool'>
       Diables secondary feedback
-    </Parameter>
+      </Parameter>
+      -->
 
-    <Parameter name='groupFocusLock type='bool'
+    <Parameter name='groupFocusLock' type='bool'>
       Still relevant?  Move to UI
     </Parameter>
 
@@ -124,15 +129,16 @@
     <Parameter name='confirmationFunctions' type='string' multi='true'>
     </Parameter>
 
+<!-- alternate getter name
     <Parameter name='trackCount' coreName='tracks'>
       The number of tracks to configure internally and display in the UI
       Cannot be changed at runtime
     </Parameter>
-
     <Parameter name='groupCount' coreName='trackGroups'>
       The number of focus groups defined.
       This should be entirely in Bindings now and doesn't need core mapping
     </Parameter>
+-->
 
     <Parameter name='maxLoops'>
       The maximum number of loops a track can have.
@@ -154,9 +160,11 @@
     <Parameter name='pluginMidiOutput' type='string'/>
     <Parameter name='pluginMidiThrough' type='string'/>
     <Parameter name='audioInput' type='string'/>
+<!-- thinks it's an enum but there is no (SampleRate) cast
     <Parameter name='sampleRate' values='44100,4800'>
       This was an enum I guess for the old UI, shouldn't be using this any more
-    </Parameter>
+      </Parameter>
+      -->
 
   </ParameterScope>
 
@@ -178,16 +186,20 @@
                values='none,record,copy,copyTime'
                valueLabels='None,Record,Copy Sound,Copy Timing' />
 
+<!-- ugh, code uses EmptyLoopAction which has the right values but wrong name
     <Parameter name='emptyTrackAction'
                values='none,record,copy,copyTime'
                valueLabels='None,Record,Copy Sound,Copy Timing' />
+               -->
 
     <Parameter name='trackLeaveAction'
                values='none,cancel,wait'
                valueLabels='None,Cancel Current Mode,Cancel and Wait' />
 
+<!-- different structure name
     <Parameter name='loopCount'
                low='1' high='32' options='noBinding'/>
+-->
 
     <Parameter name='muteMode' values='continue,start,pause'/>
     
@@ -199,11 +211,14 @@
 
     <Parameter name='quantize'
                values='off,subCycle,cycle,loop'
-               valueLabels='Off,Subcycle,Cycle,Loop' />
+               valueLabels='Off,Subcycle,Cycle,Loop'
+               <!-- enum doesn't match getter -->
+               enumName='Preset::QuantizeMode' />
 
     <Parameter name='bounceQuantize'
                values='off,subCycle,cycle,loop'
-               valueLabels='Off,Subcycle,Cycle,Loop' />
+               valueLabels='Off,Subcycle,Cycle,Loop'
+               enumName='Preset::QuantizeMode'/>
 
     <Parameter name='recordResetsFeedback' type='bool' />
 
@@ -215,18 +230,18 @@
                values='follow,restore,start,random'/>
 
     <Parameter name='returnLocation'
-               values='follow,restore,start,random'/>
-
-    <Parameter name='switchDuration'
-               values='permanent,once,onceReturn,sustain,sustainReturn'/>
+               values='follow,restore,start,random'
+               enumName='Preset::SwitchLocation'/>
 
     <Parameter name='switchQuantize'
                values='off,subCycle,cycle,loop,confirm,confirmSubCycle,confirmCycle,confirmLoop'
                valueLabels='Off,Subcycle,Cycle,Loop,Confirm,Confirm Subcycle,Confirm Cycle,Confirm Loop' />
 
-    <Parameter name='timeCopyMode' values='play,overdub,multiply,insert' />
+    <Parameter name='timeCopyMode' values='play,overdub,multiply,insert'
+               enumName='Preset::CopyMode'/>
 
-    <Parameter name='soundCopyMode' values='play,overdub,multiply,insert' />
+    <Parameter name='soundCopyMode' values='play,overdub,multiply,insert'
+               enumName='Preset::CopyMode'/>
 
     <Parameter name='recordThreshold' high='8' />
 
@@ -238,9 +253,13 @@
     <Parameter name='noFeedbackUndo' type='bool' options='noBinding'/>
     <Parameter name='noLayerFlattening' type='bool' options='noBinding'/>
     
-    <Parameter name='speedSequence' type='string' options='noBinding'/>
+<!-- StepSequence*
+     <Parameter name='speedSequence' type='string' options='noBinding'/>
+     -->
     <Parameter name='speedShiftRestart' type='bool' options='noBinding'/>
-    <Parameter name='pitchSequence' type='string' options='noBinding'/>
+<!-- StepSequence*
+     <Parameter name='pitchSequence' type='string' options='noBinding'/>
+     -->
     <Parameter name='pitchShiftRestart' type='bool' options='noBinding'/>
     <Parameter name='speedStepRange' low='1' high='48' options='noBinding'/>
     <Parameter name='speedBendRange' low='1' high='12' options='noBinding'/>
@@ -259,30 +278,50 @@
 
     <Parameter name='sustainFunctions' type='string' multi='true' options='noBinding'/>
 
-    <Parameter name='recordTransfer' values='off,follow' />
-    <Parameter name='overdubTransfer' values='off,follow,restore' />
-    <Parameter name='reverseTransfer' values='off,follow,restore' />
-    <Parameter name='speedTransfer' values='off,follow,restore' />
-    <Parameter name='pitchTransfer' values='off,follow,restore' />
+    <Parameter name='recordTransfer' values='off,follow'
+               enumName='Preset::TransferMode'/>
+    <Parameter name='overdubTransfer' values='off,follow,restore'
+               enumName='Preset::TransferMode'/>
+    <Parameter name='reverseTransfer' values='off,follow,restore'
+               enumName='Preset::TransferMode'/>
+    <Parameter name='speedTransfer' values='off,follow,restore'
+               enumName='Preset::TransferMode'/>
+    <Parameter name='pitchTransfer' values='off,follow,restore'
+               enumName='Preset::TransferMode'/>
 
-    <Parameter name='windowSlideUnit' values='loop,cycle,subcycle,msec,frame' />
-    <Parameter name='windowEdgeUnit' values='loop,cycle,subcycle,msec,frame' />
+    <Parameter name='windowSlideUnit' values='loop,cycle,subcycle,msec,frame'
+               enumName='Preset::WindowUnit'/>
+    <Parameter name='windowEdgeUnit' values='loop,cycle,subcycle,msec,frame'
+               enumName='Preset::WindowUnit'/>
     
     <Parameter name='windowSlideAmount' low='1' high='128' />
     <Parameter name='windowEdgeAmount' low='1' high='128' />
     
-    <Parameter name='autoRecord' type='bool' options='noBinding'/>
-    <Parameter name='insertMode'
-               values='rehearse,replace,substitute,halfspeed,reverse,insert,sustain' />
+    <!-- replaced by EmptyLoopAction
+         <Parameter name='autoRecord' type='bool' options='noBinding'/>
+         -->
 
+    <!-- deprecated: insertMode=Sustain replaced with SustainFunctions
+    <Parameter name='insertMode'
+    values='rehearse,replace,substitute,halfspeed,reverse,insert,sustain' />
+    -->
+
+    <!-- deprecated: now AltFeedbackEnables
     <Parameter name='interfaceMode'
-               values='loop,delay,expert,stutter,in,out,replace,flip' />
+    values='loop,delay,expert,stutter,in,out,replace,flip' />
+    -->
 
     <Parameter name='loopCopy' values='off,timing,sound' />
     <Parameter name='overdubMode' values='toggle,sustain,quantized' />
-    <Parameter name='recordMode' values='toggle,sustain,safe' />
-    <Parameter name='samplerStyle' values='run,start,once,attack,continuous' />
-    <Parameter name='trackCopy' values='off,timing,sound' />
+<!-- deprecated: replaced by SustainFuntions and RecordResetsFeedback
+     <Parameter name='recordMode' values='toggle,sustain,safe' />
+-->
+<!-- deprecated: replaced with SwitchLocation, SwitchDuration, and ReturnLocationn
+     <Parameter name='samplerStyle' values='run,start,once,attack,continuous' />
+-->
+<!-- deprecated: replaced by EmptyTrackAction
+     <Parameter name='trackCopy' values='off,timing,sound' />
+     -->
 
   </ParameterScope>
 
