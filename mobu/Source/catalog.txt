@@ -1,0 +1,324 @@
+New concepts
+
+  Model Parameter - one with a backing model, e.g Preset, Setup, MobiusConfig
+  Runtime Parameter - one with no backing model, e.g. currentTrack, currentLoop
+
+  runtime=true
+    aka a "Runtime Parameter"
+    one with no concrete backing model like a Preset or a Setup
+    get/set behavior cannot be defined statically
+    cannot be edited in the configuration UI since there is no backing model
+
+  dynamic=true
+    mostly the same, it means parts of the DEFINITION of the parameter is not fixed
+    does not necessarily mean it is a runtime parameter, there can be dynamic model parameters too
+
+Unless otherwise qualified, a parameter is assumed to be a static model parameter
+whose Scope defines which model object is is defined in
+
+   scope=Global MobiusConfig
+   scope=Preset Preset
+   scope=Setup  Setup
+   scope=Track  SetupTrack
+
+I'm unconfortable with scope=Track.  We're using it for things defined in SetupTrack
+but it also logically applies to runtime parameters that are similar to those in SetupTrack
+but different.
+
+Dynamic Enums
+
+  type=enum parameters whose allowed values cannot be static, e.g. preset names
+  implicit when type=Structure
+  
+Structure type
+
+  type=Structure means that the allowed values come from the name of a model object
+  scope does int imply what the structure is, scope defines where the parameter LIVES
+  need to use structureClass to specify where to get values for code generation
+
+Still not entirely comfortable with these, but let's go with it and see how far we get
+
+All parameter values can be treated as ordinal numbers except those that
+are non enumerated Strings.  There aren't many of those and you can't use them
+in bindings, though you might want them in scripts.
+
+So the default get/set functions use ordinals and you have to use
+getSymbolicValue and setSymbolicValue if you want to use enumeration symbols.
+This is new and can be dealt with entirely above the core.
+
+Can also start using juce::var for everything and remove ExValue
+
+//////////////////////////////////////////////////////////////////////
+// Global
+//////////////////////////////////////////////////////////////////////
+
+logStatus: bool
+
+  MobiusConfig::isLogStatus
+  used by Mobius::logStatus to do periodic logging
+  Prints a bunch of runtime statistics, object pools etc.
+  Diagnostics only, might still be useful
+  Doesn't need to be in the UI, can edit XML, collect with other
+  debug related options
+
+setup: enum, dynamic
+
+  MobiusConfig::getActiveSetup (string)
+  the active Setup  
+  if used in an Action calls Mobius::setSetupInternal
+  needs to be in the UI, not necessarily in bindings but okay
+  needs the new dynamic enum ordinal ideas
+  ! this is a confusing one, would prefer activeSetup
+  will need core name mapping, in order to setup the model association table
+
+  change to: activeSetup
+
+setupNumber: int, dynamic, transient
+
+  a transformation of the "setup" to return the ordinal rather than the name
+  * Provided so scripts can deal with setups as numbers if necessary
+  * though I would expect usually they will be referenced using names.
+  * 
+  * !! NOTE: For consistency with TrackPresetNumber the setup numbers
+  * are the zero based intenral numbers.  This is unlike how
+  * tracks and loops are numbered from 1.
+  not necessary after the dynamic enums design
+  unclear if this is even used outside of test scripts, no code references
+
+selectedTrack: int, runtime
+  core name: track
+  another problem child
+  implemented with Mobius::getActiveTrack, Mobius::setTrack
+  there is ambiguity with this meaning "the one that is currently the focus target
+  and highlighted in the UI" and "the default track selected when this Setup is loaded"
+
+  inconsistent and confusing use of "selected" and "active", start using "active" consnstently
+
+  change to: activeTrack
+
+bindings: enum, dynamic
+  the name of the active overlay binding set
+  another weird one
+  it's similar to selecting a Setup except that you don't have to have one
+  "bindings" is a way to generic name
+  "overlayBindings" is better
+  "activeOverlay" fits with the use of "active" to mean the selection of one of several objects
+  since bindings are above core now, this no longer should be in MobiusConfig, all bindings
+  should be in UIConfig, punt for now
+
+  change to: activeOverlay or activeBindingOverlay
+
+
+fadeFrames: int, noBinding
+  finally a simple one
+  while potentially useful in test scripts, not useful in bindings so don't
+  clutter the UI with it
+  might want to hide it in the config editor too
+
+maxSyncDrift: int, noBinding
+  useful in the model execution context to set the default value
+  somewhat useful at runtime in test scripts
+  get/set is complex and must be done with UIAction at runtime
+
+driftCheckPoint: enum
+  relatively simple, though it raises interesting issues for UIAction/CoreAction
+  mapping regarding how we handle values, i think both sides use ordinals
+  not that useful in bindings but not hard to do
+
+noiseFloor: int, noBinding
+  simple, need it at least in XML but don't need to make it visible
+
+pluginPorts: int noBinding
+  need to set this in the configuration UI but it cannot be changed at runtime
+
+midiExport: bool, noBinding
+hostMidiExport: bool, noBinding
+  how we do exports will be completely redesigned, do necessarily need this
+  not even sure what it does, maybe a a global flag to turn them on and off, but
+  what is actually exported has complex configuration, could move this
+  to a flag on whatever configuration object that is, e.g. isActive or not
+  and then this could be a type=Structure selecting among several export configurations
+
+longPress: int, noBinding
+  necessary, though obscure
+  "longPressMilliseconds" would be more accurate
+  really almost all global parameters are noBinding, could have this be implicit when
+  scope=global and then require bindable=true ?
+
+NOTE: Since noBinding applies to almost all of these, I'm going to start using bindable
+
+spreadRange: int
+  defines how bindings are spread out
+  change to: bindingSpreadRange
+  shouldn't be in MobiusConfig
+  leave out for now
+
+traceDebugLevel: int
+  necessary for testing
+
+tracePrintLevel: int
+  probably necessary but could try to merge them
+  why can't we just have traceLevel and assume it goes to the debug output stream
+  since that's always where it has to go on Windows
+  runtime context has complex implementation
+
+customMode: string
+  rare non-enumerated string
+  an experiment that never went anywhere, omit for now
+
+autoFeedbackReduction: bool
+  forget what it does but I think it's useful
+  complex runtime implementation
+
+isolateOverdubs: bool
+  obscure option
+
+monitorAudio: bool
+
+saveLayers: bool
+  this is a Project option, can move this to the UI now, might be able to implement above core
+
+unitTests: string
+  another non enumerated string
+  testing only, forget what it does
+
+integerWaveFile: bool
+  project option, move to UI
+
+altFeedbackDisable: bool
+  turns secondary feedback on or off globally
+  I guess still useful, if this is off then we don't need to bother
+  showing secondary feedback controls
+
+groupFocusLock: bool
+  related to bindings, move to UI
+  when would you not want groups to have focus lock?
+  omit for now, no core mapping
+
+New concept: core mapping
+  a Parameter that needs to be passed into the core for implementation
+  requires a mapping table entry and conversion from UIParameter to Parameter
+  many parameters related to bindings and things in files no longer require
+  core mapping
+
+focusLockFunctions: string, multi
+  rare multi-valued string
+  string values are enumerated since they can only be Function names
+  has a dedicaated editing component in the UI
+  used in core:
+  	StringList* names = mConfig->getFocusLockFunctions();
+	
+	if (names == NULL) {
+		// shouldn't happen, but if so return to the defaults
+		for (int i = 0 ; mFunctions[i] != NULL ; i++) {
+			Function* f = mFunctions[i];
+			f->focusLockDisabled = false;
+		}
+	}
+    
+  PUBLIC bool Function::isFocusable() {
+	return (!noFocusLock && !focusLockDisabled);
+  }
+
+  isFocusable used by ActionDispatcher
+
+  okay, now we're touching on ActionDispatcher which is a can of worms
+  I think mostly we can eliminate ActionDispatcher and implement focus
+  in the UI tier, core should not have to worry about focus and groups at all
+  well that works for bindings but not for scripts
+
+  since scripts currently live in core, "for focused" needs to know what that means
+  so we either have to support all the old shit in core, or move isFocused up to MobiusContainer
+  which has some nice properties
+
+muteCancelFunctions: string, multi
+  functions that cancel mute mode
+  this IS something that needs to be in core since mute is an internal concept
+  I suppose we could move the concepts of mute and pause up but not now
+
+confirmationFunctions: string, multi
+  needs to be in core unless we move a lot of the loop switch logic up to UI
+
+midiRecordMode: enum
+  obscure
+
+dualPluginWindow: bool
+  obsolete
+
+customMessageFile: string
+  obsolete
+
+tracks:int
+  terrible name, it is the number of usable tracks
+  does not need core mapping since we'll never set this, even from scripts
+  better name would be activeTracks or trackCount
+
+trackGroups: int
+  if groups move entirely to UI then this moves too
+
+maxLoops: int
+  similar to tracks, but it is a possible maximum, each track can have a lower
+  number defined in the Setup
+  better name would be loopCount but then we have the same name used in two
+  different model scopes, so maxLoops is okay
+
+oscInputPort
+oscOutputPort
+oscOutputHost
+oscTrace
+oscEnable
+  - omit, redesign osc
+
+inputLatency
+outputLatency: int
+  necessary but can be hidden
+
+midiInput, midiOutupt, midiThrough
+pluginMidiInput, pluginMidiOutput, pluginMidiThrough
+  names of MIDI devices
+  anything related to device configuration is no longer in core
+  HOWEVER we can set those up in the UI and would want to save them somewhere
+  belongs in UIConfig now
+
+audioInput, audioOutput
+  same for audio devices
+
+sampleRate:
+  remove from core, configured outside and not confgurable for hosts
+
+Really all device configuration should be stored somewhere else besides MobiusConfig
+and UIConfig.  It applies to any audio/midi application or plugin I make and
+could reuse bits of it.
+
+Yes, think about DeviceConfig and devices.xml
+Might be where at least some of OSC config lives but OSC bindings are specific to Mobius
+well not really could generalize this, bindings use arbitrary paths, we just happen to have
+a path convention when using Mobius
+
+//////////////////////////////////////////////////////////////////////
+// Preset
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+

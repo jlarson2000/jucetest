@@ -1,0 +1,547 @@
+Executive Summary after much thought
+
+There are two broad categories of parameter: Structure or Model Parameters
+and Runtime Parameters.
+
+Model parameters correspond to something in the configuration model and
+can have static implementations of their get/set value behavior.
+
+Runtime parameters have no model underneath, they exist only while the
+engine is running.  Many runtime parameters are read-only, some can have
+read/write behavior.  Pure runtime parameters cannot have static implementations
+they must be get/set using Actions or some other mechanism provided by
+the Parameter Execution Context.
+
+We're not going to formally defined ParameterContext yet, it will be implicit
+based on where in the system the parameter is used: e.g. in a binding,
+called from a script, or within the configuration editor.
+
+There are two categories of things that define a parameter: properties and behavior.
+Parameter properties are things like name, value range, allowed values, default value,
+Parameter behavior is what happens when you read and write the value of a parameter.
+
+The old "dynamic" flag was used to indiciate that a parameter could not
+have static properties such as range and allowed values.
+
+The old "transient" flag was used to indiciate runtime parameters.
+I prefer a new term "runtime" to make this clearer.
+
+I think dynamic still applies here, a parameter is either static or dynamic
+meaning that it's DEFINITION is static or variable in some places.
+
+When a parameter is dynamic it means the execution context has more work
+to do to determine parameter properties.  Since the execution context is
+not known at compile time without the introduction of ParameterContext, this
+will have to be implemented by the system outside of the ParameterDefinition model.
+
+Some dynamic parameters (all?) CAN however have their implementations
+statically generated if it is defined against the model.  One example
+is the scope=SetupTrack defaultPreset.  The parameter definition is an
+enumeration, but the allowed values and the number of values (hence the range)
+is defined by other things in the model.
+
+For lack of something better call these model-based dynamic parameters
+vs. runtime-based dynamic parameters which have no fixed model to draw from.
+
+Model-based dynamic parameters can have static implementations for use by
+the binding or configuration editor interfaces but they must be supplied
+with the necessary objects to provide the context for the implementation,
+in current usage a MobiusConfig or a UIConfig or both.  It is up to the
+ParameterContext to use those when necessary.
+
+Note that runtime parameters do not also have to be dynamic parameters.
+They could have static definition properties but need to have their
+behavior determined at runtime.  I think they ususally are, but don't
+mix the concepts.
+
+So when document parameters is important to note when the behavior changes
+depending on the usage context.
+
+Some parameters have similar names and are confusing in bindings and scripts:
+
+  activeTrack, selectedTrack, defaultTrack, initialTrack, etc.
+
+Where it makes sense, use different names for the model parameters and the runtime
+parameters.  A Setup has an "initialTrack" or "startingTrack".
+
+The Runtime parameter "activeTrack" means the track that is active at the
+current time, I like "focusedTrack" to help clarify that is a temporary thing
+vs initialTrack in the Setup which is a permanent thing.
+
+Since parameters all live in a single namespace name ambiguity is important
+for script writers.
+
+In most cases, the ambiguity between a parameter in model context vs one
+in runtime context isn't important.  When you set "Subcycles" in a script
+you know this is a scope=Preset parameter but it is applying at runtime.
+
+In fact everything scripts and bindings do is within the Runtime context,
+they never set model parameters permanently.
+
+It's also clear that Parameter::scope isn't very useful, except for code generation.
+In bindings and scripts you don't really care what the scope is, just the name.
+
+The config editor doesn't have to use scopes but it can to ensure that only relevant
+parameters are shown in certain visual contexts.  It also has to know the scopes
+to call the get/set methods and pass in the right objects but currently this is
+hard coded.  The UI components KNOW they are dealing with preset or setup parameters
+they don't have to check the scope.
+
+----------------------------------------------------------------------
+
+selectedTrack: int, transient, bindable
+  TrackParameter
+  // !! Not sure I like this.  We already have the track select
+  // functions but those have TrackCopy semantics so maybe it makes
+  // sense to have this too (which doesn't).  This also gives us a way
+  // to switch tracks more easilly through the plugin interface.
+  may not be necessary, might be used in scripts, convenient way
+  to set the active track without TrackCopy
+  not in UI, action calls Mobius::setTrack
+  scope=Setup also has one I think just "track" which is used to edit
+  the selected track in the Setup config
+  track selection changes the destination for actions and the UI
+  still a useful concept but the names are confusing
+  "set selectedTrack 1" is different than "Function TrackSelect 1"
+  a better function name might be TrackShift since it implies more complexity
+  than just selecting it for focus and display
+  better names for this could be "focusedTrack" or "activeTrack"
+  the parameter in setup would be "startingTrack" "setupTrack"
+  I think this is only for scripts, probably like most transient parameters
+  not in the UI for config editing, but can bind a host parameter or CC to it
+  useful
+  class name is bad TrackParameter, setup has InitialTrack which is a good
+  class name but the script name is "activeTrack"  this is confusing for scripts
+  since "selectedTrack" and "activeTrack" look the same but behave differently
+  I like "initialTrack" for the Setup and "focusedTrack" for bindings and scripts
+  Also have a TrackParameter subclass for setup tracks
+  disliking the disconnect between the script name and the implementation class name
+  should try to make code names match, and maybe indiciate scope
+    GlobalActiveTrackParameter vs. SetupInitialTrackParameter
+    SubcyclesParameter vs. PresetSubcyclesParameter
+  class names won't matter to almost all code, there are really the only name of importance
+  is the internal name aka. script name or bindingName.
+  we have some flexibility in changing the names in new code for bindings, the sticky
+  point is scripts which would have to change, and there may be some for common
+  things like track selection.  "initialTrack" won't matter
+  if we change this to "focusedTrack" then we'll need a core alias for "selectedTrack"
+  so scripts can use either.  The action implementation can be above core though.
+
+Key point digression...
+
+  Parameter Name
+    aka: internal name, script name, binding name
+    names must be unique, even across scopes
+
+  Configuration vs. Runtime
+    configuration parameters always have a representation in a Structure
+    used exclusively by the UI structure editors
+    changes effect runtime in the FUTURE, the next time something
+    sensitive to that parameter happens
+
+  Runtime Parameter
+    not represented in a structure, getting and setting values have
+    potentially complex side effects
+    change effects runtime IMMEDIATELY, they change internal state
+    by calling code not related to a structure
+    changes can potentially be deferred by scheduing a ParameterChangeEvent
+    but those events are lost on reset
+
+Where things get messy is that some are combinations of structure and runtime
+  scope=Setup initialTrack vs. scope=Global focusedTrack
+  scope=Setup and scope=Track are all messy because they are both structure
+  parameters and runtime parameters, especially scope=Track which is where
+  things like inputLevel live
+
+Parameter Execution Context
+  structure vs. runtime
+
+  When the value of a parameter is accessed in StrucdtureContext it is
+  accessing the value in a structure, this may not have any immediate impact on runtime
+
+  When the value of a parameter is accessed in RuntimeContext it may pull
+  from a structure or it may pull from something else
+
+  Most scope=Preset parameters have structure ad runtime contexts that are the same
+  the others do not
+
+  The UI config editors always operate in structure context
+  The UI "isntant parameters" operate in runtime context, though the implementation is
+  still a structure
+
+  This is where Parameter class code gets messy, we can't implement runtime context
+  in them without dragging in references to internal components and THIS
+  is the crux of the model sharing between UI and core
+
+The logical operation
+
+   set subcycles 4
+
+can mean any of the following
+
+   call Preset::setSubcycles during configuration file editing
+   call Preset::setSubcycles on the runtime Preset maintained by track 3
+
+the target structure is the same but what it  means is different
+
+   set inputLevel 50
+
+can mean
+
+   call SetupTrack::setInputLevel during configuration file editing
+
+   call Track::setInputLevel during runtime
+
+There are no cases where a binding or script can make permanent changes
+to configuration files, they always operate in runtime context.
+
+Parameters that have different implementations during structure editing and
+at runtime need a way to splice in the implementation, which could be complex
+and changing.
+
+Ideas
+
+  Parameter Handler
+    I'm changing subcycles to 4, call the handler to implement it
+    in theory handler has a large switch statement where it looks at the
+    parameter name then calls the relevant code
+
+    we've optimized this for structure editing by compiling that code with
+    the class that defines the parameter characteristics
+
+An Action with operation=Parameter is essentially this In order to perform
+the Action on this Parameter code needs to be called that isn't simply setting
+a value  in a structure.  Formerly we buried this in the parameter definition structure:
+
+   void TrackParameterType::setValue(Action* action)
+      m->setTrack(ivalue);
+
+Any dynamic parameter has the same problem, from a script or binding
+if you "set foo 4" and foo does not have a built in impelementation
+against a structure where does it go?
+
+Yes, this is the missing piece.  What we've been think of with dynamic=true
+is that parameter properties like high and allowedValues have to be compuated
+but where they go is still a structure.
+
+General dynamic/runtime parameters have unknown IMPLEMENTATION.
+
+Back to definition vs. implementation
+
+  Parameter Definition
+    name, data type, range, allowed values (which may be computed)
+      computed properties are a form of implementation swapping
+
+  Parameter Implementation
+    put something in a structure
+    call a method on the engine
+    do something random in the UI/host layer
+
+Execution Contest aka. Parameter Implementation
+  can be sparse, some parameter invocations may be ignored
+    setting the active setup in the config editor changes the stored config
+    at runtime, it does necessarily mean to immediately reconfigure the engine
+
+Functions hide this to a degree which is why we have the NextParameter UI function
+but not "set UISelectedParameter 2"
+
+Functions are similar, old code had function implementation via Function::invoke hard
+wired into the definition class.  What we really want is a dispatcher that takes a Function
+and figures out at runtime what to do with it.
+
+Same with parameters
+
+Are all runtime parameter implemenetations Actions?
+  they are for bindings
+  also for the UI in general, any display element that wants to change a parameter
+  can't just reach into the runtime Preset object and change it, it must make a UIAction
+  and pass it to the engine
+
+This has a programming concept I'm not remembering but basically the Action
+  is a little payload that says you want to do something to a parameter that gets
+  passed off to something that knows how to do that
+
+  this could be applied to the config editor.  Every form field could just make an Action
+  and pass it to he ConfigEditorActionHandler which knows to call get/set methods on a Preset
+  from a file
+
+  the Export was this going the other direction, rather than reading a strucdture directly
+  the form creates an Export or a Request and passes it to the ConfigEditorRequestHandler which
+  pulls the information out of a Preset stored in a file
+
+where all the generated code works is that for the large majority of parameters there
+is no difference between editing a structure and doing something at runtime with that parameter
+
+Custom parameters, user variables, whatever they are called will drive this home.
+
+I want to define a parameter named "JeffsThing".   JeffsThing has a range from 0 to 10 and
+you can bind that to a host parameter control.  A script can get the value of JeffsThing
+and respond to it.
+  key: scripts are user parameter implementations, most parameters can have hard coded
+    implementations
+
+Now we have JeffsThing that scripts can respond to, where does it come from?
+  this actually has to have a concrete implementation, it can't be completely pluggable
+  which is why I started the UserVariable model
+
+But in theory setting JeffsThing to 10 could call a script to do something complex.
+which is why "set JeffsThing 10" became "call JeffsThing with argument 10".
+
+The Listener concept kind of works here.
+
+  There is a Parameter object that exists in memory.
+  Config editor calls Parameter.addListener to be notified when the value changes
+  It's actually more than that because the parameter doesn't hold a value something
+  is watching, it is expecting the listener to implement the value change
+
+Do Generic Functions fit?
+
+In languages I know a generic function dispatches it's implementation
+based on the arguments.  So rather than
+
+   obj->doSomething
+      doSomething is implemented "inside" obj
+
+you do
+
+   doSomething(obj)
+
+the object representing the function needs a jump table of some sort to select the suitable
+implementation based on the argument, the implementation is "inside" the function not the object.
+
+   void doSomething(obj)
+      if (obj->class == class1)
+          doSomething related to class1
+      ...
+
+Parameters are kind of like that if you think of doAction as a generic function
+that takes a ParameterDefinition as an argument.  The interface knows it wants
+to do something with ParameterSubcycles which is an object defining characteristics
+of what "subcycles" means but not how to do anything with it.
+
+MobiusInterface::setParameter(Parameter* obj) is similar to a generic function, the
+UI just knows it wants to call setParameter and pass it a Parameter but does not know
+what it does.  The setParameter interface needs to dispatch on the argument to select
+an implementation
+
+    if (obj == ParameterSubcycles)
+        set subcycles Preset variable in the active tracks preset cache
+    else if (obj == ParameterInputLevel)
+        set the runtime input level in the active track
+
+It's not completely generic because there is implicit context based on the object on
+which you are calling setParameter, in this case Mobius.
+
+Mobius::setPreset is genric from Mobius on down but there is no global setPreset() function
+that can set Subcycles on ANYTHING.  you could think of it like this
+
+
+    setParameter(Mobius, ParameterSubcycles)
+       - pick the subcycles setting implementation inside Mobius runtime
+
+    setParameter(MobiusConfig, ParameterSubcycles)
+        - pick the subcycles setting implementation inside the MobiusConfig structure
+
+Parameters are also a bit like virtual classes.  There is a base class
+
+    class ParameterSubcycles
+
+that knows that subcycles is an integer from 1 to 64 but does not know how to get or set it
+it has pure virtual methods getValue setValue that must be overloaded in a subclass.
+
+In that model, the subclass provides the missing context of where Subcycles is and how
+to get to it.  Implementing that would require that ParameterSubcyclesClass be instantiated
+for each execution context, so while editing in the configuration file editor it would deal with
+
+    class PresetEditorSubcycles : public ParameterSubcycles
+
+        // inherits getType, getLow, getHigh etc.
+
+        // but must implement these
+        void setValue(int value);
+        int getValue();
+
+What's missing is how this class would implement getValue/setValue, the object would need
+to be built with the Preset object being edited that provides the "closure" in which
+the getValue/setValue functions execute.
+
+Implementing it this way would require a large number of subclasses and complex instantiation
+so it isn't good here.
+
+That could be a way to bridge the UI/core divide, and what I thought about originally.
+UIParameter is a base class containing what the UI and config editor needs, Mobius then
+needs subclasses of all of those to provide runtime implementations.  The optimization
+we're making is that since configuration object editing is so fundamental, we can bake
+the implemention into the base class without needing a set of subclasses just for
+tre config editor.
+
+But subclassing is messy because we'd like flexibillity on changing the base model in ways
+that old Mobius classes might not like.  So the objects used in the UI will be different than
+those used by Mobius and we map between them.
+
+The Simulator was the first case of the need to implement Parameter handlers in a completely new
+way, it behaved like the generic function example above
+
+    Simulator::setParameter(param, value)
+      if (param == Subcycles)
+          // put the value somewhere
+      else if (param == SomethingElse)
+          // put the value somewhere else
+
+The switch can be avoid using something roughly like a vtable
+
+  Simulator::setParameter(param, value)
+      functionPointer = parameterImplementations[param->ordinal];
+      containing code needs to understand how to call functionPointer with the right arguments
+      lambdas or closures can't really be used here since the objects are not always static
+      but we would like the function poitners/lambdas to stay the same
+
+Anohter approach would be "handlers" or "listeners"
+
+   SubclyclesParameterClass
+       setHandler(ParameterHandler* handler)
+       setValue(int value)
+         handler->setValue(value);
+
+The Handler object is basically the closure, if it can't be then runtime arguments need
+to be passed to setValue() In our case it would be necessary to have the Mobius object
+so the ParameterHandler needs to be implemented by something that can get to Mobius.
+
+To avoid the switch we would need many handler implementations
+
+   class SubcyclesParameterHandleForMobius
+       constructor()
+          SubcyclesParameterDefinition->setHandler(this);
+          setValue(int x)
+              // specific code for Subcycles
+
+This is basically the same as the virtual class approach, but uses the handler indirection
+rather than subclassing. Not workable here.
+
+Can at least avoid string comparisons by using the ordinal to select the implementation
+but still have the problem of what object the implementation is on.
+
+Old code solved this by piling everything on Parameter.  Specific methods knew how to deal
+with parameters when they were in the editor, or when they were in Actions or when they
+were in Exports.
+
+If you take those out you either have the "many classes" problem or the "big switch" problem.
+
+A "user interface" shouldn't have to know about the chosen implementation of implementation
+selection.  It just says "I want to set this parameter to x within this thing" and the "thing"
+decides how to do that.  but "thing" can't live inside the parameter object, it has to be
+part of the runtime environment, a ParameterContext.
+
+Hmm, does it make any sense to generalize it to that level?  You have ParameterContext and
+FunctionContext that know how to get/set parameters and run functions.  If the scripting
+language were generic this is what you would need.   The Script has a statement "set foo 4"
+and that's all it knows.  It needs a ParameterContext to implement either setFoo(4) or
+more likely set("foo", 4)
+
+ParameterContext is the missing closure we don't get with just lambdas.
+
+Currently we have two implicit ParameterContexts, one for the config editor that is editing
+files and one for the Mobius engine that is managing the running of a live engine.
+
+Since the UI implements the ParameterContext for editing config files there is no need to
+abstract this.  Forms are presented to users to get/set various parameters but we don't
+need pluggable implementations that redirect those parameters to different files. We could actually
+accomplish in other ways but the end result would stil be editing Structures whose definition
+is fixed, it's just where the structures came from we don't know.
+
+Mobius runtime is different, we have to pass everything through MobiusInterface though
+it can pick a "real" vs. "simulated" implementation of that interface if it wants to.  The
+abstraction moves down a level.  What we don't need is the UI for a number of wildly different
+"plugins" all of which support "Subcycles".  You can't call Mobius::setSubcycles because
+the destination may not be a Mobius, there you would need a ParameterContext or ParameterHandler
+to abstract that level.
+
+so conceptually the execution contexts we have are
+
+   configuration editor
+     parameters live in defined model objects that come from files
+
+   mobius runtime
+     parameters live in undefined locations, that may be the same as
+     the config file model, but not necessarily
+
+   scripts/bindings
+     start thinking of scripts as living outside the engine, they're just a way
+     to automate functions and parameters the same way that bindings can
+     a script or MIDI event wants to set a parameter or call a function, control passes
+     to something that knows how to do that
+     in this case the parameters you can set are always in the mobius runtime so the
+     BindingParameterContext can just forward things to MobiusParameterContext if it
+       choses not to handle them above Mobius
+
+Hmm yet, ParameterContexts are a chain.  Certain parameters must be handled by a context and
+not passed down. eg. parameters and functions that target things in the UI.  The script or MIDI
+event doesn't care.  Other parameters might be overridden even though a lower level could handle
+them.  Not sure we have any of these.  This is simular to subclass overrides but we're doing
+it with runtime object linkages rather than compile time class linkages.
+
+So...popping back to what's been bothering me
+
+We need the concept of the Paramaeter and Function execution contexts.  Things that know HOW
+to deal with a parameter/function.  Some parameters only make sense in certain contexts.
+
+Some can be applied to several contexts depending on the situation.
+"inputLevel" is meaningful both when editing config files and when running Mobius.
+
+So we're back to two broad categories of parameters Structure Parameters and Runtime Parameters.
+Structure Parameters have a concrete model in an object that can is relatively fixed.  Presets
+don't change so the implementation of Structure parameters can be optimized.
+
+Runtime parameters can change wildly in implementation and have no fixed model to deal with,
+they cannot be optimized.
+
+We are still in a world where Parameter definitions are static.  We need to someday allow
+user defined parameters.
+
+Even static parameters may have dynamic properties but fixed implementations
+  allowed values for structure selection in config objects
+  ordinal range for structure selection in bindings
+
+But the implementation of those is the same
+  the config editor knows that however the values were chosen, they go in setActivePreset
+  The binding needs to know the range for value sweeps, but they still go in an Action
+
+it's the few things that have no fixed implementation that are the problem
+  read-only parameters related to runtime state
+
+I've been thinking parameters that have the same name but different execution contexts
+are confusing.  Maybe that's not so bad?
+
+Take inputLevel
+
+Do we really need setupInputLevel and runtimeInputLevel ?
+
+For a few we do I'm finding like trackSelect, activeTrack, selectedTrack, they're
+confusing.
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+ 
+
+

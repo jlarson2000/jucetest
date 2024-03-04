@@ -1,0 +1,45 @@
+
+With the move to ordinal values for as much as possible I'm hating the
+old low/high concepts.
+
+What we really need for bindings is the sweep range.  The starting value will
+always be zero.
+
+Most if not all integer values have a meaningful zero though some like trackCount
+would make sense to have a low of 1.
+
+Structure enumerations and track/loop activators are the problems.  The end user
+always thinks in terms of "track 1" rather than "track 0" although track 1 has
+index 0 internally.
+
+simple enumeration parameters are 0 based.
+
+
+So the configuration UI and device bindings want to be zero based.
+
+But scripts and binding arguments want to be 1 based.
+
+I think it's going to be confusing to make "ordinal" mean one thing and "object number"
+mean another.  Does it work to have a parameter where ordinals always start from zero
+but if low=1 it means that binding arguments are 1 based?
+
+The UI would use low to decorate slider or menu items, which is nice to know.
+when low=1 it just means that ordinal zero is unused or has special meaning.
+
+Yeah, I think that's what we have to do
+
+
+    MIDI Binding from key 42 with destination track 1 means the first track
+    "set activeTrack 1" from a script means the first track
+
+range=128 without a low means low=0 high=127 but is that a useful shorthand?
+
+Ugh, this makes structure enumerations behave differently than simple enumerations
+where the base value is always zero.
+
+Although for certain structure, zero can be reserved to mean "nothing selected". This
+would be the case for binding overlays.  Hmm, could also use this in SetupTrack to
+mean "the default preset defined at a higher level".  If you wanted a global preset
+that applies everywhere, or rather a Setup.defaultPreset, then a setupTrack.activePreset
+that overrides that.
+
