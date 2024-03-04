@@ -29,6 +29,8 @@
 
 #include "MainWindow.h"
 
+#include "../ParameterPuller.h"
+
 MainWindow::MainWindow(Supervisor* super)
 {
     setName("MainWindow");
@@ -143,9 +145,11 @@ void MainWindow::mainMenuSelection(int id)
         }
             break;
         case MainMenu::About: {
-            test.setVisible(true);
-            test.center();
-            JuceUtil::dumpComponent(&test);
+            //test.setVisible(true);
+            //test.center();
+            //JuceUtil::dumpComponent(&test);
+            ParameterPuller* puller = new ParameterPuller();
+            puller->pull();
         }
             break;
                 

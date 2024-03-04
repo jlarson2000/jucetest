@@ -16,6 +16,13 @@ c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\List.obj
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Preset.obj
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Structure.obj
 
+these for ParameterPuller
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ParameterGlobal.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ParameterPreset.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ParameterSetup.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ParameterTrack.obj
+
+
 Somehow got an unresolved on juce::Colour of all things
 only thing I could find in those related to juce was juce::var
 

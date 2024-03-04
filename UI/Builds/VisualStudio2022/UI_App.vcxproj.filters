@@ -610,6 +610,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ParameterPuller.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -3372,6 +3375,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ParameterPuller.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\JuceMobiusContainer.h">
       <Filter>UI\Source</Filter>
     </ClInclude>

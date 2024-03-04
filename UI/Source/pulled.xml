@@ -1,0 +1,150 @@
+<Parameter name='logStatus' type='bool' scope='global' options=''/>
+<Parameter name='setup' type='string' scope='global' options='bindable,dynamic,'/>
+<Parameter name='setupNumber' scope='global' options='dynamic,runtime,'/>
+<Parameter name='selectedTrack' scope='global' low='1' high='16' options='bindable,runtime,'/>
+<Parameter name='bindings' type='string' scope='global' options='bindable,dynamic,'/>
+<Parameter name='fadeFrames' scope='global' high='1024' options=''/>
+<Parameter name='maxSyncDrift' scope='global' high='16384' options=''/>
+<Parameter name='driftCheckPoint' scope='global' values='loop,external' options=''/>
+<Parameter name='noiseFloor' scope='global' high='15359' options=''/>
+<Parameter name='pluginPorts' scope='global' low='1' high='8' options=''/>
+<Parameter name='midiExport' type='bool' scope='global' options=''/>
+<Parameter name='hostMidiExport' type='bool' scope='global' options=''/>
+<Parameter name='longPress' scope='global' low='250' high='10000' options=''/>
+<Parameter name='spreadRange' scope='global' low='1' high='128' options=''/>
+<Parameter name='traceDebugLevel' scope='global' high='4' options=''/>
+<Parameter name='tracePrintLevel' scope='global' high='4' options=''/>
+<Parameter name='customMode' type='string' scope='global' options='runtime,'/>
+<Parameter name='autoFeedbackReduction' type='bool' scope='global' options=''/>
+<Parameter name='isolateOverdubs' type='bool' scope='global' options=''/>
+<Parameter name='monitorAudio' type='bool' scope='global' options=''/>
+<Parameter name='saveLayers' type='bool' scope='global' options=''/>
+<Parameter name='quickSave' type='string' scope='global' options=''/>
+<Parameter name='unitTests' type='string' scope='global' options=''/>
+<Parameter name='16BitWaveFile' type='bool' scope='global' options=''/>
+<Parameter name='altFeedbackDisable' type='string' scope='global' options=''/>
+<Parameter name='groupFocusLock' type='bool' scope='global' options=''/>
+<Parameter name='focusLockFunctions' type='string' scope='global' options=''/>
+<Parameter name='muteCancelFunctions' type='string' scope='global' options=''/>
+<Parameter name='confirmationFunctions' type='string' scope='global' options=''/>
+<Parameter name='midiRecordMode' scope='global' values='average,smooth,pulse' options=''/>
+<Parameter name='dualPluginWindow' type='bool' scope='global' options=''/>
+<Parameter name='customMessageFile' type='string' scope='global' options=''/>
+<Parameter name='tracks' scope='global' low='1' high='16' options=''/>
+<Parameter name='trackGroups' scope='global' high='8' options=''/>
+<Parameter name='maxLoops' scope='global' high='16' options=''/>
+<Parameter name='oscInputPort' scope='global' options=''/>
+<Parameter name='oscOutputPort' scope='global' options=''/>
+<Parameter name='oscOutputHost' type='string' scope='global' options=''/>
+<Parameter name='oscTrace' type='bool' scope='global' options=''/>
+<Parameter name='oscEnable' type='bool' scope='global' options=''/>
+<Parameter name='inputLatency' scope='global' options=''/>
+<Parameter name='outputLatency' scope='global' options=''/>
+<Parameter name='midiInput' type='string' scope='global' options=''/>
+<Parameter name='midiOutput' type='string' scope='global' options=''/>
+<Parameter name='midiThrough' type='string' scope='global' options=''/>
+<Parameter name='pluginMidiInput' type='string' scope='global' options=''/>
+<Parameter name='pluginMidiOutput' type='string' scope='global' options=''/>
+<Parameter name='pluginMidiThrough' type='string' scope='global' options=''/>
+<Parameter name='audioInput' type='string' scope='global' options=''/>
+<Parameter name='audioOutput' type='string' scope='global' options=''/>
+<Parameter name='sampleRate' scope='global' values='44100,48000' options=''/>
+<Parameter name='subcycles' scope='preset' low='1' high='128' options='bindable,'/>
+<Parameter name='multiplyMode' scope='preset' values='normal,simple' valueLabels='Normal,Simple' options='bindable,'/>
+<Parameter name='shuffleMode' scope='preset' values='reverse,shift,swap,random' valueLabels='Reverse,Shift,Swap,Random' options='bindable,'/>
+<Parameter name='altFeedbackEnable' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='emptyLoopAction' scope='preset' values='none,record,copy,copyTime' valueLabels='None,Record,Copy Sound,Copy Timing' options='bindable,'/>
+<Parameter name='emptyTrackAction' scope='preset' values='none,record,copy,copyTime' valueLabels='None,Record,Copy Sound,Copy Timing' options='bindable,'/>
+<Parameter name='trackLeaveAction' scope='preset' values='none,cancel,wait' valueLabels='None,Cancel Current Mode,Cancel and Wait' options='bindable,'/>
+<Parameter name='loopCount' scope='preset' low='1' high='32' options=''/>
+<Parameter name='muteMode' scope='preset' values='continue,start,pause' valueLabels='Continue,Start,Pause' options='bindable,'/>
+<Parameter name='muteCancel' scope='preset' values='never,edit,trigger,effect,custom,always' valueLabels='Never,Edits,Triggers,Effects,Custom,Always' options='bindable,'/>
+<Parameter name='overdubQuantized' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='quantize' scope='preset' values='off,subCycle,cycle,loop' valueLabels='Off,Subcycle,Cycle,Loop' options='bindable,'/>
+<Parameter name='bounceQuantize' scope='preset' values='off,subCycle,cycle,loop' valueLabels='Off,Subcycle,Cycle,Loop' options='bindable,'/>
+<Parameter name='recordResetsFeedback' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='speedRecord' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='roundingOverdub' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='switchLocation' scope='preset' values='follow,restore,start,random' valueLabels='Follow,Restore,Start,Random' options='bindable,'/>
+<Parameter name='returnLocation' scope='preset' values='follow,restore,start,random' valueLabels='Follow,Restore,Start,Random' options='bindable,'/>
+<Parameter name='switchDuration' scope='preset' values='permanent,once,onceReturn,sustain,sustainReturn' valueLabels='Permanent,Once,Once Return,Sustain,Sustain Return' options='bindable,'/>
+<Parameter name='switchQuantize' scope='preset' values='off,subCycle,cycle,loop,confirm,confirmSubCycle,confirmCycle,confirmLoop' valueLabels='Off,Subcycle,Cycle,Loop,Confirm,Confirm Subcycle,Confirm Cycle,Confirm Loop' options='bindable,'/>
+<Parameter name='timeCopyMode' scope='preset' values='play,overdub,multiply,insert' options='bindable,'/>
+<Parameter name='soundCopyMode' scope='preset' values='play,overdub,multiply,insert' options='bindable,'/>
+<Parameter name='recordThreshold' scope='preset' high='8' options='bindable,'/>
+<Parameter name='switchVelocity' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='maxUndo' scope='preset' options=''/>
+<Parameter name='maxRedo' scope='preset' options=''/>
+<Parameter name='noFeedbackUndo' type='bool' scope='preset' options=''/>
+<Parameter name='noLayerFlattening' type='bool' scope='preset' options=''/>
+<Parameter name='speedSequence' type='string' scope='preset' options=''/>
+<Parameter name='speedShiftRestart' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='pitchSequence' type='string' scope='preset' options=''/>
+<Parameter name='pitchShiftRestart' type='bool' scope='preset' options='bindable,'/>
+<Parameter name='speedStepRange' scope='preset' low='1' high='48' options=''/>
+<Parameter name='speedBendRange' scope='preset' low='1' high='12' options=''/>
+<Parameter name='pitchStepRange' scope='preset' low='1' high='48' options=''/>
+<Parameter name='pitchBendRange' scope='preset' low='1' high='12' options=''/>
+<Parameter name='timeStretchRange' scope='preset' low='1' high='12' options=''/>
+<Parameter name='slipMode' scope='preset' values='subCycle,cycle,start,relSubCycle,relCycle,time' options='bindable,'/>
+<Parameter name='slipTime' scope='preset' high='128' options='bindable,'/>
+<Parameter name='autoRecordTempo' scope='preset' high='500' options='bindable,'/>
+<Parameter name='autoRecordBars' scope='preset' low='1' high='64' options='bindable,'/>
+<Parameter name='sustainFunctions' type='string' multi='true' scope='preset' options=''/>
+<Parameter name='recordTransfer' scope='preset' values='off,follow' options='bindable,'/>
+<Parameter name='overdubTransfer' scope='preset' values='off,follow,restore' options='bindable,'/>
+<Parameter name='reverseTransfer' scope='preset' values='off,follow,restore' options='bindable,'/>
+<Parameter name='speedTransfer' scope='preset' values='off,follow,restore' options='bindable,'/>
+<Parameter name='pitchTransfer' scope='preset' values='off,follow,restore' options='bindable,'/>
+<Parameter name='windowSlideUnit' scope='preset' values='loop,cycle,subcycle,msec,frame' options='bindable,'/>
+<Parameter name='windowEdgeUnit' scope='preset' values='loop,cycle,subcycle,msec,frame' options='bindable,'/>
+<Parameter name='windowSlideAmount' scope='preset' low='1' high='128' options='bindable,'/>
+<Parameter name='windowEdgeAmount' scope='preset' low='1' high='128' options='bindable,'/>
+<Parameter name='autoRecord' type='bool' scope='preset' options=''/>
+<Parameter name='insertMode' scope='preset' values='rehearse,replace,substitute,halfspeed,reverse,insert,sustain' options=''/>
+<Parameter name='interfaceMode' scope='preset' values='loop,delay,expert,stutter,in,out,replace,flip' options=''/>
+<Parameter name='loopCopy' scope='preset' values='off,timing,sound' options=''/>
+<Parameter name='overdubMode' scope='preset' values='toggle,sustain,quantized' options=''/>
+<Parameter name='recordMode' scope='preset' values='toggle,sustain,safe' options=''/>
+<Parameter name='samplerStyle' scope='preset' values='run,start,once,attack,continuous' options=''/>
+<Parameter name='trackCopy' scope='preset' values='off,timing,sound' options=''/>
+<Parameter name='defaultSyncSource' scope='setup' values='none,track,out,host,midi' options='bindable,'/>
+<Parameter name='defaultTrackSyncUnit' scope='setup' values='subcycle,cycle,loop' options='bindable,'/>
+<Parameter name='slaveSyncUnit' scope='setup' values='beat,bar' options='bindable,'/>
+<Parameter name='manualStart' type='bool' scope='setup' options='bindable,'/>
+<Parameter name='minTempo' scope='setup' high='500' options='bindable,'/>
+<Parameter name='maxTempo' scope='setup' high='500' options='bindable,'/>
+<Parameter name='beatsPerBar' scope='setup' high='64' options='bindable,'/>
+<Parameter name='muteSyncMode' scope='setup' values='transport,transportClocks,clocks,none' options='bindable,'/>
+<Parameter name='resizeSyncAdjust' scope='setup' values='none,tempo' options='bindable,'/>
+<Parameter name='speedSyncAdjust' scope='setup' values='none,tempo' options='bindable,'/>
+<Parameter name='realignTime' scope='setup' values='start,bar,beat,now' options='bindable,'/>
+<Parameter name='outRealign' scope='setup' values='midiStart,restart' options='bindable,'/>
+<Parameter name='activeTrack' scope='setup' high='8' options=''/>
+<Parameter name='resetables' type='string' multi='true' scope='setup' options='juceValues,'/>
+<Parameter name='trackName' type='string' scope='track' options=''/>
+<Parameter name='focus' type='bool' scope='track' options='resettable,'/>
+<Parameter name='group' scope='track' options='bindable,resettable,'/>
+<Parameter name='mono' type='bool' scope='track' options=''/>
+<Parameter name='feedback' scope='track' high='127' options='bindable,control,resettable,'/>
+<Parameter name='altFeedback' scope='track' high='127' options='bindable,control,resettable,'/>
+<Parameter name='input' scope='track' high='127' options='bindable,control,resettable,'/>
+<Parameter name='output' scope='track' high='127' options='bindable,control,resettable,'/>
+<Parameter name='pan' scope='track' high='127' options='bindable,control,resettable,'/>
+<Parameter name='speedOctave' scope='track' high='4' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='speedStep' scope='track' high='48' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='speedBend' scope='track' high='8191' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='pitchOctave' scope='track' high='4' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='pitchStep' scope='track' high='48' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='pitchBend' scope='track' high='8191' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='timeStretch' scope='track' high='8191' options='bindable,control,zeroCenter,resettable,scheduled,'/>
+<Parameter name='preset' type='string' scope='track' options='bindable,dynamic,resettable,'/>
+<Parameter name='presetNumber' scope='track' options='dynamic,runtime,'/>
+<Parameter name='syncSource' scope='track' values='default,none,track,out,host,midi' options='bindable,'/>
+<Parameter name='trackSyncUnit' scope='track' values='default,subcycle,cycle,loop' options='bindable,'/>
+<Parameter name='audioInputPort' scope='track' low='1' high='64' options=''/>
+<Parameter name='audioOutputPort' scope='track' low='1' high='64' options=''/>
+<Parameter name='pluginInputPort' scope='track' low='1' high='64' options=''/>
+<Parameter name='pluginOutputPort' scope='track' low='1' high='64' options=''/>
+<Parameter name='inputPort' scope='track' low='1' high='64' options='bindable,runtime,'/>
+<Parameter name='outputPort' scope='track' low='1' high='64' options='bindable,runtime,'/>
