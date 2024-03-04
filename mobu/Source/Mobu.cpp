@@ -30,6 +30,6 @@ void Mobu::run()
 {
     ParameterGenerator pgen;
 
-    pgen.generate(fileName, true);
+    pgen.generate(fileName, false);
 }
 

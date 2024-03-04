@@ -113,8 +113,13 @@ bool CodeGenerator::generate(juce::String fileName, bool testMode, bool isHeader
       filebuf += code;
 
     juce::String outFile = fileName;
+
+    if (!isHeader)
+      outFile += "Classes";
+    
     if (testMode)
       outFile += "Test";
+    
     outFile += (isHeader ? ".h" : ".cpp");
 
     writeFile(outFile, filebuf);
