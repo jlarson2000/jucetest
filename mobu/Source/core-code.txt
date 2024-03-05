@@ -1,0 +1,40 @@
+
+Some awkward generator logic to handle the difference
+between what I want parameter names to be and what they were
+in old code.
+
+   new: activeSetup, getActiveSetup
+   old: setup, getCurrentSetup
+
+In at least one case I changed the MobiusConfig method name which
+will break old code.
+
+Rather than trying to preserve old code for more obscure parameters
+we can just upgrade the names and change core code when it is brought in.
+This is harder for frequently used parameters like Subcycles.
+
+The name of the parameter may also differ and that is more problematic
+because those names can appear in scripts.
+
+How important is it to preserve backward compatibility in scripts.
+
+For the two examples I'm looking at now, "setups" and "bindings"
+I'm thinking it isn't a problem to change them since those were
+rarely if ever used except by me.
+
+A similar issue exists for multi-valued methods that return StringList.
+It would be better for the model to represent the few of those we have as
+CSVs rther than blown out into a bunch of <String>s in the XML.  The editor
+can convert those to a StringList where appropriate.
+
+Yes, too much fucking work to do name mappings and the inconsistencies
+are maddening anyway.
+
+Stop worrying about config object model parity, make the model the way
+it shold be within limits, and change core code.  Can't make radically different
+changes yet, like vector vs. lists but we can change the names of parameters
+and methods as long as the fundamental meaning is the same.
+
+It it working first with mappings, then revisit all the uses of
+coreName, enumName, etc. and try to get rid of mappings.
+
