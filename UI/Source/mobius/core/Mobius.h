@@ -1,34 +1,53 @@
-/**
- * A significantly reduced version of the original Mobius
- * code that handles only what is necessary for the kernel looping tracks.
- *
- * This still serves as the control focal point for all old code.
- *
- * It will be created and managed by the Kernel, with some things routing
- * through the CoreConverter to do model transformations.
- *
- * Among the changes:
- *
- * No longer implements MobiusInterface
- * Anything related to Bindings and the UI removed
- * Control of the Recorder moved up to Kernel
+/*
+ * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * All rights reserved.
+ * See the LICENSE file for the full copyright and license declaration.
+ * 
+ * ---------------------------------------------------------------------
+ * 
+ * The mobius looping engine, primary interface class.
  *
  */
 
-#pragma once
- 
-#include "../../util/Trace.h"
+#ifndef MOBIUS_H
+#define MOBIUS_H
 
-#include "../../model/MobiusState.h"
-#include "../Recorder.h"
+#include "Trace.h"
+
+#include "MobiusInterface.h"
+
+#include "Binding.h"
+#include "MidiListener.h"
+#include "MobiusInterface.h"
+#include "MobiusState.h"
+#include "Recorder.h"
+
+/****************************************************************************
+ *                                                                          *
+ *                                 CONSTANTS                                *
+ *                                                                          *
+ ****************************************************************************/
+
+#define UNIT_TEST_SETUP_NAME "Unit Test Setup"
+#define UNIT_TEST_PRESET_NAME "Unit Test Preset"
+
+/****************************************************************************
+ *                                                                          *
+ *                                   MOBIUS                                 *
+ *                                                                          *
+ ****************************************************************************/
 
 class Mobius : 
+    public MobiusInterface,
     public TraceContext, 
+    public MidiEventListener, 
+    public RecorderMonitor 
 {
 	friend class ScriptInterpreter;
 	friend class ScriptSetupStatement;
 	friend class ScriptPresetStatement;
 	friend class ScriptFunctionStatement;
+	friend class MobiusThread;
 	friend class Loop;
 	friend class Track;
 	friend class Synchronizer;
@@ -38,27 +57,29 @@ class Mobius :
 
   public:
 
-	Mobius(class MobiusContainer* container, class MobiusKernel* kernel);
-	~Mobius();
+	Mobius(MobiusContext* con);
+	virtual ~Mobius();
 
     //////////////////////////////////////////////////////////////////////
-    // Control from the Kernel
+    //
+    // MobiusInterface
+    // These are the only methods that applications should use
+    // all the others are "protected" for use in function invocation
+    //
     //////////////////////////////////////////////////////////////////////
 
-    // Perform initial configuratino and prepare to receive actions and audio
-    // The MobiusConfig is shared with Kernel and must not be deleted
-    void initialize(class MobiusConfig* config);
+    // Configuration
 
-    // perform incremental configuration to reflect runtime changes
-    void configure(class MobiusConfig* config);
+    MobiusContext* getContext();
+    class AudioStream* getAudioStream();
+    void preparePluginBindings();
+	void start();
+	void setListener(MobiusListener* mon);
+	MobiusListener* getListener();
+    void setUIBindables(UIControl** controls, UIParameter** parameters);
+    UIControl** getUIControls();
+    UIControl* getUIControl(const char* name);
 
-    void doAction(UIAction* action);
-    
-    //////////////////////////////////////////////////////////////////////
-    // Internal comonent support
-    //////////////////////////////////////////////////////////////////////
-
-    
     class HostConfigs* getHostConfigs();
 	class MobiusConfig* getConfiguration();
 	class MobiusConfig* editConfiguration();
