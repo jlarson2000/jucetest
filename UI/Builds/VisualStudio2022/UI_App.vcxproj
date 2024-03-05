@@ -250,6 +250,8 @@
     <ClCompile Include="..\..\Source\model\UIAction.cpp"/>
     <ClCompile Include="..\..\Source\model\UIConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\UIEventType.cpp"/>
+    <ClCompile Include="..\..\Source\model\UIParameter.cpp"/>
+    <ClCompile Include="..\..\Source\model\UIParameterClasses.cpp"/>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp"/>
     <ClCompile Include="..\..\Source\model\XmlRenderer.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -2622,6 +2624,7 @@
     <ClInclude Include="..\..\Source\model\UIAction.h"/>
     <ClInclude Include="..\..\Source\model\UIConfig.h"/>
     <ClInclude Include="..\..\Source\model\UIEventType.h"/>
+    <ClInclude Include="..\..\Source\model\UIParameter.h"/>
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>

@@ -63,6 +63,16 @@ void Structure::ordinate(Structure* list)
     }
 }
 
+int Structure::count(Structure* list)
+{
+    int count = 0;
+    while (list != nullptr) {
+        count++;
+        list = list->getNext();
+    }
+    return count;
+}
+
 Structure* Structure::find(Structure* list, const char* name)
 {
     Structure* found = nullptr;
@@ -93,10 +103,15 @@ Structure* Structure::append(Structure* list, Structure* neu)
 
 int Structure::getOrdinal(Structure* list, const char* name)
 {
+    int ordinal = -1;
+
     // safe to repeast this every time?
     ordinate(list);
     Structure* s = find(list, name);
-    return s->ordinal;
+    if (s != nullptr)
+      ordinal = s->ordinal;
+    
+    return ordinal;
 }
 
 Structure* Structure::get(Structure* list, int ordinal)

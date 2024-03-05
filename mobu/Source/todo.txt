@@ -1,0 +1,80 @@
+
+Change "transient" to be "runtime"
+
+remove coreName from the UIParameter model
+
+Review all uses of coreName, coreCode etc. and adjust everything to follow
+the new and consistent names
+
+add scriptAlias to allow simplified names for this parameter in scripts
+   e.g. "setup" for "activeSetup" and "preset" for "activePreset"
+
+remove StringList and use csv consistently
+
+review the need for "resettable" and "scheduled" in the model at this level
+
+standardize on juce::var rather than ExValue
+  though that makes it harder for Script porting, address later
+  maybe do both?
+
+have getValue/setValue always deal with ordinals except for type=string and type=structure
+  already doing this, need to adjust the UI
+
+revisit all the helper functions getEnumOrdinal, getEnum, etc. and weed out those
+we don't need
+
+"activeTrack" is a mess, we have one in global scope and one in setup
+
+Anything with an internal structure ordinal has a percieved value conflict where
+we like to use zero based internally but 1 based in the UI.  Need to work through this.
+
+For activeOverlay and possibly others in the future zero based ordinals don't quite
+fit because we need the concept of "none".  You must always have a Preset or a Setup
+but you don't have to have an overlay BindingSet.  Currentlly it works because the
+first BindingSet is always the master binding set that can't be changed, but that's
+just coincidence.
+
+In theory, any multi=true parameter is also dynamic because the set of allowed values
+for the list items is defined elsewhere, Function names or Parameter names.
+
+I'm growing to dislike these lists.  For things with global scope they would
+be better in some ways as dynamic properties on the Function or Parameter definition objects,
+which is what they were a long time ago.
+
+For Setup::resettables it's harder because there isn't a single model to set flags on.
+
+!!! Since parameter all live in the same namespace we have a problem with this one
+and maybe others
+
+    SetupTrack::preset
+
+Each track can optionally choose to use one of the presets.  Hmm, I thought we had a global
+"defaultPreset" but we don't.  Still that might be interesting.  People almost always define
+a handful of presets and use them for everything.  That's more convenient than
+having to set them in every track.  So we need the concept of "defaultPreset" or "globalPreset"
+and then let the tracks override that.
+
+At runtime it is similar, what does "set preset Something" do?  Set it for just the active
+track or set it for all tracks?
+
+Since you almost always change presets in scripts while operating in one track it feels fine to
+have it just apply to the track.  On Reset it reverts to what is in the setup and if not defined
+there to what is in the global config.  Are there any global parameters we would want to
+survive Reset at runtime but not be stored in the config files?
+
+Work through this: structure activation in general is poorly defined
+
+If we do the global/track preset approach, then we have the "none" ordinal problem since a track
+might not want to (and usually won't) override the global preset.
+
+presetNumber - took this out
+
+getDynamicHigh
+  - trackCount
+     does not need to be dynamic, it is a fixed value and almost never changes
+    activeTrack IS dynamic and uses trackCount for it's range
+
+
+
+
+

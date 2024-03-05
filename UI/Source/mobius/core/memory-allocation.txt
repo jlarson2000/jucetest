@@ -1,0 +1,8 @@
+Area where core code is doing memory allocation that need to be fixed.
+
+Any config parameter that uses StringList
+Need to use CSVs consnstently.
+
+Any config parameter that uses const char* and allows the value
+to be set from scripts.
+

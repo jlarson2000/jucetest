@@ -1,0 +1,73 @@
+
+There was a set of Track scope parameters that had a special implementation
+to make them look like bindable parameters, but they were not in the SetupTrack model
+and were converted to Function invocations at runtime:
+
+    <!--
+    <Parameter name='speedOctave' high='4' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='speedStep' high='48' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='speedBend' high='8191' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchOctave' high='4' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchStep' high='48' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchBend' high='8191' options='control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='timeStretch' high='8191' options='control,zeroCenter,resettable,scheduled'/>
+    -->
+
+The get/set methods on SetupTrack were stubbed out and it had
+a set of get/set methods that took a Track object which were implemented like this:
+
+void SpeedOctaveParameterType::getValue(Track* t, ExValue* value)
+{
+    value->setInt(t->getSpeedOctave());
+}
+
+void SpeedOctaveParameterType::setValue(Action* action)
+{
+    doFunction(action, SpeedOctave);
+}
+
+int SpeedOctaveParameterType::getOrdinalValue(Track* t)
+{
+    return t->getSpeedOctave();
+}
+
+The notion here is that these were runtime controls that could behave like
+things stored in config files (input, output, pan) but their implementation was
+more complicated than just setting a level, they had to be implemented with Functions
+and as a side effect had to be scheduled.
+
+This is an interesting concept, the parameters are logically numbers that could
+have a sweepable control in a host plugin UI, but they are not permanently stored
+and have complex side effects.
+
+So for the code generator it doesn't make sense to auto-generate these for the config editor,
+although in theory they're similar to other level controls and we could want to store
+initial settings in the Setup.
+
+In the runtime context we can no longer have direct access to Track or internal
+function invocation mechanics so these would have to be converted to Actions.
+
+It's a new category of parameters:
+  have static definition for value ranges
+  are not stored in the config files (yet)
+  need to be visible for bindings in runtime context
+
+Runtime implementation must use Actions
+
+We're already simulating that with OutputLevel so the infrastructure to set
+parameters is already there, and in fact MUST be used.
+
+So these need to exist as UIParameter objects, WILL be visible in the binding UI,
+but WILL NOT be used in the configuration UI.
+
+We could overload "scheduled" to mean that, but it may make sense for parameters
+to be quantized someday so I don't like that.  Actually any parameter could be scheduled
+so maybe we just make that assumption?
+
+Or is that a binding option "quantize" or "atTime"
+
+It feels better to have "noConfig" mean "not in the config files" or using evolving
+terms "not in the configuration context" but "does exist in runtime context".
+
+Then we can use scheduling options for other things that MAY be in config files.
+

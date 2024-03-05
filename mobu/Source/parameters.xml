@@ -23,7 +23,7 @@
                type='structure' structureClass='Setup'
                coreName='setup'>
       In model context defines the starting Setup.
-      In runtime context changes the setup.
+      In runtime context changes the active Setup.
       This differs from the core model in two ways.  The parameter name
       is just "setup" but the method name is now getActiveSetup where
       the original was getCurrentSetup.  Will need to change core for this.
@@ -32,7 +32,8 @@
       we wouldn't need coreName.
     </Parameter>
 
-<!-- not well defined, research
+    <!-- not well defined, research
+         also have this in Setup
     <Parameter name='activeTrack' options='dynamic'
                coreName='selectedTrack'
                codeName='ActiveTrack'>
@@ -153,7 +154,7 @@
       This should be entirely in Bindings now and doesn't need core mapping
     </Parameter>
 
-    <Parameter name='maxLoops'>
+    <Parameter name='maxLoops'> 
       The maximum number of loops a track can have.
       Cannot be changed at runtime.
     </Parameter>
@@ -209,10 +210,10 @@
                values='none,cancel,wait'
                valueLabels='None,Cancel Current Mode,Cancel and Wait' />
 
-    <Parameter name='loopCount'
+    <Parameter name='loopCount' options='dynamic,noBinding'
                codeName='Loops'
-               low='1' high='32' options='noBinding'/>
-
+               low='1' high='32'/>
+    
     <Parameter name='muteMode' values='continue,start,pause'/>
     
     <Parameter name='muteCancel'
@@ -244,7 +245,7 @@
     <Parameter name='returnLocation'
                values='follow,restore,start,random'
                enumName='Preset::SwitchLocation'/>
-
+    
     <Parameter name='switchQuantize'
                values='off,subCycle,cycle,loop,confirm,confirmSubCycle,confirmCycle,confirmLoop'
                valueLabels='Off,Subcycle,Cycle,Loop,Confirm,Confirm Subcycle,Confirm Cycle,Confirm Loop' />
@@ -265,14 +266,15 @@
     <Parameter name='noFeedbackUndo' type='bool' options='noBinding'/>
     <Parameter name='noLayerFlattening' type='bool' options='noBinding'/>
     
-<!-- StepSequence*
-     <Parameter name='speedSequence' type='string' options='noBinding'/>
-     -->
+    <!-- StepSequence*
+         <Parameter name='speedSequence' type='string' options='noBinding'/>
+    -->
     <Parameter name='speedShiftRestart' type='bool' options='noBinding'/>
-<!-- StepSequence*
-     <Parameter name='pitchSequence' type='string' options='noBinding'/>
-     -->
+    <!-- StepSequence*
+         <Parameter name='pitchSequence' type='string' options='noBinding'/>
+    -->
     <Parameter name='pitchShiftRestart' type='bool' options='noBinding'/>
+    
     <Parameter name='speedStepRange' low='1' high='48' options='noBinding'/>
     <Parameter name='speedBendRange' low='1' high='12' options='noBinding'/>
     <Parameter name='pitchStepRange' low='1' high='48' options='noBinding'/>
@@ -288,9 +290,9 @@
 
     <Parameter name='autoRecordBars' low='1' high='64' />
 
-<!-- StringList
-     <Parameter name='sustainFunctions' type='string' multi='true' options='noBinding'/>
-     -->
+    <!-- StringList
+         <Parameter name='sustainFunctions' type='string' multi='true' options='noBinding'/>
+    -->
 
     <Parameter name='recordTransfer' values='off,follow'
                enumName='Preset::TransferMode'/>
@@ -310,36 +312,44 @@
     
     <Parameter name='windowSlideAmount' low='1' high='128' />
     <Parameter name='windowEdgeAmount' low='1' high='128' />
+
+    <!-- DEPRECATED: keep these for temporary documentation but once we're sure
+         core code no longer needs them they can be deleted
+         -->
     
     <!-- replaced by EmptyLoopAction
          <Parameter name='autoRecord' type='bool' options='noBinding'/>
-         -->
-
-    <!-- deprecated: insertMode=Sustain replaced with SustainFunctions
-    <Parameter name='insertMode'
-    values='rehearse,replace,substitute,halfspeed,reverse,insert,sustain' />
     -->
 
-    <!-- deprecated: now AltFeedbackEnables
-    <Parameter name='interfaceMode'
-    values='loop,delay,expert,stutter,in,out,replace,flip' />
+    <!-- insertMode=Sustain replaced with SustainFunctions
+         <Parameter name='insertMode'
+         values='rehearse,replace,substitute,halfspeed,reverse,insert,sustain' />
     -->
 
-    <!-- deprecated: now EmptyLoopAction
+    <!-- now AltFeedbackEnables
+         <Parameter name='interfaceMode'
+         values='loop,delay,expert,stutter,in,out,replace,flip' />
+    -->
+
+    <!-- now EmptyLoopAction
          <Parameter name='loopCopy' values='off,timing,sound' />
     -->
-    <!-- deprecated: replaced with OverdubQuantized and SustainFunctions
+    
+    <!-- replaced with OverdubQuantized and SustainFunctions
          <Parameter name='overdubMode' values='toggle,sustain,quantized' />
-         -->
-<!-- deprecated: replaced by SustainFuntions and RecordResetsFeedback
-     <Parameter name='recordMode' values='toggle,sustain,safe' />
--->
-<!-- deprecated: replaced with SwitchLocation, SwitchDuration, and ReturnLocationn
-     <Parameter name='samplerStyle' values='run,start,once,attack,continuous' />
--->
-<!-- deprecated: replaced by EmptyTrackAction
-     <Parameter name='trackCopy' values='off,timing,sound' />
-     -->
+    -->
+
+    <!-- replaced by SustainFuntions and RecordResetsFeedback
+         <Parameter name='recordMode' values='toggle,sustain,safe' />
+    -->
+
+    <!-- replaced with SwitchLocation, SwitchDuration, and ReturnLocationn
+         <Parameter name='samplerStyle' values='run,start,once,attack,continuous' />
+    -->
+
+    <!-- replaced by EmptyTrackAction
+         <Parameter name='trackCopy' values='off,timing,sound' />
+    -->
 
   </ParameterScope>
 
@@ -373,16 +383,25 @@
     <Parameter name='outRealign' values='midiStart,restart'
                codeName='OutRealignMode'
                enumName='OutRealignMode'/>
-    <Parameter name='activeTrack' high='8' options='noBinding'/>
-    
-<!-- StringList
-     <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
 
-      This was not defined formally in core, though it is a member of the Setup class.
-      The SetupDialog handled it as a special case.  Since it wasn't a parameter
-      it could not be used in bindings or scripts.
--->
+    <Parameter name='activeTrack' high='8' options='dynamic,noBinding'>
+      This is a weird one and conflicts conceptually with activeTrack in MobiusConfig.
+      In a setup, this would define the active track when you activate a setup.
+      At runtime it could be used to change the activeTrack without "switch" behavior.
+      The same could be said of the global parameter at runtime.  At startup
+      the global parameter would define the active track unless overridden by the setup.
+      Since these are almost always zero, it's over complicated.
+      We also have an ordinal problem.  Internally tracks are numbered from zero but
+      externally they are always numbered from 1.  Need to work this out.
     </Parameter>
+    
+    <!-- StringList
+         <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
+         This was not defined formally in core, though it is a member of the Setup class.
+         The SetupDialog handled it as a special case.  Since it wasn't a parameter
+         it could not be used in bindings or scripts.
+       </Parameter>
+    -->
 
   </ParameterScope>
 
@@ -392,32 +411,46 @@
 
   <ParameterScope name='track'>
     
-    <Parameter name='trackName' type='string' options='noBinding'/>
-    <Parameter name='focus' type='bool' options='resettable,noBinding'/>
-    <Parameter name='group' options='resettable'/>
+    <Parameter name='trackName' codeName='Name' type='string' options='noBinding'/>
+
+    <Parameter name='preset' type='structure' structureClass='Preset'
+               options='resettable'/>
+    
+    <Parameter name='focus' codeName='FocusLock' type='bool' options='resettable,noBinding'/>
+    <Parameter name='group' options='dynamic,resettable'/>
     <Parameter name='mono' type='bool' options='noBinding'/>
     <Parameter name='feedback' high='127' options='control,resettable'/>
     <Parameter name='altFeedback' high='127' options='control,resettable'/>
-    <Parameter name='input' high='127' options='control,resettable'/>
-    <Parameter name='output' high='127' options='control,resettable'/>
+    <Parameter name='input' codeName='InputLevel'high='127' options='control,resettable'/>
+    <Parameter name='output' codeName='OutputLevel' high='127' options='control,resettable'/>
     <Parameter name='pan' high='127' options='control,resettable'/>
-    <Parameter name='speedOctave' high='4' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='speedStep' high='48' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='speedBend' high='8191' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='pitchOctave' high='4' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='pitchStep' high='48' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='pitchBend' high='8191' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='timeStretch' high='8191' options='control,zeroCenter,resettable,scheduled'/>
-    <Parameter name='preset' type='string' options='dynamic,resettable'/>
-    <Parameter name='presetNumber' options='dynamic,runtime,noBinding'/>
+
     <Parameter name='syncSource' values='default,none,track,out,host,midi' />
-    <Parameter name='trackSyncUnit' values='default,subcycle,cycle,loop' />
+    <Parameter name='trackSyncUnit' codeName='SyncTrackUnit' enumName='SyncTrackUnit'
+               values='default,subcycle,cycle,loop' />
     <Parameter name='audioInputPort' low='1' high='64' options='noBinding'/>
     <Parameter name='audioOutputPort' low='1' high='64' options='noBinding'/>
     <Parameter name='pluginInputPort' low='1' high='64' options='noBinding'/>
     <Parameter name='pluginOutputPort' low='1' high='64' options='noBinding'/>
-    <Parameter name='inputPort' low='1' high='64' options='runtime'/>
-    <Parameter name='outputPort' low='1' high='64' options='runtime' />
+
+    <!-- special catagory of parameters availalbe for runtime bindings, but
+         not in the configuration files, no get/set code will be generated
+    -->
+    <Parameter name='speedOctave' high='4'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='speedStep' high='48'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='speedBend' high='8191'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchOctave' high='4'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchStep' high='48'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='pitchBend' high='8191'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+    <Parameter name='timeStretch' high='8191'
+               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+
   </ParameterScope>
   
 </Parameters>

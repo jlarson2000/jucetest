@@ -48,6 +48,7 @@ class Structure
     // make a complete copy without the chain pointer
     virtual Structure* clone() = 0;
 
+    static int count(Structure *list);
     static Structure* find(Structure* list, const char* name);
     static void ordinate(Structure* list);
     static Structure* append(Structure* list, Structure* neu);

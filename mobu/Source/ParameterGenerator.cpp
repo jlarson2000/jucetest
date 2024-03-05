@@ -396,18 +396,15 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     // resettable means the parameter will reset it's value when the loop is reset
     // used in core, won't be used out here for awhile
     addOption(el, "resettable");
-    // this means that setting the parameter will schedule an event
-    // don't need above core for awhile
+    // used for a set of pitch/speed parameters, that are also all noConfig
+    // needs more thought
     addOption(el, "scheduled");
+    // needs a class definition for bindings, but no get/set code is generated
+    addOption(el, "noConfig");
     
     code.decIndent();
     code.add("}\n");
 
-    // getValue
-
-    code.add("void " + className + "::getValue(void* obj, ExValue* value)\n");
-    code.add("{\n");
-    code.incIndent();
     // the part where we cast the void* to the container class
     juce::String downcast = "((" + scopeClass + "*)obj)->";
     // the part of the method name after get/set
@@ -422,26 +419,40 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     //// if coreName is specified the method name usually tracks it
     //methodName = formatCodeName(coreName);
     //}
-    
-    if (typeCodeName == "Structure") {
-        // these are fundamentally  type='string' with a lot of extra baggage
-        code.indent("value->setString(" + downcast);
-        code.add("get" + methodName + "());\n");
-    }
-    else if (isMulti) {
-        // convert StringList to CSV
-        // could use ExValueList or juce::var too
-        // instead of setString(getSomething()) use setString(getCsv(getSomething()))
-        // where getCsv() is defined in the UIParameter base class
-        code.indent("value->setString(getCsv(" + downcast);
-        code.add("get" + methodName + "()));\n");
+
+    // we have to define get/set values to meet the pure virtual requirmenet
+    // but can stub them out
+    bool noConfig = el->getStringAttribute("options").contains("noConfig");
+
+    // getValue
+
+    code.add("void " + className + "::getValue(void* obj, ExValue* value)\n");
+    code.add("{\n");
+    code.incIndent();
+    if (noConfig) {
+        code.indent("value->setNull();\n");
     }
     else {
-        code.indent("value->set" + typeCodeName + "(" + downcast);
-        juce::String getVerb = (typeCodeName == "Bool") ? "is" : "get";
-        code.add(getVerb + methodName + "());\n");
-        code.decIndent();
+        if (typeCodeName == "Structure") {
+            // these are fundamentally  type='string' with a lot of extra baggage
+            code.indent("value->setString(" + downcast);
+            code.add("get" + methodName + "());\n");
+        }
+        else if (isMulti) {
+            // convert StringList to CSV
+            // could use ExValueList or juce::var too
+            // instead of setString(getSomething()) use setString(getCsv(getSomething()))
+            // where getCsv() is defined in the UIParameter base class
+            code.indent("value->setString(getCsv(" + downcast);
+            code.add("get" + methodName + "()));\n");
+        }
+        else {
+            code.indent("value->set" + typeCodeName + "(" + downcast);
+            juce::String getVerb = (typeCodeName == "Bool") ? "is" : "get";
+            code.add(getVerb + methodName + "());\n");
+        }
     }
+    code.decIndent();
     code.add("}\n");
     
     // setValue
@@ -449,37 +460,37 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     code.add("void " + className + "::setValue(void* obj, ExValue* value)\n");
     code.add("{\n");
     code.incIndent();
-    if (typeCodeName == "Structure") {
-        code.indent(downcast + "set" + methodName + "(");
-        code.add("value->get" + typeCodeName + "());\n");
-        code.decIndent();
-    }
-    else if (isMulti) {
-        // instead of setSomething(value->getString()) use
-        // setSomething(getStringList(value->getString()))
-        // where getStringList() is defined in the UIParameter base class
-        code.indent(downcast + "set" + methodName + "(getStringList(");
-        code.add("value->get" + typeCodeName + "()));\n");
-        code.decIndent();
-    }
-    else {
-        code.indent(downcast + "set" + methodName + "(");
-        if (typeName == "enum") {
-            // cast to the internal enum
-            code.add("(");
-            juce::String enumName = el->getStringAttribute("enumName");
-            if (enumName.length() == 0) {
-                // Preset enumerations are inside the Preset
-                if (currentScope == "preset")
-                  enumName += "Preset::";
-                enumName += codeName;
-            }
-            code.add(enumName);
-            code.add(")");
+    if (!noConfig) {
+        if (typeCodeName == "Structure") {
+            code.indent(downcast + "set" + methodName + "(");
+            code.add("value->get" + typeCodeName + "());\n");
         }
-        code.add("value->get" + typeCodeName + "());\n");
-        code.decIndent();
+        else if (isMulti) {
+            // instead of setSomething(value->getString()) use
+            // setSomething(getStringList(value->getString()))
+            // where getStringList() is defined in the UIParameter base class
+            code.indent(downcast + "set" + methodName + "(getStringList(");
+            code.add("value->get" + typeCodeName + "()));\n");
+        }
+        else {
+            code.indent(downcast + "set" + methodName + "(");
+            if (typeName == "enum") {
+                // cast to the internal enum
+                code.add("(");
+                juce::String enumName = el->getStringAttribute("enumName");
+                if (enumName.length() == 0) {
+                    // Preset enumerations are inside the Preset
+                    if (currentScope == "preset")
+                      enumName += "Preset::";
+                    enumName += codeName;
+                }
+                code.add(enumName);
+                code.add(")");
+            }
+            code.add("value->get" + typeCodeName + "());\n");
+        }
     }
+    code.decIndent();
     code.add("}\n");
 
     // static object

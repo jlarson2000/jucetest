@@ -937,6 +937,12 @@
     <ClCompile Include="..\..\Source\model\UIEventType.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\UIParameter.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\UIParameterClasses.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\UserVariable.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
@@ -3691,6 +3697,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UIEventType.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\UIParameter.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UserVariable.h">
