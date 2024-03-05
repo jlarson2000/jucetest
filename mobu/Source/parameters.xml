@@ -24,10 +24,18 @@
                coreName='setup'>
       In model context defines the starting Setup.
       In runtime context changes the setup.
+      This differs from the core model in two ways.  The parameter name
+      is just "setup" but the method name is now getActiveSetup where
+      the original was getCurrentSetup.  Will need to change core for this.
+      THINK: Since we're going to have a small number of required core code
+      changes we may as well make all the parameter names be the same to so
+      we wouldn't need coreName.
     </Parameter>
 
-<!--
-    <Parameter name='activeTrack' options='dynamic'>
+<!-- not well defined, research
+    <Parameter name='activeTrack' options='dynamic'
+               coreName='selectedTrack'
+               codeName='ActiveTrack'>
       In model context defines the initial active track, almost always zero.
       Range depends on trackCount
       In runtime context changes the active track for focus and display WITHOUT
@@ -35,13 +43,18 @@
       which I'd like to start calling TrackShift.
       Unclear if this needs core mapping.
       </Parameter>
-      -->
+-->
 
     <Parameter name='activeOverlay'
                type='structure' structureClass='BindingSet'
-               codeName='OverlayBindings'>
+               codeName='OverlayBindings'
+               coreName='bindings'
+               >
       Selects an optional overlay binding set.
       Potentially bindable.
+      NOTE: The method named changed from core code which was
+      originally getOverlayBindingConfig with a return type of BindingConfig
+      which no longer exists.  
     </Parameter>
 
     <Parameter name='fadeFrames' high='1024'>
@@ -74,13 +87,12 @@
       Belongs in UIConfig with the other BInding parameters.
     </Parameter>
 
-<!-- traceDebugLevel
     <Parameter name='traceLevel'
-               coreName='traceDebugLevel'>
+               coreName='traceDebugLevel'
+               codeName='TraceDebugLevel'>
       Controls the granularity of trace logging to the debug output stream on Windows
       or the console on Mac.  Core also has tracePrintLevel, try to merge these.
       </Parameter>
-      -->
 
     <Parameter name='autoFeedbackReduction' type='bool'>
       Forget what this does, I think feedback is automatically reduced when in
@@ -120,6 +132,7 @@
       Still relevant?  Move to UI
     </Parameter>
 
+<!-- StringList
     <Parameter name='focusLockFunctions' type='string' multi='true'>
     </Parameter>
     
@@ -128,17 +141,17 @@
     
     <Parameter name='confirmationFunctions' type='string' multi='true'>
     </Parameter>
+-->
 
-<!-- alternate getter name
-    <Parameter name='trackCount' coreName='tracks'>
+    <Parameter name='trackCount' coreName='tracks' codeName='Tracks'>
       The number of tracks to configure internally and display in the UI
       Cannot be changed at runtime
     </Parameter>
-    <Parameter name='groupCount' coreName='trackGroups'>
+
+    <Parameter name='groupCount' coreName='trackGroups' codeName='TrackGroups'>
       The number of focus groups defined.
       This should be entirely in Bindings now and doesn't need core mapping
     </Parameter>
--->
 
     <Parameter name='maxLoops'>
       The maximum number of loops a track can have.
@@ -160,7 +173,8 @@
     <Parameter name='pluginMidiOutput' type='string'/>
     <Parameter name='pluginMidiThrough' type='string'/>
     <Parameter name='audioInput' type='string'/>
-<!-- thinks it's an enum but there is no (SampleRate) cast
+
+    <!-- thinks it's an enum but there is no (SampleRate) cast
     <Parameter name='sampleRate' values='44100,4800'>
       This was an enum I guess for the old UI, shouldn't be using this any more
       </Parameter>
@@ -186,20 +200,18 @@
                values='none,record,copy,copyTime'
                valueLabels='None,Record,Copy Sound,Copy Timing' />
 
-<!-- ugh, code uses EmptyLoopAction which has the right values but wrong name
     <Parameter name='emptyTrackAction'
+               enumName='Preset::EmptyLoopAction'
                values='none,record,copy,copyTime'
                valueLabels='None,Record,Copy Sound,Copy Timing' />
-               -->
 
     <Parameter name='trackLeaveAction'
                values='none,cancel,wait'
                valueLabels='None,Cancel Current Mode,Cancel and Wait' />
 
-<!-- different structure name
     <Parameter name='loopCount'
+               codeName='Loops'
                low='1' high='32' options='noBinding'/>
--->
 
     <Parameter name='muteMode' values='continue,start,pause'/>
     
@@ -276,7 +288,9 @@
 
     <Parameter name='autoRecordBars' low='1' high='64' />
 
-    <Parameter name='sustainFunctions' type='string' multi='true' options='noBinding'/>
+<!-- StringList
+     <Parameter name='sustainFunctions' type='string' multi='true' options='noBinding'/>
+     -->
 
     <Parameter name='recordTransfer' values='off,follow'
                enumName='Preset::TransferMode'/>
@@ -311,8 +325,12 @@
     values='loop,delay,expert,stutter,in,out,replace,flip' />
     -->
 
-    <Parameter name='loopCopy' values='off,timing,sound' />
-    <Parameter name='overdubMode' values='toggle,sustain,quantized' />
+    <!-- deprecated: now EmptyLoopAction
+         <Parameter name='loopCopy' values='off,timing,sound' />
+    -->
+    <!-- deprecated: replaced with OverdubQuantized and SustainFunctions
+         <Parameter name='overdubMode' values='toggle,sustain,quantized' />
+         -->
 <!-- deprecated: replaced by SustainFuntions and RecordResetsFeedback
      <Parameter name='recordMode' values='toggle,sustain,safe' />
 -->
@@ -331,24 +349,39 @@
 
   <ParameterScope name='setup'>
     
-    <Parameter name='defaultSyncSource' values='none,track,out,host,midi' />
-    <Parameter name='defaultTrackSyncUnit' values='subcycle,cycle,loop' />
-    <Parameter name='slaveSyncUnit' values='beat,bar' />
+    <Parameter name='defaultSyncSource' values='none,track,out,host,midi'
+               coreName='syncSource'
+               codeName='SyncSource'
+               enumName='SyncSource'/>
+    <Parameter name='defaultTrackSyncUnit' values='subcycle,cycle,loop'
+               codeName='SyncTrackUnit'
+               enumName='SyncTrackUnit'/>
+    <Parameter name='slaveSyncUnit' values='beat,bar'
+               codeName='SyncUnit'
+               enumName='SyncUnit'/>
     <Parameter name='manualStart' type='bool' />
     <Parameter name='minTempo' high='500' />
     <Parameter name='maxTempo' high='500' />
     <Parameter name='beatsPerBar' high='64' />
     <Parameter name='muteSyncMode' values='transport,transportClocks,clocks,none' />
-    <Parameter name='resizeSyncAdjust' values='none,tempo' />
-    <Parameter name='speedSyncAdjust' values='none,tempo' />
+    <Parameter name='resizeSyncAdjust' values='none,tempo'
+               enumName='SyncAdjust'/>
+
+    <Parameter name='speedSyncAdjust' values='none,tempo'
+               enumName='SyncAdjust'/>
     <Parameter name='realignTime' values='start,bar,beat,now' />
-    <Parameter name='outRealign' values='midiStart,restart' />
+    <Parameter name='outRealign' values='midiStart,restart'
+               codeName='OutRealignMode'
+               enumName='OutRealignMode'/>
     <Parameter name='activeTrack' high='8' options='noBinding'/>
     
-    <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
+<!-- StringList
+     <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
+
       This was not defined formally in core, though it is a member of the Setup class.
       The SetupDialog handled it as a special case.  Since it wasn't a parameter
       it could not be used in bindings or scripts.
+-->
     </Parameter>
 
   </ParameterScope>
