@@ -344,7 +344,13 @@
     <Parameter name='realignTime' values='start,bar,beat,now' />
     <Parameter name='outRealign' values='midiStart,restart' />
     <Parameter name='activeTrack' high='8' options='noBinding'/>
-    <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'/>
+    
+    <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
+      This was not defined formally in core, though it is a member of the Setup class.
+      The SetupDialog handled it as a special case.  Since it wasn't a parameter
+      it could not be used in bindings or scripts.
+    </Parameter>
+
   </ParameterScope>
 
   <!-- =======================================================================

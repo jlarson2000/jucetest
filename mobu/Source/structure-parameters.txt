@@ -1,0 +1,381 @@
+Notes on type=Structure parameters
+
+When type=Structure it means that the value type is string, but the values
+are constrained by the names of one of the configuration objects.
+Think of this like a dynamic enumeration.  The getter will return the
+ORDINAL of the structure, not the name.  So if you have three Presets: A,B,C
+And the value of the parameter in the model is "B", UIParameter::getValue
+returns 1.
+
+If the execution context wants the name rather than the ordinal it must call
+getValueSymbol instead.
+
+Since the setter uses either ExValue or juce::var to convey the value you can
+use either representaation with UIParameter::setValue.
+
+The expaneded code will look like this:
+
+   value->setInt(getStructureOrdinal(obj->getSomething(), structureClass))
+
+Where structureClass is one of the possible Structure names: Preset, Setup, BindingSet, etc.
+structureClass must be supplied as an XML attribute.
+
+getStructureOrdinal is defined in UIParameter and will do the necessary lookup within
+the containing configuration object.
+
+Ugh, in order for this to work we need
+  containing object with the structures to be enumerated
+    where does this come from, sometimes it is "obj" but not always
+
+  the structure class to look for
+    don't know if C++ provides what Java calls "introspection" so we have to
+    pass the class name "Preset", "Setup", "BindingSet" and have the helper method
+    dispatch on that.
+
+The second one can be coded in the current framework but not the second.
+The Structure parameters are:
+
+   MobiusConfig::activeSetup
+      the name of one of the Setups to make active on startup or the
+      one currently active one at runtime
+
+   MobiusConfig::activeOverlay
+      the name of one of the overlay BindingSets to activate on startup
+      or the one currently active at runtime
+      note: this would be more complicated if we allow multiple overlays
+
+   SetupTrack::activePreset
+     the name of the Preset to be active in this track on startup
+     or the one currently active at runtime
+
+   Setup::defaultPreset
+     this is a new one not in core
+     the name of the Preset to be active in this track on startup
+       UNLESS it is overridden by SetupTrack::activePreset
+
+At the moment all of these are within MobiusConfig, but since BindingSets are
+no longer to be considiered part of the engine it should be moved to UIConfig.
+If we do that though then arguably the activeOverlay paramteer should be moved
+over there too.  So a simplifying assumption can be made that structure parameters
+can only reference something from within the same container.
+
+Unfortunately Preset and SetupTrack do not have backpointers to get to the 
+MobiusConfig so this would have to be provided by the caller.  This means we
+can't use the simple getValue(object), setValue(object, value) methods like
+we have been doing we would need getValue(container, object)
+
+Since this is only used for a handful of parameters that's annoying.
+
+So we could go back to just letting these be strings for the configuration editor
+and push all the allowed value awareness up into the editor.  What we lose
+potentially is bindings and scripts.
+
+Of these, the only one really useful for bindings is SetupTrack::activePreset.
+You could use that to call up a preset by pressing a MIDI note or sweeping
+over all the Presets using a controller.  
+
+For scripts it is also expected to be able to say
+
+    set activePreset "Something"
+
+But for all of the structure parameters changing a value is a lot more complicated
+than just putting a value in an object.  Activating a setup is very complicated,
+activating a preset is less so.
+
+In the execution context of the configuration editor we're just dealing with
+strings in objects, but at runtime it can't be done this way, without some sort
+of "listener" concept applied to the config objects.
+
+Changing presets would be better defined as a Function/Action rather than
+setting configuration value.  So what this does in a script
+
+    set activePreset "something"
+
+is equvalent to
+
+    ActivatePreset "something"
+
+Thinking about this, that's really what bindings and scripts must ALWAYS do when
+setting a parameter since the execution context that wants to set a parameter
+at runtime will be far removed from where that parameter is actually being used.
+
+Scripts may currently have some baked in awareness of where parameter values go within
+the internal Track model but that's bad, or at least it needs to be a very controlled
+optimization that can fall back to using an action.
+
+There are similar issues with reading parameters.  Up in the UI or with host parameter
+bindings, the code that wants to send the current value of "inputLevel" in "track 3" doesn't
+know where that is.  There needs to be a reverse of the UIAction that pulls the value
+out.  This is sort of what Export used to do.
+
+It's a little easier for most things because the MobiusState provides this intermediate
+view of many of the parameter values, but not all.  We don't have every active Preset parameter
+value for each track in MobiusState.
+
+So all this code generation really only makes sense for the configuration editor.  It doesn't
+mean anything for runtime.
+
+Ugh, off on another tangent.  What are the concrete problems we need to solve:
+
+Reading a value in the configuration editor
+  use the built-in UIParaemter::getValue functions
+  in this context, structure names are desireable rather than ordinals
+  
+Reading a value in a binding
+  only necessary pulling from a host parameter or exporting to MIDI or OSC
+  call getParameter on the outermost container or use a UIFetch object
+
+Reading a value in a script
+  same as bindings in general, in some cases can optimize this by using UIParameter::getValue
+
+Key point:
+  Need UIFetch
+  Useful because it could deal with things that aren't formally defined as Parameters
+  though we would need a model for the things that aren't, that's what Variables were
+  starting to be.
+  hmm, this could also be where you request ordinal vs. symbolic values
+  UIAction does this too, actions have a default numeric argument which is an ordinal
+  but cal also have a symbolic argument
+
+Setting a value in the configuration editor
+  use the built-in UIParameter::setValue functions
+  structure names are strings
+
+Setting a value in a binding
+  build a UIAction using ordinals
+  
+Setting a value from a acript
+  build a UIAction, or in limited cases use UIParameter::setValue after locating the
+  runtime object
+
+Getting the low/high/range of ordinals for a binding
+  this is the one I've been wrestling with, it is almost always part of the static definition
+  except for structures and a few "dynamic" parameters
+  it is also not the "value" of the parameter it is a "property" of the parameter definition
+  let's call this problem "model query"
+
+Think relational, UIFetch is "select" on a table (really a view of internal tables)
+
+Fuck, does this work?  Can you slap a relational model on top of all this?
+  think more about that
+
+In relational you find things out about the tables themselves by selecting on the "table model".
+
+That's what we need here, information about the model being used by the engine, not the
+values stored in that model, or being used at runtime in that model.
+
+Really the static Parameters and Functions vectors are part of that model-model.  Let's call this
+the Meta Model for now.
+
+The Preset class is a "schema".  A Preset instance is a "row".  Parameter is the schema of the
+Preset class.
+
+What do we do when we want the range of a parameter?  Query the meta model.
+
+   select high from ParameterDefinition where name='subcycles'
+
+To get the value of a parameter at runtime
+
+    select value from Parameter where name='subcycles' and track='1'
+
+Or the first one could be
+
+    select count(*) from Parameter where name='subcycles'
+
+No that's not it.  And it isn't unique() either, it is the POTENTIAL range, not
+the range in use.  For that you need a meta model.
+
+I'm liking Query, that could be used for all sorts of things besides just
+the meta model.  That could be export/fetch as well.
+
+Action sets or does somethign and Query gets something.
+
+Right now the only thing we need to Query on are the ranges of Parameters for bindings.
+But Query can also return other things, like the names of a particular kind of object
+
+  select name from Preset -> list of names
+
+Now we're getting somewhere, for Structure parameters we don't need a meta model
+because we're querying on the instances in the structure's table.
+
+  select count(*) from Preset where name is unique;
+
+Interesting, but I don't want to blow out a full relational model just yet.  Can simplify this as:
+
+   Query:
+     scope/class/table Preset
+     select name
+     return the names of all Presets in the MobiusConfig (context assumed)
+
+   Query:
+     what I want: names
+     where they are: Preset
+
+   Query:
+     what I want: max
+     where they are: Preset
+
+  Query:
+    what I want: subcycles
+    where it is: Preset, track 2
+
+  Query:
+    what I want: Parameter:subcycles
+    where it is: Preset (given to you by Parameter, track 2 required
+
+
+What Parameter does is give you scope over the information set but because
+all parameters live in a single namespace, you don't need to say "Preset parameter foo"
+you can just ask for "foo" and we know it's in a preset.  It's a model simplification.
+
+This seems fine, it's what you want for plugins.  There are a limited things
+you can do and ask for and they all live in a flat namespace.
+
+Do plugins even have the concept of Functions?  MIDI events are kind of like that.
+Plugins have parameters which are sweepable values, MIDI events cauase things to happen.
+A parameter can cause something to happen if you set it to 1.
+
+So back to the action model
+
+   Action: Function Record
+
+   Action: Parameter subcycles 4
+
+   Action: Parameter StartRecord 1
+
+Yes you could model functions as parameters if you had to, but it's a weird parameter.
+For my purposes it makes sense to split them.
+
+Can you query a Fuction?  Modes are sort of that but not really.
+
+For runtime export of host parameter bindings
+
+  Query: Parameter subcycles track 4
+
+For host inspection of parameter ranges
+
+  Query: Parameter subcycles low
+
+Yes so this is key.  There are two phasis for plugins.
+
+  1) the host asks about available parameters before they are used
+  2) the host asks for the value of a parameter
+
+1 is the meta model, 2 is the actual model
+
+The internal model could separate those or combine them.
+
+ UIQueryParameter subcycles range
+ UIQueryValue subcycles
+
+I don't know if modern plugin frameworks offer any structure to the parameter
+sets or if it is just a flat namespace.  So you would do:
+
+    track1/subcycles
+    track2/subcycles
+    activeTrack/subcycles
+
+And this is transformed by the Binding.
+
+You still need all that information conveyed in the UIAction and the UIQuery
+
+UIAction
+  operation=Parameter
+  name=subcycles
+  value=4
+  scope=track1
+
+UIAction
+  operation=Function
+  name=Record
+  scope=track1
+  functions don't have values, though you could say the value is an implicit
+    numeric arg to the function, in that way functions behave similar to parameters
+
+UIQuery
+  class=Parameter
+  name=subcycles
+  scope=track1
+  with queries you're not supplying a value, you're retrieving one
+  name is still required
+  scope is my internal thing in the binding host doesn't know about
+  class is an internal scoping mechanism the host doesn't know about but it is
+  basically the same as Action.operation
+
+Action.operation = what do I want to do
+
+Query.operation = what do I want to get
+
+operation feels wrong for a name, similar to select vs update
+
+scope is accurate but overloaded with scope definint tracks/groups
+
+type is more generic, but too generic?
+
+UIQuery
+  type=Parameter
+  name=subcycles
+  scope=track1
+
+Yeah, that flows.  Now that I see it Action.type could work better than Action.operation
+and matches UIQuery.
+
+Okay, after all that shitstorm, the bottom line for the parameter code geneator...
+
+   DO NOT OBSESS ABOUT EXECUTION CONTEXT
+
+The only things we need to generates code for are the meta-model for Parameters
+and built-in execution context implementations for the configuration editor.
+
+Bindings and scripts will not use these, they will always use UIAction and UIQuery
+
+It's nice for Parameter get/set to use ordinals just to avoid layers of mapping
+we don't need but it is not required.  Structure parameters can just use names
+and let the editor figure out the meta model.
+
+type=structure is then physically the same as type=string as far as how
+we deal with the object model, it's just a hint to the UI that there is
+more to it than that.  We might as well just do
+
+type='string' structure='Preset'
+
+though I kind of like how type='structure' implies that the parameter CAN have
+an ordinal, it's just that the range is complicated
+
+type='structure' structureClass='Preset' is nice for informational purposes
+and might be used to generalize some code in the editor but it isn't necessary.
+
+How about multi='true' ?
+
+Again, just a conveneince for the editor, these can't be bound to host parameters.
+
+Scripts would never use them and if they did they would need more language around them
+
+set focusLockFunctions add Overdub
+
+add focusLockFunctions Overdub
+remove focusLockFuncions Overdub
+
+we're kind of doing that with expressions
+
+set subcycles subcycles + 1
+
+could have list expressions
+
+set focusLockFunctions x,y,z (conversion to list)
+
+set focusLockFunctions remove(focusLockFunctions, Overdub)
+
+save that for another day
+
+
+  
+
+
+
+
+
+
+
+
+

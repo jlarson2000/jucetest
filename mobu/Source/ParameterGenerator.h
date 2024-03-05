@@ -14,7 +14,7 @@ class ParameterGenerator
   private:
 
     CodeGenerator code;
-    juce::String scope;
+    juce::String currentScope;
     
     bool expect(juce::XmlElement* el, const char* elementName);
     juce::String require(juce::XmlElement* el, const char* attname);
@@ -29,9 +29,9 @@ class ParameterGenerator
 
     juce::String formatCodeName(juce::String xmlName);
     juce::String formatDisplayName(juce::String xmlName);
-    juce::String formatScope(juce::String xmlName);
+    juce::String formatScopeClass(juce::String xmlName);
     juce::String formatScopeEnum(juce::String xmlName);
-    juce::String formatType(juce::String xmlName);
+    juce::String formatTypeCode(juce::String xmlName);
     juce::String capitalize(juce::String xmlName);
 
 };

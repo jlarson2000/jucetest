@@ -1,7 +1,8 @@
 /**
- * Base implementation of UIParameter
- * This file is NOT generated
- * Generated subclasses and code are found in UIParameterClasses.cpp
+ * File containing the generated UIParameter subclasses.
+ * Unlike UIParameter.h which we'll extend to contain the static object pointers
+ * we collect all the class definitions in a separate file to keep
+ * UIParameter.cpp clean.
  */
 
 #include <JuceHeader.h>
@@ -60,14 +61,17 @@ UIParameterActiveSetupClass::UIParameterActiveSetupClass()
 {
     name = "activeSetup";
     displayName = "Active Setup";
+    coreName = "setup";
     scope = ScopeGlobal;
-    type = TypeStructure;
+    type = TypeString;
 }
 void UIParameterActiveSetupClass::getValue(void* obj, ExValue* value)
 {
+    value->setString(((MobiusConfig*)obj)->getSetup());
 }
 void UIParameterActiveSetupClass::setValue(void* obj, ExValue* value)
 {
+    ((MobiusConfig*)obj)->setSetup(value->getString());
 }
 UIParameterActiveSetupClass UIParameterActiveSetupObj;
 UIParameter* UIParameterActiveSetup = &UIParameterActiveSetupObj;
@@ -77,22 +81,24 @@ UIParameter* UIParameterActiveSetup = &UIParameterActiveSetupObj;
 class UIParameterActiveOverlayClass : public UIParameter
 {
   public:
-            UIParameterActiveOverlayClass();
-            void getValue(void* obj, class ExValue* value) override;
-            void setValue(void* obj, class ExValue* value) override;
+    UIParameterActiveOverlayClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterActiveOverlayClass::UIParameterActiveOverlayClass()
 {
-            name = "activeOverlay";
-            displayName = "Active Overlay";
-            scope = ScopeGlobal;
-            type = TypeStructure;
+    name = "activeOverlay";
+    displayName = "Active Overlay";
+    scope = ScopeGlobal;
+    type = TypeString;
 }
 void UIParameterActiveOverlayClass::getValue(void* obj, ExValue* value)
 {
+    value->setString(((MobiusConfig*)obj)->getActiveOverlay());
 }
 void UIParameterActiveOverlayClass::setValue(void* obj, ExValue* value)
 {
+    ((MobiusConfig*)obj)->setActiveOverlay(value->getString());
 }
 UIParameterActiveOverlayClass UIParameterActiveOverlayObj;
 UIParameter* UIParameterActiveOverlay = &UIParameterActiveOverlayObj;
@@ -102,25 +108,25 @@ UIParameter* UIParameterActiveOverlay = &UIParameterActiveOverlayObj;
 class UIParameterFadeFramesClass : public UIParameter
 {
   public:
-                    UIParameterFadeFramesClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterFadeFramesClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterFadeFramesClass::UIParameterFadeFramesClass()
 {
-                    name = "fadeFrames";
-                    displayName = "Fade Frames";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
-                    high = 1024;
+    name = "fadeFrames";
+    displayName = "Fade Frames";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    high = 1024;
 }
 void UIParameterFadeFramesClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getFadeFrames());
+    value->setInt(((MobiusConfig*)obj)->getFadeFrames());
 }
 void UIParameterFadeFramesClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setFadeFrames(value->getInt());
+    ((MobiusConfig*)obj)->setFadeFrames(value->getInt());
 }
 UIParameterFadeFramesClass UIParameterFadeFramesObj;
 UIParameter* UIParameterFadeFrames = &UIParameterFadeFramesObj;
@@ -130,25 +136,25 @@ UIParameter* UIParameterFadeFrames = &UIParameterFadeFramesObj;
 class UIParameterMaxSyncDriftClass : public UIParameter
 {
   public:
-                    UIParameterMaxSyncDriftClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterMaxSyncDriftClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMaxSyncDriftClass::UIParameterMaxSyncDriftClass()
 {
-                    name = "maxSyncDrift";
-                    displayName = "Max Sync Drift";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
-                    high = 10000;
+    name = "maxSyncDrift";
+    displayName = "Max Sync Drift";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    high = 10000;
 }
 void UIParameterMaxSyncDriftClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getMaxSyncDrift());
+    value->setInt(((MobiusConfig*)obj)->getMaxSyncDrift());
 }
 void UIParameterMaxSyncDriftClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setMaxSyncDrift(value->getInt());
+    ((MobiusConfig*)obj)->setMaxSyncDrift(value->getInt());
 }
 UIParameterMaxSyncDriftClass UIParameterMaxSyncDriftObj;
 UIParameter* UIParameterMaxSyncDrift = &UIParameterMaxSyncDriftObj;
@@ -158,24 +164,24 @@ UIParameter* UIParameterMaxSyncDrift = &UIParameterMaxSyncDriftObj;
 class UIParameterDriftCheckPointClass : public UIParameter
 {
   public:
-                    UIParameterDriftCheckPointClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterDriftCheckPointClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterDriftCheckPointClass::UIParameterDriftCheckPointClass()
 {
-                    name = "driftCheckPoint";
-                    displayName = "Drift Check Point";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
+    name = "driftCheckPoint";
+    displayName = "Drift Check Point";
+    scope = ScopeGlobal;
+    type = TypeInt;
 }
 void UIParameterDriftCheckPointClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getDriftCheckPoint());
+    value->setInt(((MobiusConfig*)obj)->getDriftCheckPoint());
 }
 void UIParameterDriftCheckPointClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setDriftCheckPoint((DriftCheckPoint)value->getInt());
+    ((MobiusConfig*)obj)->setDriftCheckPoint((DriftCheckPoint)value->getInt());
 }
 UIParameterDriftCheckPointClass UIParameterDriftCheckPointObj;
 UIParameter* UIParameterDriftCheckPoint = &UIParameterDriftCheckPointObj;
@@ -185,26 +191,26 @@ UIParameter* UIParameterDriftCheckPoint = &UIParameterDriftCheckPointObj;
 class UIParameterPluginPortsClass : public UIParameter
 {
   public:
-                    UIParameterPluginPortsClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterPluginPortsClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginPortsClass::UIParameterPluginPortsClass()
 {
-                    name = "pluginPorts";
-                    displayName = "Plugin Ports";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
-                    low = 1;
-                    high = 8;
+    name = "pluginPorts";
+    displayName = "Plugin Ports";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    low = 1;
+    high = 8;
 }
 void UIParameterPluginPortsClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getPluginPorts());
+    value->setInt(((MobiusConfig*)obj)->getPluginPorts());
 }
 void UIParameterPluginPortsClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setPluginPorts(value->getInt());
+    ((MobiusConfig*)obj)->setPluginPorts(value->getInt());
 }
 UIParameterPluginPortsClass UIParameterPluginPortsObj;
 UIParameter* UIParameterPluginPorts = &UIParameterPluginPortsObj;
@@ -214,26 +220,26 @@ UIParameter* UIParameterPluginPorts = &UIParameterPluginPortsObj;
 class UIParameterLongPressClass : public UIParameter
 {
   public:
-                    UIParameterLongPressClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterLongPressClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterLongPressClass::UIParameterLongPressClass()
 {
-                    name = "longPress";
-                    displayName = "Long Press";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
-                    low = 250;
-                    high = 10000;
+    name = "longPress";
+    displayName = "Long Press";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    low = 250;
+    high = 10000;
 }
 void UIParameterLongPressClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getLongPress());
+    value->setInt(((MobiusConfig*)obj)->getLongPress());
 }
 void UIParameterLongPressClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setLongPress(value->getInt());
+    ((MobiusConfig*)obj)->setLongPress(value->getInt());
 }
 UIParameterLongPressClass UIParameterLongPressObj;
 UIParameter* UIParameterLongPress = &UIParameterLongPressObj;
@@ -243,26 +249,26 @@ UIParameter* UIParameterLongPress = &UIParameterLongPressObj;
 class UIParameterSpreadRangeClass : public UIParameter
 {
   public:
-                    UIParameterSpreadRangeClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterSpreadRangeClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpreadRangeClass::UIParameterSpreadRangeClass()
 {
-                    name = "spreadRange";
-                    displayName = "Spread Range";
-                    scope = ScopeGlobal;
-                    type = TypeInt;
-                    low = 1;
-                    high = 128;
+    name = "spreadRange";
+    displayName = "Spread Range";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    low = 1;
+    high = 128;
 }
 void UIParameterSpreadRangeClass::getValue(void* obj, ExValue* value)
 {
-                    value->setInt(((MobiusConfig*)obj)->getSpreadRange());
+    value->setInt(((MobiusConfig*)obj)->getSpreadRange());
 }
 void UIParameterSpreadRangeClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setSpreadRange(value->getInt());
+    ((MobiusConfig*)obj)->setSpreadRange(value->getInt());
 }
 UIParameterSpreadRangeClass UIParameterSpreadRangeObj;
 UIParameter* UIParameterSpreadRange = &UIParameterSpreadRangeObj;
@@ -272,24 +278,24 @@ UIParameter* UIParameterSpreadRange = &UIParameterSpreadRangeObj;
 class UIParameterAutoFeedbackReductionClass : public UIParameter
 {
   public:
-                    UIParameterAutoFeedbackReductionClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterAutoFeedbackReductionClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAutoFeedbackReductionClass::UIParameterAutoFeedbackReductionClass()
 {
-                    name = "autoFeedbackReduction";
-                    displayName = "Auto Feedback Reduction";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "autoFeedbackReduction";
+    displayName = "Auto Feedback Reduction";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterAutoFeedbackReductionClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isAutoFeedbackReduction());
+    value->setBool(((MobiusConfig*)obj)->isAutoFeedbackReduction());
 }
 void UIParameterAutoFeedbackReductionClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setAutoFeedbackReduction(value->getBool());
+    ((MobiusConfig*)obj)->setAutoFeedbackReduction(value->getBool());
 }
 UIParameterAutoFeedbackReductionClass UIParameterAutoFeedbackReductionObj;
 UIParameter* UIParameterAutoFeedbackReduction = &UIParameterAutoFeedbackReductionObj;
@@ -299,24 +305,24 @@ UIParameter* UIParameterAutoFeedbackReduction = &UIParameterAutoFeedbackReductio
 class UIParameterIsolateOverdubsClass : public UIParameter
 {
   public:
-                    UIParameterIsolateOverdubsClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterIsolateOverdubsClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterIsolateOverdubsClass::UIParameterIsolateOverdubsClass()
 {
-                    name = "isolateOverdubs";
-                    displayName = "Isolate Overdubs";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "isolateOverdubs";
+    displayName = "Isolate Overdubs";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterIsolateOverdubsClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isIsolateOverdubs());
+    value->setBool(((MobiusConfig*)obj)->isIsolateOverdubs());
 }
 void UIParameterIsolateOverdubsClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setIsolateOverdubs(value->getBool());
+    ((MobiusConfig*)obj)->setIsolateOverdubs(value->getBool());
 }
 UIParameterIsolateOverdubsClass UIParameterIsolateOverdubsObj;
 UIParameter* UIParameterIsolateOverdubs = &UIParameterIsolateOverdubsObj;
@@ -326,24 +332,24 @@ UIParameter* UIParameterIsolateOverdubs = &UIParameterIsolateOverdubsObj;
 class UIParameterMonitorAudioClass : public UIParameter
 {
   public:
-                    UIParameterMonitorAudioClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterMonitorAudioClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMonitorAudioClass::UIParameterMonitorAudioClass()
 {
-                    name = "monitorAudio";
-                    displayName = "Monitor Audio";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "monitorAudio";
+    displayName = "Monitor Audio";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterMonitorAudioClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isMonitorAudio());
+    value->setBool(((MobiusConfig*)obj)->isMonitorAudio());
 }
 void UIParameterMonitorAudioClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setMonitorAudio(value->getBool());
+    ((MobiusConfig*)obj)->setMonitorAudio(value->getBool());
 }
 UIParameterMonitorAudioClass UIParameterMonitorAudioObj;
 UIParameter* UIParameterMonitorAudio = &UIParameterMonitorAudioObj;
@@ -353,24 +359,24 @@ UIParameter* UIParameterMonitorAudio = &UIParameterMonitorAudioObj;
 class UIParameterSaveLayersClass : public UIParameter
 {
   public:
-                    UIParameterSaveLayersClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterSaveLayersClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSaveLayersClass::UIParameterSaveLayersClass()
 {
-                    name = "saveLayers";
-                    displayName = "Save Layers";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "saveLayers";
+    displayName = "Save Layers";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterSaveLayersClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isSaveLayers());
+    value->setBool(((MobiusConfig*)obj)->isSaveLayers());
 }
 void UIParameterSaveLayersClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setSaveLayers(value->getBool());
+    ((MobiusConfig*)obj)->setSaveLayers(value->getBool());
 }
 UIParameterSaveLayersClass UIParameterSaveLayersObj;
 UIParameter* UIParameterSaveLayers = &UIParameterSaveLayersObj;
@@ -380,24 +386,24 @@ UIParameter* UIParameterSaveLayers = &UIParameterSaveLayersObj;
 class UIParameterQuickSaveClass : public UIParameter
 {
   public:
-                    UIParameterQuickSaveClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterQuickSaveClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterQuickSaveClass::UIParameterQuickSaveClass()
 {
-                    name = "quickSave";
-                    displayName = "Quick Save";
-                    scope = ScopeGlobal;
-                    type = TypeString;
+    name = "quickSave";
+    displayName = "Quick Save";
+    scope = ScopeGlobal;
+    type = TypeString;
 }
 void UIParameterQuickSaveClass::getValue(void* obj, ExValue* value)
 {
-                    value->setString(((MobiusConfig*)obj)->getQuickSave());
+    value->setString(((MobiusConfig*)obj)->getQuickSave());
 }
 void UIParameterQuickSaveClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setQuickSave(value->getString());
+    ((MobiusConfig*)obj)->setQuickSave(value->getString());
 }
 UIParameterQuickSaveClass UIParameterQuickSaveObj;
 UIParameter* UIParameterQuickSave = &UIParameterQuickSaveObj;
@@ -407,24 +413,25 @@ UIParameter* UIParameterQuickSave = &UIParameterQuickSaveObj;
 class UIParameterIntegerWaveFileClass : public UIParameter
 {
   public:
-                    UIParameterIntegerWaveFileClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterIntegerWaveFileClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterIntegerWaveFileClass::UIParameterIntegerWaveFileClass()
 {
-                    name = "integerWaveFile";
-                    displayName = "Integer Wave File";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "integerWaveFile";
+    displayName = "Integer Wave File";
+    coreName = "16BitWaveFile";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterIntegerWaveFileClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isIntegerWaveFile());
+    value->setBool(((MobiusConfig*)obj)->is16BitWaveFile());
 }
 void UIParameterIntegerWaveFileClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setIntegerWaveFile(value->getBool());
+    ((MobiusConfig*)obj)->set16BitWaveFile(value->getBool());
 }
 UIParameterIntegerWaveFileClass UIParameterIntegerWaveFileObj;
 UIParameter* UIParameterIntegerWaveFile = &UIParameterIntegerWaveFileObj;
@@ -434,24 +441,24 @@ UIParameter* UIParameterIntegerWaveFile = &UIParameterIntegerWaveFileObj;
 class UIParameterGroupFocusLockClass : public UIParameter
 {
   public:
-                    UIParameterGroupFocusLockClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterGroupFocusLockClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterGroupFocusLockClass::UIParameterGroupFocusLockClass()
 {
-                    name = "groupFocusLock";
-                    displayName = "Group Focus Lock";
-                    scope = ScopeGlobal;
-                    type = TypeBool;
+    name = "groupFocusLock";
+    displayName = "Group Focus Lock";
+    scope = ScopeGlobal;
+    type = TypeBool;
 }
 void UIParameterGroupFocusLockClass::getValue(void* obj, ExValue* value)
 {
-                    value->setBool(((MobiusConfig*)obj)->isGroupFocusLock());
+    value->setBool(((MobiusConfig*)obj)->isGroupFocusLock());
 }
 void UIParameterGroupFocusLockClass::setValue(void* obj, ExValue* value)
 {
-                    ((MobiusConfig*)obj)->setGroupFocusLock(value->getBool());
+    ((MobiusConfig*)obj)->setGroupFocusLock(value->getBool());
 }
 UIParameterGroupFocusLockClass UIParameterGroupFocusLockObj;
 UIParameter* UIParameterGroupFocusLock = &UIParameterGroupFocusLockObj;
@@ -461,22 +468,24 @@ UIParameter* UIParameterGroupFocusLock = &UIParameterGroupFocusLockObj;
 class UIParameterFocusLockFunctionsClass : public UIParameter
 {
   public:
-                    UIParameterFocusLockFunctionsClass();
-                    void getValue(void* obj, class ExValue* value) override;
-                    void setValue(void* obj, class ExValue* value) override;
+    UIParameterFocusLockFunctionsClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterFocusLockFunctionsClass::UIParameterFocusLockFunctionsClass()
 {
-                    name = "focusLockFunctions";
-                    displayName = "Focus Lock Functions";
-                    scope = ScopeGlobal;
-                    type = TypeString;
+    name = "focusLockFunctions";
+    displayName = "Focus Lock Functions";
+    scope = ScopeGlobal;
+    type = TypeString;
 }
 void UIParameterFocusLockFunctionsClass::getValue(void* obj, ExValue* value)
 {
+    value->setString(getCsv(((MobiusConfig*)obj)->getFocusLockFunctions()));
 }
 void UIParameterFocusLockFunctionsClass::setValue(void* obj, ExValue* value)
 {
+        ((MobiusConfig*)obj)->setFocusLockFunctions(getStringList(value->getString()));
 }
 UIParameterFocusLockFunctionsClass UIParameterFocusLockFunctionsObj;
 UIParameter* UIParameterFocusLockFunctions = &UIParameterFocusLockFunctionsObj;
@@ -486,22 +495,24 @@ UIParameter* UIParameterFocusLockFunctions = &UIParameterFocusLockFunctionsObj;
 class UIParameterMuteCancelFunctionsClass : public UIParameter
 {
   public:
-                            UIParameterMuteCancelFunctionsClass();
-                            void getValue(void* obj, class ExValue* value) override;
-                            void setValue(void* obj, class ExValue* value) override;
+        UIParameterMuteCancelFunctionsClass();
+        void getValue(void* obj, class ExValue* value) override;
+        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMuteCancelFunctionsClass::UIParameterMuteCancelFunctionsClass()
 {
-                            name = "muteCancelFunctions";
-                            displayName = "Mute Cancel Functions";
-                            scope = ScopeGlobal;
-                            type = TypeString;
+        name = "muteCancelFunctions";
+        displayName = "Mute Cancel Functions";
+        scope = ScopeGlobal;
+        type = TypeString;
 }
 void UIParameterMuteCancelFunctionsClass::getValue(void* obj, ExValue* value)
 {
+        value->setString(getCsv(((MobiusConfig*)obj)->getMuteCancelFunctions()));
 }
 void UIParameterMuteCancelFunctionsClass::setValue(void* obj, ExValue* value)
 {
+            ((MobiusConfig*)obj)->setMuteCancelFunctions(getStringList(value->getString()));
 }
 UIParameterMuteCancelFunctionsClass UIParameterMuteCancelFunctionsObj;
 UIParameter* UIParameterMuteCancelFunctions = &UIParameterMuteCancelFunctionsObj;
@@ -511,22 +522,24 @@ UIParameter* UIParameterMuteCancelFunctions = &UIParameterMuteCancelFunctionsObj
 class UIParameterConfirmationFunctionsClass : public UIParameter
 {
   public:
-                                    UIParameterConfirmationFunctionsClass();
-                                    void getValue(void* obj, class ExValue* value) override;
-                                    void setValue(void* obj, class ExValue* value) override;
+            UIParameterConfirmationFunctionsClass();
+            void getValue(void* obj, class ExValue* value) override;
+            void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterConfirmationFunctionsClass::UIParameterConfirmationFunctionsClass()
 {
-                                    name = "confirmationFunctions";
-                                    displayName = "Confirmation Functions";
-                                    scope = ScopeGlobal;
-                                    type = TypeString;
+            name = "confirmationFunctions";
+            displayName = "Confirmation Functions";
+            scope = ScopeGlobal;
+            type = TypeString;
 }
 void UIParameterConfirmationFunctionsClass::getValue(void* obj, ExValue* value)
 {
+            value->setString(getCsv(((MobiusConfig*)obj)->getConfirmationFunctions()));
 }
 void UIParameterConfirmationFunctionsClass::setValue(void* obj, ExValue* value)
 {
+                ((MobiusConfig*)obj)->setConfirmationFunctions(getStringList(value->getString()));
 }
 UIParameterConfirmationFunctionsClass UIParameterConfirmationFunctionsObj;
 UIParameter* UIParameterConfirmationFunctions = &UIParameterConfirmationFunctionsObj;
@@ -536,24 +549,24 @@ UIParameter* UIParameterConfirmationFunctions = &UIParameterConfirmationFunction
 class UIParameterMaxLoopsClass : public UIParameter
 {
   public:
-                                            UIParameterMaxLoopsClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMaxLoopsClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMaxLoopsClass::UIParameterMaxLoopsClass()
 {
-                                            name = "maxLoops";
-                                            displayName = "Max Loops";
-                                            scope = ScopeGlobal;
-                                            type = TypeInt;
+                name = "maxLoops";
+                displayName = "Max Loops";
+                scope = ScopeGlobal;
+                type = TypeInt;
 }
 void UIParameterMaxLoopsClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((MobiusConfig*)obj)->getMaxLoops());
+                value->setInt(((MobiusConfig*)obj)->getMaxLoops());
 }
 void UIParameterMaxLoopsClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setMaxLoops(value->getInt());
+                ((MobiusConfig*)obj)->setMaxLoops(value->getInt());
 }
 UIParameterMaxLoopsClass UIParameterMaxLoopsObj;
 UIParameter* UIParameterMaxLoops = &UIParameterMaxLoopsObj;
@@ -563,24 +576,24 @@ UIParameter* UIParameterMaxLoops = &UIParameterMaxLoopsObj;
 class UIParameterInputLatencyClass : public UIParameter
 {
   public:
-                                            UIParameterInputLatencyClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterInputLatencyClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterInputLatencyClass::UIParameterInputLatencyClass()
 {
-                                            name = "inputLatency";
-                                            displayName = "Input Latency";
-                                            scope = ScopeGlobal;
-                                            type = TypeInt;
+                name = "inputLatency";
+                displayName = "Input Latency";
+                scope = ScopeGlobal;
+                type = TypeInt;
 }
 void UIParameterInputLatencyClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((MobiusConfig*)obj)->getInputLatency());
+                value->setInt(((MobiusConfig*)obj)->getInputLatency());
 }
 void UIParameterInputLatencyClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setInputLatency(value->getInt());
+                ((MobiusConfig*)obj)->setInputLatency(value->getInt());
 }
 UIParameterInputLatencyClass UIParameterInputLatencyObj;
 UIParameter* UIParameterInputLatency = &UIParameterInputLatencyObj;
@@ -590,24 +603,24 @@ UIParameter* UIParameterInputLatency = &UIParameterInputLatencyObj;
 class UIParameterOutputLatencyClass : public UIParameter
 {
   public:
-                                            UIParameterOutputLatencyClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterOutputLatencyClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOutputLatencyClass::UIParameterOutputLatencyClass()
 {
-                                            name = "outputLatency";
-                                            displayName = "Output Latency";
-                                            scope = ScopeGlobal;
-                                            type = TypeInt;
+                name = "outputLatency";
+                displayName = "Output Latency";
+                scope = ScopeGlobal;
+                type = TypeInt;
 }
 void UIParameterOutputLatencyClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((MobiusConfig*)obj)->getOutputLatency());
+                value->setInt(((MobiusConfig*)obj)->getOutputLatency());
 }
 void UIParameterOutputLatencyClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setOutputLatency(value->getInt());
+                ((MobiusConfig*)obj)->setOutputLatency(value->getInt());
 }
 UIParameterOutputLatencyClass UIParameterOutputLatencyObj;
 UIParameter* UIParameterOutputLatency = &UIParameterOutputLatencyObj;
@@ -617,24 +630,24 @@ UIParameter* UIParameterOutputLatency = &UIParameterOutputLatencyObj;
 class UIParameterMidiInputClass : public UIParameter
 {
   public:
-                                            UIParameterMidiInputClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMidiInputClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMidiInputClass::UIParameterMidiInputClass()
 {
-                                            name = "midiInput";
-                                            displayName = "Midi Input";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "midiInput";
+                displayName = "Midi Input";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterMidiInputClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getMidiInput());
+                value->setString(((MobiusConfig*)obj)->getMidiInput());
 }
 void UIParameterMidiInputClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setMidiInput(value->getString());
+                ((MobiusConfig*)obj)->setMidiInput(value->getString());
 }
 UIParameterMidiInputClass UIParameterMidiInputObj;
 UIParameter* UIParameterMidiInput = &UIParameterMidiInputObj;
@@ -644,24 +657,24 @@ UIParameter* UIParameterMidiInput = &UIParameterMidiInputObj;
 class UIParameterMidiOutputClass : public UIParameter
 {
   public:
-                                            UIParameterMidiOutputClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMidiOutputClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMidiOutputClass::UIParameterMidiOutputClass()
 {
-                                            name = "midiOutput";
-                                            displayName = "Midi Output";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "midiOutput";
+                displayName = "Midi Output";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterMidiOutputClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getMidiOutput());
+                value->setString(((MobiusConfig*)obj)->getMidiOutput());
 }
 void UIParameterMidiOutputClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setMidiOutput(value->getString());
+                ((MobiusConfig*)obj)->setMidiOutput(value->getString());
 }
 UIParameterMidiOutputClass UIParameterMidiOutputObj;
 UIParameter* UIParameterMidiOutput = &UIParameterMidiOutputObj;
@@ -671,24 +684,24 @@ UIParameter* UIParameterMidiOutput = &UIParameterMidiOutputObj;
 class UIParameterMidiThroughClass : public UIParameter
 {
   public:
-                                            UIParameterMidiThroughClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMidiThroughClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMidiThroughClass::UIParameterMidiThroughClass()
 {
-                                            name = "midiThrough";
-                                            displayName = "Midi Through";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "midiThrough";
+                displayName = "Midi Through";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterMidiThroughClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getMidiThrough());
+                value->setString(((MobiusConfig*)obj)->getMidiThrough());
 }
 void UIParameterMidiThroughClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setMidiThrough(value->getString());
+                ((MobiusConfig*)obj)->setMidiThrough(value->getString());
 }
 UIParameterMidiThroughClass UIParameterMidiThroughObj;
 UIParameter* UIParameterMidiThrough = &UIParameterMidiThroughObj;
@@ -698,24 +711,24 @@ UIParameter* UIParameterMidiThrough = &UIParameterMidiThroughObj;
 class UIParameterPluginMidiInputClass : public UIParameter
 {
   public:
-                                            UIParameterPluginMidiInputClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPluginMidiInputClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginMidiInputClass::UIParameterPluginMidiInputClass()
 {
-                                            name = "pluginMidiInput";
-                                            displayName = "Plugin Midi Input";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "pluginMidiInput";
+                displayName = "Plugin Midi Input";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterPluginMidiInputClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getPluginMidiInput());
+                value->setString(((MobiusConfig*)obj)->getPluginMidiInput());
 }
 void UIParameterPluginMidiInputClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setPluginMidiInput(value->getString());
+                ((MobiusConfig*)obj)->setPluginMidiInput(value->getString());
 }
 UIParameterPluginMidiInputClass UIParameterPluginMidiInputObj;
 UIParameter* UIParameterPluginMidiInput = &UIParameterPluginMidiInputObj;
@@ -725,24 +738,24 @@ UIParameter* UIParameterPluginMidiInput = &UIParameterPluginMidiInputObj;
 class UIParameterPluginMidiOutputClass : public UIParameter
 {
   public:
-                                            UIParameterPluginMidiOutputClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPluginMidiOutputClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginMidiOutputClass::UIParameterPluginMidiOutputClass()
 {
-                                            name = "pluginMidiOutput";
-                                            displayName = "Plugin Midi Output";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "pluginMidiOutput";
+                displayName = "Plugin Midi Output";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterPluginMidiOutputClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getPluginMidiOutput());
+                value->setString(((MobiusConfig*)obj)->getPluginMidiOutput());
 }
 void UIParameterPluginMidiOutputClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setPluginMidiOutput(value->getString());
+                ((MobiusConfig*)obj)->setPluginMidiOutput(value->getString());
 }
 UIParameterPluginMidiOutputClass UIParameterPluginMidiOutputObj;
 UIParameter* UIParameterPluginMidiOutput = &UIParameterPluginMidiOutputObj;
@@ -752,24 +765,24 @@ UIParameter* UIParameterPluginMidiOutput = &UIParameterPluginMidiOutputObj;
 class UIParameterPluginMidiThroughClass : public UIParameter
 {
   public:
-                                            UIParameterPluginMidiThroughClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPluginMidiThroughClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginMidiThroughClass::UIParameterPluginMidiThroughClass()
 {
-                                            name = "pluginMidiThrough";
-                                            displayName = "Plugin Midi Through";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "pluginMidiThrough";
+                displayName = "Plugin Midi Through";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterPluginMidiThroughClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getPluginMidiThrough());
+                value->setString(((MobiusConfig*)obj)->getPluginMidiThrough());
 }
 void UIParameterPluginMidiThroughClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setPluginMidiThrough(value->getString());
+                ((MobiusConfig*)obj)->setPluginMidiThrough(value->getString());
 }
 UIParameterPluginMidiThroughClass UIParameterPluginMidiThroughObj;
 UIParameter* UIParameterPluginMidiThrough = &UIParameterPluginMidiThroughObj;
@@ -779,24 +792,24 @@ UIParameter* UIParameterPluginMidiThrough = &UIParameterPluginMidiThroughObj;
 class UIParameterAudioInputClass : public UIParameter
 {
   public:
-                                            UIParameterAudioInputClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterAudioInputClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAudioInputClass::UIParameterAudioInputClass()
 {
-                                            name = "audioInput";
-                                            displayName = "Audio Input";
-                                            scope = ScopeGlobal;
-                                            type = TypeString;
+                name = "audioInput";
+                displayName = "Audio Input";
+                scope = ScopeGlobal;
+                type = TypeString;
 }
 void UIParameterAudioInputClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setString(((MobiusConfig*)obj)->getAudioInput());
+                value->setString(((MobiusConfig*)obj)->getAudioInput());
 }
 void UIParameterAudioInputClass::setValue(void* obj, ExValue* value)
 {
-                                            ((MobiusConfig*)obj)->setAudioInput(value->getString());
+                ((MobiusConfig*)obj)->setAudioInput(value->getString());
 }
 UIParameterAudioInputClass UIParameterAudioInputObj;
 UIParameter* UIParameterAudioInput = &UIParameterAudioInputObj;
@@ -809,26 +822,26 @@ UIParameter* UIParameterAudioInput = &UIParameterAudioInputObj;
 class UIParameterSubcyclesClass : public UIParameter
 {
   public:
-                                            UIParameterSubcyclesClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSubcyclesClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSubcyclesClass::UIParameterSubcyclesClass()
 {
-                                            name = "subcycles";
-                                            displayName = "Subcycles";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 128;
+                name = "subcycles";
+                displayName = "Subcycles";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 128;
 }
 void UIParameterSubcyclesClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSubcycles());
+                value->setInt(((Preset*)obj)->getSubcycles());
 }
 void UIParameterSubcyclesClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSubcycles(value->getInt());
+                ((Preset*)obj)->setSubcycles(value->getInt());
 }
 UIParameterSubcyclesClass UIParameterSubcyclesObj;
 UIParameter* UIParameterSubcycles = &UIParameterSubcyclesObj;
@@ -838,24 +851,24 @@ UIParameter* UIParameterSubcycles = &UIParameterSubcyclesObj;
 class UIParameterMultiplyModeClass : public UIParameter
 {
   public:
-                                            UIParameterMultiplyModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMultiplyModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMultiplyModeClass::UIParameterMultiplyModeClass()
 {
-                                            name = "multiplyMode";
-                                            displayName = "Multiply Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "multiplyMode";
+                displayName = "Multiply Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterMultiplyModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getMultiplyMode());
+                value->setInt(((Preset*)obj)->getMultiplyMode());
 }
 void UIParameterMultiplyModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setMultiplyMode((Preset::MultiplyMode)value->getInt());
+                ((Preset*)obj)->setMultiplyMode((Preset::MultiplyMode)value->getInt());
 }
 UIParameterMultiplyModeClass UIParameterMultiplyModeObj;
 UIParameter* UIParameterMultiplyMode = &UIParameterMultiplyModeObj;
@@ -865,24 +878,24 @@ UIParameter* UIParameterMultiplyMode = &UIParameterMultiplyModeObj;
 class UIParameterShuffleModeClass : public UIParameter
 {
   public:
-                                            UIParameterShuffleModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterShuffleModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterShuffleModeClass::UIParameterShuffleModeClass()
 {
-                                            name = "shuffleMode";
-                                            displayName = "Shuffle Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "shuffleMode";
+                displayName = "Shuffle Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterShuffleModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getShuffleMode());
+                value->setInt(((Preset*)obj)->getShuffleMode());
 }
 void UIParameterShuffleModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setShuffleMode((Preset::ShuffleMode)value->getInt());
+                ((Preset*)obj)->setShuffleMode((Preset::ShuffleMode)value->getInt());
 }
 UIParameterShuffleModeClass UIParameterShuffleModeObj;
 UIParameter* UIParameterShuffleMode = &UIParameterShuffleModeObj;
@@ -892,24 +905,24 @@ UIParameter* UIParameterShuffleMode = &UIParameterShuffleModeObj;
 class UIParameterAltFeedbackEnableClass : public UIParameter
 {
   public:
-                                            UIParameterAltFeedbackEnableClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterAltFeedbackEnableClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAltFeedbackEnableClass::UIParameterAltFeedbackEnableClass()
 {
-                                            name = "altFeedbackEnable";
-                                            displayName = "Alt Feedback Enable";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "altFeedbackEnable";
+                displayName = "Alt Feedback Enable";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterAltFeedbackEnableClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isAltFeedbackEnable());
+                value->setBool(((Preset*)obj)->isAltFeedbackEnable());
 }
 void UIParameterAltFeedbackEnableClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setAltFeedbackEnable(value->getBool());
+                ((Preset*)obj)->setAltFeedbackEnable(value->getBool());
 }
 UIParameterAltFeedbackEnableClass UIParameterAltFeedbackEnableObj;
 UIParameter* UIParameterAltFeedbackEnable = &UIParameterAltFeedbackEnableObj;
@@ -919,24 +932,24 @@ UIParameter* UIParameterAltFeedbackEnable = &UIParameterAltFeedbackEnableObj;
 class UIParameterEmptyLoopActionClass : public UIParameter
 {
   public:
-                                            UIParameterEmptyLoopActionClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterEmptyLoopActionClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterEmptyLoopActionClass::UIParameterEmptyLoopActionClass()
 {
-                                            name = "emptyLoopAction";
-                                            displayName = "Empty Loop Action";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "emptyLoopAction";
+                displayName = "Empty Loop Action";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterEmptyLoopActionClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getEmptyLoopAction());
+                value->setInt(((Preset*)obj)->getEmptyLoopAction());
 }
 void UIParameterEmptyLoopActionClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setEmptyLoopAction((Preset::EmptyLoopAction)value->getInt());
+                ((Preset*)obj)->setEmptyLoopAction((Preset::EmptyLoopAction)value->getInt());
 }
 UIParameterEmptyLoopActionClass UIParameterEmptyLoopActionObj;
 UIParameter* UIParameterEmptyLoopAction = &UIParameterEmptyLoopActionObj;
@@ -946,24 +959,24 @@ UIParameter* UIParameterEmptyLoopAction = &UIParameterEmptyLoopActionObj;
 class UIParameterTrackLeaveActionClass : public UIParameter
 {
   public:
-                                            UIParameterTrackLeaveActionClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterTrackLeaveActionClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTrackLeaveActionClass::UIParameterTrackLeaveActionClass()
 {
-                                            name = "trackLeaveAction";
-                                            displayName = "Track Leave Action";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "trackLeaveAction";
+                displayName = "Track Leave Action";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterTrackLeaveActionClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getTrackLeaveAction());
+                value->setInt(((Preset*)obj)->getTrackLeaveAction());
 }
 void UIParameterTrackLeaveActionClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setTrackLeaveAction((Preset::TrackLeaveAction)value->getInt());
+                ((Preset*)obj)->setTrackLeaveAction((Preset::TrackLeaveAction)value->getInt());
 }
 UIParameterTrackLeaveActionClass UIParameterTrackLeaveActionObj;
 UIParameter* UIParameterTrackLeaveAction = &UIParameterTrackLeaveActionObj;
@@ -973,24 +986,24 @@ UIParameter* UIParameterTrackLeaveAction = &UIParameterTrackLeaveActionObj;
 class UIParameterMuteModeClass : public UIParameter
 {
   public:
-                                            UIParameterMuteModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMuteModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMuteModeClass::UIParameterMuteModeClass()
 {
-                                            name = "muteMode";
-                                            displayName = "Mute Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "muteMode";
+                displayName = "Mute Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterMuteModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getMuteMode());
+                value->setInt(((Preset*)obj)->getMuteMode());
 }
 void UIParameterMuteModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setMuteMode((Preset::MuteMode)value->getInt());
+                ((Preset*)obj)->setMuteMode((Preset::MuteMode)value->getInt());
 }
 UIParameterMuteModeClass UIParameterMuteModeObj;
 UIParameter* UIParameterMuteMode = &UIParameterMuteModeObj;
@@ -1000,24 +1013,24 @@ UIParameter* UIParameterMuteMode = &UIParameterMuteModeObj;
 class UIParameterMuteCancelClass : public UIParameter
 {
   public:
-                                            UIParameterMuteCancelClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMuteCancelClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMuteCancelClass::UIParameterMuteCancelClass()
 {
-                                            name = "muteCancel";
-                                            displayName = "Mute Cancel";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "muteCancel";
+                displayName = "Mute Cancel";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterMuteCancelClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getMuteCancel());
+                value->setInt(((Preset*)obj)->getMuteCancel());
 }
 void UIParameterMuteCancelClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setMuteCancel((Preset::MuteCancel)value->getInt());
+                ((Preset*)obj)->setMuteCancel((Preset::MuteCancel)value->getInt());
 }
 UIParameterMuteCancelClass UIParameterMuteCancelObj;
 UIParameter* UIParameterMuteCancel = &UIParameterMuteCancelObj;
@@ -1027,24 +1040,24 @@ UIParameter* UIParameterMuteCancel = &UIParameterMuteCancelObj;
 class UIParameterOverdubQuantizedClass : public UIParameter
 {
   public:
-                                            UIParameterOverdubQuantizedClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterOverdubQuantizedClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOverdubQuantizedClass::UIParameterOverdubQuantizedClass()
 {
-                                            name = "overdubQuantized";
-                                            displayName = "Overdub Quantized";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "overdubQuantized";
+                displayName = "Overdub Quantized";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterOverdubQuantizedClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isOverdubQuantized());
+                value->setBool(((Preset*)obj)->isOverdubQuantized());
 }
 void UIParameterOverdubQuantizedClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setOverdubQuantized(value->getBool());
+                ((Preset*)obj)->setOverdubQuantized(value->getBool());
 }
 UIParameterOverdubQuantizedClass UIParameterOverdubQuantizedObj;
 UIParameter* UIParameterOverdubQuantized = &UIParameterOverdubQuantizedObj;
@@ -1054,24 +1067,24 @@ UIParameter* UIParameterOverdubQuantized = &UIParameterOverdubQuantizedObj;
 class UIParameterQuantizeClass : public UIParameter
 {
   public:
-                                            UIParameterQuantizeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterQuantizeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterQuantizeClass::UIParameterQuantizeClass()
 {
-                                            name = "quantize";
-                                            displayName = "Quantize";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "quantize";
+                displayName = "Quantize";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterQuantizeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getQuantize());
+                value->setInt(((Preset*)obj)->getQuantize());
 }
 void UIParameterQuantizeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setQuantize((Preset::QuantizeMode)value->getInt());
+                ((Preset*)obj)->setQuantize((Preset::QuantizeMode)value->getInt());
 }
 UIParameterQuantizeClass UIParameterQuantizeObj;
 UIParameter* UIParameterQuantize = &UIParameterQuantizeObj;
@@ -1081,24 +1094,24 @@ UIParameter* UIParameterQuantize = &UIParameterQuantizeObj;
 class UIParameterBounceQuantizeClass : public UIParameter
 {
   public:
-                                            UIParameterBounceQuantizeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterBounceQuantizeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterBounceQuantizeClass::UIParameterBounceQuantizeClass()
 {
-                                            name = "bounceQuantize";
-                                            displayName = "Bounce Quantize";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "bounceQuantize";
+                displayName = "Bounce Quantize";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterBounceQuantizeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getBounceQuantize());
+                value->setInt(((Preset*)obj)->getBounceQuantize());
 }
 void UIParameterBounceQuantizeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setBounceQuantize((Preset::QuantizeMode)value->getInt());
+                ((Preset*)obj)->setBounceQuantize((Preset::QuantizeMode)value->getInt());
 }
 UIParameterBounceQuantizeClass UIParameterBounceQuantizeObj;
 UIParameter* UIParameterBounceQuantize = &UIParameterBounceQuantizeObj;
@@ -1108,24 +1121,24 @@ UIParameter* UIParameterBounceQuantize = &UIParameterBounceQuantizeObj;
 class UIParameterRecordResetsFeedbackClass : public UIParameter
 {
   public:
-                                            UIParameterRecordResetsFeedbackClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterRecordResetsFeedbackClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterRecordResetsFeedbackClass::UIParameterRecordResetsFeedbackClass()
 {
-                                            name = "recordResetsFeedback";
-                                            displayName = "Record Resets Feedback";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "recordResetsFeedback";
+                displayName = "Record Resets Feedback";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterRecordResetsFeedbackClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isRecordResetsFeedback());
+                value->setBool(((Preset*)obj)->isRecordResetsFeedback());
 }
 void UIParameterRecordResetsFeedbackClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setRecordResetsFeedback(value->getBool());
+                ((Preset*)obj)->setRecordResetsFeedback(value->getBool());
 }
 UIParameterRecordResetsFeedbackClass UIParameterRecordResetsFeedbackObj;
 UIParameter* UIParameterRecordResetsFeedback = &UIParameterRecordResetsFeedbackObj;
@@ -1135,24 +1148,24 @@ UIParameter* UIParameterRecordResetsFeedback = &UIParameterRecordResetsFeedbackO
 class UIParameterSpeedRecordClass : public UIParameter
 {
   public:
-                                            UIParameterSpeedRecordClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSpeedRecordClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedRecordClass::UIParameterSpeedRecordClass()
 {
-                                            name = "speedRecord";
-                                            displayName = "Speed Record";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "speedRecord";
+                displayName = "Speed Record";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterSpeedRecordClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isSpeedRecord());
+                value->setBool(((Preset*)obj)->isSpeedRecord());
 }
 void UIParameterSpeedRecordClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSpeedRecord(value->getBool());
+                ((Preset*)obj)->setSpeedRecord(value->getBool());
 }
 UIParameterSpeedRecordClass UIParameterSpeedRecordObj;
 UIParameter* UIParameterSpeedRecord = &UIParameterSpeedRecordObj;
@@ -1162,24 +1175,24 @@ UIParameter* UIParameterSpeedRecord = &UIParameterSpeedRecordObj;
 class UIParameterRoundingOverdubClass : public UIParameter
 {
   public:
-                                            UIParameterRoundingOverdubClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterRoundingOverdubClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterRoundingOverdubClass::UIParameterRoundingOverdubClass()
 {
-                                            name = "roundingOverdub";
-                                            displayName = "Rounding Overdub";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "roundingOverdub";
+                displayName = "Rounding Overdub";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterRoundingOverdubClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isRoundingOverdub());
+                value->setBool(((Preset*)obj)->isRoundingOverdub());
 }
 void UIParameterRoundingOverdubClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setRoundingOverdub(value->getBool());
+                ((Preset*)obj)->setRoundingOverdub(value->getBool());
 }
 UIParameterRoundingOverdubClass UIParameterRoundingOverdubObj;
 UIParameter* UIParameterRoundingOverdub = &UIParameterRoundingOverdubObj;
@@ -1189,24 +1202,24 @@ UIParameter* UIParameterRoundingOverdub = &UIParameterRoundingOverdubObj;
 class UIParameterSwitchLocationClass : public UIParameter
 {
   public:
-                                            UIParameterSwitchLocationClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSwitchLocationClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSwitchLocationClass::UIParameterSwitchLocationClass()
 {
-                                            name = "switchLocation";
-                                            displayName = "Switch Location";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "switchLocation";
+                displayName = "Switch Location";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterSwitchLocationClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSwitchLocation());
+                value->setInt(((Preset*)obj)->getSwitchLocation());
 }
 void UIParameterSwitchLocationClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSwitchLocation((Preset::SwitchLocation)value->getInt());
+                ((Preset*)obj)->setSwitchLocation((Preset::SwitchLocation)value->getInt());
 }
 UIParameterSwitchLocationClass UIParameterSwitchLocationObj;
 UIParameter* UIParameterSwitchLocation = &UIParameterSwitchLocationObj;
@@ -1216,24 +1229,24 @@ UIParameter* UIParameterSwitchLocation = &UIParameterSwitchLocationObj;
 class UIParameterReturnLocationClass : public UIParameter
 {
   public:
-                                            UIParameterReturnLocationClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterReturnLocationClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterReturnLocationClass::UIParameterReturnLocationClass()
 {
-                                            name = "returnLocation";
-                                            displayName = "Return Location";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "returnLocation";
+                displayName = "Return Location";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterReturnLocationClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getReturnLocation());
+                value->setInt(((Preset*)obj)->getReturnLocation());
 }
 void UIParameterReturnLocationClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setReturnLocation((Preset::SwitchLocation)value->getInt());
+                ((Preset*)obj)->setReturnLocation((Preset::SwitchLocation)value->getInt());
 }
 UIParameterReturnLocationClass UIParameterReturnLocationObj;
 UIParameter* UIParameterReturnLocation = &UIParameterReturnLocationObj;
@@ -1243,24 +1256,24 @@ UIParameter* UIParameterReturnLocation = &UIParameterReturnLocationObj;
 class UIParameterSwitchQuantizeClass : public UIParameter
 {
   public:
-                                            UIParameterSwitchQuantizeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSwitchQuantizeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSwitchQuantizeClass::UIParameterSwitchQuantizeClass()
 {
-                                            name = "switchQuantize";
-                                            displayName = "Switch Quantize";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "switchQuantize";
+                displayName = "Switch Quantize";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterSwitchQuantizeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSwitchQuantize());
+                value->setInt(((Preset*)obj)->getSwitchQuantize());
 }
 void UIParameterSwitchQuantizeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSwitchQuantize((Preset::SwitchQuantize)value->getInt());
+                ((Preset*)obj)->setSwitchQuantize((Preset::SwitchQuantize)value->getInt());
 }
 UIParameterSwitchQuantizeClass UIParameterSwitchQuantizeObj;
 UIParameter* UIParameterSwitchQuantize = &UIParameterSwitchQuantizeObj;
@@ -1270,24 +1283,24 @@ UIParameter* UIParameterSwitchQuantize = &UIParameterSwitchQuantizeObj;
 class UIParameterTimeCopyModeClass : public UIParameter
 {
   public:
-                                            UIParameterTimeCopyModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterTimeCopyModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTimeCopyModeClass::UIParameterTimeCopyModeClass()
 {
-                                            name = "timeCopyMode";
-                                            displayName = "Time Copy Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "timeCopyMode";
+                displayName = "Time Copy Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterTimeCopyModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getTimeCopyMode());
+                value->setInt(((Preset*)obj)->getTimeCopyMode());
 }
 void UIParameterTimeCopyModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setTimeCopyMode((Preset::CopyMode)value->getInt());
+                ((Preset*)obj)->setTimeCopyMode((Preset::CopyMode)value->getInt());
 }
 UIParameterTimeCopyModeClass UIParameterTimeCopyModeObj;
 UIParameter* UIParameterTimeCopyMode = &UIParameterTimeCopyModeObj;
@@ -1297,24 +1310,24 @@ UIParameter* UIParameterTimeCopyMode = &UIParameterTimeCopyModeObj;
 class UIParameterSoundCopyModeClass : public UIParameter
 {
   public:
-                                            UIParameterSoundCopyModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSoundCopyModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSoundCopyModeClass::UIParameterSoundCopyModeClass()
 {
-                                            name = "soundCopyMode";
-                                            displayName = "Sound Copy Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "soundCopyMode";
+                displayName = "Sound Copy Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterSoundCopyModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSoundCopyMode());
+                value->setInt(((Preset*)obj)->getSoundCopyMode());
 }
 void UIParameterSoundCopyModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSoundCopyMode((Preset::CopyMode)value->getInt());
+                ((Preset*)obj)->setSoundCopyMode((Preset::CopyMode)value->getInt());
 }
 UIParameterSoundCopyModeClass UIParameterSoundCopyModeObj;
 UIParameter* UIParameterSoundCopyMode = &UIParameterSoundCopyModeObj;
@@ -1324,25 +1337,25 @@ UIParameter* UIParameterSoundCopyMode = &UIParameterSoundCopyModeObj;
 class UIParameterRecordThresholdClass : public UIParameter
 {
   public:
-                                            UIParameterRecordThresholdClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterRecordThresholdClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterRecordThresholdClass::UIParameterRecordThresholdClass()
 {
-                                            name = "recordThreshold";
-                                            displayName = "Record Threshold";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            high = 8;
+                name = "recordThreshold";
+                displayName = "Record Threshold";
+                scope = ScopePreset;
+                type = TypeInt;
+                high = 8;
 }
 void UIParameterRecordThresholdClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getRecordThreshold());
+                value->setInt(((Preset*)obj)->getRecordThreshold());
 }
 void UIParameterRecordThresholdClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setRecordThreshold(value->getInt());
+                ((Preset*)obj)->setRecordThreshold(value->getInt());
 }
 UIParameterRecordThresholdClass UIParameterRecordThresholdObj;
 UIParameter* UIParameterRecordThreshold = &UIParameterRecordThresholdObj;
@@ -1352,24 +1365,24 @@ UIParameter* UIParameterRecordThreshold = &UIParameterRecordThresholdObj;
 class UIParameterSwitchVelocityClass : public UIParameter
 {
   public:
-                                            UIParameterSwitchVelocityClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSwitchVelocityClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSwitchVelocityClass::UIParameterSwitchVelocityClass()
 {
-                                            name = "switchVelocity";
-                                            displayName = "Switch Velocity";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "switchVelocity";
+                displayName = "Switch Velocity";
+                scope = ScopePreset;
+                type = TypeBool;
 }
 void UIParameterSwitchVelocityClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isSwitchVelocity());
+                value->setBool(((Preset*)obj)->isSwitchVelocity());
 }
 void UIParameterSwitchVelocityClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSwitchVelocity(value->getBool());
+                ((Preset*)obj)->setSwitchVelocity(value->getBool());
 }
 UIParameterSwitchVelocityClass UIParameterSwitchVelocityObj;
 UIParameter* UIParameterSwitchVelocity = &UIParameterSwitchVelocityObj;
@@ -1379,24 +1392,25 @@ UIParameter* UIParameterSwitchVelocity = &UIParameterSwitchVelocityObj;
 class UIParameterMaxUndoClass : public UIParameter
 {
   public:
-                                            UIParameterMaxUndoClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMaxUndoClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMaxUndoClass::UIParameterMaxUndoClass()
 {
-                                            name = "maxUndo";
-                                            displayName = "Max Undo";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "maxUndo";
+                displayName = "Max Undo";
+                scope = ScopePreset;
+                type = TypeInt;
+                noBinding = true;
 }
 void UIParameterMaxUndoClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getMaxUndo());
+                value->setInt(((Preset*)obj)->getMaxUndo());
 }
 void UIParameterMaxUndoClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setMaxUndo(value->getInt());
+                ((Preset*)obj)->setMaxUndo(value->getInt());
 }
 UIParameterMaxUndoClass UIParameterMaxUndoObj;
 UIParameter* UIParameterMaxUndo = &UIParameterMaxUndoObj;
@@ -1406,24 +1420,25 @@ UIParameter* UIParameterMaxUndo = &UIParameterMaxUndoObj;
 class UIParameterMaxRedoClass : public UIParameter
 {
   public:
-                                            UIParameterMaxRedoClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterMaxRedoClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMaxRedoClass::UIParameterMaxRedoClass()
 {
-                                            name = "maxRedo";
-                                            displayName = "Max Redo";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "maxRedo";
+                displayName = "Max Redo";
+                scope = ScopePreset;
+                type = TypeInt;
+                noBinding = true;
 }
 void UIParameterMaxRedoClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getMaxRedo());
+                value->setInt(((Preset*)obj)->getMaxRedo());
 }
 void UIParameterMaxRedoClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setMaxRedo(value->getInt());
+                ((Preset*)obj)->setMaxRedo(value->getInt());
 }
 UIParameterMaxRedoClass UIParameterMaxRedoObj;
 UIParameter* UIParameterMaxRedo = &UIParameterMaxRedoObj;
@@ -1433,24 +1448,25 @@ UIParameter* UIParameterMaxRedo = &UIParameterMaxRedoObj;
 class UIParameterNoFeedbackUndoClass : public UIParameter
 {
   public:
-                                            UIParameterNoFeedbackUndoClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterNoFeedbackUndoClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterNoFeedbackUndoClass::UIParameterNoFeedbackUndoClass()
 {
-                                            name = "noFeedbackUndo";
-                                            displayName = "No Feedback Undo";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "noFeedbackUndo";
+                displayName = "No Feedback Undo";
+                scope = ScopePreset;
+                type = TypeBool;
+                noBinding = true;
 }
 void UIParameterNoFeedbackUndoClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isNoFeedbackUndo());
+                value->setBool(((Preset*)obj)->isNoFeedbackUndo());
 }
 void UIParameterNoFeedbackUndoClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setNoFeedbackUndo(value->getBool());
+                ((Preset*)obj)->setNoFeedbackUndo(value->getBool());
 }
 UIParameterNoFeedbackUndoClass UIParameterNoFeedbackUndoObj;
 UIParameter* UIParameterNoFeedbackUndo = &UIParameterNoFeedbackUndoObj;
@@ -1460,24 +1476,25 @@ UIParameter* UIParameterNoFeedbackUndo = &UIParameterNoFeedbackUndoObj;
 class UIParameterNoLayerFlatteningClass : public UIParameter
 {
   public:
-                                            UIParameterNoLayerFlatteningClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterNoLayerFlatteningClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterNoLayerFlatteningClass::UIParameterNoLayerFlatteningClass()
 {
-                                            name = "noLayerFlattening";
-                                            displayName = "No Layer Flattening";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "noLayerFlattening";
+                displayName = "No Layer Flattening";
+                scope = ScopePreset;
+                type = TypeBool;
+                noBinding = true;
 }
 void UIParameterNoLayerFlatteningClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isNoLayerFlattening());
+                value->setBool(((Preset*)obj)->isNoLayerFlattening());
 }
 void UIParameterNoLayerFlatteningClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setNoLayerFlattening(value->getBool());
+                ((Preset*)obj)->setNoLayerFlattening(value->getBool());
 }
 UIParameterNoLayerFlatteningClass UIParameterNoLayerFlatteningObj;
 UIParameter* UIParameterNoLayerFlattening = &UIParameterNoLayerFlatteningObj;
@@ -1487,24 +1504,25 @@ UIParameter* UIParameterNoLayerFlattening = &UIParameterNoLayerFlatteningObj;
 class UIParameterSpeedShiftRestartClass : public UIParameter
 {
   public:
-                                            UIParameterSpeedShiftRestartClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSpeedShiftRestartClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedShiftRestartClass::UIParameterSpeedShiftRestartClass()
 {
-                                            name = "speedShiftRestart";
-                                            displayName = "Speed Shift Restart";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "speedShiftRestart";
+                displayName = "Speed Shift Restart";
+                scope = ScopePreset;
+                type = TypeBool;
+                noBinding = true;
 }
 void UIParameterSpeedShiftRestartClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isSpeedShiftRestart());
+                value->setBool(((Preset*)obj)->isSpeedShiftRestart());
 }
 void UIParameterSpeedShiftRestartClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSpeedShiftRestart(value->getBool());
+                ((Preset*)obj)->setSpeedShiftRestart(value->getBool());
 }
 UIParameterSpeedShiftRestartClass UIParameterSpeedShiftRestartObj;
 UIParameter* UIParameterSpeedShiftRestart = &UIParameterSpeedShiftRestartObj;
@@ -1514,24 +1532,25 @@ UIParameter* UIParameterSpeedShiftRestart = &UIParameterSpeedShiftRestartObj;
 class UIParameterPitchShiftRestartClass : public UIParameter
 {
   public:
-                                            UIParameterPitchShiftRestartClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPitchShiftRestartClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchShiftRestartClass::UIParameterPitchShiftRestartClass()
 {
-                                            name = "pitchShiftRestart";
-                                            displayName = "Pitch Shift Restart";
-                                            scope = ScopePreset;
-                                            type = TypeBool;
+                name = "pitchShiftRestart";
+                displayName = "Pitch Shift Restart";
+                scope = ScopePreset;
+                type = TypeBool;
+                noBinding = true;
 }
 void UIParameterPitchShiftRestartClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setBool(((Preset*)obj)->isPitchShiftRestart());
+                value->setBool(((Preset*)obj)->isPitchShiftRestart());
 }
 void UIParameterPitchShiftRestartClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setPitchShiftRestart(value->getBool());
+                ((Preset*)obj)->setPitchShiftRestart(value->getBool());
 }
 UIParameterPitchShiftRestartClass UIParameterPitchShiftRestartObj;
 UIParameter* UIParameterPitchShiftRestart = &UIParameterPitchShiftRestartObj;
@@ -1541,26 +1560,27 @@ UIParameter* UIParameterPitchShiftRestart = &UIParameterPitchShiftRestartObj;
 class UIParameterSpeedStepRangeClass : public UIParameter
 {
   public:
-                                            UIParameterSpeedStepRangeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSpeedStepRangeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedStepRangeClass::UIParameterSpeedStepRangeClass()
 {
-                                            name = "speedStepRange";
-                                            displayName = "Speed Step Range";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 48;
+                name = "speedStepRange";
+                displayName = "Speed Step Range";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 48;
+                noBinding = true;
 }
 void UIParameterSpeedStepRangeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSpeedStepRange());
+                value->setInt(((Preset*)obj)->getSpeedStepRange());
 }
 void UIParameterSpeedStepRangeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSpeedStepRange(value->getInt());
+                ((Preset*)obj)->setSpeedStepRange(value->getInt());
 }
 UIParameterSpeedStepRangeClass UIParameterSpeedStepRangeObj;
 UIParameter* UIParameterSpeedStepRange = &UIParameterSpeedStepRangeObj;
@@ -1570,26 +1590,27 @@ UIParameter* UIParameterSpeedStepRange = &UIParameterSpeedStepRangeObj;
 class UIParameterSpeedBendRangeClass : public UIParameter
 {
   public:
-                                            UIParameterSpeedBendRangeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSpeedBendRangeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedBendRangeClass::UIParameterSpeedBendRangeClass()
 {
-                                            name = "speedBendRange";
-                                            displayName = "Speed Bend Range";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 12;
+                name = "speedBendRange";
+                displayName = "Speed Bend Range";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 12;
+                noBinding = true;
 }
 void UIParameterSpeedBendRangeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSpeedBendRange());
+                value->setInt(((Preset*)obj)->getSpeedBendRange());
 }
 void UIParameterSpeedBendRangeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSpeedBendRange(value->getInt());
+                ((Preset*)obj)->setSpeedBendRange(value->getInt());
 }
 UIParameterSpeedBendRangeClass UIParameterSpeedBendRangeObj;
 UIParameter* UIParameterSpeedBendRange = &UIParameterSpeedBendRangeObj;
@@ -1599,26 +1620,27 @@ UIParameter* UIParameterSpeedBendRange = &UIParameterSpeedBendRangeObj;
 class UIParameterPitchStepRangeClass : public UIParameter
 {
   public:
-                                            UIParameterPitchStepRangeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPitchStepRangeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchStepRangeClass::UIParameterPitchStepRangeClass()
 {
-                                            name = "pitchStepRange";
-                                            displayName = "Pitch Step Range";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 48;
+                name = "pitchStepRange";
+                displayName = "Pitch Step Range";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 48;
+                noBinding = true;
 }
 void UIParameterPitchStepRangeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getPitchStepRange());
+                value->setInt(((Preset*)obj)->getPitchStepRange());
 }
 void UIParameterPitchStepRangeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setPitchStepRange(value->getInt());
+                ((Preset*)obj)->setPitchStepRange(value->getInt());
 }
 UIParameterPitchStepRangeClass UIParameterPitchStepRangeObj;
 UIParameter* UIParameterPitchStepRange = &UIParameterPitchStepRangeObj;
@@ -1628,26 +1650,27 @@ UIParameter* UIParameterPitchStepRange = &UIParameterPitchStepRangeObj;
 class UIParameterPitchBendRangeClass : public UIParameter
 {
   public:
-                                            UIParameterPitchBendRangeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterPitchBendRangeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchBendRangeClass::UIParameterPitchBendRangeClass()
 {
-                                            name = "pitchBendRange";
-                                            displayName = "Pitch Bend Range";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 12;
+                name = "pitchBendRange";
+                displayName = "Pitch Bend Range";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 12;
+                noBinding = true;
 }
 void UIParameterPitchBendRangeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getPitchBendRange());
+                value->setInt(((Preset*)obj)->getPitchBendRange());
 }
 void UIParameterPitchBendRangeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setPitchBendRange(value->getInt());
+                ((Preset*)obj)->setPitchBendRange(value->getInt());
 }
 UIParameterPitchBendRangeClass UIParameterPitchBendRangeObj;
 UIParameter* UIParameterPitchBendRange = &UIParameterPitchBendRangeObj;
@@ -1657,26 +1680,27 @@ UIParameter* UIParameterPitchBendRange = &UIParameterPitchBendRangeObj;
 class UIParameterTimeStretchRangeClass : public UIParameter
 {
   public:
-                                            UIParameterTimeStretchRangeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterTimeStretchRangeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTimeStretchRangeClass::UIParameterTimeStretchRangeClass()
 {
-                                            name = "timeStretchRange";
-                                            displayName = "Time Stretch Range";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 12;
+                name = "timeStretchRange";
+                displayName = "Time Stretch Range";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 12;
+                noBinding = true;
 }
 void UIParameterTimeStretchRangeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getTimeStretchRange());
+                value->setInt(((Preset*)obj)->getTimeStretchRange());
 }
 void UIParameterTimeStretchRangeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setTimeStretchRange(value->getInt());
+                ((Preset*)obj)->setTimeStretchRange(value->getInt());
 }
 UIParameterTimeStretchRangeClass UIParameterTimeStretchRangeObj;
 UIParameter* UIParameterTimeStretchRange = &UIParameterTimeStretchRangeObj;
@@ -1686,24 +1710,24 @@ UIParameter* UIParameterTimeStretchRange = &UIParameterTimeStretchRangeObj;
 class UIParameterSlipModeClass : public UIParameter
 {
   public:
-                                            UIParameterSlipModeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSlipModeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSlipModeClass::UIParameterSlipModeClass()
 {
-                                            name = "slipMode";
-                                            displayName = "Slip Mode";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
+                name = "slipMode";
+                displayName = "Slip Mode";
+                scope = ScopePreset;
+                type = TypeInt;
 }
 void UIParameterSlipModeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSlipMode());
+                value->setInt(((Preset*)obj)->getSlipMode());
 }
 void UIParameterSlipModeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSlipMode((Preset::SlipMode)value->getInt());
+                ((Preset*)obj)->setSlipMode((Preset::SlipMode)value->getInt());
 }
 UIParameterSlipModeClass UIParameterSlipModeObj;
 UIParameter* UIParameterSlipMode = &UIParameterSlipModeObj;
@@ -1713,25 +1737,25 @@ UIParameter* UIParameterSlipMode = &UIParameterSlipModeObj;
 class UIParameterSlipTimeClass : public UIParameter
 {
   public:
-                                            UIParameterSlipTimeClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSlipTimeClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSlipTimeClass::UIParameterSlipTimeClass()
 {
-                                            name = "slipTime";
-                                            displayName = "Slip Time";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            high = 128;
+                name = "slipTime";
+                displayName = "Slip Time";
+                scope = ScopePreset;
+                type = TypeInt;
+                high = 128;
 }
 void UIParameterSlipTimeClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getSlipTime());
+                value->setInt(((Preset*)obj)->getSlipTime());
 }
 void UIParameterSlipTimeClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setSlipTime(value->getInt());
+                ((Preset*)obj)->setSlipTime(value->getInt());
 }
 UIParameterSlipTimeClass UIParameterSlipTimeObj;
 UIParameter* UIParameterSlipTime = &UIParameterSlipTimeObj;
@@ -1741,25 +1765,25 @@ UIParameter* UIParameterSlipTime = &UIParameterSlipTimeObj;
 class UIParameterAutoRecordTempoClass : public UIParameter
 {
   public:
-                                            UIParameterAutoRecordTempoClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterAutoRecordTempoClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAutoRecordTempoClass::UIParameterAutoRecordTempoClass()
 {
-                                            name = "autoRecordTempo";
-                                            displayName = "Auto Record Tempo";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            high = 500;
+                name = "autoRecordTempo";
+                displayName = "Auto Record Tempo";
+                scope = ScopePreset;
+                type = TypeInt;
+                high = 500;
 }
 void UIParameterAutoRecordTempoClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getAutoRecordTempo());
+                value->setInt(((Preset*)obj)->getAutoRecordTempo());
 }
 void UIParameterAutoRecordTempoClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setAutoRecordTempo(value->getInt());
+                ((Preset*)obj)->setAutoRecordTempo(value->getInt());
 }
 UIParameterAutoRecordTempoClass UIParameterAutoRecordTempoObj;
 UIParameter* UIParameterAutoRecordTempo = &UIParameterAutoRecordTempoObj;
@@ -1769,26 +1793,26 @@ UIParameter* UIParameterAutoRecordTempo = &UIParameterAutoRecordTempoObj;
 class UIParameterAutoRecordBarsClass : public UIParameter
 {
   public:
-                                            UIParameterAutoRecordBarsClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterAutoRecordBarsClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAutoRecordBarsClass::UIParameterAutoRecordBarsClass()
 {
-                                            name = "autoRecordBars";
-                                            displayName = "Auto Record Bars";
-                                            scope = ScopePreset;
-                                            type = TypeInt;
-                                            low = 1;
-                                            high = 64;
+                name = "autoRecordBars";
+                displayName = "Auto Record Bars";
+                scope = ScopePreset;
+                type = TypeInt;
+                low = 1;
+                high = 64;
 }
 void UIParameterAutoRecordBarsClass::getValue(void* obj, ExValue* value)
 {
-                                            value->setInt(((Preset*)obj)->getAutoRecordBars());
+                value->setInt(((Preset*)obj)->getAutoRecordBars());
 }
 void UIParameterAutoRecordBarsClass::setValue(void* obj, ExValue* value)
 {
-                                            ((Preset*)obj)->setAutoRecordBars(value->getInt());
+                ((Preset*)obj)->setAutoRecordBars(value->getInt());
 }
 UIParameterAutoRecordBarsClass UIParameterAutoRecordBarsObj;
 UIParameter* UIParameterAutoRecordBars = &UIParameterAutoRecordBarsObj;
@@ -1798,22 +1822,25 @@ UIParameter* UIParameterAutoRecordBars = &UIParameterAutoRecordBarsObj;
 class UIParameterSustainFunctionsClass : public UIParameter
 {
   public:
-                                            UIParameterSustainFunctionsClass();
-                                            void getValue(void* obj, class ExValue* value) override;
-                                            void setValue(void* obj, class ExValue* value) override;
+                UIParameterSustainFunctionsClass();
+                void getValue(void* obj, class ExValue* value) override;
+                void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSustainFunctionsClass::UIParameterSustainFunctionsClass()
 {
-                                            name = "sustainFunctions";
-                                            displayName = "Sustain Functions";
-                                            scope = ScopePreset;
-                                            type = TypeString;
+                name = "sustainFunctions";
+                displayName = "Sustain Functions";
+                scope = ScopePreset;
+                type = TypeString;
+                noBinding = true;
 }
 void UIParameterSustainFunctionsClass::getValue(void* obj, ExValue* value)
 {
+                value->setString(getCsv(((Preset*)obj)->getSustainFunctions()));
 }
 void UIParameterSustainFunctionsClass::setValue(void* obj, ExValue* value)
 {
+                    ((Preset*)obj)->setSustainFunctions(getStringList(value->getString()));
 }
 UIParameterSustainFunctionsClass UIParameterSustainFunctionsObj;
 UIParameter* UIParameterSustainFunctions = &UIParameterSustainFunctionsObj;
@@ -1823,24 +1850,24 @@ UIParameter* UIParameterSustainFunctions = &UIParameterSustainFunctionsObj;
 class UIParameterRecordTransferClass : public UIParameter
 {
   public:
-                                                    UIParameterRecordTransferClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterRecordTransferClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterRecordTransferClass::UIParameterRecordTransferClass()
 {
-                                                    name = "recordTransfer";
-                                                    displayName = "Record Transfer";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "recordTransfer";
+                    displayName = "Record Transfer";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterRecordTransferClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getRecordTransfer());
+                    value->setInt(((Preset*)obj)->getRecordTransfer());
 }
 void UIParameterRecordTransferClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setRecordTransfer((Preset::TransferMode)value->getInt());
+                    ((Preset*)obj)->setRecordTransfer((Preset::TransferMode)value->getInt());
 }
 UIParameterRecordTransferClass UIParameterRecordTransferObj;
 UIParameter* UIParameterRecordTransfer = &UIParameterRecordTransferObj;
@@ -1850,24 +1877,24 @@ UIParameter* UIParameterRecordTransfer = &UIParameterRecordTransferObj;
 class UIParameterOverdubTransferClass : public UIParameter
 {
   public:
-                                                    UIParameterOverdubTransferClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterOverdubTransferClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOverdubTransferClass::UIParameterOverdubTransferClass()
 {
-                                                    name = "overdubTransfer";
-                                                    displayName = "Overdub Transfer";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "overdubTransfer";
+                    displayName = "Overdub Transfer";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterOverdubTransferClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getOverdubTransfer());
+                    value->setInt(((Preset*)obj)->getOverdubTransfer());
 }
 void UIParameterOverdubTransferClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setOverdubTransfer((Preset::TransferMode)value->getInt());
+                    ((Preset*)obj)->setOverdubTransfer((Preset::TransferMode)value->getInt());
 }
 UIParameterOverdubTransferClass UIParameterOverdubTransferObj;
 UIParameter* UIParameterOverdubTransfer = &UIParameterOverdubTransferObj;
@@ -1877,24 +1904,24 @@ UIParameter* UIParameterOverdubTransfer = &UIParameterOverdubTransferObj;
 class UIParameterReverseTransferClass : public UIParameter
 {
   public:
-                                                    UIParameterReverseTransferClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterReverseTransferClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterReverseTransferClass::UIParameterReverseTransferClass()
 {
-                                                    name = "reverseTransfer";
-                                                    displayName = "Reverse Transfer";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "reverseTransfer";
+                    displayName = "Reverse Transfer";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterReverseTransferClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getReverseTransfer());
+                    value->setInt(((Preset*)obj)->getReverseTransfer());
 }
 void UIParameterReverseTransferClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setReverseTransfer((Preset::TransferMode)value->getInt());
+                    ((Preset*)obj)->setReverseTransfer((Preset::TransferMode)value->getInt());
 }
 UIParameterReverseTransferClass UIParameterReverseTransferObj;
 UIParameter* UIParameterReverseTransfer = &UIParameterReverseTransferObj;
@@ -1904,24 +1931,24 @@ UIParameter* UIParameterReverseTransfer = &UIParameterReverseTransferObj;
 class UIParameterSpeedTransferClass : public UIParameter
 {
   public:
-                                                    UIParameterSpeedTransferClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterSpeedTransferClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedTransferClass::UIParameterSpeedTransferClass()
 {
-                                                    name = "speedTransfer";
-                                                    displayName = "Speed Transfer";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "speedTransfer";
+                    displayName = "Speed Transfer";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterSpeedTransferClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getSpeedTransfer());
+                    value->setInt(((Preset*)obj)->getSpeedTransfer());
 }
 void UIParameterSpeedTransferClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setSpeedTransfer((Preset::TransferMode)value->getInt());
+                    ((Preset*)obj)->setSpeedTransfer((Preset::TransferMode)value->getInt());
 }
 UIParameterSpeedTransferClass UIParameterSpeedTransferObj;
 UIParameter* UIParameterSpeedTransfer = &UIParameterSpeedTransferObj;
@@ -1931,24 +1958,24 @@ UIParameter* UIParameterSpeedTransfer = &UIParameterSpeedTransferObj;
 class UIParameterPitchTransferClass : public UIParameter
 {
   public:
-                                                    UIParameterPitchTransferClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterPitchTransferClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchTransferClass::UIParameterPitchTransferClass()
 {
-                                                    name = "pitchTransfer";
-                                                    displayName = "Pitch Transfer";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "pitchTransfer";
+                    displayName = "Pitch Transfer";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterPitchTransferClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getPitchTransfer());
+                    value->setInt(((Preset*)obj)->getPitchTransfer());
 }
 void UIParameterPitchTransferClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setPitchTransfer((Preset::TransferMode)value->getInt());
+                    ((Preset*)obj)->setPitchTransfer((Preset::TransferMode)value->getInt());
 }
 UIParameterPitchTransferClass UIParameterPitchTransferObj;
 UIParameter* UIParameterPitchTransfer = &UIParameterPitchTransferObj;
@@ -1958,24 +1985,24 @@ UIParameter* UIParameterPitchTransfer = &UIParameterPitchTransferObj;
 class UIParameterWindowSlideUnitClass : public UIParameter
 {
   public:
-                                                    UIParameterWindowSlideUnitClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterWindowSlideUnitClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterWindowSlideUnitClass::UIParameterWindowSlideUnitClass()
 {
-                                                    name = "windowSlideUnit";
-                                                    displayName = "Window Slide Unit";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "windowSlideUnit";
+                    displayName = "Window Slide Unit";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterWindowSlideUnitClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getWindowSlideUnit());
+                    value->setInt(((Preset*)obj)->getWindowSlideUnit());
 }
 void UIParameterWindowSlideUnitClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setWindowSlideUnit((Preset::WindowUnit)value->getInt());
+                    ((Preset*)obj)->setWindowSlideUnit((Preset::WindowUnit)value->getInt());
 }
 UIParameterWindowSlideUnitClass UIParameterWindowSlideUnitObj;
 UIParameter* UIParameterWindowSlideUnit = &UIParameterWindowSlideUnitObj;
@@ -1985,24 +2012,24 @@ UIParameter* UIParameterWindowSlideUnit = &UIParameterWindowSlideUnitObj;
 class UIParameterWindowEdgeUnitClass : public UIParameter
 {
   public:
-                                                    UIParameterWindowEdgeUnitClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterWindowEdgeUnitClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterWindowEdgeUnitClass::UIParameterWindowEdgeUnitClass()
 {
-                                                    name = "windowEdgeUnit";
-                                                    displayName = "Window Edge Unit";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "windowEdgeUnit";
+                    displayName = "Window Edge Unit";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterWindowEdgeUnitClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getWindowEdgeUnit());
+                    value->setInt(((Preset*)obj)->getWindowEdgeUnit());
 }
 void UIParameterWindowEdgeUnitClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setWindowEdgeUnit((Preset::WindowUnit)value->getInt());
+                    ((Preset*)obj)->setWindowEdgeUnit((Preset::WindowUnit)value->getInt());
 }
 UIParameterWindowEdgeUnitClass UIParameterWindowEdgeUnitObj;
 UIParameter* UIParameterWindowEdgeUnit = &UIParameterWindowEdgeUnitObj;
@@ -2012,26 +2039,26 @@ UIParameter* UIParameterWindowEdgeUnit = &UIParameterWindowEdgeUnitObj;
 class UIParameterWindowSlideAmountClass : public UIParameter
 {
   public:
-                                                    UIParameterWindowSlideAmountClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterWindowSlideAmountClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterWindowSlideAmountClass::UIParameterWindowSlideAmountClass()
 {
-                                                    name = "windowSlideAmount";
-                                                    displayName = "Window Slide Amount";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
-                                                    low = 1;
-                                                    high = 128;
+                    name = "windowSlideAmount";
+                    displayName = "Window Slide Amount";
+                    scope = ScopePreset;
+                    type = TypeInt;
+                    low = 1;
+                    high = 128;
 }
 void UIParameterWindowSlideAmountClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getWindowSlideAmount());
+                    value->setInt(((Preset*)obj)->getWindowSlideAmount());
 }
 void UIParameterWindowSlideAmountClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setWindowSlideAmount(value->getInt());
+                    ((Preset*)obj)->setWindowSlideAmount(value->getInt());
 }
 UIParameterWindowSlideAmountClass UIParameterWindowSlideAmountObj;
 UIParameter* UIParameterWindowSlideAmount = &UIParameterWindowSlideAmountObj;
@@ -2041,26 +2068,26 @@ UIParameter* UIParameterWindowSlideAmount = &UIParameterWindowSlideAmountObj;
 class UIParameterWindowEdgeAmountClass : public UIParameter
 {
   public:
-                                                    UIParameterWindowEdgeAmountClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterWindowEdgeAmountClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterWindowEdgeAmountClass::UIParameterWindowEdgeAmountClass()
 {
-                                                    name = "windowEdgeAmount";
-                                                    displayName = "Window Edge Amount";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
-                                                    low = 1;
-                                                    high = 128;
+                    name = "windowEdgeAmount";
+                    displayName = "Window Edge Amount";
+                    scope = ScopePreset;
+                    type = TypeInt;
+                    low = 1;
+                    high = 128;
 }
 void UIParameterWindowEdgeAmountClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getWindowEdgeAmount());
+                    value->setInt(((Preset*)obj)->getWindowEdgeAmount());
 }
 void UIParameterWindowEdgeAmountClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setWindowEdgeAmount(value->getInt());
+                    ((Preset*)obj)->setWindowEdgeAmount(value->getInt());
 }
 UIParameterWindowEdgeAmountClass UIParameterWindowEdgeAmountObj;
 UIParameter* UIParameterWindowEdgeAmount = &UIParameterWindowEdgeAmountObj;
@@ -2070,24 +2097,24 @@ UIParameter* UIParameterWindowEdgeAmount = &UIParameterWindowEdgeAmountObj;
 class UIParameterLoopCopyClass : public UIParameter
 {
   public:
-                                                    UIParameterLoopCopyClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterLoopCopyClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterLoopCopyClass::UIParameterLoopCopyClass()
 {
-                                                    name = "loopCopy";
-                                                    displayName = "Loop Copy";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "loopCopy";
+                    displayName = "Loop Copy";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterLoopCopyClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getLoopCopy());
+                    value->setInt(((Preset*)obj)->getLoopCopy());
 }
 void UIParameterLoopCopyClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setLoopCopy((Preset::LoopCopy)value->getInt());
+                    ((Preset*)obj)->setLoopCopy((Preset::LoopCopy)value->getInt());
 }
 UIParameterLoopCopyClass UIParameterLoopCopyObj;
 UIParameter* UIParameterLoopCopy = &UIParameterLoopCopyObj;
@@ -2097,24 +2124,24 @@ UIParameter* UIParameterLoopCopy = &UIParameterLoopCopyObj;
 class UIParameterOverdubModeClass : public UIParameter
 {
   public:
-                                                    UIParameterOverdubModeClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterOverdubModeClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOverdubModeClass::UIParameterOverdubModeClass()
 {
-                                                    name = "overdubMode";
-                                                    displayName = "Overdub Mode";
-                                                    scope = ScopePreset;
-                                                    type = TypeInt;
+                    name = "overdubMode";
+                    displayName = "Overdub Mode";
+                    scope = ScopePreset;
+                    type = TypeInt;
 }
 void UIParameterOverdubModeClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Preset*)obj)->getOverdubMode());
+                    value->setInt(((Preset*)obj)->getOverdubMode());
 }
 void UIParameterOverdubModeClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Preset*)obj)->setOverdubMode((Preset::OverdubMode)value->getInt());
+                    ((Preset*)obj)->setOverdubMode((Preset::OverdubMode)value->getInt());
 }
 UIParameterOverdubModeClass UIParameterOverdubModeObj;
 UIParameter* UIParameterOverdubMode = &UIParameterOverdubModeObj;
@@ -2127,24 +2154,24 @@ UIParameter* UIParameterOverdubMode = &UIParameterOverdubModeObj;
 class UIParameterDefaultSyncSourceClass : public UIParameter
 {
   public:
-                                                    UIParameterDefaultSyncSourceClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterDefaultSyncSourceClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterDefaultSyncSourceClass::UIParameterDefaultSyncSourceClass()
 {
-                                                    name = "defaultSyncSource";
-                                                    displayName = "Default Sync Source";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "defaultSyncSource";
+                    displayName = "Default Sync Source";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterDefaultSyncSourceClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getDefaultSyncSource());
+                    value->setInt(((Setup*)obj)->getDefaultSyncSource());
 }
 void UIParameterDefaultSyncSourceClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setDefaultSyncSource((DefaultSyncSource)value->getInt());
+                    ((Setup*)obj)->setDefaultSyncSource((DefaultSyncSource)value->getInt());
 }
 UIParameterDefaultSyncSourceClass UIParameterDefaultSyncSourceObj;
 UIParameter* UIParameterDefaultSyncSource = &UIParameterDefaultSyncSourceObj;
@@ -2154,24 +2181,24 @@ UIParameter* UIParameterDefaultSyncSource = &UIParameterDefaultSyncSourceObj;
 class UIParameterDefaultTrackSyncUnitClass : public UIParameter
 {
   public:
-                                                    UIParameterDefaultTrackSyncUnitClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterDefaultTrackSyncUnitClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterDefaultTrackSyncUnitClass::UIParameterDefaultTrackSyncUnitClass()
 {
-                                                    name = "defaultTrackSyncUnit";
-                                                    displayName = "Default Track Sync Unit";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "defaultTrackSyncUnit";
+                    displayName = "Default Track Sync Unit";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterDefaultTrackSyncUnitClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getDefaultTrackSyncUnit());
+                    value->setInt(((Setup*)obj)->getDefaultTrackSyncUnit());
 }
 void UIParameterDefaultTrackSyncUnitClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setDefaultTrackSyncUnit((DefaultTrackSyncUnit)value->getInt());
+                    ((Setup*)obj)->setDefaultTrackSyncUnit((DefaultTrackSyncUnit)value->getInt());
 }
 UIParameterDefaultTrackSyncUnitClass UIParameterDefaultTrackSyncUnitObj;
 UIParameter* UIParameterDefaultTrackSyncUnit = &UIParameterDefaultTrackSyncUnitObj;
@@ -2181,24 +2208,24 @@ UIParameter* UIParameterDefaultTrackSyncUnit = &UIParameterDefaultTrackSyncUnitO
 class UIParameterSlaveSyncUnitClass : public UIParameter
 {
   public:
-                                                    UIParameterSlaveSyncUnitClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterSlaveSyncUnitClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSlaveSyncUnitClass::UIParameterSlaveSyncUnitClass()
 {
-                                                    name = "slaveSyncUnit";
-                                                    displayName = "Slave Sync Unit";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "slaveSyncUnit";
+                    displayName = "Slave Sync Unit";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterSlaveSyncUnitClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getSlaveSyncUnit());
+                    value->setInt(((Setup*)obj)->getSlaveSyncUnit());
 }
 void UIParameterSlaveSyncUnitClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setSlaveSyncUnit((SlaveSyncUnit)value->getInt());
+                    ((Setup*)obj)->setSlaveSyncUnit((SlaveSyncUnit)value->getInt());
 }
 UIParameterSlaveSyncUnitClass UIParameterSlaveSyncUnitObj;
 UIParameter* UIParameterSlaveSyncUnit = &UIParameterSlaveSyncUnitObj;
@@ -2208,24 +2235,24 @@ UIParameter* UIParameterSlaveSyncUnit = &UIParameterSlaveSyncUnitObj;
 class UIParameterManualStartClass : public UIParameter
 {
   public:
-                                                    UIParameterManualStartClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterManualStartClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterManualStartClass::UIParameterManualStartClass()
 {
-                                                    name = "manualStart";
-                                                    displayName = "Manual Start";
-                                                    scope = ScopeSetup;
-                                                    type = TypeBool;
+                    name = "manualStart";
+                    displayName = "Manual Start";
+                    scope = ScopeSetup;
+                    type = TypeBool;
 }
 void UIParameterManualStartClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setBool(((Setup*)obj)->isManualStart());
+                    value->setBool(((Setup*)obj)->isManualStart());
 }
 void UIParameterManualStartClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setManualStart(value->getBool());
+                    ((Setup*)obj)->setManualStart(value->getBool());
 }
 UIParameterManualStartClass UIParameterManualStartObj;
 UIParameter* UIParameterManualStart = &UIParameterManualStartObj;
@@ -2235,25 +2262,25 @@ UIParameter* UIParameterManualStart = &UIParameterManualStartObj;
 class UIParameterMinTempoClass : public UIParameter
 {
   public:
-                                                    UIParameterMinTempoClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterMinTempoClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMinTempoClass::UIParameterMinTempoClass()
 {
-                                                    name = "minTempo";
-                                                    displayName = "Min Tempo";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
-                                                    high = 500;
+                    name = "minTempo";
+                    displayName = "Min Tempo";
+                    scope = ScopeSetup;
+                    type = TypeInt;
+                    high = 500;
 }
 void UIParameterMinTempoClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getMinTempo());
+                    value->setInt(((Setup*)obj)->getMinTempo());
 }
 void UIParameterMinTempoClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setMinTempo(value->getInt());
+                    ((Setup*)obj)->setMinTempo(value->getInt());
 }
 UIParameterMinTempoClass UIParameterMinTempoObj;
 UIParameter* UIParameterMinTempo = &UIParameterMinTempoObj;
@@ -2263,25 +2290,25 @@ UIParameter* UIParameterMinTempo = &UIParameterMinTempoObj;
 class UIParameterMaxTempoClass : public UIParameter
 {
   public:
-                                                    UIParameterMaxTempoClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterMaxTempoClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMaxTempoClass::UIParameterMaxTempoClass()
 {
-                                                    name = "maxTempo";
-                                                    displayName = "Max Tempo";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
-                                                    high = 500;
+                    name = "maxTempo";
+                    displayName = "Max Tempo";
+                    scope = ScopeSetup;
+                    type = TypeInt;
+                    high = 500;
 }
 void UIParameterMaxTempoClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getMaxTempo());
+                    value->setInt(((Setup*)obj)->getMaxTempo());
 }
 void UIParameterMaxTempoClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setMaxTempo(value->getInt());
+                    ((Setup*)obj)->setMaxTempo(value->getInt());
 }
 UIParameterMaxTempoClass UIParameterMaxTempoObj;
 UIParameter* UIParameterMaxTempo = &UIParameterMaxTempoObj;
@@ -2291,25 +2318,25 @@ UIParameter* UIParameterMaxTempo = &UIParameterMaxTempoObj;
 class UIParameterBeatsPerBarClass : public UIParameter
 {
   public:
-                                                    UIParameterBeatsPerBarClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterBeatsPerBarClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterBeatsPerBarClass::UIParameterBeatsPerBarClass()
 {
-                                                    name = "beatsPerBar";
-                                                    displayName = "Beats Per Bar";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
-                                                    high = 64;
+                    name = "beatsPerBar";
+                    displayName = "Beats Per Bar";
+                    scope = ScopeSetup;
+                    type = TypeInt;
+                    high = 64;
 }
 void UIParameterBeatsPerBarClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getBeatsPerBar());
+                    value->setInt(((Setup*)obj)->getBeatsPerBar());
 }
 void UIParameterBeatsPerBarClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setBeatsPerBar(value->getInt());
+                    ((Setup*)obj)->setBeatsPerBar(value->getInt());
 }
 UIParameterBeatsPerBarClass UIParameterBeatsPerBarObj;
 UIParameter* UIParameterBeatsPerBar = &UIParameterBeatsPerBarObj;
@@ -2319,24 +2346,24 @@ UIParameter* UIParameterBeatsPerBar = &UIParameterBeatsPerBarObj;
 class UIParameterMuteSyncModeClass : public UIParameter
 {
   public:
-                                                    UIParameterMuteSyncModeClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterMuteSyncModeClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMuteSyncModeClass::UIParameterMuteSyncModeClass()
 {
-                                                    name = "muteSyncMode";
-                                                    displayName = "Mute Sync Mode";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "muteSyncMode";
+                    displayName = "Mute Sync Mode";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterMuteSyncModeClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getMuteSyncMode());
+                    value->setInt(((Setup*)obj)->getMuteSyncMode());
 }
 void UIParameterMuteSyncModeClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setMuteSyncMode((MuteSyncMode)value->getInt());
+                    ((Setup*)obj)->setMuteSyncMode((MuteSyncMode)value->getInt());
 }
 UIParameterMuteSyncModeClass UIParameterMuteSyncModeObj;
 UIParameter* UIParameterMuteSyncMode = &UIParameterMuteSyncModeObj;
@@ -2346,24 +2373,24 @@ UIParameter* UIParameterMuteSyncMode = &UIParameterMuteSyncModeObj;
 class UIParameterResizeSyncAdjustClass : public UIParameter
 {
   public:
-                                                    UIParameterResizeSyncAdjustClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterResizeSyncAdjustClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterResizeSyncAdjustClass::UIParameterResizeSyncAdjustClass()
 {
-                                                    name = "resizeSyncAdjust";
-                                                    displayName = "Resize Sync Adjust";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "resizeSyncAdjust";
+                    displayName = "Resize Sync Adjust";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterResizeSyncAdjustClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getResizeSyncAdjust());
+                    value->setInt(((Setup*)obj)->getResizeSyncAdjust());
 }
 void UIParameterResizeSyncAdjustClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setResizeSyncAdjust((ResizeSyncAdjust)value->getInt());
+                    ((Setup*)obj)->setResizeSyncAdjust((ResizeSyncAdjust)value->getInt());
 }
 UIParameterResizeSyncAdjustClass UIParameterResizeSyncAdjustObj;
 UIParameter* UIParameterResizeSyncAdjust = &UIParameterResizeSyncAdjustObj;
@@ -2373,24 +2400,24 @@ UIParameter* UIParameterResizeSyncAdjust = &UIParameterResizeSyncAdjustObj;
 class UIParameterSpeedSyncAdjustClass : public UIParameter
 {
   public:
-                                                    UIParameterSpeedSyncAdjustClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterSpeedSyncAdjustClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedSyncAdjustClass::UIParameterSpeedSyncAdjustClass()
 {
-                                                    name = "speedSyncAdjust";
-                                                    displayName = "Speed Sync Adjust";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "speedSyncAdjust";
+                    displayName = "Speed Sync Adjust";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterSpeedSyncAdjustClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getSpeedSyncAdjust());
+                    value->setInt(((Setup*)obj)->getSpeedSyncAdjust());
 }
 void UIParameterSpeedSyncAdjustClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setSpeedSyncAdjust((SpeedSyncAdjust)value->getInt());
+                    ((Setup*)obj)->setSpeedSyncAdjust((SpeedSyncAdjust)value->getInt());
 }
 UIParameterSpeedSyncAdjustClass UIParameterSpeedSyncAdjustObj;
 UIParameter* UIParameterSpeedSyncAdjust = &UIParameterSpeedSyncAdjustObj;
@@ -2400,24 +2427,24 @@ UIParameter* UIParameterSpeedSyncAdjust = &UIParameterSpeedSyncAdjustObj;
 class UIParameterRealignTimeClass : public UIParameter
 {
   public:
-                                                    UIParameterRealignTimeClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterRealignTimeClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterRealignTimeClass::UIParameterRealignTimeClass()
 {
-                                                    name = "realignTime";
-                                                    displayName = "Realign Time";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "realignTime";
+                    displayName = "Realign Time";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterRealignTimeClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getRealignTime());
+                    value->setInt(((Setup*)obj)->getRealignTime());
 }
 void UIParameterRealignTimeClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setRealignTime((RealignTime)value->getInt());
+                    ((Setup*)obj)->setRealignTime((RealignTime)value->getInt());
 }
 UIParameterRealignTimeClass UIParameterRealignTimeObj;
 UIParameter* UIParameterRealignTime = &UIParameterRealignTimeObj;
@@ -2427,24 +2454,24 @@ UIParameter* UIParameterRealignTime = &UIParameterRealignTimeObj;
 class UIParameterOutRealignClass : public UIParameter
 {
   public:
-                                                    UIParameterOutRealignClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterOutRealignClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOutRealignClass::UIParameterOutRealignClass()
 {
-                                                    name = "outRealign";
-                                                    displayName = "Out Realign";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
+                    name = "outRealign";
+                    displayName = "Out Realign";
+                    scope = ScopeSetup;
+                    type = TypeInt;
 }
 void UIParameterOutRealignClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getOutRealign());
+                    value->setInt(((Setup*)obj)->getOutRealign());
 }
 void UIParameterOutRealignClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setOutRealign((OutRealign)value->getInt());
+                    ((Setup*)obj)->setOutRealign((OutRealign)value->getInt());
 }
 UIParameterOutRealignClass UIParameterOutRealignObj;
 UIParameter* UIParameterOutRealign = &UIParameterOutRealignObj;
@@ -2454,25 +2481,26 @@ UIParameter* UIParameterOutRealign = &UIParameterOutRealignObj;
 class UIParameterActiveTrackClass : public UIParameter
 {
   public:
-                                                    UIParameterActiveTrackClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterActiveTrackClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterActiveTrackClass::UIParameterActiveTrackClass()
 {
-                                                    name = "activeTrack";
-                                                    displayName = "Active Track";
-                                                    scope = ScopeSetup;
-                                                    type = TypeInt;
-                                                    high = 8;
+                    name = "activeTrack";
+                    displayName = "Active Track";
+                    scope = ScopeSetup;
+                    type = TypeInt;
+                    high = 8;
+                    noBinding = true;
 }
 void UIParameterActiveTrackClass::getValue(void* obj, ExValue* value)
 {
-                                                    value->setInt(((Setup*)obj)->getActiveTrack());
+                    value->setInt(((Setup*)obj)->getActiveTrack());
 }
 void UIParameterActiveTrackClass::setValue(void* obj, ExValue* value)
 {
-                                                    ((Setup*)obj)->setActiveTrack(value->getInt());
+                    ((Setup*)obj)->setActiveTrack(value->getInt());
 }
 UIParameterActiveTrackClass UIParameterActiveTrackObj;
 UIParameter* UIParameterActiveTrack = &UIParameterActiveTrackObj;
@@ -2482,23 +2510,26 @@ UIParameter* UIParameterActiveTrack = &UIParameterActiveTrackObj;
 class UIParameterResetablesClass : public UIParameter
 {
   public:
-                                                    UIParameterResetablesClass();
-                                                    void getValue(void* obj, class ExValue* value) override;
-                                                    void setValue(void* obj, class ExValue* value) override;
+                    UIParameterResetablesClass();
+                    void getValue(void* obj, class ExValue* value) override;
+                    void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterResetablesClass::UIParameterResetablesClass()
 {
-                                                    name = "resetables";
-                                                    displayName = "Resetables";
-                                                    scope = ScopeSetup;
-                                                    type = TypeString;
-                                                    juceValues = true;
+                    name = "resetables";
+                    displayName = "Resetables";
+                    scope = ScopeSetup;
+                    type = TypeString;
+                    juceValues = true;
+                    noBinding = true;
 }
 void UIParameterResetablesClass::getValue(void* obj, ExValue* value)
 {
+                    value->setString(getCsv(((Setup*)obj)->getResetables()));
 }
 void UIParameterResetablesClass::setValue(void* obj, ExValue* value)
 {
+                        ((Setup*)obj)->setResetables(getStringList(value->getString()));
 }
 UIParameterResetablesClass UIParameterResetablesObj;
 UIParameter* UIParameterResetables = &UIParameterResetablesObj;
@@ -2511,24 +2542,25 @@ UIParameter* UIParameterResetables = &UIParameterResetablesObj;
 class UIParameterTrackNameClass : public UIParameter
 {
   public:
-                                                            UIParameterTrackNameClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterTrackNameClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTrackNameClass::UIParameterTrackNameClass()
 {
-                                                            name = "trackName";
-                                                            displayName = "Track Name";
-                                                            scope = ScopeTrack;
-                                                            type = TypeString;
+                        name = "trackName";
+                        displayName = "Track Name";
+                        scope = ScopeTrack;
+                        type = TypeString;
+                        noBinding = true;
 }
 void UIParameterTrackNameClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setString(((SetupTrack*)obj)->getTrackName());
+                        value->setString(((SetupTrack*)obj)->getTrackName());
 }
 void UIParameterTrackNameClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setTrackName(value->getString());
+                        ((SetupTrack*)obj)->setTrackName(value->getString());
 }
 UIParameterTrackNameClass UIParameterTrackNameObj;
 UIParameter* UIParameterTrackName = &UIParameterTrackNameObj;
@@ -2538,24 +2570,26 @@ UIParameter* UIParameterTrackName = &UIParameterTrackNameObj;
 class UIParameterFocusClass : public UIParameter
 {
   public:
-                                                            UIParameterFocusClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterFocusClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterFocusClass::UIParameterFocusClass()
 {
-                                                            name = "focus";
-                                                            displayName = "Focus";
-                                                            scope = ScopeTrack;
-                                                            type = TypeBool;
+                        name = "focus";
+                        displayName = "Focus";
+                        scope = ScopeTrack;
+                        type = TypeBool;
+                        noBinding = true;
+                        resettable = true;
 }
 void UIParameterFocusClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setBool(((SetupTrack*)obj)->isFocus());
+                        value->setBool(((SetupTrack*)obj)->isFocus());
 }
 void UIParameterFocusClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setFocus(value->getBool());
+                        ((SetupTrack*)obj)->setFocus(value->getBool());
 }
 UIParameterFocusClass UIParameterFocusObj;
 UIParameter* UIParameterFocus = &UIParameterFocusObj;
@@ -2565,24 +2599,25 @@ UIParameter* UIParameterFocus = &UIParameterFocusObj;
 class UIParameterGroupClass : public UIParameter
 {
   public:
-                                                            UIParameterGroupClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterGroupClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterGroupClass::UIParameterGroupClass()
 {
-                                                            name = "group";
-                                                            displayName = "Group";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
+                        name = "group";
+                        displayName = "Group";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        resettable = true;
 }
 void UIParameterGroupClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getGroup());
+                        value->setInt(((SetupTrack*)obj)->getGroup());
 }
 void UIParameterGroupClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setGroup(value->getInt());
+                        ((SetupTrack*)obj)->setGroup(value->getInt());
 }
 UIParameterGroupClass UIParameterGroupObj;
 UIParameter* UIParameterGroup = &UIParameterGroupObj;
@@ -2592,24 +2627,25 @@ UIParameter* UIParameterGroup = &UIParameterGroupObj;
 class UIParameterMonoClass : public UIParameter
 {
   public:
-                                                            UIParameterMonoClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterMonoClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterMonoClass::UIParameterMonoClass()
 {
-                                                            name = "mono";
-                                                            displayName = "Mono";
-                                                            scope = ScopeTrack;
-                                                            type = TypeBool;
+                        name = "mono";
+                        displayName = "Mono";
+                        scope = ScopeTrack;
+                        type = TypeBool;
+                        noBinding = true;
 }
 void UIParameterMonoClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setBool(((SetupTrack*)obj)->isMono());
+                        value->setBool(((SetupTrack*)obj)->isMono());
 }
 void UIParameterMonoClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setMono(value->getBool());
+                        ((SetupTrack*)obj)->setMono(value->getBool());
 }
 UIParameterMonoClass UIParameterMonoObj;
 UIParameter* UIParameterMono = &UIParameterMonoObj;
@@ -2619,26 +2655,27 @@ UIParameter* UIParameterMono = &UIParameterMonoObj;
 class UIParameterFeedbackClass : public UIParameter
 {
   public:
-                                                            UIParameterFeedbackClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterFeedbackClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterFeedbackClass::UIParameterFeedbackClass()
 {
-                                                            name = "feedback";
-                                                            displayName = "Feedback";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 127;
-                                                            control = true;
+                        name = "feedback";
+                        displayName = "Feedback";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 127;
+                        control = true;
+                        resettable = true;
 }
 void UIParameterFeedbackClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getFeedback());
+                        value->setInt(((SetupTrack*)obj)->getFeedback());
 }
 void UIParameterFeedbackClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setFeedback(value->getInt());
+                        ((SetupTrack*)obj)->setFeedback(value->getInt());
 }
 UIParameterFeedbackClass UIParameterFeedbackObj;
 UIParameter* UIParameterFeedback = &UIParameterFeedbackObj;
@@ -2648,26 +2685,27 @@ UIParameter* UIParameterFeedback = &UIParameterFeedbackObj;
 class UIParameterAltFeedbackClass : public UIParameter
 {
   public:
-                                                            UIParameterAltFeedbackClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterAltFeedbackClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAltFeedbackClass::UIParameterAltFeedbackClass()
 {
-                                                            name = "altFeedback";
-                                                            displayName = "Alt Feedback";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 127;
-                                                            control = true;
+                        name = "altFeedback";
+                        displayName = "Alt Feedback";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 127;
+                        control = true;
+                        resettable = true;
 }
 void UIParameterAltFeedbackClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getAltFeedback());
+                        value->setInt(((SetupTrack*)obj)->getAltFeedback());
 }
 void UIParameterAltFeedbackClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setAltFeedback(value->getInt());
+                        ((SetupTrack*)obj)->setAltFeedback(value->getInt());
 }
 UIParameterAltFeedbackClass UIParameterAltFeedbackObj;
 UIParameter* UIParameterAltFeedback = &UIParameterAltFeedbackObj;
@@ -2677,26 +2715,27 @@ UIParameter* UIParameterAltFeedback = &UIParameterAltFeedbackObj;
 class UIParameterInputClass : public UIParameter
 {
   public:
-                                                            UIParameterInputClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterInputClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterInputClass::UIParameterInputClass()
 {
-                                                            name = "input";
-                                                            displayName = "Input";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 127;
-                                                            control = true;
+                        name = "input";
+                        displayName = "Input";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 127;
+                        control = true;
+                        resettable = true;
 }
 void UIParameterInputClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getInput());
+                        value->setInt(((SetupTrack*)obj)->getInput());
 }
 void UIParameterInputClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setInput(value->getInt());
+                        ((SetupTrack*)obj)->setInput(value->getInt());
 }
 UIParameterInputClass UIParameterInputObj;
 UIParameter* UIParameterInput = &UIParameterInputObj;
@@ -2706,26 +2745,27 @@ UIParameter* UIParameterInput = &UIParameterInputObj;
 class UIParameterOutputClass : public UIParameter
 {
   public:
-                                                            UIParameterOutputClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterOutputClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOutputClass::UIParameterOutputClass()
 {
-                                                            name = "output";
-                                                            displayName = "Output";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 127;
-                                                            control = true;
+                        name = "output";
+                        displayName = "Output";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 127;
+                        control = true;
+                        resettable = true;
 }
 void UIParameterOutputClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getOutput());
+                        value->setInt(((SetupTrack*)obj)->getOutput());
 }
 void UIParameterOutputClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setOutput(value->getInt());
+                        ((SetupTrack*)obj)->setOutput(value->getInt());
 }
 UIParameterOutputClass UIParameterOutputObj;
 UIParameter* UIParameterOutput = &UIParameterOutputObj;
@@ -2735,26 +2775,27 @@ UIParameter* UIParameterOutput = &UIParameterOutputObj;
 class UIParameterPanClass : public UIParameter
 {
   public:
-                                                            UIParameterPanClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPanClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPanClass::UIParameterPanClass()
 {
-                                                            name = "pan";
-                                                            displayName = "Pan";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 127;
-                                                            control = true;
+                        name = "pan";
+                        displayName = "Pan";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 127;
+                        control = true;
+                        resettable = true;
 }
 void UIParameterPanClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPan());
+                        value->setInt(((SetupTrack*)obj)->getPan());
 }
 void UIParameterPanClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPan(value->getInt());
+                        ((SetupTrack*)obj)->setPan(value->getInt());
 }
 UIParameterPanClass UIParameterPanObj;
 UIParameter* UIParameterPan = &UIParameterPanObj;
@@ -2764,27 +2805,29 @@ UIParameter* UIParameterPan = &UIParameterPanObj;
 class UIParameterSpeedOctaveClass : public UIParameter
 {
   public:
-                                                            UIParameterSpeedOctaveClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterSpeedOctaveClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedOctaveClass::UIParameterSpeedOctaveClass()
 {
-                                                            name = "speedOctave";
-                                                            displayName = "Speed Octave";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 4;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "speedOctave";
+                        displayName = "Speed Octave";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 4;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterSpeedOctaveClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getSpeedOctave());
+                        value->setInt(((SetupTrack*)obj)->getSpeedOctave());
 }
 void UIParameterSpeedOctaveClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setSpeedOctave(value->getInt());
+                        ((SetupTrack*)obj)->setSpeedOctave(value->getInt());
 }
 UIParameterSpeedOctaveClass UIParameterSpeedOctaveObj;
 UIParameter* UIParameterSpeedOctave = &UIParameterSpeedOctaveObj;
@@ -2794,27 +2837,29 @@ UIParameter* UIParameterSpeedOctave = &UIParameterSpeedOctaveObj;
 class UIParameterSpeedStepClass : public UIParameter
 {
   public:
-                                                            UIParameterSpeedStepClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterSpeedStepClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedStepClass::UIParameterSpeedStepClass()
 {
-                                                            name = "speedStep";
-                                                            displayName = "Speed Step";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 48;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "speedStep";
+                        displayName = "Speed Step";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 48;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterSpeedStepClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getSpeedStep());
+                        value->setInt(((SetupTrack*)obj)->getSpeedStep());
 }
 void UIParameterSpeedStepClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setSpeedStep(value->getInt());
+                        ((SetupTrack*)obj)->setSpeedStep(value->getInt());
 }
 UIParameterSpeedStepClass UIParameterSpeedStepObj;
 UIParameter* UIParameterSpeedStep = &UIParameterSpeedStepObj;
@@ -2824,27 +2869,29 @@ UIParameter* UIParameterSpeedStep = &UIParameterSpeedStepObj;
 class UIParameterSpeedBendClass : public UIParameter
 {
   public:
-                                                            UIParameterSpeedBendClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterSpeedBendClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSpeedBendClass::UIParameterSpeedBendClass()
 {
-                                                            name = "speedBend";
-                                                            displayName = "Speed Bend";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 8191;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "speedBend";
+                        displayName = "Speed Bend";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 8191;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterSpeedBendClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getSpeedBend());
+                        value->setInt(((SetupTrack*)obj)->getSpeedBend());
 }
 void UIParameterSpeedBendClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setSpeedBend(value->getInt());
+                        ((SetupTrack*)obj)->setSpeedBend(value->getInt());
 }
 UIParameterSpeedBendClass UIParameterSpeedBendObj;
 UIParameter* UIParameterSpeedBend = &UIParameterSpeedBendObj;
@@ -2854,27 +2901,29 @@ UIParameter* UIParameterSpeedBend = &UIParameterSpeedBendObj;
 class UIParameterPitchOctaveClass : public UIParameter
 {
   public:
-                                                            UIParameterPitchOctaveClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPitchOctaveClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchOctaveClass::UIParameterPitchOctaveClass()
 {
-                                                            name = "pitchOctave";
-                                                            displayName = "Pitch Octave";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 4;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "pitchOctave";
+                        displayName = "Pitch Octave";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 4;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterPitchOctaveClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPitchOctave());
+                        value->setInt(((SetupTrack*)obj)->getPitchOctave());
 }
 void UIParameterPitchOctaveClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPitchOctave(value->getInt());
+                        ((SetupTrack*)obj)->setPitchOctave(value->getInt());
 }
 UIParameterPitchOctaveClass UIParameterPitchOctaveObj;
 UIParameter* UIParameterPitchOctave = &UIParameterPitchOctaveObj;
@@ -2884,27 +2933,29 @@ UIParameter* UIParameterPitchOctave = &UIParameterPitchOctaveObj;
 class UIParameterPitchStepClass : public UIParameter
 {
   public:
-                                                            UIParameterPitchStepClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPitchStepClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchStepClass::UIParameterPitchStepClass()
 {
-                                                            name = "pitchStep";
-                                                            displayName = "Pitch Step";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 48;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "pitchStep";
+                        displayName = "Pitch Step";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 48;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterPitchStepClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPitchStep());
+                        value->setInt(((SetupTrack*)obj)->getPitchStep());
 }
 void UIParameterPitchStepClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPitchStep(value->getInt());
+                        ((SetupTrack*)obj)->setPitchStep(value->getInt());
 }
 UIParameterPitchStepClass UIParameterPitchStepObj;
 UIParameter* UIParameterPitchStep = &UIParameterPitchStepObj;
@@ -2914,27 +2965,29 @@ UIParameter* UIParameterPitchStep = &UIParameterPitchStepObj;
 class UIParameterPitchBendClass : public UIParameter
 {
   public:
-                                                            UIParameterPitchBendClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPitchBendClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPitchBendClass::UIParameterPitchBendClass()
 {
-                                                            name = "pitchBend";
-                                                            displayName = "Pitch Bend";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 8191;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "pitchBend";
+                        displayName = "Pitch Bend";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 8191;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterPitchBendClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPitchBend());
+                        value->setInt(((SetupTrack*)obj)->getPitchBend());
 }
 void UIParameterPitchBendClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPitchBend(value->getInt());
+                        ((SetupTrack*)obj)->setPitchBend(value->getInt());
 }
 UIParameterPitchBendClass UIParameterPitchBendObj;
 UIParameter* UIParameterPitchBend = &UIParameterPitchBendObj;
@@ -2944,27 +2997,29 @@ UIParameter* UIParameterPitchBend = &UIParameterPitchBendObj;
 class UIParameterTimeStretchClass : public UIParameter
 {
   public:
-                                                            UIParameterTimeStretchClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterTimeStretchClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTimeStretchClass::UIParameterTimeStretchClass()
 {
-                                                            name = "timeStretch";
-                                                            displayName = "Time Stretch";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            high = 8191;
-                                                            zeroCenter = true;
-                                                            control = true;
+                        name = "timeStretch";
+                        displayName = "Time Stretch";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        high = 8191;
+                        zeroCenter = true;
+                        control = true;
+                        resettable = true;
+                        scheduled = true;
 }
 void UIParameterTimeStretchClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getTimeStretch());
+                        value->setInt(((SetupTrack*)obj)->getTimeStretch());
 }
 void UIParameterTimeStretchClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setTimeStretch(value->getInt());
+                        ((SetupTrack*)obj)->setTimeStretch(value->getInt());
 }
 UIParameterTimeStretchClass UIParameterTimeStretchObj;
 UIParameter* UIParameterTimeStretch = &UIParameterTimeStretchObj;
@@ -2974,25 +3029,26 @@ UIParameter* UIParameterTimeStretch = &UIParameterTimeStretchObj;
 class UIParameterPresetClass : public UIParameter
 {
   public:
-                                                            UIParameterPresetClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPresetClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPresetClass::UIParameterPresetClass()
 {
-                                                            name = "preset";
-                                                            displayName = "Preset";
-                                                            scope = ScopeTrack;
-                                                            type = TypeString;
-                                                            dynamic = true;
+                        name = "preset";
+                        displayName = "Preset";
+                        scope = ScopeTrack;
+                        type = TypeString;
+                        dynamic = true;
+                        resettable = true;
 }
 void UIParameterPresetClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setString(((SetupTrack*)obj)->getPreset());
+                        value->setString(((SetupTrack*)obj)->getPreset());
 }
 void UIParameterPresetClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPreset(value->getString());
+                        ((SetupTrack*)obj)->setPreset(value->getString());
 }
 UIParameterPresetClass UIParameterPresetObj;
 UIParameter* UIParameterPreset = &UIParameterPresetObj;
@@ -3002,25 +3058,26 @@ UIParameter* UIParameterPreset = &UIParameterPresetObj;
 class UIParameterPresetNumberClass : public UIParameter
 {
   public:
-                                                            UIParameterPresetNumberClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPresetNumberClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPresetNumberClass::UIParameterPresetNumberClass()
 {
-                                                            name = "presetNumber";
-                                                            displayName = "Preset Number";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            dynamic = true;
+                        name = "presetNumber";
+                        displayName = "Preset Number";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        dynamic = true;
+                        noBinding = true;
 }
 void UIParameterPresetNumberClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPresetNumber());
+                        value->setInt(((SetupTrack*)obj)->getPresetNumber());
 }
 void UIParameterPresetNumberClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPresetNumber(value->getInt());
+                        ((SetupTrack*)obj)->setPresetNumber(value->getInt());
 }
 UIParameterPresetNumberClass UIParameterPresetNumberObj;
 UIParameter* UIParameterPresetNumber = &UIParameterPresetNumberObj;
@@ -3030,24 +3087,24 @@ UIParameter* UIParameterPresetNumber = &UIParameterPresetNumberObj;
 class UIParameterSyncSourceClass : public UIParameter
 {
   public:
-                                                            UIParameterSyncSourceClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterSyncSourceClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterSyncSourceClass::UIParameterSyncSourceClass()
 {
-                                                            name = "syncSource";
-                                                            displayName = "Sync Source";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
+                        name = "syncSource";
+                        displayName = "Sync Source";
+                        scope = ScopeTrack;
+                        type = TypeInt;
 }
 void UIParameterSyncSourceClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getSyncSource());
+                        value->setInt(((SetupTrack*)obj)->getSyncSource());
 }
 void UIParameterSyncSourceClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setSyncSource((SyncSource)value->getInt());
+                        ((SetupTrack*)obj)->setSyncSource((SyncSource)value->getInt());
 }
 UIParameterSyncSourceClass UIParameterSyncSourceObj;
 UIParameter* UIParameterSyncSource = &UIParameterSyncSourceObj;
@@ -3057,24 +3114,24 @@ UIParameter* UIParameterSyncSource = &UIParameterSyncSourceObj;
 class UIParameterTrackSyncUnitClass : public UIParameter
 {
   public:
-                                                            UIParameterTrackSyncUnitClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterTrackSyncUnitClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterTrackSyncUnitClass::UIParameterTrackSyncUnitClass()
 {
-                                                            name = "trackSyncUnit";
-                                                            displayName = "Track Sync Unit";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
+                        name = "trackSyncUnit";
+                        displayName = "Track Sync Unit";
+                        scope = ScopeTrack;
+                        type = TypeInt;
 }
 void UIParameterTrackSyncUnitClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getTrackSyncUnit());
+                        value->setInt(((SetupTrack*)obj)->getTrackSyncUnit());
 }
 void UIParameterTrackSyncUnitClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setTrackSyncUnit((TrackSyncUnit)value->getInt());
+                        ((SetupTrack*)obj)->setTrackSyncUnit((TrackSyncUnit)value->getInt());
 }
 UIParameterTrackSyncUnitClass UIParameterTrackSyncUnitObj;
 UIParameter* UIParameterTrackSyncUnit = &UIParameterTrackSyncUnitObj;
@@ -3084,26 +3141,27 @@ UIParameter* UIParameterTrackSyncUnit = &UIParameterTrackSyncUnitObj;
 class UIParameterAudioInputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterAudioInputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterAudioInputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAudioInputPortClass::UIParameterAudioInputPortClass()
 {
-                                                            name = "audioInputPort";
-                                                            displayName = "Audio Input Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "audioInputPort";
+                        displayName = "Audio Input Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
+                        noBinding = true;
 }
 void UIParameterAudioInputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getAudioInputPort());
+                        value->setInt(((SetupTrack*)obj)->getAudioInputPort());
 }
 void UIParameterAudioInputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setAudioInputPort(value->getInt());
+                        ((SetupTrack*)obj)->setAudioInputPort(value->getInt());
 }
 UIParameterAudioInputPortClass UIParameterAudioInputPortObj;
 UIParameter* UIParameterAudioInputPort = &UIParameterAudioInputPortObj;
@@ -3113,26 +3171,27 @@ UIParameter* UIParameterAudioInputPort = &UIParameterAudioInputPortObj;
 class UIParameterAudioOutputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterAudioOutputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterAudioOutputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterAudioOutputPortClass::UIParameterAudioOutputPortClass()
 {
-                                                            name = "audioOutputPort";
-                                                            displayName = "Audio Output Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "audioOutputPort";
+                        displayName = "Audio Output Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
+                        noBinding = true;
 }
 void UIParameterAudioOutputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getAudioOutputPort());
+                        value->setInt(((SetupTrack*)obj)->getAudioOutputPort());
 }
 void UIParameterAudioOutputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setAudioOutputPort(value->getInt());
+                        ((SetupTrack*)obj)->setAudioOutputPort(value->getInt());
 }
 UIParameterAudioOutputPortClass UIParameterAudioOutputPortObj;
 UIParameter* UIParameterAudioOutputPort = &UIParameterAudioOutputPortObj;
@@ -3142,26 +3201,27 @@ UIParameter* UIParameterAudioOutputPort = &UIParameterAudioOutputPortObj;
 class UIParameterPluginInputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterPluginInputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPluginInputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginInputPortClass::UIParameterPluginInputPortClass()
 {
-                                                            name = "pluginInputPort";
-                                                            displayName = "Plugin Input Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "pluginInputPort";
+                        displayName = "Plugin Input Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
+                        noBinding = true;
 }
 void UIParameterPluginInputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPluginInputPort());
+                        value->setInt(((SetupTrack*)obj)->getPluginInputPort());
 }
 void UIParameterPluginInputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPluginInputPort(value->getInt());
+                        ((SetupTrack*)obj)->setPluginInputPort(value->getInt());
 }
 UIParameterPluginInputPortClass UIParameterPluginInputPortObj;
 UIParameter* UIParameterPluginInputPort = &UIParameterPluginInputPortObj;
@@ -3171,26 +3231,27 @@ UIParameter* UIParameterPluginInputPort = &UIParameterPluginInputPortObj;
 class UIParameterPluginOutputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterPluginOutputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterPluginOutputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterPluginOutputPortClass::UIParameterPluginOutputPortClass()
 {
-                                                            name = "pluginOutputPort";
-                                                            displayName = "Plugin Output Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "pluginOutputPort";
+                        displayName = "Plugin Output Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
+                        noBinding = true;
 }
 void UIParameterPluginOutputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getPluginOutputPort());
+                        value->setInt(((SetupTrack*)obj)->getPluginOutputPort());
 }
 void UIParameterPluginOutputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setPluginOutputPort(value->getInt());
+                        ((SetupTrack*)obj)->setPluginOutputPort(value->getInt());
 }
 UIParameterPluginOutputPortClass UIParameterPluginOutputPortObj;
 UIParameter* UIParameterPluginOutputPort = &UIParameterPluginOutputPortObj;
@@ -3200,26 +3261,26 @@ UIParameter* UIParameterPluginOutputPort = &UIParameterPluginOutputPortObj;
 class UIParameterInputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterInputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterInputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterInputPortClass::UIParameterInputPortClass()
 {
-                                                            name = "inputPort";
-                                                            displayName = "Input Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "inputPort";
+                        displayName = "Input Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
 }
 void UIParameterInputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getInputPort());
+                        value->setInt(((SetupTrack*)obj)->getInputPort());
 }
 void UIParameterInputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setInputPort(value->getInt());
+                        ((SetupTrack*)obj)->setInputPort(value->getInt());
 }
 UIParameterInputPortClass UIParameterInputPortObj;
 UIParameter* UIParameterInputPort = &UIParameterInputPortObj;
@@ -3229,26 +3290,26 @@ UIParameter* UIParameterInputPort = &UIParameterInputPortObj;
 class UIParameterOutputPortClass : public UIParameter
 {
   public:
-                                                            UIParameterOutputPortClass();
-                                                            void getValue(void* obj, class ExValue* value) override;
-                                                            void setValue(void* obj, class ExValue* value) override;
+                        UIParameterOutputPortClass();
+                        void getValue(void* obj, class ExValue* value) override;
+                        void setValue(void* obj, class ExValue* value) override;
 };
 UIParameterOutputPortClass::UIParameterOutputPortClass()
 {
-                                                            name = "outputPort";
-                                                            displayName = "Output Port";
-                                                            scope = ScopeTrack;
-                                                            type = TypeInt;
-                                                            low = 1;
-                                                            high = 64;
+                        name = "outputPort";
+                        displayName = "Output Port";
+                        scope = ScopeTrack;
+                        type = TypeInt;
+                        low = 1;
+                        high = 64;
 }
 void UIParameterOutputPortClass::getValue(void* obj, ExValue* value)
 {
-                                                            value->setInt(((SetupTrack*)obj)->getOutputPort());
+                        value->setInt(((SetupTrack*)obj)->getOutputPort());
 }
 void UIParameterOutputPortClass::setValue(void* obj, ExValue* value)
 {
-                                                            ((SetupTrack*)obj)->setOutputPort(value->getInt());
+                        ((SetupTrack*)obj)->setOutputPort(value->getInt());
 }
 UIParameterOutputPortClass UIParameterOutputPortObj;
 UIParameter* UIParameterOutputPort = &UIParameterOutputPortObj;

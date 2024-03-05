@@ -15,7 +15,7 @@ Mobu::Mobu(int argc, char* argv[])
     if (argc < 2) {
         printf("mobu: <filename>\n");
         // debugging hack till I figure out how to set command line args in VStudio
-        fileName = "test.xml";
+        fileName = "c:/dev/jucetest/mobu/Source/parameters.xml";
     }
     else {
         fileName = argv[1];
