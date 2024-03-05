@@ -11,7 +11,7 @@
 #include "../model/MobiusConfig.h"
 #include "../model/MobiusState.h"
 #include "../model/FunctionDefinition.h"
-#include "../model/Parameter.h"
+#include "../model/UIParameter.h"
 #include "../model/Setup.h"
 #include "../model/Preset.h"
 #include "../model/UIAction.h"
@@ -312,7 +312,7 @@ void MobiusShell::doAction(UIAction* action)
     }
 }
 
-int MobiusShell::getParameter(Parameter* p, int trackNumber)
+int MobiusShell::getParameter(UIParameter* p, int trackNumber)
 {
     return simulator.getParameter(p, trackNumber);
 }

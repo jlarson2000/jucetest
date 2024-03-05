@@ -22,7 +22,7 @@ class Simulator
     void initialize(class MobiusConfig* config);
 
     void doAction(class UIAction* action);
-    int getParameter(class Parameter* p, int tracknum);
+    int getParameter(class UIParameter* p, int tracknum);
 
     void simulateInterrupt(float* input, float* output, int frames);
     void test();

@@ -6,7 +6,7 @@
 
 #include "../../model/UIConfig.h"
 #include "../../model/MobiusConfig.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 
 #include "Colors.h"
 #include "TrackStrip.h"
@@ -57,7 +57,7 @@ StripElementDefinition* StripElementDefinition::find(const char* name)
  * are static objects and one references the other.  What is the order in
  * which they are defined?  Is it certain that Parameter will be first?
  */
-StripElementDefinition::StripElementDefinition(Parameter* p)
+StripElementDefinition::StripElementDefinition(UIParameter* p)
 {
     parameter = p;
     name = nullptr;
@@ -95,19 +95,19 @@ const char* StripElementDefinition::getDisplayName()
 
 // I'm really growing to hate this little dance, find a better way!
 
-StripElementDefinition StripInputObj {InputLevelParameter};
+StripElementDefinition StripInputObj {UIParameterInput};
 StripElementDefinition* StripDefinitionInput = &StripInputObj;
 
-StripElementDefinition StripOutputObj {OutputLevelParameter};
+StripElementDefinition StripOutputObj {UIParameterOutput};
 StripElementDefinition* StripDefinitionOutput = &StripOutputObj;
 
-StripElementDefinition StripFeedbackObj {FeedbackLevelParameter};
+StripElementDefinition StripFeedbackObj {UIParameterFeedback};
 StripElementDefinition* StripDefinitionFeedback = &StripFeedbackObj;
 
-StripElementDefinition StripAltFeedbackObj {AltFeedbackLevelParameter};
+StripElementDefinition StripAltFeedbackObj {UIParameterAltFeedback};
 StripElementDefinition* StripDefinitionAltFeedback = &StripAltFeedbackObj;
 
-StripElementDefinition StripPanObj {PanParameter};
+StripElementDefinition StripPanObj {UIParameterPan};
 StripElementDefinition* StripDefinitionPan = &StripPanObj;
 
 // the defaults for the dock, also OutputLevel
@@ -139,25 +139,25 @@ StripElementDefinition* StripDefinitionLoopThermometer = &StripLoopThermometerOb
 StripElementDefinition StripFocusLockObj {"focusLock", "Focus Lock"};
 StripElementDefinition* StripDefinitionFocusLock = &StripFocusLockObj;
 
-StripElementDefinition StripPitchOctaveObj {PitchOctaveParameter};
+StripElementDefinition StripPitchOctaveObj {UIParameterPitchOctave};
 StripElementDefinition* StripDefinitionPitchOctave = &StripPitchOctaveObj;
 
-StripElementDefinition StripPitchStepObj {PitchStepParameter};
+StripElementDefinition StripPitchStepObj {UIParameterPitchStep};
 StripElementDefinition* StripDefinitionPitchStep = &StripPitchStepObj;
 
-StripElementDefinition StripPitchBendObj {PitchBendParameter};
+StripElementDefinition StripPitchBendObj {UIParameterPitchBend};
 StripElementDefinition* StripDefinitionPitchBend = &StripPitchBendObj;
 
-StripElementDefinition StripSpeedOctaveObj {SpeedOctaveParameter};
+StripElementDefinition StripSpeedOctaveObj {UIParameterSpeedOctave};
 StripElementDefinition* StripDefinitionSpeedOctave = &StripSpeedOctaveObj;
 
-StripElementDefinition StripSpeedStepObj {SpeedStepParameter};
+StripElementDefinition StripSpeedStepObj {UIParameterSpeedStep};
 StripElementDefinition* StripDefinitionSpeedStep = &StripSpeedStepObj;
 
-StripElementDefinition StripSpeedBendObj {SpeedBendParameter};
+StripElementDefinition StripSpeedBendObj {UIParameterSpeedBend};
 StripElementDefinition* StripDefinitionSpeedBend = &StripSpeedBendObj;
 
-StripElementDefinition StripTimeStretchObj {TimeStretchParameter};
+StripElementDefinition StripTimeStretchObj {UIParameterTimeStretch};
 StripElementDefinition* StripDefinitionTimeStretch = &StripTimeStretchObj;
 
 // find a way to put these inside StripElement for namespace

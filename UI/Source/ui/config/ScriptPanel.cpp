@@ -5,12 +5,10 @@
 #include <sstream>
 
 #include "../../model/MobiusConfig.h"
-#include "../../model/Parameter.h"
 
 #include "../common/Form.h"
 #include "../JuceUtil.h"
 
-#include "ParameterField.h"
 #include "ConfigEditor.h"
 
 #include "ScriptPanel.h"

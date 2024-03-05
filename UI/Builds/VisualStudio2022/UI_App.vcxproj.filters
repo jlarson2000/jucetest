@@ -610,9 +610,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\ParameterPuller.cpp">
-      <Filter>UI\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -896,21 +893,6 @@
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\model\Parameter.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\model\ParameterPreset.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\model\ParameterSetup.cpp">
-      <Filter>UI\Source\model</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\model\ParameterTrack.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\Preset.cpp">
@@ -3381,9 +3363,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ParameterPuller.h">
-      <Filter>UI\Source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\JuceMobiusContainer.h">
       <Filter>UI\Source</Filter>
     </ClInclude>
@@ -3667,9 +3646,6 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\OscConfig.h">
-      <Filter>UI\Source\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\model\Parameter.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\Preset.h">

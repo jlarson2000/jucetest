@@ -12,12 +12,12 @@
 #include "JuceHeader.h"
 
 #include "../../util/Trace.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../../model/ExValue.h"
 
 #include "ParameterField.h"
 
-ParameterField::ParameterField(Parameter* p) :
+ParameterField::ParameterField(UIParameter* p) :
     Field(p->getName(), p->getDisplayName(), convertParameterType(p->type))
 {
     parameter = p;
@@ -30,7 +30,7 @@ ParameterField::ParameterField(Parameter* p) :
     setMax(p->high);
 
     // enums must have allowed values, strings are optional
-    if (p->type == TYPE_ENUM || p->type == TYPE_STRING) {
+    if (p->type == TypeEnum || p->type == TypeString) {
         if (p->values != nullptr) {
             setAllowedValues(p->values);
         }
@@ -44,15 +44,16 @@ ParameterField::~ParameterField()
 {
 }
 
-Field::Type ParameterField::convertParameterType(ParameterType intype)
+Field::Type ParameterField::convertParameterType(UIParameterType intype)
 {
     Field::Type ftype = Field::Type::Integer;
 
     switch (intype) {
-        case TYPE_INT: ftype = Field::Type::Integer; break;
-        case TYPE_BOOLEAN: ftype = Field::Type::Boolean; break;
-        case TYPE_STRING: ftype = Field::Type::String; break;
-        case TYPE_ENUM: ftype = Field::Type::String; break;
+        case TypeInt: ftype = Field::Type::Integer; break;
+        case TypeBool: ftype = Field::Type::Boolean; break;
+        case TypeString: ftype = Field::Type::String; break;
+        case TypeEnum: ftype = Field::Type::String; break;
+        case TypeStructure: ftype = Field::Type::String; break;
     }
 
     return ftype;
@@ -68,13 +69,12 @@ void ParameterField::loadValue(void *obj)
     // newer complex parameter values use juce::var
     // should be here for all multi valued parameters
     if (parameter->juceValues) {
-        parameter->getJuceValue(obj, value);
+        parameter->getValue(obj, value);
     }
     else {
         // old-school ExValue
         ExValue ev;
-
-        parameter->getConfigValue(obj, &ev);
+        parameter->getValue(obj, &ev);
 
         if (parameter->multi) {
             // supposed to be using juce::var for these
@@ -82,21 +82,25 @@ void ParameterField::loadValue(void *obj)
         }
         else {
             switch (parameter->type) {
-                case TYPE_INT: {
+                case TypeInt: {
                     value = ev.getInt();
                 }
                     break;
-                case TYPE_BOOLEAN: {
+                case TypeBool: {
                     value = ev.getBool();
                 }
                     break;
-                case TYPE_STRING: {
+                case TypeString: {
                     value = ev.getString();
                 }
                     break;
-                case TYPE_ENUM: {
+                case TypeEnum: {
                     // don't have to do anything special here
                     // the Field will figure out what to display
+                    value = ev.getString();
+                }
+                    break;
+                case TypeStructure: {
                     value = ev.getString();
                 }
                     break;
@@ -110,7 +114,7 @@ void ParameterField::loadValue(void *obj)
 void ParameterField::saveValue(void *obj)
 {
     if (parameter->juceValues) {
-        parameter->setJuceValue(obj, getValue());
+        parameter->setValue(obj, getValue());
     }
     else {
         ExValue ev;
@@ -121,19 +125,23 @@ void ParameterField::saveValue(void *obj)
         }
         else {
             switch (parameter->type) {
-                case TYPE_INT: {
+                case TypeInt: {
                     ev.setInt(getIntValue());
                 }
                     break;
-                case TYPE_BOOLEAN: {
+                case TypeBool: {
                     ev.setBool(getBoolValue());
                 }
                     break;
-                case TYPE_STRING: {
+                case TypeString: {
                     ev.setString(getCharValue());
                 }
                     break;
-                case TYPE_ENUM: {
+                case TypeEnum: {
+                    ev.setString(getCharValue());
+                }
+                    break;
+                case TypeStructure: {
                     ev.setString(getCharValue());
                 }
                     break;
@@ -142,6 +150,6 @@ void ParameterField::saveValue(void *obj)
 
         // should do this only if we had a conversion
         if (!ev.isNull())
-          parameter->setConfigValue(obj, &ev);
+          parameter->setValue(obj, &ev);
     }
 }

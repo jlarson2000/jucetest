@@ -5,7 +5,7 @@
 #include "../../model/MobiusConfig.h"
 #include "../../model/UIConfig.h"
 #include "../../model/MobiusState.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 
 #include "Colors.h"
 #include "TrackStrip.h"

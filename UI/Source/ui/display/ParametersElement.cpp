@@ -7,7 +7,7 @@
 #include "../../model/MobiusConfig.h"
 #include "../../model/Preset.h"
 #include "../../model/MobiusState.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 
 #include "../../Supervisor.h"
 #include "../../mobius/MobiusInterface.h"
@@ -39,7 +39,7 @@ void ParametersElement::configure(UIConfig* config)
     StringList* list = config->getParameters();
     for (int i = 0 ; i < list->size() ; i++) {
         const char* name = list->getString(i);
-        Parameter* p = Parameter::getParameter(name);
+        UIParameter* p = UIParameter::find(name);
         if (p == nullptr) {
             trace("Invalid parameter name %s\n", name);
         }
@@ -86,7 +86,7 @@ int ParametersElement::getPreferredWidth()
 
     int maxName = 0;
     for (int i = 0 ; i < parameters.size() ; i++) {
-        Parameter* p = parameters[i];
+        UIParameter* p = parameters[i];
         int nameWidth = font.getStringWidth(p->getDisplayableName());
         if (nameWidth > maxName)
           maxName = nameWidth;
@@ -124,7 +124,7 @@ void ParametersElement::update(MobiusState* state)
     bool changes = false;
     
     for (int i = 0 ; i < parameters.size() ; i++) {
-        Parameter* p = parameters[i];
+        UIParameter* p = parameters[i];
 
         // here we need MobiusInterface to call getParameter
         // and we don't have a hierarchy walker like doAction
@@ -164,23 +164,23 @@ void ParametersElement::paint(juce::Graphics& g)
 
     int rowTop = 0;
     for (int i = 0 ; i < parameters.size() ; i++) {
-        Parameter* p = parameters[i];
+        UIParameter* p = parameters[i];
         int value = parameterValues[i];
         juce::String strValue;
         
         // special case kludge for this one, if we start having
         // more think of a more general way to do this
-        if (p == TrackPresetParameter) {
+        if (p == UIParameterPreset) {
             if (i < presetNames.size())
               strValue = presetNames[value];
             else
               strValue = "???";
         }
         else {
-            if (p->type == TYPE_ENUM) {
+            if (p->type == TypeEnum) {
                 strValue = juce::String(p->getEnumName(value));
             }
-            else if (p->type == TYPE_BOOLEAN) {
+            else if (p->type == TypeBool) {
                 if (value)
                   strValue = juce::String("true");
                 else

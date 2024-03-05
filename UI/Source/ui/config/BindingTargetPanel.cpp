@@ -3,7 +3,7 @@
 
 #include "../../util/Trace.h"
 #include "../../model/FunctionDefinition.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../../model/MobiusConfig.h"
 #include "../../model/Preset.h"
 #include "../../model/Setup.h"
@@ -40,18 +40,18 @@ void BindingTargetPanel::configure(MobiusConfig* config)
     
     initBox(&controls);
     addTab(juce::String("Controls"), &controls);
-    for (int i = 0 ; i < Parameter::Parameters.size() ; i++) {
+    for (int i = 0 ; i < UIParameter::Parameters.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        Parameter* p = Parameter::Parameters[i];
+        UIParameter* p = UIParameter::Parameters[i];
         if (p->control)
           controls.add(p->getDisplayableName());
     }
     
     initBox(&parameters);
     addTab(juce::String("Parameters"), &parameters);
-    for (int i = 0 ; i < Parameter::Parameters.size() ; i++) {
+    for (int i = 0 ; i < UIParameter::Parameters.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        Parameter* p = Parameter::Parameters[i];
+        UIParameter* p = UIParameter::Parameters[i];
         if (!p->control)
           parameters.add(p->getDisplayableName());
     }

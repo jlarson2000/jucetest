@@ -30,7 +30,7 @@ class ParametersElement : public StatusElement
     
   private:
 
-    juce::Array<class Parameter*> parameters;
+    juce::Array<class UIParameter*> parameters;
     juce::StringArray presetNames;
     juce::Array<int> parameterValues;
     int maxNameWidth = 0;

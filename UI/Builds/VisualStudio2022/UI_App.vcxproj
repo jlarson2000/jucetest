@@ -141,7 +141,6 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\ParameterPuller.cpp"/>
     <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp"/>
     <ClCompile Include="..\..\Source\DiagnosticWindow.cpp"/>
     <ClCompile Include="..\..\Source\MidiManager.cpp"/>
@@ -237,11 +236,6 @@
     <ClCompile Include="..\..\Source\model\MobiusState.cpp"/>
     <ClCompile Include="..\..\Source\model\ModeDefinition.cpp"/>
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
-    <ClCompile Include="..\..\Source\model\Parameter.cpp"/>
-    <ClCompile Include="..\..\Source\model\ParameterGlobal.cpp"/>
-    <ClCompile Include="..\..\Source\model\ParameterPreset.cpp"/>
-    <ClCompile Include="..\..\Source\model\ParameterSetup.cpp"/>
-    <ClCompile Include="..\..\Source\model\ParameterTrack.cpp"/>
     <ClCompile Include="..\..\Source\model\Preset.cpp"/>
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
@@ -2518,7 +2512,6 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\ParameterPuller.h"/>
     <ClInclude Include="..\..\Source\JuceMobiusContainer.h"/>
     <ClInclude Include="..\..\Source\DiagnosticWindow.h"/>
     <ClInclude Include="..\..\Source\MidiManager.h"/>
@@ -2614,7 +2607,6 @@
     <ClInclude Include="..\..\Source\model\MobiusState.h"/>
     <ClInclude Include="..\..\Source\model\ModeDefinition.h"/>
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>
-    <ClInclude Include="..\..\Source\model\Parameter.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>
     <ClInclude Include="..\..\Source\model\SampleConfig.h"/>
     <ClInclude Include="..\..\Source\model\ScriptConfig.h"/>

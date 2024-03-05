@@ -74,7 +74,9 @@ getDynamicHigh
      does not need to be dynamic, it is a fixed value and almost never changes
     activeTrack IS dynamic and uses trackCount for it's range
 
-
+Pitch/SpeedSequence
+  keep this as String until runtime then convert to a SpeedSequence object
+  
 
 
 

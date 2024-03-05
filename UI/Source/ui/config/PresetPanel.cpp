@@ -5,7 +5,7 @@
 #include <JuceHeader.h>
 
 #include "../../model/MobiusConfig.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../../model/XmlRenderer.h"
 
 #include "../common/Form.h"
@@ -295,67 +295,67 @@ void PresetPanel::render()
 
 void PresetPanel::initForm()
 {
-    addField("General", LoopCountParameter);
-    addField("General", SubCycleParameter);
-    addField("General", MaxUndoParameter);
-    addField("General", MaxRedoParameter);
-    addField("General", NoFeedbackUndoParameter);
-    addField("General", AltFeedbackEnableParameter);
+    addField("General", UIParameterLoopCount);
+    addField("General", UIParameterSubcycles);
+    addField("General", UIParameterMaxUndo);
+    addField("General", UIParameterMaxRedo);
+    addField("General", UIParameterNoFeedbackUndo);
+    addField("General", UIParameterAltFeedbackEnable);
 
-    addField("Quantize", QuantizeParameter);
-    addField("Quantize", SwitchQuantizeParameter);
-    addField("Quantize", BounceQuantizeParameter);
-    addField("Quantize", OverdubQuantizedParameter);
+    addField("Quantize", UIParameterQuantize);
+    addField("Quantize", UIParameterSwitchQuantize);
+    addField("Quantize", UIParameterBounceQuantize);
+    addField("Quantize", UIParameterOverdubQuantized);
 
     // Record
 
-    addField("Record", RecordThresholdParameter);
-    addField("Record", AutoRecordBarsParameter);
-    addField("Record", AutoRecordTempoParameter);
-    addField("Record", SpeedRecordParameter);
-    addField("Record", RecordResetsFeedbackParameter);
+    addField("Record", UIParameterRecordThreshold);
+    addField("Record", UIParameterAutoRecordBars);
+    addField("Record", UIParameterAutoRecordTempo);
+    addField("Record", UIParameterSpeedRecord);
+    addField("Record", UIParameterRecordResetsFeedback);
 
     // Switch
-    addField("Switch", EmptyLoopActionParameter);
-    addField("Switch", EmptyTrackActionParameter);
-    addField("Switch", TrackLeaveActionParameter);
-    addField("Switch", TimeCopyParameter);
-    addField("Switch", SoundCopyParameter);
-    addField("Switch", SwitchLocationParameter);
-    addField("Switch", SwitchDurationParameter);
-    addField("Switch", ReturnLocationParameter);
-    addField("Switch", SwitchVelocityParameter);
+    addField("Switch", UIParameterEmptyLoopAction);
+    addField("Switch", UIParameterEmptyTrackAction);
+    addField("Switch", UIParameterTrackLeaveAction);
+    addField("Switch", UIParameterTimeCopyMode);
+    addField("Switch", UIParameterSoundCopyMode);
+    addField("Switch", UIParameterSwitchLocation);
+    addField("Switch", UIParameterSwitchDuration);
+    addField("Switch", UIParameterReturnLocation);
+    addField("Switch", UIParameterSwitchVelocity);
     // column 2
-    addField("Switch", RecordTransferParameter, 1);
-    addField("Switch", OverdubTransferParameter, 1);
-    addField("Switch", ReverseTransferParameter, 1);
-    addField("Switch", SpeedTransferParameter, 1);
-    addField("Switch", PitchTransferParameter, 1);
+    addField("Switch", UIParameterRecordTransfer, 1);
+    addField("Switch", UIParameterOverdubTransfer, 1);
+    addField("Switch", UIParameterReverseTransfer, 1);
+    addField("Switch", UIParameterSpeedTransfer, 1);
+    addField("Switch", UIParameterPitchTransfer, 1);
         
     // Functions
-    addField("Functions", MultiplyModeParameter);
-    addField("Functions", ShuffleModeParameter);
-    addField("Functions", MuteModeParameter);
-    addField("Functions", MuteCancelParameter);
-    addField("Functions", SlipModeParameter);
-    addField("Functions", SlipTimeParameter);
-    addField("Functions", WindowSlideUnitParameter);
-    addField("Functions", WindowSlideAmountParameter);
-    addField("Functions", WindowEdgeUnitParameter);
-    addField("Functions", WindowEdgeAmountParameter);
+    addField("Functions", UIParameterMultiplyMode);
+    addField("Functions", UIParameterShuffleMode);
+    addField("Functions", UIParameterMuteMode);
+    addField("Functions", UIParameterMuteCancel);
+    addField("Functions", UIParameterSlipMode);
+    addField("Functions", UIParameterSlipTime);
+    addField("Functions", UIParameterWindowSlideUnit);
+    addField("Functions", UIParameterWindowSlideAmount);
+    addField("Functions", UIParameterWindowEdgeUnit);
+    addField("Functions", UIParameterWindowEdgeAmount);
     // column 2
-    addField("Functions", RoundingOverdubParameter, 1);
+    addField("Functions", UIParameterRoundingOverdub, 1);
         
     // Effects
-    addField("Effects", SpeedSequenceParameter);
-    addField("Effects", PitchSequenceParameter);
-    addField("Effects", SpeedShiftRestartParameter);
-    addField("Effects", PitchShiftRestartParameter);
-    addField("Effects", SpeedStepRangeParameter);
-    addField("Effects", SpeedBendRangeParameter);
-    addField("Effects", PitchStepRangeParameter);
-    addField("Effects", PitchBendRangeParameter);
-    addField("Effects", TimeStretchRangeParameter);
+    //addField("Effects", UIParameterSpeedSequence);
+    //addField("Effects", UIParameterPitchSequence);
+    addField("Effects", UIParameterSpeedShiftRestart);
+    addField("Effects", UIParameterPitchShiftRestart);
+    addField("Effects", UIParameterSpeedStepRange);
+    addField("Effects", UIParameterSpeedBendRange);
+    addField("Effects", UIParameterPitchStepRange);
+    addField("Effects", UIParameterPitchBendRange);
+    addField("Effects", UIParameterTimeStretchRange);
 
     // Sustain
     // this was never used, keep it out until we need it
@@ -364,7 +364,7 @@ void PresetPanel::initForm()
     //form.add("Sustain", SustainFunctionsParameter);
 }
 
-void PresetPanel::addField(const char* tab, Parameter* p, int col)
+void PresetPanel::addField(const char* tab, UIParameter* p, int col)
 {
     form.add(new ParameterField(p), tab, col);
 }

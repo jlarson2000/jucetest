@@ -818,6 +818,89 @@ void UIParameterAudioInputClass::setValue(void* obj, ExValue* value)
 UIParameterAudioInputClass UIParameterAudioInputObj;
 UIParameter* UIParameterAudioInput = &UIParameterAudioInputObj;
 
+////////////// AudioOutput
+
+class UIParameterAudioOutputClass : public UIParameter
+{
+  public:
+    UIParameterAudioOutputClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterAudioOutputClass::UIParameterAudioOutputClass()
+{
+    name = "audioOutput";
+    displayName = "Audio Output";
+    scope = ScopeGlobal;
+    type = TypeString;
+}
+void UIParameterAudioOutputClass::getValue(void* obj, ExValue* value)
+{
+    value->setString(((MobiusConfig*)obj)->getAudioOutput());
+}
+void UIParameterAudioOutputClass::setValue(void* obj, ExValue* value)
+{
+    ((MobiusConfig*)obj)->setAudioOutput(value->getString());
+}
+UIParameterAudioOutputClass UIParameterAudioOutputObj;
+UIParameter* UIParameterAudioOutput = &UIParameterAudioOutputObj;
+
+////////////// NoiseFloor
+
+class UIParameterNoiseFloorClass : public UIParameter
+{
+  public:
+    UIParameterNoiseFloorClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterNoiseFloorClass::UIParameterNoiseFloorClass()
+{
+    name = "noiseFloor";
+    displayName = "Noise Floor";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    noBinding = true;
+}
+void UIParameterNoiseFloorClass::getValue(void* obj, ExValue* value)
+{
+    value->setInt(((MobiusConfig*)obj)->getNoiseFloor());
+}
+void UIParameterNoiseFloorClass::setValue(void* obj, ExValue* value)
+{
+    ((MobiusConfig*)obj)->setNoiseFloor(value->getInt());
+}
+UIParameterNoiseFloorClass UIParameterNoiseFloorObj;
+UIParameter* UIParameterNoiseFloor = &UIParameterNoiseFloorObj;
+
+////////////// MidiRecordMode
+
+class UIParameterMidiRecordModeClass : public UIParameter
+{
+  public:
+    UIParameterMidiRecordModeClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterMidiRecordModeClass::UIParameterMidiRecordModeClass()
+{
+    name = "midiRecordMode";
+    displayName = "Midi Record Mode";
+    scope = ScopeGlobal;
+    type = TypeInt;
+    noBinding = true;
+}
+void UIParameterMidiRecordModeClass::getValue(void* obj, ExValue* value)
+{
+    value->setInt(((MobiusConfig*)obj)->getMidiRecordMode());
+}
+void UIParameterMidiRecordModeClass::setValue(void* obj, ExValue* value)
+{
+    ((MobiusConfig*)obj)->setMidiRecordMode((MidiRecordMode)value->getInt());
+}
+UIParameterMidiRecordModeClass UIParameterMidiRecordModeObj;
+UIParameter* UIParameterMidiRecordMode = &UIParameterMidiRecordModeObj;
+
 //******************** preset
 
 
@@ -1312,6 +1395,33 @@ void UIParameterReturnLocationClass::setValue(void* obj, ExValue* value)
 }
 UIParameterReturnLocationClass UIParameterReturnLocationObj;
 UIParameter* UIParameterReturnLocation = &UIParameterReturnLocationObj;
+
+////////////// SwitchDuration
+
+class UIParameterSwitchDurationClass : public UIParameter
+{
+  public:
+    UIParameterSwitchDurationClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterSwitchDurationClass::UIParameterSwitchDurationClass()
+{
+    name = "switchDuration";
+    displayName = "Switch Duration";
+    scope = ScopePreset;
+    type = TypeInt;
+}
+void UIParameterSwitchDurationClass::getValue(void* obj, ExValue* value)
+{
+    value->setInt(((Preset*)obj)->getSwitchDuration());
+}
+void UIParameterSwitchDurationClass::setValue(void* obj, ExValue* value)
+{
+    ((Preset*)obj)->setSwitchDuration((Preset::SwitchDuration)value->getInt());
+}
+UIParameterSwitchDurationClass UIParameterSwitchDurationObj;
+UIParameter* UIParameterSwitchDuration = &UIParameterSwitchDurationObj;
 
 ////////////// SwitchQuantize
 

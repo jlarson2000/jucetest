@@ -124,7 +124,7 @@ class MobiusInterface {
     /**
      * Return the value of a Parameter as a normalized ordinal.
      */
-    virtual int getParameter(class Parameter* p, int trackNumber = 0) = 0;
+    virtual int getParameter(class UIParameter* p, int trackNumber = 0) = 0;
     
     /**
      * Install a set of Samples

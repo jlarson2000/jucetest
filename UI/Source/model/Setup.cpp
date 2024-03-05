@@ -18,7 +18,7 @@
 // uses StringList for resettables
 #include "../util/List.h"
 
-#include "Parameter.h"
+#include "UIParameter.h"
 
 #include "ExValue.h"
 #include "Preset.h"
@@ -285,7 +285,7 @@ StringList* Setup::getResetables()
 	return mResetables;
 }
 
-bool Setup::isResetable(Parameter* p)
+bool Setup::isResetable(UIParameter* p)
 {
 	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
 }

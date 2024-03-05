@@ -5,7 +5,7 @@
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
-#include "../model/Parameter.h"
+#include "../model/UIParameter.h"
 
 #include "common/Panel.h"
 #include "common/Field.h"
@@ -105,10 +105,10 @@ TestPanel::TestPanel()
     panel.addOwned(fpanel);
     
     Form* form = new Form();
-    form->add(new ParameterField(LoopCountParameter), "General");
-    form->add(new ParameterField(SubCycleParameter), "General");
-    form->add(new ParameterField(RecordThresholdParameter), "Record");
-    form->add(new ParameterField(AutoRecordBarsParameter), "Record");
+    form->add(new ParameterField(UIParameterLoopCount), "General");
+    form->add(new ParameterField(UIParameterSubcycles), "General");
+    form->add(new ParameterField(UIParameterRecordThreshold), "Record");
+    form->add(new ParameterField(UIParameterAutoRecordBars), "Record");
     form->render();
     panel.addOwned(form);
 

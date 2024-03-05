@@ -73,7 +73,7 @@ typedef union {
 
     void* object;
     class FunctionDefinition* function;
-    class Parameter* parameter;
+    class UIParameter* parameter;
     int ordinal;
     //class Bindable* bindable;
 

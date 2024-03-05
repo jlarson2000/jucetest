@@ -11,7 +11,7 @@
 
 #include "Binding.h"
 #include "FunctionDefinition.h"
-#include "Parameter.h"
+#include "UIParameter.h"
 
 #include "UIAction.h"
 

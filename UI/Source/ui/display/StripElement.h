@@ -33,7 +33,7 @@ class StripElementDefinition
     static std::vector<StripElementDefinition*> Elements;
     static StripElementDefinition* find(const char* name);
 
-    StripElementDefinition(class Parameter* p);
+    StripElementDefinition(class UIParameter* p);
     StripElementDefinition(const char* argName, const char* argDisplayName);
     
     const char* getName();
@@ -42,7 +42,7 @@ class StripElementDefinition
     ~StripElementDefinition() {};
 
     // most correspond to Parameters
-    class Parameter* parameter;
+    class UIParameter* parameter;
     
     // those that don't have names here
     const char* name;

@@ -162,7 +162,7 @@ class Setup : public Structure {
 
 	void setResetables(class StringList* list);
 	class StringList* getResetables();
-	bool isResetable(class Parameter* p);
+	bool isResetable(class UIParameter* p);
 
 	class SetupTrack* getTracks();
 	class SetupTrack* stealTracks();

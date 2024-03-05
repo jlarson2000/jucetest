@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../../model/MobiusConfig.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 
 #include "../common/Form.h"
 #include "../JuceUtil.h"

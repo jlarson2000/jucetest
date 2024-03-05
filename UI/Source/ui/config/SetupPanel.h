@@ -37,7 +37,7 @@ class SetupPanel : public ConfigPanel, public SimpleRadio::Listener, public juce
 
     void render();
     void initForm();
-    void addField(const char* tab, class Parameter* p);
+    void addField(const char* tab, class UIParameter* p);
     class Field* buildResetablesField();
     
     void loadSetupFields();

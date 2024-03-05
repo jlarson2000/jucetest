@@ -9,7 +9,7 @@
 #include "../model/MobiusState.h"
 #include "../model/ModeDefinition.h"
 #include "../model/FunctionDefinition.h"
-#include "../model/Parameter.h"
+#include "../model/UIParameter.h"
 #include "../model/Setup.h"
 #include "../model/Preset.h"
 #include "../model/UIAction.h"
@@ -145,11 +145,11 @@ void Simulator::doAction(UIAction* action)
         }
     }
     else if (action->op == OpParameter) {
-        Parameter* p = action->implementation.parameter;
+        UIParameter* p = action->implementation.parameter;
         if (p == nullptr) {
             trace("Unresolved parameter: %s\n", action->operationName);
         }
-        else if (p == OutputLevelParameter) {
+        else if (p == UIParameterOutput) {
             int tracknum = action->scopeTrack;
             if (tracknum == 0) {
                 tracknum = state->activeTrack;
@@ -611,11 +611,12 @@ Preset* Simulator::getTrackPreset(int tracknum)
  * Not checking for that yet.
  * Need a return value to indiciate "supported"?
  */
-int Simulator::getParameter(Parameter* p, int tracknum)
+int Simulator::getParameter(UIParameter* p, int tracknum)
 {
     int value = 0;
+    ExValue ev;
 
-    if (p == TrackPresetParameter) {
+    if (p == UIParameterPreset) {
         // this is the only TYPE_STRING supported, convert to ordinal
         SetupTrack* track = getSetupTrack(tracknum);
         if (track != nullptr) {
@@ -624,30 +625,34 @@ int Simulator::getParameter(Parameter* p, int tracknum)
               value = preset->ordinal;
         }
     }
-    else if (p->type == TYPE_STRING) {
+    else if (p->type == TypeString) {
         trace("Unable to export parameter %s\n", p->getName());
     }
-    else if (p->scope == PARAM_SCOPE_GLOBAL) {
+    else if (p->scope == ScopeGlobal) {
         // few interesting things
-        value = p->getOrdinalValue(configuration);
+        p->getValue(configuration, &ev);
+        value = ev.getInt();
     }
-    else if (p->scope == PARAM_SCOPE_PRESET) {
+    else if (p->scope == ScopePreset) {
         // this means a Preset parameter in the given track
         Preset* preset = getTrackPreset(tracknum);
         if (preset != nullptr) {
-            value = p->getOrdinalValue(preset);
+            p->getValue(configuration, &ev);
+            value = ev.getInt();
         }
     }
-    else if (p->scope == PARAM_SCOPE_SETUP) {
+    else if (p->scope == ScopeSetup) {
         Setup* setup = getActiveSetup();
         if (setup != nullptr) {
-            value = p->getOrdinalValue(setup);
+            p->getValue(setup, &ev);
+            value = ev.getInt();
         }
     }
-    else if (p->scope == PARAM_SCOPE_TRACK) {
+    else if (p->scope == ScopeTrack) {
         SetupTrack* track = getSetupTrack(tracknum);
         if (track != nullptr) {
-            value = p->getOrdinalValue(track);
+            p->getValue(track, &ev);
+            value = ev.getInt();
         }
     }
 

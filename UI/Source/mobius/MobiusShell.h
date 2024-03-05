@@ -33,7 +33,7 @@ class MobiusShell : public MobiusInterface
     
     MobiusState* getState();    // also shared by the kernel
     void doAction(class UIAction* action);
-    int getParameter(Parameter* p, int tracknum = 0);
+    int getParameter(UIParameter* p, int tracknum = 0);
     void installSamples(SampleConfig* samples);
 
     // management thread 

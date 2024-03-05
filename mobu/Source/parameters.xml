@@ -174,13 +174,33 @@
     <Parameter name='pluginMidiOutput' type='string'/>
     <Parameter name='pluginMidiThrough' type='string'/>
     <Parameter name='audioInput' type='string'/>
+    <Parameter name='audioOutput' type='string'/>
 
     <!-- thinks it's an enum but there is no (SampleRate) cast
     <Parameter name='sampleRate' values='44100,4800'>
       This was an enum I guess for the old UI, shouldn't be using this any more
       </Parameter>
-      -->
+    -->
 
+    <!-- Things that exist but are obscure
+    -->
+    <Parameter name='noiseFloor' type='int' options='noBinding'>
+      Used this in early testing, not sure if useful.  It would control how
+      sensitive AutoRecord is
+    </Parameter>
+
+    <Parameter name='midiRecordMode' values='average,smooth,pulsed' options='noBinding'/>
+
+    <!-- Things that still exist in the model but probably want to move them somewhere else
+         midiExport
+         hostMidiExport
+         oscInputPort
+         oscOutputPort
+         oscOutputHost
+         oscTrace
+         oscEnable
+    -->
+    
   </ParameterScope>
 
   <!-- =======================================================================
@@ -245,6 +265,10 @@
     <Parameter name='returnLocation'
                values='follow,restore,start,random'
                enumName='Preset::SwitchLocation'/>
+
+    <Parameter name='switchDuration'
+               values='permanent,once,onceReturn,sustain,sustainReturn'
+               enumName='Preset::SwitchDuration'/>
     
     <Parameter name='switchQuantize'
                values='off,subCycle,cycle,loop,confirm,confirmSubCycle,confirmCycle,confirmLoop'
@@ -396,7 +420,7 @@
     </Parameter>
     
     <!-- StringList
-         <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
+    <Parameter name='resetables' type='string' multi='true' options='noBinding,juceValues'>
          This was not defined formally in core, though it is a member of the Setup class.
          The SetupDialog handled it as a special case.  Since it wasn't a parameter
          it could not be used in bindings or scripts.

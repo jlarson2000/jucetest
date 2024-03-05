@@ -29,7 +29,7 @@
 
 #include "MainWindow.h"
 
-#include "../ParameterPuller.h"
+//#include "../ParameterPuller.h"
 
 MainWindow::MainWindow(Supervisor* super)
 {
@@ -148,8 +148,8 @@ void MainWindow::mainMenuSelection(int id)
             //test.setVisible(true);
             //test.center();
             //JuceUtil::dumpComponent(&test);
-            ParameterPuller* puller = new ParameterPuller();
-            puller->pull();
+            //ParameterPuller* puller = new ParameterPuller();
+            //puller->pull();
         }
             break;
                 

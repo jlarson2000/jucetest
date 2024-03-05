@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../../util/Trace.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../../model/MobiusConfig.h"
 #include "../../model/Setup.h"
 #include "../../model/XmlRenderer.h"
@@ -172,11 +172,11 @@ void SetupPanel::loadSetupFields()
           Field* f = fields[i];
           ParameterField* pf = dynamic_cast<ParameterField*>(f);
           if (pf != nullptr) {
-              Parameter* p = pf->getParameter();
-              if (p->scope == PARAM_SCOPE_SETUP) {
+              UIParameter* p = pf->getParameter();
+              if (p->scope == ScopeSetup) {
                   pf->loadValue(s);
               }
-              else if (p->scope == PARAM_SCOPE_TRACK) {
+              else if (p->scope == ScopeTrack) {
                   SetupTrack* st = s->getTrack(selectedTrack);
                   pf->loadValue(st);
               }
@@ -206,11 +206,11 @@ void SetupPanel::saveSetupFields()
           Field* f = fields[i];
           ParameterField* pf = dynamic_cast<ParameterField*>(f);
           if (pf != nullptr) {
-              Parameter* p = pf->getParameter();
-              if (p->scope == PARAM_SCOPE_SETUP) {
+              UIParameter* p = pf->getParameter();
+              if (p->scope == ScopeSetup) {
                   pf->saveValue(s);
               }
-              else if (p->scope == PARAM_SCOPE_TRACK) {
+              else if (p->scope == ScopeTrack) {
                   SetupTrack* st = s->getTrack(selectedTrack);
                   pf->saveValue(st);
               }
@@ -286,62 +286,63 @@ void SetupPanel::initForm()
     // Tracks tab to select the target track and a set
     // of buttons at the bottom for initialize and capture
     
-    addField("Tracks", TrackNameParameter);
-    addField("Tracks", DefaultSyncSourceParameter);    // overrides default SyncSourceParameter
-    addField("Tracks", TrackSyncUnitParameter);
-    addField("Tracks", TrackPresetParameter);
-    addField("Tracks", GroupParameter);
-    addField("Tracks", FocusParameter);
-    addField("Tracks", InputLevelParameter);
-    addField("Tracks", OutputLevelParameter);
-    addField("Tracks", FeedbackLevelParameter);
-    addField("Tracks", AltFeedbackLevelParameter);
-    addField("Tracks", PanParameter);
-    addField("Tracks", MonoParameter);
+    addField("Tracks", UIParameterTrackName);
+    addField("Tracks", UIParameterDefaultSyncSource);    // overrides default SyncSourceParameter
+    addField("Tracks", UIParameterTrackSyncUnit);
+    addField("Tracks", UIParameterPreset);
+    addField("Tracks", UIParameterGroup);
+    addField("Tracks", UIParameterFocus);
+    addField("Tracks", UIParameterInput);
+    addField("Tracks", UIParameterOutput);
+    addField("Tracks", UIParameterFeedback);
+    addField("Tracks", UIParameterAltFeedback);
+    addField("Tracks", UIParameterPan);
+    addField("Tracks", UIParameterMono);
 
     // these were arranged on a 4x4 sub-grid
-    addField("Tracks", AudioInputPortParameter);
-    addField("Tracks", AudioOutputPortParameter);
-    addField("Tracks", PluginInputPortParameter);
-    addField("Tracks", PluginOutputPortParameter);
+    addField("Tracks", UIParameterAudioInputPort);
+    addField("Tracks", UIParameterAudioOutputPort);
+    addField("Tracks", UIParameterPluginInputPort);
+    addField("Tracks", UIParameterPluginOutputPort);
 
-    addField("Synchronization", SyncSourceParameter);   // should be DefaultSyncSourceParameter
-    addField("Synchronization", DefaultTrackSyncUnitParameter);
-    addField("Synchronization", SlaveSyncUnitParameter);
-    addField("Synchronization", BeatsPerBarParameter);
-    addField("Synchronization", RealignTimeParameter);
-    addField("Synchronization", OutRealignModeParameter);
-    addField("Synchronization", MuteSyncModeParameter);
-    addField("Synchronization", ResizeSyncAdjustParameter);
-    addField("Synchronization", SpeedSyncAdjustParameter);
-    addField("Synchronization", MinTempoParameter);
-    addField("Synchronization", MaxTempoParameter);
-    addField("Synchronization", ManualStartParameter);
+    addField("Synchronization", UIParameterSyncSource);   // should be DefaultSyncSourceParameter
+    addField("Synchronization", UIParameterDefaultTrackSyncUnit);
+    addField("Synchronization", UIParameterSlaveSyncUnit);
+    addField("Synchronization", UIParameterBeatsPerBar);
+    addField("Synchronization", UIParameterRealignTime);
+    addField("Synchronization", UIParameterOutRealign);
+    addField("Synchronization", UIParameterMuteSyncMode);
+    addField("Synchronization", UIParameterResizeSyncAdjust);
+    addField("Synchronization", UIParameterSpeedSyncAdjust);
+    addField("Synchronization", UIParameterMinTempo);
+    addField("Synchronization", UIParameterMaxTempo);
+    addField("Synchronization", UIParameterManualStart);
 
     // Other
 
-    addField("Other", InitialTrackParameter);
+    addField("Other", UIParameterActiveTrack);
 
     // this one has special values
-    form.add(buildResetablesField(), "Other");
+    //form.add(buildResetablesField(), "Other");
 
     // Binding Overlay
 }
 
-void SetupPanel::addField(const char* tab, Parameter* p)
+void SetupPanel::addField(const char* tab, UIParameter* p)
 {
     form.add(new ParameterField(p), tab, 0);
 }
 
+#if 0
 Field* SetupPanel::buildResetablesField()
 {
-    Field* field = new ParameterField(ResetablesParameter);
+    Field* field = new ParameterField(UIParameterResetables);
     juce::StringArray values;
     juce::StringArray displayValues;
     
     // values are defined by Parameter flags
-	for (int i = 0 ; i < Parameter::Parameters.size() ; i++) {
-        Parameter* p = Parameter::Parameters[i];
+	for (int i = 0 ; i < UIParameter::Parameters.size() ; i++) {
+        UIParameter* p = UIParameter::Parameters[i];
         if (p->resettable) {
             values.add(p->getName());
             displayValues.add(p->getDisplayName());
@@ -355,6 +356,7 @@ Field* SetupPanel::buildResetablesField()
 
     return field;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -7,19 +7,19 @@
 
 #include "JuceHeader.h"
 
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../common/Field.h"
 
 class ParameterField : public Field
 {
   public:
 
-    ParameterField(class Parameter* p);
+    ParameterField(class UIParameter* p);
     ~ParameterField();
 
-    static Field::Type convertParameterType(ParameterType intype);
+    static Field::Type convertParameterType(UIParameterType intype);
 
-    Parameter* getParameter() {
+    UIParameter* getParameter() {
         return parameter;
     }
     
@@ -28,6 +28,6 @@ class ParameterField : public Field
     
   private:
 
-    Parameter* parameter = nullptr;
+    UIParameter* parameter = nullptr;
 
 };

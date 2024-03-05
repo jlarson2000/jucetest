@@ -9,7 +9,7 @@
 
 #include <JuceHeader.h>
 
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 #include "../../model/MobiusState.h"
 
 #include "Colors.h"

@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "../../model/MobiusConfig.h"
-#include "../../model/Parameter.h"
+#include "../../model/UIParameter.h"
 
 #include "../common/Form.h"
 #include "ParameterField.h"
@@ -125,44 +125,45 @@ void GlobalPanel::render()
  */
 void GlobalPanel::initForm()
 {
-    addField("Miscellaneous", QuickSaveParameter);
-    addField("Miscellaneous", LongPressParameter);
-    addField("Miscellaneous", SpreadRangeParameter);
-    addField("Miscellaneous", NoiseFloorParameter);
-    addField("Miscellaneous", IntegerWaveFileParameter);
-    addField("Miscellaneous", MonitorAudioParameter);
-    addField("Miscellaneous", AutoFeedbackReductionParameter);
-    addField("Miscellaneous", GroupFocusLockParameter);
-    addField("Miscellaneous", MidiExportParameter);
-    addField("Miscellaneous", HostMidiExportParameter);
+    addField("Miscellaneous", UIParameterQuickSave);
+    addField("Miscellaneous", UIParameterLongPress);
+    addField("Miscellaneous", UIParameterSpreadRange);
+    addField("Miscellaneous", UIParameterNoiseFloor);
+    addField("Miscellaneous", UIParameterIntegerWaveFile);
+    addField("Miscellaneous", UIParameterMonitorAudio);
+    addField("Miscellaneous", UIParameterAutoFeedbackReduction);
+    addField("Miscellaneous", UIParameterGroupFocusLock);
 
-    addField("Limits", TracksParameter);
-    addField("Limits", TrackGroupsParameter);
-    addField("Limits", MaxLoopsParameter);
-    addField("Limits", PluginPortsParameter);
+    // these exist as booleans in the model, but I'm doing export a different way now
+    //addField("Miscellaneous", UIParameterMidiExport);
+    //addField("Miscellaneous", UIParameterHostMidiExport);
 
-    addField("Functions", FocusLockFunctionsParameter);
-    addField("Functions", MuteCancelFunctionsParameter);
-    addField("Functions", ConfirmationFunctionsParameter);
+    addField("Limits", UIParameterTrackCount);
+    addField("Limits", UIParameterGroupCount);
+    addField("Limits", UIParameterMaxLoops);
+    addField("Limits", UIParameterPluginPorts);
 
-    addField("Modes", AltFeedbackDisableParameter);
+    // these are StringList and need rework
+    //addField("Functions", UIParameterFocusLockFunctions);
+    //addField("Functions", UIParameterMuteCancelFunctions);
+    //addField("Functions", UIParameterConfirmationFunctions);
+    // addField("Modes", UIParameterAltFeedbackDisable);
 
-    addField("Advanced", TracePrintLevelParameter);
-    addField("Advanced", TraceDebugLevelParameter);
-    addField("Advanced", MaxSyncDriftParameter);
-    addField("Advanced", SaveLayersParameter);
-    addField("Advanced", LogStatusParameter);
+    addField("Advanced", UIParameterTraceLevel);
+    addField("Advanced", UIParameterMaxSyncDrift);
+    addField("Advanced", UIParameterSaveLayers);
+    addField("Advanced", UIParameterLogStatus);
 
     // old dialog had some red warning text at the top
     
-    addField("Advanced", OscEnableParameter);
-    addField("Advanced", OscTraceParameter);
-    addField("Advanced", OscInputPortParameter);
-    addField("Advanced", OscOutputPortParameter);
-    addField("Advanced", OscOutputHostParameter);
+    //addField("Advanced", OscEnableParameter);
+    //addField("Advanced", OscTraceParameter);
+    //addField("Advanced", OscInputPortParameter);
+    //addField("Advanced", OscOutputPortParameter);
+    //addField("Advanced", OscOutputHostParameter);
 }
 
-void GlobalPanel::addField(const char* tab, Parameter* p)
+void GlobalPanel::addField(const char* tab, UIParameter* p)
 {
     form.add(new ParameterField(p), tab, 0);
 }

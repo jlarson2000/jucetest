@@ -24,7 +24,7 @@ class GlobalPanel : public ConfigPanel
 
     void render();
     void initForm();
-    void addField(const char* tab, class Parameter* p);
+    void addField(const char* tab, class UIParameter* p);
     
     void loadGlobal(class MobiusConfig* c);
     void saveGlobal(class MobiusConfig* c);

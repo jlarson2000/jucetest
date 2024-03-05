@@ -28,7 +28,7 @@
  * This also ControlSurface which was an experiment that never went
  * anywhere.
  *
- * Many things in MobiusConfig are defined as Parameters whih means
+ * Many things in MobiusConfig are defined as UIParameters whih means
  * they can be accessed in scripts and bindings.  The things that aren't
  * can only be changed in the UI.
  *
@@ -59,7 +59,7 @@
 #include "SampleConfig.h"
 #include "OscConfig.h"
 #include "UIConfig.h"
-#include "Parameter.h"
+#include "UIParameter.h"
 
 #include "XmlRenderer.h"
 
@@ -254,9 +254,9 @@ MobiusConfig* XmlRenderer::clone(MobiusConfig* src)
 
 #define EL_STRING "String"
 
-void XmlRenderer::render(XmlBuffer* b, Parameter* p, int value)
+void XmlRenderer::render(XmlBuffer* b, UIParameter* p, int value)
 {
-    if (p->type == ParameterType::TYPE_ENUM) {
+    if (p->type == UIParameterType::TypeEnum) {
         if (p->values == nullptr) {
             Trace(1, "XmlRenderer: Attempt to render enum parameter without value list %s\n",
                   p->getName());
@@ -265,7 +265,7 @@ void XmlRenderer::render(XmlBuffer* b, Parameter* p, int value)
             // should do some range checking here but we're only ever getting a value
             // from an object member cast as an int
             // shoudl be letting the 
-            // !! put this in Parameter::getEnumValue
+            // !! put this in UIParameter::getEnumValue
             b->addAttribute(p->getName(), p->getEnumName(value));
         }
     }
@@ -275,7 +275,7 @@ void XmlRenderer::render(XmlBuffer* b, Parameter* p, int value)
     }
 }
 
-void XmlRenderer::render(XmlBuffer* b, Parameter* p, bool value)
+void XmlRenderer::render(XmlBuffer* b, UIParameter* p, bool value)
 {
     // old way used ExValue.getString which converted false to "false"
     // and wrote that, XmlBuffer suppresses it
@@ -286,7 +286,7 @@ void XmlRenderer::render(XmlBuffer* b, Parameter* p, bool value)
       b->addAttribute(p->getName(), "false");
 }
 
-void XmlRenderer::render(XmlBuffer* b, Parameter* p, const char* value)
+void XmlRenderer::render(XmlBuffer* b, UIParameter* p, const char* value)
 {
     // any filtering options?
     b->addAttribute(p->getName(), value);
@@ -296,24 +296,24 @@ void XmlRenderer::render(XmlBuffer* b, Parameter* p, const char* value)
  * Most parameters are boolean, integer, or enumerations.
  * Parse and return an int which can then be cast by the caller.
  */
-int XmlRenderer::parse(XmlElement* e, Parameter* p)
+int XmlRenderer::parse(XmlElement* e, UIParameter* p)
 {
     int value = 0;
 
     const char* str = e->getAttribute(p->getName());
     if (str != nullptr) {
-        if (p->type == ParameterType::TYPE_STRING) {
+        if (p->type == UIParameterType::TypeString) {
             // error: should not have called this method
             Trace(1, "XmlRenderer: Can't parse string parameter %s as int\n", p->getName());
         }
-        else if (p->type == ParameterType::TYPE_BOOLEAN) {
+        else if (p->type == UIParameterType::TypeBool) {
             value = !strcmp(str, "true");
         }
-        else if (p->type == ParameterType::TYPE_INT) {
+        else if (p->type == UIParameterType::TypeInt) {
             value = atoi(str);
         }
-        else if (p->type == ParameterType::TYPE_ENUM) {
-            value = p->getEnumNoWarn(str);
+        else if (p->type == UIParameterType::TypeEnum) {
+            value = p->getEnumOrdinal(str);
             if (value < 0) {
                 // invalid enum name, leave zero
                 Trace(1, "XmlRenderer: Invalid enumeration value %s for %s\n", str, p->getName());
@@ -335,11 +335,11 @@ int XmlRenderer::parse(XmlElement* e, Parameter* p)
  * Can return the constant element attribute value, caller is expected
  * to copy it.
  */
-const char* XmlRenderer::parseString(XmlElement* e, Parameter* p)
+const char* XmlRenderer::parseString(XmlElement* e, UIParameter* p)
 {
     const char* value = nullptr;
 
-    if (p->type == ParameterType::TYPE_STRING) {
+    if (p->type == UIParameterType::TypeString) {
         value = e->getAttribute(p->getName());
     }
     else {
@@ -465,61 +465,61 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 {
 	b->addOpenStartTag(EL_MOBIUS_CONFIG);
 
-    render(b, MidiInputParameter, c->getMidiInput());
-    render(b, MidiOutputParameter, c->getMidiOutput());
-    render(b, MidiThroughParameter, c->getMidiThrough());
-    render(b, PluginMidiInputParameter, c->getPluginMidiInput());
-    render(b, PluginMidiOutputParameter, c->getPluginMidiOutput());
-    render(b, PluginMidiThroughParameter, c->getPluginMidiThrough());
-    render(b, AudioInputParameter, c->getAudioInput());
-    render(b, AudioOutputParameter, c->getAudioOutput());
+    render(b, UIParameterMidiInput, c->getMidiInput());
+    render(b, UIParameterMidiOutput, c->getMidiOutput());
+    render(b, UIParameterMidiThrough, c->getMidiThrough());
+    render(b, UIParameterPluginMidiInput, c->getPluginMidiInput());
+    render(b, UIParameterPluginMidiOutput, c->getPluginMidiOutput());
+    render(b, UIParameterPluginMidiThrough, c->getPluginMidiThrough());
+    render(b, UIParameterAudioInput, c->getAudioInput());
+    render(b, UIParameterAudioOutput, c->getAudioOutput());
 
-    render(b, QuickSaveParameter, c->getQuickSave());
-    render(b, CustomMessageFileParameter, c->getCustomMessageFile());
-    render(b, UnitTestsParameter, c->getUnitTests());
+    render(b, UIParameterQuickSave, c->getQuickSave());
+    //render(b, UIParameterCustomMessageFile, c->getCustomMessageFile());
+    //render(b, UIParameterUnitTests, c->getUnitTests());
 
-    render(b, NoiseFloorParameter, c->getNoiseFloor());
+    render(b, UIParameterNoiseFloor, c->getNoiseFloor());
 
 	b->addAttribute(ATT_SUGGESTED_LATENCY, c->getSuggestedLatencyMsec());
-    render(b, InputLatencyParameter, c->getInputLatency());
-    render(b, OutputLatencyParameter, c->getOutputLatency());
+    render(b, UIParameterInputLatency, c->getInputLatency());
+    render(b, UIParameterOutputLatency, c->getOutputLatency());
     // don't bother saving this until it can have a more useful range
-	//render(FadeFramesParameter, c->getFadeFrames());
-    render(b, MaxSyncDriftParameter, c->getMaxSyncDrift());
-    render(b, TracksParameter, c->getTracks());
-    render(b, TrackGroupsParameter, c->getTrackGroups());
-    render(b, MaxLoopsParameter, c->getMaxLoops());
-    render(b, LongPressParameter, c->getLongPress());
-    render(b, MonitorAudioParameter, c->isMonitorAudio());
+	//render(UIParameterFadeFrames, c->getFadeFrames());
+    render(b, UIParameterMaxSyncDrift, c->getMaxSyncDrift());
+    render(b, UIParameterTrackCount, c->getTracks());
+    render(b, UIParameterGroupCount, c->getTrackGroups());
+    render(b, UIParameterMaxLoops, c->getMaxLoops());
+    render(b, UIParameterLongPress, c->getLongPress());
+    render(b, UIParameterMonitorAudio, c->isMonitorAudio());
 	b->addAttribute(ATT_PLUGIN_HOST_REWINDS, c->isHostRewinds());
 	b->addAttribute(ATT_PLUGIN_PINS, c->getPluginPins());
-    render(b, AutoFeedbackReductionParameter, c->isAutoFeedbackReduction());
+    render(b, UIParameterAutoFeedbackReduction, c->isAutoFeedbackReduction());
     // don't allow this to be persisted any more, can only be set in scripts
 	//render(IsolateOverdubsParameter->getName(), mIsolateOverdubs);
-    render(b, IntegerWaveFileParameter, c->isIntegerWaveFile());
-    render(b, SpreadRangeParameter, c->getSpreadRange());
-    render(b, TracePrintLevelParameter, c->getTracePrintLevel());
-    render(b, TraceDebugLevelParameter, c->getTraceDebugLevel());
-    render(b, SaveLayersParameter, c->isSaveLayers());
-    render(b, DriftCheckPointParameter, c->getDriftCheckPoint());
-    render(b, MidiRecordModeParameter, c->getMidiRecordMode());
-    render(b, DualPluginWindowParameter, c->isDualPluginWindow());
-    render(b, MidiExportParameter, c->isMidiExport());
-    render(b, HostMidiExportParameter, c->isHostMidiExport());
-    render(b, GroupFocusLockParameter, c->isGroupFocusLock());
+    render(b, UIParameterIntegerWaveFile, c->isIntegerWaveFile());
+    render(b, UIParameterSpreadRange, c->getSpreadRange());
+    render(b, UIParameterTraceLevel, c->getTraceDebugLevel());
+    render(b, UIParameterSaveLayers, c->isSaveLayers());
+    render(b, UIParameterDriftCheckPoint, c->getDriftCheckPoint());
+
+    render(b, UIParameterMidiRecordMode, c->getMidiRecordMode());
+    //render(b, UIParameterDualPluginWindow, c->isDualPluginWindow());
+    //render(b, UIParameterMidiExport, c->isMidiExport());
+    //render(b, UIParameterHostMidiExport, c->isHostMidiExport());
+    render(b, UIParameterGroupFocusLock, c->isGroupFocusLock());
 
     b->addAttribute(ATT_NO_SYNC_BEAT_ROUNDING, c->isNoSyncBeatRounding());
     b->addAttribute(ATT_LOG_STATUS, c->isLogStatus());
 
     // why is this here?  move to OscConfig
     // also doesn't need to be a bindable Parameter
-    render(b, OscInputPortParameter, c->getOscInputPort());
-    render(b, OscOutputPortParameter, c->getOscOutputPort());
-    render(b, OscOutputHostParameter, c->getOscOutputHost());
-    render(b, OscTraceParameter, c->isOscTrace());
-    render(b, OscEnableParameter, c->isOscEnable());
+    //render(b, UIParameterOscInputPort, c->getOscInputPort());
+    //render(b, UIParameterOscOutputPort, c->getOscOutputPort());
+    //render(b, UIParameterOscOutputHost, c->getOscOutputHost());
+    //render(b, UIParameterOscTrace, c->isOscTrace());
+    //render(b, UIParameterOscEnable, c->isOscEnable());
 
-    render(b, SampleRateParameter, c->getSampleRate());
+    //render(b, UIParameterSampleRate, c->getSampleRate());
 
     // active setup name
     // old notes say if the preset has been overridden this is not
@@ -579,52 +579,52 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
     // this is part of OldBinding, get rid of this?
     // c->setSelectedMidiConfig(e->getAttribute(ATT_MIDI_CONFIG));
     
-	c->setMidiInput(parseString(e, MidiInputParameter));
-	c->setMidiOutput(parseString(e, MidiOutputParameter));
-	c->setMidiThrough(parseString(e, MidiThroughParameter));
-	c->setPluginMidiInput(parseString(e, PluginMidiInputParameter));
-	c->setPluginMidiOutput(parseString(e, PluginMidiOutputParameter));
-	c->setPluginMidiThrough(parseString(e, PluginMidiThroughParameter));
-	c->setAudioInput(parseString(e, AudioInputParameter));
-	c->setAudioOutput(parseString(e, AudioOutputParameter));
+	c->setMidiInput(parseString(e, UIParameterMidiInput));
+	c->setMidiOutput(parseString(e, UIParameterMidiOutput));
+	c->setMidiThrough(parseString(e, UIParameterMidiThrough));
+	c->setPluginMidiInput(parseString(e, UIParameterPluginMidiInput));
+	c->setPluginMidiOutput(parseString(e, UIParameterPluginMidiOutput));
+	c->setPluginMidiThrough(parseString(e, UIParameterPluginMidiThrough));
+	c->setAudioInput(parseString(e, UIParameterAudioInput));
+	c->setAudioOutput(parseString(e, UIParameterAudioOutput));
 	c->setUIConfig(e->getAttribute(ATT_UI_CONFIG));
-	c->setQuickSave(parseString(e, QuickSaveParameter));
-	c->setUnitTests(parseString(e, UnitTestsParameter));
-	c->setCustomMessageFile(parseString(e, CustomMessageFileParameter));
+	c->setQuickSave(parseString(e, UIParameterQuickSave));
+	//c->setUnitTests(parseString(e, UIParameterUnitTests));
+	//c->setCustomMessageFile(parseString(e, UIParameterCustomMessageFile));
 
-	c->setNoiseFloor(parse(e, NoiseFloorParameter));
+	c->setNoiseFloor(parse(e, UIParameterNoiseFloor));
 	c->setSuggestedLatencyMsec(e->getIntAttribute(ATT_SUGGESTED_LATENCY));
-	c->setInputLatency(parse(e, InputLatencyParameter));
-	c->setOutputLatency(parse(e, OutputLatencyParameter));
-	c->setMaxSyncDrift(parse(e, MaxSyncDriftParameter));
-	c->setTracks(parse(e, TracksParameter));
-	c->setTrackGroups(parse(e, TrackGroupsParameter));
-	c->setMaxLoops(parse(e, MaxLoopsParameter));
-	c->setLongPress(parse(e, LongPressParameter));
+	c->setInputLatency(parse(e, UIParameterInputLatency));
+	c->setOutputLatency(parse(e, UIParameterOutputLatency));
+	c->setMaxSyncDrift(parse(e, UIParameterMaxSyncDrift));
+	c->setTracks(parse(e, UIParameterTrackCount));
+	c->setTrackGroups(parse(e, UIParameterGroupCount));
+	c->setMaxLoops(parse(e, UIParameterMaxLoops));
+	c->setLongPress(parse(e, UIParameterLongPress));
 
-	c->setMonitorAudio(parse(e, MonitorAudioParameter));
+	c->setMonitorAudio(parse(e, UIParameterMonitorAudio));
 	c->setHostRewinds(e->getBoolAttribute(ATT_PLUGIN_HOST_REWINDS));
 	c->setPluginPins(e->getIntAttribute(ATT_PLUGIN_PINS));
-	c->setAutoFeedbackReduction(parse(e, AutoFeedbackReductionParameter));
+	c->setAutoFeedbackReduction(parse(e, UIParameterAutoFeedbackReduction));
 
     // don't allow this to be persisted any more, can only be set in scripts
 	//setIsolateOverdubs(e->getBoolAttribute(IsolateOverdubsParameter->getName()));
-	c->setIntegerWaveFile(parse(e, IntegerWaveFileParameter));
-	c->setSpreadRange(parse(e, SpreadRangeParameter));
-	c->setTracePrintLevel(parse(e, TracePrintLevelParameter));
-	c->setTraceDebugLevel(parse(e, TraceDebugLevelParameter));
-	c->setSaveLayers(parse(e, SaveLayersParameter));
-	c->setDriftCheckPoint((DriftCheckPoint)parse(e, DriftCheckPointParameter));
-	c->setMidiRecordMode((MidiRecordMode)parse(e, MidiRecordModeParameter));
-    c->setDualPluginWindow(parse(e, DualPluginWindowParameter));
-    c->setMidiExport(parse(e, MidiExportParameter));
-    c->setHostMidiExport(parse(e, HostMidiExportParameter));
+	c->setIntegerWaveFile(parse(e, UIParameterIntegerWaveFile));
+	c->setSpreadRange(parse(e, UIParameterSpreadRange));
+	//c->setTracePrintLevel(parse(e, UIParameterTracePrintLevel));
+	c->setTraceDebugLevel(parse(e, UIParameterTraceLevel));
+	c->setSaveLayers(parse(e, UIParameterSaveLayers));
+	c->setDriftCheckPoint((DriftCheckPoint)parse(e, UIParameterDriftCheckPoint));
+	c->setMidiRecordMode((MidiRecordMode)parse(e, UIParameterMidiRecordMode));
+    //c->setDualPluginWindow(parse(e, UIParameterDualPluginWindow));
+    //c->setMidiExport(parse(e, UIParameterMidiExport));
+    //c->setHostMidiExport(parse(e, UIParameterHostMidiExport));
 
-    c->setOscInputPort(parse(e, OscInputPortParameter));
-    c->setOscOutputPort(parse(e, OscOutputPortParameter));
-    c->setOscOutputHost(parseString(e, OscOutputHostParameter));
-    c->setOscTrace(parse(e, OscTraceParameter));
-    c->setOscEnable(parse(e, OscEnableParameter));
+    //c->setOscInputPort(parse(e, UIParameterOscInputPort));
+    //c->setOscOutputPort(parse(e, UIParameterOscOutputPort));
+    //c->setOscOutputHost(parseString(e, UIParameterOscOutputHost));
+    //c->setOscTrace(parse(e, UIParameterOscTrace));
+    //c->setOscEnable(parse(e, UIParameterOscEnable));
 
     // this isn't a parameter yet
     c->setNoSyncBeatRounding(e->getBoolAttribute(ATT_NO_SYNC_BEAT_ROUNDING));
@@ -633,7 +633,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
     // not an official parameter yet
     c->setEdpisms(e->getBoolAttribute(ATT_EDPISMS));
 
-	c->setSampleRate((AudioSampleRate)parse(e, SampleRateParameter));
+	//c->setSampleRate((AudioSampleRate)parse(e, UIParameterSampleRate));
 
     // fade frames can no longer be set high so we don't bother exposing it
 	//setFadeFrames(e->getIntAttribute(FadeFramesParameter->getName()));
@@ -720,57 +720,57 @@ void XmlRenderer::render(XmlBuffer* b, Preset* p)
 	renderStructure(b, p);
 	b->setAttributeNewline(true);
 
-    render(b, AltFeedbackEnableParameter, p->isAltFeedbackEnable());
-    render(b, AutoRecordBarsParameter, p->getAutoRecordBars());
-    render(b, AutoRecordTempoParameter, p->getAutoRecordTempo());
-    render(b, BounceQuantizeParameter, p->getBounceQuantize());
-    render(b, EmptyLoopActionParameter, p->getEmptyLoopAction());
-    render(b, EmptyTrackActionParameter, p->getEmptyTrackAction());
-    render(b, LoopCountParameter, p->getLoops());
-    render(b, MaxRedoParameter, p->getMaxRedo());
-    render(b, MaxUndoParameter, p->getMaxUndo());
-    render(b, MultiplyModeParameter, p->getMultiplyMode());
-    render(b, MuteCancelParameter, p->getMuteCancel());
-    render(b, MuteModeParameter, p->getMuteMode());
-    render(b, NoFeedbackUndoParameter, p->isNoFeedbackUndo());
-    render(b, NoLayerFlatteningParameter, p->isNoLayerFlattening());
-    render(b, OverdubQuantizedParameter, p->isOverdubQuantized());
-    render(b, OverdubTransferParameter, p->getOverdubTransfer());
-    render(b, PitchBendRangeParameter, p->getPitchBendRange());
-    render(b, PitchSequenceParameter, p->getPitchSequence());
-    render(b, PitchShiftRestartParameter, p->isPitchShiftRestart());
-    render(b, PitchStepRangeParameter, p->getPitchStepRange());
-    render(b, PitchTransferParameter, p->getPitchTransfer());
-    render(b, QuantizeParameter, p->getQuantize());
-    render(b, SpeedBendRangeParameter, p->getSpeedBendRange());
-    render(b, SpeedRecordParameter, p->isSpeedRecord());
-    render(b, SpeedSequenceParameter, p->getSpeedSequence());
-    render(b, SpeedShiftRestartParameter, p->isSpeedShiftRestart());
-    render(b, SpeedStepRangeParameter, p->getSpeedStepRange());
-    render(b, SpeedTransferParameter, p->getSpeedTransfer());
-    render(b, TimeStretchRangeParameter, p->getTimeStretchRange());
-    render(b, RecordResetsFeedbackParameter, p->isRecordResetsFeedback());
-    render(b, RecordThresholdParameter, p->getRecordThreshold());
-    render(b, RecordTransferParameter, p->getRecordTransfer());
-    render(b, ReturnLocationParameter, p->getReturnLocation());
-    render(b, ReverseTransferParameter, p->getReverseTransfer());
-    render(b, RoundingOverdubParameter, p->isRoundingOverdub());
-    render(b, ShuffleModeParameter, p->getShuffleMode());
-    render(b, SlipModeParameter, p->getSlipMode());
-    render(b, SlipTimeParameter, p->getSlipTime());
-    render(b, SoundCopyParameter, p->getSoundCopyMode());
-    render(b, SubCycleParameter, p->getSubcycles());
-    render(b, SustainFunctionsParameter, p->getSustainFunctions());
-    render(b, SwitchDurationParameter, p->getSwitchDuration());
-    render(b, SwitchLocationParameter, p->getSwitchLocation());
-    render(b, SwitchQuantizeParameter, p->getSwitchQuantize());
-    render(b, SwitchVelocityParameter, p->isSwitchVelocity());
-    render(b, TimeCopyParameter, p->getTimeCopyMode());
-    render(b, TrackLeaveActionParameter, p->getTrackLeaveAction());
-    render(b, WindowEdgeAmountParameter, p->getWindowEdgeAmount());
-    render(b, WindowEdgeUnitParameter, p->getWindowEdgeUnit());
-    render(b, WindowSlideAmountParameter, p->getWindowSlideAmount());
-    render(b, WindowSlideUnitParameter, p->getWindowSlideUnit());
+    render(b, UIParameterAltFeedbackEnable, p->isAltFeedbackEnable());
+    render(b, UIParameterAutoRecordBars, p->getAutoRecordBars());
+    render(b, UIParameterAutoRecordTempo, p->getAutoRecordTempo());
+    render(b, UIParameterBounceQuantize, p->getBounceQuantize());
+    render(b, UIParameterEmptyLoopAction, p->getEmptyLoopAction());
+    render(b, UIParameterEmptyTrackAction, p->getEmptyTrackAction());
+    render(b, UIParameterLoopCount, p->getLoops());
+    render(b, UIParameterMaxRedo, p->getMaxRedo());
+    render(b, UIParameterMaxUndo, p->getMaxUndo());
+    render(b, UIParameterMultiplyMode, p->getMultiplyMode());
+    render(b, UIParameterMuteCancel, p->getMuteCancel());
+    render(b, UIParameterMuteMode, p->getMuteMode());
+    render(b, UIParameterNoFeedbackUndo, p->isNoFeedbackUndo());
+    render(b, UIParameterNoLayerFlattening, p->isNoLayerFlattening());
+    render(b, UIParameterOverdubQuantized, p->isOverdubQuantized());
+    render(b, UIParameterOverdubTransfer, p->getOverdubTransfer());
+    render(b, UIParameterPitchBendRange, p->getPitchBendRange());
+    //render(b, UIParameterPitchSequence, p->getPitchSequence());
+    render(b, UIParameterPitchShiftRestart, p->isPitchShiftRestart());
+    render(b, UIParameterPitchStepRange, p->getPitchStepRange());
+    render(b, UIParameterPitchTransfer, p->getPitchTransfer());
+    render(b, UIParameterQuantize, p->getQuantize());
+    render(b, UIParameterSpeedBendRange, p->getSpeedBendRange());
+    render(b, UIParameterSpeedRecord, p->isSpeedRecord());
+    //render(b, UIParameterSpeedSequence, p->getSpeedSequence());
+    render(b, UIParameterSpeedShiftRestart, p->isSpeedShiftRestart());
+    render(b, UIParameterSpeedStepRange, p->getSpeedStepRange());
+    render(b, UIParameterSpeedTransfer, p->getSpeedTransfer());
+    render(b, UIParameterTimeStretchRange, p->getTimeStretchRange());
+    render(b, UIParameterRecordResetsFeedback, p->isRecordResetsFeedback());
+    render(b, UIParameterRecordThreshold, p->getRecordThreshold());
+    render(b, UIParameterRecordTransfer, p->getRecordTransfer());
+    render(b, UIParameterReturnLocation, p->getReturnLocation());
+    render(b, UIParameterReverseTransfer, p->getReverseTransfer());
+    render(b, UIParameterRoundingOverdub, p->isRoundingOverdub());
+    render(b, UIParameterShuffleMode, p->getShuffleMode());
+    render(b, UIParameterSlipMode, p->getSlipMode());
+    render(b, UIParameterSlipTime, p->getSlipTime());
+    render(b, UIParameterSoundCopyMode, p->getSoundCopyMode());
+    render(b, UIParameterSubcycles, p->getSubcycles());
+    //render(b, UIParameterSustainFunctions, p->getSustainFunctions());
+    render(b, UIParameterSwitchDuration, p->getSwitchDuration());
+    render(b, UIParameterSwitchLocation, p->getSwitchLocation());
+    render(b, UIParameterSwitchQuantize, p->getSwitchQuantize());
+    render(b, UIParameterSwitchVelocity, p->isSwitchVelocity());
+    render(b, UIParameterTimeCopyMode, p->getTimeCopyMode());
+    render(b, UIParameterTrackLeaveAction, p->getTrackLeaveAction());
+    render(b, UIParameterWindowEdgeAmount, p->getWindowEdgeAmount());
+    render(b, UIParameterWindowEdgeUnit, p->getWindowEdgeUnit());
+    render(b, UIParameterWindowSlideAmount, p->getWindowSlideAmount());
+    render(b, UIParameterWindowSlideUnit, p->getWindowSlideUnit());
 
 	b->add("/>\n");
 	b->setAttributeNewline(false);
@@ -780,60 +780,60 @@ void XmlRenderer::parse(XmlElement* e, Preset* p)
 {
 	parseStructure(e, p);
 
-    p->setAltFeedbackEnable(parse(e, AltFeedbackEnableParameter));
-    p->setAutoRecordBars(parse(e, AutoRecordBarsParameter));
-    p->setAutoRecordTempo(parse(e, AutoRecordTempoParameter));
-    p->setBounceQuantize(parse(e, BounceQuantizeParameter));
-    p->setEmptyLoopAction(parse(e, EmptyLoopActionParameter));
-    p->setEmptyTrackAction(parse(e, EmptyTrackActionParameter));
-    p->setLoops(parse(e, LoopCountParameter));
-    p->setMaxRedo(parse(e, MaxRedoParameter));
-    p->setMaxUndo(parse(e, MaxUndoParameter));
-    p->setMultiplyMode(parse(e, MultiplyModeParameter));
-    p->setMuteCancel(parse(e, MuteCancelParameter));
-    p->setMuteMode(parse(e, MuteModeParameter));
-    p->setNoFeedbackUndo(parse(e, NoFeedbackUndoParameter));
-    p->setNoLayerFlattening(parse(e, NoLayerFlatteningParameter));
-    p->setOverdubQuantized(parse(e, OverdubQuantizedParameter));
-    p->setOverdubTransfer(parse(e, OverdubTransferParameter));
-    p->setPitchBendRange(parse(e, PitchBendRangeParameter));
-    p->setPitchSequence(parseString(e, PitchSequenceParameter));
-    p->setPitchShiftRestart(parse(e, PitchShiftRestartParameter));
-    p->setPitchStepRange(parse(e, PitchStepRangeParameter));
-    p->setPitchTransfer(parse(e, PitchTransferParameter));
-    p->setQuantize(parse(e, QuantizeParameter));
-    p->setSpeedBendRange(parse(e, SpeedBendRangeParameter));
-    p->setSpeedRecord(parse(e, SpeedRecordParameter));
-    p->setSpeedSequence(parseString(e, SpeedSequenceParameter));
-    p->setSpeedShiftRestart(parse(e, SpeedShiftRestartParameter));
-    p->setSpeedStepRange(parse(e, SpeedStepRangeParameter));
-    p->setSpeedTransfer(parse(e, SpeedTransferParameter));
-    p->setTimeStretchRange(parse(e, TimeStretchRangeParameter));
-    p->setRecordResetsFeedback(parse(e, RecordResetsFeedbackParameter));
-    p->setRecordThreshold(parse(e, RecordThresholdParameter));
-    p->setRecordTransfer(parse(e, RecordTransferParameter));
-    p->setReturnLocation(parse(e, ReturnLocationParameter));
-    p->setReverseTransfer(parse(e, ReverseTransferParameter));
-    p->setRoundingOverdub(parse(e, RoundingOverdubParameter));
-    p->setShuffleMode(parse(e, ShuffleModeParameter));
-    p->setSlipMode(parse(e, SlipModeParameter));
-    p->setSlipTime(parse(e, SlipTimeParameter));
-    p->setSoundCopyMode(parse(e, SoundCopyParameter));
-    p->setSubcycles(parse(e, SubCycleParameter));
-    p->setSustainFunctions(parseString(e, SustainFunctionsParameter));
-    p->setSwitchDuration(parse(e, SwitchDurationParameter));
-    p->setSwitchLocation(parse(e, SwitchLocationParameter));
-    p->setSwitchQuantize(parse(e, SwitchQuantizeParameter));
-    p->setSwitchVelocity(parse(e, SwitchVelocityParameter));
-    p->setTimeCopyMode(parse(e, TimeCopyParameter));
-    p->setTrackLeaveAction(parse(e, TrackLeaveActionParameter));
-    p->setWindowEdgeAmount(parse(e, WindowEdgeAmountParameter));
+    p->setAltFeedbackEnable(parse(e, UIParameterAltFeedbackEnable));
+    p->setAutoRecordBars(parse(e, UIParameterAutoRecordBars));
+    p->setAutoRecordTempo(parse(e, UIParameterAutoRecordTempo));
+    p->setBounceQuantize(parse(e, UIParameterBounceQuantize));
+    p->setEmptyLoopAction(parse(e, UIParameterEmptyLoopAction));
+    p->setEmptyTrackAction(parse(e, UIParameterEmptyTrackAction));
+    p->setLoops(parse(e, UIParameterLoopCount));
+    p->setMaxRedo(parse(e, UIParameterMaxRedo));
+    p->setMaxUndo(parse(e, UIParameterMaxUndo));
+    p->setMultiplyMode(parse(e, UIParameterMultiplyMode));
+    p->setMuteCancel(parse(e, UIParameterMuteCancel));
+    p->setMuteMode(parse(e, UIParameterMuteMode));
+    p->setNoFeedbackUndo(parse(e, UIParameterNoFeedbackUndo));
+    p->setNoLayerFlattening(parse(e, UIParameterNoLayerFlattening));
+    p->setOverdubQuantized(parse(e, UIParameterOverdubQuantized));
+    p->setOverdubTransfer(parse(e, UIParameterOverdubTransfer));
+    p->setPitchBendRange(parse(e, UIParameterPitchBendRange));
+    //p->setPitchSequence(parseString(e, UIParameterPitchSequence));
+    p->setPitchShiftRestart(parse(e, UIParameterPitchShiftRestart));
+    p->setPitchStepRange(parse(e, UIParameterPitchStepRange));
+    p->setPitchTransfer(parse(e, UIParameterPitchTransfer));
+    p->setQuantize(parse(e, UIParameterQuantize));
+    p->setSpeedBendRange(parse(e, UIParameterSpeedBendRange));
+    p->setSpeedRecord(parse(e, UIParameterSpeedRecord));
+    //p->setSpeedSequence(parseString(e, UIParameterSpeedSequence));
+    p->setSpeedShiftRestart(parse(e, UIParameterSpeedShiftRestart));
+    p->setSpeedStepRange(parse(e, UIParameterSpeedStepRange));
+    p->setSpeedTransfer(parse(e, UIParameterSpeedTransfer));
+    p->setTimeStretchRange(parse(e, UIParameterTimeStretchRange));
+    p->setRecordResetsFeedback(parse(e, UIParameterRecordResetsFeedback));
+    p->setRecordThreshold(parse(e, UIParameterRecordThreshold));
+    p->setRecordTransfer(parse(e, UIParameterRecordTransfer));
+    p->setReturnLocation(parse(e, UIParameterReturnLocation));
+    p->setReverseTransfer(parse(e, UIParameterReverseTransfer));
+    p->setRoundingOverdub(parse(e, UIParameterRoundingOverdub));
+    p->setShuffleMode(parse(e, UIParameterShuffleMode));
+    p->setSlipMode(parse(e, UIParameterSlipMode));
+    p->setSlipTime(parse(e, UIParameterSlipTime));
+    p->setSoundCopyMode(parse(e, UIParameterSoundCopyMode));
+    p->setSubcycles(parse(e, UIParameterSubcycles));
+    //p->setSustainFunctions(parseString(e, UIParameterSustainFunctions));
+    p->setSwitchDuration(parse(e, UIParameterSwitchDuration));
+    p->setSwitchLocation(parse(e, UIParameterSwitchLocation));
+    p->setSwitchQuantize(parse(e, UIParameterSwitchQuantize));
+    p->setSwitchVelocity(parse(e, UIParameterSwitchVelocity));
+    p->setTimeCopyMode(parse(e, UIParameterTimeCopyMode));
+    p->setTrackLeaveAction(parse(e, UIParameterTrackLeaveAction));
+    p->setWindowEdgeAmount(parse(e, UIParameterWindowEdgeAmount));
 
     // ugh, I seem to have made redundant setters for all these that take an int
     // rather than an enum, but not these, why?  Kind of like not having the duplication
-    p->setWindowEdgeUnit((Preset::WindowUnit)parse(e, WindowEdgeUnitParameter));
-    p->setWindowSlideAmount(parse(e, WindowSlideAmountParameter));
-    p->setWindowSlideUnit((Preset::WindowUnit)parse(e, WindowSlideUnitParameter));
+    p->setWindowEdgeUnit((Preset::WindowUnit)parse(e, UIParameterWindowEdgeUnit));
+    p->setWindowSlideAmount(parse(e, UIParameterWindowSlideAmount));
+    p->setWindowSlideUnit((Preset::WindowUnit)parse(e, UIParameterWindowSlideUnit));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -876,19 +876,19 @@ void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 		delete csv;
 	}
 
-    render(b, BeatsPerBarParameter, setup->getBeatsPerBar());
+    render(b, UIParameterBeatsPerBar, setup->getBeatsPerBar());
     // why is the name pattern not followed here?
-    render(b, DefaultSyncSourceParameter, setup->getSyncSource());
-    render(b, DefaultTrackSyncUnitParameter, setup->getSyncTrackUnit());
-    render(b, ManualStartParameter, setup->isManualStart());
-    render(b, MaxTempoParameter, setup->getMaxTempo());
-    render(b, MinTempoParameter, setup->getMinTempo());
-    render(b, MuteSyncModeParameter, setup->getMuteSyncMode());
-    render(b, OutRealignModeParameter, setup->getOutRealignMode());
-    render(b, RealignTimeParameter, setup->getRealignTime());
-    render(b, ResizeSyncAdjustParameter, setup->getResizeSyncAdjust());
-    render(b, SlaveSyncUnitParameter, setup->getSyncUnit());
-    render(b, SpeedSyncAdjustParameter, setup->getSpeedSyncAdjust());
+    render(b, UIParameterDefaultSyncSource, setup->getSyncSource());
+    render(b, UIParameterDefaultTrackSyncUnit, setup->getSyncTrackUnit());
+    render(b, UIParameterManualStart, setup->isManualStart());
+    render(b, UIParameterMaxTempo, setup->getMaxTempo());
+    render(b, UIParameterMinTempo, setup->getMinTempo());
+    render(b, UIParameterMuteSyncMode, setup->getMuteSyncMode());
+    render(b, UIParameterOutRealign, setup->getOutRealignMode());
+    render(b, UIParameterRealignTime, setup->getRealignTime());
+    render(b, UIParameterResizeSyncAdjust, setup->getResizeSyncAdjust());
+    render(b, UIParameterSlaveSyncUnit, setup->getSyncUnit());
+    render(b, UIParameterSpeedSyncAdjust, setup->getSpeedSyncAdjust());
 
     b->add(">\n");
 	b->incIndent();
@@ -911,18 +911,18 @@ void XmlRenderer::parse(XmlElement* e, Setup* setup)
 	if (csv != nullptr)
 	  setup->setResetables(new StringList(csv));
 
-    setup->setBeatsPerBar(parse(e, BeatsPerBarParameter));
-    setup->setSyncSource((SyncSource)parse(e, DefaultSyncSourceParameter));
-    setup->setSyncTrackUnit((SyncTrackUnit)parse(e, DefaultTrackSyncUnitParameter));
-    setup->setManualStart(parse(e, ManualStartParameter));
-    setup->setMaxTempo(parse(e, MaxTempoParameter));
-    setup->setMinTempo(parse(e, MinTempoParameter));
-    setup->setMuteSyncMode(parse(e, MuteSyncModeParameter));
-    setup->setOutRealignMode(parse(e, OutRealignModeParameter));
-    setup->setRealignTime(parse(e, RealignTimeParameter));
-    setup->setResizeSyncAdjust(parse(e, ResizeSyncAdjustParameter));
-    setup->setSyncUnit((SyncUnit)parse(e, SlaveSyncUnitParameter));
-    setup->setSpeedSyncAdjust(parse(e, SpeedSyncAdjustParameter));
+    setup->setBeatsPerBar(parse(e, UIParameterBeatsPerBar));
+    setup->setSyncSource((SyncSource)parse(e, UIParameterDefaultSyncSource));
+    setup->setSyncTrackUnit((SyncTrackUnit)parse(e, UIParameterDefaultTrackSyncUnit));
+    setup->setManualStart(parse(e, UIParameterManualStart));
+    setup->setMaxTempo(parse(e, UIParameterMaxTempo));
+    setup->setMinTempo(parse(e, UIParameterMinTempo));
+    setup->setMuteSyncMode(parse(e, UIParameterMuteSyncMode));
+    setup->setOutRealignMode(parse(e, UIParameterOutRealign));
+    setup->setRealignTime(parse(e, UIParameterRealignTime));
+    setup->setResizeSyncAdjust(parse(e, UIParameterResizeSyncAdjust));
+    setup->setSyncUnit((SyncUnit)parse(e, UIParameterSlaveSyncUnit));
+    setup->setSpeedSyncAdjust(parse(e, UIParameterSpeedSyncAdjust));
 
     SetupTrack* tracks = nullptr;
     SetupTrack* last = nullptr;
@@ -953,23 +953,23 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
     // this was only InputPort, OutputPort, and PresetNumber
     // actually there are a lot missing and not just ones with transient
 
-    render(b, TrackPresetParameter, t->getPreset());
-    render(b, FocusParameter, t->isFocusLock());
-    render(b, MonoParameter, t->isMono());
-    render(b, GroupParameter, t->getGroup());
-    render(b, InputLevelParameter, t->getInputLevel());
-    render(b, OutputLevelParameter, t->getOutputLevel());
-    render(b, FeedbackLevelParameter, t->getFeedback());
-    render(b, AltFeedbackLevelParameter, t->getAltFeedback());
-    render(b, PanParameter, t->getPan());
+    render(b, UIParameterPreset, t->getPreset());
+    render(b, UIParameterFocus, t->isFocusLock());
+    render(b, UIParameterMono, t->isMono());
+    render(b, UIParameterGroup, t->getGroup());
+    render(b, UIParameterInput, t->getInputLevel());
+    render(b, UIParameterOutput, t->getOutputLevel());
+    render(b, UIParameterFeedback, t->getFeedback());
+    render(b, UIParameterAltFeedback, t->getAltFeedback());
+    render(b, UIParameterPan, t->getPan());
 
-    render(b, AudioInputPortParameter, t->getAudioInputPort());
-    render(b, AudioOutputPortParameter, t->getAudioOutputPort());
-    render(b, PluginInputPortParameter, t->getPluginInputPort());
-    render(b, PluginOutputPortParameter, t->getPluginOutputPort());
+    render(b, UIParameterAudioInputPort, t->getAudioInputPort());
+    render(b, UIParameterAudioOutputPort, t->getAudioOutputPort());
+    render(b, UIParameterPluginInputPort, t->getPluginInputPort());
+    render(b, UIParameterPluginOutputPort, t->getPluginOutputPort());
 
-    render(b, SyncSourceParameter, t->getSyncSource());
-    render(b, TrackSyncUnitParameter, t->getSyncTrackUnit());
+    render(b, UIParameterSyncSource, t->getSyncSource());
+    render(b, UIParameterTrackSyncUnit, t->getSyncTrackUnit());
 
     UserVariables* uv = t->getVariables();
     if (uv == nullptr) {
@@ -989,23 +989,23 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
 void XmlRenderer::parse(XmlElement* e, SetupTrack* t)
 {
 	t->setName(e->getAttribute(ATT_NAME));
-    t->setPreset(parseString(e, TrackPresetParameter));
-    t->setFocusLock(parse(e, FocusParameter));
-    t->setMono(parse(e, MonoParameter));
-    t->setGroup(parse(e, GroupParameter));
-    t->setInputLevel(parse(e, InputLevelParameter));
-    t->setOutputLevel(parse(e, OutputLevelParameter));
-    t->setFeedback(parse(e, FeedbackLevelParameter));
-    t->setAltFeedback(parse(e, AltFeedbackLevelParameter));
-    t->setPan(parse(e, PanParameter));
+    t->setPreset(parseString(e, UIParameterPreset));
+    t->setFocusLock(parse(e, UIParameterFocus));
+    t->setMono(parse(e, UIParameterMono));
+    t->setGroup(parse(e, UIParameterGroup));
+    t->setInputLevel(parse(e, UIParameterInput));
+    t->setOutputLevel(parse(e, UIParameterOutput));
+    t->setFeedback(parse(e, UIParameterFeedback));
+    t->setAltFeedback(parse(e, UIParameterAltFeedback));
+    t->setPan(parse(e, UIParameterPan));
 
-    t->setAudioInputPort(parse(e, AudioInputPortParameter));
-    t->setAudioOutputPort(parse(e, AudioOutputPortParameter));
-    t->setPluginInputPort(parse(e, PluginInputPortParameter));
-    t->setPluginOutputPort(parse(e, PluginOutputPortParameter));
+    t->setAudioInputPort(parse(e, UIParameterAudioInputPort));
+    t->setAudioOutputPort(parse(e, UIParameterAudioOutputPort));
+    t->setPluginInputPort(parse(e, UIParameterPluginInputPort));
+    t->setPluginOutputPort(parse(e, UIParameterPluginOutputPort));
 
-    t->setSyncSource((SyncSource)parse(e, SyncSourceParameter));
-    t->setSyncTrackUnit((SyncTrackUnit)parse(e, TrackSyncUnitParameter));
+    t->setSyncSource((SyncSource)parse(e, UIParameterSyncSource));
+    t->setSyncTrackUnit((SyncTrackUnit)parse(e, UIParameterTrackSyncUnit));
 
     // should only have a single UserVariables 
 	for (XmlElement* child = e->getChildElement() ; child != nullptr ; 
