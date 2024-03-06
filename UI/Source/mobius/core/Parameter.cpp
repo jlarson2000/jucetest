@@ -168,6 +168,7 @@ void Parameter::setValue(Action* action)
  *
  * We also handle the localization of the values.
  */
+#if 0
 void Parameter::localize(MessageCatalog* cat)
 {
     int key = getKey();
@@ -207,6 +208,7 @@ void Parameter::localize(MessageCatalog* cat)
 		}
 	}
 }
+#endif
 
 /**
  * Allocate a label array and fill it with nulls.
@@ -771,6 +773,7 @@ void Parameter::initParameters()
 /**
  * Refresh the cached display names from the message catalog.
  */
+#if 0
 void Parameter::localizeAll(MessageCatalog* cat)
 {
 	int i;
@@ -792,6 +795,7 @@ void Parameter::localizeAll(MessageCatalog* cat)
     // debugging hack
     //    dumpFlags();
 }
+#endif
 
 void Parameter::checkAmbiguousNames()
 {

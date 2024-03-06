@@ -97,11 +97,12 @@ void FadeTail::add(float* tail, long frames)
 		// loop already has a trace message, don't really need another
 		Trace(4, "OutputStream::addTail tailFrame=%ld, framesToAdd=%ld tailCount %ld\n",
 			  (long)mStart, frames, (long)AddTailCount);
-
+#if 0
 		if (trace) {
 			sprintf(file, "addTail%d.wav", AddTailCount);
 			Audio::write(file, tail, frames);
 		}
+#endif
 
 		// !! detect overflow
 
@@ -141,12 +142,12 @@ void FadeTail::add(float* tail, long frames)
 		long newFrames = mRecordOffset + frames;
 		if (newFrames > mFrames)
 		  mFrames = newFrames;
-
+#if 0
 		if (trace) {
 			sprintf(file, "trackTail%d.wav", AddTailCount);
 			Audio::write(file, mTail, mMaxFrames);
 		}
-
+#endif
 		AddTailCount++;
     }
 }

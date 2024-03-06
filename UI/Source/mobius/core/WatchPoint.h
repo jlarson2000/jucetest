@@ -94,7 +94,7 @@ class WatchPoint : public SystemConstant {
 
   protected:
 
-    static void localizeAll(class MessageCatalog* c);
+    //static void localizeAll(class MessageCatalog* c);
 
     virtual class List* getListeners(class Watchers* watchers) = 0;
     virtual int getValue(class Mobius* m, class Loop* l) = 0;

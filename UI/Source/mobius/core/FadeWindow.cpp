@@ -869,6 +869,7 @@ long FadeWindow::reverseFade(float* buffer)
 	return frames;
 }
 
+#if 0
 void FadeWindow::dump(const char* name)
 {
 	char filename[128];
@@ -890,6 +891,7 @@ void FadeWindow::dump(const char* name)
 
     delete a;
 }
+#endif
 
 /****************************************************************************/
 /****************************************************************************/

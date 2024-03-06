@@ -668,7 +668,7 @@ class MobiusInterface {
      * !! Should break this in two, with one catalog for the engine
      * and another for the user interfaces?
      */
-	virtual class MessageCatalog* getMessageCatalog() = 0;
+	//virtual class MessageCatalog* getMessageCatalog() = 0;
 
     /**
      * Return an object holding the state of the requested track.

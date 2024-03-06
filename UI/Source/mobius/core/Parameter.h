@@ -60,7 +60,7 @@ class Parameter : public SystemConstant {
 	Parameter();
 	Parameter(const char* name, int key);
 	virtual ~Parameter();
-    void localize(MessageCatalog* cat);
+    //void localize(MessageCatalog* cat);
 
 	const char* aliases[MAX_PARAMETER_ALIAS];
 
@@ -184,7 +184,7 @@ class Parameter : public SystemConstant {
   protected:
 
     static void initParameters();
-	static void localizeAll(class MessageCatalog* cat);
+	//static void localizeAll(class MessageCatalog* cat);
     static void dumpFlags();
 
 	static Parameter* getParameter(Parameter** group, const char* name);

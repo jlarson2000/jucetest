@@ -1,0 +1,12 @@
+
+Carefully go over MobiusConfig handling in Mobius.cpp
+  - share with Kernel
+
+Flesh out OldBinding to have what Action needs, and Exporter
+Getting some name collisions on Trigger
+
+Remvove the above/below interrupt logic in Mobius.  The entire
+engine is in the kernel now.
+
+Go over the stuff in new and see what was used
+

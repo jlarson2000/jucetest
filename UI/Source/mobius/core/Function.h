@@ -174,7 +174,7 @@ class Function : public SystemConstant {
      * Localize the function name.
      * Overloaded by ReplicatedFunction so it can add a number suffix.
      */
-	virtual void localize(class MessageCatalog* cat);
+	//virtual void localize(class MessageCatalog* cat);
 
     /**
      * True if the name matches the function name.
@@ -245,7 +245,7 @@ class Function : public SystemConstant {
     static void initStaticFunctions();
     static Function* getStaticFunction(const char * name);
 
-	static void localizeAll(class MessageCatalog* cat);
+	//static void localizeAll(class MessageCatalog* cat);
 
     static Function* getFunction(Function** functions, const char * name);
 
@@ -269,7 +269,7 @@ class Function : public SystemConstant {
 class ReplicatedFunction : public Function {
   public:
 	ReplicatedFunction();
-	void localize(MessageCatalog* cat);
+	//void localize(MessageCatalog* cat);
   protected:
 	bool replicated;
 	char fullName[32];

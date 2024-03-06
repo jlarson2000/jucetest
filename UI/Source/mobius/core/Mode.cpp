@@ -202,6 +202,7 @@ MobiusMode* MobiusMode::getMode(const char* name)
 /**
  * Set the mode display names from a message catalog.
  */
+#if 0
 void MobiusMode::localizeAll(MessageCatalog* cat)
 {
 	for (int i = 0 ; Modes[i] != NULL ; i++) {
@@ -209,6 +210,7 @@ void MobiusMode::localizeAll(MessageCatalog* cat)
         mode->localize(cat);
 	}
 }
+#endif
 
 /**
  * Check the global configuration and update some of the mode options.

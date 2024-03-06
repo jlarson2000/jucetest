@@ -17,8 +17,7 @@
 #include "Expr.h"
 #include "Function.h"
 #include "Parameter.h"
-#include "../../model/Preset.h"
-#include "OldBinding.h"
+#include "Preset.h"
 
 /**
  * For debugging, will become true when the Break statement is
@@ -172,7 +171,7 @@ typedef enum {
 
 //////////////////////////////////////////////////////////////////////
 //
-// ScriptEnv
+// ScriptPackage
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -180,14 +179,14 @@ typedef enum {
  * A collection of compiled scripts.
  * This is created by the ScriptCompiler from a ScriptConfig.
  */
-class ScriptEnv {
+class ScriptPackage {
   public:
 
-	ScriptEnv();
-	~ScriptEnv();
+	ScriptPackage();
+	~ScriptPackage();
 
-    ScriptEnv* getNext();
-    void setNext(ScriptEnv* env);
+    ScriptPackage* getNext();
+    void setNext(ScriptPackage* env);
 
     class ScriptConfig* getSource();
     void setSource(ScriptConfig* config);
@@ -204,12 +203,12 @@ class ScriptEnv {
   private:
 	
     /**
-     * Link for the script environment history.
+     * Link for the script package history.
      */
-    ScriptEnv* mNext;
+    ScriptPackage* mNext;
 
     /**
-     * A copy of the ScriptConfig from which this environmment
+     * A copy of the ScriptConfig from which this package
      * was compiled.  This is used later for change detection.
      */
     class ScriptConfig* mSource;
@@ -314,11 +313,11 @@ class Script {
   public:
 
 	Script();
-    Script(ScriptEnv* env, const char* filename);
+    Script(ScriptPackage* env, const char* filename);
 	~Script();
 
-    void setEnv(ScriptEnv* env);
-    ScriptEnv* getEnv();
+    void setPackage(ScriptPackage* pkg);
+    ScriptPackage* getPackage();
 
 	void setNext(Script* s);
     Script* getNext();
@@ -402,13 +401,13 @@ class Script {
 	void init();
 
 	/**
-	 * Environment we're a part of.  
+	 * Package we're a part of.  
 	 * Necessary to resolve calls when !autoload is enabled.
 	 */
-	ScriptEnv* mEnv;
+	ScriptPackage* mPackage;
 
     /**
-     * Chain pointer within the ScriptEnv.
+     * Chain pointer within the ScriptPackage.
      */
     Script* mNext;
 
@@ -467,7 +466,7 @@ class Script {
  * The ExParser is always available.
  *
  * The compiler is normally built once when a ScriptConfig is loaded
- * and converted into a ScriptEnv.  It may also be built to 
+ * and converted into a ScriptPackage.  It may also be built to 
  * incrementally compile scripts that use the !autoload option.
  *
  */
@@ -478,9 +477,9 @@ class ScriptCompiler {
 	~ScriptCompiler();
 
     /**
-     * Compile a ScriptConfig into a ScriptEnv.
+     * Compile a ScriptConfig into a ScriptPackage.
      */
-    class ScriptEnv* compile(class Mobius* m, class ScriptConfig* config);
+    class ScriptPackage* compile(class Mobius* m, class ScriptConfig* config);
     
     /**
      * Incrementally recompile one script.
@@ -518,8 +517,8 @@ class ScriptCompiler {
      */
 	class ExParser* mParser;
 
-    // Environment we're compiling into
-    ScriptEnv* mEnv;
+    // Package we're compiling into
+    ScriptPackage* mPackage;
 
     // scripts we have parsed
     Script* mScripts;
@@ -605,7 +604,7 @@ class ScriptResolver : public ExResolver {
  *
  * An "include" directive would make it easier to build libraries of
  * Variable and Proc declarations.  We could try to resolve Variables
- * within the entire ScriptEnv like we do for Call to other scripts,
+ * within the entire ScriptPackage like we do for Call to other scripts,
  * this makes it hard to see how a variable is going to behave.
  *
  * Proc libraries would be very useful for the unit tests, but have

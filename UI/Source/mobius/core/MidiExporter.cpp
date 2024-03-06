@@ -48,12 +48,12 @@
 #include "MidiByte.h"
 #include "MidiEvent.h"
 #include "MidiInterface.h"
-//#include "HostMidiInterface.h"
+#include "HostMidiInterface.h"
 
 #include "Mobius.h"
-#include "Binding.h"
+#include "OldBinding.h"
 #include "Export.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 
 #include "MidiExporter.h"
 

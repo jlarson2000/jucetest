@@ -97,7 +97,7 @@ class MobiusMode : public SystemConstant {
 
     static void initModes();
 	static void updateConfiguration(class MobiusConfig* config);
-	static void localizeAll(class MessageCatalog* cat);
+	//static void localizeAll(class MessageCatalog* cat);
 	static MobiusMode** getModes();
 	static MobiusMode* getMode(const char* name);
 

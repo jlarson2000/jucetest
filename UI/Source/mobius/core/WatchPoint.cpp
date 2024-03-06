@@ -288,10 +288,12 @@ WatchPoint* WatchPoints[] = {
 /**
  * Refresh the cached display names from the message catalog.
  */
+#if 0
 void WatchPoint::localizeAll(MessageCatalog* cat)
 {
     // punt, don't have a ui yet so no need for keys
 }
+#endif
 
 WatchPoint** WatchPoint::getWatchPoints()
 {

@@ -2,6 +2,8 @@
 // Temporary backward compatibility for things that want the old binding model
 //
 
+#pragma once
+
 #include "../../model/SystemConstant.h"
 
 class Target : public SystemConstant {
