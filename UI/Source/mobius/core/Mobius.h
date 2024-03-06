@@ -1,35 +1,22 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * The mobius looping engine, primary interface class.
- *
+/**
+ * Heavily reduced copy of the original code.
+ * No MobiusInterface, no Dialogs, much of model moved up, etc.
  */
 
-#ifndef MOBIUS_H
-#define MOBIUS_H
+#pragma once
 
-#include "Trace.h"
+#include "../../util/Trace.h"
+#include "../../model/MobiusState.h"
+#include "../Recorder.h"
+#include "../Audio.h"
+#include "../AudioPool.h"
+#include "../MobiusKernel.h"
 
+// for MobiusAlerts
 #include "MobiusInterface.h"
 
-#include "Binding.h"
-#include "MidiListener.h"
-#include "MobiusInterface.h"
-#include "MobiusState.h"
-#include "Recorder.h"
-
-/****************************************************************************
- *                                                                          *
- *                                 CONSTANTS                                *
- *                                                                          *
- ****************************************************************************/
-
-#define UNIT_TEST_SETUP_NAME "Unit Test Setup"
-#define UNIT_TEST_PRESET_NAME "Unit Test Preset"
+// got lost somewhere
+#define MAX_CUSTOM_MODE 256
 
 /****************************************************************************
  *                                                                          *
@@ -38,10 +25,9 @@
  ****************************************************************************/
 
 class Mobius : 
-    public MobiusInterface,
-    public TraceContext, 
-    public MidiEventListener, 
-    public RecorderMonitor 
+    public TraceContext
+    //public MidiEventListener, 
+    //public RecorderMonitor 
 {
 	friend class ScriptInterpreter;
 	friend class ScriptSetupStatement;
@@ -57,8 +43,8 @@ class Mobius :
 
   public:
 
-	Mobius(MobiusContext* con);
-	virtual ~Mobius();
+	Mobius(MobiusKernel* kernel);
+	~Mobius();
 
     //////////////////////////////////////////////////////////////////////
     //
@@ -70,28 +56,28 @@ class Mobius :
 
     // Configuration
 
-    MobiusContext* getContext();
+    //MobiusContext* getContext();
     class AudioStream* getAudioStream();
-    void preparePluginBindings();
+    //void preparePluginBindings();
 	void start();
 	void setListener(MobiusListener* mon);
 	MobiusListener* getListener();
-    void setUIBindables(UIControl** controls, UIParameter** parameters);
-    UIControl** getUIControls();
-    UIControl* getUIControl(const char* name);
+    //void setUIBindables(UIControl** controls, UIParameter** parameters);
+    //UIControl** getUIControls();
+    //UIControl* getUIControl(const char* name);
 
-    class HostConfigs* getHostConfigs();
+    //class HostConfigs* getHostConfigs();
 	class MobiusConfig* getConfiguration();
-	class MobiusConfig* editConfiguration();
+	//class MobiusConfig* editConfiguration();
     
-    bool findConfigurationFile(const char* file, char* path, int max);
+    //bool findConfigurationFile(const char* file, char* path, int max);
 
 	void setFullConfiguration(class MobiusConfig* config);
 	void setGeneralConfiguration(class MobiusConfig* config);
 	void setPresetConfiguration(class MobiusConfig* config);
 	void setSetupConfiguration(class MobiusConfig* config);
 	void setBindingConfiguration(class MobiusConfig* config);
-    void reloadOscConfiguration();
+    //void reloadOscConfiguration();
     void reloadScripts();
 
     // Triggers and Actions
@@ -104,8 +90,8 @@ class Mobius :
     void doActionNow(Action* a);
     void completeAction(Action* a);
     
-    void doKeyEvent(int key, bool down, bool repeat);
-	void doMidiEvent(class MidiEvent* e);
+    //void doKeyEvent(int key, bool down, bool repeat);
+	//void doMidiEvent(class MidiEvent* e);
 
 	void setCheckInterrupt(bool b);
 	class CalibrationResult* calibrateLatency();
@@ -116,7 +102,7 @@ class Mobius :
 
     // Status
 
-	class MessageCatalog* getMessageCatalog();
+	//class MessageCatalog* getMessageCatalog();
     class MobiusState* getState(int track);
     class MobiusAlerts* getAlerts();
 
@@ -162,18 +148,18 @@ class Mobius :
     //
     //////////////////////////////////////////////////////////////////////
     
-	void writeConfiguration();
+	//void writeConfiguration();
 	class MobiusConfig* getMasterConfiguration();
     class MobiusConfig* getInterruptConfiguration();
     class Recorder* getRecorder();
 
     // Used by MobiusThread when it needs to access files
-	const char* getHomeDirectory();
+	//const char* getHomeDirectory();
 
-	void setOverlayBindings(class BindingConfig* c);
+	//void setOverlayBindings(class BindingConfig* c);
 
-    class ControlSurface* getControlSurfaces();
-
+    //class ControlSurface* getControlSurfaces();
+    
 	class MobiusMode* getMode();
 	long getFrame();
 
@@ -184,11 +170,11 @@ class Mobius :
 
 	// MidiHandler interface
 
-	void midiEvent(class MidiEvent* e);
+	//void midiEvent(class MidiEvent* e);
 
 	// RecorderMonitor interface
-	void recorderMonitorEnter(AudioStream* stream);
-	void recorderMonitorExit(AudioStream* stream);
+	//void recorderMonitorEnter(AudioStream* stream);
+	//void recorderMonitorExit(AudioStream* stream);
 
     // Object constants
 
@@ -396,7 +382,7 @@ class Mobius :
 	long mInterrupts;
 	char mCustomMode[MAX_CUSTOM_MODE];
 	class Synchronizer* mSynchronizer;
-	class CriticalSection* mCsect;
+	//class CriticalSection* mCsect;
 
 	// pending project to be loaded
 	class Project* mPendingProject;
@@ -427,4 +413,4 @@ class Mobius :
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif
+

@@ -16,10 +16,10 @@
 #include "MidiQueue.h"
 
 // necessary for DriftCheckPoint
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 
 // necessary for SyncSource
-#include "Setup.h"
+#include "../../model/Setup.h"
 
 #include "SyncState.h"
  

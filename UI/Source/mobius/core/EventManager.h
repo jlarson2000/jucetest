@@ -12,7 +12,7 @@
 #ifndef EVENT_MANAGER_H
 #define EVENT_MANAGER_H
 
-#include "Preset.h"
+#include "../../model/Preset.h"
 
 /**
  * A class encapsulating Event management code for a Track.
@@ -104,7 +104,7 @@ class EventManager {
 
     // Summary
 
-    void getEventSummary(class LoopState* s);
+    void getEventSummary(class MobiusLoopState* s);
 
     // Selection
 
@@ -137,7 +137,7 @@ class EventManager {
     long reverseFrame(long origin, long newOrigin, long frame);
     void finishReturnEvent(Loop* loop, Event* re);
 
-    void getEventSummary(class LoopState* s, Event* e, bool stacked);
+    void getEventSummary(class MobiusLoopState* s, Event* e, bool stacked);
     bool isEventVisible(Event* e, bool stacked);
     long reflectFrame(Loop* loop, long frame);
 

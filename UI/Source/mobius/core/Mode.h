@@ -12,7 +12,7 @@
 #ifndef MOBIUS_MODE_H
 #define MOBIUS_MODE_H
 
-#include "SystemConstant.h"
+#include "../../model/SystemConstant.h"
 
 /****************************************************************************
  *                                                                          *

@@ -15,14 +15,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "Trace.h"
-#include "List.h"
-#include "MessageCatalog.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
+#include "../../util/List.h"
+//#include "MessageCatalog.h"
 
 #include "MidiByte.h"
 
-#include "Binding.h"
+#include "../../model/Binding.h"
+#include "OldBinding.h"
+
 #include "Function.h"
 #include "Event.h"
 #include "Script.h"
@@ -79,7 +81,7 @@ ActionOperator* ActionOperator::get(const char* name)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void ResolvedTarget::init()
+void ResolvedTarget::init()
 {
     mInterned = false;
     mNext = NULL;
@@ -90,7 +92,7 @@ PUBLIC void ResolvedTarget::init()
     mGroup = 0;
 }
 
-PUBLIC ResolvedTarget::ResolvedTarget()
+ResolvedTarget::ResolvedTarget()
 {
     init();
 }
@@ -99,7 +101,7 @@ PUBLIC ResolvedTarget::ResolvedTarget()
  * Called by Action::clone, we're by definition
  * not interned.
  */
-PUBLIC void ResolvedTarget::clone(ResolvedTarget* src)
+void ResolvedTarget::clone(ResolvedTarget* src)
 {
     mTarget = src->mTarget;
     // names are not cloned
@@ -109,7 +111,7 @@ PUBLIC void ResolvedTarget::clone(ResolvedTarget* src)
 }
 
 
-PUBLIC ResolvedTarget::~ResolvedTarget()
+ResolvedTarget::~ResolvedTarget()
 {
     // we can't stop it now, but warn if we try to do this
     if (mInterned) 
@@ -125,78 +127,78 @@ PUBLIC ResolvedTarget::~ResolvedTarget()
 	}
 }
 
-PUBLIC bool ResolvedTarget::isInterned()
+bool ResolvedTarget::isInterned()
 {
     return mInterned;
 }
 
-PUBLIC void ResolvedTarget::setInterned(bool b)
+void ResolvedTarget::setInterned(bool b)
 {
     mInterned = b;
 }
 
-PUBLIC ResolvedTarget* ResolvedTarget::getNext()
+ResolvedTarget* ResolvedTarget::getNext()
 {
     return mNext;
 }
 
-PUBLIC void ResolvedTarget::setNext(ResolvedTarget* t)
+void ResolvedTarget::setNext(ResolvedTarget* t)
 {
     mNext = t;
 }
 
-PUBLIC Target* ResolvedTarget::getTarget()
+Target* ResolvedTarget::getTarget()
 {
     return mTarget;
 }
 
-PUBLIC void ResolvedTarget::setTarget(Target* t)
+void ResolvedTarget::setTarget(Target* t)
 {
     mTarget = t;
 }
 
-PUBLIC const char* ResolvedTarget::getName()
+const char* ResolvedTarget::getName()
 {
     return mName;
 }
 
-PUBLIC void ResolvedTarget::setName(const char* name)
+void ResolvedTarget::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
 }
 
-PUBLIC void* ResolvedTarget::getObject()
+void* ResolvedTarget::getObject()
 {
     return mObject.object;
 }
 
-PUBLIC void ResolvedTarget::setObject(void* o)
+void ResolvedTarget::setObject(void* o)
 {
     mObject.object = o;
 }
 
-PUBLIC int ResolvedTarget::getTrack()
+int ResolvedTarget::getTrack()
 {
     return mTrack;
 }
 
-PUBLIC void ResolvedTarget::setTrack(int t)
+void ResolvedTarget::setTrack(int t)
 {
     mTrack = t;
 }
 
-PUBLIC int ResolvedTarget::getGroup()
+int ResolvedTarget::getGroup()
 {
     return mGroup;
 }
 
-PUBLIC void ResolvedTarget::setGroup(int g)
+void ResolvedTarget::setGroup(int g)
 {
     mGroup = g;
 }
 
-PUBLIC bool ResolvedTarget::isResolved()
+bool ResolvedTarget::isResolved()
 {
     return (mObject.object != NULL);
 }
@@ -205,7 +207,7 @@ PUBLIC bool ResolvedTarget::isResolved()
  * The UI likes to resolve targets so it can get from the
  * raw binding name to a nicer display name.
  */
-PUBLIC const char* ResolvedTarget::getDisplayName()
+const char* ResolvedTarget::getDisplayName()
 {
     const char* dname = mName;
             
@@ -237,7 +239,7 @@ PUBLIC const char* ResolvedTarget::getDisplayName()
 /**
  * Return a nice name to display for the type of this target.
  */
-PUBLIC const char* ResolvedTarget::getTypeDisplayName()
+const char* ResolvedTarget::getTypeDisplayName()
 {
     const char* type = mTarget->getDisplayName();
 
@@ -260,7 +262,7 @@ PUBLIC const char* ResolvedTarget::getTypeDisplayName()
  * Return the group name as a letter.
  * Supplied buffer must be at least 2 characters long.
  */
-PUBLIC void ResolvedTarget::getGroupName(char* buf)
+void ResolvedTarget::getGroupName(char* buf)
 {
     strcpy(buf, "");
     if (mGroup > 0) {
@@ -278,7 +280,7 @@ PUBLIC void ResolvedTarget::getGroupName(char* buf)
  * There is a similar rendering used in the binding dialogs.
  * !! Try to merge these?
  */
-PUBLIC void ResolvedTarget::getFullName(char* buffer, int max)
+void ResolvedTarget::getFullName(char* buffer, int max)
 {
     strcpy(buffer, "");
 
@@ -312,7 +314,7 @@ PUBLIC void ResolvedTarget::getFullName(char* buffer, int max)
  *                                                                          *
  ****************************************************************************/
 
-PRIVATE void Action::init()
+void Action::init()
 {
     // Trigger
     id = 0;
@@ -365,19 +367,19 @@ PRIVATE void Action::init()
     mName = NULL;
 }
 
-PUBLIC Action::Action()
+Action::Action()
 {
     init();
 }
 
-PUBLIC Action::Action(Action* src)
+Action::Action(Action* src)
 {
     init();
     if (src != NULL)
       clone(src);
 }
 
-PUBLIC Action::Action(ResolvedTarget* t)
+Action::Action(ResolvedTarget* t)
 {
     init();
     mInternedTarget = t;
@@ -388,7 +390,7 @@ PUBLIC Action::Action(ResolvedTarget* t)
  * scrptArgs is transient and owned by the script interpreter that
  * built the action
  */
-PUBLIC Action::~Action()
+Action::~Action()
 {
     if (mRegistered)
       Trace(1, "Atttempt to delete registered action!\n");
@@ -408,7 +410,7 @@ PUBLIC Action::~Action()
 /**
  * Return an action to it's pool.
  */
-PUBLIC void Action::free()
+void Action::free()
 {   
     if (mPool != NULL)
       mPool->freeAction(this);
@@ -424,18 +426,18 @@ PUBLIC void Action::free()
  * The difference here is that we have to release the
  * scriptArgs.
  */
-PUBLIC void Action::reset()
+void Action::reset()
 {
     delete scriptArgs;
     init();
 }
 
-PUBLIC const char* Action::getName()
+const char* Action::getName()
 {
     return mName;
 }
 
-PUBLIC void Action::setName(const char* name)
+void Action::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
@@ -446,7 +448,7 @@ PUBLIC void Action::setName(const char* name)
  * something from the pool for cloning so we must initialize
  * every field!
  */
-PRIVATE void Action::clone(Action* src)
+void Action::clone(Action* src)
 {
     mobius = src->mobius;
 
@@ -517,63 +519,63 @@ PRIVATE void Action::clone(Action* src)
     mOverlay = 0;
 }
  
-PUBLIC bool Action::isSustainable()
+bool Action::isSustainable()
 {
     return (triggerMode == TriggerModeMomentary ||
             triggerMode == TriggerModeToggle);
 }
 
-PUBLIC void Action::setPooled(bool b)
+void Action::setPooled(bool b)
 {
     mPooled = b;
 }
 
-PUBLIC bool Action::isPooled()
+bool Action::isPooled()
 {
     return mPooled;
 }
 
-PUBLIC void Action::setPool(ActionPool* p)
+void Action::setPool(ActionPool* p)
 {
     mPool = p;
 }
 
-PUBLIC Action* Action::getNext() 
+Action* Action::getNext() 
 {
     return mNext;
 }
 
-PUBLIC void Action::setNext(Action* a)
+void Action::setNext(Action* a)
 {
     mNext = a;
 }
 
-PUBLIC bool Action::isRegistered() 
+bool Action::isRegistered() 
 {
     return mRegistered;
 }
 
-PUBLIC void Action::setRegistered(bool b)
+void Action::setRegistered(bool b)
 {
     mRegistered = b;
 }
 
-PUBLIC int Action::getOverlay()
+int Action::getOverlay()
 {
     return mOverlay;
 }
 
-PUBLIC void Action::setOverlay(int i)
+void Action::setOverlay(int i)
 {
     mOverlay = i;
 }
 
-PUBLIC bool Action::isResolved()
+bool Action::isResolved()
 {
     return (getTargetObject() != NULL);
 }
 
-PRIVATE ResolvedTarget* Action::getResolvedTarget()
+ResolvedTarget* Action::getResolvedTarget()
 {
     ResolvedTarget* t = mInternedTarget;
     if (t == NULL)
@@ -581,25 +583,25 @@ PRIVATE ResolvedTarget* Action::getResolvedTarget()
     return t;
 }
 
-PUBLIC Target* Action::getTarget()
+Target* Action::getTarget()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getTarget() : NULL;
 }
 
-PUBLIC void* Action::getTargetObject()
+void* Action::getTargetObject()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getObject() : NULL;
 }
 
-PUBLIC int Action::getTargetTrack()
+int Action::getTargetTrack()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getTrack() : 0;
 }
 
-PUBLIC int Action::getTargetGroup()
+int Action::getTargetGroup()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getGroup() : 0;
@@ -609,7 +611,7 @@ PUBLIC int Action::getTargetGroup()
  * If the action has bindingArgs, parse them into an
  * ActionOperator and argument value.
  */
-PUBLIC void Action::parseBindingArgs()
+void Action::parseBindingArgs()
 {
     if (strlen(bindingArgs) > 0) {
         actionOperator = NULL;
@@ -651,7 +653,7 @@ PUBLIC void Action::parseBindingArgs()
 /**
  * Helper for parseBindingArgs
  */
-PRIVATE char* Action::advance(char* start, bool stopAtSpace)
+char* Action::advance(char* start, bool stopAtSpace)
 {
     while (*start) {
         char ch = *start;
@@ -669,7 +671,7 @@ PRIVATE char* Action::advance(char* start, bool stopAtSpace)
  * The action must be resolved by now.
  * Used by BindingResolver to filter redundant bindings.
  */
-PUBLIC bool Action::isTargetEqual(Action* other)
+bool Action::isTargetEqual(Action* other)
 {
     // ugh, names and indirection suck
     return (getTarget() == other->getTarget() &&
@@ -683,12 +685,12 @@ PUBLIC bool Action::isTargetEqual(Action* other)
  * This should only be used for a small number of internally
  * constructed actions.
  */
-PUBLIC void Action::setTarget(Target* t)
+void Action::setTarget(Target* t)
 {
     setTarget(t, NULL);
 }
 
-PUBLIC void Action::setTarget(Target* t, void* object)
+void Action::setTarget(Target* t, void* object)
 {
     // we may have started with an interned target, switch
     mInternedTarget = NULL;
@@ -702,12 +704,12 @@ PUBLIC void Action::setTarget(Target* t, void* object)
  * This can only be used with static functions, you can't use this
  * for scripts, those are only accessible through ResolvedTargets.
  */
-PUBLIC void Action::setFunction(Function* f)
+void Action::setFunction(Function* f)
 {
     setTarget(TargetFunction, f);
 }
 
-PUBLIC Function* Action::getFunction()
+Function* Action::getFunction()
 {
     Function* f = NULL;
     if (getTarget() == TargetFunction)
@@ -715,12 +717,12 @@ PUBLIC Function* Action::getFunction()
     return f;
 }
 
-PUBLIC void Action::setLongFunction(Function* f)
+void Action::setLongFunction(Function* f)
 {
     mLongFunction = f;
 }
 
-PUBLIC Function* Action::getLongFunction()
+Function* Action::getLongFunction()
 {
     return mLongFunction;
 }
@@ -729,7 +731,7 @@ PUBLIC Function* Action::getLongFunction()
  * Dynamically set a target parameter.
  * This is used when building Actions on the fly rather than from Bindings.
  */
-PUBLIC void Action::setParameter(Parameter* p)
+void Action::setParameter(Parameter* p)
 {
     setTarget(TargetParameter, p);
 }
@@ -742,12 +744,12 @@ PUBLIC void Action::setParameter(Parameter* p)
  * This does not switch from mInternedTarget to mPrivate target,
  * you need to call setTarget() first.
  */
-PUBLIC void Action::setTargetTrack(int track)
+void Action::setTargetTrack(int track)
 {
     mPrivateTarget.setTrack(track);
 }
 
-PUBLIC void Action::setTargetGroup(int group)
+void Action::setTargetGroup(int group)
 {
     mPrivateTarget.setGroup(group);
 }
@@ -756,27 +758,27 @@ PUBLIC void Action::setTargetGroup(int group)
  * When actions are processed internally we use this to
  * force it to a certain track.
  */
-PUBLIC void Action::setResolvedTrack(Track* t)
+void Action::setResolvedTrack(Track* t)
 {
     mResolvedTrack = t;
 }
 
-PUBLIC Track* Action::getResolvedTrack()
+Track* Action::getResolvedTrack()
 {
     return mResolvedTrack;
 }
 
-PUBLIC Event* Action::getEvent()
+Event* Action::getEvent()
 {
     return mEvent;
 }
 
-PUBLIC ThreadEvent* Action::getThreadEvent()
+ThreadEvent* Action::getThreadEvent()
 {
     return mThreadEvent;
 }
 
-PUBLIC void Action::setThreadEvent(ThreadEvent* te)
+void Action::setThreadEvent(ThreadEvent* te)
 {
     mThreadEvent = te;
 }
@@ -793,7 +795,7 @@ PUBLIC void Action::setThreadEvent(ThreadEvent* te)
  *
  * We expect these to be MS_ constaints so zero out the channel.
  */
-PUBLIC int Action::getMidiStatus()
+int Action::getMidiStatus()
 {
     return ((id >> 8) & 0xF0);
 }
@@ -805,7 +807,7 @@ PUBLIC int Action::getMidiStatus()
  * We expect the argument to be an MS_ constaints so it is
  * already 8 bits with a zero channel.
  */
-PUBLIC void Action::setMidiStatus(int i)
+void Action::setMidiStatus(int i)
 {
     id = ((i << 8) | (id & 0xFFF));
 }
@@ -814,12 +816,12 @@ PUBLIC void Action::setMidiStatus(int i)
  * Get the MIDI channel from the action id.
  * Format: ((status | channel) << 8) | key
  */
-PUBLIC int Action::getMidiChannel()
+int Action::getMidiChannel()
 {
     return ((id >> 8) & 0xF);
 }
 
-PUBLIC void Action::setMidiChannel(int i)
+void Action::setMidiChannel(int i)
 {
     id = ((i << 8) | (id & 0xF0FF));
 }
@@ -828,12 +830,12 @@ PUBLIC void Action::setMidiChannel(int i)
  * Get the MIDI key, program, or CC number from the action id.
  * Format: ((status | channel) << 8) | key
  */
-PUBLIC int Action::getMidiKey()
+int Action::getMidiKey()
 {
     return (id & 0xFF);
 }
 
-PUBLIC void Action::setMidiKey(int i)
+void Action::setMidiKey(int i)
 {
     id = (i | (id & 0xFF00));
 }
@@ -857,7 +859,7 @@ bool Action::isSpread()
  * Calculate a display name for this action.
  * Used in the KeyHelp dialog, possibly others.
  */
-PUBLIC void Action::getDisplayName(char* buffer, int max)
+void Action::getDisplayName(char* buffer, int max)
 {
     // TODO: add a trigger prefix!
     buffer[0] = 0;
@@ -892,7 +894,7 @@ PUBLIC void Action::getDisplayName(char* buffer, int max)
  * Check a bunch of "not supposed to happen" integrity constraints to
  * find bugs.
  */
-PUBLIC void Action::setEvent(Event* e)
+void Action::setEvent(Event* e)
 {
     if (e != NULL) {
         if (mEvent != NULL) {
@@ -935,7 +937,7 @@ PUBLIC void Action::setEvent(Event* e)
  * since event/action relationships gets fuzzy in complex cases like
  * Multiply/Insert modes and loop switch.
  */
-PUBLIC void Action::changeEvent(Event* e)
+void Action::changeEvent(Event* e)
 {
     detachEvent(mEvent);
     setEvent(e);
@@ -944,7 +946,7 @@ PUBLIC void Action::changeEvent(Event* e)
 /**
  * Remove the relationship between an action and event.
  */
-PUBLIC void Action::detachEvent(Event* e)
+void Action::detachEvent(Event* e)
 {
     if (e != NULL && mEvent != e)
       Trace(1, "detachEvent: expected event not attached!\n");
@@ -957,7 +959,7 @@ PUBLIC void Action::detachEvent(Event* e)
     }
 }
 
-PUBLIC void Action::detachEvent()
+void Action::detachEvent()
 {
     detachEvent(mEvent);
 }
@@ -985,17 +987,17 @@ ActionPool::~ActionPool()
  * by Mobius which uses maintains a single app/interrupt coordination
  * csect.
  */
-PUBLIC Action* ActionPool::newAction()
+Action* ActionPool::newAction()
 {
     return allocAction(NULL);
 }
 
-PUBLIC Action* ActionPool::newAction(Action* src)
+Action* ActionPool::newAction(Action* src)
 {
     return allocAction(src);
 }
 
-PRIVATE Action* ActionPool::allocAction(Action* src)
+Action* ActionPool::allocAction(Action* src)
 {
     Action* action = mActions;
 
@@ -1017,7 +1019,7 @@ PRIVATE Action* ActionPool::allocAction(Action* src)
     return action;
 }
 
-PUBLIC void ActionPool::freeAction(Action* action)
+void ActionPool::freeAction(Action* action)
 {
     if (action != NULL) {
         if (action->isPooled())
@@ -1037,7 +1039,7 @@ PUBLIC void ActionPool::freeAction(Action* action)
     }
 }
 
-PUBLIC void ActionPool::dump()
+void ActionPool::dump()
 {
     int count = 0;
 

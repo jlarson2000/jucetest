@@ -175,6 +175,23 @@
         <FILE id="Vsg4sZ" name="TestPanel.h" compile="0" resource="0" file="Source/ui/TestPanel.h"/>
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
+        <GROUP id="{8E4BAFF4-3AEF-CED4-3179-55768C778B1C}" name="core">
+          <FILE id="bzTZ6i" name="Action.cpp" compile="1" resource="0" file="Source/mobius/core/Action.cpp"/>
+          <FILE id="KEOJ4i" name="Action.h" compile="0" resource="0" file="Source/mobius/core/Action.h"/>
+          <FILE id="FlcGxI" name="AudioInterface.cpp" compile="1" resource="0"
+                file="Source/mobius/core/AudioInterface.cpp"/>
+          <FILE id="TGNbG4" name="AudioInterface.h" compile="0" resource="0"
+                file="Source/mobius/core/AudioInterface.h"/>
+          <FILE id="fBI64E" name="Event.cpp" compile="1" resource="0" file="Source/mobius/core/Event.cpp"/>
+          <FILE id="FKv7IC" name="Event.h" compile="0" resource="0" file="Source/mobius/core/Event.h"/>
+          <FILE id="b9JQVm" name="EventManager.cpp" compile="1" resource="0"
+                file="Source/mobius/core/EventManager.cpp"/>
+          <FILE id="zyQLix" name="EventManager.h" compile="0" resource="0" file="Source/mobius/core/EventManager.h"/>
+          <FILE id="o71Rla" name="MidiByte.h" compile="0" resource="0" file="Source/mobius/core/MidiByte.h"/>
+          <FILE id="Semctj" name="MidiEvent.cpp" compile="1" resource="0" file="Source/mobius/core/MidiEvent.cpp"/>
+          <FILE id="d3nQF0" name="MidiEvent.h" compile="0" resource="0" file="Source/mobius/core/MidiEvent.h"/>
+          <FILE id="s9kpHB" name="MidiInterface.h" compile="0" resource="0" file="Source/mobius/core/MidiInterface.h"/>
+        </GROUP>
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
         <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>

@@ -15,182 +15,46 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "Thread.h"
-#include "List.h"
-#include "MessageCatalog.h"
+#include "../../util/Util.h"
+//#include "Thread.h"
+#include "../../util/List.h"
+//#include "MessageCatalog.h"
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
-#include "MidiInterface.h"
-#include "HostMidiInterface.h"
+//#include "MidiInterface.h"
+//#include "HostMidiInterface.h"
 
 #include "Action.h"
-#include "Binding.h"
-#include "BindingResolver.h"
-#include "ControlSurface.h"
+//#include "Binding.h"
+//#include "BindingResolver.h"
+//#include "ControlSurface.h"
 #include "Event.h"
 #include "Export.h"
 #include "Function.h"
-#include "HostConfig.h"
-#include "Launchpad.h"
+//#include "HostConfig.h"
+//#include "Launchpad.h"
 #include "Layer.h"
 #include "Loop.h"
 #include "MidiExporter.h"
 #include "MobiusThread.h"
 #include "Mode.h"
-#include "OscConfig.h"
+//#include "OscConfig.h"
 #include "Parameter.h"
 #include "Project.h"
-#include "Sample.h"
+//#include "Sample.h"
 #include "Script.h"
-#include "Setup.h"
+#include "../../model/Setup.h"
 #include "Synchronizer.h"
 #include "Track.h"
-#include "TriggerState.h"
-#include "UserVariable.h"
+//#include "TriggerState.h"
+#include "../../model/UserVariable.h"
 #include "WatchPoint.h"
 
 // temporary
-#include "OldBinding.h"
+//#include "OldBinding.h"
 
 #include "Mobius.h"
-
-// debugging, defined in WinAudioInterface
-#ifdef _WIN32
-extern bool WinAudioCatchCallbackExceptions;
-#endif
-
-/****************************************************************************
- *                                                                          *
- *   							MOBIUS CONTEXT                              *
- *                                                                          *
- ****************************************************************************/
-
-MobiusContext::MobiusContext()
-{
-	mCommandLine = NULL;
-	mInstallationDirectory = NULL;
-	mConfigurationDirectory = NULL;
-    mConfigFile = NULL;
-	mAudio = NULL;
-	mMidi = NULL;
-    mHostMidi = NULL;
-    mPlugin = false;
-	mDebugging = false;
-}
-
-MobiusContext::~MobiusContext()
-{
-	delete mCommandLine;
-	delete mInstallationDirectory;
-	delete mConfigurationDirectory;
-    delete mConfigFile;
-}
-
-PUBLIC void MobiusContext::setCommandLine(const char* s)
-{
-	delete mCommandLine;
-	mCommandLine = CopyString(s);
-}
-
-PUBLIC const char* MobiusContext::getCommandLine()
-{
-	return mCommandLine;
-}
-
-PUBLIC void MobiusContext::setPlugin(bool b)
-{
-	mPlugin = b;
-}
-
-PUBLIC bool MobiusContext::isPlugin()
-{
-	return mPlugin;
-}
-
-PUBLIC void MobiusContext::setDebugging(bool b)
-{
-	mDebugging = b;
-}
-
-PUBLIC bool MobiusContext::isDebugging()
-{
-	return mDebugging;
-}
-
-PUBLIC void MobiusContext::setInstallationDirectory(const char* s)
-{
-	delete mInstallationDirectory;
-	mInstallationDirectory = CopyString(s);
-}
-
-PUBLIC const char* MobiusContext::getInstallationDirectory()
-{
-	return mInstallationDirectory;
-}
-
-PUBLIC void MobiusContext::setConfigurationDirectory(const char* s)
-{
-	delete mConfigurationDirectory;
-	mConfigurationDirectory = CopyString(s);
-}
-
-PUBLIC const char* MobiusContext::getConfigurationDirectory()
-{
-	return mConfigurationDirectory;
-}
-
-PUBLIC void MobiusContext::setConfigFile(const char* s)
-{
-	delete mConfigFile;
-	mConfigFile = CopyString(s);
-}
-
-PUBLIC const char* MobiusContext::getConfigFile()
-{
-	return mConfigFile;
-}
-
-PUBLIC void MobiusContext::setAudioInterface(AudioInterface* a)
-{
-	mAudio = a;
-}
-
-PUBLIC AudioInterface* MobiusContext::getAudioInterface()
-{
-	return mAudio;
-}
-
-PUBLIC void MobiusContext::setMidiInterface(MidiInterface* m)
-{
-	mMidi = m;
-}
-
-PUBLIC MidiInterface* MobiusContext::getMidiInterface()
-{
-	return mMidi;
-}
-
-PUBLIC void MobiusContext::setHostMidiInterface(HostMidiInterface* m)
-{
-	mHostMidi = m;
-}
-
-PUBLIC HostMidiInterface* MobiusContext::getHostMidiInterface()
-{
-	return mHostMidi;
-}
-
-/**
- * Kludge to look for a few special command line args for debugging.
- * Normally the only command line arg is the name of a config file.
- * Really need to have a real command line parser.
- */
-PUBLIC void MobiusContext::parseCommandLine()
-{
-	mDebugging = StringEqualNoCase(mCommandLine, "debugging");
-}
 
 /****************************************************************************
  *                                                                          *
@@ -205,21 +69,6 @@ PUBLIC MobiusAlerts::MobiusAlerts()
     midiInputError = NULL;
     midiOutputError = NULL;
     midiThroughError = NULL;
-}
-
-/****************************************************************************
- *                                                                          *
- *                              MOBIUS INTERFACE                            *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Factory method for the environment glue to use to create the Mobius 
- * engine.  
- */
-PUBLIC MobiusInterface* MobiusInterface::getMobius(MobiusContext* con)
-{
-    return new Mobius(con);
 }
 
 /****************************************************************************
@@ -246,24 +95,24 @@ PUBLIC MobiusInterface* MobiusInterface::getMobius(MobiusContext* con)
  * as a plugin.
  */
 
-PUBLIC Mobius::Mobius(MobiusContext* context)
+PUBLIC Mobius::Mobius(MobiusKernel* kernel)
 {
     Trace(2, "Mobius::Mobius");
 
-	// really must pass one in, but avoid crashes and fake one up
-	if (context == NULL)
-	  context = new MobiusContext();
+	mMidi = new MidiInterfaceStub();
+    mAudioStream = new AudioStreamStub();
 
-	mContext = context;
+	// really must pass one in, but avoid crashes and fake one up
+	//if (context == NULL)
+    //context = new MobiusContext();
+	//mContext = context;
 	mPools = NULL;
-    mAudioPool = new AudioPool();
+    //mAudioPool = new AudioPool();
+    mAudioPool = kernel->getAudioPool();
     mLayerPool = new LayerPool(mAudioPool);
     mEventPool = new EventPool();
     mActionPool = new ActionPool();
-	mMidi = NULL;
     mListener = NULL;
-    mUIControls = NULL;
-    mUIParameters = NULL;
 	mConfig = NULL;
     mInterruptConfig = NULL;
     mPendingInterruptConfig = NULL;
@@ -272,15 +121,15 @@ PUBLIC Mobius::Mobius(MobiusContext* context)
     mResolvedTargets = NULL;
     mBindingResolver = NULL;
     mMidiExporter = NULL;
-	mOsc = NULL;
-    mControlSurfaces = NULL;
+	//mOsc = NULL;
+    //mControlSurfaces = NULL;
     mTriggerState = new TriggerState();
-	mRecorder = NULL;
+	//mRecorder = NULL;
 	mThread = NULL;
 	mTracks = NULL;
 	mTrack = NULL;
 	mTrackCount = 0;
-	mSampleTrack = NULL;
+	//mSampleTrack = NULL;
 	mVariables = new UserVariables();
     mFunctions = NULL;
 	mScriptEnv = NULL;
@@ -304,7 +153,7 @@ PUBLIC Mobius::Mobius(MobiusContext* context)
     mNewWatchers = new List();
 
 	// need this to manage the action list
-	mCsect = new CriticalSection("Mobius");
+	//mCsect = new CriticalSection("Mobius");
 
     // let's turn debug stream output on for now, what uses this??
     TraceToDebug = true;
@@ -314,12 +163,14 @@ PUBLIC Mobius::Mobius(MobiusContext* context)
     Function::initStaticFunctions();
     Parameter::initParameters();
 
-	parseCommandLine();
+	//parseCommandLine();
 
 	// reads the configuration file, but don't open devices
     // do not call installConfiguration yet, just save it for later
-	mConfig = loadConfiguration();
-    mHostConfigs = loadHostConfiguration();
+	//mConfig = loadConfiguration();
+    mConfig = kernel->getMobiusConfig();
+    
+    //mHostConfigs = loadHostConfiguration();
 
 	// set these early so we can trace errors during initialization
 	TracePrintLevel = mConfig->getTracePrintLevel();
@@ -332,108 +183,15 @@ PUBLIC Mobius::Mobius(MobiusContext* context)
     mInterruptConfig = new MobiusConfig(true);
 }
 
-/**
- * Kludge to look for a few special command line args for debugging.
- * Normally the only command line arg is the name of a config file.
- * Really need to have a real command line parser.
- */
-PRIVATE void Mobius::parseCommandLine()
-{
-	// context has its own parser
-	mContext->parseCommandLine();
-	if (mContext->isDebugging()) {
-		// TODO: Should do this for the Thread::run method to...
-		AudioInterfaceCatchExceptions = false;
-	}
-}
-
 /****************************************************************************
  *                                                                          *
  *                              MOBIUS INTERFACE                            *
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MobiusContext* Mobius::getContext()
-{
-    return mContext;
-}
-
 PUBLIC AudioStream* Mobius::getAudioStream()
 {
-	return (mRecorder != NULL) ? mRecorder->getStream() : NULL;
-}
-
-/**
- * Do internal preparations for exposing binding targets
- * including parameters, functions, and scripts.  Normally this
- * is deferred until the start() method is called because it can
- * be expensive.  
- *
- * Construction of the AU plugin requires that plugin parameters
- * be exposed immediately so this can't be delayed.  
- *
- * What this does is initialize all the function tables, load
- * all the scripts, and perform localization.
- *
- * !! Could at least whip over the parameters and skip this  
- * if none of them are function bingings?
- */
-PUBLIC void Mobius::preparePluginBindings() 
-{
-    // load scripts and initialize function tables
-    installScripts(mConfig->getScriptConfig(), false);
-
-    // do localization early so we can publish display names
-    localize();
-
-    // Bootstrap an initial set of parameter bindings if we don't have any
-    // Formerly done in MobiusPlugin but I don't want it editing configs.
-
-    // in theory there can be overlays...we won't track those
-    BindingConfig *bconfig = mConfig->getBaseBindingConfig();
-
-    int hostBindings = 0;
-    if (bconfig != NULL) {
-        for (Binding* b = bconfig->getBindings() ; b != NULL ; 
-             b = b->getNext()) {
-            if (b->getTrigger() == TriggerHost)
-              hostBindings++;
-        }
-    }
-
-    if (hostBindings == 0) {
-        if (bconfig == NULL) {
-            bconfig = new BindingConfig();
-            mConfig->addBindingConfig(bconfig);
-        }
-
-        // could also use controls for these, any preference?
-        // !! yes, make these controls I want to deprecate the parameters
-        int id = 0;
-        addBinding(bconfig, InputLevelParameter, id++);
-        addBinding(bconfig, OutputLevelParameter, id++);
-        addBinding(bconfig, FeedbackLevelParameter, id++);
-        addBinding(bconfig, AltFeedbackLevelParameter, id++);
-        addBinding(bconfig, PanParameter, id++);
-        addBinding(bconfig, TrackParameter, id++);
-        addBinding(bconfig, QuantizeParameter, id++);
-        addBinding(bconfig, SwitchQuantizeParameter, id++);
-
-        writeConfiguration(mConfig);
-    }
-}
-
-/**
- * Bootstrap a binding for a parameter.
- */
-PRIVATE void Mobius::addBinding(BindingConfig* config, Parameter* param, int id)
-{
-    Binding* b = new Binding();
-    b->setTarget(TargetParameter);
-    b->setName(param->getName());
-    b->setTrigger(TriggerHost);
-    b->setValue(id);
-    config->addBinding(b);
+    return mAudioStream;
 }
 
 /**
@@ -441,50 +199,32 @@ PRIVATE void Mobius::addBinding(BindingConfig* config, Parameter* param, int id)
  */
 PUBLIC void Mobius::start()
 {
-	if (mRecorder == NULL) {
-
-        // kludge for debugging during the interrupt, need to 
-        // have a way to configure this
-#ifdef _WIN32
-        WinAudioCatchCallbackExceptions = false;
-#endif
 
 		initObjectPools();
 
-        // listen for MIDI events
-		mMidi = mContext->getMidiInterface();
-		mMidi->setListener(this);
-		// get the timer thread going so we don't have to initialize
-		// it the moment we need to start sending clocks
-		mMidi->timerStart();
-
-        // this must not start interrupts yet
-		mRecorder = new Recorder(mContext->getAudioInterface(), mMidi, 
-                                 mAudioPool);
-		mRecorder->setMonitor(this);
-		
+        // will need a way for this to get MIDI
 		mSynchronizer = new Synchronizer(this, mMidi);
 
 		mThread = new MobiusThread(this);
 		mThread->start();
 
 		// once the thread starts we can start queueing trace messages
-		if (!mContext->isDebugging())
-		  mThread->setTraceListener(true);
+		//if (!mContext->isDebugging())
+        mThread->setTraceListener(true);
 
 		// put the sample track first so it may put things into the
 		// input buffer for the loop tracks
-		mSampleTrack = new SampleTrack(this);
-		mRecorder->add(mSampleTrack);
+		//mSampleTrack = new SampleTrack(this);
+		//mRecorder->add(mSampleTrack);
 
 		// this will trigger track initialization, open devices,
 		// load scripts, etc.
 		installConfiguration(mConfig, true);
 
 		// start the recorder (opens streams) and begins interrupt
-        mRecorder->start();
+        //mRecorder->start();
 
-		updateControlSurfaces();
+		//updateControlSurfaces();
 
         // Formerly looked for an init.mos script and ran it.
         // Never used this and it didn't fit well in the new ScriptEnv world.
@@ -495,10 +235,10 @@ PUBLIC void Mobius::start()
         // the internal objects, this may already have been done if 
         // preparePluginBidnings was called.  Could have done this earlier
         // after we intalled scripts.
-		localize();
+		//localize();
 
         // crank up OSC
-        mOsc = new OscRuntime(this);
+        //mOsc = new OscRuntime(this);
 	}
 }
 
@@ -552,6 +292,7 @@ PUBLIC MobiusAlerts* Mobius::getAlerts()
  * Special latency calibration interface.
  * 
  */
+#if 0
 PUBLIC CalibrationResult* Mobius::calibrateLatency()
 {
 	CalibrationResult* result = NULL;
@@ -582,75 +323,12 @@ PUBLIC CalibrationResult* Mobius::calibrateLatency()
 
 	return result;
 }
+#endif
 
 PUBLIC int Mobius::getActiveTrack()
 {
     return (mTrack != NULL) ? mTrack->getRawNumber() : 0;
 }
-
-/****************************************************************************
- *                                                                          *
- *                                UI BINDABLES                              *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Called by the UI (down here represented as a MobiusListener)
- * to register the objects that are supported for binding.
- * To avoid having another resolver method, we'll kick off
- * resolution here after setting.  Enable warning messages about
- * missign bindings this time.
- *
- * TODO: Think about generalizing this so there is just one thing
- * that can behave like a parameter or a control!!
- */
-PUBLIC void Mobius::setUIBindables(UIControl** controls, 
-                                   UIParameter** parameters)
-{
-    mUIControls = controls;
-    mUIParameters = parameters;
-
-    // allow these to be localized
-    localizeUIControls();
-
-    // look for any resolved targets...hate how this works
-    // can't bind to UIParameters yet
-    for (ResolvedTarget* rt = mResolvedTargets ; rt != NULL ; rt = rt->getNext()) {
-        if (rt->getTarget() == TargetUIControl && 
-            rt->getObject() == NULL) {
-
-            UIControl* uic = getUIControl(rt->getName());
-            if (uic != NULL)
-              rt->setObject(uic);
-            else {
-                // now we can complain
-                Trace(1, "Unrecognized UIControl target: %s\n", rt->getName());
-            }
-        }
-    }
-}
-
-PUBLIC UIControl** Mobius::getUIControls()
-{
-    return mUIControls;
-}
-
-PUBLIC UIControl* Mobius::getUIControl(const char* name)
-{
-    UIControl* found = NULL;
-    if (name != NULL && mUIControls != NULL) {
-        for (int i = 0 ; mUIControls[i] != NULL ; i++) {
-            UIControl* c = mUIControls[i];
-            if (StringEqualNoCase(name, c->getName()) ||
-                StringEqualNoCase(name, c->getDisplayName())) {
-                found = c;
-                break;
-            }
-        }
-    }
-    return found;
-}
-
 
 /****************************************************************************
  *                                                                          *
@@ -664,8 +342,8 @@ PUBLIC UIControl* Mobius::getUIControl(const char* name)
 PUBLIC int Mobius::getSampleRate()
 {
     int rate = CD_SAMPLE_RATE;
-    if (mRecorder != NULL)
-      rate = mRecorder->getStream()->getSampleRate();
+    //if (mRecorder != NULL)
+    //rate = mRecorder->getStream()->getSampleRate();
     return rate;
 }
 
@@ -683,6 +361,7 @@ PUBLIC UserVariables* Mobius::getVariables()
  * where we put captured audio files, and where we expect
  * to find scripts when using relative paths.
  */
+#if 0
 PUBLIC const char* Mobius::getHomeDirectory()
 {
 	// TODO: MobiusThread supports a MOBIUS_HOME environment
@@ -694,6 +373,7 @@ PUBLIC const char* Mobius::getHomeDirectory()
 
 	return home;
 }
+#endif
 
 /**
  * We're a trace context, supply track/loop/time.
@@ -711,6 +391,7 @@ PUBLIC void Mobius::getTraceContext(int* context, long* time)
  * Just a stub right now for the Launchpad, need to figure out
  * how to make this more pluggable.
  */
+#if 0
 PRIVATE void Mobius::updateControlSurfaces()
 {
 	delete mControlSurfaces;
@@ -727,6 +408,7 @@ PRIVATE void Mobius::updateControlSurfaces()
 		}
 	}
 }
+#endif
 
 /**
  * Shut mobius down, but leave most of the structure intact.
@@ -756,8 +438,8 @@ PRIVATE void Mobius::stop()
 	// a final MIDI stop event if the timer has a MidiOutput port,
 	// not sure how necessary that is if we're being deleted, but
 	// may as well
-	if (mRecorder != NULL)
-	  mRecorder->shutdown();
+	//if (mRecorder != NULL)
+    //mRecorder->shutdown();
 
 	// sleep to make sure we're not in a timer or midi interrupt
 	SleepMillis(100);
@@ -788,10 +470,10 @@ PUBLIC void Mobius::emergencyExit()
 {
 	Trace(1, "Mobius: emergency exit!\n");
 	Trace(1, "Mobius: Shutting down MIDI...\n");
-	MidiInterface::exit();
+	//MidiInterface::exit();
 
 	Trace(1, "Mobius: Shutting down Audio...\n");
-	AudioInterface::exit();
+	//AudioInterface::exit();
 
 	Trace(1, "Mobius: Attempting to exit...\n");
 	exit(1);	
@@ -815,21 +497,21 @@ PUBLIC Mobius::~Mobius()
 
     delete mWatchers;
     delete mTriggerState;
-	delete mRecorder;	// will delete the Tracks too
+	//delete mRecorder;	// will delete the Tracks too
 	delete mThread;
-	delete mContext;
-	delete mConfig;
+	//delete mContext;
+	//delete mConfig;
     delete mInterruptConfig;
     delete mPendingInterruptConfig;
-	delete mBindingResolver;
+	//delete mBindingResolver;
     delete mMidiExporter;
-	delete mOsc;
-    delete mControlSurfaces;
+	//delete mOsc;
+    //delete mControlSurfaces;
     delete mFunctions;
 	delete mScriptEnv;
 	delete mTracks;
 	delete mSynchronizer;
-	delete mCatalog;
+	//delete mCatalog;
     delete mVariables;
 
     // avoid a warning message
@@ -848,16 +530,11 @@ PUBLIC Mobius::~Mobius()
     mLayerPool->dump();
     delete mLayerPool;
 
-    mAudioPool->dump();
-    delete mAudioPool;
-}
+    //mAudioPool->dump();
+    //delete mAudioPool;
 
-PUBLIC MessageCatalog* Mobius::getMessageCatalog()
-{
-    // no one should need this until we're fully initialized, 
-    // if so trace it and figure out why
-
-	return mCatalog;
+    delete mMidi;
+    delete mAudioStream;
 }
 
 PUBLIC void Mobius::setCheckInterrupt(bool b)
@@ -977,17 +654,6 @@ PUBLIC Setup* Mobius::getInterruptSetup()
  ****************************************************************************/
 
 /**
- * Return a read-only configuration object describing how various
- * plugin hosts behave.  This is not editable and intended only
- * for use by the VST and AU plugin implmeentations.
- */
-PUBLIC HostConfigs* Mobius::getHostConfigs()
-{
-    // formerly inside MobiusConfig, now standalone
-    return mHostConfigs;
-}
-
-/**
  * Return the read-only configuration for the UI threads, MobiusThread, 
  * and anything else "outside the interrupt".
  * 
@@ -1027,7 +693,7 @@ PUBLIC MobiusConfig* Mobius::getInterruptConfiguration()
  */
 PUBLIC Recorder* Mobius::getRecorder()
 {
-    return mRecorder;
+    return mKernel->getRecorder();
 }
 
 /**
@@ -1048,382 +714,6 @@ PUBLIC int Mobius::getTrackPreset()
     return index;
 }
 
-/**
- * Change the current binding overlay.  
- * Note that this does not need to rebuild the BindingResolver model,
- * the next time we get a trigger we just look in the new overlay.
- * 
- * This is public only for BindingsParameter.
- */
-PUBLIC void Mobius::setOverlayBindings(BindingConfig* config)
-{
-    mConfig->setOverlayBindingConfig(config);
-}
-
-/**
- * Locate and read the configuration file.
- * There are two places this can be, a "configuration" directory and
- * an "installation" directory.  On Windows these will always be the same,
- * on OSX the installation directory will normally be the Resources
- * directory of the application bundle and the configuration directory
- * will be under /Library/Application Support.  We try to bootstrap a
- * support directory, if we fail the config directory defaults to the
- * installation directory.
- */
-PRIVATE MobiusConfig* Mobius::loadConfiguration()
-{
-	MobiusConfig *config = NULL;
-
-	// locate config file
-    const char* file = mContext->getConfigFile();
-	if (file == NULL) {
-        char buffer[1024 * 8];
-
-		if (findConfigurationFile("mobius.xml", buffer, sizeof(buffer))) {
-            mContext->setConfigFile(buffer);
-        }
-		else {
-			// punt and create one here
-			// this is almost always wrong if we're a VST!!
-            // !! Need some way to store serious errors so they can
-            // be presented when the UI finally comes up
-			Trace(1, "No mobius.xml file found, creating one!\n");
-			GetFullPath("mobius.xml", buffer, sizeof(buffer));
-            mContext->setConfigFile(buffer);
-		}
-        file = mContext->getConfigFile();
-	}
-
-    printf("Reading Mobius configuration file: %s\n", file);
-    fflush(stdout);
-    char* xml = ReadFile(file);
-    if (xml == NULL || strlen(xml) == 0) {
-        // leave an error message behind to show when the UI
-        // eventually comes up?
-        Trace(1, "Mobius: Empty mobius.xml file\n");
-    }
-    else {
-        config = new MobiusConfig(xml);
-        delete xml;
-        xml = NULL;
-
-        if (config->getError() != NULL) {
-            // save error for later display?
-            Trace(1, "Mobius: Exception loading configuration %s\n", 
-                  config->getError());
-        }
-
-        // kludge: we took this out of the UI so ignore it in XML files
-        // until we can find a use for it.  Have to do this up here
-        // rather than in the constructor because we parse XML for cloning
-        // and we do need to turn this on and off in the unit tests
-        for (Preset* p = config->getPresets() ; p != NULL ; p = p->getNext())
-          p->setNoLayerFlattening(false);
-    }
-
-	// if at the end of all this we were'nt able to load anything
-	// create some dummy objects so we don't have to check anymore
-    bool upgrade = false;
-	if (config == NULL) {
-		config = new MobiusConfig();
-        upgrade = true;
-	}
-
-    if (config->getPresets() == NULL) {
-        Trace(2, "Mobius: Bootstrapping preset\n");
-        Preset* p = new Preset();
-        p->reset();
-        p->setName("Default");
-        config->addPreset(p);
-        upgrade = true;
-    }
-
-    // Upgrade the old track groups parameter from the MidiConfig
-    // to the global config.
-    if (config->getTrackGroups() == 0) {
-        int groups = DEFAULT_TRACK_GROUPS;
-        MidiConfig* mcs = config->getMidiConfigs();
-        if (mcs != NULL) {
-            for (MidiConfig* mc = mcs ; mc != NULL ; mc = mc->getNext()) {
-                int count = mc->getTrackGroups();
-                if (count > groups) 
-                  groups = count;
-            }
-        }
-        Trace(2, "Mobius: Upgrading track groups parameter to %ld\n", (long)groups);
-        config->setTrackGroups(groups);
-        upgrade = true;
-    }
-
-    // since the default on this is low always look through the presets
-    // to make sure it will be large enough
-    int maxLoops = 0;
-    Preset* presets = config->getPresets();
-    if (presets != NULL) {
-        for (Preset* p = presets ; p != NULL ; p = p->getNext()) {
-            int pcount = p->getLoops();
-            if (pcount > maxLoops)
-              maxLoops = pcount;
-        }
-    }
-    if (maxLoops > config->getMaxLoops()) {
-        Trace(2, "Mobius: Upgrading max loops parameter to %ld\n", (long)maxLoops);
-        config->setMaxLoops(maxLoops);
-        upgrade = true;
-    }
-
-    // upgrade MidiConfigs to BindingConfig overlays
-    // don't merge into the base config since we can't tell if they're
-    // intended to be completely distinct
-    MidiConfig* mconfigs = config->getMidiConfigs();
-    if (mconfigs != NULL) {
-        Trace(2, "Upgrading MidiConfigs\n");
-        BindingConfig* bconfigs = config->getBindingConfigs();
-        if (bconfigs != NULL && bconfigs->getNext() != NULL) {
-            // already had overlays, odd
-            Trace(1, "Upgrading MidiConfigs into existing overlays\n");
-        }
-
-        for (MidiConfig* mc = mconfigs ; mc != NULL ; mc = mc->getNext()) {
-            BindingConfig* neu = mc->upgrade();
-            // in theory we have to worry about name collisions with
-            // the existing overlays, but we shouldn't have overlays
-            // if we're upgradeing MidiConfigs
-            config->addBindingConfig(neu);
-        }
-
-        if (config->getOverlayBindingConfig() == NULL) {
-            const char* selected = config->getSelectedMidiConfig();
-            if (selected != NULL)
-              config->setOverlayBindingConfig(selected);
-        }
-
-        // don't leave them around, only convert once
-        config->clearMidiConfigs();
-        upgrade = true;
-    }
-
-    // have to do this after setting mConfig
-    if (upgrade)
-      writeConfiguration(config);
-
-    // KLUDGE: we have one Parameter whose maximum value can 
-    // be configured: selectedTrack.  Since we have to know the
-    // maximum value for the parameter this either has to be
-    // set after we load the configuration, or we have to look
-    // it up at run time.  It's much easier to set it here,
-    // runtime lookup requires passing in an Export or some
-    // other way to get to the MobiusConfig.  This can't be changed
-    // without a restart anyway.
-    TrackParameter->high = config->getTracks();
-
-    return config;
-}
-
-PRIVATE HostConfigs* Mobius::loadHostConfiguration()
-{
-	HostConfigs *config = NULL;
-    
-	// locate config file
-    char buffer[1024 * 8];
-
-    if (!findConfigurationFile("host.xml", buffer, sizeof(buffer))) {
-        // could bootstrap one but it really should exist
-        Trace(1, "No host.xml file found!\n");
-        config = new HostConfigs();
-    }
-    else {
-        printf("Reading Mobius host configuration file: %s\n", buffer);
-        fflush(stdout);
-        char* xml = ReadFile(buffer);
-        if (xml == NULL || strlen(xml) == 0) {
-            // leave an error message behind to show when the UI
-            // eventually comes up?
-            Trace(1, "Empty host.xml file\n");
-        }
-        else {
-            config = new HostConfigs(xml);
-            delete xml;
-            xml = NULL;
-
-            if (config->getError() != NULL) {
-                // save error for later display when we have a window?
-                Trace(1, "Exception loading host.xml %s\n", config->getError());
-            }
-        }
-    }
-
-    return config;
-}
-
-/**
- * This is public so the UI can all it from a menu.
- */
-PUBLIC void Mobius::reloadOscConfiguration()
-{
-    if (mOsc != NULL)
-      mOsc->reloadConfigurationFile(this);
-}
-
-/**
- * Locate a configuration file.  
- * Prefer the alternate configuration directory if we have one, 
- * otherwise default to the installation directory.
- */
-PUBLIC bool Mobius::findConfigurationFile(const char* name, char* path, int max)
-{
-	bool found = false;
-
-	strcpy(path, "");
-
-    // !! TODO range check the path
-
-	// check configuration directory
-	const char* srcdir = mContext->getConfigurationDirectory();
-	if (srcdir != NULL) {
-		sprintf(path, "%s/%s", srcdir, name);
-		found = IsFile(path);
-	}
-
-	if (!found) {
-		// check installation directory
-		const char* srcdir = mContext->getInstallationDirectory();
-		if (srcdir != NULL) {
-			sprintf(path, "%s/%s", srcdir, name);
-			found = IsFile(path);
-		}
-	}
-	
-	return found;
-}
-
-/**
- * Return true if the list of bindables has changed in a way that
- * is significant for bindings.  The significant changes are adding,
- * removing, or renaming objects.
- */
-PRIVATE bool Mobius::isBindableDifference(Bindable* orig,
-                                          Bindable* neu)
-{
-    bool difference = false;
-    Bindable* b;
-    
-    int origCount = 0;
-    for (b = orig ; b != NULL ; b = b->getNextBindable())
-      origCount++;
-
-    int newCount = 0;
-    for (b = neu ; b != NULL ; b = b->getNextBindable())
-      newCount++;
-
-    if (newCount != origCount) {
-        difference = true;
-    }
-    else {
-        // technicacally we shouldn't let order make a difference
-        // but this is just an configuration update optimization
-        while (orig != NULL && !difference) {
-            if (!StringEqual(orig->getName(), neu->getName()))
-              difference = true;
-            else {
-                orig = orig->getNextBindable();
-                neu = neu->getNextBindable();
-            }
-        }
-    }
-
-    return difference;
-}
-
-/**
- * Return a standalone read/write version of the configuration.
- * This is intended for use by the UI that will make changes
- * and then call setPresetConfiguration, setSetupConfiguration, 
- * setGeneralConfiguration, setBindingConfiguration, or
- * setFullConfiguration.
- */
-PUBLIC MobiusConfig* Mobius::editConfiguration()
-{
-    // bootstrap if necessary
-    MobiusConfig* config = getConfiguration();
-
-    // make sure these are clear, actually it doesn't matter
-    config->setNoSetupChanges(false);
-    config->setNoPresetChanges(false);
-
-    // make the selected preset reflect the current track
-    Preset* p = mTrack->getPreset();
-    config->setCurrentPreset(p->getNumber());
-
-    return config->clone();
-}
-
-/**
- * Called by the UI to update our configuration after preset editing.
- * This is a kludge to prevent transient track and setup parameters from
- * being lost if we did not edit presets.  I don't like this "scoping"
- * of config edits.
- */
-PUBLIC void Mobius::setPresetConfiguration(MobiusConfig* config)
-{
-    config->setNoSetupChanges(true);
-    config->setNoPresetChanges(false);
-
-    // do bindings only if the presets have changed
-    bool doBindings = isBindableDifference(mConfig->getPresets(), 
-                                           config->getPresets());
-
-    setConfiguration(config, doBindings);
-}
-
-/**
- * Called by the UI to update our configuration after setup editing.
- * This is a kludge to prevent transient parameters from
- * being lost if we did not edit setups.  I don't like this "scoping"
- * of config edits.
- */
-PUBLIC void Mobius::setSetupConfiguration(MobiusConfig* config)
-{
-    config->setNoSetupChanges(false);
-    config->setNoPresetChanges(true);
-
-    // do bindings only if the setups have changed
-    bool doBindings = isBindableDifference(mConfig->getSetups(), 
-                                           config->getSetups());
-
-    setConfiguration(config, false);
-}
-
-/**
- * KLUDGE: Configuration updater that sets two flags to prevent
- * refreshing preset and setup state in tracks.
- * Call this when you edit anything in the config except presets
- * and setups.
- *
- * Currently used by UI after editing the MIDI Devices, Audio Devices,
- * global parameters, scripts, and samples.
- */
-PUBLIC void Mobius::setGeneralConfiguration(MobiusConfig* config)
-{
-    config->setNoSetupChanges(true);
-    config->setNoPresetChanges(true);
-    setConfiguration(config, false);
-}
-
-/**
- * Apply changes to the congiguration that are only related to 
- * bindings.
- *
- * Currently used by UI after editing the MIDI bindings, Keyboard bindings,
- * and plugin parameters.
- */
-PUBLIC void Mobius::setBindingConfiguration(MobiusConfig* config)
-{
-    config->setNoSetupChanges(true);
-    config->setNoPresetChanges(true);
-    setConfiguration(config, true);
-}
-
 PUBLIC void Mobius::setFullConfiguration(MobiusConfig* config)
 {
     config->setNoSetupChanges(false);
@@ -1440,17 +730,9 @@ PUBLIC void Mobius::setFullConfiguration(MobiusConfig* config)
  * unnecessary work?
  *
  */
-PRIVATE void Mobius::setConfiguration(MobiusConfig* config, bool doBindings)
+PRIVATE void Mobius::setConfiguration(MobiusConfig* config)
 {
-    if (config == mConfig) {
-        // not supposed to be doing this!!
-        Trace(1, "Mobius: setConfiguration called without a clone!\n");
-        delete config;
-    }
-    else {
-        installConfiguration(config, doBindings);
-
-        writeConfiguration(config);
+        installConfiguration(config);
 
         // If the track count changed, send the UI an alert so the user
         // knows they have to restart.  This can only be done from the UI thread
@@ -1466,29 +748,6 @@ PRIVATE void Mobius::setConfiguration(MobiusConfig* config, bool doBindings)
               mListener->MobiusAlert(message);
         }
     }
-}
-
-/**
- * Save whatever is in the current configuration.
- */
-PUBLIC void Mobius::writeConfiguration()
-{
-    writeConfiguration(mConfig);
-}
-
-/**
- * Write the configuration back to the file it was read from.
- */
-PRIVATE void Mobius::writeConfiguration(MobiusConfig* config)
-{
-	const char* file = mContext->getConfigFile();
-	if (config != NULL && file != NULL) {
-		printf("Writing Mobius configuation file: %s\n", file);
-        fflush(stdout);
-		char* xml = config->toXml();
-		WriteFile(file, xml);
-		delete xml;
-	}
 }
 
 /**
@@ -1517,15 +776,15 @@ PRIVATE void Mobius::writeConfiguration(MobiusConfig* config)
  * because all dialogs are modal.
  *
  */
-PRIVATE void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
+PRIVATE void Mobius::installConfiguration(MobiusConfig* config)
 {
     // Push the new one onto the history list
     // Need to be smarter about detecting loops in case the UI isn't
     // behaving well and giving us old objects
-    if (config != mConfig) {
-        config->setHistory(mConfig);
-        mConfig = config;
-    }
+    //if (config != mConfig) {
+    //config->setHistory(mConfig);
+    //mConfig = config;
+    //}
     
     // Sanity check on some important parameters
     // TODO: Need more of these...
@@ -1537,40 +796,10 @@ PRIVATE void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
 	// Build the track list if this is the first time
 	buildTracks(config->getTracks());
 
-	// load the samples
-    // note that installation has to be deferred to the interrupt handler
-    SamplePack* newSamples = NULL;
-	Samples* samples = config->getSamples();
-    if (samples != NULL) {
-        // only reload if there was a difference in order or files 
-        // we could be smarter and only reread things that are new
-        // but this isn't a commonly used features
-        if (mSampleTrack->isDifference(samples))
-          newSamples = new SamplePack(mAudioPool, getHomeDirectory(), samples);
-    }
-    else {
-        // in order to remove current samples we need a non-null
-        // SamplePack object to pass to the interrupt
-        if (mSampleTrack->getSampleCount() > 0)
-          newSamples = new SamplePack();
-    }
+    // removed Sample handling
 
-    if (newSamples != NULL) {
-        // this is bad, it would be safer just to ignore the shift
-        // but then we couldn't edit samples before we add audio devices
-        // !! ignore if we're receiving interrupts but allow otherwise
-        // this can happen if you're messing with configs and don't have
-        // an audio device selected
-        Trace(2, "Mobius: phasing in sample changes\n");
-        if (mPendingSamples != NULL) {
-            if (mInterrupts > 0)
-              Trace(1, "Mobius: Overflow installing samples\n");
-            else
-              delete mPendingSamples;
-        }
-        mPendingSamples = newSamples;
-    }
-
+    // don't need this
+    
     // shift this into the interrupt thread
     // !! I'm sure there are some small race conditions below where
     // we're making structural changes to tracks and such that may
@@ -1591,7 +820,7 @@ PRIVATE void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
         // !! should also force the MobiusPluginParameters to be rebuilt
         // since they can be referencing the old RunScriptFunction objects,
         // as it is they will continue to ref the old scripts
-        doBindings = true;
+        //doBindings = true;
     }
 
     // update focus lock/mute cancel limits
@@ -1606,75 +835,8 @@ PRIVATE void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
     // a project?  Would need to coordinate this with MobiusThread
 	Audio::setWriteFormatPCM(config->isIntegerWaveFile());
 
-    // Open devices 
-	// Avoid messing with actual devices if we're in test mode
-    // Recorder is smart to not open/close devices if nothing changed
-	if (mRecorder != NULL) {
-
-		bool success = false;
-		
-		// If we're a VST, then we normally don't open MIDI devices unless
-		// specifically directed.  If there is an "external" MidiInterface it
-		// means we're a plugin
-
-		// note that it is important to call the MidiInterface set*Port
-		// methods even if the port is null so we can close the previous ports
-
-		const char* input = mConfig->getMidiInput();
-		if (mContext->isPlugin())
-		  input = mConfig->getPluginMidiInput();
-
-		success = mMidi->setInput(input);
-		if (!success) {
-			Trace(1, "Mobius: Unable to open MIDI input: %s\n", input);
-			// would be nice to popup a dialog, but don't assume we have a UI
-			// if we do it will call one of the get*Error methods to
-			// get the error messages
-		}
-
-		const char* output = mConfig->getMidiOutput();
-		if (mContext->isPlugin())
-		  output = mConfig->getPluginMidiOutput();
-
-		success = mMidi->setOutput(output);
-		if (!success)
-		  Trace(1, "Mobius: Unable to open MIDI output: %s\n", output);
-
-		const char* thru = mConfig->getMidiThrough();
-		if (mContext->isPlugin())
-		  thru = mConfig->getPluginMidiThrough();
-
-		success = mMidi->setThrough(thru);
-		if (!success)
-		  Trace(1, "Mobius: Unable to open MIDI through: %s\n", thru);
-
-		// audio devices
-		mRecorder->setSuggestedLatencyMsec(mConfig->getSuggestedLatencyMsec());
-		mRecorder->setInputDevice(mConfig->getAudioInput());
-		mRecorder->setOutputDevice(mConfig->getAudioOutput());
-
-        // safe to do always?
-        AudioSampleRate rate = mConfig->getSampleRate();
-        if (rate == SAMPLE_RATE_48000)
-          mRecorder->setSampleRate(48000);
-        else
-          mRecorder->setSampleRate(44100);
-                                   
-		// reset this so we trace new latency values
-		mInterrupts = 0;
-		mRecorder->start();
-	}
-
-	// rebuild the handler jump table
-    // only have to do this when the MobiusConfiguration changes
-    // so the ResolvedTargets point to the new Bindables
-    if (doBindings)
-      updateBindings();
-
-    // OSC gets network parameters from the global config
-    if (mOsc != NULL)
-      mOsc->updateGlobalConfiguration(this);
-
+    // removed device opening and Recorder init
+    
 	// If we were editing the Setups, then it is expected that we
 	// change the selected track if nothing else is going on
     // !! seems like there should be more here, for every track in reset
@@ -1740,64 +902,6 @@ PRIVATE void Mobius::buildTracks(int count)
     }
 }
 
-/**
- * Rebuild the binding cache to reflect changes made to the binding definitions,
- * the scripts, or one of the bindable config objects
- * (presets, setups, overlays).
- * 
- * Have to be careful since the MIDI thread can be using the current
- * binding cache, so build and set the new one before deleting the old one.
- *
- * !! This is messy.  Need a more encapsulated environment for ui level threads
- * that gets phased in consistently instead of several pieces.
- */
-PRIVATE void Mobius::updateBindings()
-{
-    BindingResolver* old = mBindingResolver;
-    mBindingResolver = new BindingResolver(this);
-
-    // pause to make sure the new one is being used
-    // would be better if we assigned it as a pending change and
-    // processed it on the next MIDI interrupt
-    SleepMillis(100);
-        
-    delete old;
-
-    // This could be in use by MobiusThread so have to phase
-    // it out and let MobiusThread reclaim it.
-    MidiExporter* exporter = new MidiExporter(this);
-    exporter->setHistory(mMidiExporter);
-    mMidiExporter = exporter;
-
-    // refresh the previously resolved targets
-    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
-        Target* target = t->getTarget();
-
-        // The new target may no longer exist in which case the binding
-        // goes to null.  Trigger processing needs to deal with this.
-
-        if (target == TargetFunction) {
-            // !! is this safe?  shouldn't be be getting a new 
-            // RunScriptFunction wrapper too?
-            Function* f = (Function*)t->getObject();
-            if (f != NULL && f->isScript()) {
-                Script* script = (Script*)f->object;
-                f->object = mScriptEnv->getScript(script);
-            }
-        }
-        else if (target == TargetSetup) {
-            t->setObject(mConfig->getSetup(t->getName()));
-        }
-        else if (target == TargetPreset) {
-            t->setObject(mConfig->getPreset(t->getName()));
-        }
-        else if (target == TargetBindings) {
-            t->setObject(mConfig->getBindingConfig(t->getName()));
-        }
-    }
-
-}
-
 /****************************************************************************
  *                                                                          *
  *                            SCRIPT CONFIGURATION                          *
@@ -1812,6 +916,7 @@ PRIVATE void Mobius::updateBindings()
  * whenever the script config changes.  The actions become owned by the caller
  * and must be returned to the pool.
  */
+#if 0
 PUBLIC Action* Mobius::getScriptButtonActions()
 {
     Action* actions = NULL;
@@ -1850,6 +955,7 @@ PUBLIC Action* Mobius::getScriptButtonActions()
 
     return actions;
 }
+#endif
 
 /**
  * Force a reload of all scripts, useful for debugging when
@@ -1912,8 +1018,8 @@ PRIVATE bool Mobius::installScripts(ScriptConfig* config, bool force)
 
         // have to update ResolvedTargets to point to the new scripts
         // if we're not forcing, then let the caller do it
-        if (force)
-          updateBindings();
+        //if (force)
+        //updateBindings();
     }
 
     return changed;
@@ -2258,6 +1364,7 @@ PRIVATE void Mobius::loadProjectInternal(Project* p)
         // !! this will override what was in the Setup which I guess
         // is okay if you changed it before saving the project, but most
         // of the time this will already have been set during setSetupInternal
+        #if 0
 		name = p->getBindings();
 		if (name != NULL) {
 			BindingConfig* bindings = mConfig->getBindingConfig(name);
@@ -2275,7 +1382,8 @@ PRIVATE void Mobius::loadProjectInternal(Project* p)
 				  setTrack(i);
 			}
 		}
-
+        #endif
+        
         // may now have master tracks
         mSynchronizer->loadProject(p);
 	}
@@ -2370,9 +1478,9 @@ PUBLIC Project* Mobius::saveProject()
 {
     Project* p = new Project();
 
-    BindingConfig* overlay = mConfig->getOverlayBindingConfig();
-    if (overlay != NULL)
-      p->setBindings(overlay->getName());
+    //BindingConfig* overlay = mConfig->getOverlayBindingConfig();
+    //if (overlay != NULL)
+    //p->setBindings(overlay->getName());
 
 	Setup* s = mConfig->getCurrentSetup();
 	if (s != NULL)
@@ -2416,10 +1524,10 @@ PUBLIC MobiusState* Mobius::getState(int track)
 PUBLIC int Mobius::getReportedInputLatency()
 {
 	int latency = 0;
-	if (mRecorder != NULL) {
-		AudioStream* stream = mRecorder->getStream();
-		latency = stream->getInputLatencyFrames();
-	}
+    //	if (mRecorder != NULL) {
+    //AudioStream* stream = mRecorder->getStream();
+    //latency = stream->getInputLatencyFrames();
+    //}
 	return latency;
 }
 
@@ -2432,24 +1540,24 @@ PUBLIC int Mobius::getEffectiveInputLatency()
 {
 	int latency = mConfig->getInputLatency();
 	if (latency == 0)
-	  latency = getReportedInputLatency();
+      latency = getReportedInputLatency();
 	return latency;
 }
 
 PUBLIC int Mobius::getReportedOutputLatency()
 {
 	int latency = 0;
-	if (mRecorder != NULL) {
-		AudioStream* stream = mRecorder->getStream();
-		latency = stream->getOutputLatencyFrames();
-	}
+	//if (mRecorder != NULL) {
+    //AudioStream* stream = mRecorder->getStream();
+    //latency = stream->getOutputLatencyFrames();
+    //}
 	return latency;
 }
 
 PUBLIC int Mobius::getEffectiveOutputLatency()
 {
 	int latency = mConfig->getOutputLatency();
-	if (latency == 0)
+    if (latency == 0)
 	  latency = getReportedOutputLatency();
 	return latency;
 }
@@ -2473,10 +1581,10 @@ PUBLIC void Mobius::logStatus()
 
     printf("*** Mobius engine status:\n");
 
-	if (mRecorder != NULL) {
-		AudioStream* s = mRecorder->getStream();
-		s->printStatistics();
-	}
+	//if (mRecorder != NULL) {
+    //AudioStream* s = mRecorder->getStream();
+    //s->printStatistics();
+    //}
 
     mActionPool->dump();
     mEventPool->dump();
@@ -2531,10 +1639,12 @@ PUBLIC void Mobius::finishPrompt(Prompt* p)
 	  delete p;
 }
 
+#if 0
 PUBLIC ControlSurface* Mobius::getControlSurfaces()
 {
     return mControlSurfaces;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -2547,6 +1657,7 @@ PUBLIC ControlSurface* Mobius::getControlSurfaces()
  * First we intern a ResolvedTarget, then we build the Action around it.
  * This handles both normal bindings and OSC bindings.
  */
+#if 0
 PUBLIC Action* Mobius::resolveAction(Binding* b)
 {
     Action* a = NULL;
@@ -2574,6 +1685,7 @@ PUBLIC Action* Mobius::resolveAction(Binding* b)
 
     return a;
 }
+#endif
 
 /**
  * Resolve the target represented in a Binding and return
@@ -2585,6 +1697,7 @@ PUBLIC Action* Mobius::resolveAction(Binding* b)
  * you must call resolveAction.  This is only public so that it
  * may be used by the binding windows to validate selections.
  */
+#if 0
 PUBLIC ResolvedTarget* Mobius::resolveTarget(Binding* b)
 {
     ResolvedTarget* resolved = NULL;
@@ -2600,12 +1713,14 @@ PUBLIC ResolvedTarget* Mobius::resolveTarget(Binding* b)
 
     return resolved;
 }
+#endif
 
 /**
  * Parse a scope into track an group numbers.
  * Tracks are expected to be identified with integers starting
  * from 1.  Groups are identified with upper case letters A-Z.
  */
+#if 0
 PRIVATE void Mobius::parseBindingScope(const char* scope, int* track, int* group)
 {
     *track = 0;
@@ -2630,6 +1745,7 @@ PRIVATE void Mobius::parseBindingScope(const char* scope, int* track, int* group
         }
     }
 }
+#endif
 
 /**
  * Resolve and intern a target using given it's properties.
@@ -2644,6 +1760,7 @@ PRIVATE void Mobius::parseBindingScope(const char* scope, int* track, int* group
  * leave the number in the Action instead?
  * !!
  */
+#if 0
 PRIVATE ResolvedTarget* Mobius::internTarget(Target* target, 
                                              const char* name,
                                              int track,
@@ -2732,6 +1849,7 @@ PRIVATE ResolvedTarget* Mobius::internTarget(Target* target,
             
     return resolved;
 }
+#endif
 
 /**
  * Resolve an Action from an OSC path.
@@ -2774,6 +1892,7 @@ PRIVATE ResolvedTarget* Mobius::internTarget(Target* target,
  *   arg                value taken from the OSC argument
  *
  */
+#if 0
 PRIVATE Action* Mobius::resolveOscAction(Binding* b)
 {
     Action* action = NULL;
@@ -3063,6 +2182,7 @@ PRIVATE void Mobius::oscUnescape(const char* src, char* dest, int max)
         *destptr = 0;
     }
 }
+#endif
 
 /**
  * After resolving a Binding for a non-OSC target, initialize
@@ -3085,6 +2205,7 @@ PRIVATE void Mobius::oscUnescape(const char* src, char* dest, int max)
  * Actions also do not have fields for values in a MIDI message but they
  * have accessors that can dig them out of the action id.
  */
+#if 0
 PRIVATE void Mobius::resolveTrigger(Binding* binding, Action* action)
 {
     int midiStatus = 0;
@@ -3198,109 +2319,7 @@ PRIVATE void Mobius::resolveTrigger(Binding* binding, Action* action)
         action->setMidiKey(binding->getValue());
     }
 }
-
-/****************************************************************************
- *                                                                          *
- *                                  EXPORTS                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Create an Export for a Binding.
- */
-PUBLIC Export* Mobius::resolveExport(Binding* b)
-{
-    Export* exp = NULL;
-    ResolvedTarget* target = resolveTarget(b);
-    if (target != NULL)
-      exp = resolveExport(target);
-    return exp;
-}
-
-/**
- * Create an Export for the target of an Action.
- */
-PUBLIC Export* Mobius::resolveExport(Action* a)
-{
-    return resolveExport(a->getResolvedTarget());
-}
-
-/**
- * Create an Export for a ResolvedTarget.
- * This is the core export resolver used by all the other
- * resolution interfaces.
- *
- * Returns NULL if the target can't be exported.  This is 
- * okay since OscRuntime calls this for everything.
- */
-PUBLIC Export* Mobius::resolveExport(ResolvedTarget* resolved)
-{
-    Export* exp = NULL;
-    bool exportable = false;
-
-    Target* t = resolved->getTarget();
-
-    if (t == TargetParameter) {
-        // Since OSC is configured in text, ignore some things
-        // we don't want to get out
-        Parameter* p = (Parameter*)resolved->getObject();
-        exportable = (p->bindable || p->control);
-    }
-    
-    if (exportable) {
-        exp = new Export(this);
-        exp->setTarget(resolved);
-        // nothing else to save, Export has logic to call
-        // back to us for interesting things
-    }
-
-    return exp;
-}
-
-/**
- * Called periodically by MobiusThread to export status to bi-directional
- * MIDI controllers, control surfaces, and OSC clients.
- *
- * mobiusThread is true if we're being called by MobiusThread which means
- * it is safe to clean up a previous exporter that is being phased out.
- * NOTE: This is always true since we're never called outside the thread,
- * I don't remember why this was here.
- *
- */
-PUBLIC void Mobius::exportStatus(bool inThread)
-{
-    // nab a copy to it doesn't change out from under us
-    // maybe it would be better if MobiusThread managed it's own copy
-    // and we just posted a new version 
-    MidiExporter *exporter = mMidiExporter;
-    if (exporter != NULL) {
-
-        if (inThread) {
-            // reclaim old versions
-            MidiExporter* old = exporter->getHistory();
-            if (old != NULL) {
-                exporter->setHistory(NULL);
-                delete old;
-            }
-        }
-
-        exporter->sendEvents();
-    }
-
-	// don't have a mechanism for editing these yet so we don't
-	// have to deal with the old/new thing like MidiExporter
-	// this will change...
- 
-    for (ControlSurface* cs = mControlSurfaces ; cs != NULL ; 
-         cs = cs->getNext()) {
-        cs->refresh();
-    }
-
-    // the thread starts running before we're fully initialized so
-    // always check for null here
-    if (mOsc != NULL)
-      mOsc->exportStatus();
-}
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -3397,9 +2416,9 @@ PUBLIC Action* Mobius::newAction()
 {
     Action* action = NULL;
 
-    mCsect->enter("newAction");
+    //mCsect->enter("newAction");
     action = mActionPool->newAction();
-    mCsect->leave("newAction");
+    //mCsect->leave("newAction");
 
     // always need this
     action->mobius = this;
@@ -3413,18 +2432,18 @@ PUBLIC void Mobius::freeAction(Action* a)
     if (a->isRegistered())
       Trace(1, "Freeing a registered action!\n");
 
-    mCsect->enter("newAction");
+    //mCsect->enter("newAction");
     mActionPool->freeAction(a);
-    mCsect->leave("newAction");
+    //mCsect->leave("newAction");
 }
 
 PUBLIC Action* Mobius::cloneAction(Action* src)
 {
     Action* action = NULL;
 
-    mCsect->enter("cloneAction");
+    //mCsect->enter("cloneAction");
     action = mActionPool->newAction(src);
-    mCsect->leave("cloneAction");
+    //mCsect->leave("cloneAction");
 
     // not always set if allocated outside
     action->mobius = this;
@@ -3591,11 +2610,11 @@ PRIVATE void Mobius::doInterruptActions()
     Action* actions = NULL;
     Action* next = NULL;
 
-    mCsect->enter("doAction");
+    //mCsect->enter("doAction");
     actions = mActions;
     mActions = NULL;
     mLastAction = NULL;
-    mCsect->leave("doAction");
+    //mCsect->leave("doAction");
 
     for (Action* action = actions ; action != NULL ; action = next) {
         next = action->getNext();
@@ -4242,24 +3261,6 @@ PRIVATE void Mobius::doParameter(Action* a, Parameter* p, Track* t)
 
             p->setValue(a);
         }
-    }
-}
-
-/**
- * Process a UI action.
- * We just forward the Action to the listener, ownership
- * is not passed and we free it here.
- */
-PRIVATE void Mobius::doUIControl(Action* a)
-{
-    UIControl* c = (UIControl*)a->getTargetObject();
-    if (c == NULL) {
-        Trace(1, "Missing action UI Control\n");
-    }
-    else {
-        MobiusListener* listener = getListener();
-        if (listener != NULL)
-          listener->MobiusAction(a);
     }
 }
 
@@ -5028,6 +4029,7 @@ PUBLIC void Mobius::cancelGlobalMute(Action* action)
  * Fixing this requires that we maintain a pair of record/play cursors
  * like we do for Loops.  I don't think that's worth messing with.
  */
+#if 0
 PUBLIC void Mobius::sampleTrigger(Action* action, int index)
 {
 	mSampleTrack->trigger(mInterruptStream, index, action->down);
@@ -5041,6 +4043,7 @@ PUBLIC long Mobius::getLastSampleFrames()
 {
 	return mSampleTrack->getLastSampleFrames();
 }
+#endif
 
 /**
  * Bootstrap and select a standard unit test setup.
@@ -5060,6 +4063,7 @@ PUBLIC long Mobius::getLastSampleFrames()
  * then why bother with this?
  *
  */
+#if 0
 PUBLIC void Mobius::unitTestSetup()
 {
     bool saveConfig = false;
@@ -5127,6 +4131,7 @@ PRIVATE bool Mobius::unitTestSetup(MobiusConfig* config)
 
     return needsSaving;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -5528,12 +4533,13 @@ void Mobius::recorderMonitorEnter(AudioStream* stream)
     }
 
     // Shift in a new pack of samples
-
+#if 0
 	SamplePack* samples = mPendingSamples;
 	mPendingSamples = NULL;
 	if (samples != NULL) 
 	  mSampleTrack->setSamples(samples);
-
+#endif
+    
     // Shift in a new project
 
 	Project* p = mPendingProject;
@@ -5556,12 +4562,14 @@ void Mobius::recorderMonitorEnter(AudioStream* stream)
 	mSynchronizer->interruptStart(stream);
 
 	// prepare the tracks before running scripts
+#if 0
 	mSampleTrack->prepareForInterrupt();
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
 		t->prepareForInterrupt();
 	}
-
+#endif
+    
     // do the queued actions
     doInterruptActions();
 
@@ -5583,12 +4591,12 @@ void Mobius::recorderMonitorEnter(AudioStream* stream)
 PRIVATE void Mobius::propagateInterruptConfig() 
 {
     // turn monitoring on or off
-	if (mRecorder != NULL)
-      mRecorder->setEcho(mInterruptConfig->isMonitorAudio());
+	//if (mRecorder != NULL)
+    // mRecorder->setEcho(mInterruptConfig->isMonitorAudio());
 
     // track changes to input and output latency
-    if (mSampleTrack != NULL)
-      mSampleTrack->updateConfiguration(mInterruptConfig);
+    //if (mSampleTrack != NULL)
+    //mSampleTrack->updateConfiguration(mInterruptConfig);
 
     // Synchronizer needs maxSyncDrift, driftCheckPoint
     if (mSynchronizer != NULL)
@@ -5769,74 +4777,6 @@ PUBLIC void Mobius::setPresetInternal(int number)
 
 /****************************************************************************
  *                                                                          *
- *                                  TRIGGERS                                *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Process an key event.
- */
-PUBLIC void Mobius::doKeyEvent(int key, bool down, bool repeat)
-{
-    mBindingResolver->doKeyEvent(this, key, down, repeat);
-}
-
-/**
- * Intended for MobiusPlugin or anything else that wants to simulate
- * a MIDI trigger that didn't come directly from a MIDI device.
- * When dealgin directly with MIDI devices, Mobius will register itself
- * as a MidiListener which calls midiEvent() below.
- */
-PUBLIC void Mobius::doMidiEvent(MidiEvent* e)
-{
-    // just forward it to the MidiListener method
-    midiEvent(e);
-}
-
-/**
- * MidiHandler interface.
- * Clocks are not propagated, instead we just count them and wait
- * for the next audio interrupt to process.  Would be better if we could
- * try to determine the offsets into the buffer of the MIDI events!!
- *
- * NOTE: If we allow more than one input device to be opened, this will
- * be called from different "monitor threads" without any synchronization.
- * We either need to put Csects around sensitive areas or better yet, make
- * MidiInterface manage a single monitor thread for all input devices.
- */
-PUBLIC void Mobius::midiEvent(MidiEvent* e)
-{
-	int status = e->getStatus();
-
-	// ignore if the sync monitor says its a realtime event
-	if (!mHalting && !mSynchronizer->event(e)) {
-
-		bool processIt = true;
-		if (mListener != NULL)
-		  processIt = mListener->MobiusMidiEvent(e);
-			
-		if (processIt) {
-
-            // next let the control surfaces have a crack
-            for (ControlSurface* cs = mControlSurfaces ; cs != NULL ; 
-                 cs = cs->getNext()) {
-                     
-                if (cs->handleEvent(e)) {
-                    processIt = false;
-                    break;
-                }
-            }
-            
-            if (processIt) {
-                // this will eventually call Mobius::doAction
-                mBindingResolver->doMidiEvent(this, e);
-            }
-        }
-    }
-}
-
-/****************************************************************************
- *                                                                          *
  *                            UNIT TEST INTERFACE                           *
  *                                                                          *
  ****************************************************************************/
@@ -5857,101 +4797,6 @@ PUBLIC int Mobius::getTrackCount()
 PUBLIC Track* Mobius::getTrack(int index)
 {
 	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
-}
-
-/****************************************************************************
- *                                                                          *
- *                                LOCALIZATION                              *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Load the message catalogs and perform localization of various
- * internal objects like modes, functions, and parameters.
- *
- * This is normally deferred until start() but for the AU plugin
- * we have to be able to do this earlier so we can publish dipslay
- * names for things immediately during plugin construction.
- * I really don't like this.  One alternative would be
- * to have a parameter cache pre-calculated with display names
- * that you have to refresh after the plugin comes all the way up.
- *
- * The language can be overridded in the MobiusConfig, in theory we could
- * be tracking this and relocalize after every edit, but it's too much
- * work and no one uses this.
- */
-PRIVATE void Mobius::localize()
-{
-    if (mCatalog == NULL) {
-
-		const char* lang = mConfig->getLanguage();
-		if (lang != NULL)
-		  mCatalog = readCatalog(lang);
-
-		// default to English
-		if (mCatalog == NULL)
-		  mCatalog = readCatalog(DEFAULT_LANGUAGE);
-
-		// if we're misconfigured have to have something
-		if (mCatalog == NULL) {
-            Trace(1, "ERROR: Unable to read message catalog!!\n");
-            mCatalog = new MessageCatalog();
-        }
-
-        // propagate the catalog to the internal objects
-		MobiusMode::localizeAll(mCatalog);
-		Parameter::localizeAll(mCatalog);
-		Function::localizeAll(mCatalog);
-        WatchPoint::localizeAll(mCatalog);
-
-        localizeUIControls();
-	}
-}
-
-/**
- * Read the message catalog for a given language.
- * These are normally only in the installation directory, but
- * support alternate langs in the config directory too.
- */
-PRIVATE MessageCatalog* Mobius::readCatalog(const char* language)
-{
-	MessageCatalog* cat = NULL;
-	char catalog[256];
-	char path[1024];
-	
-	sprintf(catalog, "Catalog_%s.txt", language);
-	findConfigurationFile(catalog, path, sizeof(path));
-
-	cat = new MessageCatalog();
-	if (!cat->read(path)) {
-		// problems reading catalog
-		printf("ERROR: Mobius: Unable to read message catalog: %s\n", path);
-		fflush(stdout);
-		delete cat;
-		cat = NULL;
-	}
-
-	return cat;
-}
-
-PRIVATE void Mobius::localizeUIControls()
-{
-	if (mCatalog != NULL) {
-        if (mUIControls != NULL) {
-            for (int i = 0 ; mUIControls[i] != NULL ; i++) {
-                UIControl* c = mUIControls[i];
-                c->localize(mCatalog);
-            }
-        }
-
-        if (mUIParameters != NULL) {
-            for (int i = 0 ; mUIParameters[i] != NULL ; i++) {
-                UIParameter* p = mUIParameters[i];
-                p->localize(mCatalog);
-            }
-        }
-    }
-
 }
 
 /****************************************************************************/

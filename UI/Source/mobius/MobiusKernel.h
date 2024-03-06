@@ -45,6 +45,19 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // AudioListener
     void containerAudioAvailable(MobiusContainer*cont);
 
+    // stuff being added for Mobius core
+    class AudioPool* getAudioPool() {
+        return audioPool;
+    }
+
+    class MobiusConfig* getMobiusConfig() {
+        return configuration;
+    }
+
+    class Recorder* getRecorder() {
+        return mRecorder;
+    }
+    
   private:
 
     // stuff we are either passed or pull from the shell

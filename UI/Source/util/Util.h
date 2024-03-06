@@ -67,6 +67,7 @@ int ParseNumberString(const char* src, int* numbers, int max);
 bool IsInteger(const char* str);
 int ToInt(const char* str);
 
+int Random(int low, int high);
 
 //////////////////////////////////////////////////////////////////////
 //

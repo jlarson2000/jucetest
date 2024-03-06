@@ -14,6 +14,9 @@
     <Filter Include="UI\Source\ui">
       <UniqueIdentifier>{ABDD14AA-01B6-2D9B-2038-B446693E43DE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Source\mobius\core">
+      <UniqueIdentifier>{893BC79D-1B15-5C3E-8F62-F7FD05B168B2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source\mobius">
       <UniqueIdentifier>{59DCCA25-F24C-265F-1201-6854AD0C64CA}</UniqueIdentifier>
     </Filter>
@@ -792,6 +795,21 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
       <Filter>UI\Source\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Action.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\AudioInterface.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Event.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\EventManager.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp">
       <Filter>UI\Source\mobius</Filter>
@@ -3548,6 +3566,27 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\TestPanel.h">
       <Filter>UI\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Action.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\AudioInterface.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Event.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\EventManager.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MidiByte.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MidiEvent.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MidiInterface.h">
+      <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Audio.h">
       <Filter>UI\Source\mobius</Filter>

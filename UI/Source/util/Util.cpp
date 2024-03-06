@@ -307,3 +307,28 @@ void AppException::print(void)
 	else
 	  printf("ERROR %d\n", mCode);
 }
+
+//////////////////////////////////////////////////////
+
+static bool RandomSeeded = false;
+
+/**
+ * Generate a random number between the two values, inclusive.
+ */
+int Random(int min, int max)
+{
+	// !! potential csect issues here
+	if (!RandomSeeded) {
+		// passing 1 "reinitializes the generator", passing any other number
+		// "sets the generator to a random starting point"
+		// Unclear how the seed affects the starting point, probably should
+		// be based on something, maybe pass in the layer size?
+		srand(2);
+		RandomSeeded = true;
+	}
+
+	int range = max - min + 1;
+	int value = (rand() % range) + min;
+
+	return value;
+}

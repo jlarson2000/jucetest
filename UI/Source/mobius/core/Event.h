@@ -15,7 +15,7 @@
 #include "ObjectPool.h"
 
 // for SyncSource
-#include "Setup.h"
+#include "../../model/Setup.h"
 
 // for WaitType
 #include "Script.h"

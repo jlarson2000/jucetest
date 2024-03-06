@@ -12,11 +12,11 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include "Trace.h"
-#include "Recorder.h"
+#include "../../util/Trace.h"
+#include "../Recorder.h"
 
 // needed for TrackState
-#include "MobiusState.h"
+#include "../../model/MobiusState.h"
 
 /****************************************************************************
  *                                                                          *
@@ -129,7 +129,7 @@ class Track : public RecorderTrack, public TraceContext
 	//
 
 	Mobius* getMobius();
-    PUBLIC SetupTrack* getSetup();
+    SetupTrack* getSetup();
     class SyncState* getSyncState();
 	class Synchronizer* getSynchronizer();
     class EventManager* getEventManager();
@@ -143,7 +143,7 @@ class Track : public RecorderTrack, public TraceContext
 	int getOutputLatency();
 	MobiusMode* getMode();
 	long getFrame();
-    class TrackState* getState();
+    class MobiusTrackState* getState();
 	int getCurrentLevel();
 	bool isTrackSyncMaster();
 
@@ -333,7 +333,7 @@ class Track : public RecorderTrack, public TraceContext
     bool mInterruptBreakpoint;
 
 	// state exposed to the outside world
-	TrackState mState;
+	MobiusTrackState mState;
 
     // true if this is a MIDI track
     bool mMidi;

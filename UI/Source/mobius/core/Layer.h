@@ -12,9 +12,9 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "Trace.h"
-#include "Audio.h"
-#include "MobiusState.h"
+#include "../../util/Trace.h"
+#include "../Audio.h"
+#include "../../model/MobiusState.h"
 
 /****************************************************************************
  *                                                                          *

@@ -125,8 +125,11 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Trace.h"
-#include "Util.h"
+// went missing, probably in one of the config files
+#define MAX_CUSTOM_MODE 256
+
+#include "../../util/Trace.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -140,13 +143,15 @@
 
 #include "EventManager.h"
 
+#include "Mapper.h"
+
 /****************************************************************************
  *                                                                          *
  *                               EVENT MANAGER                              *
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC EventManager::EventManager(Track* track)
+EventManager::EventManager(Track* track)
 {
     mTrack = track;
 	mEvents = new EventList();
@@ -160,7 +165,7 @@ PUBLIC EventManager::EventManager(Track* track)
 	mLastSyncEventFrame = -1;
 }
 
-PUBLIC EventManager::~EventManager()
+EventManager::~EventManager()
 {
     flushAllEvents();
     delete mEvents;
@@ -168,7 +173,7 @@ PUBLIC EventManager::~EventManager()
     mSyncEvent->free();
 }
 
-PUBLIC void EventManager::reset()
+void EventManager::reset()
 {
 	flushAllEvents();
     resetLastSyncEventFrame();
@@ -178,17 +183,17 @@ PUBLIC void EventManager::reset()
  * This must be called whenever the loop frame is set.
  * !! Ugly dependency.
  */
-PUBLIC void EventManager::resetLastSyncEventFrame()
+void EventManager::resetLastSyncEventFrame()
 {
     mLastSyncEventFrame = -1;
 }
 
-PUBLIC long EventManager::getLastSyncEventFrame()
+long EventManager::getLastSyncEventFrame()
 {
     return mLastSyncEventFrame;
 }
 
-PUBLIC void EventManager::setLastSyncEventFrame(long frame)
+void EventManager::setLastSyncEventFrame(long frame)
 {
     mLastSyncEventFrame = frame;
 }
@@ -196,32 +201,32 @@ PUBLIC void EventManager::setLastSyncEventFrame(long frame)
 /**
  * Allow the event list out for inspection but don't overuse this!
  */
-PUBLIC Event* EventManager::getEvents()
+Event* EventManager::getEvents()
 {
     return mEvents->getEvents();
 }
 
-PUBLIC bool EventManager::hasEvents()
+bool EventManager::hasEvents()
 {
     return (mEvents->getEvents() != NULL);
 }
 
-PUBLIC Event* EventManager::getSwitchEvent()
+Event* EventManager::getSwitchEvent()
 {
     return mSwitch;
 }
 
-PUBLIC void EventManager::setSwitchEvent(Event* e)
+void EventManager::setSwitchEvent(Event* e)
 {
     mSwitch = e;
 }
 
-PUBLIC bool EventManager::isSwitching()
+bool EventManager::isSwitching()
 {
 	return (mSwitch != NULL);
 }
 
-PUBLIC bool EventManager::isSwitchConfirmed()
+bool EventManager::isSwitchConfirmed()
 {
 	return (mSwitch != NULL && !mSwitch->pending);
 }
@@ -246,7 +251,7 @@ Event* EventManager::findEvent(Function* func)
  * Passed the event we just finished processing, or NULL if we're
  * not finishing up a particular function.
  */
-PUBLIC bool EventManager::isValidationSuppressed(Event* finished)
+bool EventManager::isValidationSuppressed(Event* finished)
 {
 	bool ignore = false;
 
@@ -270,7 +275,7 @@ PUBLIC bool EventManager::isValidationSuppressed(Event* finished)
  * Don't need a csect here because we're always in the interrupt and
  * we're not modifying the list.
  */
-PUBLIC bool EventManager::isEventScheduled(Event* e) 
+bool EventManager::isEventScheduled(Event* e) 
 {
 	return mEvents->contains(e);
 }
@@ -323,7 +328,7 @@ Event* EventManager::newEvent(Function* f, EventType* type, long frame)
  * need to ensure event processing doesn't happen until after the
  * handler finishes.
  */
-PUBLIC void EventManager::addEvent(Event* event)
+void EventManager::addEvent(Event* event)
 {
 	const char* name = event->getName();
 	const char* func = event->getFunctionName();
@@ -352,7 +357,7 @@ PUBLIC void EventManager::addEvent(Event* event)
  *
  * This MUST be called in the interrupt handler.
  */
-PUBLIC void EventManager::removeScriptReferences(ScriptInterpreter* si)
+void EventManager::removeScriptReferences(ScriptInterpreter* si)
 {
 	for (Event* e = mEvents->getEvents() ; e != NULL ; e = e->getNext()) {
 		if (e->getScript() == si)
@@ -372,7 +377,7 @@ PUBLIC void EventManager::removeScriptReferences(ScriptInterpreter* si)
  * The event is NOT added to the event list, caller may decide to ignore it.
  * Ownership of the Action is taken.
  */
-PUBLIC Event* EventManager::getFunctionEvent(Action* action,
+Event* EventManager::getFunctionEvent(Action* action,
                                              Loop* loop, 
                                              Function* func)
 {
@@ -669,7 +674,7 @@ PUBLIC Event* EventManager::getFunctionEvent(Action* action,
  * Note that there can be events scheduled within the new length,
  * only shift those that fall outside the new length.
  */
-PUBLIC void EventManager::shiftEvents(long frames)
+void EventManager::shiftEvents(long frames)
 {
 	if (frames > 0) {
 		Event* events = mEvents->getEvents();
@@ -686,7 +691,7 @@ PUBLIC void EventManager::shiftEvents(long frames)
  * When this happens we also have to reposition the events so they
  * (and their children) are AFTER the mode end event and its children.
  */
-PUBLIC void EventManager::reorderEvent(Event* e)
+void EventManager::reorderEvent(Event* e)
 {
 	for (Event* child = e->getChildren() ; child != NULL ; 
          child = child->getSibling())
@@ -702,7 +707,7 @@ PUBLIC void EventManager::reorderEvent(Event* e)
  * If we have Script wait events scheduled, allow them to advance
  * when the loop is in Reset or Pause mode.
  */
-PUBLIC void EventManager::advanceScriptWaits(long frames)
+void EventManager::advanceScriptWaits(long frames)
 {
     Loop* loop = mTrack->getLoop();
 
@@ -732,7 +737,7 @@ PUBLIC void EventManager::advanceScriptWaits(long frames)
  * and the unit count in the Event so the best we can do is maintain
  * the same relative wait.  See waitswitch.txt for more analysis.
  */
-PUBLIC void EventManager::loopSwitchScriptWaits(Loop* current, long nextFrame)
+void EventManager::loopSwitchScriptWaits(Loop* current, long nextFrame)
 {
 	Event* e = findEvent(ScriptEvent);
 	if (e != NULL && !e->pending) {
@@ -763,7 +768,7 @@ PUBLIC void EventManager::loopSwitchScriptWaits(Loop* current, long nextFrame)
  * Move an event to a new frame, and move child events to maintain
  * the same relative distance.
  */
-PUBLIC void EventManager::moveEventHierarchy(Loop* loop, Event* e, long newFrame)
+void EventManager::moveEventHierarchy(Loop* loop, Event* e, long newFrame)
 {
 	long delta = newFrame - e->frame;
 
@@ -797,7 +802,7 @@ PUBLIC void EventManager::moveEventHierarchy(Loop* loop, Event* e, long newFrame
  * allows complicated events like SpeedEvent and ReverseEvent to 
  * perform additional adjustments.
  */
-PUBLIC void EventManager::moveEvent(Loop* loop, Event* e, long newFrame)
+void EventManager::moveEvent(Loop* loop, Event* e, long newFrame)
 {
 	long latencyLoss = 0;
     long loopFrame = loop->getFrame();
@@ -837,7 +842,7 @@ PUBLIC void EventManager::moveEvent(Loop* loop, Event* e, long newFrame)
  * Called when we change direction.
  * The events keep their same relative position in the new direction.
  */
-PUBLIC void EventManager::reverseEvents(long originalFrame, long newFrame)
+void EventManager::reverseEvents(long originalFrame, long newFrame)
 {
     for (Event* e = mEvents->getEvents() ; e != NULL ; e = e->getNext()) {
         if (!e->pending)
@@ -857,7 +862,7 @@ PUBLIC void EventManager::reverseEvents(long originalFrame, long newFrame)
  * Will need to use the "pending" waits instead of absolute waits if
  * you want this to work in reverse mode.
  */
-PRIVATE long EventManager::reverseFrame(long origin, long newOrigin, long frame)
+long EventManager::reverseFrame(long origin, long newOrigin, long frame)
 {
     long delta = frame - origin;
     if (delta < 0) {
@@ -878,7 +883,7 @@ PRIVATE long EventManager::reverseFrame(long origin, long newOrigin, long frame)
  * Note that this only removes the parent event, child events
  * may still be on the list.
  */
-PUBLIC void EventManager::removeEvent(Event* e)
+void EventManager::removeEvent(Event* e)
 {
     mTrack->enterCriticalSection("removeEvent");
 
@@ -896,7 +901,7 @@ PUBLIC void EventManager::removeEvent(Event* e)
  * !! Try to move loop switch event transfer in here since we're
  * just going to put them back on the same list.
  */
-PUBLIC EventList* EventManager::stealEvents()
+EventList* EventManager::stealEvents()
 {
     EventList* copy = NULL;
 
@@ -915,7 +920,7 @@ PUBLIC EventList* EventManager::stealEvents()
  * We don't care what is on the list and what relationships there
  * are, just get rid of everything.
  */
-PRIVATE void EventManager::flushAllEvents()
+void EventManager::flushAllEvents()
 {
     bool oldWay = true;
 
@@ -953,7 +958,7 @@ PRIVATE void EventManager::flushAllEvents()
  * We've had this for awhile, I'm not enturely sure why this is important
  * but be careful with it.
  */
-PUBLIC void EventManager::flushEventsExceptScripts()
+void EventManager::flushEventsExceptScripts()
 {
 	mTrack->enterCriticalSection("flushEventsExceptScripts");
 
@@ -975,7 +980,7 @@ PUBLIC void EventManager::flushEventsExceptScripts()
  * The event is not "undone" if it has been processed we let the
  * processing stand.
  */
-PUBLIC void EventManager::freeEvent(Event* event)
+void EventManager::freeEvent(Event* event)
 {
     if (event != NULL) {
 		// remove the event and all of its children
@@ -1014,7 +1019,7 @@ PUBLIC void EventManager::freeEvent(Event* event)
  * The flush argument is true if we're processing a Reset, don't
  * be alarmed by unprocessed events.
  */
-PRIVATE void EventManager::free(Event* event, bool flush)
+void EventManager::free(Event* event, bool flush)
 {
     if (event != NULL) {
 
@@ -1068,7 +1073,7 @@ PRIVATE void EventManager::free(Event* event, bool flush)
 /**
  * Release resources held by this event.
  */
-PRIVATE void EventManager::release(Event* event)
+void EventManager::release(Event* event)
 {
     // let the interpreter know in case it is waiting
     event->cancelScriptWait();
@@ -1081,7 +1086,7 @@ PRIVATE void EventManager::release(Event* event)
     }
 }
 
-PRIVATE void EventManager::releaseAll(Event* event)
+void EventManager::releaseAll(Event* event)
 {
     release(event);
     for (Event* child = event->getChildren() ; child != NULL ; 
@@ -1101,7 +1106,7 @@ PRIVATE void EventManager::releaseAll(Event* event)
  * going to be removed from the list anyway so the difference 
  * will be short lived.
  */ 
-PUBLIC bool EventManager::undoLastEvent()
+bool EventManager::undoLastEvent()
 {
 	Event* undo = NULL;
 
@@ -1132,7 +1137,7 @@ PUBLIC bool EventManager::undoLastEvent()
  * The event is simply removed from the list, it is not freed and has
  * had no undo side effects.
  */
-PRIVATE Event* EventManager::removeUndoEvent()
+Event* EventManager::removeUndoEvent()
 {
 	Event* last = NULL;
 	
@@ -1181,7 +1186,7 @@ PRIVATE Event* EventManager::removeUndoEvent()
  * Remove an event and its children from the scheduled list and
  * undo any effects.
  */
-PUBLIC void EventManager::undoEvent(Event* event)
+void EventManager::undoEvent(Event* event)
 {
 	if (event != NULL) {
 
@@ -1238,7 +1243,7 @@ void EventManager::removeAll(Event* e)
  * If the event owns an action it will be freed.
  * If the event has a script wait it will be canceled.
  */
-PRIVATE void EventManager::undoAndFree(Event* event)
+void EventManager::undoAndFree(Event* event)
 {
     Trace(mTrack->getLoop(), 2, "EventManager: Undo event %s\n", 
           event->getName());
@@ -1273,7 +1278,7 @@ PRIVATE void EventManager::undoAndFree(Event* event)
  * that have been processed.  Usually there is only one level, but
  * there can be more for things like Insert/Multiply alternate endings.
  */
-PRIVATE void EventManager::undoProcessedEvents(Event* event)
+void EventManager::undoProcessedEvents(Event* event)
 {
 	// assume depth first processing?
 	for (Event* child = event->getChildren() ; child != NULL ; 
@@ -1295,7 +1300,7 @@ PRIVATE void EventManager::undoProcessedEvents(Event* event)
 /**
  * Called by functions to stack events to be performed after the switch.
  */
-PUBLIC void EventManager::scheduleSwitchStack(Event* event)
+void EventManager::scheduleSwitchStack(Event* event)
 {
 	Event* switche = getUncomittedSwitch();
 
@@ -1351,7 +1356,7 @@ PUBLIC void EventManager::scheduleSwitchStack(Event* event)
  * Unclear what we should do with functions that come in during the
  * committed period, but it should be safe to ignore them for now.
  */
-PUBLIC Event* EventManager::getUncomittedSwitch()
+Event* EventManager::getUncomittedSwitch()
 {
 	Event* e = NULL;
 
@@ -1376,7 +1381,7 @@ PUBLIC Event* EventManager::getUncomittedSwitch()
  * Note that since these aren't on the main event list, the usual
  * undo method doesn't work.
  */
-PUBLIC bool EventManager::undoSwitchStack()
+bool EventManager::undoSwitchStack()
 {
     bool undone = false;
 
@@ -1398,7 +1403,7 @@ PUBLIC bool EventManager::undoSwitchStack()
     return undone;
 }
 
-PUBLIC void EventManager::cancelSwitchStack(Event* e)
+void EventManager::cancelSwitchStack(Event* e)
 {
 	if (e != NULL) {
 		Event* switche = getUncomittedSwitch();
@@ -1419,7 +1424,7 @@ PUBLIC void EventManager::cancelSwitchStack(Event* e)
 /**
  * Called in various places to cancel a pending switch.
  */
-PUBLIC void EventManager::cancelSwitch()
+void EventManager::cancelSwitch()
 {
 	if (mSwitch != NULL) {
 
@@ -1440,7 +1445,7 @@ PUBLIC void EventManager::cancelSwitch()
 /**
  * SwitchEvent undo handler.
  */
-PUBLIC void EventManager::switchEventUndo(Event* e)
+void EventManager::switchEventUndo(Event* e)
 {
 	// This will run though undo logic for our child events
 	// the only interesting one is JumpPlayEvent which will
@@ -1470,7 +1475,7 @@ PUBLIC void EventManager::switchEventUndo(Event* e)
  * the speed must be inserted in frame order.  
  * 
  */
-PUBLIC void EventManager::getEffectiveLatencies(Loop* loop, 
+void EventManager::getEffectiveLatencies(Loop* loop, 
                                         Event* parent, long frame, 
 										int* retInput, int* retOutput)
 {
@@ -1565,7 +1570,7 @@ PUBLIC void EventManager::getEffectiveLatencies(Loop* loop,
  * 
  * Hmm, maybe getEffectiveLatencies is enough...
  */
-PUBLIC Event* EventManager::schedulePlayJump(Loop* loop, Event* parent)
+Event* EventManager::schedulePlayJump(Loop* loop, Event* parent)
 {
 	Event* jump = NULL;
 	int inputLatency, outputLatency;
@@ -1662,7 +1667,7 @@ PUBLIC Event* EventManager::schedulePlayJump(Loop* loop, Event* parent)
  *
  * Now used only for ReversePlayEvent.
  */
-PUBLIC Event* EventManager::schedulePlayJumpType(Loop* loop, Event* parent, EventType* type)
+Event* EventManager::schedulePlayJumpType(Loop* loop, Event* parent, EventType* type)
 {
 	Event* jump = schedulePlayJump(loop, parent);
 	if (jump != NULL)
@@ -1676,7 +1681,7 @@ PUBLIC Event* EventManager::schedulePlayJumpType(Loop* loop, Event* parent, Even
  * !! Try to get rid of this and handle the jump location
  * in the event handler.
  */
-PUBLIC Event* EventManager::schedulePlayJumpAt(Loop* loop, Event* parent, long frame)
+Event* EventManager::schedulePlayJumpAt(Loop* loop, Event* parent, long frame)
 {
 	Event* jump = schedulePlayJump(loop, parent);
 	if (jump != NULL) {
@@ -1721,7 +1726,7 @@ PUBLIC Event* EventManager::schedulePlayJumpAt(Loop* loop, Event* parent, long f
  * to cancel the previous one and replace it with the new return so 
  * that NextLoop chains will work as expected?
  */
-PUBLIC Event* EventManager::scheduleReturnEvent(Loop* loop, Event* trigger, 
+Event* EventManager::scheduleReturnEvent(Loop* loop, Event* trigger, 
                                                 Loop* prev, bool sustain)
 {
 	Event* re = findEvent(ReturnEvent);
@@ -1827,7 +1832,7 @@ PUBLIC Event* EventManager::scheduleReturnEvent(Loop* loop, Event* trigger,
  * Called to complete the scheduling of a Return event after
  * we know the loop length.
  */
-PUBLIC void EventManager::finishReturnEvent(Loop* loop)
+void EventManager::finishReturnEvent(Loop* loop)
 {
 	Event* re = findEvent(ReturnEvent);
 	if (re != NULL)
@@ -1839,7 +1844,7 @@ PUBLIC void EventManager::finishReturnEvent(Loop* loop)
  * Called by setupReturnEvent if we know the loop length, otherwise
  * deferred to scheduleRecordStop.
  */
-PRIVATE void EventManager::finishReturnEvent(Loop* loop, Event* re)
+void EventManager::finishReturnEvent(Loop* loop, Event* re)
 {
 	if (re != NULL) {
 
@@ -1876,7 +1881,7 @@ PRIVATE void EventManager::finishReturnEvent(Loop* loop, Event* re)
 /**
  * ReturnEvent undo handler.
  */
-PUBLIC void EventManager::returnEventUndo(Event* e)
+void EventManager::returnEventUndo(Event* e)
 {
 	// exactly like a SwitchEvent
 	switchEventUndo(e);
@@ -1885,7 +1890,7 @@ PUBLIC void EventManager::returnEventUndo(Event* e)
 /**
  * Called from various places to cancel a return transition.
  */
-PUBLIC bool EventManager::cancelReturn()
+bool EventManager::cancelReturn()
 {
 	Event* ret = NULL;
 
@@ -1911,7 +1916,7 @@ PUBLIC bool EventManager::cancelReturn()
  * I think in practice we shouldn't have anything here other than
  * ScriptEvents and pending events. If we do they won't be transferred.
  */
-PUBLIC void EventManager::cleanReturnEvents()
+void EventManager::cleanReturnEvents()
 {
 	Event* nexte;
 	for (Event* e = mEvents->getEvents() ; e != NULL ; e = nexte) {
@@ -1954,7 +1959,7 @@ PUBLIC void EventManager::cleanReturnEvents()
  * TODO: We're leaving this in a LoopState but really this belongs
  * in TrackState.
  */
-PUBLIC void EventManager::getEventSummary(LoopState* s)
+void EventManager::getEventSummary(MobiusLoopState* s)
 {
 	s->eventCount = 0;
 	Event* events = mEvents->getEvents();
@@ -1962,7 +1967,7 @@ PUBLIC void EventManager::getEventSummary(LoopState* s)
         mTrack->enterCriticalSection("getEventSummary");
         events = mEvents->getEvents();
         if (events != NULL) {
-            for (Event* e = events ; e != NULL && s->eventCount < MAX_INFO_EVENTS ; 
+            for (Event* e = events ; e != NULL && s->eventCount < MaxEvents ; 
                  e = e->getNext()) {
 
                 getEventSummary(s, e, false);
@@ -1975,7 +1980,7 @@ PUBLIC void EventManager::getEventSummary(LoopState* s)
                     s->nextLoop = nextLoop->getNumber();
                     // and the events stacked after the switch
                     for (Event* se = e->getChildren() ; 
-                         se != NULL && s->eventCount < MAX_INFO_EVENTS ;
+                         se != NULL && s->eventCount < MaxEvents ;
                          se = se->getSibling())
                       getEventSummary(s, se, true);
                 }
@@ -1999,13 +2004,13 @@ PUBLIC void EventManager::getEventSummary(LoopState* s)
  * specific frame.  These aren't quantized, but they do need to be visible.
  *
  */
-PRIVATE void EventManager::getEventSummary(LoopState* s, Event* e, bool stacked)
+void EventManager::getEventSummary(MobiusLoopState* s, Event* e, bool stacked)
 {
     if (isEventVisible(e, stacked)) {
 
-        EventSummary* sum = &(s->events[s->eventCount]);
-        sum->type = e->type;
-        sum->function = e->function;
+        MobiusEventState* sum = &(s->events[s->eventCount]);
+        sum->type = MapEventType(e->type);
+        sum->function = MapFunction(e->function);
 
         //Trace(mTrack, 2, "Adding event summary %s\n", e->function->name);
 
@@ -2080,7 +2085,7 @@ PRIVATE void EventManager::getEventSummary(LoopState* s, Event* e, bool stacked)
  * UPDATE: no longer scheduling automatic events but keep this
  * around for awhile in case we need it.
  */
-PRIVATE bool EventManager::isEventVisible(Event* e, bool stacked)
+bool EventManager::isEventVisible(Event* e, bool stacked)
 {
 	bool visible = false;
     bool useOldLogic = false;
@@ -2133,7 +2138,7 @@ PRIVATE bool EventManager::isEventVisible(Event* e, bool stacked)
  * reverse processing and DOES care about frames going negative.
  *
  */
-PRIVATE long EventManager::reflectFrame(Loop* loop, long frame)
+long EventManager::reflectFrame(Loop* loop, long frame)
 {
 	return (loop->getFrames() - frame - 1);
 }
@@ -2148,7 +2153,7 @@ PRIVATE long EventManager::reflectFrame(Loop* loop, long frame)
 /**
  * Return the next event in this track.
  */
-PUBLIC Event* EventManager::getNextEvent()
+Event* EventManager::getNextEvent()
 {
 	Event* event = NULL;
     Synchronizer* synchronizer = mTrack->getSynchronizer();
@@ -2289,7 +2294,7 @@ PUBLIC Event* EventManager::getNextEvent()
  * on events in EventManager have to allow them to fall one frame
  * outside the buffer without logging an error.
  */
-PRIVATE Event* EventManager::getNextScheduledEvent(int availFrames, 
+Event* EventManager::getNextScheduledEvent(int availFrames, 
                                                    Event* syncEvent)
 {
 	Event* event = NULL;
@@ -2489,7 +2494,7 @@ PRIVATE Event* EventManager::getNextScheduledEvent(int availFrames,
  * if any are waiting on it, and if the event contains an Action
  * it will be returned to the pool.
  */
-PUBLIC void EventManager::processEvent(Event* e)
+void EventManager::processEvent(Event* e)
 {
     Loop* loop = mTrack->getLoop();
     Event* parent = e->getParent();
@@ -2548,7 +2553,7 @@ PUBLIC void EventManager::processEvent(Event* e)
 /**
  * If we just did a mode change event, reschedule events.
  */
-PRIVATE void EventManager::rescheduleEvents(Loop* loop, Event* previous) 
+void EventManager::rescheduleEvents(Loop* loop, Event* previous) 
 {
 	if (previous->type->reschedules) {
 
@@ -2614,7 +2619,7 @@ PRIVATE void EventManager::rescheduleEvents(Loop* loop, Event* previous)
  * events, remove all remaining events that are marked for rescheduling.
  * Keep them in order!
  */
-PRIVATE Event* EventManager::getRescheduleEvents(Loop* loop, Event* previous) 
+Event* EventManager::getRescheduleEvents(Loop* loop, Event* previous) 
 {
 	Event* events = NULL;
     Event* last = NULL;
@@ -2701,7 +2706,7 @@ PRIVATE Event* EventManager::getRescheduleEvents(Loop* loop, Event* previous)
  * an even multiply of the cycle frames.
  * 
  */
-PUBLIC long EventManager::getQuantizedFrame(Loop* loop, long frame,
+long EventManager::getQuantizedFrame(Loop* loop, long frame,
                                             Preset::QuantizeMode q, 
                                             bool after)
 {
@@ -2781,7 +2786,7 @@ PUBLIC long EventManager::getQuantizedFrame(Loop* loop, long frame,
  * If the "before" flag is set, it means that if we're already on
  * a quantization frame, to find the one before the current frame.
  */
-PUBLIC long EventManager::getPrevQuantizedFrame(Loop* loop, long frame, 
+long EventManager::getPrevQuantizedFrame(Loop* loop, long frame, 
                                                 Preset::QuantizeMode q,
                                                 bool before)
 {
@@ -2875,7 +2880,7 @@ PUBLIC long EventManager::getPrevQuantizedFrame(Loop* loop, long frame,
  * Common utility to wrap a calculated frame within the available
  * loop frames.  Used in a few places, move to a static util class...
  */
-PUBLIC long EventManager::wrapFrame(long frame, long loopFrames)
+long EventManager::wrapFrame(long frame, long loopFrames)
 {
 	// !! use modulo here idiot
 	if (loopFrames > 0) {

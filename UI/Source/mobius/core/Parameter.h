@@ -14,7 +14,7 @@
 #ifndef MOBIUS_PARAMETER_H
 #define MOBIUS_PARAMETER_H
 
-#include "SystemConstant.h"
+#include "../../model/SystemConstant.h"
 
 /****************************************************************************
  *                                                                          *

@@ -12,10 +12,10 @@
 #ifndef LOOP_H
 #define LOOP_H
 
-#include "Trace.h"
+#include "../../util/Trace.h"
 
-#include "MobiusState.h"
-#include "Preset.h"
+#include "../../model/MobiusState.h"
+#include "../../model/Preset.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -383,7 +383,7 @@ class Loop : public TraceContext {
 	bool	mBeatCycle;
 	bool 	mBeatSubCycle;
 
-	LoopState mState;
+	MobiusLoopState mState;
 };
 
 /****************************************************************************/

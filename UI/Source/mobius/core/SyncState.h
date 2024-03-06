@@ -23,7 +23,7 @@
 #define SYNC_STATE_H
 
 // for SyncSource
-#include "Setup.h"
+#include "../../model/Setup.h"
 
 /****************************************************************************
  *                                                                          *

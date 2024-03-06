@@ -65,8 +65,8 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-#include "SystemConstant.h"
-#include "Binding.h"
+#include "../../model/SystemConstant.h"
+#include "../../model/Binding.h"
 
 // sigh, need this until we can figure out what to do with ExValue
 #include "Expr.h"

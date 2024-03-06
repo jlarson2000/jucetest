@@ -12,9 +12,9 @@
 #ifndef MOBIUS_FUNCTION_H
 #define MOBIUS_FUNCTION_H
 
-#include "MobiusInterface.h"
+//#include "MobiusInterface.h"
 
-#include "SystemConstant.h"
+#include "../../model/SystemConstant.h"
 
 /****************************************************************************
  *                                                                          *

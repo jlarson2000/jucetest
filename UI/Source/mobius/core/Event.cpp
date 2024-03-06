@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Trace.h"
-#include "Util.h"
+#include "../../util/Trace.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -38,7 +38,7 @@
  * Return a static string representation of a SyncPulseType value.
  * Intended for trace.
  */
-PUBLIC const char* GetSyncPulseTypeName(SyncPulseType type)
+const char* GetSyncPulseTypeName(SyncPulseType type)
 {
     const char* name = "???";
     switch (type) {
@@ -59,7 +59,7 @@ PUBLIC const char* GetSyncPulseTypeName(SyncPulseType type)
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC EventType::EventType()
+EventType::EventType()
 {
 	name = NULL;
 	displayName = NULL;
@@ -68,7 +68,7 @@ PUBLIC EventType::EventType()
 	noMode = false;
 }
 
-PUBLIC const char* EventType::getDisplayName()
+const char* EventType::getDisplayName()
 {
 	return ((displayName != NULL) ? displayName : name);
 }
@@ -77,7 +77,7 @@ PUBLIC const char* EventType::getDisplayName()
  * By default we forward to the function's event handler.
  * This may also be overloaded in a subclass but it is rare.
  */
-PUBLIC void EventType::invoke(Loop* l, Event* e)
+void EventType::invoke(Loop* l, Event* e)
 {
 	if (e->function == NULL)
 	  Trace(l, 1, "Cannot do event, no associated function!\n");
@@ -89,7 +89,7 @@ PUBLIC void EventType::invoke(Loop* l, Event* e)
  * By default we forward to the function's undo handler.
  * This may also be overloaded in a subclass.
  */
-PUBLIC void EventType::undo(Loop* l, Event* e)
+void EventType::undo(Loop* l, Event* e)
 {
 	if (e->function == NULL)
 	  Trace(l, 1, "Cannot undo event, no associated function!\n");
@@ -101,7 +101,7 @@ PUBLIC void EventType::undo(Loop* l, Event* e)
  * By default we forward to the function's confirm handler.
  * This may also be overloaded in a subclass.
  */
-PUBLIC void EventType::confirm(Action* action, Loop* l, Event* e, long frame)
+void EventType::confirm(Action* action, Loop* l, Event* e, long frame)
 {
     if (e->function == NULL)
 	  Trace(l, 1, "Cannot confrim event, no associated function!\n");
@@ -114,7 +114,7 @@ PUBLIC void EventType::confirm(Action* action, Loop* l, Event* e, long frame)
  * This was originally here for a speed recaluation which it turns
  * out we can defer, so we don't really need this abstraction.
  */
-PUBLIC void EventType::move(Loop* l, Event* e, long newFrame)
+void EventType::move(Loop* l, Event* e, long newFrame)
 {
     EventManager* em = l->getTrack()->getEventManager();
     em->moveEvent(l, e, newFrame);
@@ -373,67 +373,67 @@ void Event::freeAll()
       Trace(1, "Event::freeAll no pool!\n");
 }
 
-PUBLIC void Event::setPooled(bool b)
+void Event::setPooled(bool b)
 {
     mPooled = b;
 }
 
-PUBLIC bool Event::isPooled()
+bool Event::isPooled()
 {
     return mPooled;
 }
 
-PUBLIC void Event::setOwned(bool b)
+void Event::setOwned(bool b)
 {
     mOwned = b;
 }
 
-PUBLIC bool Event::isOwned()
+bool Event::isOwned()
 {
     return mOwned;
 }
 
-PUBLIC void Event::setList(EventList* list)
+void Event::setList(EventList* list)
 {
     mList = list;
 }
 
-PUBLIC EventList* Event::getList()
+EventList* Event::getList()
 {
     return mList;
 }
 
-PUBLIC void Event::setNext(Event* e) 
+void Event::setNext(Event* e) 
 {
     mNext = e;
 }
 
-PUBLIC Event* Event::getNext()
+Event* Event::getNext()
 {
     return mNext;
 }
 
-PUBLIC void Event::setSibling(Event* e) 
+void Event::setSibling(Event* e) 
 {
     mSibling = e;
 }
 
-PUBLIC Event* Event::getSibling()
+Event* Event::getSibling()
 {
     return mSibling;
 }
 
-PUBLIC void Event::setParent(Event* parent) 
+void Event::setParent(Event* parent) 
 {
     mParent = parent;
 }
 
-PUBLIC Event* Event::getParent()
+Event* Event::getParent()
 {
     return mParent;
 }
 
-PUBLIC Event* Event::getChildren()
+Event* Event::getChildren()
 {
     return mChildren;
 }
@@ -491,7 +491,7 @@ void Event::setArguments(ExValueList* args)
     mArguments = args;
 }
 
-PUBLIC void Event::setAction(Action* a)
+void Event::setAction(Action* a)
 {
     // this is probably okay but I want to start removing this
     // yes, it happens with Action::changeEvent
@@ -505,12 +505,12 @@ PUBLIC void Event::setAction(Action* a)
     mAction = a;
 }
 
-PUBLIC Action* Event::getAction()
+Action* Event::getAction()
 {
     return mAction;
 }
 
-PUBLIC void Event::setInvokingFunction(Function* f)
+void Event::setInvokingFunction(Function* f)
 {
     mInvokingFunction = f;
     if (mAction != NULL && mAction->getFunction() != f) {
@@ -527,7 +527,7 @@ PUBLIC void Event::setInvokingFunction(Function* f)
  * Continue supporting an explicitly set function, but
  * fall back to the Action if we have one.
  */
-PUBLIC Function* Event::getInvokingFunction()
+Function* Event::getInvokingFunction()
 {
     Function* f = mInvokingFunction;
     if (f == NULL && mAction != NULL)
@@ -547,9 +547,13 @@ void Event::savePreset(Preset* p)
 	if (p == NULL)
 	  mPresetValid = false;
 	else {
-		if (mPreset == NULL)
-		  mPreset = new Preset();
-		mPreset->copy(p);
+        // NEW: no longer have a copy() method
+        // clone a new one each time
+		//if (mPreset == NULL)
+        //mPreset = new Preset();
+		//mPreset->copy(p);
+        delete mPreset;
+        mPreset = new Preset(p);
 		mPresetValid = true;
 	}
 }
@@ -729,7 +733,7 @@ bool Event::inProgress()
  * Have to redirect through the EventType since not all events
  * will be associated with Functions.
  */
-PUBLIC void Event::invoke(Loop* l)
+void Event::invoke(Loop* l)
 {
     if (type != NULL) {
         // some types may overload this
@@ -776,7 +780,7 @@ void Event::confirm(Action* action, Loop* l, long frame)
  *
  * !! NO it runs synchronously.  I don't like that at all...
  */
-PUBLIC void Event::finishScriptWait() 
+void Event::finishScriptWait() 
 {
 	if (mScript != NULL)
 	  mScript->finishEvent(this);
@@ -787,7 +791,7 @@ PUBLIC void Event::finishScriptWait()
  * If the interpreter was waiting on this event, then it can
  * switch to waiting on the new event.
  */
-PUBLIC void Event::rescheduleScriptWait(Event* neu) 
+void Event::rescheduleScriptWait(Event* neu) 
 {
 	if (mScript != NULL)
 	  mScript->rescheduleEvent(this, neu);
