@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "Util.h"
-#include "Trace.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
 
 #include "Resampler.h"
 
@@ -41,7 +41,7 @@
  * of noise.  Older tests assumed it would be exactly .5 so handle the octave
  * jumps without pow() and use pow() for the remainder.
  */
-PRIVATE float Resampler::getSemitoneSpeed(int degree)
+float Resampler::getSemitoneSpeed(int degree)
 {
 	float speed = 1.0;
 
@@ -92,7 +92,7 @@ PRIVATE float Resampler::getSemitoneSpeed(int degree)
  * calculating the octave spread of the entire range, start with one
  * up so 2.0.  Then take the 8192th root of that for: 1.000085
  */
-PRIVATE float Resampler::getContinuousSpeed(int degree)
+float Resampler::getContinuousSpeed(int degree)
 {
 	float speed = 1.0f;
     
@@ -119,7 +119,7 @@ PRIVATE float Resampler::getContinuousSpeed(int degree)
  * to do this right, we would have to make a corresponding adjustment
  * the amount of pitch compensation being applied.
  */
-PUBLIC float Resampler::getSpeed(int octave, int step, int bend, int stretch)
+float Resampler::getSpeed(int octave, int step, int bend, int stretch)
 {
     float speed = getSemitoneSpeed(step);
 
@@ -150,18 +150,18 @@ PUBLIC float Resampler::getSpeed(int octave, int step, int bend, int stretch)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Resampler::Resampler()
+Resampler::Resampler()
 {
 	init();
 }
 
-PUBLIC Resampler::Resampler(bool input)
+Resampler::Resampler(bool input)
 {
 	init();
 	mInput = input;
 }
 
-PUBLIC void Resampler::init()
+void Resampler::init()
 {
 	mTrace = false;
 	mInput = false;
@@ -175,11 +175,11 @@ PUBLIC void Resampler::init()
 	  mLastFrame[i] = 0.0;
 }
 
-PUBLIC Resampler::~Resampler()
+Resampler::~Resampler()
 {
 }
 
-PUBLIC void Resampler::reset()
+void Resampler::reset()
 {
 	// leave speed alone, but clear any remainders
 	mRemainderFrames = 0;
@@ -191,7 +191,7 @@ PUBLIC void Resampler::reset()
 	//mLastFrame[i] = 0.0;
 }
 
-PUBLIC float Resampler::getSpeed()
+float Resampler::getSpeed()
 {
 	return mSpeed;
 }
@@ -200,7 +200,7 @@ PUBLIC float Resampler::getSpeed()
  * Set the resampling speed and recalculate some related values.
  * This is called on every interrupt so ignore if we're already there.
  */
-PUBLIC void Resampler::setSpeed(float speed)
+void Resampler::setSpeed(float speed)
 {
     if (speed != mSpeed) {
         // do we get to start over now?
@@ -217,7 +217,7 @@ PUBLIC void Resampler::setSpeed(float speed)
 /**
  * Set the speed as a scale degree.
  */
-PUBLIC void Resampler::setSpeedSemitone(int degree)
+void Resampler::setSpeedSemitone(int degree)
 {
 	setSpeed((float)pow(SEMITONE_FACTOR, degree));
 }
@@ -226,7 +226,7 @@ PUBLIC void Resampler::setSpeedSemitone(int degree)
  * Used by InputStream to remember the starting threshold 
  * used to resample a section of the interrupt block.
  */
-PUBLIC float Resampler::getThreshold()
+float Resampler::getThreshold()
 {
 	return mThreshold;
 }
@@ -235,7 +235,7 @@ PUBLIC float Resampler::getThreshold()
  * If the last call to resample() resulted in a remainder, copy the remainder
  * to the buffer and return its length.  
  */
-PUBLIC long Resampler::addRemainder(float* buffer, long maxFrames)
+long Resampler::addRemainder(float* buffer, long maxFrames)
 {
     int remainder = mRemainderFrames;
 
@@ -278,7 +278,7 @@ PUBLIC long Resampler::addRemainder(float* buffer, long maxFrames)
  * with the appropriate speed.  If we're the input stream, the speed
  * we use for transposition has to be the inverse of the play speed.
  */
-PUBLIC long Resampler::resample(float* src, long srcFrames, 
+long Resampler::resample(float* src, long srcFrames, 
                                 float* dest, long destFrames)
 {
 	long actual = 0;
@@ -336,7 +336,7 @@ PUBLIC long Resampler::resample(float* src, long srcFrames,
  * errors that always caused periodic anamolies.  Instead, do it the brute
  * force way and simulate what the transpose() method will do.
  */
-PUBLIC long Resampler::scaleToSourceFrames(float speed, float threshold, 
+long Resampler::scaleToSourceFrames(float speed, float threshold, 
 										   long destFrames)
 {
 	if (speed == 1.0) return destFrames;
@@ -390,7 +390,7 @@ PUBLIC long Resampler::scaleToSourceFrames(float speed, float threshold,
  * errors that always caused periodic anamolies.  Instead, do it the brute
  * force way and simulate what the transpose() method will do.
  */
-PUBLIC long Resampler::scaleToDestFrames(float speed, float threshold, 
+long Resampler::scaleToDestFrames(float speed, float threshold, 
 										 long srcFrames)
 {
 	if (speed == 1.0) return srcFrames;
@@ -437,7 +437,7 @@ PUBLIC long Resampler::scaleToDestFrames(float speed, float threshold,
  * just passes 0 as the destination buffer size and let's resample()
  * fill as much as it needs.
  */
-PUBLIC long Resampler::scaleInputFrames(long srcFrames)
+long Resampler::scaleInputFrames(long srcFrames)
 {
 	return scaleToDestFrames(mInverseSpeed, mThreshold, srcFrames);
 }
@@ -446,7 +446,7 @@ PUBLIC long Resampler::scaleInputFrames(long srcFrames)
  * Given a number of output frames, determine how many frames we need
  * to read from the loop and scale to achieve that number.
  */
-PUBLIC long Resampler::scaleOutputFrames(long destFrames)
+long Resampler::scaleOutputFrames(long destFrames)
 {
 	return scaleToSourceFrames(mSpeed, mThreshold, destFrames);
 }
@@ -463,7 +463,7 @@ PUBLIC long Resampler::scaleOutputFrames(long destFrames)
  * to determine how many frames to read from the loop to fill 
  * the output buffer.
  */
-PUBLIC long Resampler::scaleFromInputFrames(float initialThreshold, 
+long Resampler::scaleFromInputFrames(float initialThreshold, 
 											long inputFrames)
 {
 	return scaleToSourceFrames(mInverseSpeed, initialThreshold, inputFrames);
@@ -476,7 +476,7 @@ PUBLIC long Resampler::scaleFromInputFrames(float initialThreshold,
  *
  * Made public for algorithm experiments.
  */
-PUBLIC long Resampler::transpose(float* src, long srcFrames,
+long Resampler::transpose(float* src, long srcFrames,
 								 float* dest, long destFrames,
 								 float speed)
 {
@@ -575,7 +575,7 @@ PUBLIC long Resampler::transpose(float* src, long srcFrames,
 /**
  * Convenience method to transpose in one pass.
  */
-PUBLIC void Resampler::transposeOnce(float* src, float* dest, 
+void Resampler::transposeOnce(float* src, float* dest, 
 									 long frames, float speed)
 {
 	mThreshold = 1.0f;
@@ -596,7 +596,7 @@ PUBLIC void Resampler::transposeOnce(float* src, float* dest,
 /**
  * Generate a 1000Khz stereo sine wave for a specified number of seconds.
  */
-PUBLIC float* Resampler::generateSine(int seconds, long* retsamples)
+float* Resampler::generateSine(int seconds, long* retsamples)
 {
     // this isn't part of core Mobius, it's only used for testing
     // so we can hard code the rate
@@ -626,7 +626,7 @@ PUBLIC float* Resampler::generateSine(int seconds, long* retsamples)
     return buffer;
 }
 
-PUBLIC void Resampler::writeSine(int seconds, const char* file)
+void Resampler::writeSine(int seconds, const char* file)
 {
     FILE* fp = fopen(file, "w");
     if (fp == NULL)
@@ -641,7 +641,7 @@ PUBLIC void Resampler::writeSine(int seconds, const char* file)
     }
 }
 
-PUBLIC void Resampler::interpolate2x(float* src, long frames, float* dest)
+void Resampler::interpolate2x(float* src, long frames, float* dest)
 {
     long samples = frames * 2;
     long destsample = 0;
@@ -654,7 +654,7 @@ PUBLIC void Resampler::interpolate2x(float* src, long frames, float* dest)
     }
 }
 
-PUBLIC void Resampler::decimate2x(float* src, long frames, float* dest)
+void Resampler::decimate2x(float* src, long frames, float* dest)
 {
     long samples = frames * 2;
     long destsample = 0;

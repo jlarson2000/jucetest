@@ -12,13 +12,13 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "FadeWindow.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../FadeWindow.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -33,16 +33,16 @@ class CoverageFunction : public Function {
   private:
 };
 
-PUBLIC Function* Coverage = new CoverageFunction();
+Function* Coverage = new CoverageFunction();
 
-PUBLIC CoverageFunction::CoverageFunction() :
+CoverageFunction::CoverageFunction() :
     Function("Coverage", 0)
 {
     global = true;
     scriptOnly = true;
 }
 
-PUBLIC void CoverageFunction::invoke(Action* action, Mobius* m)
+void CoverageFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
@@ -65,16 +65,16 @@ class InitCoverageFunction : public Function {
   private:
 };
 
-PUBLIC Function* InitCoverage = new InitCoverageFunction();
+Function* InitCoverage = new InitCoverageFunction();
 
-PUBLIC InitCoverageFunction::InitCoverageFunction() :
+InitCoverageFunction::InitCoverageFunction() :
     Function("InitCoverage", 0)
 {
     global = true;
     scriptOnly = true;
 }
 
-PUBLIC void InitCoverageFunction::invoke(Action* action, Mobius* m)
+void InitCoverageFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

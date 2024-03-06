@@ -13,20 +13,20 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Stream.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Segment.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Stream.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -60,14 +60,14 @@ class StutterEventType : public EventType {
 	StutterEventType();
 };
 
-PUBLIC StutterEventType::StutterEventType()
+StutterEventType::StutterEventType()
 {
 	name = "Stutter";
     // need this?
 	//reschedules = true;
 }
 
-PUBLIC EventType* StutterEvent = new StutterEventType();
+EventType* StutterEvent = new StutterEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -88,10 +88,10 @@ class StutterFunction : public Function {
 };
 
 // SUS first for longFunction
-PUBLIC Function* SUSStutter = new StutterFunction(true);
-PUBLIC Function* Stutter = new StutterFunction(false);
+Function* SUSStutter = new StutterFunction(true);
+Function* Stutter = new StutterFunction(false);
 
-PUBLIC StutterFunction::StutterFunction(bool sus)
+StutterFunction::StutterFunction(bool sus)
 {
 	eventType = StutterEvent;
     mMode = StutterMode;
@@ -116,7 +116,7 @@ PUBLIC StutterFunction::StutterFunction(bool sus)
 	}
 }
 
-PUBLIC bool StutterFunction::isSustain(Preset* p)
+bool StutterFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -165,7 +165,7 @@ Event* StutterFunction::scheduleEvent(Action* action, Loop* l)
 	return event;
 }
 
-PUBLIC void StutterFunction::doEvent(Loop* l, Event* e)
+void StutterFunction::doEvent(Loop* l, Event* e)
 {
     if (e->type == StutterEvent) {
 

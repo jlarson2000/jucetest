@@ -19,7 +19,7 @@
 #ifndef RESAMPLER_H
 #define RESAMPLER_H
 
-//#include "Audio.h"
+#include "../Audio.h"
 #include "AudioInterface.h"
 
 //////////////////////////////////////////////////////////////////////

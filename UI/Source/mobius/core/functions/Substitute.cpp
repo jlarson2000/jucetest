@@ -13,14 +13,14 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Util.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../../util/Util.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -53,12 +53,12 @@ class SubstituteEventType : public EventType {
 	SubstituteEventType();
 };
 
-PUBLIC SubstituteEventType::SubstituteEventType()
+SubstituteEventType::SubstituteEventType()
 {
 	name = "Substitute";
 }
 
-PUBLIC EventType* SubstituteEvent = new SubstituteEventType();
+EventType* SubstituteEvent = new SubstituteEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -74,10 +74,10 @@ class SubstituteFunction : public Function {
 };
 
 // SUS first for longFunction
-PUBLIC Function* SUSSubstitute = new SubstituteFunction(true);
-PUBLIC Function* Substitute = new SubstituteFunction(false);
+Function* SUSSubstitute = new SubstituteFunction(true);
+Function* Substitute = new SubstituteFunction(false);
 
-PUBLIC SubstituteFunction::SubstituteFunction(bool sus)
+SubstituteFunction::SubstituteFunction(bool sus)
 {
 	eventType = SubstituteEvent;
     mMode = SubstituteMode;
@@ -105,7 +105,7 @@ PUBLIC SubstituteFunction::SubstituteFunction(bool sus)
 	}
 }
 
-PUBLIC bool SubstituteFunction::isSustain(Preset* p)
+bool SubstituteFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -122,7 +122,7 @@ PUBLIC bool SubstituteFunction::isSustain(Preset* p)
  * SubstituteEvent event handler.
  * Like Replace except the original loop is audible.
  */
-PUBLIC void SubstituteFunction::doEvent(Loop* loop, Event* event)
+void SubstituteFunction::doEvent(Loop* loop, Event* event)
 {
 	MobiusMode* mode = loop->getMode();
 

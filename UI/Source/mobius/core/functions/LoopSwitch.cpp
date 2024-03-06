@@ -41,18 +41,18 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Util.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
-#include "Track.h"
-#include "Stream.h"
-#include "Messages.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../../util/Util.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
+#include "../Track.h"
+#include "../Stream.h"
+#include "../Messages.h"
+#include "../Mode.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -72,7 +72,7 @@ class SoundCopyEventType : public EventType {
 	SoundCopyEventType();
 };
 
-PUBLIC SoundCopyEventType::SoundCopyEventType()
+SoundCopyEventType::SoundCopyEventType()
 {
 	name = "SoundCopy";
 }
@@ -123,12 +123,12 @@ class SwitchEventType : public EventType {
 	SwitchEventType();
 };
 
-PUBLIC SwitchEventType::SwitchEventType()
+SwitchEventType::SwitchEventType()
 {
 	name = "Switch";
 }
 
-PUBLIC EventType* SwitchEvent = new SwitchEventType();
+EventType* SwitchEvent = new SwitchEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -141,12 +141,12 @@ class ReturnEventType : public EventType {
 	ReturnEventType();
 };
 
-PUBLIC ReturnEventType::ReturnEventType()
+ReturnEventType::ReturnEventType()
 {
 	name = "Return";
 }
 
-PUBLIC EventType* ReturnEvent = new ReturnEventType();
+EventType* ReturnEvent = new ReturnEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -164,13 +164,13 @@ class SUSReturnEventType : public EventType {
 	SUSReturnEventType();
 };
 
-PUBLIC SUSReturnEventType::SUSReturnEventType()
+SUSReturnEventType::SUSReturnEventType()
 {
 	name = "SUSReturn";
 	noUndo = true;
 }
 
-PUBLIC EventType* SUSReturnEvent = new SUSReturnEventType();
+EventType* SUSReturnEvent = new SUSReturnEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -202,29 +202,29 @@ class LoopTriggerFunction : public ReplicatedFunction {
     bool mOnce;
 };
 
-PUBLIC Function* NextLoop = new LoopTriggerFunction(1, false, true);
-PUBLIC Function* PrevLoop = new LoopTriggerFunction(-1, false, true);
-PUBLIC Function* SUSNextLoop = new LoopTriggerFunction(1, true, true);
-PUBLIC Function* SUSPrevLoop = new LoopTriggerFunction(-1, true, true);
-PUBLIC Function* Restart = new LoopTriggerFunction(false);
-PUBLIC Function* RestartOnce = new LoopTriggerFunction(true);
+Function* NextLoop = new LoopTriggerFunction(1, false, true);
+Function* PrevLoop = new LoopTriggerFunction(-1, false, true);
+Function* SUSNextLoop = new LoopTriggerFunction(1, true, true);
+Function* SUSPrevLoop = new LoopTriggerFunction(-1, true, true);
+Function* Restart = new LoopTriggerFunction(false);
+Function* RestartOnce = new LoopTriggerFunction(true);
 
 // TODO: need a way to define these on the fly
 
-PUBLIC Function* LoopN = new LoopTriggerFunction(-1, false, false);
-PUBLIC Function* Loop1 = new LoopTriggerFunction(0, false, false);
-PUBLIC Function* Loop2 = new LoopTriggerFunction(1, false, false);
-PUBLIC Function* Loop3 = new LoopTriggerFunction(2, false, false);
-PUBLIC Function* Loop4 = new LoopTriggerFunction(3, false, false);
-PUBLIC Function* Loop5 = new LoopTriggerFunction(4, false, false);
-PUBLIC Function* Loop6 = new LoopTriggerFunction(5, false, false);
-PUBLIC Function* Loop7 = new LoopTriggerFunction(6, false, false);
-PUBLIC Function* Loop8 = new LoopTriggerFunction(7, false, false);
+Function* LoopN = new LoopTriggerFunction(-1, false, false);
+Function* Loop1 = new LoopTriggerFunction(0, false, false);
+Function* Loop2 = new LoopTriggerFunction(1, false, false);
+Function* Loop3 = new LoopTriggerFunction(2, false, false);
+Function* Loop4 = new LoopTriggerFunction(3, false, false);
+Function* Loop5 = new LoopTriggerFunction(4, false, false);
+Function* Loop6 = new LoopTriggerFunction(5, false, false);
+Function* Loop7 = new LoopTriggerFunction(6, false, false);
+Function* Loop8 = new LoopTriggerFunction(7, false, false);
 
 /**
  * Constructor for absolute and relative triggers.
  */
-PUBLIC LoopTriggerFunction::LoopTriggerFunction(int i, bool sus, bool relative)
+LoopTriggerFunction::LoopTriggerFunction(int i, bool sus, bool relative)
 {
 	eventType = SwitchEvent;
 	trigger = true;
@@ -288,7 +288,7 @@ PUBLIC LoopTriggerFunction::LoopTriggerFunction(int i, bool sus, bool relative)
 /**
  * Constructor for restarts.
  */
-PUBLIC LoopTriggerFunction::LoopTriggerFunction(bool once)
+LoopTriggerFunction::LoopTriggerFunction(bool once)
 {
 	eventType = SwitchEvent;
 	trigger = true;
@@ -526,7 +526,7 @@ Event* LoopTriggerFunction::invoke(Action* action, Loop* l)
  *
  * UPDATE: This isn't used any more, why?
  */
-PRIVATE bool LoopTriggerFunction::isSustainableLoopTrigger(Loop*loop,
+bool LoopTriggerFunction::isSustainableLoopTrigger(Loop*loop,
                                                            Function* f)
 {
     // this gets SUSNextLoop and SUSPrevLoop
@@ -562,7 +562,7 @@ PRIVATE bool LoopTriggerFunction::isSustainableLoopTrigger(Loop*loop,
  * play a loop like a sampler, it plays once, goes into mute, then triggering
  * it again won't cancel the mute.  
  */
-PUBLIC bool LoopTriggerFunction::isMuteCancel(Preset* p)
+bool LoopTriggerFunction::isMuteCancel(Preset* p)
 {
     bool cancel = Function::isMuteCancel(p);
     if (!cancel) {
@@ -597,7 +597,7 @@ PUBLIC bool LoopTriggerFunction::isMuteCancel(Preset* p)
  * If an event is returned it represents the primary switch event
  * and it will ownt he Action.
  */
-PRIVATE Event* LoopTriggerFunction::scheduleTrigger(Action* action, 
+Event* LoopTriggerFunction::scheduleTrigger(Action* action, 
                                                     Loop* current,
                                                     Loop* next)
 {
@@ -728,7 +728,7 @@ PRIVATE Event* LoopTriggerFunction::scheduleTrigger(Action* action,
  * Not sure I understand that we'll just ignore it.
  *
  */
-PRIVATE Event* LoopTriggerFunction::scheduleSwitch(Action* action, 
+Event* LoopTriggerFunction::scheduleSwitch(Action* action, 
                                                    Loop* current,
                                                    Loop* next, 
                                                    Event* modeEnd)
@@ -870,7 +870,7 @@ PRIVATE Event* LoopTriggerFunction::scheduleSwitch(Action* action,
  * "meaningless" events so we can schedule them early but not clutter
  * the UI.
  */
-PRIVATE Event* LoopTriggerFunction::addSwitchEvent(Action* action, 
+Event* LoopTriggerFunction::addSwitchEvent(Action* action, 
                                                    Loop* current, 
                                                    Loop* next)
 {
@@ -918,7 +918,7 @@ PRIVATE Event* LoopTriggerFunction::addSwitchEvent(Action* action,
  * which when the trigger goes up will mute rather than return.
  * 
  */
-PRIVATE Event* LoopTriggerFunction::promoteSUSReturn(Action* action,
+Event* LoopTriggerFunction::promoteSUSReturn(Action* action,
                                                      Loop* loop, 
                                                      Event* susret)
 {
@@ -989,7 +989,7 @@ PRIVATE Event* LoopTriggerFunction::promoteSUSReturn(Action* action,
  * TODO: EDP resets the triggered loop (unless SwitchDuration=Sustain).
  * Is this true for NextLoop?  Could convert to SUSNextLoop
  */
-PUBLIC void LoopTriggerFunction::invokeLong(Action* action, Loop* l)
+void LoopTriggerFunction::invokeLong(Action* action, Loop* l)
 {
 }
 
@@ -1003,7 +1003,7 @@ PUBLIC void LoopTriggerFunction::invokeLong(Action* action, Loop* l)
  * Unfortunately switch event handling is still closely wound up in Loop
  * so we continue to implement it there.
  */
-PUBLIC void LoopTriggerFunction::doEvent(Loop* l, Event* e)
+void LoopTriggerFunction::doEvent(Loop* l, Event* e)
 {
     if (e->type == SwitchEvent)
       l->switchEvent(e);
@@ -1017,7 +1017,7 @@ PUBLIC void LoopTriggerFunction::doEvent(Loop* l, Event* e)
 
 }
 
-PUBLIC void LoopTriggerFunction::undoEvent(Loop* l, Event* e)
+void LoopTriggerFunction::undoEvent(Loop* l, Event* e)
 {
     EventManager* em = l->getTrack()->getEventManager();
 
@@ -1073,7 +1073,7 @@ PUBLIC void LoopTriggerFunction::undoEvent(Loop* l, Event* e)
  * Cycle, we'll end the multiply and wait for the expected point.
  *
  */
-PUBLIC void LoopTriggerFunction::confirmEvent(Action* action,
+void LoopTriggerFunction::confirmEvent(Action* action,
                                               class Loop* l, 
                                               Event* switche, 
                                               long frame)

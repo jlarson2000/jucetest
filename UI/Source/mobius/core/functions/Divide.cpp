@@ -13,17 +13,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Stream.h"
-#include "Synchronizer.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -36,12 +36,12 @@ class DivideEventType : public EventType {
 	DivideEventType();
 };
 
-PUBLIC DivideEventType::DivideEventType()
+DivideEventType::DivideEventType()
 {
 	name = "Divide";
 }
 
-PUBLIC EventType* DivideEvent = new DivideEventType();
+EventType* DivideEvent = new DivideEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -67,11 +67,11 @@ class DivideFunction : public Function {
 	int mMultiple;
 };
 
-PUBLIC Function* Divide = new DivideFunction(0);
-PUBLIC Function* Divide3 = new DivideFunction(3);
-PUBLIC Function* Divide4 = new DivideFunction(4);
+Function* Divide = new DivideFunction(0);
+Function* Divide3 = new DivideFunction(3);
+Function* Divide4 = new DivideFunction(4);
 
-PUBLIC DivideFunction::DivideFunction(int n)
+DivideFunction::DivideFunction(int n)
 {
 	eventType = DivideEvent;
 	cancelReturn = true;

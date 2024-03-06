@@ -253,11 +253,11 @@
 #include <memory.h>
 #include <math.h>
 
-#include "Trace.h"
+#include "../../util/Trace.h"
 
 #include "Event.h"
 #include "Loop.h"
-#include "Setup.h"
+#include "../../model/Setup.h"
 #include "Track.h"
 
 #include "SyncTracker.h"
@@ -276,7 +276,7 @@ extern bool MidiTimerDeferredTempoChange;
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC SyncTracker::SyncTracker(SyncSource src)
+SyncTracker::SyncTracker(SyncSource src)
 {
     mSource = src;
     mTrack = NULL;
@@ -308,51 +308,51 @@ PUBLIC SyncTracker::SyncTracker(SyncSource src)
     reset();
 }
 
-PUBLIC SyncTracker::~SyncTracker()
+SyncTracker::~SyncTracker()
 {
 }
 
-PUBLIC SyncSource SyncTracker::getSyncSource()
+SyncSource SyncTracker::getSyncSource()
 {
     return mSource;
 }
 
-PUBLIC const char* SyncTracker::getName()
+const char* SyncTracker::getName()
 {
     return mName;
 }
 
-PUBLIC bool SyncTracker::isLocked()
+bool SyncTracker::isLocked()
 {
     return (mLoopFrames > 0);
 }
 
-PUBLIC int SyncTracker::getPulse()
+int SyncTracker::getPulse()
 {
     return mPulse;
 }
 
-PUBLIC int SyncTracker::getLoopPulses()
+int SyncTracker::getLoopPulses()
 {
     return mLoopPulses;
 }
 
-PUBLIC int SyncTracker::getFutureLoopPulses()
+int SyncTracker::getFutureLoopPulses()
 {
     return (mResizePulses != 0) ? mResizePulses : mLoopPulses;
 }
 
-PUBLIC long SyncTracker::getLoopFrames()
+long SyncTracker::getLoopFrames()
 {
     return mLoopFrames;
 }
 
-PUBLIC long SyncTracker::getFutureLoopFrames()
+long SyncTracker::getFutureLoopFrames()
 {
     return (mResizeFrames != 0) ? mResizeFrames : mLoopFrames;
 }
 
-PUBLIC float SyncTracker::getFutureSpeed()
+float SyncTracker::getFutureSpeed()
 {
     // we let these be zero to mean "uninitailized" but caller expects 1.0
     float speed = (mResizeSpeed != 0) ? mResizeSpeed : mSpeed;
@@ -361,12 +361,12 @@ PUBLIC float SyncTracker::getFutureSpeed()
     return speed;
 }
 
-PUBLIC long SyncTracker::getAudioFrame()
+long SyncTracker::getAudioFrame()
 {
     return mAudioFrame;
 }
 
-PUBLIC long SyncTracker::getDrift()
+long SyncTracker::getDrift()
 {
     return mDrift;
 }
@@ -374,7 +374,7 @@ PUBLIC long SyncTracker::getDrift()
 /**
  * !! decide whether this really needs to be a float and be consistent
  */
-PUBLIC float SyncTracker::getAverageDrift()
+float SyncTracker::getAverageDrift()
 {
     return mDriftMonitor->getPulseWidth();
 }
@@ -384,12 +384,12 @@ PUBLIC float SyncTracker::getAverageDrift()
  * take a LONG time to catch up, so it is highly inaccurate if the
  * user is fidding with tempos before recording.
  */
-PUBLIC float SyncTracker::getAveragePulseFrames()
+float SyncTracker::getAveragePulseFrames()
 {
     return mPulseMonitor->getPulseWidth();
 }
 
-PUBLIC int SyncTracker::getBeatsPerBar()
+int SyncTracker::getBeatsPerBar()
 {
     return mBeatsPerBar;
 }
@@ -400,7 +400,7 @@ PUBLIC int SyncTracker::getBeatsPerBar()
  * mLoopFrames must be adjusted so that this division will always
  * return an integral value.
  */
-PUBLIC float SyncTracker::getPulseFrames()
+float SyncTracker::getPulseFrames()
 {
     float frames = 0.0f;
     if (mLoopPulses > 0)
@@ -422,7 +422,7 @@ PUBLIC float SyncTracker::getPulseFrames()
  * Do *not* call this until you are sure no other tracks are following
  * or about to be following this tracker.
  */
-PUBLIC void SyncTracker::reset()
+void SyncTracker::reset()
 {
     mPulse = 0;
     mLoopPulses = 0;
@@ -454,7 +454,7 @@ PUBLIC void SyncTracker::reset()
  * adjustments to the final pulse number when locking
  * the tracker after a new recording.
  */
-PUBLIC void SyncTracker::interruptStart()
+void SyncTracker::interruptStart()
 {
     mInterruptPulse = mPulse;
 }
@@ -462,7 +462,7 @@ PUBLIC void SyncTracker::interruptStart()
 /**
  * Temporary debugging hack to set a track for trace.
  */
-PUBLIC void SyncTracker::setMasterTrack(Track* t)
+void SyncTracker::setMasterTrack(Track* t)
 {
     mTrack = t;
 }
@@ -481,7 +481,7 @@ PUBLIC void SyncTracker::setMasterTrack(Track* t)
  * See file header comments for a *long* discussion of the pulse boundary
  * calculations here.
  */
-PUBLIC void SyncTracker::advance(long frames, EventPool* pool, EventList* events)
+void SyncTracker::advance(long frames, EventPool* pool, EventList* events)
 {
     // originally did this only if the tracker was locked but that
     // makes it harder to measure the average pulse width before locking
@@ -643,7 +643,7 @@ PUBLIC void SyncTracker::advance(long frames, EventPool* pool, EventList* events
  * partial advances for events occuring in the middle of the interrupt
  * block.  This only happens for host pulses.
  */
-PRIVATE long SyncTracker::advanceInternal(long frames)
+long SyncTracker::advanceInternal(long frames)
 {
     long advanced = frames;
 
@@ -680,7 +680,7 @@ PRIVATE long SyncTracker::advanceInternal(long frames)
  * (if rewind anywhere else).  These have to be treated as an initial
  * pulse.
  */
-PUBLIC void SyncTracker::event(Event* e)
+void SyncTracker::event(Event* e)
 {
     SyncEventType type = e->fields.sync.eventType;
 
@@ -766,7 +766,7 @@ PUBLIC void SyncTracker::event(Event* e)
 /**
  * Calculate the logical pulse frame.
  */
-PRIVATE float SyncTracker::getPulseFrame()
+float SyncTracker::getPulseFrame()
 {
     return (float)mPulse * getPulseFrames();
 }
@@ -802,7 +802,7 @@ PRIVATE float SyncTracker::getPulseFrame()
  * pulse but it doesn't really matter.  If they're jacking with the
  * transport randomly drift and dealign lose meaning.
  */
-PRIVATE void SyncTracker::jumpPulse(Event* e)
+void SyncTracker::jumpPulse(Event* e)
 {
     // we really shouldn't have this, right?
     if (mPendingPulses > 0) {
@@ -855,7 +855,7 @@ PRIVATE void SyncTracker::jumpPulse(Event* e)
  * SyncStartPoint and PulseFrmae in the Event.  Try to weed these 
  * someday so we don't confuse things.
  */
-PRIVATE void SyncTracker::pulse(Event* e)
+void SyncTracker::pulse(Event* e)
 {
     // If we have pending pulses, ignore them since they were logically
     // included when the tracker was locked.  There should normally be
@@ -980,7 +980,7 @@ PRIVATE void SyncTracker::pulse(Event* e)
  * as the stream advances.  To get a proper dealignment we therefore
  * need to apply the last known speed adjustment.
  */
-PUBLIC long SyncTracker::getDealign(Track* t)
+long SyncTracker::getDealign(Track* t)
 {
     long dealign = 0;
 
@@ -1004,7 +1004,7 @@ PUBLIC long SyncTracker::getDealign(Track* t)
  * For OUT sync this is ordinarlly the same as the initial advance
  * we traced in the START event handler above.
  */
-PUBLIC void SyncTracker::traceDealign()
+void SyncTracker::traceDealign()
 {
     if (mTrack != NULL) {
         long dealign = getDealign(mTrack);
@@ -1035,7 +1035,7 @@ PUBLIC void SyncTracker::traceDealign()
  * calculates an integral beat size when scheduling the record
  * end events.  So we use this as a warning at the time of locking.
  */
-PUBLIC long SyncTracker::prepare(TraceContext* tc, int pulses, long frames,
+long SyncTracker::prepare(TraceContext* tc, int pulses, long frames,
                                  bool warn)
 {
     long ideal = frames;
@@ -1144,7 +1144,7 @@ PUBLIC long SyncTracker::prepare(TraceContext* tc, int pulses, long frames,
  * When mPulse is greater than "pulses" the extra pulses must 
  * carrry over and become play pulses after the tracker is locked.
  */
-PUBLIC void SyncTracker::lock(TraceContext* tc, int originPulse, int pulses, 
+void SyncTracker::lock(TraceContext* tc, int originPulse, int pulses, 
                               long frames, float speed, int beatsPerBar)
 {
      if (mLoopFrames > 0) {
@@ -1228,7 +1228,7 @@ PUBLIC void SyncTracker::lock(TraceContext* tc, int originPulse, int pulses,
  * until after the next pulse we save the new size and process it later
  * in pulse().
  */
-PUBLIC void SyncTracker::resize(int pulses, long frames, float speed)
+void SyncTracker::resize(int pulses, long frames, float speed)
 {
     if (isLocked()) {
         // have to defer
@@ -1246,7 +1246,7 @@ PUBLIC void SyncTracker::resize(int pulses, long frames, float speed)
 /**
  * Process a resize when we receive the next pulse.
  */
-PRIVATE void SyncTracker::doResize()
+void SyncTracker::doResize()
 {
     if (mResizePulses > 0 && mResizeFrames > 0) {
 
@@ -1312,7 +1312,7 @@ PRIVATE void SyncTracker::doResize()
  * it is received.  This may make our loop slightly ahead of the
  * actual loop, but that doesn't affect drift calculations.
  */
-PUBLIC long SyncTracker::calcDrift(long pulseFrame, long audioFrame,
+long SyncTracker::calcDrift(long pulseFrame, long audioFrame,
                                    long loopFrames)
 {
     long drift = 0;
@@ -1354,7 +1354,7 @@ PUBLIC long SyncTracker::calcDrift(long pulseFrame, long audioFrame,
  * we should just require that drift correction be performed on a pulse
  * and call it a day?
  */
-PUBLIC void SyncTracker::correct()
+void SyncTracker::correct()
 {
     // only works if you're exactly on a pulse
     //mAudioFrame = (long)getPulseFrame();
@@ -1389,7 +1389,7 @@ PUBLIC void SyncTracker::correct()
  * to ignore START/CONTINUE and treat it just like a pulse that
  * doesn't change mAudioFrame.
  */
-PUBLIC long SyncTracker::addDrift(long audioFrame, long loopFrames,
+long SyncTracker::addDrift(long audioFrame, long loopFrames,
                                   long drift)
 {
     long drifted = audioFrame;
@@ -1413,12 +1413,12 @@ PUBLIC long SyncTracker::addDrift(long audioFrame, long loopFrames,
  * The usual wrap calculation.
  * Could make advance use this too...
  */
-PRIVATE long SyncTracker::wrap(long frame)
+long SyncTracker::wrap(long frame)
 {
     return wrap(frame, mLoopFrames);
 }
            
-PRIVATE long SyncTracker::wrap(long frame, long max)
+long SyncTracker::wrap(long frame, long max)
 {
     if (max > 0) {
         if (frame > 0)
@@ -1437,22 +1437,22 @@ PRIVATE long SyncTracker::wrap(long frame, long max)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC int SyncTracker::getDriftChecks()
+int SyncTracker::getDriftChecks()
 {
     return mDriftChecks;
 }
 
-PUBLIC void SyncTracker::incDriftChecks()
+void SyncTracker::incDriftChecks()
 {
     mDriftChecks += 1;
 }
 
-PUBLIC int SyncTracker::getDriftCorrections()
+int SyncTracker::getDriftCorrections()
 {
     return mDriftCorrections;
 }
 
-PUBLIC void SyncTracker::incDriftCorrections()
+void SyncTracker::incDriftCorrections()
 {
     mDriftCorrections += 1;
 }
@@ -1460,7 +1460,7 @@ PUBLIC void SyncTracker::incDriftCorrections()
 /**
  * Only for the unit tests that set this through a ScriptVariable.
  */ 
-PUBLIC void SyncTracker::setDriftCorrections(int i)
+void SyncTracker::setDriftCorrections(int i)
 {
     mDriftCorrections = i;
 }
@@ -1469,7 +1469,7 @@ PUBLIC void SyncTracker::setDriftCorrections(int i)
  * Force a drift.  This is intended for unit tests to set up
  * drift conditions then check to see that correction was applied.
  */
-PUBLIC void SyncTracker::drift(int delta)
+void SyncTracker::drift(int delta)
 {
     long startFrame = mAudioFrame;
     mAudioFrame = wrap(mAudioFrame + delta);
@@ -1505,12 +1505,12 @@ PUBLIC void SyncTracker::drift(int delta)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC PulseMonitor::PulseMonitor()
+PulseMonitor::PulseMonitor()
 {
 	reset();
 }
 
-PUBLIC void PulseMonitor::reset()
+void PulseMonitor::reset()
 {
 	mSample = 0;
 	mTotal = 0;
@@ -1521,16 +1521,16 @@ PUBLIC void PulseMonitor::reset()
 	  mSamples[i] = 0;
 }
 
-PUBLIC PulseMonitor::~PulseMonitor()
+PulseMonitor::~PulseMonitor()
 {
 }
 
-PUBLIC float PulseMonitor::getPulseWidth()
+float PulseMonitor::getPulseWidth()
 {
 	return mPulse;
 }
 
-PUBLIC void PulseMonitor::pulse(int width)
+void PulseMonitor::pulse(int width)
 {
     // remove the oldest sample (the one we're about to replace)
     mTotal -= mSamples[mSample];

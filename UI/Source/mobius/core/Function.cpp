@@ -20,27 +20,27 @@
 #include <string.h>
 #include <memory.h>
 
-#include "List.h"
-#include "MessageCatalog.h"
-#include "Util.h"
+#include "../../util/List.h"
+//#include "MessageCatalog.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
-#include "Audio.h"
-#include "ControlSurface.h"
+#include "../Audio.h"
+//#include "ControlSurface.h"
 #include "Event.h"
 #include "EventManager.h"
 #include "Layer.h"
 #include "Loop.h"
-#include "Messages.h"
+//#include "Messages.h"
 #include "Mobius.h"
 #include "Mode.h"
 #include "Project.h"
-#include "Recorder.h"
+//#include "Recorder.h"
 #include "Script.h"
 #include "Stream.h"
 #include "Synchronizer.h"
-#include "SystemConstant.h"
-#include "Track.h"
+#include "../../model/SystemConstant.h"
+#include "../../util/Track.h"
 
 #include "Function.h"
 
@@ -102,7 +102,7 @@ class InvokeEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC InvokeEventType::InvokeEventType()
+InvokeEventType::InvokeEventType()
 {
 	name = "Invoke";
 
@@ -126,7 +126,7 @@ PUBLIC InvokeEventType::InvokeEventType()
  * in which case we would need to find a way to get the new event
  * inserted at the same list position as the InvokeEvent.
  */
-PUBLIC void InvokeEventType::invoke(Loop* l, Event* e)
+void InvokeEventType::invoke(Loop* l, Event* e)
 {
 	Function* f = e->function;
 	if (f != NULL)
@@ -135,7 +135,7 @@ PUBLIC void InvokeEventType::invoke(Loop* l, Event* e)
 	  Trace(l, 1, "InvokeEvent called with no function!");
 }
 
-PUBLIC EventType* InvokeEvent = new InvokeEventType();
+EventType* InvokeEvent = new InvokeEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -152,7 +152,7 @@ class LoopEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC LoopEventType::LoopEventType()
+LoopEventType::LoopEventType()
 {
 	name = "Loop";
 }
@@ -161,12 +161,12 @@ PUBLIC LoopEventType::LoopEventType()
  * This one has some fairly complicated work to do that
  * is still encapsulated in Loop.
  */
-PUBLIC void LoopEventType::invoke(Loop* l, Event* e)
+void LoopEventType::invoke(Loop* l, Event* e)
 {
 	l->loopEvent(e);
 }
 
-PUBLIC EventType* LoopEvent = new LoopEventType();
+EventType* LoopEvent = new LoopEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -184,7 +184,7 @@ class CycleEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC CycleEventType::CycleEventType()
+CycleEventType::CycleEventType()
 {
 	name = "Cycle";
 }
@@ -196,14 +196,14 @@ PUBLIC CycleEventType::CycleEventType()
  * !! For single cycle loops we won't see this event, need to handle
  * in loopEvent.
  */
-PUBLIC void CycleEventType::invoke(Loop* l, Event* e)
+void CycleEventType::invoke(Loop* l, Event* e)
 {
     MobiusMode* mode = l->getMode();
     if (mode == StutterMode)
       l->stutterCycle();
 }
 
-PUBLIC EventType* CycleEvent = new CycleEventType();
+EventType* CycleEvent = new CycleEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -221,7 +221,7 @@ class SubCycleEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC SubCycleEventType::SubCycleEventType()
+SubCycleEventType::SubCycleEventType()
 {
 	name = "SubCycle";
 }
@@ -231,11 +231,11 @@ PUBLIC SubCycleEventType::SubCycleEventType()
  * We don't have anything special to do here, but Track will catch
  * this and record the location for brother sync'd tracks.
  */
-PUBLIC void SubCycleEventType::invoke(Loop* l, Event* e)
+void SubCycleEventType::invoke(Loop* l, Event* e)
 {
 }
 
-PUBLIC EventType* SubCycleEvent = new SubCycleEventType();
+EventType* SubCycleEvent = new SubCycleEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -250,22 +250,22 @@ class JumpPlayEventType : public EventType {
 	void undo(Loop* l, Event* e);
 };
 
-PUBLIC JumpPlayEventType::JumpPlayEventType()
+JumpPlayEventType::JumpPlayEventType()
 {
 	name = "JumpPlay";
 }
 
-PUBLIC void JumpPlayEventType::invoke(Loop* l, Event* e)
+void JumpPlayEventType::invoke(Loop* l, Event* e)
 {
 	l->jumpPlayEvent(e);
 }
 
-PUBLIC void JumpPlayEventType::undo(Loop* l, Event* e)
+void JumpPlayEventType::undo(Loop* l, Event* e)
 {
 	l->jumpPlayEventUndo(e);
 }
 
-PUBLIC EventType* JumpPlayEvent = new JumpPlayEventType();
+EventType* JumpPlayEvent = new JumpPlayEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -283,17 +283,17 @@ class ValidateEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC ValidateEventType::ValidateEventType()
+ValidateEventType::ValidateEventType()
 {
 	name = "Validate";
 }
 
-PUBLIC void ValidateEventType::invoke(Loop* l, Event* e)
+void ValidateEventType::invoke(Loop* l, Event* e)
 {
 	l->validateEvent(e);
 }
 
-PUBLIC EventType* ValidateEvent = new ValidateEventType();
+EventType* ValidateEvent = new ValidateEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -301,18 +301,18 @@ PUBLIC EventType* ValidateEvent = new ValidateEventType();
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Function::Function()
+Function::Function()
 {
     init();
 }
 
-PUBLIC Function::Function(const char* name, int key) :
+Function::Function(const char* name, int key) :
     SystemConstant(name, key)
 {
     init();
 }
 
-PRIVATE void Function::init()
+void Function::init()
 {
 	alias1 = NULL;
 	alias2 = NULL;
@@ -358,16 +358,16 @@ PRIVATE void Function::init()
     variableArgs = false;
 }
 
-PUBLIC Function::~Function()
+Function::~Function()
 {
 }
 
-PUBLIC bool Function::isFocusable()
+bool Function::isFocusable()
 {
 	return (!noFocusLock && !focusLockDisabled);
 }
 
-PUBLIC bool Function::isScript()
+bool Function::isScript()
 {
     // hmm, is the best we have?
     return (eventType == RunScriptEvent);
@@ -378,7 +378,7 @@ PUBLIC bool Function::isScript()
  * Overload the one in SystemConstant so we can avoid warnings
  * about some function types that don't need display names.
  */
-PUBLIC void Function::localize(MessageCatalog* cat)
+void Function::localize(MessageCatalog* cat)
 {
     int key = getKey();
 	if (key == 0) {
@@ -404,7 +404,7 @@ PUBLIC void Function::localize(MessageCatalog* cat)
  * both a down and up transition.  Used by higher levels to determine
  * whether to send down "up" events.
  */
-PUBLIC bool Function::isSustainable()
+bool Function::isSustainable()
 {
 	return (sustain || maySustain || longPressable || longFunction != NULL);
 }
@@ -414,7 +414,7 @@ PUBLIC bool Function::isSustainable()
  * starts on the down transition and stops on the up transition.
  * In a few cases this is sensitive to the preset.
  */
-PUBLIC bool Function::isSustain(Preset* p)
+bool Function::isSustain(Preset* p)
 {
 	return sustain;
 }
@@ -422,7 +422,7 @@ PUBLIC bool Function::isSustain(Preset* p)
 /**
  * This is true if the function is can be used during recording.
  */
-PUBLIC bool Function::isRecordable(Preset* p)
+bool Function::isRecordable(Preset* p)
 {
 	return false;
 }
@@ -468,7 +468,7 @@ bool Function::isMuteCancel(Preset* p)
 /**
  * True if this is a spreading function, or a reference to a spread script.
  */
-PUBLIC bool Function::isSpread() 
+bool Function::isSpread() 
 {
     bool result = this->spread;
     if (eventType == RunScriptEvent) {
@@ -486,12 +486,12 @@ PUBLIC bool Function::isSpread()
  * before invoking.  Typically this is the SUS variant of the 
  * trigger function.
  */
-PUBLIC Function* Function::getLongPressFunction(Action* action)
+Function* Function::getLongPressFunction(Action* action)
 {
 	return ((longFunction != NULL) ? longFunction : this);
 }
 
-PUBLIC void Function::trace(Action* action, Mobius* m)
+void Function::trace(Action* action, Mobius* m)
 {
 	// suppress if we're rescheduling since we've already
 	// done a rescheduling message and it looks like a function came in
@@ -499,7 +499,7 @@ PUBLIC void Function::trace(Action* action, Mobius* m)
 	  Trace(m, 2, "Function %s %s\n", getName(), ((action->down) ? "down" : "up"));
 }
 
-PUBLIC void Function::trace(Action* action, Loop* l)
+void Function::trace(Action* action, Loop* l)
 {
 	if (action->rescheduling == NULL && !action->noTrace)
 	  Trace(l, 2, "Function %s %s\n", getName(), ((action->down) ? "down" : "up"));
@@ -508,7 +508,7 @@ PUBLIC void Function::trace(Action* action, Loop* l)
 /**
  * This must be overloaded in the functions that claim to be global.
  */
-PUBLIC void Function::invoke(Action* action, Mobius* m)
+void Function::invoke(Action* action, Mobius* m)
 {
 	Trace(m, 2, "Unimplemented global function %s\n", getName());
 }
@@ -530,7 +530,7 @@ PUBLIC void Function::invoke(Action* action, Mobius* m)
  * then there should be a relationship between the events rather than 
  * finding it now?
  */ 
-PUBLIC Event* Function::invoke(Action* action, Loop* loop)
+Event* Function::invoke(Action* action, Loop* loop)
 {
 	Event* event = NULL;
     Track* track = loop->getTrack();
@@ -693,7 +693,7 @@ PUBLIC Event* Function::invoke(Action* action, Loop* loop)
  * This is very much like rescheduleEvent, but the subtlety is how
  * quantization works with the action->rescheduling event.
  */
-PUBLIC void Function::invokeEvent(Loop* l, Event* e) 
+void Function::invokeEvent(Loop* l, Event* e) 
 {
     // Original Action must be left on the event, steal it
     Action* action = e->getAction();
@@ -747,7 +747,7 @@ PUBLIC void Function::invokeEvent(Loop* l, Event* e)
  * InputStream.
  * 
  */
-PUBLIC void Function::escapeQuantization(Action* action, Loop* loop,
+void Function::escapeQuantization(Action* action, Loop* loop,
 										 Event* prev)
 {
 	// !! Should we even be allowing an up transition to escape quant?
@@ -773,7 +773,7 @@ PUBLIC void Function::escapeQuantization(Action* action, Loop* loop,
 
 // First implemntation that did time shift
 #if 0
-PUBLIC void Function::escapeQuantization(Loop* loop, Event* prev)
+void Function::escapeQuantization(Loop* loop, Event* prev)
 {
 	Trace(loop, 2, "Escaping quantized %s\n", name);
 
@@ -835,7 +835,7 @@ PUBLIC void Function::escapeQuantization(Loop* loop, Event* prev)
  * Synchronizer since we three levels of handlers, RecordFunction, 
  * Synchronizer and then back to Function.
  */
-PUBLIC Event* Function::scheduleEvent(Action* action, Loop* loop)
+Event* Function::scheduleEvent(Action* action, Loop* loop)
 {
     return scheduleEventDefault(action, loop);
 }
@@ -856,7 +856,7 @@ PUBLIC Event* Function::scheduleEvent(Action* action, Loop* loop)
  * The control flow is a little weird, but fixing it requires some complicate
  * refactoring.
  */
-PUBLIC Event* Function::scheduleEventDefault(Action* action, Loop* loop)
+Event* Function::scheduleEventDefault(Action* action, Loop* loop)
 {
     Track* track = loop->getTrack();
     EventManager* em = track->getEventManager();
@@ -906,7 +906,7 @@ PUBLIC Event* Function::scheduleEventDefault(Action* action, Loop* loop)
  * "end your mode" interface that could be used for other functions
  * that have their own modes (Multiply, etc).
  */
-PUBLIC Event* Function::scheduleModeStop(Action* action, Loop* l)
+Event* Function::scheduleModeStop(Action* action, Loop* l)
 {
     return NULL;
 }
@@ -920,7 +920,7 @@ PUBLIC Event* Function::scheduleModeStop(Action* action, Loop* l)
  * Currently RecordFunction is the only thing that implements this, to 
  * make it truly generic Loop should ask the MobiusMode to undo.
  */
-PUBLIC bool Function::undoModeStop(Loop* l)
+bool Function::undoModeStop(Loop* l)
 {
     return false;
 }
@@ -930,7 +930,7 @@ PUBLIC bool Function::undoModeStop(Loop* l)
  * This is only implemented by things that restore themselves after
  * loop switch.
  */
-PUBLIC Event* Function::scheduleTransfer(Loop* l)
+Event* Function::scheduleTransfer(Loop* l)
 {
 	Trace(l, 1, "scheduleTransfer not implemented for %s\n", getName());
     return NULL;
@@ -939,14 +939,14 @@ PUBLIC Event* Function::scheduleTransfer(Loop* l)
 /**
  * Default long press handler for global functions.
  */
-PUBLIC void Function::invokeLong(Action* action, Mobius* m)
+void Function::invokeLong(Action* action, Mobius* m)
 {
 }
 
 /**
  * Default long press handler for track functions.
  */
-PUBLIC void Function::invokeLong(Action* action, Loop* l)
+void Function::invokeLong(Action* action, Loop* l)
 {
 	// TODO: If this is a long-pressable function, can emit
 	// a temorary message to indiciate the mode transition
@@ -965,7 +965,7 @@ PUBLIC void Function::invokeLong(Action* action, Loop* l)
  *
  * Loop will free the source event after we return.
  */
-PUBLIC Event* Function::rescheduleEvent(Loop* l, Event* prev, Event* next)
+Event* Function::rescheduleEvent(Loop* l, Event* prev, Event* next)
 {
 	Event* newEvent = NULL;
 
@@ -1037,7 +1037,7 @@ PUBLIC Event* Function::rescheduleEvent(Loop* l, Event* prev, Event* next)
  * If a function schedules an event with the generic EventType, it must
  * overload this method.
  */
-PUBLIC void Function::doEvent(Loop* loop, Event* event)
+void Function::doEvent(Loop* loop, Event* event)
 {
 	Trace(loop, 1, "Unimplemented doEvent method for %s\n", event->type->name);
 }
@@ -1047,7 +1047,7 @@ PUBLIC void Function::doEvent(Loop* loop, Event* event)
  * This is a transitional interface, not all pending events are activated
  * through this method but eventually they will.
  */
-PUBLIC void Function::confirmEvent(Action* action, Loop* loop, 
+void Function::confirmEvent(Action* action, Loop* loop, 
                                    Event* event, long frame)
 {
 	Trace(loop, 1, "Unimplemented confirmEvent method for %s\n", event->type->name);
@@ -1059,7 +1059,7 @@ PUBLIC void Function::confirmEvent(Action* action, Loop* loop,
  * If a function schedules an event with the generic EventType, it must
  * overload this method.
  */
-PUBLIC void Function::undoEvent(Loop* l, Event* e)
+void Function::undoEvent(Loop* l, Event* e)
 {
 	Trace(l, 1, "No undo handler for event %s\n", e->type->name);
 }
@@ -1071,7 +1071,7 @@ PUBLIC void Function::undoEvent(Loop* l, Event* e)
  * we dont' need any special preparation, the next layer and frame
  * were just left on the jump event.
  */
-PUBLIC void Function::prepareJump(Loop* loop, Event* event, JumpContext *jump)
+void Function::prepareJump(Loop* loop, Event* event, JumpContext *jump)
 {
 }
 
@@ -1085,7 +1085,7 @@ PUBLIC void Function::prepareJump(Loop* loop, Event* event, JumpContext *jump)
  * Loop::adjustSwitchJump still has most of the logic, we're phasing
  * this in gradually.
  */
-PUBLIC void Function::prepareSwitch(Loop* loop, Event* event, 
+void Function::prepareSwitch(Loop* loop, Event* event, 
 									SwitchContext* actions, JumpContext *jump)
 {
 }
@@ -1097,7 +1097,7 @@ PUBLIC void Function::prepareSwitch(Loop* loop, Event* event,
  * Mute doesn't do that any more so this is only half implemented and since
  * it's obscure consider taking it out.
  */
-PUBLIC void Function::changePreset(Action* action, Loop* loop, bool after)
+void Function::changePreset(Action* action, Loop* loop, bool after)
 {
     Mobius* m = loop->getMobius();
     MobiusConfig* config = m->getConfiguration();
@@ -1208,7 +1208,7 @@ ReplicatedFunction::ReplicatedFunction()
 	replicated = false;
 }
 
-PUBLIC void ReplicatedFunction::localize(MessageCatalog* cat)
+void ReplicatedFunction::localize(MessageCatalog* cat)
 {
 	Function::localize(cat);
 	if (replicated) {
@@ -1244,11 +1244,11 @@ PUBLIC void ReplicatedFunction::localize(MessageCatalog* cat)
 
 #define MAX_STATIC_FUNCTIONS 256
 
-PUBLIC Function* StaticFunctions[MAX_STATIC_FUNCTIONS];
-PUBLIC Function* HiddenFunctions[MAX_STATIC_FUNCTIONS];
-PRIVATE int FunctionIndex = 0;
+Function* StaticFunctions[MAX_STATIC_FUNCTIONS];
+Function* HiddenFunctions[MAX_STATIC_FUNCTIONS];
+int FunctionIndex = 0;
 
-PRIVATE void add(Function** array, Function* func)
+void add(Function** array, Function* func)
 {
 	if (FunctionIndex >= MAX_STATIC_FUNCTIONS - 1) {
 		printf("Static function array overflow!\n");
@@ -1266,7 +1266,7 @@ PRIVATE void add(Function** array, Function* func)
  * static function arrays.  This must be called before you attempt
  * to compile scripts.  These arrays never changed once initialized.
  */
-PUBLIC void Function::initStaticFunctions()
+void Function::initStaticFunctions()
 {
     // ignore if already initialized
     if (FunctionIndex == 0) {
@@ -1436,7 +1436,7 @@ PUBLIC void Function::initStaticFunctions()
 /**
  * Search for a function on one of the function arrays.
  */
-PUBLIC Function* Function::getFunction(Function** functions, const char * name)
+Function* Function::getFunction(Function** functions, const char * name)
 {
     Function* found = NULL;
 
@@ -1456,7 +1456,7 @@ PUBLIC Function* Function::getFunction(Function** functions, const char * name)
 /**
  * Return true if there is a logical match of a name with this function.
  */
-PUBLIC bool Function::isMatch(const char* xname)
+bool Function::isMatch(const char* xname)
 {
 	return (StringEqualNoCase(xname, getName()) ||	
 			StringEqualNoCase(xname, alias1) ||
@@ -1467,7 +1467,7 @@ PUBLIC bool Function::isMatch(const char* xname)
 /**
  * Search for one of the static functions.
  */
-PUBLIC Function* Function::getStaticFunction(const char * name)
+Function* Function::getStaticFunction(const char * name)
 {
     Function* found = getFunction(StaticFunctions, name);
 
@@ -1482,7 +1482,7 @@ PUBLIC Function* Function::getStaticFunction(const char * name)
  * Set the display names for each static function from a message catalog.
  * This should be called once during Mobius initialization.
  */
-PUBLIC void Function::localizeAll(MessageCatalog* cat)
+void Function::localizeAll(MessageCatalog* cat)
 {
     for (int i = 0 ; StaticFunctions[i] != NULL ; i++)
       StaticFunctions[i]->localize(cat);

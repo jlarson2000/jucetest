@@ -17,12 +17,12 @@
 #include <math.h>
 #include <string.h>
 
-#include "Util.h"
-#include "Trace.h"
-#include "WaveFile.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
+#include "../WaveFile.h"
 #include "AudioInterface.h"
 
-#include "Audio.h"
+#include "../Audio.h"
 
 // !! this is for FadeWindow and FadeTail, try to factor this out so we don't have
 // so many dependencies
@@ -37,7 +37,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC StreamPlugin::StreamPlugin(int sampleRate)
+StreamPlugin::StreamPlugin(int sampleRate)
 {
     mSampleRate = sampleRate;
     mChannels = 2;
@@ -48,40 +48,40 @@ PUBLIC StreamPlugin::StreamPlugin(int sampleRate)
 	mTailWindow = NULL;
 }
 
-PUBLIC StreamPlugin::~StreamPlugin()
+StreamPlugin::~StreamPlugin()
 {
 	delete mTailWindow;
 }
 
-PUBLIC void StreamPlugin::setBatch(bool b) 
+void StreamPlugin::setBatch(bool b) 
 {
 	mBatch = b;
 }
 
-PUBLIC void StreamPlugin::reset()
+void StreamPlugin::reset()
 {
 }
 
-PUBLIC void StreamPlugin::setSampleRate(int rate)
+void StreamPlugin::setSampleRate(int rate)
 {
     mSampleRate = rate;
 }
 
-PUBLIC void StreamPlugin::setChannels(int channels)
+void StreamPlugin::setChannels(int channels)
 {
     mChannels = channels;
 }
 
-PUBLIC void StreamPlugin::setTweak(int tweak, int value)
+void StreamPlugin::setTweak(int tweak, int value)
 {
 }
 
-PUBLIC int StreamPlugin::getTweak(int tweak)
+int StreamPlugin::getTweak(int tweak)
 {
     return 0;
 }
 
-PUBLIC void StreamPlugin::debug()
+void StreamPlugin::debug()
 {
 }
 
@@ -106,7 +106,7 @@ long StreamPlugin::process(float* buffer, long frames)
 	return actual;
 }
 
-PUBLIC void StreamPlugin::split(float* source, float* left, float* right, long frames)
+void StreamPlugin::split(float* source, float* left, float* right, long frames)
 {
     float* src = source;
     for (int i = 0 ; i < frames ; i++) {
@@ -115,7 +115,7 @@ PUBLIC void StreamPlugin::split(float* source, float* left, float* right, long f
     }
 }
 
-PRIVATE void StreamPlugin::merge(float* left, float* right, float* output, long frames)
+void StreamPlugin::merge(float* left, float* right, float* output, long frames)
 {
     float* dest = output;
     for (int i = 0 ; i < frames ; i++) {
@@ -133,7 +133,7 @@ PRIVATE void StreamPlugin::merge(float* left, float* right, float* output, long 
  * - On detction of the first non-zero sample, an up fade is applied
  * - The up fade completes, the plugin proceeds normally
  */
-PUBLIC void StreamPlugin::startupFade()
+void StreamPlugin::startupFade()
 {
 	mStartupFade = true;
 	mStartupFadeOffset = 0;
@@ -144,7 +144,7 @@ PUBLIC void StreamPlugin::startupFade()
  * out of the plugin, and begin a fade from there.
  * This must be called ONLY if the fade has been properly initialized.
  */
-PRIVATE void StreamPlugin::doStartupFade(float* output, long frames)
+void StreamPlugin::doStartupFade(float* output, long frames)
 {
 	if (mStartupFade) {
 		// locate the first frame containing a non-zero sample
@@ -203,7 +203,7 @@ PRIVATE void StreamPlugin::doStartupFade(float* output, long frames)
  * feed those.  If there still isn't enough, punt and do a reverse fade using
  * our tail window.
  */
-PUBLIC void StreamPlugin::captureFadeTail(FadeTail* tail)
+void StreamPlugin::captureFadeTail(FadeTail* tail)
 {
 	float buffer[AUDIO_MAX_FADE_FRAMES * AUDIO_MAX_CHANNELS];
 	int range = AudioFade::getRange();
@@ -249,17 +249,17 @@ PUBLIC void StreamPlugin::captureFadeTail(FadeTail* tail)
  * Expected to be overloaded to return the number of frames available in the 
  * internal buffers.  Used when capturing a fade tail.
  */
-PUBLIC long StreamPlugin::getAvailableFrames()
+long StreamPlugin::getAvailableFrames()
 {
 	return 0L;
 }
 
-PUBLIC long StreamPlugin::getFrames(float* buffer, long frames)
+long StreamPlugin::getFrames(float* buffer, long frames)
 {
 	return 0L;
 }
 
-PUBLIC void StreamPlugin::putFrames(float* buffer, long frames)
+void StreamPlugin::putFrames(float* buffer, long frames)
 {
 }
 
@@ -269,17 +269,17 @@ PUBLIC void StreamPlugin::putFrames(float* buffer, long frames)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC PitchPlugin::PitchPlugin(int sampleRate)
+PitchPlugin::PitchPlugin(int sampleRate)
     : StreamPlugin(sampleRate)
 {
     mPitch = 1.0f;
 }
 
-PUBLIC PitchPlugin::~PitchPlugin()
+PitchPlugin::~PitchPlugin()
 {
 }
 
-PUBLIC float PitchPlugin::semitonesToRatio(int semitones)
+float PitchPlugin::semitonesToRatio(int semitones)
 {
     // SoundTouch does it like this
     // (float)exp(0.69314718056f * (semis / 12.0f));
@@ -288,7 +288,7 @@ PUBLIC float PitchPlugin::semitonesToRatio(int semitones)
     return (float)pow(2.0, semitones / 12.0);
 }
 
-PUBLIC int PitchPlugin::ratioToSemitones(float ratio)
+int PitchPlugin::ratioToSemitones(float ratio)
 {
     // !! do something
 	// is this the same as the rate shift calculations?
@@ -298,7 +298,7 @@ PUBLIC int PitchPlugin::ratioToSemitones(float ratio)
 /**
  * Set the shift rate.
  */
-PUBLIC void PitchPlugin::setPitch(float ratio)
+void PitchPlugin::setPitch(float ratio)
 {
 	if (ratio != mPitch) {
 		// !! should be doing some bounds checking on this
@@ -312,7 +312,7 @@ PUBLIC void PitchPlugin::setPitch(float ratio)
  * Convenience method to allow the shift to be specified in semitones.
  * For example -5 would be a fifth down.
  */
-PUBLIC void PitchPlugin::setPitch(int semitones)
+void PitchPlugin::setPitch(int semitones)
 {
 	if (semitones != mPitchStep) {
 		mPitchStep = semitones;
@@ -321,7 +321,7 @@ PUBLIC void PitchPlugin::setPitch(int semitones)
 	}
 }
 
-PUBLIC void PitchPlugin::setPitch(float pitch, int semitones)
+void PitchPlugin::setPitch(float pitch, int semitones)
 {
 	if (pitch != mPitch || semitones != mPitchStep) {
 		mPitch = pitch;
@@ -330,12 +330,12 @@ PUBLIC void PitchPlugin::setPitch(float pitch, int semitones)
 	}
 }
 
-PUBLIC float PitchPlugin::getPitchRatio()
+float PitchPlugin::getPitchRatio()
 {
     return mPitch;
 }
 
-PUBLIC int PitchPlugin::getPitchSemitones()
+int PitchPlugin::getPitchSemitones()
 {
     return mPitchStep;
 }

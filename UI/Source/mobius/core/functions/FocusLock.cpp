@@ -16,13 +16,13 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Track.h"
 
 /****************************************************************************
  *                                                                          *
@@ -36,16 +36,16 @@ class FocusLockFunction : public Function {
 	Event* invoke(Action* action, Loop* l);
 };
 
-PUBLIC Function* FocusLock = new FocusLockFunction();
+Function* FocusLock = new FocusLockFunction();
 
-PUBLIC FocusLockFunction::FocusLockFunction() :
+FocusLockFunction::FocusLockFunction() :
     Function("FocusLock", MSG_FUNC_FOCUS_LOCK)
 {
     // one of the few that can do this
 	runsWithoutAudio = true;
 }
 
-PUBLIC Event* FocusLockFunction::invoke(Action* action, Loop* l)
+Event* FocusLockFunction::invoke(Action* action, Loop* l)
 {
     Track* t = l->getTrack();
 

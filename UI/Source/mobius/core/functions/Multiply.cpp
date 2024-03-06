@@ -21,23 +21,23 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Stream.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Track.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Synchronizer.h"
-#include "SyncState.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Stream.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Track.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
+#include "../SyncState.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -72,13 +72,13 @@ class MultiplyEventType : public EventType {
 	MultiplyEventType();
 };
 
-PUBLIC MultiplyEventType::MultiplyEventType()
+MultiplyEventType::MultiplyEventType()
 {
 	name = "Multiply";
 	reschedules = true;
 }
 
-PUBLIC EventType* MultiplyEvent = new MultiplyEventType();
+EventType* MultiplyEvent = new MultiplyEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -91,13 +91,13 @@ class MultiplyEndEventType : public EventType {
 	MultiplyEndEventType();
 };
 
-PUBLIC MultiplyEndEventType::MultiplyEndEventType()
+MultiplyEndEventType::MultiplyEndEventType()
 {
 	name = "MultiplyEnd";
 	reschedules = true;
 }
 
-PUBLIC EventType* MultiplyEndEvent = new MultiplyEndEventType();
+EventType* MultiplyEndEvent = new MultiplyEndEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -120,11 +120,11 @@ class MultiplyFunction : public Function {
 };
 
 // should we have an UnroundedMultiply?
-PUBLIC Function* Multiply = new MultiplyFunction(false, false);
-PUBLIC Function* SUSMultiply = new MultiplyFunction(true, false);
-PUBLIC Function* SUSUnroundedMultiply = new MultiplyFunction(true, true);
+Function* Multiply = new MultiplyFunction(false, false);
+Function* SUSMultiply = new MultiplyFunction(true, false);
+Function* SUSUnroundedMultiply = new MultiplyFunction(true, true);
 
-PUBLIC MultiplyFunction::MultiplyFunction(bool sus, bool unr)
+MultiplyFunction::MultiplyFunction(bool sus, bool unr)
 {
 	eventType = MultiplyEvent;
     mMode = MultiplyMode;
@@ -154,7 +154,7 @@ PUBLIC MultiplyFunction::MultiplyFunction(bool sus, bool unr)
 	}
 }
 
-PUBLIC bool MultiplyFunction::isSustain(Preset* p)
+bool MultiplyFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -170,7 +170,7 @@ PUBLIC bool MultiplyFunction::isSustain(Preset* p)
  * Return true if the function being used to end the multiply
  * will result in an unrounded multiply.
  */
-PRIVATE bool MultiplyFunction::isUnroundedEnding(Preset* p, Function* f)
+bool MultiplyFunction::isUnroundedEnding(Preset* p, Function* f)
 {
     return (f == Record || 
             f == SUSUnroundedMultiply);
@@ -196,7 +196,7 @@ PRIVATE bool MultiplyFunction::isUnroundedEnding(Preset* p, Function* f)
  * audio will play however since we'll think it is a Multiply at first.
  * Muultiply in 
  */
-PUBLIC Event* MultiplyFunction::invoke(Action* action, Loop* l) 
+Event* MultiplyFunction::invoke(Action* action, Loop* l) 
 {
     Event* event = NULL;
     MobiusConfig* config = l->getMobius()->getInterruptConfiguration();
@@ -269,7 +269,7 @@ Event* MultiplyFunction::scheduleEvent(Action* action, Loop* l)
  * to convert it to SUSMultiply.
  * 
  */
-PUBLIC void MultiplyFunction::invokeLong(Action* action, Loop* l)
+void MultiplyFunction::invokeLong(Action* action, Loop* l)
 {
     if (l->getMode() == ResetMode) {
         Track* t = l->getTrack();
@@ -286,7 +286,7 @@ PUBLIC void MultiplyFunction::invokeLong(Action* action, Loop* l)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void MultiplyFunction::doEvent(Loop* l, Event* e)
+void MultiplyFunction::doEvent(Loop* l, Event* e)
 {
     // unfortunately this is still too tightlyl wound around Loop
 
@@ -379,7 +379,7 @@ PUBLIC void MultiplyFunction::doEvent(Loop* l, Event* e)
  * Helper for MultipyEndEvent.
  * Restructure the loop after a multiply and shift.
  */
-PRIVATE void MultiplyFunction::pruneCycles(Loop* l, int cycles, 
+void MultiplyFunction::pruneCycles(Loop* l, int cycles, 
                                            bool unrounded, bool remultiply)
 {
     OutputStream* output = l->getOutputStream();

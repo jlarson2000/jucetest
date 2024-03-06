@@ -41,9 +41,9 @@
 #include <memory.h>
 #include <stdarg.h>
 
-#include "Port.h"
-#include "Trace.h"
-#include "Thread.h"
+//#include "Port.h"
+#include "../../util/Trace.h"
+//#include "Thread.h"
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
@@ -86,7 +86,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MidiState::MidiState()
+MidiState::MidiState()
 {
 	name = "*unnamed*";
 
@@ -102,7 +102,7 @@ PUBLIC MidiState::MidiState()
 	started = false;
 }
 
-PUBLIC MidiState::~MidiState()
+MidiState::~MidiState()
 {
 }
 
@@ -131,7 +131,7 @@ void MidiState::tick(long currentClock)
  * field is just used to hold the last MS_SONGPOS value to use
  * if we continue.
  */
-PUBLIC void MidiState::advance(MidiSyncEvent* e)
+void MidiState::advance(MidiSyncEvent* e)
 {
 	int status = e->status;
 
@@ -229,7 +229,7 @@ PUBLIC void MidiState::advance(MidiSyncEvent* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MidiQueue::MidiQueue()
+MidiQueue::MidiQueue()
 {
     // MidiState self initializes
 	mOverflows = 0;
@@ -238,11 +238,11 @@ PUBLIC MidiQueue::MidiQueue()
 	memset(&mEvents, 0, sizeof(mEvents));
 }
 
-PUBLIC MidiQueue::~MidiQueue()
+MidiQueue::~MidiQueue()
 {
 }
 
-PUBLIC MidiState* MidiQueue::getMidiState()
+MidiState* MidiQueue::getMidiState()
 {
 	return &mState;
 }
@@ -260,7 +260,7 @@ void MidiQueue::setName(const char* name)
  * Add an event from the MIDI thread.
  * If we overflow, we'll start dropping events.
  */
-PRIVATE void MidiQueue::add(MidiEvent* e)
+void MidiQueue::add(MidiEvent* e)
 {
 	int status = e->getStatus();
 	int next = mHead + 1;
@@ -287,7 +287,7 @@ PRIVATE void MidiQueue::add(MidiEvent* e)
 /**
  * Simplified interface to add a single clock.
  */
-PUBLIC void MidiQueue::add(int status, long clock)
+void MidiQueue::add(int status, long clock)
 {
 	int next = mHead + 1;
 	if (next >= MAX_SYNC_EVENTS)
@@ -312,7 +312,7 @@ PUBLIC void MidiQueue::add(int status, long clock)
  * Pass the current millisecond counter along to the MidiState so 
  * it can detect sudden clock stopages.
  */
-PUBLIC void MidiQueue::interruptStart(long millisecond)
+void MidiQueue::interruptStart(long millisecond)
 {
 	mState.tick(millisecond);
 }
@@ -346,7 +346,7 @@ PUBLIC void MidiQueue::interruptStart(long millisecond)
  * the given interruptFrames.  As it stands now, we process all of them
  * at the beginning of the buffer.
  */
-PUBLIC Event* MidiQueue::getEvents(EventPool* pool, long interruptFrames)
+Event* MidiQueue::getEvents(EventPool* pool, long interruptFrames)
 {
     Event* events = NULL;
     Event* lastEvent = NULL;
@@ -422,7 +422,7 @@ PUBLIC Event* MidiQueue::getEvents(EventPool* pool, long interruptFrames)
 	return events;
 }
 
-PUBLIC bool MidiQueue::hasEvents()
+bool MidiQueue::hasEvents()
 {
     return (mHead != mTail);
 }

@@ -44,11 +44,11 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 #include "MidiByte.h"
 #include "MidiEvent.h"
 #include "MidiInterface.h"
-#include "HostMidiInterface.h"
+//#include "HostMidiInterface.h"
 
 #include "Mobius.h"
 #include "Binding.h"
@@ -84,12 +84,12 @@ MidiExporter::MidiExporter(Mobius* m)
     addExports(m, config->getOverlayBindingConfig());
 }
 
-PUBLIC void MidiExporter::setHistory(MidiExporter* me) 
+void MidiExporter::setHistory(MidiExporter* me) 
 {
     mHistory = me;
 }
 
-PUBLIC MidiExporter* MidiExporter::getHistory()
+MidiExporter* MidiExporter::getHistory()
 {
     return mHistory;
 }
@@ -97,7 +97,7 @@ PUBLIC MidiExporter* MidiExporter::getHistory()
 /**
  * Import a list of Bindings.
  */
-PRIVATE void MidiExporter::addExports(Mobius* m, BindingConfig* config)
+void MidiExporter::addExports(Mobius* m, BindingConfig* config)
 {
     if (config != NULL) {
         Binding* bindings = config->getBindings();
@@ -122,7 +122,7 @@ PRIVATE void MidiExporter::addExports(Mobius* m, BindingConfig* config)
     }
 }
 
-PRIVATE Export* MidiExporter::convertBinding(Mobius* mobius, Binding* b) 
+Export* MidiExporter::convertBinding(Mobius* mobius, Binding* b) 
 {
     Export* exp = NULL;
 

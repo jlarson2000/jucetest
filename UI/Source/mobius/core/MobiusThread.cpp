@@ -15,13 +15,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Util.h"
-#include "Trace.h"
-#include "Thread.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
+//#include "Thread.h"
 
 #include "Action.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "MobiusThread.h"
 #include "Project.h"
 #include "Script.h"
@@ -334,7 +334,7 @@ void MobiusThread::flushEvents()
 	}
 }
 
-PUBLIC void MobiusThread::addEvent(ThreadEvent* e)
+void MobiusThread::addEvent(ThreadEvent* e)
 {
 	enterCriticalSection();
     // these are often order dependent!
@@ -362,7 +362,7 @@ PUBLIC void MobiusThread::addEvent(ThreadEvent* e)
  * but we can't use it for things that must have guaranteed delivery 
  * like TE_GLOBAL_RESET.
  */
-PUBLIC void MobiusThread::addEvent(ThreadEventType tet)
+void MobiusThread::addEvent(ThreadEventType tet)
 {
 	mOneShot = tet;
 	signal();
@@ -373,7 +373,7 @@ PUBLIC void MobiusThread::addEvent(ThreadEventType tet)
  * as the listener.  This method is called whenever a new trace
  * record is added.  Wake up and flush trace messages.
  */
-PUBLIC void MobiusThread::traceEvent()
+void MobiusThread::traceEvent()
 {
 	signal();
 }
@@ -659,7 +659,7 @@ void MobiusThread::processEvent()
  * !! I don't like this, need to add TestDirectory or something to 
  * MobiusConfig?
  */
-PRIVATE const char* MobiusThread::getHomeDirectory()
+const char* MobiusThread::getHomeDirectory()
 {
 	const char* home = getenv("MOBIUS_HOME");
 	if (home == NULL) {
@@ -671,7 +671,7 @@ PRIVATE const char* MobiusThread::getHomeDirectory()
 /**
  * Calculate the path of an input or output file.
  */
-PRIVATE const char* MobiusThread::getFullPath(ThreadEvent* e, 
+const char* MobiusThread::getFullPath(ThreadEvent* e, 
 											  const char* dflt,
 											  const char* extension)
 {
@@ -719,7 +719,7 @@ PRIVATE const char* MobiusThread::getFullPath(ThreadEvent* e,
  * the test/expected directory relative to the current working directory.
  * This broke when we moved the test files out of the main buid directory.
  */
-PRIVATE const char* MobiusThread::getTestPath(const char* name, const 
+const char* MobiusThread::getTestPath(const char* name, const 
 											  char* extension)
 {
 	MobiusConfig* config = mMobius->getConfiguration();
@@ -740,7 +740,7 @@ PRIVATE const char* MobiusThread::getTestPath(const char* name, const
 /**
  * Calculate a QuickSave path.
  */
-PRIVATE const char* MobiusThread::getQuickPath()
+const char* MobiusThread::getQuickPath()
 {
 	MobiusConfig* config = mMobius->getConfiguration();
 	const char* file = config->getQuickSave();
@@ -756,7 +756,7 @@ PRIVATE const char* MobiusThread::getQuickPath()
  * counter to help pick a qualifier.  Not sure if this makes
  * much difference since SaveCapture is uncommon.
  */
-PRIVATE const char* MobiusThread::getRecordingPath()
+const char* MobiusThread::getRecordingPath()
 {
 	char buffer[1024 * 8];
 	const char* recpath = "recording";
@@ -789,7 +789,7 @@ PRIVATE const char* MobiusThread::getRecordingPath()
  * of previously saved loops.  Looks like a good thing for the utilities
  * library.
  */
-PRIVATE const char* MobiusThread::getQualifiedPath(const char* base,
+const char* MobiusThread::getQualifiedPath(const char* base,
 												   const char* extension,
 												   int* counter)
 {
@@ -820,7 +820,7 @@ PRIVATE const char* MobiusThread::getQualifiedPath(const char* base,
  * Could be smarter about printing differences if these turn
  * out to be non-binary project files.
  */
-PRIVATE void MobiusThread::diff(int type, bool reverse,
+void MobiusThread::diff(int type, bool reverse,
 								const char* file1, const char* file2)
 {
 	int size1 = GetFileSize(file1);
@@ -989,7 +989,7 @@ PRIVATE void MobiusThread::diff(int type, bool reverse,
  * out from under the interpreter.  It *must* call Mobius::finishPrompt.
  *
  */
-PRIVATE void MobiusThread::prompt(ThreadEvent* e)
+void MobiusThread::prompt(ThreadEvent* e)
 {
 	MobiusListener* l = mMobius->getListener();
 	if (l != NULL) {
@@ -1007,7 +1007,7 @@ PRIVATE void MobiusThread::prompt(ThreadEvent* e)
 /**
  * Called by Mobius when it gets a prompt back from the listener.
  */
-PUBLIC void MobiusThread::finishPrompt(Prompt* p)
+void MobiusThread::finishPrompt(Prompt* p)
 {
 	if (mPrompts == 0)
 	  Trace(1, "Unbalanced call to finishPrompt!\n");
@@ -1043,7 +1043,7 @@ PUBLIC void MobiusThread::finishPrompt(Prompt* p)
  * This creates an action with a special trigger and target so it can
  * be deferred until the next interrupt.
  */
-PRIVATE void MobiusThread::finishEvent(ThreadEvent* e)
+void MobiusThread::finishEvent(ThreadEvent* e)
 {
     Action* a = mMobius->newAction();
     a->trigger = TriggerThread;

@@ -109,7 +109,7 @@
 #include <memory.h>
 #include <math.h>
 
-#include "Thread.h"
+//#include "Thread.h"
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
@@ -125,7 +125,7 @@
 #include "MidiTransport.h"
 #include "Mode.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "Script.h"
 #include "Stream.h"
 #include "SyncState.h"
@@ -146,7 +146,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
+Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
 {
 	mMobius = mob;
 	mMidi = midi;
@@ -185,7 +185,7 @@ PUBLIC Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
 	mMidiQueue.setName("external");
 }
 
-PUBLIC Synchronizer::~Synchronizer()
+Synchronizer::~Synchronizer()
 {
     delete mTransport;
     delete mHostTracker;
@@ -202,7 +202,7 @@ PUBLIC Synchronizer::~Synchronizer()
 /**
  * Flush the interrupt event list.
  */
-PRIVATE void Synchronizer::flushEvents()
+void Synchronizer::flushEvents()
 {
     // have to mark them not owned so they can be freed
     for (Event* event = mInterruptEvents->getEvents() ; event != NULL ; 
@@ -215,7 +215,7 @@ PRIVATE void Synchronizer::flushEvents()
 /**
  * Pull out configuration parameters we need frequently.
  */
-PUBLIC void Synchronizer::updateConfiguration(MobiusConfig* config)
+void Synchronizer::updateConfiguration(MobiusConfig* config)
 {
 	mMaxSyncDrift = config->getMaxSyncDrift();
 	mDriftCheckPoint = config->getDriftCheckPoint();
@@ -226,7 +226,7 @@ PUBLIC void Synchronizer::updateConfiguration(MobiusConfig* config)
 /**
  * Set a flag to force drift correction on the next interrupt.
  */
-PUBLIC void Synchronizer::forceDriftCorrect()
+void Synchronizer::forceDriftCorrect()
 {
     Trace(2, "Sync: Scheduling forced drift correction\n");
     mForceDriftCorrect = true;
@@ -237,7 +237,7 @@ PUBLIC void Synchronizer::forceDriftCorrect()
  * We can't clear the queues because incomming sync state is relevent.
  * This only serves to emit some diagnostic messages.
  */
-PUBLIC void Synchronizer::globalReset()
+void Synchronizer::globalReset()
 {
     if (mMidiQueue.hasEvents())
       Trace(1, "WARNING: External MIDI events queued after global reset\n");
@@ -262,7 +262,7 @@ PUBLIC void Synchronizer::globalReset()
  * Most realtime events are added to a MidiQueue for processing
  * on the next audio interrupt.
  */
-PUBLIC bool Synchronizer::event(MidiEvent* e)
+bool Synchronizer::event(MidiEvent* e)
 {
 	bool realtime = true;
 	int status = e->getStatus();
@@ -368,7 +368,7 @@ PUBLIC bool Synchronizer::event(MidiEvent* e)
 /**
  * Get the tracker for a sync source.
  */
-PRIVATE SyncTracker* Synchronizer::getSyncTracker(SyncSource src)
+SyncTracker* Synchronizer::getSyncTracker(SyncSource src)
 {
     SyncTracker* tracker = NULL;
 
@@ -396,7 +396,7 @@ PRIVATE SyncTracker* Synchronizer::getSyncTracker(SyncSource src)
  * is also locked because this defines where the bars were when the 
  * tracker was used for recording.
  */
-PRIVATE int Synchronizer::getBeatsPerBar(SyncSource src, Loop* l)
+int Synchronizer::getBeatsPerBar(SyncSource src, Loop* l)
 {
     int beatsPerBar = 0;
 
@@ -441,7 +441,7 @@ PRIVATE int Synchronizer::getBeatsPerBar(SyncSource src, Loop* l)
 /**
  * Get the effective beatsPerBar for OUT sync.
  */
-PUBLIC int Synchronizer::getOutBeatsPerBar()
+int Synchronizer::getOutBeatsPerBar()
 {
     return getBeatsPerBar(SYNC_OUT, NULL);
 }
@@ -455,7 +455,7 @@ PUBLIC int Synchronizer::getOutBeatsPerBar()
  * Note that unlike "tempo" this one is not sensitive to 
  * mTransport->isSending().
  */
-PUBLIC float Synchronizer::getOutTempo()
+float Synchronizer::getOutTempo()
 {
 	return mTransport->getTempo();
 }
@@ -466,7 +466,7 @@ PUBLIC float Synchronizer::getOutTempo()
  * The current raw beat count maintained by the internal clock.
  * This will be zero if the internal clock is not running.
  */
-PUBLIC int Synchronizer::getOutRawBeat()
+int Synchronizer::getOutRawBeat()
 {
     return mTransport->getRawBeat();
 }
@@ -476,7 +476,7 @@ PUBLIC int Synchronizer::getOutRawBeat()
  * The current beat count maintained by the internal clock relative 
  * to the bar.
  */
-PUBLIC int Synchronizer::getOutBeat()
+int Synchronizer::getOutBeat()
 {
     int bpb = getOutBeatsPerBar();
 
@@ -489,7 +489,7 @@ PUBLIC int Synchronizer::getOutBeat()
  * This is calculated from the raw beat count, modified by the
  * effective beatsPerBar.
  */
-PUBLIC int Synchronizer::getOutBar()
+int Synchronizer::getOutBar()
 {
     int bpb = getOutBeatsPerBar();
 
@@ -500,7 +500,7 @@ PUBLIC int Synchronizer::getOutBar()
  * Exposed as variable syncOutSending.
  * Return true if we're sending clocks.
  */
-PUBLIC bool Synchronizer::isSending()
+bool Synchronizer::isSending()
 {
 	return mTransport->isSending();
 }
@@ -509,7 +509,7 @@ PUBLIC bool Synchronizer::isSending()
  * Exposed as variable syncOutStarted.
  * Return true if we've sent the MIDI Start event and are sending clocks.
  */
-PUBLIC bool Synchronizer::isStarted()
+bool Synchronizer::isStarted()
 {
 	return mTransport->isStarted();
 }
@@ -519,7 +519,7 @@ PUBLIC bool Synchronizer::isStarted()
  * Return the number of MIDI Start messages sent since the last stop.
  * Used by unit tests to verify that we're sending start messages.
  */
-PUBLIC int Synchronizer::getStarts()
+int Synchronizer::getStarts()
 {
 	return mTransport->getStarts();
 }
@@ -533,7 +533,7 @@ PUBLIC int Synchronizer::getStarts()
 /**
  * Get the effective beats per bar for MIDI sync.
  */
-PUBLIC int Synchronizer::getInBeatsPerBar()
+int Synchronizer::getInBeatsPerBar()
 {
     return getBeatsPerBar(SYNC_MIDI, NULL);
 }
@@ -545,7 +545,7 @@ PUBLIC int Synchronizer::getInBeatsPerBar()
  * current track is in SyncMode In, MIDIBeat, or MIDIBar.
  * Note that this is the full precision tempo, not the "smooth" tempo.
  */
-PUBLIC float Synchronizer::getInTempo()
+float Synchronizer::getInTempo()
 {
 	return mMidi->getInputTempo();
 }
@@ -554,7 +554,7 @@ PUBLIC float Synchronizer::getInTempo()
  * Exposed as syncInRawBeat
  * The current beat count derived from the external MIDI clock.
  */
-PUBLIC int Synchronizer::getInRawBeat()
+int Synchronizer::getInRawBeat()
 {
 	MidiState* s = mMidiQueue.getMidiState();
 	return s->beat;
@@ -566,7 +566,7 @@ PUBLIC int Synchronizer::getInRawBeat()
  * The current beat count derived from the external MIDI clock,
  * relative to the bar.
  */
-PUBLIC int Synchronizer::getInBeat()
+int Synchronizer::getInBeat()
 {
 	MidiState* s = mMidiQueue.getMidiState();
 	int beat = s->beat;
@@ -582,7 +582,7 @@ PUBLIC int Synchronizer::getInBeat()
  * Exposed as syncInBar.
  * The current bar count derived from the external MIDI clock.
  */
-PUBLIC int Synchronizer::getInBar()
+int Synchronizer::getInBar()
 {
 	MidiState* s = mMidiQueue.getMidiState();
     int beatsPerBar = getInBeatsPerBar();
@@ -598,7 +598,7 @@ PUBLIC int Synchronizer::getInBar()
  * Exposed as syncInReceiving.
  * True if we are currently receiving MIDI clocks.
  */
-PUBLIC bool Synchronizer::isInReceiving()
+bool Synchronizer::isInReceiving()
 {
 	MidiState* state = mMidiQueue.getMidiState();
 	return state->receivingClocks;
@@ -608,7 +608,7 @@ PUBLIC bool Synchronizer::isInReceiving()
  * Exposed as syncInStarted.
  * True if we have received a MIDI start or continue message.
  */
-PUBLIC bool Synchronizer::isInStarted()
+bool Synchronizer::isInStarted()
 {
 	MidiState* state = mMidiQueue.getMidiState();
 	return state->started;
@@ -623,7 +623,7 @@ PUBLIC bool Synchronizer::isInStarted()
 /**
  * Get the effective beats per bar for HOST sync.
  */
-PUBLIC int Synchronizer::getHostBeatsPerBar()
+int Synchronizer::getHostBeatsPerBar()
 {
     return getBeatsPerBar(SYNC_HOST, NULL);
 }
@@ -632,7 +632,7 @@ PUBLIC int Synchronizer::getHostBeatsPerBar()
  * Exposed as syncHostTempo.
  * The tempo advertised by the plugin host.
  */
-PUBLIC float Synchronizer::getHostTempo()
+float Synchronizer::getHostTempo()
 {
 	return mHostTempo;
 }
@@ -641,7 +641,7 @@ PUBLIC float Synchronizer::getHostTempo()
  * Exposed as syncHostRawBeat
  * The current beat count given by the host, not relative to the bar.
  */
-PUBLIC int Synchronizer::getHostRawBeat()
+int Synchronizer::getHostRawBeat()
 {
     return mHostBeat;
 }
@@ -650,7 +650,7 @@ PUBLIC int Synchronizer::getHostRawBeat()
  * Exposed as syncHostBeat
  * The current beat count given by the host, relative to the bar.
  */
-PUBLIC int Synchronizer::getHostBeat()
+int Synchronizer::getHostBeat()
 {
     int beat = mHostBeat;
 
@@ -665,7 +665,7 @@ PUBLIC int Synchronizer::getHostBeat()
  * Exposed as syncHostBar.
  * The current bar count given by the host.
  */
-PUBLIC int Synchronizer::getHostBar()
+int Synchronizer::getHostBar()
 {
     int bar = 0;
 
@@ -684,7 +684,7 @@ PUBLIC int Synchronizer::getHostBar()
  * If the transport is playing it makes sense for this to be one, but 
  * you could also use this for bypass state.
  */
-PUBLIC bool Synchronizer::isHostReceiving()
+bool Synchronizer::isHostReceiving()
 {
 	return mHostTransport;
 }
@@ -707,7 +707,7 @@ PUBLIC bool Synchronizer::isHostReceiving()
  * has to be stable.
  * 
  */
-PUBLIC float Synchronizer::getTempo(Track* t)
+float Synchronizer::getTempo(Track* t)
 {
 	float tempo = 0.0f;
     SyncState* state = t->getSyncState();
@@ -749,7 +749,7 @@ PUBLIC float Synchronizer::getTempo(Track* t)
  * This will be the same as syncOutRawBeat, syncInRawBeat, 
  * or syncHostRawBeat depending on the SyncMode of the current track.
  */
-PUBLIC int Synchronizer::getRawBeat(Track* t)
+int Synchronizer::getRawBeat(Track* t)
 {
 	int beat = 0;
     SyncState* state = t->getSyncState();
@@ -783,7 +783,7 @@ PUBLIC int Synchronizer::getRawBeat(Track* t)
  * This will be the same as syncOutBeat, syncInBeat, or syncHostBeat
  * depending on the SyncMode of the current track.
  */
-PUBLIC int Synchronizer::getBeat(Track* t)
+int Synchronizer::getBeat(Track* t)
 {
 	int beat = 0;
     SyncState* state = t->getSyncState();
@@ -817,7 +817,7 @@ PUBLIC int Synchronizer::getBeat(Track* t)
  * This will be the same as syncOutBar, syncInBar, or syncHostBar
  * depending on the SyncMode of the current track.
  */
-PUBLIC int Synchronizer::getBar(Track* t)
+int Synchronizer::getBar(Track* t)
 {
 	int bar = 0;
     SyncState* state = t->getSyncState();
@@ -856,7 +856,7 @@ PUBLIC int Synchronizer::getBar(Track* t)
  * Used for the Variables that expose sync loop status.
  * TODO: Should we just put this on the SyncState?
  */
-PUBLIC SyncTracker* Synchronizer::getSyncTracker(Track* t)
+SyncTracker* Synchronizer::getSyncTracker(Track* t)
 {
     SyncState* state = t->getSyncState();
     SyncSource src = state->getEffectiveSyncSource();
@@ -864,7 +864,7 @@ PUBLIC SyncTracker* Synchronizer::getSyncTracker(Track* t)
     return getSyncTracker(src);
 }
 
-PRIVATE SyncTracker* Synchronizer::getSyncTracker(Loop* l)
+SyncTracker* Synchronizer::getSyncTracker(Loop* l)
 {
     return getSyncTracker(l->getTrack());
 }
@@ -874,7 +874,7 @@ PRIVATE SyncTracker* Synchronizer::getSyncTracker(Loop* l)
  * Be sure to return the ITERATOR clock, not the global one that hasn't
  * been incremented yet.
  */
-PUBLIC long Synchronizer::getMidiSongClock(SyncSource src)
+long Synchronizer::getMidiSongClock(SyncSource src)
 {
 	int clock = 0;
 
@@ -919,7 +919,7 @@ PUBLIC long Synchronizer::getMidiSongClock(SyncSource src)
  * but you can't have one track with Sync=Host and another with Sync=Midi,
  * some of the state variables could be moved up?
  */
-PUBLIC void Synchronizer::getState(TrackState* state, Track* t)
+void Synchronizer::getState(TrackState* state, Track* t)
 {
 	SyncState* syncState = t->getSyncState();
     SyncSource source = syncState->getEffectiveSyncSource();
@@ -999,7 +999,7 @@ PUBLIC void Synchronizer::getState(TrackState* state, Track* t)
  * If were already in Record mode should have called scheduleModStop first.
  * See file header comments about nuances.
  */
-PUBLIC Event* Synchronizer::scheduleRecordStart(Action* action,
+Event* Synchronizer::scheduleRecordStart(Action* action,
                                                 Function* function,
                                                 Loop* l)
 {
@@ -1152,7 +1152,7 @@ PUBLIC Event* Synchronizer::scheduleRecordStart(Action* action,
  * !! Should just always call Synchronizer to start the recording and 
  * let it have the logic.
  */
-PUBLIC bool Synchronizer::isRecordStartSynchronized(Loop* l)
+bool Synchronizer::isRecordStartSynchronized(Loop* l)
 {
 	bool sync = false;
     
@@ -1178,7 +1178,7 @@ PUBLIC bool Synchronizer::isRecordStartSynchronized(Loop* l)
  * for things like AutoRecord=On since we'll already
  * have momentum going.
  */
-PRIVATE bool Synchronizer::isThresholdRecording(Loop* l)
+bool Synchronizer::isThresholdRecording(Loop* l)
 {
 	bool threshold = false;
 
@@ -1196,7 +1196,7 @@ PRIVATE bool Synchronizer::isThresholdRecording(Loop* l)
  * Schedule a pending Record event and optionally a RecordStop event
  * if this is an AutoRecord.
  */
-PRIVATE Event* Synchronizer::schedulePendingRecord(Action* action,
+Event* Synchronizer::schedulePendingRecord(Action* action,
                                                    Loop* l,
                                                    MobiusMode* mode)
 {
@@ -1252,7 +1252,7 @@ PRIVATE Event* Synchronizer::schedulePendingRecord(Action* action,
  * Note that this does not have to return the same value as
  * isRecordStartSynchronzied.
  */
-PRIVATE bool Synchronizer::isRecordStopPulsed(Loop* l)
+bool Synchronizer::isRecordStopPulsed(Loop* l)
 {
     bool pulsed = false;
 
@@ -1326,7 +1326,7 @@ PRIVATE bool Synchronizer::isRecordStopPulsed(Loop* l)
  * an output latency jump.
  *
  */
-PUBLIC Event* Synchronizer::scheduleRecordStop(Action* action, Loop* loop)
+Event* Synchronizer::scheduleRecordStop(Action* action, Loop* loop)
 {
     Event* event = NULL;
     EventManager* em = loop->getTrack()->getEventManager();
@@ -1484,7 +1484,7 @@ PUBLIC Event* Synchronizer::scheduleRecordStop(Action* action, Loop* loop)
  * we push it out by one "unit".  Unit may be either a bar or a beat.
  * 
  */
-PUBLIC void Synchronizer::extendRecordStop(Action* action, Loop* loop, 
+void Synchronizer::extendRecordStop(Action* action, Loop* loop, 
                                            Event* stop)
 {
 	// Pressing Record during Synchronize mode is handled the same as
@@ -1546,7 +1546,7 @@ PUBLIC void Synchronizer::extendRecordStop(Action* action, Loop* loop,
  * be that the number of cycles in the loop will be left at
  * the AutoRecord bar count which may not be what we want.
  */
-PUBLIC bool Synchronizer::undoRecordStop(Loop* loop)
+bool Synchronizer::undoRecordStop(Loop* loop)
 {
 	bool undone = false;
     EventManager* em = loop->getTrack()->getEventManager();
@@ -1607,7 +1607,7 @@ PUBLIC bool Synchronizer::undoRecordStop(Loop* loop)
  * !! This is an ugly interface, look at callers and see if they can either
  * just to bar counts or frames by calling getRecordUnit directly.
  */
-PRIVATE void Synchronizer::getAutoRecordUnits(Loop* loop,
+void Synchronizer::getAutoRecordUnits(Loop* loop,
                                               float* retFrames,
                                               int* retBars)
 {
@@ -1628,7 +1628,7 @@ PRIVATE void Synchronizer::getAutoRecordUnits(Loop* loop,
  * calculate the total number of frames and put it in the event.
  * This is only used for AutoRecord.
  */
-PRIVATE void Synchronizer::setAutoStopEvent(Action* action, Loop* loop, 
+void Synchronizer::setAutoStopEvent(Action* action, Loop* loop, 
                                             Event* stop, 
                                             float barFrames, int bars)
 {
@@ -1679,7 +1679,7 @@ PRIVATE void Synchronizer::setAutoStopEvent(Action* action, Loop* loop,
  *         
  * Action ownership is handled by the caller
  */
-PRIVATE Event* Synchronizer::scheduleSyncRecordStop(Action* action, Loop* l)
+Event* Synchronizer::scheduleSyncRecordStop(Action* action, Loop* l)
 {
     Event* stop = NULL;
     Function* function = action->getFunction();
@@ -1811,7 +1811,7 @@ PRIVATE Event* Synchronizer::scheduleSyncRecordStop(Action* action, Loop* l)
  * the end we'll need an accurate tracker unit returned here.
  *
  */
-PRIVATE void Synchronizer::getRecordUnit(Loop* l, SyncUnitInfo* unit)
+void Synchronizer::getRecordUnit(Loop* l, SyncUnitInfo* unit)
 {
     Track* t = l->getTrack();
     SyncState* state = t->getSyncState();
@@ -1969,13 +1969,13 @@ PRIVATE void Synchronizer::getRecordUnit(Loop* l, SyncUnitInfo* unit)
 
 }
 
-PRIVATE float Synchronizer::getSpeed(Loop* l)
+float Synchronizer::getSpeed(Loop* l)
 {
     InputStream* is = l->getInputStream();
     return is->getSpeed();
 }
 
-PRIVATE void Synchronizer::traceTempo(Loop* l, const char* type, float tempo)
+void Synchronizer::traceTempo(Loop* l, const char* type, float tempo)
 {
     long ltempo = (long)tempo;
     long frac = (long)((tempo - (float)ltempo) * 100);
@@ -1990,7 +1990,7 @@ PRIVATE void Synchronizer::traceTempo(Loop* l, const char* type, float tempo)
  * beat lengths which is best for inter-track sync although it
  * may produce more drift relative to the host.
  */
-PRIVATE float Synchronizer::getFramesPerBeat(float tempo)
+float Synchronizer::getFramesPerBeat(float tempo)
 {
     float beatsPerSecond = tempo / 60.0f;
 
@@ -2018,7 +2018,7 @@ PRIVATE float Synchronizer::getFramesPerBeat(float tempo)
  * and gets the SyncTracker but state also captured it.  Follow this
  * mess and make sure if the tracker isn't locked we get it from the state.
  */
-PRIVATE void Synchronizer::adjustBarUnit(Loop* l, SyncState* state, 
+void Synchronizer::adjustBarUnit(Loop* l, SyncState* state, 
                                          SyncSource src,
                                          SyncUnitInfo* unit)
 {
@@ -2066,7 +2066,7 @@ PRIVATE void Synchronizer::adjustBarUnit(Loop* l, SyncState* state,
  * the interrupt block size.  See looptime.txt for a more thorough explanation.
  *
  */
-PUBLIC void Synchronizer::interruptStart(AudioStream* stream)
+void Synchronizer::interruptStart(AudioStream* stream)
 {
     Event* events = NULL;
     Event* event = NULL;
@@ -2256,7 +2256,7 @@ PUBLIC void Synchronizer::interruptStart(AudioStream* stream)
  * Called as each Track is about to be processed.
  * Reset the sync event iterator.
  */
-PUBLIC void Synchronizer::prepare(Track* t)
+void Synchronizer::prepare(Track* t)
 {
     mNextAvailableEvent = mInterruptEvents->getEvents();
 
@@ -2278,7 +2278,7 @@ PUBLIC void Synchronizer::prepare(Track* t)
  * at the start of the interrupt relevant later.  I'm not sure this can
  * happen in practice. Think...
  */
-PUBLIC void Synchronizer::finish(Track* t)
+void Synchronizer::finish(Track* t)
 {
     if (mNextAvailableEvent != NULL) {
         
@@ -2300,7 +2300,7 @@ PUBLIC void Synchronizer::finish(Track* t)
 /**
  * Called when we're done with one audio interrupt.
  */
-PUBLIC void Synchronizer::interruptEnd()
+void Synchronizer::interruptEnd()
 {
     // do drift correction at the end of each interrupt
     checkDrift();
@@ -2315,7 +2315,7 @@ PUBLIC void Synchronizer::interruptEnd()
  * we're only interested in events from the one track
  * designated as the TrackSyncMaster.
  */
-PUBLIC void Synchronizer::trackSyncEvent(Track* t, EventType* type, int offset)
+void Synchronizer::trackSyncEvent(Track* t, EventType* type, int offset)
 {
     if (t == mTrackSyncMaster) {
 
@@ -2384,7 +2384,7 @@ PUBLIC void Synchronizer::trackSyncEvent(Track* t, EventType* type, int offset)
  * location within the loop.
  * 
  */
-PUBLIC Event* Synchronizer::getNextEvent(Loop* loop)
+Event* Synchronizer::getNextEvent(Loop* loop)
 {
     Event* next = NULL;
     Event* relevant = NULL;
@@ -2436,7 +2436,7 @@ PUBLIC Event* Synchronizer::getNextEvent(Loop* loop)
  * Move the next available event pointer to the last one we returned
  * from getEvent().
  */
-PUBLIC void Synchronizer::useEvent(Event* e)
+void Synchronizer::useEvent(Event* e)
 {
     if (e != NULL) {
         if (e != mReturnEvent)
@@ -2480,7 +2480,7 @@ PUBLIC void Synchronizer::useEvent(Event* e)
  * The 264 overflow is probably just roudning since a buffer is not an even
  * multiple of msecs.
  */
-PRIVATE void Synchronizer::adjustEventFrame(Loop* l, Event* e)
+void Synchronizer::adjustEventFrame(Loop* l, Event* e)
 {
 	long delta = e->fields.sync.millisecond - mLastInterruptMsec;
 	long offset = 0;
@@ -2535,7 +2535,7 @@ PRIVATE void Synchronizer::adjustEventFrame(Loop* l, Event* e)
  * of pulse handling but we can allow any of them to be waited on in scripts.
  * 
  */
-PUBLIC void Synchronizer::syncEvent(Loop* l, Event* e)
+void Synchronizer::syncEvent(Loop* l, Event* e)
 {
 	SyncEventType type = e->fields.sync.eventType;
 	Track* track = l->getTrack();
@@ -2681,7 +2681,7 @@ PUBLIC void Synchronizer::syncEvent(Loop* l, Event* e)
  * !! Think about what this means for track sync, are these
  * different wait types?
  */
-PRIVATE void Synchronizer::checkPulseWait(Loop* l, Event* e)
+void Synchronizer::checkPulseWait(Loop* l, Event* e)
 {
     Track* t = l->getTrack();
     EventManager* em = t->getEventManager();
@@ -2747,7 +2747,7 @@ PRIVATE void Synchronizer::checkPulseWait(Loop* l, Event* e)
  * Ordinarilly we're ready to start recording on the this pulse, but
  * for the BAR and BEAT units, we may have to wait several pulses.
  */
-PRIVATE void Synchronizer::syncPulseWaiting(Loop* l, Event* e)
+void Synchronizer::syncPulseWaiting(Loop* l, Event* e)
 {
     SyncSource src = e->fields.sync.source;
     SyncPulseType pulseType = e->fields.sync.pulseType;
@@ -2829,7 +2829,7 @@ PRIVATE void Synchronizer::syncPulseWaiting(Loop* l, Event* e)
  * the recordBeats parameter determine the beats per cycle.  The later
  * feels more flexible but perhaps more confusing.
  */
-PRIVATE void Synchronizer::startRecording(Loop* l, Event* e)
+void Synchronizer::startRecording(Loop* l, Event* e)
 {
     Track* t = l->getTrack();
     EventManager* em = t->getEventManager();
@@ -2962,7 +2962,7 @@ PRIVATE void Synchronizer::startRecording(Loop* l, Event* e)
  * cycle count.
  *
  */
-PRIVATE void Synchronizer::syncPulseRecording(Loop* l, Event* e)
+void Synchronizer::syncPulseRecording(Loop* l, Event* e)
 {
     Track* t = l->getTrack();
     SyncState* state = t->getSyncState();
@@ -3044,7 +3044,7 @@ PRIVATE void Synchronizer::syncPulseRecording(Loop* l, Event* e)
  * may stop (but not necessarily).   If we're not ready to stop yet,
  * increment the cycle counter whenever we cross a cycle boundary.
  */
-PRIVATE void Synchronizer::checkRecordStop(Loop* l, Event* pulse, Event* stop)
+void Synchronizer::checkRecordStop(Loop* l, Event* pulse, Event* stop)
 {
     Track* track = l->getTrack();
     SyncState* state = track->getSyncState();
@@ -3171,7 +3171,7 @@ PRIVATE void Synchronizer::checkRecordStop(Loop* l, Event* pulse, Event* stop)
  * for some history.
  *
  */
-PRIVATE void Synchronizer::activateRecordStop(Loop* l, Event* pulse, 
+void Synchronizer::activateRecordStop(Loop* l, Event* pulse, 
                                               Event* stop)
 {
     Track* track = l->getTrack();
@@ -3334,7 +3334,7 @@ PRIVATE void Synchronizer::activateRecordStop(Loop* l, Event* pulse,
  * orient the external device relative to the loop location.
  * 
  */
-PRIVATE void Synchronizer::syncPulsePlaying(Loop* l, Event* e)
+void Synchronizer::syncPulsePlaying(Loop* l, Event* e)
 {
     Track* t = l->getTrack();
     EventManager* em = t->getEventManager();
@@ -3448,7 +3448,7 @@ PRIVATE void Synchronizer::syncPulsePlaying(Loop* l, Event* e)
  * when we're processing a pulse event with isSyncStartPoint so we
  * can assume the tracker frame was zero.
  */
-PRIVATE void Synchronizer::traceDealign(Loop* l)
+void Synchronizer::traceDealign(Loop* l)
 {
     Track* t = l->getTrack();
     SyncState* state = t->getSyncState();
@@ -3513,7 +3513,7 @@ PRIVATE void Synchronizer::traceDealign(Loop* l)
  * we can simply send MS_START.  For other RealignTimes we need to 
  * be sending song position messges!!
  */
-PRIVATE void Synchronizer::doRealign(Loop* l, Event* pulse, Event* realign)
+void Synchronizer::doRealign(Loop* l, Event* pulse, Event* realign)
 {
     Track* t = l->getTrack();
     EventManager* em = t->getEventManager();
@@ -3609,7 +3609,7 @@ PRIVATE void Synchronizer::doRealign(Loop* l, Event* pulse, Event* realign)
  * Here we don't schedule a Realign event and wait for a pulse, 
  * we immediately move the slave loop.
  */
-PUBLIC void Synchronizer::loopRealignSlave(Loop* l)
+void Synchronizer::loopRealignSlave(Loop* l)
 {
 	realignSlave(l, NULL);
 }
@@ -3641,7 +3641,7 @@ PUBLIC void Synchronizer::loopRealignSlave(Loop* l)
  * It gets messier if the master track is running at a different speed.
  * 
  */
-PRIVATE void Synchronizer::realignSlave(Loop* l, Event* pulse)
+void Synchronizer::realignSlave(Loop* l, Event* pulse)
 {
 	long loopFrames = l->getFrames();
 	
@@ -3714,7 +3714,7 @@ PRIVATE void Synchronizer::realignSlave(Loop* l, Event* pulse)
  * OutRealignMode is REALIGN_MIDI_START, activate the Realign.
  * 
  */
-PUBLIC void Synchronizer::loopLocalStartPoint(Loop* l)
+void Synchronizer::loopLocalStartPoint(Loop* l)
 {
     Track* t = l->getTrack();
 
@@ -3755,7 +3755,7 @@ PUBLIC void Synchronizer::loopLocalStartPoint(Loop* l)
  * adjusted for pulse latency.
  *
  */
-PRIVATE void Synchronizer::checkDrift()
+void Synchronizer::checkDrift()
 {
     checkDrift(mOutTracker);
     checkDrift(mMidiTracker);
@@ -3763,7 +3763,7 @@ PRIVATE void Synchronizer::checkDrift()
     mForceDriftCorrect = false;
 }
 
-PRIVATE void Synchronizer::correctDrift()
+void Synchronizer::correctDrift()
 {
     correctDrift(mOutTracker);
     correctDrift(mMidiTracker);
@@ -3792,7 +3792,7 @@ PRIVATE void Synchronizer::correctDrift()
  * about the possible margin of error.
  * 
  */
-PRIVATE void Synchronizer::checkDrift(SyncTracker* tracker)
+void Synchronizer::checkDrift(SyncTracker* tracker)
 {
     bool checkpoint = false;
     const char* traceMsg;
@@ -3897,7 +3897,7 @@ PRIVATE void Synchronizer::checkDrift(SyncTracker* tracker)
  * The correction may be denied if any of the affected tracks are
  * recording or in a state that can't be corrected.
  */
-PRIVATE void Synchronizer::correctDrift(SyncTracker* tracker)
+void Synchronizer::correctDrift(SyncTracker* tracker)
 {
     // not so fast...all tracks have to be in a correctable state
     bool correctable = true;
@@ -3967,7 +3967,7 @@ PRIVATE void Synchronizer::correctDrift(SyncTracker* tracker)
 /**
  * Return true if drift correction can be done in this track.
  */
-PRIVATE bool Synchronizer::isDriftCorrectable(Track* track, SyncTracker* tracker)
+bool Synchronizer::isDriftCorrectable(Track* track, SyncTracker* tracker)
 {
     // logic is backward for historical reasons...too lazy to rewrite
     bool suppress = false;
@@ -4049,7 +4049,7 @@ PRIVATE bool Synchronizer::isDriftCorrectable(Track* track, SyncTracker* tracker
 /**
  * Correct the drift in one track.
  */
-PRIVATE void Synchronizer::correctDrift(Track* track, SyncTracker* tracker)
+void Synchronizer::correctDrift(Track* track, SyncTracker* tracker)
 {
     Loop* loop = track->getLoop();
     
@@ -4087,7 +4087,7 @@ PRIVATE void Synchronizer::correctDrift(Track* track, SyncTracker* tracker)
  * Given a logical loop frame calculated for drift correction or realignment,
  * adjust it so that it fits within the target loop.
  */
-PRIVATE long Synchronizer::wrapFrame(Loop* l, long frame)
+long Synchronizer::wrapFrame(Loop* l, long frame)
 {
     long max = l->getFrames();
     if (max <= 0) {
@@ -4116,7 +4116,7 @@ PRIVATE long Synchronizer::wrapFrame(Loop* l, long frame)
  * behind from an eariler operation.
  *
  */
-PRIVATE void Synchronizer::moveLoopFrame(Loop* l, long newFrame)
+void Synchronizer::moveLoopFrame(Loop* l, long newFrame)
 {
 	if (newFrame < l->getFrame()) {
 		// jumping backwards, this is probably ok if we're
@@ -4159,7 +4159,7 @@ PRIVATE void Synchronizer::moveLoopFrame(Loop* l, long newFrame)
  * origin wrong.  An obscure edge condition, don't worry about it.
  * This is only relevant if the tracker is unlocked.
  */
-PUBLIC void Synchronizer::loopRecordStart(Loop* l)
+void Synchronizer::loopRecordStart(Loop* l)
 {
     Track* track = l->getTrack();
     SyncState* state = track->getSyncState();
@@ -4253,7 +4253,7 @@ PUBLIC void Synchronizer::loopRecordStart(Loop* l)
  * the internal framesPerPulse.
  * 
  */
-PUBLIC void Synchronizer::loopRecordStop(Loop* l, Event* stop)
+void Synchronizer::loopRecordStop(Loop* l, Event* stop)
 {
 	Track* track = l->getTrack();
     SyncState* state = track->getSyncState();
@@ -4354,7 +4354,7 @@ PUBLIC void Synchronizer::loopRecordStop(Loop* l, Event* stop)
  * It will not necessarily match the locked tracker.  Should try to 
  * get in there and adjust them...
  */
-PRIVATE void Synchronizer::informFollowers(SyncTracker* tracker, Loop* loop)
+void Synchronizer::informFollowers(SyncTracker* tracker, Loop* loop)
 {
     int tcount = mMobius->getTrackCount();
     for (int i = 0 ; i < tcount ; i++) {
@@ -4404,7 +4404,7 @@ PRIVATE void Synchronizer::informFollowers(SyncTracker* tracker, Loop* loop)
  *
  * If this the track sync master, then reassign a new master.
  */
-PUBLIC void Synchronizer::loopReset(Loop* loop)
+void Synchronizer::loopReset(Loop* loop)
 {
     Track* track = loop->getTrack();
     SyncState* state = track->getSyncState();
@@ -4433,7 +4433,7 @@ PUBLIC void Synchronizer::loopReset(Loop* loop)
  * Return true if all loops in this track are reset.
  * TODO: move this to Track!!
  */
-PRIVATE bool Synchronizer::isTrackReset(Track* t)
+bool Synchronizer::isTrackReset(Track* t)
 {
     bool allReset = true;
     int lcount = t->getLoopCount();
@@ -4451,7 +4451,7 @@ PRIVATE bool Synchronizer::isTrackReset(Track* t)
  * Check to see if any of the trackers can be unlocked after
  * a loop has been reset.
  */
-PRIVATE void Synchronizer::unlockTrackers()
+void Synchronizer::unlockTrackers()
 {
     unlockTracker(mOutTracker);
     unlockTracker(mMidiTracker);
@@ -4462,7 +4462,7 @@ PRIVATE void Synchronizer::unlockTrackers()
  * Check to see if a tracker can be unlocked after a loop has been reset.
  * All tracks that follow this tracker must be completely reset.
  */
-PRIVATE void Synchronizer::unlockTracker(SyncTracker* tracker)
+void Synchronizer::unlockTracker(SyncTracker* tracker)
 {
     if (tracker->isLocked()) {
         int uses = 0;
@@ -4510,7 +4510,7 @@ PRIVATE void Synchronizer::unlockTracker(SyncTracker* tracker)
  * ticking so we can keep track of the external start point.  
  *
  */
-PUBLIC void Synchronizer::loopResize(Loop* l, bool restart)
+void Synchronizer::loopResize(Loop* l, bool restart)
 {
     if (l->getTrack() == mOutSyncMaster) {
 
@@ -4537,7 +4537,7 @@ PUBLIC void Synchronizer::loopResize(Loop* l, bool restart)
 /**
  * Called when we switch loops within a track.
  */
-PUBLIC void Synchronizer::loopSwitch(Loop* l, bool restart)
+void Synchronizer::loopSwitch(Loop* l, bool restart)
 {
     if (l->getTrack() == mOutSyncMaster) {
 
@@ -4570,7 +4570,7 @@ PUBLIC void Synchronizer::loopSwitch(Loop* l, bool restart)
  * If we're the OutSyncMaster this may adjust the clock tempo.
  * 
  */
-PUBLIC void Synchronizer::loopSpeedShift(Loop* l)
+void Synchronizer::loopSpeedShift(Loop* l)
 {
     if (l->getTrack() == mOutSyncMaster) {
 
@@ -4601,7 +4601,7 @@ PUBLIC void Synchronizer::loopSpeedShift(Loop* l)
  * If we're the out sync master send an MS_STOP message.
  * !! TODO: Need an option to keep the clocks going during pause?
  */
-PUBLIC void Synchronizer::loopPause(Loop* l)
+void Synchronizer::loopPause(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster)
       muteMidiStop(l);
@@ -4610,7 +4610,7 @@ PUBLIC void Synchronizer::loopPause(Loop* l)
 /**
  * Called by Loop when it exits a pause.
  */
-PUBLIC void Synchronizer::loopResume(Loop* l)
+void Synchronizer::loopResume(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster) {
 
@@ -4637,7 +4637,7 @@ PUBLIC void Synchronizer::loopResume(Loop* l)
  * EDPism we don't necessarily want, should provide an option to keep
  * clocks going and restart later.
  */
-PUBLIC void Synchronizer::loopMute(Loop* l)
+void Synchronizer::loopMute(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster) {
 		Preset* p = l->getPreset();
@@ -4653,7 +4653,7 @@ PUBLIC void Synchronizer::loopMute(Loop* l)
  * that don't understand STOP/START/CONTINUE messages.
  * 
  */
-PRIVATE void Synchronizer::muteMidiStop(Loop* l)
+void Synchronizer::muteMidiStop(Loop* l)
 {
     Setup* setup = mMobius->getInterruptSetup();
     MuteSyncMode mode = setup->getMuteSyncMode();
@@ -4682,7 +4682,7 @@ PRIVATE void Synchronizer::muteMidiStop(Loop* l)
  * restart the external loop?  Might be nice if we're just trying
  * to tempo sync effects boxes, and MidiStart confuses them.
  */
-PUBLIC void Synchronizer::loopRestart(Loop* l)
+void Synchronizer::loopRestart(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster) {
 
@@ -4703,7 +4703,7 @@ PUBLIC void Synchronizer::loopRestart(Loop* l)
  * the last frame in the loop).  The intent is then to send a MIDI Start
  * to resync the external device with the loop.  
  */
-PUBLIC void Synchronizer::loopMidiStart(Loop* l)
+void Synchronizer::loopMidiStart(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster) {
 		// here we always send Start
@@ -4732,7 +4732,7 @@ PUBLIC void Synchronizer::loopMidiStart(Loop* l)
  * Might be useful for unintelligent devices that just
  * watch clocks?
  */
-PUBLIC void Synchronizer::loopMidiStop(Loop* l, bool force)
+void Synchronizer::loopMidiStop(Loop* l, bool force)
 {
     if (force || (l->getTrack() == mOutSyncMaster))
       mTransport->stop(l, true, false);
@@ -4745,7 +4745,7 @@ PUBLIC void Synchronizer::loopMidiStop(Loop* l, bool force)
  *
  * TODO: As always may want a parameter to control this?
  */
-PUBLIC void Synchronizer::loopSetStartPoint(Loop* l, Event* e)
+void Synchronizer::loopSetStartPoint(Loop* l, Event* e)
 {
     if (l->getTrack() == mOutSyncMaster) {
         Trace(l, 2, "Sync: loopChangeStartPoint\n");
@@ -4756,7 +4756,7 @@ PUBLIC void Synchronizer::loopSetStartPoint(Loop* l, Event* e)
 /**
  * Unit test function to force a drift.
  */
-PUBLIC void Synchronizer::loopDrift(Loop* l, int delta)
+void Synchronizer::loopDrift(Loop* l, int delta)
 {
     SyncTracker* tracker = getSyncTracker(l);
     if (tracker != NULL)
@@ -4781,7 +4781,7 @@ PUBLIC void Synchronizer::loopDrift(Loop* l, int delta)
  * needs to save the SyncTracker state if closed we can guess here but
  * it may not be the same.
  */
-PUBLIC void Synchronizer::loadProject(Project* p)
+void Synchronizer::loadProject(Project* p)
 {
     // should have done a globalReset() first but make sure
     // sigh, need a TraceContext for MidiTransport
@@ -4805,7 +4805,7 @@ PUBLIC void Synchronizer::loadProject(Project* p)
  * This may effect the assignment of sync masters or change the
  * behavior of the existing master.
  */
-PUBLIC void Synchronizer::loadLoop(Loop* l)
+void Synchronizer::loadLoop(Loop* l)
 {
     if (!l->isEmpty()) {
         Track* track = l->getTrack();
@@ -4830,12 +4830,12 @@ PUBLIC void Synchronizer::loadLoop(Loop* l)
 /**
  * Return the current track sync master.
  */
-PUBLIC Track* Synchronizer::getTrackSyncMaster()
+Track* Synchronizer::getTrackSyncMaster()
 {
 	return mTrackSyncMaster;
 }
 
-PUBLIC Track* Synchronizer::getOutSyncMaster()
+Track* Synchronizer::getOutSyncMaster()
 {
 	return mOutSyncMaster;
 }
@@ -4852,7 +4852,7 @@ PUBLIC Track* Synchronizer::getOutSyncMaster()
  * and a flag on the Track.  Hmm, this argues for eventing, 
  * we'll have a small window where they're out of sync.
  */
-PUBLIC void Synchronizer::setTrackSyncMaster(Track* master)
+void Synchronizer::setTrackSyncMaster(Track* master)
 {
 	if (master != NULL) {
 		if (mTrackSyncMaster == NULL)
@@ -4885,7 +4885,7 @@ PUBLIC void Synchronizer::setTrackSyncMaster(Track* master)
  * 
  * This is much more complicated, and probably must be evented.
  */
-PUBLIC void Synchronizer::setOutSyncMaster(Track* master)
+void Synchronizer::setOutSyncMaster(Track* master)
 {
     setOutSyncMasterInternal(master);
 
@@ -4899,7 +4899,7 @@ PUBLIC void Synchronizer::setOutSyncMaster(Track* master)
  * does the trace and changes the value.  Higher order semantics
  * like SyncTracker management must be done by the caller.
  */
-PRIVATE void Synchronizer::setOutSyncMasterInternal(Track* master)
+void Synchronizer::setOutSyncMasterInternal(Track* master)
 {
 	if (master != NULL) {
 		if (mOutSyncMaster == NULL)
@@ -4923,7 +4923,7 @@ PRIVATE void Synchronizer::setOutSyncMasterInternal(Track* master)
  * It doesn't matter what the SyncSource is, the first track
  * we find that isn't empty is the default sync master.
  */
-PRIVATE Track* Synchronizer::findTrackSyncMaster()
+Track* Synchronizer::findTrackSyncMaster()
 {
 	Track* master = NULL;
 
@@ -4958,7 +4958,7 @@ PRIVATE Track* Synchronizer::findTrackSyncMaster()
 /**
  * Find a track able to serve as the SYNC_OUT master.
  */
-PRIVATE Track* Synchronizer::findOutSyncMaster()
+Track* Synchronizer::findOutSyncMaster()
 {
 	Track* master = NULL;
 
@@ -5007,7 +5007,7 @@ PRIVATE Track* Synchronizer::findOutSyncMaster()
  * size in the OutSyncTracker.  If they are not compatible, then a tempo
  * adjustment must be made and the tracker resized.
  */
-PRIVATE void Synchronizer::resizeOutSyncTracker()
+void Synchronizer::resizeOutSyncTracker()
 {
     if (mOutSyncMaster == NULL) {
         // This normally happens only when you reset the master
@@ -5108,7 +5108,7 @@ PRIVATE void Synchronizer::resizeOutSyncTracker()
  * causes the assignment of a new sync master which locks the tracker.
  * 
  */
-PRIVATE void Synchronizer::lockOutSyncTracker(Loop* l, bool recordStop)
+void Synchronizer::lockOutSyncTracker(Loop* l, bool recordStop)
 {
     // don't call this if already locked
     if (mOutTracker->isLocked()) {
@@ -5192,7 +5192,7 @@ PRIVATE void Synchronizer::lockOutSyncTracker(Loop* l, bool recordStop)
  * a starting point that we carry over to the SyncTracker, it does not 
  * necessarily have to match the number of beats in a logical measure.
  */
-PRIVATE float Synchronizer::calcTempo(Loop* l, int beatsPerBar, long frames, 
+float Synchronizer::calcTempo(Loop* l, int beatsPerBar, long frames, 
                                       int* retPulses)
 {
 	float tempo = 0.0;
@@ -5282,7 +5282,7 @@ PRIVATE float Synchronizer::calcTempo(Loop* l, int beatsPerBar, long frames,
  * If the checkNear flag is set, we will suppress sending START
  * if the tracker says we're already 
  */
-PRIVATE void Synchronizer::sendStart(Loop* l, bool checkManual, bool checkNear)
+void Synchronizer::sendStart(Loop* l, bool checkManual, bool checkNear)
 {
 	bool doStart = true;
 

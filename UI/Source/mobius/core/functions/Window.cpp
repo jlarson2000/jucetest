@@ -20,22 +20,22 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Messages.h"
-#include "Preset.h"
-#include "Segment.h"
-#include "Stream.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Messages.h"
+#include "../Preset.h"
+#include "../Segment.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -69,12 +69,12 @@ class WindowEventType : public EventType {
 	WindowEventType();
 };
 
-PUBLIC WindowEventType::WindowEventType()
+WindowEventType::WindowEventType()
 {
 	name = "Window";
 }
 
-PUBLIC EventType* WindowEvent = new WindowEventType();
+EventType* WindowEvent = new WindowEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -179,18 +179,18 @@ class WindowFunction : public Function {
     bool mIgnore;
 };
 
-PUBLIC Function* WindowBackward = new WindowFunction(false, false, -1);
-PUBLIC Function* WindowForward = new WindowFunction(false, false, 1);
-PUBLIC Function* WindowMove = new WindowFunction(false, false, 0);
+Function* WindowBackward = new WindowFunction(false, false, -1);
+Function* WindowForward = new WindowFunction(false, false, 1);
+Function* WindowMove = new WindowFunction(false, false, 0);
 
-PUBLIC Function* WindowStartBackward = new WindowFunction(true, true, -1);
-PUBLIC Function* WindowStartForward = new WindowFunction(true, true, 1);
-PUBLIC Function* WindowEndBackward = new WindowFunction(true, false, -1);
-PUBLIC Function* WindowEndForward = new WindowFunction(true, false, 1);
+Function* WindowStartBackward = new WindowFunction(true, true, -1);
+Function* WindowStartForward = new WindowFunction(true, true, 1);
+Function* WindowEndBackward = new WindowFunction(true, false, -1);
+Function* WindowEndForward = new WindowFunction(true, false, 1);
 
-PUBLIC Function* WindowResize = new WindowFunction(true, false, 0);
+Function* WindowResize = new WindowFunction(true, false, 0);
 
-PUBLIC WindowFunction::WindowFunction(bool edge, bool start, int direction)
+WindowFunction::WindowFunction(bool edge, bool start, int direction)
 {
 	eventType = WindowEvent;
 	cancelReturn = true;
@@ -307,7 +307,7 @@ void WindowFunction::doEvent(Loop* loop, Event* event)
  * The WindowSlideAmount preset parameter has the number of units.  If not
  * set the amount is 1.
  */
-PRIVATE void WindowFunction::moveWindow(Event* event)
+void WindowFunction::moveWindow(Event* event)
 {
     int amount = -1;
 
@@ -379,7 +379,7 @@ PRIVATE void WindowFunction::moveWindow(Event* event)
 /**
  * Adjust an edge which may change both the offset and size.
  */
-PRIVATE void WindowFunction::resizeWindow(Event* event)
+void WindowFunction::resizeWindow(Event* event)
 {
     int amount = 0;
 
@@ -489,7 +489,7 @@ PRIVATE void WindowFunction::resizeWindow(Event* event)
  * There are two parmaeters we could use, WindowSlideUnitParameter and
  * WindowEdgeUnitParameter but they both have the same values.
  */
-PRIVATE Preset::WindowUnit WindowFunction::getScriptUnit(ExValue* arg)
+Preset::WindowUnit WindowFunction::getScriptUnit(ExValue* arg)
 {
     Preset::WindowUnit unit = Preset::WINDOW_UNIT_INVALID;
     const char* str = arg->getString();
@@ -514,7 +514,7 @@ PRIVATE Preset::WindowUnit WindowFunction::getScriptUnit(ExValue* arg)
 /**
  * Calculate the number of frames in one unit.
  */
-PRIVATE long WindowFunction::getUnitFrames(Preset::WindowUnit unit)
+long WindowFunction::getUnitFrames(Preset::WindowUnit unit)
 {
     long frames = 0;
 
@@ -550,7 +550,7 @@ PRIVATE long WindowFunction::getUnitFrames(Preset::WindowUnit unit)
  * This is adjusted relative to the playback speed since you want to 
  * hear the change the same way regardless of the speed.
  */
-PRIVATE long WindowFunction::getMsecFrames(int msecs)
+long WindowFunction::getMsecFrames(int msecs)
 {
     // milliseconds are relative to the playback rate
     // !! do they need to be?
@@ -566,7 +566,7 @@ PRIVATE long WindowFunction::getMsecFrames(int msecs)
  * Rebuild the window layer.  Window state is passed in transient
  * fields in the fucntion object.
  */
-PRIVATE void WindowFunction::buildWindow()
+void WindowFunction::buildWindow()
 {
     constrainWindow();
     if (!mIgnore) {
@@ -580,7 +580,7 @@ PRIVATE void WindowFunction::buildWindow()
  * Constrain the edges of the new window.
  * Sets mLastLayer, mOffset, mFrames.
  */
-PRIVATE void WindowFunction::constrainWindow()
+void WindowFunction::constrainWindow()
 {
     mLastLayer = mLayer;
     long historyFrames = 0;
@@ -678,7 +678,7 @@ PRIVATE void WindowFunction::constrainWindow()
 /**
  * Build the segment list.
  */
-PRIVATE Segment* WindowFunction::buildSegments()
+Segment* WindowFunction::buildSegments()
 {
     // find the layer containing the offset
     Layer* startLayer = mLastLayer;
@@ -771,7 +771,7 @@ PRIVATE Segment* WindowFunction::buildSegments()
  * else that needs this?
  *
  */
-PRIVATE Layer* WindowFunction::getNextLayer(Layer* src) 
+Layer* WindowFunction::getNextLayer(Layer* src) 
 {
     Layer* found = NULL;
 
@@ -793,7 +793,7 @@ PRIVATE Layer* WindowFunction::getNextLayer(Layer* src)
 /**
  * Install the new window segments.
  */
-PRIVATE void WindowFunction::installSegments(Segment* segments)
+void WindowFunction::installSegments(Segment* segments)
 {
     // sets mNewFrame and mContinuity;
     calculateNewFrame();
@@ -895,7 +895,7 @@ PRIVATE void WindowFunction::installSegments(Segment* segments)
  * smooth play transitions are less of an issue.
  * 
  */
-PRIVATE void WindowFunction::calculateNewFrame()
+void WindowFunction::calculateNewFrame()
 {
     // assume restart
     mNewFrame = 0;

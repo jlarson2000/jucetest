@@ -34,9 +34,9 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
-#include "List.h"
-#include "Thread.h"
+#include "../../util/Util.h"
+#include "../../util/List.h"
+//#include "Thread.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -48,13 +48,13 @@
 #include "Mode.h"
 #include "Parameter.h"
 #include "Project.h"
-#include "Recorder.h"
-#include "Setup.h"
+#include "../Recorder.h"
+#include "../../model/Setup.h"
 #include "Script.h"
 #include "Stream.h"
 #include "StreamPlugin.h"
 #include "Synchronizer.h"
-#include "UserVariable.h"
+#include "../../model/UserVariable.h"
 
 #include "Track.h"
 
@@ -159,7 +159,7 @@ void Track::setHalting(bool b)
 	mHalting = b;
 }
 
-PUBLIC SyncState* Track::getSyncState()
+SyncState* Track::getSyncState()
 {
     return mSyncState;
 }
@@ -167,23 +167,23 @@ PUBLIC SyncState* Track::getSyncState()
 /**
  * We're a trace context, supply track/loop/time.
  */
-PUBLIC void Track::getTraceContext(int* context, long* time)
+void Track::getTraceContext(int* context, long* time)
 {
 	*context = (getDisplayNumber() * 100) + mLoop->getNumber();
 	*time = mLoop->getFrame();
 }
 
-PUBLIC Mobius* Track::getMobius()
+Mobius* Track::getMobius()
 {
 	return mMobius;
 }
 
-PUBLIC SetupTrack* Track::getSetup()
+SetupTrack* Track::getSetup()
 {
     return mSetup;
 }
 
-PUBLIC void Track::setName(const char* name)
+void Track::setName(const char* name)
 {
     // !! to avoid a possible race condition with the UI thread that 
     // is trying to display mName, only replace if it is different
@@ -192,7 +192,7 @@ PUBLIC void Track::setName(const char* name)
       CopyString(name, mName, sizeof(mName));
 }
 
-PUBLIC char* Track::getName()
+char* Track::getName()
 {
     return &mName[0];
 }
@@ -200,18 +200,18 @@ PUBLIC char* Track::getName()
 /**
  * Formerly exposed this for Synchronizer which wanted to set it to 
  * zero for some kind of trace message.
-PUBLIC void Track::setInterrupts(long l) 
+void Track::setInterrupts(long l) 
 {
 	mInterrupts = l;
 }
 */
 
-PUBLIC long Track::getInterrupts()
+long Track::getInterrupts()
 {
 	return mInterrupts;
 }
 
-PUBLIC void Track::setInterruptBreakpoint(bool b)
+void Track::setInterruptBreakpoint(bool b)
 {
     mInterruptBreakpoint = b;
 }
@@ -228,7 +228,7 @@ bool Track::isEmpty()
 	return empty;
 }
 
-PUBLIC UserVariables* Track::getVariables()
+UserVariables* Track::getVariables()
 {
     return mVariables;
 }
@@ -239,7 +239,7 @@ PUBLIC UserVariables* Track::getVariables()
  * We're supposed to be empty, but it doesn't really matter at this point,
  * we'll just trash the first loop.
  */
-PUBLIC void Track::setBounceRecording(Audio* a, int cycles) 
+void Track::setBounceRecording(Audio* a, int cycles) 
 {
 	if (mLoop != NULL)
 	  mLoop->setBounceRecording(a, cycles);
@@ -249,7 +249,7 @@ PUBLIC void Track::setBounceRecording(Audio* a, int cycles)
  * Called after a bounce recording to put this track into mute.
  * Made general enough to unmute, though that isn't used right now.
  */
-PUBLIC void Track::setMuteKludge(Function* f, bool mute) 
+void Track::setMuteKludge(Function* f, bool mute) 
 {
 	if (mLoop != NULL)
 	  mLoop->setMuteKludge(f, mute);
@@ -262,12 +262,12 @@ PUBLIC void Track::setMuteKludge(Function* f, bool mute)
  *
  * A better name would be "previouslyPlaying" or "globalMuteRestore"?
  */
-PUBLIC void Track::setGlobalMute(bool m) 
+void Track::setGlobalMute(bool m) 
 {
 	mGlobalMute = m;
 }
 
-PUBLIC bool Track::isGlobalMute()
+bool Track::isGlobalMute()
 {
 	return mGlobalMute;
 }
@@ -277,7 +277,7 @@ PUBLIC bool Track::isGlobalMute()
  * the default RecorderTrack.  We don't use any of that, mute is defined
  * by the current loop.
  */
-PUBLIC bool Track::isMute()
+bool Track::isMute()
 {
 	return mLoop->isMuteMode();
 }
@@ -285,12 +285,12 @@ PUBLIC bool Track::isMute()
 /**
  * True is track is being soloed.
  */
-PUBLIC void Track::setSolo(bool b) 
+void Track::setSolo(bool b) 
 {
 	mSolo = b;
 }
 
-PUBLIC bool Track::isSolo()
+bool Track::isSolo()
 {
 	return mSolo;
 }
@@ -329,143 +329,143 @@ bool Track::isUISignal()
  * pass them down.
  */
 
-PUBLIC void Track::setFocusLock(bool b)
+void Track::setFocusLock(bool b)
 {
 	mFocusLock = b;
 }
 
-PUBLIC bool Track::isFocusLock()
+bool Track::isFocusLock()
 {
 	return mFocusLock;
 }
 
-PUBLIC void Track::setGroup(int i)
+void Track::setGroup(int i)
 {
     mGroup = i;
 }
 
-PUBLIC int Track::getGroup()
+int Track::getGroup()
 {
     return mGroup;
 }
 
-PUBLIC Preset* Track::getPreset()
+Preset* Track::getPreset()
 {
 	return mPreset;
 }
 
-PUBLIC void Track::setInputLevel(int level)
+void Track::setInputLevel(int level)
 {
 	mInputLevel = level;
 }
 
-PUBLIC int Track::getInputLevel()
+int Track::getInputLevel()
 {
 	return mInputLevel;
 }
 
-PUBLIC void Track::setOutputLevel(int level)
+void Track::setOutputLevel(int level)
 {
 	mOutputLevel = level;
 }
 
-PUBLIC int Track::getOutputLevel()
+int Track::getOutputLevel()
 {
 	return mOutputLevel;
 }
 
-PUBLIC void Track::setFeedback(int level)
+void Track::setFeedback(int level)
 {
 	mFeedbackLevel = level;
 }
 
-PUBLIC int Track::getFeedback()
+int Track::getFeedback()
 {
 	return mFeedbackLevel;
 }
 
-PUBLIC void Track::setAltFeedback(int level)
+void Track::setAltFeedback(int level)
 {
 	mAltFeedbackLevel = level;
 }
 
-PUBLIC int Track::getAltFeedback()
+int Track::getAltFeedback()
 {
 	return mAltFeedbackLevel;
 }
 
-PUBLIC void Track::setPan(int pan)
+void Track::setPan(int pan)
 {
 	mPan = pan;
 }
 
-PUBLIC int Track::getPan()
+int Track::getPan()
 {
 	return mPan;
 }
 
-PUBLIC int Track::getSpeedToggle()
+int Track::getSpeedToggle()
 {
     return mSpeedToggle;
 }
 
-PUBLIC void Track::setSpeedToggle(int degree)
+void Track::setSpeedToggle(int degree)
 {
     mSpeedToggle = degree;
 }
 
-PUBLIC int Track::getSpeedOctave()
+int Track::getSpeedOctave()
 {
     return mInput->getSpeedOctave();
 }
 
-PUBLIC int Track::getSpeedStep()
+int Track::getSpeedStep()
 {
     return mInput->getSpeedStep();
 }
 
-PUBLIC int Track::getSpeedBend()
+int Track::getSpeedBend()
 {
     return mInput->getSpeedBend();
 }
 
-PUBLIC int Track::getPitchOctave()
+int Track::getPitchOctave()
 {
     return mInput->getPitchOctave();
 }
 
-PUBLIC int Track::getPitchStep()
+int Track::getPitchStep()
 {
 	return mInput->getPitchStep();
 }
 
-PUBLIC int Track::getPitchBend()
+int Track::getPitchBend()
 {
     return mInput->getPitchBend();
 }
 
-PUBLIC int Track::getTimeStretch() 
+int Track::getTimeStretch() 
 {
     return mInput->getTimeStretch();
 }
 
-PUBLIC void Track::setMono(bool b)
+void Track::setMono(bool b)
 {
 	mMono = b;
 	mOutput->setMono(b);
 }
 
-PUBLIC bool Track::isMono()
+bool Track::isMono()
 {
 	return mMono;
 }
 
-PUBLIC void Track::setGroupOutputBasis(int i)
+void Track::setGroupOutputBasis(int i)
 {
 	mGroupOutputBasis = i;
 }
 
-PUBLIC int Track::getGroupOutputBasis()
+int Track::getGroupOutputBasis()
 {
 	return mGroupOutputBasis;
 }
@@ -474,13 +474,13 @@ PUBLIC int Track::getGroupOutputBasis()
  * Temporary controller interface for tweaking the pitch
  * shifting algorithm.
  */
-PUBLIC void Track::setPitchTweak(int tweak, int value)
+void Track::setPitchTweak(int tweak, int value)
 {
 	// assume pitch affects only output for now
 	mOutput->setPitchTweak(tweak, value);
 }
 
-PUBLIC int Track::getPitchTweak(int tweak)
+int Track::getPitchTweak(int tweak)
 {
 	// assume pitch affects only output for now
 	return mOutput->getPitchTweak(tweak);
@@ -492,7 +492,7 @@ PUBLIC int Track::getPitchTweak(int tweak)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC int Track::getRawNumber()
+int Track::getRawNumber()
 {
 	return mRawNumber;
 }
@@ -503,23 +503,23 @@ PUBLIC int Track::getRawNumber()
  * be consistent about that.  Loops also start from 1.
  * Find all uses of Track::getNumber and change them!
  */
-PUBLIC int Track::getDisplayNumber()
+int Track::getDisplayNumber()
 {
     return mRawNumber + 1;
 
 }
 
-PUBLIC long Track::getFrame()
+long Track::getFrame()
 {
 	return mLoop->getFrame();
 }
 
-PUBLIC Loop* Track::getLoop()
+Loop* Track::getLoop()
 {
 	return mLoop;
 }
 
-PUBLIC Loop* Track::getLoop(int index)
+Loop* Track::getLoop(int index)
 {
 	Loop* loop = NULL;
 	if (index >= 0 && index < mLoopCount)
@@ -530,27 +530,27 @@ PUBLIC Loop* Track::getLoop(int index)
 /**
  * Only for Loop when it processes an SwitchEvent event.
  */
-PUBLIC void Track::setLoop(Loop* l)
+void Track::setLoop(Loop* l)
 {
     mLoop = l;
 }
 
-PUBLIC int Track::getLoopCount()
+int Track::getLoopCount()
 {
 	return mLoopCount;
 }
 
-PUBLIC MobiusMode* Track::getMode()
+MobiusMode* Track::getMode()
 {
 	return mLoop->getMode();
 }
 
-PUBLIC Synchronizer* Track::getSynchronizer()
+Synchronizer* Track::getSynchronizer()
 {
 	return mSynchronizer;
 }
 
-PUBLIC int Track::getSpeedSequenceIndex()
+int Track::getSpeedSequenceIndex()
 {
 	return mSpeedSequenceIndex;
 }
@@ -559,17 +559,17 @@ PUBLIC int Track::getSpeedSequenceIndex()
  * Note that this doesn't change the speed, we're only 
  * remembering what step we're on.
  */
-PUBLIC void Track::setSpeedSequenceIndex(int s)
+void Track::setSpeedSequenceIndex(int s)
 {
 	mSpeedSequenceIndex = s;
 }
 
-PUBLIC int Track::getPitchSequenceIndex()
+int Track::getPitchSequenceIndex()
 {
 	return mPitchSequenceIndex;
 }
 
-PUBLIC void Track::setPitchSequenceIndex(int s)
+void Track::setPitchSequenceIndex(int s)
 {
 	mPitchSequenceIndex = s;
 }
@@ -579,12 +579,12 @@ PUBLIC void Track::setPitchSequenceIndex(int s)
  * The the current effective speed for the track.  We'll let
  * the input stream determine this so it may lag a little.
  */
-PUBLIC float Track::getEffectiveSpeed()
+float Track::getEffectiveSpeed()
 {
 	return mInput->getSpeed();
 }
 
-PUBLIC float Track::getEffectivePitch()
+float Track::getEffectivePitch()
 {
 	return mInput->getPitch();
 }
@@ -598,27 +598,27 @@ PUBLIC float Track::getEffectivePitch()
  * Most of this is callbacks for EventManager, and are protected.
  */
 
-PUBLIC EventManager* Track::getEventManager()
+EventManager* Track::getEventManager()
 {
     return mEventManager;
 }
 
-PRIVATE InputStream* Track::getInputStream()
+InputStream* Track::getInputStream()
 {
     return mInput;
 }
 
-PRIVATE OutputStream* Track::getOutputStream()
+OutputStream* Track::getOutputStream()
 {
     return mOutput;
 }
 
-PRIVATE void Track::enterCriticalSection(const char* reason)
+void Track::enterCriticalSection(const char* reason)
 {
     mCsect->enter(reason);
 }
 
-PRIVATE void Track::leaveCriticalSection()
+void Track::leaveCriticalSection()
 {
     mCsect->leave();
 }
@@ -639,7 +639,7 @@ PRIVATE void Track::leaveCriticalSection()
  * logic that we've currently got bound up in Function::invoke.
  * Try to be cleaner for MIDI tracks and follow that example.
  */
-PUBLIC void Track::doFunction(Action* action)
+void Track::doFunction(Action* action)
 {
     Function* f = (Function*)action->getTargetObject();
     if (f != NULL) {
@@ -678,7 +678,7 @@ PUBLIC void Track::doFunction(Action* action)
  * This may be used directly by the UI and as such must be changed
  * carefully since more than one thread may be accessing it at once.
  */
-PUBLIC TrackState* Track::getState()
+TrackState* Track::getState()
 {
 	TrackState* s = &mState;
 
@@ -767,7 +767,7 @@ PUBLIC TrackState* Track::getState()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Audio* Track::getPlaybackAudio()
+Audio* Track::getPlaybackAudio()
 {
     return mLoop->getPlaybackAudio();
 }
@@ -1012,7 +1012,7 @@ void Track::processBuffers(AudioStream* stream,
  * Formerly did smoothing out here but now that has been pushed
  * into the stream.  Just keep the stream levels current.
  */
-PRIVATE void Track::advanceControllers()
+void Track::advanceControllers()
 {
 	mInput->setTargetLevel(mInputLevel);
 	mOutput->setTargetLevel(mOutputLevel);
@@ -1026,7 +1026,7 @@ PRIVATE void Track::advanceControllers()
  * current block.  Used to accurately end an audio recording after
  * a wait, may have other uses.
  */
-PUBLIC int Track::getProcessedOutputFrames()
+int Track::getProcessedOutputFrames()
 {
 	return mOutput->getProcessedFrames();
 }
@@ -1036,7 +1036,7 @@ PUBLIC int Track::getProcessedOutputFrames()
  * the interrupt input buffer.  Here used by SampleTrack to insert
  * prerecorded content into the input stream.
  */
-PUBLIC void Track::inputBufferModified(float* buffer)
+void Track::inputBufferModified(float* buffer)
 {
 	// hmm, we may not have gotten our processBuffers call yet, just assume
 	// that if the buffer pointers won't match?
@@ -1048,7 +1048,7 @@ PUBLIC void Track::inputBufferModified(float* buffer)
  * termination of scripts.  Have to clean up references to the interpreter
  * in Events.
  */
-PUBLIC void Track::removeScriptReferences(ScriptInterpreter* si)
+void Track::removeScriptReferences(ScriptInterpreter* si)
 {
     mEventManager->removeScriptReferences(si);
 }
@@ -1088,7 +1088,7 @@ PUBLIC void Track::removeScriptReferences(ScriptInterpreter* si)
  * to a preset will trigger a refresh even if it was for a preset
  * the track is not using.
  */
-PUBLIC void Track::updateConfiguration(MobiusConfig* config)
+void Track::updateConfiguration(MobiusConfig* config)
 {
     // propagate some of the global parameters to the Loops
     updateGlobalParameters(config);
@@ -1144,7 +1144,7 @@ PUBLIC void Track::updateConfiguration(MobiusConfig* config)
  *
  * I don't like how this is working, it's a kludgey special case.
  */
-PUBLIC void Track::updateGlobalParameters(MobiusConfig* config)
+void Track::updateGlobalParameters(MobiusConfig* config)
 {
 
     // do NOT get latency from the config, Mobius calculates it
@@ -1166,7 +1166,7 @@ PUBLIC void Track::updateGlobalParameters(MobiusConfig* config)
  * Fro likes the setup and presets to be independent so if the
  * setup doesn't explicitly have presets, leave the current one.
  */
-PRIVATE Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
+Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
 {
     Preset* preset = NULL;
 
@@ -1205,7 +1205,7 @@ PRIVATE Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
 /**
  * Called when the preset is to be changed by something outside the interrupt.
  */
-PUBLIC void Track::setPendingPreset(int number)
+void Track::setPendingPreset(int number)
 {
     mPendingPreset = number;
 }
@@ -1213,7 +1213,7 @@ PUBLIC void Track::setPendingPreset(int number)
 /**
  * Called at the top of every interrupt to phase in config changes.
  */
-PRIVATE void Track::doPendingConfiguration()
+void Track::doPendingConfiguration()
 {
     if (mPendingPreset >= 0) {
         setPreset(mPendingPreset);
@@ -1224,7 +1224,7 @@ PRIVATE void Track::doPendingConfiguration()
 /**
  * Set the preset for code within an interrupt.
  */
-PUBLIC void Track::setPreset(int number)
+void Track::setPreset(int number)
 {
     MobiusConfig* config = mMobius->getInterruptConfiguration();
     Preset* preset = config->getPreset(number);
@@ -1244,7 +1244,7 @@ PUBLIC void Track::setPreset(int number)
  * by getPreset.  In this case don't copy over itself but update other
  * thigns to reflect changes.
  */
-PUBLIC void Track::setPreset(Preset* src)
+void Track::setPreset(Preset* src)
 {
     if (src != NULL && mPreset != src) {
         mPreset->copy(src);
@@ -1283,7 +1283,7 @@ PUBLIC void Track::setPreset(Preset* src)
  * differnet than deleting them if we allow a UI status thread to be 
  * touching them at this moment.  
  */
-PRIVATE void Track::setupLoops()
+void Track::setupLoops()
 {
 	int newLoops = (mPreset != NULL) ? mPreset->getLoops() : mLoopCount;
 
@@ -1331,7 +1331,7 @@ PRIVATE void Track::setupLoops()
  * 
  * Changing the setup will refresh the preset.
  */
-PUBLIC void Track::setSetup(Setup* setup)
+void Track::setSetup(Setup* setup)
 {
     setSetup(setup, true);
 }
@@ -1339,7 +1339,7 @@ PUBLIC void Track::setSetup(Setup* setup)
 /**
  * Internal setup selector, with or without preset refresh.
  */
-PRIVATE void Track::setSetup(Setup* setup, bool doPreset)
+void Track::setSetup(Setup* setup, bool doPreset)
 {
     // save a reference to our SetupStrack so we don't 
     // have to keep hunting for it
@@ -1392,7 +1392,7 @@ PRIVATE void Track::setSetup(Setup* setup, bool doPreset)
  * Events into tracks that are slaving to this one.
  * 
  */
-PRIVATE bool Track::checkSyncEvent(Event* e)
+bool Track::checkSyncEvent(Event* e)
 {
     bool noTrace = false;
     EventType* type = e->type;
@@ -1429,7 +1429,7 @@ PRIVATE bool Track::checkSyncEvent(Event* e)
  * Also now used to calculate the initial audio frame advance after
  * locking a SyncTracker.
  */
-PUBLIC long Track::getRemainingFrames()
+long Track::getRemainingFrames()
 {
 	return mInput->getRemainingFrames();
 }
@@ -1440,7 +1440,7 @@ PUBLIC long Track::getRemainingFrames()
  * Added for some diagnostic trace in Synchronizer, may have other
  * uses.
  */
-PUBLIC long Track::getProcessedFrames()
+long Track::getProcessedFrames()
 {
     return mInput->getProcessedFrames();
 }
@@ -1457,7 +1457,7 @@ PUBLIC long Track::getProcessedFrames()
  * Only called if mInterruptBreakpoint is true, which is normally
  * set only by unit tests.
  */
-PUBLIC void Track::interruptBreakpoint()
+void Track::interruptBreakpoint()
 {
     int x = 0;
 }
@@ -1574,7 +1574,7 @@ void Track::loadProject(ProjectTrack* pt)
  * May also be called when loading a project that does not include anything
  * for this track.
  */
-PUBLIC void Track::reset(Action* action)
+void Track::reset(Action* action)
 {
     Trace(this, 2, "Track::reset\n");
 	   
@@ -1595,7 +1595,7 @@ PUBLIC void Track::reset(Action* action)
  * Handler for the Reset function.
  * Reset functions just forward back here, but give them a chance to add behavior.
  */
-PUBLIC void Track::loopReset(Action* action, Loop* loop)
+void Track::loopReset(Action* action, Loop* loop)
 {
 	// shouldn't have canged since the Function::invoke call?
 	if (loop != mLoop)
@@ -1612,7 +1612,7 @@ PUBLIC void Track::loopReset(Action* action, Loop* loop)
  * directly by the user with the expectation of returning to the
  * initial state as defined by the Setup.
  */
-PRIVATE void Track::trackReset(Action* action)
+void Track::trackReset(Action* action)
 {
     mSpeedToggle = 0;
 
@@ -1666,7 +1666,7 @@ PRIVATE void Track::trackReset(Action* action)
  * !! I don't really like this behavior, it is hard to explain and subtle.
  * I'm removing it in 2.0, if no one complains take the code out.
  */
-PRIVATE void Track::resetParameters(Setup* setup, bool global, bool doPreset)
+void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 {
 	SetupTrack* st = NULL;
 
@@ -1790,7 +1790,7 @@ PRIVATE void Track::resetParameters(Setup* setup, bool global, bool doPreset)
  * However this is done, we'll ahve clicks right now because we're
  * not capturing a fade tail from the old ports.
  */
-PRIVATE void Track::resetPorts(SetupTrack* st)
+void Track::resetPorts(SetupTrack* st)
 {
     if (st != NULL) {
 
@@ -1814,7 +1814,7 @@ PRIVATE void Track::resetPorts(SetupTrack* st)
  * Indirect handler for the global Status function.
  * Print interesting diagnostics.
  */
-PUBLIC void Track::dump(TraceBuffer* b)
+void Track::dump(TraceBuffer* b)
 {
     int interesting = 0;
 	for (int i = 0 ; i < mLoopCount ; i++) {

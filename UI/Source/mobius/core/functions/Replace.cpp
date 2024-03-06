@@ -43,17 +43,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Eventmanager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Eventmanager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -85,12 +85,12 @@ class ReplaceEventType : public EventType {
 	ReplaceEventType();
 };
 
-PUBLIC ReplaceEventType::ReplaceEventType()
+ReplaceEventType::ReplaceEventType()
 {
 	name = "Replace";
 }
 
-PUBLIC EventType* ReplaceEvent = new ReplaceEventType();
+EventType* ReplaceEvent = new ReplaceEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -108,10 +108,10 @@ class ReplaceFunction : public Function {
 };
 
 // have to define SUS first for longFunction
-PUBLIC Function* SUSReplace = new ReplaceFunction(true);
-PUBLIC Function* Replace = new ReplaceFunction(false);
+Function* SUSReplace = new ReplaceFunction(true);
+Function* Replace = new ReplaceFunction(false);
 
-PUBLIC ReplaceFunction::ReplaceFunction(bool sus)
+ReplaceFunction::ReplaceFunction(bool sus)
 {
 	eventType = ReplaceEvent;
     mMode = ReplaceMode;
@@ -140,7 +140,7 @@ PUBLIC ReplaceFunction::ReplaceFunction(bool sus)
 	}
 }
 
-PUBLIC bool ReplaceFunction::isSustain(Preset* p)
+bool ReplaceFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -172,7 +172,7 @@ Event* ReplaceFunction::scheduleEvent(Action* action, Loop* l)
  * !! Assume that ReplaceFunction set the right frame, but we should be
  * able to calculate it here.
  */
-PUBLIC void ReplaceFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void ReplaceFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
 	if (l->getMode() != ReplaceMode) {
 		jump->mute = true;
@@ -191,7 +191,7 @@ PUBLIC void ReplaceFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 /**
  * ReplaceEvent event handler
  */
-PUBLIC void ReplaceFunction::doEvent(Loop* loop, Event* event)
+void ReplaceFunction::doEvent(Loop* loop, Event* event)
 {
 	MobiusMode* mode = loop->getMode();
 

@@ -12,7 +12,7 @@
 #include "Action.h"
 #include "Export.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "MobiusThread.h"
 #include "Script.h"
 #include "ScriptRuntime.h"
@@ -27,7 +27,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ActionDispatcher::ActionDispatcher(Mobius* m, CriticalSection* csect,
+ActionDispatcher::ActionDispatcher(Mobius* m, CriticalSection* csect,
                                           ScriptRuntime* scripts)
 {
     mMobius = m;
@@ -38,7 +38,7 @@ PUBLIC ActionDispatcher::ActionDispatcher(Mobius* m, CriticalSection* csect,
     mLastAction = NULL;
 }
 
-PUBLIC ActionDispatcher::~ActionDispatcher()
+ActionDispatcher::~ActionDispatcher()
 {
     delete mTriggerState;
 }
@@ -70,7 +70,7 @@ PUBLIC ActionDispatcher::~ActionDispatcher()
  * which means that the few functions that set outsideInterrupt and
  * the UI controls can't respond to long presses.  Seems fine.
  */
-PUBLIC void ActionDispatcher::doAction(Action* a)
+void ActionDispatcher::doAction(Action* a)
 {
     bool ignore = false;
     bool defer = false;
@@ -188,7 +188,7 @@ PUBLIC void ActionDispatcher::doAction(Action* a)
 /**
  * Process the action list when we're inside the interrupt.
  */
-PUBLIC void ActionDispatcher::startInterrupt(long frames)
+void ActionDispatcher::startInterrupt(long frames)
 {
     Action* actions = NULL;
     Action* next = NULL;
@@ -245,7 +245,7 @@ PUBLIC void ActionDispatcher::startInterrupt(long frames)
  * schedule more than one event.  The Action object passed to 
  * Function::invoke must be returned with the "primary" event.
  */
-PUBLIC void ActionDispatcher::doActionNow(Action* a)
+void ActionDispatcher::doActionNow(Action* a)
 {
     Target* t = a->getTarget();
 
@@ -297,7 +297,7 @@ PUBLIC void ActionDispatcher::doActionNow(Action* a)
  * This may be a surprise for some users, consider a global parameter
  * similar to FocusLockFunctions to disable this?
  */
-PRIVATE void ActionDispatcher::doPreset(Action* a)
+void ActionDispatcher::doPreset(Action* a)
 {
     Preset* p = (Preset*)a->getTargetObject();
     if (p == NULL) {    
@@ -360,7 +360,7 @@ PRIVATE void ActionDispatcher::doPreset(Action* a)
  * We have to change the setup in both the external and interrupt config,
  * the first so it can be seen and the second so it can be used.
  */
-PRIVATE void ActionDispatcher::doSetup(Action* a)
+void ActionDispatcher::doSetup(Action* a)
 {
     // If we're here from a Binding should have resolved
     Setup* s = (Setup*)a->getTargetObject();
@@ -403,7 +403,7 @@ PRIVATE void ActionDispatcher::doSetup(Action* a)
  * set the current overlay binding in mConfig which, we don't have
  * to phase it in, it will just be used on the next trigger.
  */
-PRIVATE void ActionDispatcher::doBindings(Action* a)
+void ActionDispatcher::doBindings(Action* a)
 {
     // If we're here from a Binding should have resolved
     BindingConfig* bc = (BindingConfig*)a->getTargetObject();
@@ -439,7 +439,7 @@ PRIVATE void ActionDispatcher::doBindings(Action* a)
  * after long-press detection.
  *
  */
-PRIVATE void ActionDispatcher::doFunction(Action* a)
+void ActionDispatcher::doFunction(Action* a)
 {
     // Client's won't set down in some trigger modes, but there is a lot
     // of code from here on down that looks at it
@@ -524,7 +524,7 @@ PRIVATE void ActionDispatcher::doFunction(Action* a)
  * trigger is released.  I don't really like this 
  *
  */
-PRIVATE void ActionDispatcher::doFunction(Action* action, Function* f, Track* t)
+void ActionDispatcher::doFunction(Action* action, Function* f, Track* t)
 {
     // set this so if we need to reschedule it will always go back
     // here and not try to do group/focus lock replication
@@ -608,7 +608,7 @@ PRIVATE void ActionDispatcher::doFunction(Action* action, Function* f, Track* t)
  * Also since these don't schedule Events, we can reuse the same
  * action if it needs to be replicated due to group scope or focus lock.
  */
-PRIVATE void ActionDispatcher::doParameter(Action* a)
+void ActionDispatcher::doParameter(Action* a)
 {
     Parameter* p = (Parameter*)a->getTargetObject();
     if (p == NULL) {
@@ -694,7 +694,7 @@ PRIVATE void ActionDispatcher::doParameter(Action* a)
  * bindingArgs for strings and action.value for ints and bools.
  *
  */
-PRIVATE void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
+void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
 {
     ParameterType type = p->type;
 
@@ -763,7 +763,7 @@ PRIVATE void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
  * We just forward the Action to the listener, ownership
  * is not passed and we free it here.
  */
-PRIVATE void ActionDispatcher::doUIControl(Action* a)
+void ActionDispatcher::doUIControl(Action* a)
 {
     UIControl* c = (UIControl*)a->getTargetObject();
     if (c == NULL) {

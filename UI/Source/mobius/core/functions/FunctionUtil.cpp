@@ -17,13 +17,13 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
-#include "MidiByte.h"
+#include "../../util/Util.h"
+#include "../MidiByte.h"
 
-#include "Action.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Resampler.h"
+#include "../Action.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Resampler.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -55,7 +55,7 @@
  * require recalculating some roots and powers in Resampler every time.
  * THINK!!
  */
-PUBLIC bool RescaleActionValue(Action* action, Loop* loop,
+bool RescaleActionValue(Action* action, Loop* loop,
                                int halfRange,
                                bool bend,
                                int* value)

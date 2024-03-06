@@ -15,13 +15,13 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "ControlSurface.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
+#include "../Action.h"
+#include "../ControlSurface.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
 
 /****************************************************************************
  *                                                                          *
@@ -38,9 +38,9 @@ class SurfaceFunction : public Function {
 
 // event though it is hidden, don't conflict with the ControlSurface
 // subclass name just in case we need to make it public
-PUBLIC Function* Surface = new SurfaceFunction();
+Function* Surface = new SurfaceFunction();
 
-PUBLIC SurfaceFunction::SurfaceFunction() :
+SurfaceFunction::SurfaceFunction() :
     Function("Surface", 0)
 {
 	noFocusLock = true;
@@ -58,7 +58,7 @@ PUBLIC SurfaceFunction::SurfaceFunction() :
     expressionArgs = false;
 }
 
-PUBLIC void SurfaceFunction::invoke(Action* action, Mobius* m)
+void SurfaceFunction::invoke(Action* action, Mobius* m)
 {
     ControlSurface* cs = m->getControlSurfaces();
 

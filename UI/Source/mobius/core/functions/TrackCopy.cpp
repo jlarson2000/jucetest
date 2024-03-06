@@ -13,16 +13,16 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
-#include "Messages.h"
-#include "Synchronizer.h"
-#include "Track.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
+#include "../Messages.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
+#include "../Mode.h"
 
 /****************************************************************************
  *                                                                          *
@@ -38,10 +38,10 @@ class TrackCopyFunction : public Function {
 	bool timing;
 };
 
-PUBLIC Function* TrackCopy = new TrackCopyFunction(false);
-PUBLIC Function* TrackCopyTiming = new TrackCopyFunction(true);
+Function* TrackCopy = new TrackCopyFunction(false);
+Function* TrackCopyTiming = new TrackCopyFunction(true);
 
-PUBLIC TrackCopyFunction::TrackCopyFunction(bool b)
+TrackCopyFunction::TrackCopyFunction(bool b)
 {
 	timing = b;
 	noFocusLock = true;
@@ -57,7 +57,7 @@ PUBLIC TrackCopyFunction::TrackCopyFunction(bool b)
 	}
 }
 
-PUBLIC Event* TrackCopyFunction::invoke(Action* action, Loop* l)
+Event* TrackCopyFunction::invoke(Action* action, Loop* l)
 {
     if (action->down) {
 		trace(action, l);

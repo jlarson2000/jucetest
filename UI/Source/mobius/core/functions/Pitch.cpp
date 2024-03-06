@@ -13,24 +13,24 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
-#include "MidiByte.h"
+#include "../../util/Util.h"
+#include "../MidiByte.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "FunctionUtil.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Mode.h"
-#include "Resampler.h"
-#include "Stream.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../FunctionUtil.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../../model/MobiusConfig.h"
+#include "../Mode.h"
+#include "../Resampler.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -98,12 +98,12 @@ class PitchEventType : public EventType {
 	PitchEventType();
 };
 
-PUBLIC PitchEventType::PitchEventType()
+PitchEventType::PitchEventType()
 {
 	name = "Pitch";
 }
 
-PUBLIC EventType* PitchEvent = new PitchEventType();
+EventType* PitchEvent = new PitchEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -216,17 +216,17 @@ class PitchFunction : public Function {
 // TODO: Think about some interesting SUS functions
 // Speed has SUSHalfSpeed.
 
-PUBLIC Function* PitchCancel = new PitchFunction(PITCH_CANCEL);
-PUBLIC Function* PitchOctave = new PitchFunction(PITCH_OCTAVE);
-PUBLIC Function* PitchStep = new PitchFunction(PITCH_STEP);
-PUBLIC Function* PitchBend = new PitchFunction(PITCH_BEND);
-PUBLIC Function* PitchUp = new PitchFunction(PITCH_UP);
-PUBLIC Function* PitchDown = new PitchFunction(PITCH_DOWN);
-PUBLIC Function* PitchNext = new PitchFunction(PITCH_NEXT);
-PUBLIC Function* PitchPrev = new PitchFunction(PITCH_PREV);
-PUBLIC Function* PitchRestore = new PitchFunction(PITCH_RESTORE);
+Function* PitchCancel = new PitchFunction(PITCH_CANCEL);
+Function* PitchOctave = new PitchFunction(PITCH_OCTAVE);
+Function* PitchStep = new PitchFunction(PITCH_STEP);
+Function* PitchBend = new PitchFunction(PITCH_BEND);
+Function* PitchUp = new PitchFunction(PITCH_UP);
+Function* PitchDown = new PitchFunction(PITCH_DOWN);
+Function* PitchNext = new PitchFunction(PITCH_NEXT);
+Function* PitchPrev = new PitchFunction(PITCH_PREV);
+Function* PitchRestore = new PitchFunction(PITCH_RESTORE);
 
-PUBLIC PitchFunction::PitchFunction(PitchFunctionType type)
+PitchFunction::PitchFunction(PitchFunctionType type)
 {
 	eventType = PitchEvent;
 	minorMode = true;
@@ -322,7 +322,7 @@ PUBLIC PitchFunction::PitchFunction(PitchFunctionType type)
  * so we restore the index.
  * 
  */
-PRIVATE void PitchFunction::convertAction(Action* action, Loop* l, 
+void PitchFunction::convertAction(Action* action, Loop* l, 
                                           PitchChange* change)
 {
     // Speed uses InputStream, but we have historically used output stream
@@ -441,7 +441,7 @@ PRIVATE void PitchFunction::convertAction(Action* action, Loop* l,
  * Hmm, actually checking quant isn't entirely accurate since quantization
  * may just be turned off.  It 
  */
-PUBLIC Event* PitchFunction::invoke(Action* action, Loop* loop)
+Event* PitchFunction::invoke(Action* action, Loop* loop)
 {
 	Event* event = NULL;
     bool standard = true;
@@ -484,7 +484,7 @@ PUBLIC Event* PitchFunction::invoke(Action* action, Loop* loop)
  * Schedule a pitch change.
  *
  */
-PUBLIC Event* PitchFunction::scheduleEvent(Action* action, Loop* l)
+Event* PitchFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
     MobiusMode* mode = l->getMode();
@@ -546,7 +546,7 @@ PUBLIC Event* PitchFunction::scheduleEvent(Action* action, Loop* l)
 /**
  * Annotate the event after scheduling.
  */ 
-PRIVATE void PitchFunction::annotateEvent(Event* event, PitchChange* change)
+void PitchFunction::annotateEvent(Event* event, PitchChange* change)
 {
     event->number = change->value;
     event->fields.pitch.unit = change->unit;
@@ -561,7 +561,7 @@ PRIVATE void PitchFunction::annotateEvent(Event* event, PitchChange* change)
  * pitch by the time the one we're trying to schedule would be reached.
  * Need to look inside the event list!!
  */
-PRIVATE bool PitchFunction::isIneffective(Action* a, Loop* l, 
+bool PitchFunction::isIneffective(Action* a, Loop* l, 
                                           PitchChange* change)
 {
     bool ineffective = false;
@@ -596,7 +596,7 @@ PRIVATE bool PitchFunction::isIneffective(Action* a, Loop* l,
 /**
  * Schedule a pitch event stacked under a loop switch.
  */
-PUBLIC Event* PitchFunction::scheduleSwitchStack(Action* action, Loop* l)
+Event* PitchFunction::scheduleSwitchStack(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -648,7 +648,7 @@ PUBLIC Event* PitchFunction::scheduleSwitchStack(Action* action, Loop* l)
  * If we're using TRANSFER_FOLLOW we don't have to do anything since
  * stream state is kept on the track, we just change loops and it stays.
  */
-PUBLIC Event* PitchFunction::scheduleTransfer(Loop* l)
+Event* PitchFunction::scheduleTransfer(Loop* l)
 {
     Event* event = NULL;
     Preset* p = l->getPreset();
@@ -689,7 +689,7 @@ PUBLIC Event* PitchFunction::scheduleTransfer(Loop* l)
 /**
  * Event handler.
  */
-PUBLIC void PitchFunction::doEvent(Loop* l, Event* e)
+void PitchFunction::doEvent(Loop* l, Event* e)
 {
     if (e->function == PitchRestore) {
         // we don't schedule play jumps so do both streams
@@ -745,7 +745,7 @@ PUBLIC void PitchFunction::doEvent(Loop* l, Event* e)
 /**
  * Convert the contents of an Event into a PitchChange.
  */
-PRIVATE void PitchFunction::convertEvent(Event* e, PitchChange* change)
+void PitchFunction::convertEvent(Event* e, PitchChange* change)
 {
     change->value = e->number;
     change->unit = (PitchUnit)e->fields.pitch.unit;
@@ -795,7 +795,7 @@ void PitchFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
  * since we do not currently schedule latency adjusted play jumps we 
  * will always be doing both streams at the same time.
  */
-PRIVATE void PitchFunction::applyPitchChange(Loop* l, PitchChange* change, 
+void PitchFunction::applyPitchChange(Loop* l, PitchChange* change, 
                                              bool both)
 {
     Stream* istream = l->getInputStream();
@@ -823,7 +823,7 @@ PRIVATE void PitchFunction::applyPitchChange(Loop* l, PitchChange* change,
 
 }
 
-PRIVATE void PitchFunction::applyPitchChange(PitchChange* change, 
+void PitchFunction::applyPitchChange(PitchChange* change, 
                                              Stream* stream)
 {
     stream->setPitch(change->newOctave, change->newStep, change->newBend);
@@ -838,7 +838,7 @@ PRIVATE void PitchFunction::applyPitchChange(PitchChange* change,
  * but since we don't support toggling or stretch it is simpler
  * here.
  */
-PRIVATE void PitchFunction::calculateNewPitch(PitchChange* change)
+void PitchFunction::calculateNewPitch(PitchChange* change)
 {
     if (mType == PITCH_CANCEL) {
         change->newOctave = 0;

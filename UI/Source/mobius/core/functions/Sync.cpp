@@ -15,15 +15,15 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -48,18 +48,18 @@ class SynchronizerEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC SynchronizerEventType::SynchronizerEventType()
+SynchronizerEventType::SynchronizerEventType()
 {
 	name = "Sync";
 }
 
-PUBLIC void SynchronizerEventType::invoke(Loop* l, Event* e)
+void SynchronizerEventType::invoke(Loop* l, Event* e)
 {
     Synchronizer* sync = l->getSynchronizer();
 	sync->syncEvent(l, e);
 }
 
-PUBLIC EventType* SyncEvent = new SynchronizerEventType();
+EventType* SyncEvent = new SynchronizerEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -133,11 +133,11 @@ class SyncMasterFunction : public Function {
 	bool mMidi;
 };
 
-PUBLIC Function* SyncMaster = new SyncMasterFunction(true, true);
-PUBLIC Function* SyncMasterTrack = new SyncMasterFunction(true, false);
-PUBLIC Function* SyncMasterMidi = new SyncMasterFunction(false, true);
+Function* SyncMaster = new SyncMasterFunction(true, true);
+Function* SyncMasterTrack = new SyncMasterFunction(true, false);
+Function* SyncMasterMidi = new SyncMasterFunction(false, true);
 
-PUBLIC SyncMasterFunction::SyncMasterFunction(bool track, bool midi)
+SyncMasterFunction::SyncMasterFunction(bool track, bool midi)
 {
 	// !! may want to schedule this for MIDI sync???
 	global = true;
@@ -173,7 +173,7 @@ PUBLIC SyncMasterFunction::SyncMasterFunction(bool track, bool midi)
  * Changing the out sync master track is quite complicated, 
  * !! think about the latency consequences.
  */
-PUBLIC void SyncMasterFunction::invoke(Action* action, Mobius* m)
+void SyncMasterFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 

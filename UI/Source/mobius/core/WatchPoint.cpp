@@ -16,8 +16,8 @@
 #include <memory.h>
 #include <ctype.h>
 
-#include "MessageCatalog.h"
-#include "List.h"
+//#include "MessageCatalog.h"
+#include "../../util/List.h"
 
 #include "Mobius.h"
 #include "Track.h"
@@ -31,7 +31,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC Watchers::Watchers()
+Watchers::Watchers()
 {
     loopLocation = new List();
     loopStart = new List();
@@ -40,7 +40,7 @@ PUBLIC Watchers::Watchers()
     modeRecord = new List();
 }
 
-PUBLIC Watchers::~Watchers()
+Watchers::~Watchers()
 {
     delete loopLocation;
     delete loopStart;
@@ -55,22 +55,22 @@ PUBLIC Watchers::~Watchers()
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC WatchPointListener::WatchPointListener()
+WatchPointListener::WatchPointListener()
 {
     mRemoving = false;
 }
 
-PUBLIC WatchPointListener::~WatchPointListener()
+WatchPointListener::~WatchPointListener()
 {
     // we're virtual, subclass needs to clean itself up
 }
 
-PUBLIC void WatchPointListener::remove()
+void WatchPointListener::remove()
 {
     mRemoving = true;
 }
 
-PUBLIC bool WatchPointListener::isRemoving()
+bool WatchPointListener::isRemoving()
 {
     return mRemoving;
 }
@@ -81,7 +81,7 @@ PUBLIC bool WatchPointListener::isRemoving()
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC WatchPoint::WatchPoint(const char* name, int key) :
+WatchPoint::WatchPoint(const char* name, int key) :
     SystemConstant(name, key)
 {
     mBehavior = WATCH_MOMENTARY;
@@ -89,21 +89,21 @@ PUBLIC WatchPoint::WatchPoint(const char* name, int key) :
     mMax = 1;
 }
 
-PUBLIC WatchPoint::~WatchPoint()
+WatchPoint::~WatchPoint()
 {
 }
 
-PUBLIC WatchBehavior WatchPoint::getBehavior()
+WatchBehavior WatchPoint::getBehavior()
 {
     return mBehavior;
 }
 
-PUBLIC int WatchPoint::getMin(MobiusInterface* m)
+int WatchPoint::getMin(MobiusInterface* m)
 {
     return mMin;
 }
 
-PUBLIC int WatchPoint::getMax(MobiusInterface* m)
+int WatchPoint::getMax(MobiusInterface* m)
 {
     return mMax;
 }
@@ -112,7 +112,7 @@ PUBLIC int WatchPoint::getMax(MobiusInterface* m)
  * Called internally to notify the listeners of a state change.
  * Delgates up to Mobius to manage the listener list.
  */
-PUBLIC void WatchPoint::notify(Mobius* m, Loop* l)
+void WatchPoint::notify(Mobius* m, Loop* l)
 {
     int value = getValue(m, l);
     m->notifyWatchers(this, value);
@@ -135,7 +135,7 @@ class LoopLocationType : public WatchPoint {
 
 };
 
-PUBLIC LoopLocationType::LoopLocationType() :
+LoopLocationType::LoopLocationType() :
     WatchPoint("loopLocation", 0)
 {
     mBehavior = WATCH_CONTINUOUS;
@@ -143,12 +143,12 @@ PUBLIC LoopLocationType::LoopLocationType() :
     mMax = 1000;
 }
 
-PUBLIC List* LoopLocationType::getListeners(Watchers* w)
+List* LoopLocationType::getListeners(Watchers* w)
 {
     return w->loopLocation;
 }
 
-PUBLIC int LoopLocationType::getValue(Mobius* m, Loop* l)
+int LoopLocationType::getValue(Mobius* m, Loop* l)
 {
     int value = 0;
     long max = l->getFrames();
@@ -170,7 +170,7 @@ PUBLIC int LoopLocationType::getValue(Mobius* m, Loop* l)
     return value;
 }
 
-PUBLIC WatchPoint* LoopLocationPoint = new LoopLocationType();
+WatchPoint* LoopLocationPoint = new LoopLocationType();
 
 /****************************************************************************
  *                                                                          *
@@ -186,23 +186,23 @@ class LoopStartType : public WatchPoint {
     int getValue(Mobius* m, Loop* l);
 };
 
-PUBLIC LoopStartType::LoopStartType() :
+LoopStartType::LoopStartType() :
     WatchPoint("loopStart", 0)
 {
     mBehavior = WATCH_MOMENTARY;
 }
 
-PUBLIC List* LoopStartType::getListeners(Watchers* w)
+List* LoopStartType::getListeners(Watchers* w)
 {
     return w->loopStart;
 }
 
-PUBLIC int LoopStartType::getValue(Mobius* m, Loop* l)
+int LoopStartType::getValue(Mobius* m, Loop* l)
 {
     return 1;
 }
 
-PUBLIC WatchPoint* LoopStartPoint = new LoopStartType();
+WatchPoint* LoopStartPoint = new LoopStartType();
 
 /****************************************************************************
  *                                                                          *
@@ -218,23 +218,23 @@ class LoopCycleType : public WatchPoint {
     int getValue(Mobius* m, Loop* l);
 };
 
-PUBLIC LoopCycleType::LoopCycleType() :
+LoopCycleType::LoopCycleType() :
     WatchPoint("loopCycle", 0)
 {
     mBehavior = WATCH_MOMENTARY;
 }
 
-PUBLIC List* LoopCycleType::getListeners(Watchers* w)
+List* LoopCycleType::getListeners(Watchers* w)
 {
     return w->loopCycle;
 }
 
-PUBLIC int LoopCycleType::getValue(Mobius* m, Loop* l)
+int LoopCycleType::getValue(Mobius* m, Loop* l)
 {
     return 1;
 }
 
-PUBLIC WatchPoint* LoopCyclePoint = new LoopCycleType();
+WatchPoint* LoopCyclePoint = new LoopCycleType();
 
 /****************************************************************************
  *                                                                          *
@@ -251,23 +251,23 @@ class LoopSubcycleType : public WatchPoint {
     int getValue(Mobius* m, Loop* l);
 };
 
-PUBLIC LoopSubcycleType::LoopSubcycleType() :
+LoopSubcycleType::LoopSubcycleType() :
     WatchPoint("loopSubcycle", 0)
 {
     mBehavior = WATCH_MOMENTARY;
 }
 
-PUBLIC List* LoopSubcycleType::getListeners(Watchers* w)
+List* LoopSubcycleType::getListeners(Watchers* w)
 {
     return w->loopSubcycle;
 }
 
-PUBLIC int LoopSubcycleType::getValue(Mobius* m, Loop* l)
+int LoopSubcycleType::getValue(Mobius* m, Loop* l)
 {
     return 1;
 }
 
-PUBLIC WatchPoint* LoopSubcyclePoint = new LoopSubcycleType();
+WatchPoint* LoopSubcyclePoint = new LoopSubcycleType();
 
 /****************************************************************************
  *                                                                          *
@@ -288,17 +288,17 @@ WatchPoint* WatchPoints[] = {
 /**
  * Refresh the cached display names from the message catalog.
  */
-PUBLIC void WatchPoint::localizeAll(MessageCatalog* cat)
+void WatchPoint::localizeAll(MessageCatalog* cat)
 {
     // punt, don't have a ui yet so no need for keys
 }
 
-PUBLIC WatchPoint** WatchPoint::getWatchPoints()
+WatchPoint** WatchPoint::getWatchPoints()
 {
 	return WatchPoints;
 }
 
-PUBLIC WatchPoint* WatchPoint::getWatchPoint(const char* name)
+WatchPoint* WatchPoint::getWatchPoint(const char* name)
 {
 	WatchPoint* found = NULL;
 

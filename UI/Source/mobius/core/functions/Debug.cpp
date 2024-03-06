@@ -16,16 +16,16 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "AudioInterface.h"
-#include "MidiInterface.h"
+#include "../AudioInterface.h"
+#include "../MidiInterface.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -40,16 +40,16 @@ class DebugFunction : public Function {
   private:
 };
 
-PUBLIC Function* Debug = new DebugFunction();
+Function* Debug = new DebugFunction();
 
-PUBLIC DebugFunction::DebugFunction() :
+DebugFunction::DebugFunction() :
     Function("Debug", 0)
 {
     global = true;
 	scriptOnly = true;
 }
 
-PUBLIC void DebugFunction::invoke(Action* action, Mobius* m)
+void DebugFunction::invoke(Action* action, Mobius* m)
 {
   if (action->down) {
 		trace(action, m);
@@ -93,9 +93,9 @@ class BreakpointFunction : public Function {
   private:
 };
 
-PUBLIC Function* Breakpoint = new BreakpointFunction();
+Function* Breakpoint = new BreakpointFunction();
 
-PUBLIC BreakpointFunction::BreakpointFunction() :
+BreakpointFunction::BreakpointFunction() :
     Function("Breakpoint", 0)
 {
     global = true;
@@ -105,7 +105,7 @@ PUBLIC BreakpointFunction::BreakpointFunction() :
 /**
  * I forget what the int arg stuff is supposed to do.
  */
-PUBLIC void BreakpointFunction::invoke(Action* action, Mobius* m)
+void BreakpointFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
@@ -139,9 +139,9 @@ class DebugStatusFunction : public Function {
   private:
 };
 
-PUBLIC Function* DebugStatus = new DebugStatusFunction();
+Function* DebugStatus = new DebugStatusFunction();
 
-PUBLIC DebugStatusFunction::DebugStatusFunction() :
+DebugStatusFunction::DebugStatusFunction() :
     Function("Status", 0)
 {
     global = true;
@@ -154,7 +154,7 @@ PUBLIC DebugStatusFunction::DebugStatusFunction() :
 	externalName = true;
 }
 
-PUBLIC void DebugStatusFunction::invoke(Action* action, Mobius* m)
+void DebugStatusFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

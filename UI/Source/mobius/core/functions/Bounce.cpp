@@ -13,14 +13,14 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+//#include "Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -33,13 +33,13 @@ class BounceEventType : public EventType {
 	BounceEventType();
 };
 
-PUBLIC BounceEventType::BounceEventType()
+BounceEventType::BounceEventType()
 {
 	name = "Bounce";
 	noMode = true;
 }
 
-PUBLIC EventType* BounceEvent = new BounceEventType();
+EventType* BounceEvent = new BounceEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -55,9 +55,9 @@ class BounceFunction : public Function {
   private:
 };
 
-PUBLIC Function* Bounce = new BounceFunction();
+Function* Bounce = new BounceFunction();
 
-PUBLIC BounceFunction::BounceFunction() :
+BounceFunction::BounceFunction() :
     Function("Bounce", MSG_FUNC_BOUNCE)
 {
 	setHelp("Start or end a bounce down recording");
@@ -70,7 +70,7 @@ PUBLIC BounceFunction::BounceFunction() :
 
 }
 
-PUBLIC Event* BounceFunction::invoke(Action* action, Loop* loop)
+Event* BounceFunction::invoke(Action* action, Loop* loop)
 {
 	Mobius* mobius = loop->getMobius();
 	MobiusMode* mode = loop->getMode();
@@ -122,7 +122,7 @@ PUBLIC Event* BounceFunction::invoke(Action* action, Loop* loop)
  * Ugh, all thelogic is up in Mobius which will then call
  * down to Loop::setBounceRecording in a different track.
  */
-PUBLIC void BounceFunction::doEvent(Loop* loop, Event* event)
+void BounceFunction::doEvent(Loop* loop, Event* event)
 {
 	Mobius* mobius = loop->getMobius();
 	mobius->toggleBounceRecording(NULL);

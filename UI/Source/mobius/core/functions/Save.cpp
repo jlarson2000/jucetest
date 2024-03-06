@@ -12,13 +12,13 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -35,16 +35,16 @@ class SaveLoopFunction : public Function {
 	bool save;
 };
 
-PUBLIC Function* SaveLoop = new SaveLoopFunction();
+Function* SaveLoop = new SaveLoopFunction();
 
-PUBLIC SaveLoopFunction::SaveLoopFunction() :
+SaveLoopFunction::SaveLoopFunction() :
     Function("SaveLoop", MSG_FUNC_SAVE_LOOP)
 {
 	global = true;
 	noFocusLock = true;
 }
 
-PUBLIC void SaveLoopFunction::invoke(Action* action, Mobius* m)
+void SaveLoopFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

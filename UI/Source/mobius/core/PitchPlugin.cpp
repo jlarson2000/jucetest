@@ -31,14 +31,14 @@
 #include <math.h>
 #include <string.h>
 
-#include "SoundTouch.h"
-using namespace soundtouch;
+//#include "SoundTouch.h"
+//using namespace soundtouch;
 
-#include "Util.h"
-#include "Trace.h"
-#include "WaveFile.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
+#include "../WaveFile.h"
 
-#include "Audio.h"
+#include "../Audio.h"
 #include "StreamPlugin.h"
 #include "FadeWindow.h"
 
@@ -68,21 +68,21 @@ class PseudoPlugin : public PitchPlugin {
 };
 
 
-PUBLIC PseudoPlugin::PseudoPlugin(int sampleRate)
+PseudoPlugin::PseudoPlugin(int sampleRate)
     : PitchPlugin(sampleRate)
 {
 }
 
-PUBLIC PseudoPlugin::~PseudoPlugin()
+PseudoPlugin::~PseudoPlugin()
 {
 }
 
-PUBLIC long PseudoPlugin::process(float* input, float* output, long frames)
+long PseudoPlugin::process(float* input, float* output, long frames)
 {
 	return frames;
 }
 
-PRIVATE void PseudoPlugin::updatePitch()
+void PseudoPlugin::updatePitch()
 {
 }
 
@@ -244,7 +244,7 @@ int SoundTouchPlugin::CachedLatencies[] = {
 	5120
 };
 
-PUBLIC SoundTouchPlugin::SoundTouchPlugin(int sampleRate)
+SoundTouchPlugin::SoundTouchPlugin(int sampleRate)
     : PitchPlugin(sampleRate)
 {
 	mSoundTouch = new SoundTouch();
@@ -297,12 +297,12 @@ PUBLIC SoundTouchPlugin::SoundTouchPlugin(int sampleRate)
  * Tried to do this with SoundTouch::flush, then draining the output buffers,
  * but it didn't work.  Added the reset() method.
  */
-PUBLIC void SoundTouchPlugin::flush()
+void SoundTouchPlugin::flush()
 {
 	mSoundTouch->reset();
 }
 
-PUBLIC void SoundTouchPlugin::cacheCalculations()
+void SoundTouchPlugin::cacheCalculations()
 {
 	if (!Cached) {
 		for (int i = -12 ; i <= 12 ; i++) {
@@ -314,12 +314,12 @@ PUBLIC void SoundTouchPlugin::cacheCalculations()
 	}
 }
 
-PUBLIC SoundTouchPlugin::~SoundTouchPlugin()
+SoundTouchPlugin::~SoundTouchPlugin()
 {
     delete mSoundTouch;
 }
 
-PUBLIC void SoundTouchPlugin::reset()
+void SoundTouchPlugin::reset()
 {
 	mFramesIn = 0;
 	mFramesOut = 0;
@@ -327,7 +327,7 @@ PUBLIC void SoundTouchPlugin::reset()
 	mTailWindow->reset();
 }
 
-PUBLIC void SoundTouchPlugin::debug()
+void SoundTouchPlugin::debug()
 {
 	if (Kludge != NULL) {
 		Kludge->write("touch.wav");
@@ -335,7 +335,7 @@ PUBLIC void SoundTouchPlugin::debug()
 	}
 }
 
-PUBLIC void SoundTouchPlugin::setTweak(int tweak, int value)
+void SoundTouchPlugin::setTweak(int tweak, int value)
 {
 	// !! here we can do something
 }
@@ -348,7 +348,7 @@ PUBLIC void SoundTouchPlugin::setTweak(int tweak, int value)
  * the algorithm better, but this is a good worst case scenario that needs
  * to be handled.
  */
-PUBLIC void SoundTouchPlugin::updatePitch()
+void SoundTouchPlugin::updatePitch()
 {
 	// a fade tail must have been drained from the plugin by now
 	reset();
@@ -382,7 +382,7 @@ PUBLIC void SoundTouchPlugin::updatePitch()
  * conservative and assume the worst.  Unfortunately this doesn't seem to be enough
  * in all cases.
  */
-PRIVATE long SoundTouchPlugin::deriveLatency(int scale)
+long SoundTouchPlugin::deriveLatency(int scale)
 {
 	long latency = 0;
 
@@ -417,17 +417,17 @@ PRIVATE long SoundTouchPlugin::deriveLatency(int scale)
 	return latency;
 }
 
-PUBLIC void SoundTouchPlugin::setTempo(float tempo)
+void SoundTouchPlugin::setTempo(float tempo)
 {
     mSoundTouch->setTempo(tempo);
 }
 
-PUBLIC void SoundTouchPlugin::setRate(float rate)
+void SoundTouchPlugin::setRate(float rate)
 {
     mSoundTouch->setRate(rate);
 }
 
-PUBLIC int SoundTouchPlugin::getLatency()
+int SoundTouchPlugin::getLatency()
 {
     return mLatency;
 }
@@ -436,7 +436,7 @@ PUBLIC int SoundTouchPlugin::getLatency()
  * Expected to be overloaded to return the number of frames available in the 
  * internal buffers.  Used when capturing a fade tail.
  */
-PUBLIC long SoundTouchPlugin::getAvailableFrames()
+long SoundTouchPlugin::getAvailableFrames()
 {
 	return mSoundTouch->numSamples();
 }
@@ -445,7 +445,7 @@ PUBLIC long SoundTouchPlugin::getAvailableFrames()
  * Return some number of already buffered frames.  Used when capturing
  * a fade tail.
  */
-PUBLIC long SoundTouchPlugin::getFrames(float* buffer, long frames)
+long SoundTouchPlugin::getFrames(float* buffer, long frames)
 {
 	return mSoundTouch->receiveSamples(buffer, frames);
 }
@@ -454,7 +454,7 @@ PUBLIC long SoundTouchPlugin::getFrames(float* buffer, long frames)
  * Force some frames into the internal buffers.
  * Used only during capturing of a fade tail.
  */
-PUBLIC void SoundTouchPlugin::putFrames(float* buffer, long frames)
+void SoundTouchPlugin::putFrames(float* buffer, long frames)
 {
 	mSoundTouch->putSamples(buffer, frames);
 }
@@ -475,7 +475,7 @@ PUBLIC void SoundTouchPlugin::putFrames(float* buffer, long frames)
  * The initial latency varies by shift, -12 reports 3840 (15 * 256) 
  * and this rises gradually to 4608 at +12 (18 * 256).
  */
-PUBLIC long SoundTouchPlugin::process(float* input, float* output, 
+long SoundTouchPlugin::process(float* input, float* output, 
                                       long frames)
 {
 	long returned = 0;
@@ -558,7 +558,7 @@ PUBLIC long SoundTouchPlugin::process(float* input, float* output,
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC PitchPlugin* PitchPlugin::getPlugin(int sampleRate)
+PitchPlugin* PitchPlugin::getPlugin(int sampleRate)
 {
 	//return new PseudoPlugin();
 	return new SoundTouchPlugin(sampleRate);

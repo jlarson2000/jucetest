@@ -15,17 +15,17 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -38,12 +38,12 @@ class SlipEventType : public EventType {
 	SlipEventType();
 };
 
-PUBLIC SlipEventType::SlipEventType()
+SlipEventType::SlipEventType()
 {
 	name = "Slip";
 }
 
-PUBLIC EventType* SlipEvent = new SlipEventType();
+EventType* SlipEvent = new SlipEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -62,15 +62,15 @@ class SlipFunction : public Function {
     bool forward;
 };
 
-PUBLIC Function* Slip = new SlipFunction(0);
-PUBLIC Function* SlipForward = new SlipFunction(1);
-PUBLIC Function* SlipBackward = new SlipFunction(-1);
+Function* Slip = new SlipFunction(0);
+Function* SlipForward = new SlipFunction(1);
+Function* SlipBackward = new SlipFunction(-1);
 
 // TODO: Some possible SUS functions
 // Slip forward/backward, then resume where we were OR where
 // we would have been before the slip
 
-PUBLIC SlipFunction::SlipFunction(int direction)
+SlipFunction::SlipFunction(int direction)
 {
 	eventType = SlipEvent;
 	mayCancelMute = true;
@@ -95,7 +95,7 @@ PUBLIC SlipFunction::SlipFunction(int direction)
 	}
 }
 
-PUBLIC Event* SlipFunction::scheduleEvent(Action* action, Loop* l)
+Event* SlipFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -138,7 +138,7 @@ PUBLIC Event* SlipFunction::scheduleEvent(Action* action, Loop* l)
  * Could have done this when the event was scheduled, but seems
  * more robust to defer it?
  */
-PUBLIC void SlipFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void SlipFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
     EventManager* em = l->getTrack()->getEventManager();
 	Event* parent = e->getParent();
@@ -219,7 +219,7 @@ PUBLIC void SlipFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 	}
 }
 
-PUBLIC void SlipFunction::doEvent(Loop* loop, Event* event)
+void SlipFunction::doEvent(Loop* loop, Event* event)
 {
 	// Jump play will have done the work, but we now need to resync
 	// the record frame with new play frame.  If we had already

@@ -14,8 +14,8 @@
 #ifndef MOBIUS_THREAD_H
 #define MOBIUS_THREAD_H
 
-#include "Trace.h"
-#include "Thread.h"
+#include "../../util/Trace.h"
+//#include "Thread.h"
 
 /****************************************************************************
  *                                                                          *
@@ -106,7 +106,8 @@ class ThreadEvent {
  *                                                                          *
  ****************************************************************************/
 
-class MobiusThread : public Thread, public TraceListener
+//class MobiusThread : public Thread, public TraceListener
+class MobiusThread : public TraceListener
 {
   public:
 

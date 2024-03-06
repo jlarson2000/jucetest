@@ -12,15 +12,15 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -51,12 +51,12 @@ class PlayEventType : public EventType {
 	PlayEventType();
 };
 
-PUBLIC PlayEventType::PlayEventType()
+PlayEventType::PlayEventType()
 {
 	name = "Play";
 }
 
-PUBLIC EventType* PlayEvent = new PlayEventType();
+EventType* PlayEvent = new PlayEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -72,9 +72,9 @@ class PlayFunction : public Function {
 	void undoEvent(Loop* loop, Event* event);
 };
 
-PUBLIC Function* Play = new PlayFunction();
+Function* Play = new PlayFunction();
 
-PUBLIC PlayFunction::PlayFunction() :
+PlayFunction::PlayFunction() :
     Function("Play", MSG_FUNC_PLAY)
 {
 	eventType = PlayEvent;
@@ -94,11 +94,11 @@ Event* PlayFunction::scheduleSwitchStack(Action* action, Loop* l)
 	return NULL;
 }
 
-PUBLIC void PlayFunction::undoEvent(Loop* loop, Event* event)
+void PlayFunction::undoEvent(Loop* loop, Event* event)
 {
 }
 
-PUBLIC void PlayFunction::doEvent(Loop* loop, Event* event)
+void PlayFunction::doEvent(Loop* loop, Event* event)
 {
     MobiusMode* mode = loop->getMode();
 	if (mode == RehearseMode) {

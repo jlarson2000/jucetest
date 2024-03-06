@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
 #include "Layer.h"
 #include "Mobius.h"
@@ -351,14 +351,14 @@ void Segment::dump(TraceBuffer* b)
  * Utility to see if this segment is aligned both to the end
  * of the containing layer and the end of the referenced layer.
  */
-PUBLIC bool Segment::isAtEnd(Layer* parent)
+bool Segment::isAtEnd(Layer* parent)
 {
 	long localEnd = mOffset + mFrames;
 	long refEnd = mStartFrame + mFrames;
 	return (localEnd == parent->getFrames() && refEnd == mLayer->getFrames());
 }
 
-PUBLIC bool Segment::isAtStart(Layer* parent)
+bool Segment::isAtStart(Layer* parent)
 {
 	// don't really need the parent layer
 	return (mOffset == 0 && mStartFrame == 0);

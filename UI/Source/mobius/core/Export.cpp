@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
-#include "Binding.h"
+#include "OldBinding.h"
 #include "Mobius.h"
 #include "Parameter.h"
 #include "Track.h"
@@ -31,13 +31,13 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Export::Export(Mobius* m)
+Export::Export(Mobius* m)
 {
     init();
     mMobius = m;
 }
 
-PUBLIC Export::Export(Action* a)
+Export::Export(Action* a)
 {
     init();
     mMobius = a->mobius;
@@ -45,7 +45,7 @@ PUBLIC Export::Export(Action* a)
     mTrack = a->getResolvedTrack();
 }
 
-PUBLIC void Export::init()
+void Export::init()
 {
     mNext = NULL;
     mMobius = NULL;
@@ -271,7 +271,7 @@ const char* Export::getDisplayName()
  * Convert an ordinal value to a label.
  * This only works for parameters.
  */
-PUBLIC void Export::getOrdinalLabel(int ordinal, ExValue* value)
+void Export::getOrdinalLabel(int ordinal, ExValue* value)
 {
     value->setString("???");
 
@@ -314,7 +314,7 @@ bool Export::isDisplayable()
  * Select the target track for export.
  * Necessary for resolving groups.
  */
-PRIVATE Track* Export::getTargetTrack()
+Track* Export::getTargetTrack()
 {
     Track* found = NULL;
 
@@ -348,7 +348,7 @@ PRIVATE Track* Export::getTargetTrack()
  *
  * Note for State at the moment.
  */
-PUBLIC int Export::getOrdinalValue()
+int Export::getOrdinalValue()
 {
     int value = -1;
 
@@ -372,7 +372,7 @@ PUBLIC int Export::getOrdinalValue()
  * Get the current value of the export in "natural" form.
  * This may be an enumeration symbol or a string.
  */
-PUBLIC void Export::getValue(ExValue* value)
+void Export::getValue(ExValue* value)
 {
     value->setNull();
 

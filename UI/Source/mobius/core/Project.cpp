@@ -16,22 +16,22 @@
 #include <string.h>
 #include <math.h>
 
-#include "Util.h"
-#include "List.h"
-#include "XmlModel.h"
-#include "XmlBuffer.h"
-#include "XomParser.h"
+#include "../../util/Util.h"
+#include "../../util/List.h"
+#include "../../util/XmlModel.h"
+#include "../../util/XmlBuffer.h"
+#include "../../util/XomParser.h"
 #include "Expr.h"
 
 #include "Loop.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../.model/MobiusConfig.h"
 #include "Layer.h"
 #include "Project.h"
-#include "Setup.h"
+#include "../../model/Setup.h"
 #include "Segment.h"
 #include "Track.h"
-#include "UserVariable.h"
+#include "../../model/UserVariable.h"
 
 /****************************************************************************
  *                                                                          *
@@ -95,12 +95,12 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ProjectSegment::ProjectSegment()
+ProjectSegment::ProjectSegment()
 {
 	init();
 }
 
-PUBLIC ProjectSegment::ProjectSegment(MobiusConfig* config, Segment* src)
+ProjectSegment::ProjectSegment(MobiusConfig* config, Segment* src)
 {
 	init();
 
@@ -118,13 +118,13 @@ PUBLIC ProjectSegment::ProjectSegment(MobiusConfig* config, Segment* src)
 	}
 }
 
-PUBLIC ProjectSegment::ProjectSegment(XmlElement* e)
+ProjectSegment::ProjectSegment(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC void ProjectSegment::init()
+void ProjectSegment::init()
 {
 	mOffset = 0;
 	mStartFrame = 0;
@@ -147,7 +147,7 @@ Segment* ProjectSegment::allocSegment(Layer* layer)
 	return s;
 }
 
-PUBLIC ProjectSegment::~ProjectSegment()
+ProjectSegment::~ProjectSegment()
 {
 }
 
@@ -251,18 +251,18 @@ void ProjectSegment::parseXml(XmlElement* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ProjectLayer::ProjectLayer()
+ProjectLayer::ProjectLayer()
 {
 	init();
 }
 
-PUBLIC ProjectLayer::ProjectLayer(XmlElement* e)
+ProjectLayer::ProjectLayer(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC ProjectLayer::ProjectLayer(MobiusConfig* config, Project* p, Layer* l)
+ProjectLayer::ProjectLayer(MobiusConfig* config, Project* p, Layer* l)
 {
 	init();
 
@@ -326,13 +326,13 @@ PUBLIC ProjectLayer::ProjectLayer(MobiusConfig* config, Project* p, Layer* l)
 /**
  * Used when loading individual Audios from a file.
  */
-PUBLIC ProjectLayer::ProjectLayer(Audio* a)
+ProjectLayer::ProjectLayer(Audio* a)
 {
 	init();
 	setAudio(a);
 }
 
-PUBLIC void ProjectLayer::init()
+void ProjectLayer::init()
 {
 	mId = 0;
 	mCycles = 0;
@@ -349,7 +349,7 @@ PUBLIC void ProjectLayer::init()
 	mLayer = NULL;
 }
 
-PUBLIC ProjectLayer::~ProjectLayer()
+ProjectLayer::~ProjectLayer()
 {
     delete mPath;
 	if (!mExternalAudio) {
@@ -428,39 +428,39 @@ void ProjectLayer::resolveLayers(Project* p)
 	}
 }
 
-PUBLIC int ProjectLayer::getId()
+int ProjectLayer::getId()
 {
 	return mId;
 }
 
-PUBLIC Layer* ProjectLayer::getLayer()
+Layer* ProjectLayer::getLayer()
 {
 	return mLayer;
 }
 
-PUBLIC void ProjectLayer::setCycles(int i)
+void ProjectLayer::setCycles(int i)
 {
 	mCycles = i;
 }
 
-PUBLIC int ProjectLayer::getCycles()
+int ProjectLayer::getCycles()
 {
 	return mCycles;
 }
 
-PUBLIC void ProjectLayer::setAudio(Audio* a)
+void ProjectLayer::setAudio(Audio* a)
 {
 	if (!mExternalAudio)
 	  delete mAudio;
 	mAudio = a;
 }
 
-PUBLIC Audio* ProjectLayer::getAudio()
+Audio* ProjectLayer::getAudio()
 {
 	return mAudio;
 }
 
-PUBLIC Audio* ProjectLayer::stealAudio()
+Audio* ProjectLayer::stealAudio()
 {
 	Audio* a = mAudio;
 	mAudio = NULL;
@@ -468,88 +468,88 @@ PUBLIC Audio* ProjectLayer::stealAudio()
 	return a;
 }
 
-PUBLIC void ProjectLayer::setOverdub(Audio* a)
+void ProjectLayer::setOverdub(Audio* a)
 {
 	if (!mExternalAudio)
 	  delete mOverdub;
 	mOverdub = a;
 }
 
-PUBLIC Audio* ProjectLayer::getOverdub()
+Audio* ProjectLayer::getOverdub()
 {
 	return mOverdub;
 }
 
-PUBLIC Audio* ProjectLayer::stealOverdub()
+Audio* ProjectLayer::stealOverdub()
 {
 	Audio* a = mOverdub;
 	mOverdub = NULL;
 	return a;
 }
 
-PUBLIC void ProjectLayer::setPath(const char* path)
+void ProjectLayer::setPath(const char* path)
 {
 	delete mPath;
     mPath = CopyString(path);
 }
 
-PUBLIC const char* ProjectLayer::getPath()
+const char* ProjectLayer::getPath()
 {
 	return mPath;
 }
 
-PUBLIC void ProjectLayer::setOverdubPath(const char* path)
+void ProjectLayer::setOverdubPath(const char* path)
 {
 	delete mOverdubPath;
     mOverdubPath = CopyString(path);
 }
 
-PUBLIC const char* ProjectLayer::getOverdubPath()
+const char* ProjectLayer::getOverdubPath()
 {
 	return mOverdubPath;
 }
 
-PUBLIC void ProjectLayer::setProtected(bool b)
+void ProjectLayer::setProtected(bool b)
 {
 	mProtected = b;
 }
 
-PUBLIC bool ProjectLayer::isProtected()
+bool ProjectLayer::isProtected()
 {
 	return mProtected;
 }
 
-PUBLIC void ProjectLayer::setDeferredFadeLeft(bool b)
+void ProjectLayer::setDeferredFadeLeft(bool b)
 {
 	mDeferredFadeLeft = b;
 }
 
-PUBLIC bool ProjectLayer::isDeferredFadeLeft()
+bool ProjectLayer::isDeferredFadeLeft()
 {
 	return mDeferredFadeLeft;
 }
 
-PUBLIC void ProjectLayer::setDeferredFadeRight(bool b)
+void ProjectLayer::setDeferredFadeRight(bool b)
 {
 	mDeferredFadeRight = b;
 }
 
-PUBLIC bool ProjectLayer::isDeferredFadeRight()
+bool ProjectLayer::isDeferredFadeRight()
 {
 	return mDeferredFadeRight;
 }
 
-PUBLIC void ProjectLayer::setReverseRecord(bool b)
+void ProjectLayer::setReverseRecord(bool b)
 {
 	mReverseRecord = b;
 }
 
-PUBLIC bool ProjectLayer::isReverseRecord()
+bool ProjectLayer::isReverseRecord()
 {
 	return mReverseRecord;
 }
 
-PUBLIC void ProjectLayer::add(ProjectSegment* seg)
+void ProjectLayer::add(ProjectSegment* seg)
 {
 	if (mSegments == NULL)
 	  mSegments = new List();
@@ -649,18 +649,18 @@ void ProjectLayer::parseXml(XmlElement* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ProjectLoop::ProjectLoop()
+ProjectLoop::ProjectLoop()
 {
 	init();
 }
 
-PUBLIC ProjectLoop::ProjectLoop(XmlElement* e)
+ProjectLoop::ProjectLoop(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC ProjectLoop::ProjectLoop(MobiusConfig* config, Project* p, Loop* l)
+ProjectLoop::ProjectLoop(MobiusConfig* config, Project* p, Loop* l)
 {
 	init();
 
@@ -680,7 +680,7 @@ PUBLIC ProjectLoop::ProjectLoop(MobiusConfig* config, Project* p, Loop* l)
 	}
 }
 
-PUBLIC void ProjectLoop::init()
+void ProjectLoop::init()
 {
     mNumber = 0;
 	mLayers = NULL;
@@ -688,7 +688,7 @@ PUBLIC void ProjectLoop::init()
 	mActive = false;
 }
 
-PUBLIC ProjectLoop::~ProjectLoop()
+ProjectLoop::~ProjectLoop()
 {
 	if (mLayers != NULL) {
 		for (int i = 0 ; i < mLayers->size() ; i++) {
@@ -699,44 +699,44 @@ PUBLIC ProjectLoop::~ProjectLoop()
 	}
 }
 
-PUBLIC void ProjectLoop::add(ProjectLayer* l)
+void ProjectLoop::add(ProjectLayer* l)
 {
 	if (mLayers == NULL)
 	  mLayers = new List();
 	mLayers->add(l);
 }
 
-PUBLIC void ProjectLoop::setNumber(int number)
+void ProjectLoop::setNumber(int number)
 {
 	mNumber = number;
 }
 
-PUBLIC int ProjectLoop::getNumber()
+int ProjectLoop::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC List* ProjectLoop::getLayers()
+List* ProjectLoop::getLayers()
 {
 	return mLayers;
 }
 
-PUBLIC void ProjectLoop::setFrame(long f)
+void ProjectLoop::setFrame(long f)
 {
 	mFrame = f;
 }
 
-PUBLIC long ProjectLoop::getFrame()
+long ProjectLoop::getFrame()
 {
 	return mFrame;
 }
 
-PUBLIC void ProjectLoop::setActive(bool b)
+void ProjectLoop::setActive(bool b)
 {
 	mActive = b;
 }
 
-PUBLIC bool ProjectLoop::isActive()
+bool ProjectLoop::isActive()
 {
 	return mActive;
 }
@@ -832,18 +832,18 @@ void ProjectLoop::parseXml(XmlElement* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ProjectTrack::ProjectTrack()
+ProjectTrack::ProjectTrack()
 {
 	init();
 }
 
-PUBLIC ProjectTrack::ProjectTrack(XmlElement* e)
+ProjectTrack::ProjectTrack(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
+ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
 {
 	int i;
 
@@ -893,7 +893,7 @@ PUBLIC ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
 	}
 }
 
-PUBLIC void ProjectTrack::init()
+void ProjectTrack::init()
 {
     mNumber = 0;
 	mActive = false;
@@ -917,7 +917,7 @@ PUBLIC void ProjectTrack::init()
 	mVariables = NULL;
 }
 
-PUBLIC ProjectTrack::~ProjectTrack()
+ProjectTrack::~ProjectTrack()
 {
 	delete mPreset;
 	delete mVariables;
@@ -931,210 +931,210 @@ PUBLIC ProjectTrack::~ProjectTrack()
 	}
 }
 
-PUBLIC void ProjectTrack::setNumber(int number)
+void ProjectTrack::setNumber(int number)
 {
 	mNumber = number;
 }
 
-PUBLIC int ProjectTrack::getNumber()
+int ProjectTrack::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC void ProjectTrack::setActive(bool b)
+void ProjectTrack::setActive(bool b)
 {
 	mActive = b;
 }
 
-PUBLIC bool ProjectTrack::isActive()
+bool ProjectTrack::isActive()
 {
 	return mActive;
 }
 
-PUBLIC int ProjectTrack::getGroup()
+int ProjectTrack::getGroup()
 {
     return mGroup;
 }
 
-PUBLIC void ProjectTrack::setGroup(int i)
+void ProjectTrack::setGroup(int i)
 {
     mGroup = i;
 }
 
-PUBLIC void ProjectTrack::setPreset(const char* p)
+void ProjectTrack::setPreset(const char* p)
 {
 	delete mPreset;
 	mPreset = CopyString(p);
 }
 
-PUBLIC const char* ProjectTrack::getPreset()
+const char* ProjectTrack::getPreset()
 {
 	return mPreset;
 }
 
-PUBLIC void ProjectTrack::setFeedback(int i)
+void ProjectTrack::setFeedback(int i)
 {
 	mFeedback = i;
 }
 
-PUBLIC int ProjectTrack::getFeedback()
+int ProjectTrack::getFeedback()
 {
 	return mFeedback;
 }
 
-PUBLIC void ProjectTrack::setAltFeedback(int i)
+void ProjectTrack::setAltFeedback(int i)
 {
 	mAltFeedback = i;
 }
 
-PUBLIC int ProjectTrack::getAltFeedback()
+int ProjectTrack::getAltFeedback()
 {
 	return mAltFeedback;
 }
 
-PUBLIC void ProjectTrack::setOutputLevel(int i)
+void ProjectTrack::setOutputLevel(int i)
 {
 	mOutputLevel = i;
 }
 
-PUBLIC int ProjectTrack::getOutputLevel()
+int ProjectTrack::getOutputLevel()
 {
 	return mOutputLevel;
 }
 
-PUBLIC void ProjectTrack::setInputLevel(int i)
+void ProjectTrack::setInputLevel(int i)
 {
 	mInputLevel = i;
 }
 
-PUBLIC int ProjectTrack::getInputLevel()
+int ProjectTrack::getInputLevel()
 {
 	return mInputLevel;
 }
 
-PUBLIC void ProjectTrack::setPan(int i)
+void ProjectTrack::setPan(int i)
 {
 	mPan = i;
 }
 
-PUBLIC int ProjectTrack::getPan()
+int ProjectTrack::getPan()
 {
 	return mPan;
 }
 
-PUBLIC void ProjectTrack::setReverse(bool b)
+void ProjectTrack::setReverse(bool b)
 {
 	mReverse = b;
 }
 
-PUBLIC bool ProjectTrack::isReverse()
+bool ProjectTrack::isReverse()
 {
 	return mReverse;
 }
 
-PUBLIC void ProjectTrack::setSpeedOctave(int i)
+void ProjectTrack::setSpeedOctave(int i)
 {
 	mSpeedOctave = i;
 }
 
-PUBLIC int ProjectTrack::getSpeedOctave()
+int ProjectTrack::getSpeedOctave()
 {
 	return mSpeedOctave;
 }
 
-PUBLIC void ProjectTrack::setSpeedStep(int i)
+void ProjectTrack::setSpeedStep(int i)
 {
 	mSpeedStep = i;
 }
 
-PUBLIC int ProjectTrack::getSpeedStep()
+int ProjectTrack::getSpeedStep()
 {
 	return mSpeedStep;
 }
 
-PUBLIC void ProjectTrack::setSpeedBend(int i)
+void ProjectTrack::setSpeedBend(int i)
 {
 	mSpeedBend = i;
 }
 
-PUBLIC int ProjectTrack::getSpeedBend()
+int ProjectTrack::getSpeedBend()
 {
 	return mSpeedBend;
 }
 
-PUBLIC void ProjectTrack::setSpeedToggle(int i)
+void ProjectTrack::setSpeedToggle(int i)
 {
 	mSpeedToggle = i;
 }
 
-PUBLIC int ProjectTrack::getSpeedToggle()
+int ProjectTrack::getSpeedToggle()
 {
 	return mSpeedToggle;
 }
 
-PUBLIC void ProjectTrack::setPitchOctave(int i)
+void ProjectTrack::setPitchOctave(int i)
 {
 	mPitchOctave = i;
 }
 
-PUBLIC int ProjectTrack::getPitchOctave()
+int ProjectTrack::getPitchOctave()
 {
 	return mPitchOctave;
 }
 
-PUBLIC void ProjectTrack::setPitchStep(int i)
+void ProjectTrack::setPitchStep(int i)
 {
 	mPitchStep = i;
 }
 
-PUBLIC int ProjectTrack::getPitchStep()
+int ProjectTrack::getPitchStep()
 {
 	return mPitchStep;
 }
 
-PUBLIC void ProjectTrack::setPitchBend(int i)
+void ProjectTrack::setPitchBend(int i)
 {
 	mPitchBend = i;
 }
 
-PUBLIC int ProjectTrack::getPitchBend()
+int ProjectTrack::getPitchBend()
 {
 	return mPitchBend;
 }
 
-PUBLIC void ProjectTrack::setTimeStretch(int i)
+void ProjectTrack::setTimeStretch(int i)
 {
 	mTimeStretch = i;
 }
 
-PUBLIC int ProjectTrack::getTimeStretch()
+int ProjectTrack::getTimeStretch()
 {
 	return mTimeStretch;
 }
 
-PUBLIC void ProjectTrack::setFocusLock(bool b)
+void ProjectTrack::setFocusLock(bool b)
 {
 	mFocusLock = b;
 }
 
-PUBLIC bool ProjectTrack::isFocusLock()
+bool ProjectTrack::isFocusLock()
 {
 	return mFocusLock;
 }
 
-PUBLIC void ProjectTrack::add(ProjectLoop* l)
+void ProjectTrack::add(ProjectLoop* l)
 {
 	if (mLoops == NULL)
 	  mLoops = new List();
 	mLoops->add(l);
 }
 
-PUBLIC List* ProjectTrack::getLoops()
+List* ProjectTrack::getLoops()
 {
 	return mLoops;
 }
 
-PUBLIC void ProjectTrack::setVariable(const char* name, ExValue* value)
+void ProjectTrack::setVariable(const char* name, ExValue* value)
 {
 	if (name != NULL) {
 		if (mVariables == NULL)
@@ -1143,7 +1143,7 @@ PUBLIC void ProjectTrack::setVariable(const char* name, ExValue* value)
 	}
 }
 
-PUBLIC void ProjectTrack::getVariable(const char* name, ExValue* value)
+void ProjectTrack::getVariable(const char* name, ExValue* value)
 {
 	value->setNull();
 	if (mVariables != NULL)
@@ -1278,18 +1278,18 @@ void ProjectTrack::parseXml(XmlElement* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Project::Project()
+Project::Project()
 {
 	init();
 }
 
-PUBLIC Project::Project(XmlElement* e)
+Project::Project(XmlElement* e)
 {
 	init();
 	parseXml(e);
 }
 
-PUBLIC Project::Project(const char* file)
+Project::Project(const char* file)
 {
 	init();
     setPath(file);
@@ -1302,7 +1302,7 @@ PUBLIC Project::Project(const char* file)
  *
  * Track and loop number are both relative to zero.
  */
-PUBLIC Project::Project(Audio* a, int trackNumber, int loopNumber)
+Project::Project(Audio* a, int trackNumber, int loopNumber)
 {
 	init();
 
@@ -1321,7 +1321,7 @@ PUBLIC Project::Project(Audio* a, int trackNumber, int loopNumber)
     mIncremental = true;
 }
 
-PRIVATE void Project::init()
+void Project::init()
 {
 	mNumber = 0;
 	mPath = NULL;
@@ -1344,12 +1344,12 @@ PRIVATE void Project::init()
 	mFinished = false;
 }
 
-PUBLIC Project::~Project()
+Project::~Project()
 {
 	clear();
 }
 
-PUBLIC void Project::clear()
+void Project::clear()
 {
 	if (mTracks != NULL) {
 		for (int i = 0 ; i < mTracks->size() ; i++) {
@@ -1367,17 +1367,17 @@ PUBLIC void Project::clear()
 	mSetup = NULL;
 }
 
-PUBLIC void Project::setNumber(int i)
+void Project::setNumber(int i)
 {
 	mNumber = i;
 }
 
-PUBLIC int Project::getNumber()
+int Project::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC int Project::getNextLayerId()
+int Project::getNextLayerId()
 {
 	return mLayerIds++;
 }
@@ -1394,29 +1394,29 @@ Layer* Project::findLayer(int id)
 	return found;
 }
 
-PUBLIC void Project::setBindings(const char* name)
+void Project::setBindings(const char* name)
 {
 	delete mBindings;
 	mBindings = CopyString(name);
 }
 
-PUBLIC const char* Project::getBindings()
+const char* Project::getBindings()
 {
 	return mBindings;
 }
 
-PUBLIC void Project::setSetup(const char* name)
+void Project::setSetup(const char* name)
 {
 	delete mSetup;
 	mSetup = CopyString(name);
 }
 
-PUBLIC const char* Project::getSetup()
+const char* Project::getSetup()
 {
 	return mSetup;
 }
 
-PUBLIC void Project::setVariable(const char* name, ExValue* value)
+void Project::setVariable(const char* name, ExValue* value)
 {
 	if (name != NULL) {
 		if (mVariables == NULL)
@@ -1425,14 +1425,14 @@ PUBLIC void Project::setVariable(const char* name, ExValue* value)
 	}
 }
 
-PUBLIC void Project::getVariable(const char* name, ExValue* value)
+void Project::getVariable(const char* name, ExValue* value)
 {
 	value->setNull();
 	if (mVariables != NULL)
 	  mVariables->get(name, value);
 }
 
-PUBLIC void Project::setTracks(Mobius* m)
+void Project::setTracks(Mobius* m)
 {
 	int i;
 
@@ -1460,28 +1460,28 @@ PUBLIC void Project::setTracks(Mobius* m)
 	}
 }
 
-PUBLIC void Project::setPath(const char* path)
+void Project::setPath(const char* path)
 {
 	delete mPath;
 	mPath = CopyString(path);
 }
 
-PUBLIC const char* Project::getPath()
+const char* Project::getPath()
 {
 	return mPath;
 }
 
-PUBLIC bool Project::isError()
+bool Project::isError()
 {
 	return mError;
 }
 
-PUBLIC const char* Project::getErrorMessage()
+const char* Project::getErrorMessage()
 {
 	return mMessage;
 }
 
-PUBLIC void Project::setErrorMessage(const char* msg)
+void Project::setErrorMessage(const char* msg)
 {
 	if (msg == NULL)
 	  strcpy(mMessage, "");
@@ -1490,34 +1490,34 @@ PUBLIC void Project::setErrorMessage(const char* msg)
 	mError = true;
 }
 
-PUBLIC void Project::add(ProjectTrack* t)
+void Project::add(ProjectTrack* t)
 {
 	if (mTracks == NULL)
 	  mTracks = new List();
 	mTracks->add(t);
 }
 
-PUBLIC List* Project::getTracks()
+List* Project::getTracks()
 {
 	return mTracks;
 }
 
-PUBLIC void Project::setIncremental(bool b)
+void Project::setIncremental(bool b)
 {
 	mIncremental = b;
 }
 
-PUBLIC bool Project::isIncremental()
+bool Project::isIncremental()
 {
 	return mIncremental;
 }
 
-PUBLIC void Project::setFinished(bool b)
+void Project::setFinished(bool b)
 {
 	mFinished = b;
 }
 
-PUBLIC bool Project::isFinished()
+bool Project::isFinished()
 {
 	return mFinished;
 }
@@ -1533,7 +1533,7 @@ PUBLIC bool Project::isFinished()
  *
  * !! Don't see the logic to protected external files
  */
-PUBLIC void Project::deleteAudioFiles()
+void Project::deleteAudioFiles()
 {
     if (mTracks != NULL) {
         for (int i = 0 ; i < mTracks->size() ; i++) {
@@ -1656,19 +1656,19 @@ void Project::parseXml(XmlElement* e)
 /**
  * Read the project structure but no audio files.
  */
-PUBLIC void Project::read()
+void Project::read()
 {
     if (mPath != NULL)
       read(NULL, mPath);
 }
 
-PUBLIC void Project::read(AudioPool* pool)
+void Project::read(AudioPool* pool)
 {
     if (mPath != NULL)
       read(pool, mPath);
 }
 
-PRIVATE void Project::read(AudioPool* pool, const char* file)
+void Project::read(AudioPool* pool, const char* file)
 {
 	char path[1024];
 
@@ -1716,7 +1716,7 @@ PRIVATE void Project::read(AudioPool* pool, const char* file)
  * After reading the Project structure from XML, traverse the hierarhcy
  * and load any referenced Audio files.
  */
-PRIVATE void Project::readAudio(AudioPool* pool)
+void Project::readAudio(AudioPool* pool)
 {
     if (pool != NULL && mTracks != NULL) {
         for (int i = 0 ; i < mTracks->size() ; i++) {
@@ -1743,13 +1743,13 @@ PRIVATE void Project::readAudio(AudioPool* pool)
     }
 }
 
-PUBLIC void Project::write()
+void Project::write()
 {
     if (mPath != NULL)
       write(mPath, false);
 }
 
-PUBLIC void Project::write(const char* file, bool isTemplate)
+void Project::write(const char* file, bool isTemplate)
 {
 	char path[1024];
 	char baseName[1024];

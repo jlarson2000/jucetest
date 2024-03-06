@@ -212,7 +212,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
 // for AUDIO_MAX_CHANNELS, etc
 #include "AudioInterface.h"
@@ -231,20 +231,20 @@
  * Crude but adequate code coverage monitor for unit testing.
  */
 
-PUBLIC bool CovFwinLocateIncompleteWindow = false;
-PUBLIC bool CovFwinLocatePartialFade = false;
-PUBLIC bool CovFwinFadeRight = false;
-PUBLIC bool CovFwinFadeRightLevel = false;
-PUBLIC bool CovFwinFadeLeft = false;
-PUBLIC bool CovFwinFadeLeftLevel = false;
-PUBLIC bool CovFwinFadeRightShift = false;
-PUBLIC bool CovFwinFadeLeftShift = false;
-PUBLIC bool CovFwinFadeLeftShiftTotal = false;
-PUBLIC bool CovFwinFadeLeftShiftPartial = false;
-PUBLIC bool CovFwinFadeLocalRight = false;
-PUBLIC bool CovFwinFadeLocalLeft = false;
+bool CovFwinLocateIncompleteWindow = false;
+bool CovFwinLocatePartialFade = false;
+bool CovFwinFadeRight = false;
+bool CovFwinFadeRightLevel = false;
+bool CovFwinFadeLeft = false;
+bool CovFwinFadeLeftLevel = false;
+bool CovFwinFadeRightShift = false;
+bool CovFwinFadeLeftShift = false;
+bool CovFwinFadeLeftShiftTotal = false;
+bool CovFwinFadeLeftShiftPartial = false;
+bool CovFwinFadeLocalRight = false;
+bool CovFwinFadeLocalLeft = false;
 
-PUBLIC void FadeWindow::initCoverage()
+void FadeWindow::initCoverage()
 {
     CovFwinLocateIncompleteWindow = false;
     CovFwinLocatePartialFade = false;
@@ -260,7 +260,7 @@ PUBLIC void FadeWindow::initCoverage()
     CovFwinFadeLocalLeft = false;
 }
 
-PUBLIC void FadeWindow::showCoverage()
+void FadeWindow::showCoverage()
 {
     printf("FadeWindow coverage gaps:\n");
 
@@ -304,14 +304,14 @@ PUBLIC void FadeWindow::showCoverage()
  * allocate the maximum possible length so these can be pooled and used
  * in any layer context.
  */
-PUBLIC FadeWindow::FadeWindow()
+FadeWindow::FadeWindow()
 {
 	mBufferSize = AUDIO_MAX_FADE_FRAMES * AUDIO_MAX_CHANNELS;
 	mBuffer = new float[mBufferSize];
     reset();
 }
 
-PUBLIC void FadeWindow::reset()
+void FadeWindow::reset()
 {
     mHeadWindow = false;
     mWindowFrames = AudioFade::getRange();
@@ -333,12 +333,12 @@ PUBLIC void FadeWindow::reset()
 	mFade.init();
 }
 
-PUBLIC FadeWindow::~FadeWindow()
+FadeWindow::~FadeWindow()
 {
 	delete mBuffer;
 }
 
-PUBLIC bool FadeWindow::isForegroundFaded()
+bool FadeWindow::isForegroundFaded()
 {
 	return mForegroundFaded;
 }
@@ -347,7 +347,7 @@ PUBLIC bool FadeWindow::isForegroundFaded()
  * We only allow dynamic up fades, down fades are always done
  * retroactively.
  */
-PUBLIC void FadeWindow::startFadeIn()
+void FadeWindow::startFadeIn()
 {
     if (!mFull)
 	  mFade.activate(true);
@@ -357,7 +357,7 @@ PUBLIC void FadeWindow::startFadeIn()
  * This must be called by Layer before it begins adding content
  * to the window.
  */
-PUBLIC void FadeWindow::prepare(LayerContext* con, bool head)
+void FadeWindow::prepare(LayerContext* con, bool head)
 {
     reset();
     mChannels = con->channels;
@@ -366,27 +366,27 @@ PUBLIC void FadeWindow::prepare(LayerContext* con, bool head)
     mWindowFrames = AudioFade::getRange();
 }
 
-PUBLIC long FadeWindow::getLastExternalFrame()
+long FadeWindow::getLastExternalFrame()
 {
 	return mLastExternalFrame;
 }
 
-PUBLIC void FadeWindow::setLastExternalFrame(long frame)
+void FadeWindow::setLastExternalFrame(long frame)
 {
 	mLastExternalFrame = frame;
 }
 
-PUBLIC int FadeWindow::getWindowFrames()
+int FadeWindow::getWindowFrames()
 {
     return mWindowFrames;
 }
 
-PUBLIC int FadeWindow::getFrames()
+int FadeWindow::getFrames()
 {
 	return mFrames;
 }
 
-PUBLIC void FadeWindow::setFrames(long frames)
+void FadeWindow::setFrames(long frames)
 {
 	mFrames = frames;
 }
@@ -400,7 +400,7 @@ PUBLIC void FadeWindow::setFrames(long frames)
  * The startFrame argument is just for consistency checking, 
  * it must be unreflected if the context is in reverse.
  */
-PUBLIC void FadeWindow::add(LayerContext* con, long startFrame)
+void FadeWindow::add(LayerContext* con, long startFrame)
 {
 	// stop processing the head window once we've filled it, or
 	// moved beyond its range
@@ -462,7 +462,7 @@ PUBLIC void FadeWindow::add(LayerContext* con, long startFrame)
  * Inner window appender.  Called directly by the Plugins that don't
  * need the LayerContext consistency checking.
  */
-PUBLIC void FadeWindow::add(float* src, long frames)
+void FadeWindow::add(float* src, long frames)
 {
 	long end = (mWindowFrames * mChannels);
 	for (int i = 0 ; i < frames ; i++) {
@@ -487,7 +487,7 @@ PUBLIC void FadeWindow::add(float* src, long frames)
  * than duplicating the logic.  The result is only valid until the next time
  * content is added to the window.
  */
-PRIVATE void FadeWindow::locateEdges(int fadeFrames)
+void FadeWindow::locateEdges(int fadeFrames)
 {
 	// since we always move forward, frames to the right of
 	// the cursor came before the frames on the left
@@ -541,7 +541,7 @@ PRIVATE void FadeWindow::locateEdges(int fadeFrames)
  * When op is OpRemove it will have the effect of removing the foreground
  * content from the Audio, OpAdd puts it back.
  */
-PUBLIC void FadeWindow::applyWindow(AudioCursor* cursor, AudioOp op)
+void FadeWindow::applyWindow(AudioCursor* cursor, AudioOp op)
 {
     AudioBuffer ab;
     long startFrame;
@@ -585,12 +585,12 @@ PUBLIC void FadeWindow::applyWindow(AudioCursor* cursor, AudioOp op)
     }
 }
 
-PUBLIC void FadeWindow::removeForeground(AudioCursor* cursor)
+void FadeWindow::removeForeground(AudioCursor* cursor)
 {
     applyWindow(cursor, OpRemove);
 }
 
-PUBLIC void FadeWindow::addForeground(AudioCursor* cursor)
+void FadeWindow::addForeground(AudioCursor* cursor)
 {
     applyWindow(cursor, OpAdd);
 }
@@ -599,7 +599,7 @@ PUBLIC void FadeWindow::addForeground(AudioCursor* cursor)
  * Perform a foreground fade.  The contents of the window is removed
  * from the Audio, faded, then put back.
  */
-PUBLIC void FadeWindow::fadeForeground(AudioCursor* cursor, 
+void FadeWindow::fadeForeground(AudioCursor* cursor, 
                                        float baseLevel)
 {
 	bool up = mHeadWindow;
@@ -675,7 +675,7 @@ PUBLIC void FadeWindow::fadeForeground(AudioCursor* cursor,
  * The "fadeFrames" argument has the number of frames that should be
  * in the fade.
  */
-PUBLIC void FadeWindow::fadeForegroundShifted(AudioCursor* cursor, 
+void FadeWindow::fadeForegroundShifted(AudioCursor* cursor, 
                                               int fadeFrames)
 {
 	bool up = mHeadWindow;
@@ -774,7 +774,7 @@ PUBLIC void FadeWindow::fadeForegroundShifted(AudioCursor* cursor,
  * within the entire layer.  The fadeOffset argument has the location
  * of the start frame within the fade range.
  */
-PUBLIC void FadeWindow::fadeWindow(long startFrame, long fadeOffset)
+void FadeWindow::fadeWindow(long startFrame, long fadeOffset)
 {
 	if (mFrames > 0) {
 		long baseFrame = 0;
@@ -816,7 +816,7 @@ PUBLIC void FadeWindow::fadeWindow(long startFrame, long fadeOffset)
  * Return the number of frames actually put into the buffer.  This is usually
  * the same as the fade range but may be less if the window isn't full.
  */
-PRIVATE long FadeWindow::reverseFade(float* buffer)
+long FadeWindow::reverseFade(float* buffer)
 {
 	long frames = 0;
 
@@ -869,7 +869,7 @@ PRIVATE long FadeWindow::reverseFade(float* buffer)
 	return frames;
 }
 
-PRIVATE void FadeWindow::dump(const char* name)
+void FadeWindow::dump(const char* name)
 {
 	char filename[128];
 

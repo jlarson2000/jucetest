@@ -12,18 +12,18 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Expr.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Expr.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -36,12 +36,12 @@ class MoveEventType : public EventType {
 	MoveEventType();
 };
 
-PUBLIC MoveEventType::MoveEventType()
+MoveEventType::MoveEventType()
 {
 	name = "Move";
 }
 
-PUBLIC EventType* MoveEvent = new MoveEventType();
+EventType* MoveEvent = new MoveEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -65,10 +65,10 @@ class MoveFunction : public Function {
 
 // NOTE: Originally used Move but that conflicts with something
 // in the QD.framework on OSX
-PUBLIC Function* MyMove = new MoveFunction(false);
-PUBLIC Function* Drift = new MoveFunction(true);
+Function* MyMove = new MoveFunction(false);
+Function* Drift = new MoveFunction(true);
 
-PUBLIC MoveFunction::MoveFunction(bool drift)
+MoveFunction::MoveFunction(bool drift)
 {
 	eventType = MoveEvent;
 	quantized = false;
@@ -95,7 +95,7 @@ PUBLIC MoveFunction::MoveFunction(bool drift)
 	}
 }
 
-PUBLIC Event* MoveFunction::scheduleEvent(Action* action, Loop* l)
+Event* MoveFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -118,7 +118,7 @@ PUBLIC Event* MoveFunction::scheduleEvent(Action* action, Loop* l)
 	return event;
 }
 
-PUBLIC void MoveFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void MoveFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
 	Event* parent = e->getParent();
 	if (parent == NULL) {
@@ -147,7 +147,7 @@ PUBLIC void MoveFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 	}
 }
 
-PUBLIC void MoveFunction::doEvent(Loop* loop, Event* event)
+void MoveFunction::doEvent(Loop* loop, Event* event)
 {
 	// Jump play will have done the work, but we now need to resync
 	// the record frame with new play frame.  If we had already

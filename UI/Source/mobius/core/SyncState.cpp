@@ -22,13 +22,13 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#include "Trace.h"
+#include "../../util/Trace.h"
 
 #include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Preset.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Preset.h"
 #include "Track.h"
-#include "Setup.h"
+#include "../../model/Setup.h"
 #include "Synchronizer.h"
 
 #include "SyncState.h"
@@ -39,7 +39,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC SyncState::SyncState(Track* t)
+SyncState::SyncState(Track* t)
 {
     mTrack = t;
     mLocked = false;
@@ -53,11 +53,11 @@ PUBLIC SyncState::SyncState(Track* t)
     mPreRealignFrame = 0;
 }
 
-PUBLIC SyncState::~SyncState()
+SyncState::~SyncState()
 {
 }
 
-PRIVATE void SyncState::initRecordState()
+void SyncState::initRecordState()
 {
     mRecording = false;
     mRounding = false;
@@ -77,7 +77,7 @@ PRIVATE void SyncState::initRecordState()
 /**
  * Return the sync source defined for this track in the setup
  */
-PUBLIC SyncSource SyncState::getDefinedSyncSource()
+SyncSource SyncState::getDefinedSyncSource()
 {
     if (!mLocked) {
         SetupTrack* st = mTrack->getSetup();
@@ -117,7 +117,7 @@ PUBLIC SyncSource SyncState::getDefinedSyncSource()
  *
  * 
  */
-PUBLIC SyncSource SyncState::getEffectiveSyncSource()
+SyncSource SyncState::getEffectiveSyncSource()
 {
     SyncSource src = getDefinedSyncSource();
 
@@ -148,7 +148,7 @@ PUBLIC SyncSource SyncState::getEffectiveSyncSource()
     return src;
 }
 
-PUBLIC SyncUnit SyncState::getSyncUnit()
+SyncUnit SyncState::getSyncUnit()
 {
     if (!mLocked) {
         Setup* s = mTrack->getMobius()->getInterruptSetup();
@@ -160,7 +160,7 @@ PUBLIC SyncUnit SyncState::getSyncUnit()
     return mSyncUnit;
 }
 
-PUBLIC SyncTrackUnit SyncState::getSyncTrackUnit()
+SyncTrackUnit SyncState::getSyncTrackUnit()
 {
     if (!mLocked) {
         SetupTrack* st = mTrack->getSetup();
@@ -188,7 +188,7 @@ PUBLIC SyncTrackUnit SyncState::getSyncTrackUnit()
 /**
  * We don't copy this since it isn't necessary until the end.
  */
-PUBLIC bool SyncState::isManualStart()
+bool SyncState::isManualStart()
 {
     bool isManual = false;
     Setup* s = mTrack->getMobius()->getInterruptSetup();
@@ -201,47 +201,47 @@ PUBLIC bool SyncState::isManualStart()
 // Record status
 //
 
-PUBLIC bool SyncState::isRecording()
+bool SyncState::isRecording()
 {
     return mRecording;
 }
 
-PUBLIC bool SyncState::isRounding()
+bool SyncState::isRounding()
 {
     return mRounding;
 }
 
-PUBLIC bool SyncState::wasTrackerLocked()
+bool SyncState::wasTrackerLocked()
 {
     return mTrackerLocked;
 }
 
-PUBLIC int SyncState::getOriginPulse()
+int SyncState::getOriginPulse()
 {
     return mOriginPulse;
 }
 
-PUBLIC int SyncState::getCyclePulses()
+int SyncState::getCyclePulses()
 {
     return mCyclePulses;
 }
 
-PUBLIC int SyncState::getRecordPulses()
+int SyncState::getRecordPulses()
 {
     return mRecordPulses;
 }
 
-PUBLIC int SyncState::getTrackerPulses()
+int SyncState::getTrackerPulses()
 {
     return mTrackerPulses;
 }
 
-PUBLIC long SyncState::getTrackerFrames()
+long SyncState::getTrackerFrames()
 {
     return mTrackerFrames;
 }
 
-PUBLIC int SyncState::getTrackerBeatsPerBar()
+int SyncState::getTrackerBeatsPerBar()
 {
     return mTrackerBeatsPerBar;
 }
@@ -257,7 +257,7 @@ PUBLIC int SyncState::getTrackerBeatsPerBar()
  * This is actually not called directly, it will be called as a side
  * effect of startRecording().
  */
-PUBLIC void SyncState::lock()
+void SyncState::lock()
 {
     // call each of the accessors once to get the state refreshed, then lock
     getDefinedSyncSource();
@@ -267,7 +267,7 @@ PUBLIC void SyncState::lock()
     mLocked = true;
 }
 
-PUBLIC void SyncState::unlock()
+void SyncState::unlock()
 {
     mLocked = false;
 }
@@ -284,7 +284,7 @@ PUBLIC void SyncState::unlock()
  * Passing the event is optional and done only when we're starting the
  * recording exactly on a pulse boundary.
  */
-PUBLIC void SyncState::startRecording(int originPulse,
+void SyncState::startRecording(int originPulse,
                                       int cyclePulses, 
                                       int beatsPerBar,
                                       bool trackerLocked)
@@ -303,7 +303,7 @@ PUBLIC void SyncState::startRecording(int originPulse,
     lock();
 }
 
-PUBLIC void SyncState::pulse()
+void SyncState::pulse()
 {
     mRecordPulses++;
 }
@@ -315,19 +315,19 @@ PUBLIC void SyncState::pulse()
  * The problem is that the pulse count here has to be consistently clocks,
  * so Synchronizer will call this with an adjustment (23) if necessary.
  */
-PUBLIC void SyncState::addPulses(int extra)
+void SyncState::addPulses(int extra)
 {
     mRecordPulses += extra;
 }
 
-PUBLIC void SyncState::scheduleStop(int pulses, long frames)
+void SyncState::scheduleStop(int pulses, long frames)
 {
     mRounding = true;
     mTrackerPulses = pulses;
     mTrackerFrames = frames;
 }
 
-PUBLIC void SyncState::stopRecording()
+void SyncState::stopRecording()
 {
     initRecordState();
     // note that this does not unlock, unlock happens
@@ -340,12 +340,12 @@ PUBLIC void SyncState::stopRecording()
  * and then set to the event type of any of the generated boundary
  * events encountered during the interrupt: SubcycleEvent, CycleEvent, LoopEvent.
  */
-PUBLIC void SyncState::setBoundaryEvent(EventType* type)
+void SyncState::setBoundaryEvent(EventType* type)
 {
     mBoundaryEvent = type;
 }
 
-PUBLIC EventType* SyncState::getBoundaryEvent()
+EventType* SyncState::getBoundaryEvent()
 {
     return mBoundaryEvent;
 }
@@ -356,12 +356,12 @@ PUBLIC EventType* SyncState::getBoundaryEvent()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void SyncState::setPreRealignFrame(long frame)
+void SyncState::setPreRealignFrame(long frame)
 {
     mPreRealignFrame = frame;
 }
 
-PUBLIC long SyncState::getPreRealignFrame()
+long SyncState::getPreRealignFrame()
 {
     return mPreRealignFrame;
 }

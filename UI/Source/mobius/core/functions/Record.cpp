@@ -111,20 +111,20 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Audio.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Synchronizer.h"
-#include "SyncState.h"
-#include "Track.h"
-#include "Setup.h"
+#include "../Action.h"
+#include "../../Audio.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Synchronizer.h"
+#include "../SyncState.h"
+#include "../Track.h"
+#include "../../model/Setup.h"
 
 /****************************************************************************
  *                                                                          *
@@ -141,12 +141,12 @@ class RecordEventType : public EventType {
 	RecordEventType();
 };
 
-PUBLIC RecordEventType::RecordEventType()
+RecordEventType::RecordEventType()
 {
 	name = "Record";
 }
 
-PUBLIC EventType* RecordEvent = new RecordEventType();
+EventType* RecordEvent = new RecordEventType();
 
 //
 // RecordStopEvent
@@ -168,12 +168,12 @@ class RecordStopEventType : public EventType {
 	RecordStopEventType();
 };
 
-PUBLIC RecordStopEventType::RecordStopEventType()
+RecordStopEventType::RecordStopEventType()
 {
 	name = "RecordStop";
 }
 
-PUBLIC EventType* RecordStopEvent = new RecordStopEventType();
+EventType* RecordStopEvent = new RecordStopEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -272,11 +272,11 @@ class RecordFunction : public Function {
 	bool mAuto;
 };
 
-PUBLIC Function* Record = new RecordFunction(false, false);
-PUBLIC Function* SUSRecord = new RecordFunction(true, false);
-PUBLIC Function* AutoRecord = new RecordFunction(false, true);
+Function* Record = new RecordFunction(false, false);
+Function* SUSRecord = new RecordFunction(true, false);
+Function* AutoRecord = new RecordFunction(false, true);
 
-PUBLIC RecordFunction::RecordFunction(bool sus, bool aut)
+RecordFunction::RecordFunction(bool sus, bool aut)
 {
 	eventType = RecordEvent;
     mMode = RecordMode;         // actually it depends
@@ -307,7 +307,7 @@ PUBLIC RecordFunction::RecordFunction(bool sus, bool aut)
 	}
 }
 
-PUBLIC bool RecordFunction::isSustain(Preset* p)
+bool RecordFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -341,7 +341,7 @@ PUBLIC bool RecordFunction::isSustain(Preset* p)
  * of the mDownFunction which is the thing that got us into
  * invokeLong in the first place, so don't mess that up.
  */
-PUBLIC void RecordFunction::invokeLong(Action* action, Loop* l)
+void RecordFunction::invokeLong(Action* action, Loop* l)
 {
 	if (longPressable) {
         Track* track = l->getTrack();
@@ -380,7 +380,7 @@ PUBLIC void RecordFunction::invokeLong(Action* action, Loop* l)
  * If were already in Record mode should have called scheduleModStop first.
  * See file header comments about nuances.
  */
-PUBLIC Event* RecordFunction::scheduleEvent(Action* action, Loop* l)
+Event* RecordFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
 	MobiusMode* mode = l->getMode();
@@ -408,7 +408,7 @@ PUBLIC Event* RecordFunction::scheduleEvent(Action* action, Loop* l)
  * AutoRecord function but will eventually be doing this for all stacked
  * records.
  */
-PUBLIC void RecordFunction::prepareSwitch(Loop* l, Event* e, 
+void RecordFunction::prepareSwitch(Loop* l, Event* e, 
                                           SwitchContext* actions,
 										  JumpContext *jump)
 {
@@ -435,7 +435,7 @@ PUBLIC void RecordFunction::prepareSwitch(Loop* l, Event* e,
  * start and stop.
  *
  */
-PUBLIC Event* RecordFunction::scheduleModeStop(Action* action, Loop* loop)
+Event* RecordFunction::scheduleModeStop(Action* action, Loop* loop)
 {
     // Synchronizer handles everything
     Synchronizer* sync = loop->getSynchronizer();
@@ -453,7 +453,7 @@ PUBLIC Event* RecordFunction::scheduleModeStop(Action* action, Loop* loop)
  * make it truly generic Loop should ask the MobiusMode to undo.
  *
  */
-PUBLIC bool RecordFunction::undoModeStop(Loop* loop)
+bool RecordFunction::undoModeStop(Loop* loop)
 {
     Synchronizer* sync = loop->getSynchronizer();
 
@@ -482,7 +482,7 @@ PUBLIC bool RecordFunction::undoModeStop(Loop* loop)
  * to shut down.
  * 
  */
-PUBLIC void RecordFunction::doEvent(Loop* loop, Event* event)
+void RecordFunction::doEvent(Loop* loop, Event* event)
 {
     EventManager* em = loop->getTrack()->getEventManager();
 
@@ -783,14 +783,14 @@ class RehearseFunction : public RecordFunction {
 	RehearseFunction();
 };
 
-PUBLIC RehearseFunction::RehearseFunction() : RecordFunction(false, false)
+RehearseFunction::RehearseFunction() : RecordFunction(false, false)
 {
     setName("Rehearse");
     setKey(MSG_FUNC_REHEARSE);
     maySustain = false;
 }
 
-PUBLIC Function* Rehearse = new RehearseFunction();
+Function* Rehearse = new RehearseFunction();
 
 
 /****************************************************************************/

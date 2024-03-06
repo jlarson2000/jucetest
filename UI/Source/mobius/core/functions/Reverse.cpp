@@ -62,16 +62,16 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Stream.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Stream.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -105,7 +105,7 @@ class ReverseEventType : public EventType {
 	ReverseEventType();
 };
 
-PUBLIC ReverseEventType::ReverseEventType()
+ReverseEventType::ReverseEventType()
 {
 	name = "Reverse";
 	// !! have historically done this, I tried to avoid it when
@@ -114,7 +114,7 @@ PUBLIC ReverseEventType::ReverseEventType()
 	reschedules = true;
 }
 
-PUBLIC EventType* ReverseEvent = new ReverseEventType();
+EventType* ReverseEvent = new ReverseEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -130,22 +130,22 @@ class ReversePlayEventType : public EventType {
 	void undo(Loop* l, Event* e);
 };
 
-PUBLIC ReversePlayEventType::ReversePlayEventType()
+ReversePlayEventType::ReversePlayEventType()
 {
 	name = "ReversePlay";
 }
 
-PUBLIC void ReversePlayEventType::invoke(Loop* l, Event* e)
+void ReversePlayEventType::invoke(Loop* l, Event* e)
 {
 	l->reversePlayEvent(e);
 }
 
-PUBLIC void ReversePlayEventType::undo(Loop* l, Event* e)
+void ReversePlayEventType::undo(Loop* l, Event* e)
 {
 	l->reversePlayEventUndo(e);
 }
 
-PUBLIC EventType* ReversePlayEvent = new ReversePlayEventType();
+EventType* ReversePlayEvent = new ReversePlayEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -168,12 +168,12 @@ class ReverseFunction : public Function {
 	bool forward;
 };
 
-PUBLIC Function* SUSReverse = new ReverseFunction(true, true, false);
-PUBLIC Function* Reverse = new ReverseFunction(false, true, false);
-PUBLIC Function* Forward = new ReverseFunction(false, false, true);
-PUBLIC Function* Backward = new ReverseFunction(false, false, false);
+Function* SUSReverse = new ReverseFunction(true, true, false);
+Function* Reverse = new ReverseFunction(false, true, false);
+Function* Forward = new ReverseFunction(false, false, true);
+Function* Backward = new ReverseFunction(false, false, false);
 
-PUBLIC ReverseFunction::ReverseFunction(bool sus, bool tog, bool fwd)
+ReverseFunction::ReverseFunction(bool sus, bool tog, bool fwd)
 {
 	eventType = ReverseEvent;
 	minorMode = true;
@@ -213,7 +213,7 @@ PUBLIC ReverseFunction::ReverseFunction(bool sus, bool tog, bool fwd)
 
 }
 
-PUBLIC Event* ReverseFunction::scheduleEvent(Action* action , Loop* l)
+Event* ReverseFunction::scheduleEvent(Action* action , Loop* l)
 {
 	Event* event = NULL;
 	MobiusMode* mode = l->getMode();
@@ -282,7 +282,7 @@ PUBLIC Event* ReverseFunction::scheduleEvent(Action* action , Loop* l)
  * For now treat like non-SUS, but could let it carry over and
  * schedule a Return?
  */
-PUBLIC Event* ReverseFunction::scheduleSwitchStack(Action* action, Loop* l)
+Event* ReverseFunction::scheduleSwitchStack(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -315,7 +315,7 @@ PUBLIC Event* ReverseFunction::scheduleSwitchStack(Action* action, Loop* l)
  * If we're using TRANSFER_FOLLOW we don't have to do anything since
  * stream state is kept on the track, we just change loops and it stays.
  */
-PUBLIC Event* ReverseFunction::scheduleTransfer(Loop* l)
+Event* ReverseFunction::scheduleTransfer(Loop* l)
 {
     Event* event = NULL;
     Preset* p = l->getPreset();
@@ -361,7 +361,7 @@ PUBLIC Event* ReverseFunction::scheduleTransfer(Loop* l)
  * latency loss calculations.
  * !! need to merge these
  */
-PUBLIC void ReverseFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void ReverseFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
 	// should only be here if we're going to toggle, but make sure
 	if (this == Reverse || this == SUSReverse ||
@@ -375,7 +375,7 @@ PUBLIC void ReverseFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 /**
  * Long-Reverse is supposed to become SUSReverse
  */
-PUBLIC void ReverseFunction::invokeLong(Action* action, Loop* l)
+void ReverseFunction::invokeLong(Action* action, Loop* l)
 {
 }
 
@@ -393,7 +393,7 @@ PUBLIC void ReverseFunction::invokeLong(Action* action, Loop* l)
  * Like ReversePlayEvent the frame the ReverseEvent event is on is 
  * not "in" the region, we have to backup mFrame by 1 before reflecting.
  */
-PUBLIC void ReverseFunction::doEvent(Loop* l, Event* e)
+void ReverseFunction::doEvent(Loop* l, Event* e)
 {
     if (e->type == ReverseEvent) {
 
@@ -482,7 +482,7 @@ PUBLIC void ReverseFunction::doEvent(Loop* l, Event* e)
 /**
  * Perform a "loop size" reflection of a frame, warning in some conditions.
  */
-PRIVATE long ReverseFunction::reverseFrame(Loop* l, long frame)
+long ReverseFunction::reverseFrame(Loop* l, long frame)
 {
     long loopFrames = l->getFrames();
 

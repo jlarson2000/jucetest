@@ -16,18 +16,18 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Messages.h"
-#include "Preset.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Messages.h"
+#include "../Preset.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -40,12 +40,12 @@ class TrackEventType : public EventType {
 	TrackEventType();
 };
 
-PUBLIC TrackEventType::TrackEventType()
+TrackEventType::TrackEventType()
 {
 	name = "Track";
 }
 
-PUBLIC EventType* TrackEvent = new TrackEventType();
+EventType* TrackEvent = new TrackEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -62,23 +62,23 @@ class TrackSelectFunction : public ReplicatedFunction {
     Track* getNextTrack(Action* action, Track* t);
 };
 
-PUBLIC Function* NextTrack = new TrackSelectFunction(1, true);
-PUBLIC Function* PrevTrack = new TrackSelectFunction(-1, true);
+Function* NextTrack = new TrackSelectFunction(1, true);
+Function* PrevTrack = new TrackSelectFunction(-1, true);
 
 // TODO: need a way to define these on the fly
 
-PUBLIC Function* TrackN = new TrackSelectFunction(-1, false);
-PUBLIC Function* Track1 = new TrackSelectFunction(0, false);
-PUBLIC Function* Track2 = new TrackSelectFunction(1, false);
-PUBLIC Function* Track3 = new TrackSelectFunction(2, false);
-PUBLIC Function* Track4 = new TrackSelectFunction(3, false);
-PUBLIC Function* Track5 = new TrackSelectFunction(4, false);
-PUBLIC Function* Track6 = new TrackSelectFunction(5, false);
-PUBLIC Function* Track7 = new TrackSelectFunction(6, false);
-PUBLIC Function* Track8 = new TrackSelectFunction(7, false);
+Function* TrackN = new TrackSelectFunction(-1, false);
+Function* Track1 = new TrackSelectFunction(0, false);
+Function* Track2 = new TrackSelectFunction(1, false);
+Function* Track3 = new TrackSelectFunction(2, false);
+Function* Track4 = new TrackSelectFunction(3, false);
+Function* Track5 = new TrackSelectFunction(4, false);
+Function* Track6 = new TrackSelectFunction(5, false);
+Function* Track7 = new TrackSelectFunction(6, false);
+Function* Track8 = new TrackSelectFunction(7, false);
 
 
-PUBLIC TrackSelectFunction::TrackSelectFunction(int i, bool relative)
+TrackSelectFunction::TrackSelectFunction(int i, bool relative)
 {
 	eventType = TrackEvent;
 	index = i;
@@ -126,7 +126,7 @@ PUBLIC TrackSelectFunction::TrackSelectFunction(int i, bool relative)
  * be the current track the first time, but it may be other
  * tracks if there is a pending TrackSelect event we're modifying
  */
-PRIVATE Track* TrackSelectFunction::getNextTrack(Action* action, Track* track)
+Track* TrackSelectFunction::getNextTrack(Action* action, Track* track)
 {
 	Track* nextTrack = NULL;
     Mobius* mobius = track->getMobius();
@@ -461,7 +461,7 @@ Event* TrackSelectFunction::invoke(Action* action, Loop* l)
 	return event;
 }
 
-PUBLIC void TrackSelectFunction::doEvent(Loop* l, Event* e)
+void TrackSelectFunction::doEvent(Loop* l, Event* e)
 {
 	l->trackEvent(e);
 }

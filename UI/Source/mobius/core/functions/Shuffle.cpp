@@ -20,17 +20,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Expr.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Synchronizer.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Expr.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -61,12 +61,12 @@ class ShuffleEventType : public EventType {
 	ShuffleEventType();
 };
 
-PUBLIC ShuffleEventType::ShuffleEventType()
+ShuffleEventType::ShuffleEventType()
 {
 	name = "Shuffle";
 }
 
-PUBLIC EventType* ShuffleEvent = new ShuffleEventType();
+EventType* ShuffleEvent = new ShuffleEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -93,9 +93,9 @@ class ShuffleFunction : public Function {
     int resolveSegment(ExValue* v, int granules, int granule);
 };
 
-PUBLIC Function* Shuffle = new ShuffleFunction();
+Function* Shuffle = new ShuffleFunction();
 
-PUBLIC ShuffleFunction::ShuffleFunction() :
+ShuffleFunction::ShuffleFunction() :
     Function("Shuffle", MSG_FUNC_SHUFFLE)
 {
 	eventType = ShuffleEvent;
@@ -749,7 +749,7 @@ void ShuffleFunction::shuffle(Loop* loop, Layer* layer, ExValueList* pattern)
  * a "probability pattern" and we return the value of the first
  * element.
  */
-PRIVATE int ShuffleFunction::resolveSegment(ExValue* value, 
+int ShuffleFunction::resolveSegment(ExValue* value, 
 											int sourceGranules, 
                                             int resultGranule)
 {
@@ -843,7 +843,7 @@ PRIVATE int ShuffleFunction::resolveSegment(ExValue* value,
  * Give the other allocs that happen this isn't such a big deal
  * but we're trying to cut down on these, don't make the problem worse.
  */
-PRIVATE int ShuffleFunction::getRandomUnused(int* usedSources, int sourceGranules, 
+int ShuffleFunction::getRandomUnused(int* usedSources, int sourceGranules, 
                                              int* remaining)
 {
     int segment = 0;
@@ -902,7 +902,7 @@ PRIVATE int ShuffleFunction::getRandomUnused(int* usedSources, int sourceGranule
  * Which selects the first one 50% of the time and the rest 25%
  */
 
-PRIVATE int ShuffleFunction::processProbabilityPattern(ExValueList* list,
+int ShuffleFunction::processProbabilityPattern(ExValueList* list,
                                                        int sourceGranules,
                                                        int resultGranule)
 {

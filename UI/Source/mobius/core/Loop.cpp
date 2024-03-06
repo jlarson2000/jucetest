@@ -42,10 +42,10 @@
 #include <memory.h>
 #include <math.h>
 
-#include "Audio.h"
-#include "List.h"
-#include "Thread.h"
-#include "Util.h"
+#include "../Audio.h"
+#include "../../util/List.h"
+//#include "Thread.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -98,12 +98,12 @@ extern bool DeferInsertShift;
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC StreamState::StreamState()
+StreamState::StreamState()
 {
     init();
 }
 
-PUBLIC void StreamState::init()
+void StreamState::init()
 {
     frame = 0;
     reverse = false;
@@ -117,11 +117,11 @@ PUBLIC void StreamState::init()
     timeStretch = 0;
 }
 
-PUBLIC StreamState::~StreamState()
+StreamState::~StreamState()
 {
 }
 
-PUBLIC void StreamState::capture(Track* t)
+void StreamState::capture(Track* t)
 {
     InputStream* stream = t->getInputStream();
 
@@ -142,14 +142,14 @@ PUBLIC void StreamState::capture(Track* t)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Loop::Loop(int number, Mobius* m, Track* track, 
+Loop::Loop(int number, Mobius* m, Track* track, 
 				  InputStream* input, OutputStream* output)
 {
 	init(m, track, input, output);
 	mNumber = number;
 }
 
-PRIVATE void Loop::init(Mobius* m, Track* track, 
+void Loop::init(Mobius* m, Track* track, 
 						InputStream* input, OutputStream* output) 
 {
     mMobius = m;
@@ -189,7 +189,7 @@ PRIVATE void Loop::init(Mobius* m, Track* track,
 	setFrame(-(mInput->latency));
 }
 
-PUBLIC Loop::~Loop()
+Loop::~Loop()
 {
     // everything chained from here
     if (mRecord != NULL)
@@ -203,7 +203,7 @@ PUBLIC Loop::~Loop()
  * actually doing anything.
  * This is a shared Layer we boostrap once.
  */
-PUBLIC Layer* Loop::getMuteLayer()
+Layer* Loop::getMuteLayer()
 {
     LayerPool* lp = mMobius->getLayerPool();
     return lp->getMuteLayer();
@@ -215,7 +215,7 @@ PUBLIC Layer* Loop::getMuteLayer()
  * don't have to cache any preset parameters.  Just pick up a few
  * global parameters.
  */
-PUBLIC void Loop::updateConfiguration(MobiusConfig* config)
+void Loop::updateConfiguration(MobiusConfig* config)
 {
 	mAutoFeedbackReduction = config->isAutoFeedbackReduction();
 
@@ -232,22 +232,22 @@ PUBLIC void Loop::updateConfiguration(MobiusConfig* config)
 /**
  * For newer functions that do their own layer processing.
  */
-PUBLIC InputStream* Loop::getInputStream()
+InputStream* Loop::getInputStream()
 {
 	return mInput;
 }
 
-PUBLIC OutputStream* Loop::getOutputStream()
+OutputStream* Loop::getOutputStream()
 {
 	return mOutput;
 }
 
-PUBLIC long Loop::getInputLatency()
+long Loop::getInputLatency()
 {
 	return mInput->latency;
 }
 
-PUBLIC long Loop::getOutputLatency()
+long Loop::getOutputLatency()
 {
 	return mOutput->latency;
 }
@@ -256,7 +256,7 @@ PUBLIC long Loop::getOutputLatency()
  * Hack for debugging.  This will be set from the
  * Break script function.
  */
-PUBLIC void Loop::setBreak(bool b)
+void Loop::setBreak(bool b)
 {
 	mBreak = b;
 }
@@ -264,7 +264,7 @@ PUBLIC void Loop::setBreak(bool b)
 /**
  * This is where you hang the debugger breakpoint.
  */
-PUBLIC void Loop::checkBreak()
+void Loop::checkBreak()
 {
 	if (mBreak)
 	  printf("Loop breakpoint\n");
@@ -273,18 +273,18 @@ PUBLIC void Loop::checkBreak()
 /**
  * We're a trace context, supply track/loop/time.
  */
-PUBLIC void Loop::getTraceContext(int* context, long* time)
+void Loop::getTraceContext(int* context, long* time)
 {
 	*context = (mTrack->getDisplayNumber() * 100) + mNumber;
 	*time = mFrame;
 }
 
-PUBLIC bool Loop::isInteresting()
+bool Loop::isInteresting()
 {
     return (mPlay != NULL || mRedo != NULL);
 }
       
-PUBLIC void Loop::dump(TraceBuffer* b)
+void Loop::dump(TraceBuffer* b)
 {
     b->add("Loop %d\n", mNumber);
     b->incIndent();
@@ -387,17 +387,17 @@ void Loop::loadProject(ProjectLoop* pl)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC int Loop::getNumber()
+int Loop::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC void Loop::setNumber(int i)
+void Loop::setNumber(int i)
 {
 	mNumber = i;
 }
 
-PUBLIC MobiusMode* Loop::getMode()
+MobiusMode* Loop::getMode()
 {
 	return mMode;
 }
@@ -406,7 +406,7 @@ PUBLIC MobiusMode* Loop::getMode()
  * Return the next loop number.
  * ?? If we've got a ReturnEvent, should we return that number?
  */
-PUBLIC int Loop::getNextLoop()
+int Loop::getNextLoop()
 {
 	long next = 0;
 
@@ -420,7 +420,7 @@ PUBLIC int Loop::getNextLoop()
 	return next;
 }
 
-PRIVATE void Loop::setMode(MobiusMode* m)
+void Loop::setMode(MobiusMode* m)
 {
 	if (mMode != m) {
 		Trace(this, 2, "Loop: Set mode %s\n", m->getName());
@@ -433,32 +433,32 @@ PRIVATE void Loop::setMode(MobiusMode* m)
 	}
 }
 
-PUBLIC long Loop::getModeStartFrame()
+long Loop::getModeStartFrame()
 {
     return mModeStartFrame;
 }
 
-PUBLIC void Loop::setModeStartFrame(long frame)
+void Loop::setModeStartFrame(long frame)
 {
     mModeStartFrame = frame;
 }
 
-PUBLIC Track* Loop::getTrack()
+Track* Loop::getTrack()
 {
     return mTrack;
 }
 
-PUBLIC Preset* Loop::getPreset()
+Preset* Loop::getPreset()
 {
 	return mPreset;
 }
 
-PUBLIC Mobius* Loop::getMobius()
+Mobius* Loop::getMobius()
 {
     return mMobius;
 }
 
-PUBLIC Synchronizer* Loop::getSynchronizer()
+Synchronizer* Loop::getSynchronizer()
 {
 	return mSynchronizer;
 }
@@ -466,7 +466,7 @@ PUBLIC Synchronizer* Loop::getSynchronizer()
 /**
  * True if we're empty.
  */
-PUBLIC bool Loop::isEmpty()
+bool Loop::isEmpty()
 {
 	// ?? need to distingiush between reset and empty
 	return (getFrames() == 0);
@@ -487,7 +487,7 @@ PUBLIC bool Loop::isEmpty()
  * is determined by scheduled events, and another by a mode.  A function
  * provides a common way to return both.
  */
-PUBLIC Function* Loop::isSyncWaiting()
+Function* Loop::isSyncWaiting()
 {
 	Function* waitFunction = NULL;
 
@@ -516,7 +516,7 @@ PUBLIC Function* Loop::isSyncWaiting()
 /**
  * True if we're in Reset.
  */
-PUBLIC bool Loop::isReset()
+bool Loop::isReset()
 {
 	return mMode == ResetMode;
 }
@@ -526,22 +526,22 @@ PUBLIC bool Loop::isReset()
  * This has to test the record context flag since the play
  * context may change before we're "fully" in reverse mode.
  */
-PUBLIC bool Loop::isReverse()
+bool Loop::isReverse()
 {
 	return mInput->isReverse();
 }
 
-PUBLIC bool Loop::isOverdub()
+bool Loop::isOverdub()
 {
 	return mOverdub;
 }
 
-PUBLIC bool Loop::isRecording()
+bool Loop::isRecording()
 {
 	return mRecording;
 }
 
-PUBLIC bool Loop::isPlaying()
+bool Loop::isPlaying()
 {
     return (mPlay != NULL || mPrePlay != NULL);
 }
@@ -552,7 +552,7 @@ PUBLIC bool Loop::isPlaying()
  * can also cause a mute.  This is also not necessarily the same as
  * mMuteMode which tracks the "minor mode" state.
  */
-PUBLIC bool Loop::isMute() 
+bool Loop::isMute() 
 {
 	return mMute;
 }
@@ -565,12 +565,12 @@ PUBLIC bool Loop::isMute()
  *
  * TODO: Enumerate the cases where mMute==false && mMuteMode==true
  */
-PUBLIC bool Loop::isMuteMode() 
+bool Loop::isMuteMode() 
 {
 	return mMuteMode;
 }
 
-PUBLIC bool Loop::isPaused()
+bool Loop::isPaused()
 {
 	return mPause;
 }
@@ -584,7 +584,7 @@ PUBLIC bool Loop::isPaused()
  * If we're rerecording over an existing loop we could let the old
  * one continue to play until the next sync point or record level.
  */
-PUBLIC bool Loop::isAdvancing()
+bool Loop::isAdvancing()
 {
 	return (mMode != ResetMode && 
 			mMode != ThresholdMode &&
@@ -608,7 +608,7 @@ PUBLIC bool Loop::isAdvancing()
  * Also return false if frame validation has been disabled, which
  * is sometimes an indicator that we haven't finished chancing speeds.
  */
-PUBLIC bool Loop::isAdvancingNormally() 
+bool Loop::isAdvancingNormally() 
 {
     EventManager* em = mTrack->getEventManager();
 
@@ -622,7 +622,7 @@ PUBLIC bool Loop::isAdvancingNormally()
  * adjustment at the beginning.  Doesn't have to be used just for sync,
  * but naming it with "Sync" to reinforce how it is used.
  */
-PUBLIC bool Loop::isSyncRecording()
+bool Loop::isSyncRecording()
 {
 	return ((mMode == RecordMode && mPrePlay == NULL) ||
 			(mMode == PlayMode && mPlay == NULL));
@@ -634,7 +634,7 @@ PUBLIC bool Loop::isSyncRecording()
  * adjustment period at the end where we'll still be recording, but
  * preplaying the new loop.
  */
-PUBLIC bool Loop::isSyncPlaying()
+bool Loop::isSyncPlaying()
 {
 	return (mPlay != NULL || (mMode == RecordMode && mPrePlay != NULL));
 }
@@ -642,7 +642,7 @@ PUBLIC bool Loop::isSyncPlaying()
 /**
  * Return the current record frame. 
  */
-PUBLIC long Loop::getFrame()
+long Loop::getFrame()
 {
     return mFrame;
 }
@@ -683,7 +683,7 @@ void Loop::setPlayFrame(long l)
  * It may be different than the play layer's frame count if we're
  * multiplying or inserting.
  */
-PUBLIC long Loop::getFrames()
+long Loop::getFrames()
 {
 	return (mRecord != NULL) ? mRecord->getFrames() : 0;
 }
@@ -691,7 +691,7 @@ PUBLIC long Loop::getFrames()
 /**
  * Return the total number of frames in all layers.
  */
-PUBLIC long Loop::getHistoryFrames()
+long Loop::getHistoryFrames()
 {
     long frames = 0;
     if (mPlay != NULL) {
@@ -708,7 +708,7 @@ PUBLIC long Loop::getHistoryFrames()
 /**
  * Return the window offset if we are loop windowing.
  */
-PUBLIC long Loop::getWindowOffset()
+long Loop::getWindowOffset()
 {
     long offset = -1;
     if (mPlay != NULL)
@@ -720,7 +720,7 @@ PUBLIC long Loop::getWindowOffset()
  * Used by synchronizer to calculate how many cycles we should have
  * during some sync modes.
  */
-PUBLIC long Loop::getRecordedFrames()
+long Loop::getRecordedFrames()
 {
 	return (mRecord != NULL) ? mRecord->getRecordedFrames() : 0;
 }
@@ -730,7 +730,7 @@ PUBLIC long Loop::getRecordedFrames()
  * Get it from the record layer so we can track the effects of 
  * multiply and insert.
  */
-PUBLIC long Loop::getCycles()
+long Loop::getCycles()
 {
     return (mRecord != NULL) ? mRecord->getCycles() : 1;
 }
@@ -740,7 +740,7 @@ PUBLIC long Loop::getCycles()
  * Get it from the record layer so we can track the effects of 
  * multiply and insert.
  */
-PUBLIC long Loop::getCycleFrames()
+long Loop::getCycleFrames()
 {
 	return (mRecord != NULL) ? mRecord->getCycleFrames() : 0;
 }
@@ -750,7 +750,7 @@ PUBLIC long Loop::getCycleFrames()
  * We just obey here, there are all sorts of consequences to this
  * that will have to be handled at a higher level.
  */
-PUBLIC void Loop::setCycles(int cycles)
+void Loop::setCycles(int cycles)
 {
     // what's a good upper bound?  should we even have one?
     if (cycles > 0 && cycles <= 1000) {
@@ -762,7 +762,7 @@ PUBLIC void Loop::setCycles(int cycles)
 /**
  * Return the number of frames in a sub-cycle.
  */
-PUBLIC long Loop::getSubCycleFrames()
+long Loop::getSubCycleFrames()
 {
 	long cycleFrames = getCycleFrames();
 	if (cycleFrames > 0) {
@@ -777,7 +777,7 @@ PUBLIC long Loop::getSubCycleFrames()
  * Only for InputStream and some newer Functions that do all the
  * layer processing in the Function.
  */
-PUBLIC Layer* Loop::getRecordLayer()
+Layer* Loop::getRecordLayer()
 {
 	return mRecord;
 }
@@ -785,7 +785,7 @@ PUBLIC Layer* Loop::getRecordLayer()
 /**
  * Only for a few functions.
  */
-PUBLIC void Loop::setRecordLayer(Layer* l)
+void Loop::setRecordLayer(Layer* l)
 {
 	mRecord = l;
 }
@@ -793,7 +793,7 @@ PUBLIC void Loop::setRecordLayer(Layer* l)
 /**
  * Only for Project building.
  */
-PUBLIC Layer* Loop::getPlayLayer()
+Layer* Loop::getPlayLayer()
 {
 	return mPlay;
 }
@@ -801,7 +801,7 @@ PUBLIC Layer* Loop::getPlayLayer()
 /**
  * Only for a few functions.
  */
-PUBLIC void Loop::setPlayLayer(Layer* l)
+void Loop::setPlayLayer(Layer* l)
 {
 	mPlay = l;
 }
@@ -809,7 +809,7 @@ PUBLIC void Loop::setPlayLayer(Layer* l)
 /**
  * Only for RedoFunction.
  */
-PUBLIC void Loop::setPrePlayLayer(Layer* l)
+void Loop::setPrePlayLayer(Layer* l)
 {
 	mPrePlay = l;
 }
@@ -817,7 +817,7 @@ PUBLIC void Loop::setPrePlayLayer(Layer* l)
 /**
  * Only for LayerCountVariable and RedoFunction.
  */
-PUBLIC Layer* Loop::getRedoLayer()
+Layer* Loop::getRedoLayer()
 {
 	return mRedo;
 }
@@ -825,7 +825,7 @@ PUBLIC Layer* Loop::getRedoLayer()
 /**
  * Only for RedoFunction.
  */
-PUBLIC void Loop::setRedoLayer(Layer* l)
+void Loop::setRedoLayer(Layer* l)
 {
     mRedo = l;
 }
@@ -850,7 +850,7 @@ PUBLIC void Loop::setRedoLayer(Layer* l)
  * are plenty of other things that could cause the play layer to modified.
  * Think about a way to lock it while it is being flattened.
  */
-PUBLIC Audio* Loop::getPlaybackAudio()
+Audio* Loop::getPlaybackAudio()
 {
 	Audio* playing = NULL;
 	if (mPlay != NULL) {
@@ -864,17 +864,17 @@ PUBLIC Audio* Loop::getPlaybackAudio()
  * A little logic blob we need in many places.
  * Add a number of frames to a frame counter, looping if necessary.
  */
-PUBLIC long Loop::addFrames(long frame, long frames)
+long Loop::addFrames(long frame, long frames)
 {
 	return wrapFrame(frame + frames);
 }
 
-PUBLIC long Loop::wrapFrame(long frame)
+long Loop::wrapFrame(long frame)
 {
 	return wrapFrame(frame, getFrames());
 }
 
-PUBLIC long Loop::wrapFrame(long frame, long loopFrames)
+long Loop::wrapFrame(long frame, long loopFrames)
 {
 	// !! use modulo here idiot
 	if (loopFrames > 0) {
@@ -893,14 +893,14 @@ PUBLIC long Loop::wrapFrame(long frame, long loopFrames)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC LoopState* Loop::getState()
+LoopState* Loop::getState()
 {
 	refreshState(&mState);
 	return &mState;
 }
 
 
-PUBLIC StreamState* Loop::getRestoreState()
+StreamState* Loop::getRestoreState()
 {
     return &mRestoreState;
 }
@@ -913,7 +913,7 @@ PUBLIC StreamState* Loop::getRestoreState()
  * !! Actually, there are race conditions all over here, mRecord, 
  * and mRedo are all assumed to be stable.
  */
-PRIVATE void Loop::refreshState(LoopState* s)
+void Loop::refreshState(LoopState* s)
 {
 	s->number = mNumber;
 	s->recording = mRecording;
@@ -1030,7 +1030,7 @@ PRIVATE void Loop::refreshState(LoopState* s)
  *
  * The redo layers are in the order in which they will be redone.
  */
-PRIVATE void Loop::getLayerState(Layer* layers, LayerState* states, int max,
+void Loop::getLayerState(Layer* layers, LayerState* states, int max,
 								 int *retAdded, int* retLost)
 {
 	int added = 0;
@@ -1073,7 +1073,7 @@ PRIVATE void Loop::getLayerState(Layer* layers, LayerState* states, int max,
  * This differs from reverseFrame() which is called during reverse processing
  * and DOES care about frames going negative.
  */
-PRIVATE long Loop::reflectFrame(long frame)
+long Loop::reflectFrame(long frame)
 {
 	return (getFrames() - frame - 1);
 }
@@ -1084,7 +1084,7 @@ PRIVATE long Loop::reflectFrame(long frame)
  * is being applied so they can be colored differently in the loop list.
  * Would be better to return the values and let the UI decide what to draw.
  */
-PUBLIC void Loop::getSummary(LoopSummary* s, bool active)
+void Loop::getSummary(LoopSummary* s, bool active)
 {
 	s->frames = getFrames();
 	s->cycles = getCycles();
@@ -1136,7 +1136,7 @@ PUBLIC void Loop::getSummary(LoopSummary* s, bool active)
 /**
  * Recalculate one of the frame counters relative to the other.
  */
-PRIVATE long Loop::recalculateFrame(bool calcplay)
+long Loop::recalculateFrame(bool calcplay)
 {
 	long loopFrames = getFrames();
 	long anchorFrame = (calcplay) ? mFrame : mPlayFrame;
@@ -1173,7 +1173,7 @@ PRIVATE long Loop::recalculateFrame(bool calcplay)
 	return otherFrame;
 }
 
-PRIVATE void Loop::recalculatePlayFrame()
+void Loop::recalculatePlayFrame()
 {
     long current = mPlayFrame;
 	mPlayFrame = recalculateFrame(true);
@@ -1183,7 +1183,7 @@ PRIVATE void Loop::recalculatePlayFrame()
  * Set the play frame and recalculate the record frame.
  * Used by WindowFunction.
  */
-PUBLIC void Loop::movePlayFrame(long frame)
+void Loop::movePlayFrame(long frame)
 {
     mPlayFrame = frame;
     mFrame = recalculateFrame(false);
@@ -1205,7 +1205,7 @@ PUBLIC void Loop::movePlayFrame(long frame)
  *
  * When we get here, it's time to party!
  */
-PUBLIC void Loop::validateEvent(Event* e)
+void Loop::validateEvent(Event* e)
 {
 	validate(e);
 }
@@ -1236,7 +1236,7 @@ PUBLIC void Loop::validateEvent(Event* e)
  * stacked events and have to wait for them all to finish before
  * checking consistency.
  */
-PUBLIC void Loop::validate(Event* event)
+void Loop::validate(Event* event)
 {
 	Layer * layer = (mPrePlay != NULL) ? mPrePlay : mPlay;
 
@@ -1335,7 +1335,7 @@ PUBLIC void Loop::validate(Event* event)
  * other loops.  No longer have those, but may want something similar
  * so leave the method in place for awhile.
  */
-PUBLIC void Loop::play()
+void Loop::play()
 {
     // if we're in pause mode, do not advance
 	if (mPause) {
@@ -1349,7 +1349,7 @@ PUBLIC void Loop::play()
 /**
  * The primary play logic.
  */
-PUBLIC void Loop::playLocal()
+void Loop::playLocal()
 {
     // determine which layer we're playing
     Layer* layer = (mPrePlay != NULL) ? mPrePlay : mPlay;
@@ -1505,7 +1505,7 @@ PUBLIC void Loop::playLocal()
  * ?? Will have problems here for those cases where mPlayFrame has
  * to jump into the middle of the record buffer without starting at zero?
  */
-PRIVATE void Loop::notifyBeatListeners(Layer* layer, long frames)
+void Loop::notifyBeatListeners(Layer* layer, long frames)
 {
 	// Don't do this in insert mode since we're never really
 	// returning to the loop start?
@@ -1589,7 +1589,7 @@ PRIVATE void Loop::notifyBeatListeners(Layer* layer, long frames)
  * During normal recording we call InputStream.setLastRecord to keep
  * track of the last record layer and frame.
  */
-PUBLIC void Loop::record()
+void Loop::record()
 {
     EventManager* em = mTrack->getEventManager();
 	long frames = mInput->frames;
@@ -1694,7 +1694,7 @@ PUBLIC void Loop::record()
  * Determine the level of feedback to apply during layer recording.
  * Made this public so we can get to it from the EffectiveFeedback variable.
  */
-PUBLIC int Loop::getEffectiveFeedback()
+int Loop::getEffectiveFeedback()
 {
     int feedback = mTrack->getFeedback();
 
@@ -1740,7 +1740,7 @@ PUBLIC int Loop::getEffectiveFeedback()
  * Return true if the current stream buffer has samples that exceed
  * the record threshold.
  */
-PRIVATE bool Loop::checkThreshold()
+bool Loop::checkThreshold()
 {
     bool ok = false;
 
@@ -1803,7 +1803,7 @@ PRIVATE bool Loop::checkThreshold()
  * than the changed flag which also happens in inserts.
  *
  */
-PUBLIC void Loop::shift(bool checkAutoUndo)
+void Loop::shift(bool checkAutoUndo)
 {
 	if (ScriptBreak) {
 		int x = 0;
@@ -1918,7 +1918,7 @@ PUBLIC void Loop::shift(bool checkAutoUndo)
  * but if there was only an overdub with no audio above the noise
  * floor, can ignore it. EDP calls this "auto undo"
  */
-PRIVATE bool Loop::isLayerChanged(Layer* layer, bool checkAutoUndo)
+bool Loop::isLayerChanged(Layer* layer, bool checkAutoUndo)
 {
 	bool changed = mRecord->isStructureChanged();
 	if (!changed) {
@@ -1940,7 +1940,7 @@ PRIVATE bool Loop::isLayerChanged(Layer* layer, bool checkAutoUndo)
  * but that has to be deferred until Layer::finalize because we may still
  * need the previous layer and when MaxUndo=1 we can't take it away here.
  */
-PRIVATE void Loop::addUndo(Layer* l)
+void Loop::addUndo(Layer* l)
 {
     l->setPrev(mPlay);
     mPlay = l;
@@ -2001,7 +2001,7 @@ void Loop::setRecording(bool b)
  * Local Reset.  May be part of a TrackReset being processed by Track.
  * Reset must leave intact any tempos set using TempoSelect.
  */
-PUBLIC void Loop::reset(Action* action)
+void Loop::reset(Action* action)
 {
 	clear();
 
@@ -2041,7 +2041,7 @@ PUBLIC void Loop::reset(Action* action)
  *
  * Do *not* trash mFrame here, EmptyLoopMode needs to preserve it.
  */
-PRIVATE void Loop::clear()
+void Loop::clear()
 {
 	// if the IO streams are pointing at this loop, reset history
 	// and capture fade state as necessary
@@ -2077,7 +2077,7 @@ PRIVATE void Loop::clear()
 /**
  * Handler for a pseudo-event we generate when we reach the loop frame.
  */
-PUBLIC void Loop::loopEvent(Event* e)
+void Loop::loopEvent(Event* e)
 {
 	// If we're in Multiply mode but have no play layer, then we must have
 	// ended the initial record with a Multiply.  Don't add a cycle yet,
@@ -2189,7 +2189,7 @@ PUBLIC void Loop::loopEvent(Event* e)
  * Though it wouldn't really hurt to defer this to RecordFunction::doEvent 
  * and would be simpler.
  */
-PUBLIC void Loop::stopPlayback()
+void Loop::stopPlayback()
 {
     EventManager* em = mTrack->getEventManager();
 	em->cancelSwitch();
@@ -2227,7 +2227,7 @@ PUBLIC void Loop::stopPlayback()
  * What if overrides are both zero?
  *
  */
-PUBLIC long Loop::getMinimumFrames()
+long Loop::getMinimumFrames()
 {
 	long min = (mInput->latency > mOutput->latency) ? 
 		mInput->latency : mOutput->latency;
@@ -2252,7 +2252,7 @@ PUBLIC long Loop::getMinimumFrames()
  * RecordStop event and in some cases when it schedules one.
  * !! FIgure out why we need all these...
  */
-PUBLIC void Loop::prepareLoop(bool inputLatency, int extra)
+void Loop::prepareLoop(bool inputLatency, int extra)
 {
     // !! not implemented yet, think this through
     bool doExtra = false;
@@ -2348,7 +2348,7 @@ PUBLIC void Loop::prepareLoop(bool inputLatency, int extra)
  * can't think of an easy way to factor it out since there are
  * too many dependencies.
  */
-PUBLIC void Loop::finishRecording(Event* e)
+void Loop::finishRecording(Event* e)
 {
     if (mRecording) {
 
@@ -2407,7 +2407,7 @@ PUBLIC void Loop::finishRecording(Event* e)
  * Called when we're dropping out of various modes and can resume playback.
  * If overdub is still on, we resume overdub instead.
  */
-PUBLIC void Loop::resumePlay()
+void Loop::resumePlay()
 {
     // normally off by now, but make sure
     mRecording = false;
@@ -2452,7 +2452,7 @@ PUBLIC void Loop::resumePlay()
  * logic in jumpPlayEvent.  Some modes that don't ordinarily
  * require play jumps do not (Overdub, Multiply).
  */
-PRIVATE bool Loop::checkMuteCancel(Event* e)
+bool Loop::checkMuteCancel(Event* e)
 {
 	bool canceled = false;
 
@@ -2505,7 +2505,7 @@ PRIVATE bool Loop::checkMuteCancel(Event* e)
  * and Mobius::toggleBounceRecording.
  * 
  */
-PUBLIC void Loop::setMuteKludge(Function* f, bool mute)
+void Loop::setMuteKludge(Function* f, bool mute)
 {
 	// ignore if we're not in a mode that indicates content
 	// need a MobiusMode flag for this!!
@@ -2576,7 +2576,7 @@ PUBLIC void Loop::setMuteKludge(Function* f, bool mute)
  * This makes it possible to have "dangling" SUS up transitions
  * come in after the SUS mode was canceled.
  */
-PUBLIC Event* Loop::scheduleRoundingModeEnd(Action* action, Event* event)
+Event* Loop::scheduleRoundingModeEnd(Action* action, Event* event)
 {
     Event* endEvent = NULL;
 	bool ignoreTrigger = false;
@@ -2805,7 +2805,7 @@ PUBLIC Event* Loop::scheduleRoundingModeEnd(Action* action, Event* event)
  * Return true if the function being used to end the multiply
  * will result in an unrounded multiply.
  */
-PRIVATE bool Loop::isUnroundedEnding(Function* f)
+bool Loop::isUnroundedEnding(Function* f)
 {
 	bool unrounded = false;
 
@@ -2837,7 +2837,7 @@ PRIVATE bool Loop::isUnroundedEnding(Function* f)
  *
  * Assume that we quantize if the ending event is not already quantized.
  */
-PRIVATE long Loop::getUnroundedRecordStopFrame(Event* e)
+long Loop::getUnroundedRecordStopFrame(Event* e)
 {
 	long stopFrame = e->frame;
 
@@ -2912,7 +2912,7 @@ PRIVATE long Loop::getUnroundedRecordStopFrame(Event* e)
  * to do that.
  *
  */
-PRIVATE long Loop::getModeEndFrame(Event* event)
+long Loop::getModeEndFrame(Event* event)
 {
 	// mModeStartFrame has the realtime starting frame (latency adjusted)
 	long endFrame = event->frame;
@@ -3044,7 +3044,7 @@ PRIVATE long Loop::getModeEndFrame(Event* event)
  * UPDATE: Previous comment is obsolte, we no longer have MutePlay.
  * Delete when ready.
  */
-PRIVATE void Loop::moveModeEnd(Event* endEvent, long newFrame)
+void Loop::moveModeEnd(Event* endEvent, long newFrame)
 {
     EventManager* em = mTrack->getEventManager();
 	long delta = newFrame - endEvent->frame;
@@ -3100,7 +3100,7 @@ PRIVATE void Loop::moveModeEnd(Event* endEvent, long newFrame)
  * to just the original multiply.  
  * 
  */
-PUBLIC Event* Loop::scheduleModeEndPlayJump(Event* endEvent, bool unrounded)
+Event* Loop::scheduleModeEndPlayJump(Event* endEvent, bool unrounded)
 {
     EventManager* em = mTrack->getEventManager();
 	Event* jump = em->schedulePlayJump(this, endEvent);
@@ -3180,7 +3180,7 @@ PUBLIC Event* Loop::scheduleModeEndPlayJump(Event* endEvent, bool unrounded)
  * record layer when we reach the end event.  This is not subject
  * to unrounded endings.
  */
-PRIVATE long Loop::getModeInsertedFrames(Event* endEvent)
+long Loop::getModeInsertedFrames(Event* endEvent)
 {
 	long rawLength = endEvent->frame - mModeStartFrame;
 	long cycleFrames = getCycleFrames();
@@ -3232,7 +3232,7 @@ PRIVATE long Loop::getModeInsertedFrames(Event* endEvent)
  * 
  * 
  */
-PUBLIC void Loop::jumpPlayEvent(Event* e)
+void Loop::jumpPlayEvent(Event* e)
 {
 	Layer* currentLayer = ((mPrePlay != NULL) ? mPrePlay : mPlay);
 	Event* parent = e->getParent();
@@ -3580,7 +3580,7 @@ PUBLIC void Loop::jumpPlayEvent(Event* e)
  * to just get all the rules in one place.  When things settle down, think
  * about a way to move all the "family" specific stuff into the Function.
  */
-PRIVATE void Loop::adjustJump(Event* event, JumpContext* next)
+void Loop::adjustJump(Event* event, JumpContext* next)
 {
 	Event* primary = event;
 	Event* parent = event->getParent();
@@ -3694,7 +3694,7 @@ PRIVATE void Loop::adjustJump(Event* event, JumpContext* next)
  * If the speedOnly flag is on, then we're only interested in rate changes
  * this pass, but it's easier just to go through all the work twice.
  */
-PRIVATE void Loop::adjustSwitchJump(Event* jump, JumpContext* next)
+void Loop::adjustSwitchJump(Event* jump, JumpContext* next)
 {
 	Event* switche = jump->getParent();
 	Loop* nextLoop = switche->fields.loopSwitch.nextLoop;
@@ -4033,7 +4033,7 @@ PRIVATE void Loop::adjustSwitchJump(Event* jump, JumpContext* next)
 /**
  * Undo the effect of a previous play jump.
  */
-PUBLIC void Loop::jumpPlayEventUndo(Event* e)
+void Loop::jumpPlayEventUndo(Event* e)
 {
 	// If we were preplaying the record layer return to that, otherwise
 	// just stay in play
@@ -4125,7 +4125,7 @@ PUBLIC void Loop::jumpPlayEventUndo(Event* e)
  * started playback of the record loop, but now we need to return
  * to the original playback loop.
  */
-PUBLIC void Loop::cancelPrePlay()
+void Loop::cancelPrePlay()
 {
 	if (mPrePlay != NULL) {
 		// must also set this to avoid a fade
@@ -4153,7 +4153,7 @@ PUBLIC void Loop::cancelPrePlay()
  * counter at zero since we start by logically filling the empty first cycle.
  * Otherwise start it at 1 to represent the insertion of a new cycle.
  */
-PRIVATE void Loop::insertEvent(Event* e)
+void Loop::insertEvent(Event* e)
 {
 	if (mMode == RehearseMode) {
 		// just cancel rehearse and stay in the last loop
@@ -4196,7 +4196,7 @@ PRIVATE void Loop::insertEvent(Event* e)
  * a copy of the play layer like we do in a normal shift(), then 
  * clear it if we decide to stay in rehearse?
  */
-PUBLIC void Loop::cancelRehearse(Event* event)
+void Loop::cancelRehearse(Event* event)
 {
 	if (mMode == RehearseMode) {
 
@@ -4241,7 +4241,7 @@ PUBLIC void Loop::cancelRehearse(Event* event)
  * Since this is important, should make it visible as a reminder where
  * the stutter point will be?
  */
-PRIVATE Event* Loop::scheduleStutterTransition(bool ending)
+Event* Loop::scheduleStutterTransition(bool ending)
 {
 	Event* trans = NULL;
 	int inputLatency, outputLatency;
@@ -4304,7 +4304,7 @@ PRIVATE Event* Loop::scheduleStutterTransition(bool ending)
  *
  * This needs to be a MobiusMode and Function entry point!!
  */
-PUBLIC void Loop::stutterCycle()
+void Loop::stutterCycle()
 {
     // insert a cycle into the record layer
     mRecord->stutterCycle(mInput, mPlay, mModeStartFrame, mFrame);
@@ -4324,7 +4324,7 @@ PUBLIC void Loop::stutterCycle()
  * Be careful when undoing from a multiplied or inserted loop
  * back to a shorter one.
  */
-PUBLIC void Loop::undoEvent(Event* e)
+void Loop::undoEvent(Event* e)
 {
 	Layer* restore = NULL;
 	Layer* undo = NULL;
@@ -4526,7 +4526,7 @@ void Loop::addRedo(Event* e, Layer* undone)
  * synchronizing with a drum machine.  This means we can't just
  * lop off cycles.
  */
-PRIVATE void Loop::warpFrame()
+void Loop::warpFrame()
 {
 	long loopFrames = getFrames();
 	if (loopFrames > 0 && mFrame >= loopFrames) {
@@ -4573,7 +4573,7 @@ PRIVATE void Loop::warpFrame()
  *
  * !! Try to merge this with JumpPlayEvent.
  */
-PUBLIC void Loop::reversePlayEvent(Event* e) 
+void Loop::reversePlayEvent(Event* e) 
 {
 	// save previous state for undo
 	e->fields.jump.undoLayer = (mPrePlay != NULL) ? mPrePlay : mPlay;
@@ -4633,7 +4633,7 @@ PUBLIC void Loop::reversePlayEvent(Event* e)
 	}
 }
 
-PUBLIC void Loop::reversePlayEventUndo(Event* e)
+void Loop::reversePlayEventUndo(Event* e)
 {
     // most of the work is in here
     jumpPlayEventUndo(e);
@@ -4647,7 +4647,7 @@ PUBLIC void Loop::reversePlayEventUndo(Event* e)
  * Also called by Function when in ResetMode to toggle reverse
  * prior to the initial recording.
  */
-PUBLIC void Loop::setReverse(bool b)
+void Loop::setReverse(bool b)
 {
 	mInput->setReverse(b);
 }
@@ -4655,7 +4655,7 @@ PUBLIC void Loop::setReverse(bool b)
 /**
  * Perform a "loop size" reflection of a frame, warning in some conditions.
  */
-PUBLIC long Loop::reverseFrame(long frame)
+long Loop::reverseFrame(long frame)
 {
     long loopFrames = getFrames();
 
@@ -4691,7 +4691,7 @@ PUBLIC long Loop::reverseFrame(long frame)
  * handler above, we won't end up in the same Track or Loop.  This
  * is the *target* track.
  */
-PUBLIC void Loop::setBounceRecording(Audio* a, int cycles) 
+void Loop::setBounceRecording(Audio* a, int cycles) 
 {
 	// supposed to already be reset but make sure
 	// !! should we reset the controls here?
@@ -4777,7 +4777,7 @@ PUBLIC void Loop::setBounceRecording(Audio* a, int cycles)
  * which need to complete state transitions even if the new loop is reset.
  * END OLD COMMENTS
  */
-PUBLIC void Loop::switchEvent(Event* event)
+void Loop::switchEvent(Event* event)
 {
 	Loop* next = event->fields.loopSwitch.nextLoop;
 	bool restarting = (next == this);
@@ -5429,7 +5429,7 @@ PUBLIC void Loop::switchEvent(Event* event)
  * it through the function handler.  Since Record is so fundamental could
  * consider just having Loop functions for this?
  */
-PRIVATE void Loop::switchRecord(Loop* next, Event* switchEvent,
+void Loop::switchRecord(Loop* next, Event* switchEvent,
                                 Event* stackedEvent)
 {
     // TODO: What about ending with AutoRecord?
@@ -5466,7 +5466,7 @@ PRIVATE void Loop::switchRecord(Loop* next, Event* switchEvent,
  * be on in the next loop, we should be able to handle this like ending
  * a record with overdub and continue overdubbing seamlessly.  
  */
-PRIVATE Event* Loop::copySound(Loop* src, Function* initial,
+Event* Loop::copySound(Loop* src, Function* initial,
 							   bool checkCopyMode, long modeFrame)
 {
 	Event* event = NULL;
@@ -5547,7 +5547,7 @@ PRIVATE Event* Loop::copySound(Loop* src, Function* initial,
  * we're beginnign an insert in an "empty" layer.  It does this
  * by checking for a NULL segment list.
  */
-PRIVATE Event* Loop::copyTiming(Loop* src, long modeFrame)
+Event* Loop::copyTiming(Loop* src, long modeFrame)
 {
 	Event* event = NULL;
     EventManager* em = mTrack->getEventManager();
@@ -5632,7 +5632,7 @@ PRIVATE Event* Loop::copyTiming(Loop* src, long modeFrame)
  * Like SwitchEvent, we've already begun playing the next loop
  * after processing a JumpPlayEvent.
  */
-PUBLIC void Loop::returnEvent(Event* event)
+void Loop::returnEvent(Event* event)
 {
 	Loop* next = event->fields.loopSwitch.nextLoop;
 	bool empty = next->getFrames() == 0;
@@ -5717,7 +5717,7 @@ PUBLIC void Loop::returnEvent(Event* event)
  * If we do a TrackCopy we're only affecting the current loop.
  * Might be interesting to do a TrackReset first?
  */
-PUBLIC void Loop::trackEvent(Event* e)
+void Loop::trackEvent(Event* e)
 {
     Track* next = e->fields.trackSwitch.nextTrack;
 	if (next != NULL) {
@@ -5785,7 +5785,7 @@ PUBLIC void Loop::trackEvent(Event* e)
  * will be the same as "src" for EmptyTrackAction=copy and
  * the same as "dest" for TrackCopy.
  */
-PRIVATE void Loop::trackCopySound(Loop* src, Loop* dest)
+void Loop::trackCopySound(Loop* src, Loop* dest)
 {
     // this is complicated
     long startFrame = 0;
@@ -5815,7 +5815,7 @@ PRIVATE void Loop::trackCopySound(Loop* src, Loop* dest)
  * ?? What if the source loop is empty, go into reset or
  * leave it alone?
  */
-PRIVATE void Loop::trackCopyTiming(Loop* src, Loop* dest)
+void Loop::trackCopyTiming(Loop* src, Loop* dest)
 {
     // this is complicated
     long startFrame = 0;
@@ -5950,7 +5950,7 @@ PRIVATE void Loop::trackCopyTiming(Loop* src, Loop* dest)
  * They still be aligned, we must might shave a very small bit off the front.
  *
  */
-PRIVATE void Loop::getTrackCopyFrame(Loop* src, Loop* dest, 
+void Loop::getTrackCopyFrame(Loop* src, Loop* dest, 
                                      long* retStartFrame, long* retModeFrame)
 {
     long startFrame = src->getFrame();
@@ -6018,7 +6018,7 @@ PRIVATE void Loop::getTrackCopyFrame(Loop* src, Loop* dest,
  *
  * !! Should we be transfering the play state too (reverse, speed, etc.)
  */
-PUBLIC void Loop::trackCopySound(Track* src)
+void Loop::trackCopySound(Track* src)
 {
     if (src != NULL) {
 		// ignore tail capture?
@@ -6057,7 +6057,7 @@ PUBLIC void Loop::trackCopySound(Track* src)
  *
  * Here it seems like we should leave the track controls as they are.
  */
-PUBLIC void Loop::trackCopyTiming(Track* src)
+void Loop::trackCopyTiming(Track* src)
 {
     if (src != NULL) {
         reset(NULL);
@@ -6078,7 +6078,7 @@ PUBLIC void Loop::trackCopyTiming(Track* src)
 /**
  * Called by Synchronizer when we've begun recording another cycle
  */
-PUBLIC void Loop::setRecordCycles(long cycles)
+void Loop::setRecordCycles(long cycles)
 {
 	if (mRecord != NULL)
 	  mRecord->setCycles(cycles);
@@ -6100,7 +6100,7 @@ PUBLIC void Loop::setRecordCycles(long cycles)
  * !! Revisit this, the MuteRealign scheduler could stop record modes too.
  *
  */
-PRIVATE void Loop::cancelSyncMute(Event* e)
+void Loop::cancelSyncMute(Event* e)
 {
     EventManager* em = mTrack->getEventManager();
 	Event* mute = em->findEvent(MuteEvent);

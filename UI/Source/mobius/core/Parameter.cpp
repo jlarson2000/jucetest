@@ -21,23 +21,23 @@
 #include <memory.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "List.h"
-#include "MessageCatalog.h"
-#include "XmlModel.h"
-#include "XmlBuffer.h"
+#include "../../util/Util.h"
+#include "../../util/List.h"
+//#include "MessageCatalog.h"
+//#include "XmlModel.h"
+//#include "XmlBuffer.h"
 
 #include "Action.h"
-#include "Audio.h"
+#include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-#include "Messages.h"
+//#include "Messages.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "Mode.h"
 #include "Project.h"
-#include "Recorder.h"
-#include "Setup.h"
+//#include "Recorder.h"
+#include "../../model/Setup.h"
 #include "Track.h"
 #include "Script.h"
 #include "Synchronizer.h"
@@ -64,18 +64,18 @@ const char* BOOLEAN_VALUE_LABELS[] = {
 	NULL, NULL, NULL
 };
 
-PUBLIC Parameter::Parameter()
+Parameter::Parameter()
 {
     init();
 }
 
-PUBLIC Parameter::Parameter(const char* name, int key) :
+Parameter::Parameter(const char* name, int key) :
     SystemConstant(name, key)
 {
     init();
 }
 
-PRIVATE void Parameter::init()
+void Parameter::init()
 {
 	bindable = false;
 	dynamic = false;
@@ -102,7 +102,7 @@ PRIVATE void Parameter::init()
 	  aliases[i] = NULL;
 }
 
-PUBLIC Parameter::~Parameter()
+Parameter::~Parameter()
 {
 }
 
@@ -125,7 +125,7 @@ void Parameter::addAlias(const char* alias)
 /**
  * Must be overloaded in the subclass.
  */
-PUBLIC void Parameter::getObjectValue(void* object, ExValue* value)
+void Parameter::getObjectValue(void* object, ExValue* value)
 {
     Trace(1, "Parameter %s: getObjectValue not overloaded!\n",
           getName());
@@ -134,27 +134,27 @@ PUBLIC void Parameter::getObjectValue(void* object, ExValue* value)
 /**
  * Must be overloaded in the subclass.
  */
-PUBLIC void Parameter::setObjectValue(void* object, ExValue* value)
+void Parameter::setObjectValue(void* object, ExValue* value)
 {
     Trace(1, "Parameter %s: setObjectValue not overloaded!\n",
           getName());
 }
 
-PUBLIC void Parameter::getValue(Export* exp, ExValue* value)
+void Parameter::getValue(Export* exp, ExValue* value)
 {
     Trace(1, "Parameter %s: getValue not overloaded!\n",
           getName());
 	value->setString("");
 }
 
-PUBLIC int Parameter::getOrdinalValue(Export* exp)
+int Parameter::getOrdinalValue(Export* exp)
 {
     Trace(1, "Parameter %s: getOrdinalValue not overloaded! \n",
           getName());
     return -1;
 }
 
-PUBLIC void Parameter::setValue(Action* action)
+void Parameter::setValue(Action* action)
 {
     Trace(1, "Parameter %s: setValue not overloaded!\n",
           getName());
@@ -168,7 +168,7 @@ PUBLIC void Parameter::setValue(Action* action)
  *
  * We also handle the localization of the values.
  */
-PUBLIC void Parameter::localize(MessageCatalog* cat)
+void Parameter::localize(MessageCatalog* cat)
 {
     int key = getKey();
 
@@ -211,7 +211,7 @@ PUBLIC void Parameter::localize(MessageCatalog* cat)
 /**
  * Allocate a label array and fill it with nulls.
  */
-PRIVATE const char** Parameter::allocLabelArray(int size)
+const char** Parameter::allocLabelArray(int size)
 {
 	int fullsize = size + 1; // leave a null terminator
 	const char** labels = new const char*[fullsize];
@@ -228,12 +228,12 @@ PRIVATE const char** Parameter::allocLabelArray(int size)
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC int Parameter::getLow()
+int Parameter::getLow()
 {
     return low;
 }
 
-PUBLIC int Parameter::getHigh(MobiusInterface* m)
+int Parameter::getHigh(MobiusInterface* m)
 {
     int max = high;
 
@@ -248,7 +248,7 @@ PUBLIC int Parameter::getHigh(MobiusInterface* m)
     return max;
 }
 
-PUBLIC int Parameter::getBindingHigh(MobiusInterface* m)
+int Parameter::getBindingHigh(MobiusInterface* m)
 {
     int max = getHigh(m);
 
@@ -263,7 +263,7 @@ PUBLIC int Parameter::getBindingHigh(MobiusInterface* m)
 /**
  * Given an ordinal, map it into a display label.
  */
-PUBLIC void Parameter::getOrdinalLabel(MobiusInterface* m, 
+void Parameter::getOrdinalLabel(MobiusInterface* m, 
                                        int i, ExValue* value)
 {
 	if (valueLabels != NULL) {
@@ -279,7 +279,7 @@ PUBLIC void Parameter::getOrdinalLabel(MobiusInterface* m,
 	  value->setInt(i);
 }
 
-PUBLIC void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
+void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
 {
     // weird function used in just a few places by
     // things that overload getOrdinalLabel
@@ -295,7 +295,7 @@ PUBLIC void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
 /**
  * Emit the XML attribute for a parameter.
  */
-PUBLIC void Parameter::toXml(XmlBuffer* b, void* obj)
+void Parameter::toXml(XmlBuffer* b, void* obj)
 {
 	ExValue value;
 	getObjectValue(obj, &value);
@@ -322,7 +322,7 @@ PUBLIC void Parameter::toXml(XmlBuffer* b, void* obj)
  * but we have another parameter named inputPort that has to 
  * use that name so it can't be an alias of audioInputPort.
  */
-PUBLIC void Parameter::parseXml(XmlElement* e, void* obj)
+void Parameter::parseXml(XmlElement* e, void* obj)
 {
     const char* value = e->getAttribute(getName());
 
@@ -367,7 +367,7 @@ PUBLIC void Parameter::parseXml(XmlElement* e, void* obj)
  * This is the one used by most of the code, if the name doesn't match
  * it traces a warning message and returns the first value.
  */
-PUBLIC int Parameter::getEnum(const char *value)
+int Parameter::getEnum(const char *value)
 {
 	int ivalue = getEnumValue(value);
 
@@ -388,7 +388,7 @@ PUBLIC int Parameter::getEnum(const char *value)
  * where the enum is an optional script arg and we need to know
  * whether it really matched or not.
  */
-PUBLIC int Parameter::getEnumValue(const char *value)
+int Parameter::getEnumValue(const char *value)
 {
 	int ivalue = -1;
 
@@ -424,7 +424,7 @@ PUBLIC int Parameter::getEnumValue(const char *value)
  * Check for an enumeration value that has been changed and convert
  * the old name from the XML or script into the new name.
  */
-PUBLIC void Parameter::fixEnum(ExValue* value, const char* oldName, 
+void Parameter::fixEnum(ExValue* value, const char* oldName, 
                                const char* newName)
 {
 	if (value->getType() == EX_STRING) {
@@ -440,7 +440,7 @@ PUBLIC void Parameter::fixEnum(ExValue* value, const char* oldName,
  * !! this isn't used any more, if we're going to do scaling
  * it needs to be done in a way appropriate for the binding.
  */
-PUBLIC int Parameter::getControllerEnum(int value)
+int Parameter::getControllerEnum(int value)
 {
 	int ivalue = 0;
 
@@ -460,7 +460,7 @@ PUBLIC int Parameter::getControllerEnum(int value)
  * This must NOT scale, it is used in parameter setters
  * and must be symetrical with getOrdinalValue.
  */
-PUBLIC int Parameter::getEnum(ExValue *value)
+int Parameter::getEnum(ExValue *value)
 {
 	int ivalue = 0;
 
@@ -492,7 +492,7 @@ PUBLIC int Parameter::getEnum(ExValue *value)
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC Parameter* Parameter::getParameter(Parameter** group, 
+Parameter* Parameter::getParameter(Parameter** group, 
 										  const char* name)
 {
 	Parameter* found = NULL;
@@ -521,7 +521,7 @@ PUBLIC Parameter* Parameter::getParameter(Parameter** group,
 	return found;
 }
 
-PUBLIC Parameter* Parameter::getParameterWithDisplayName(Parameter** group,
+Parameter* Parameter::getParameterWithDisplayName(Parameter** group,
 														 const char* name)
 {
 	Parameter* found = NULL;
@@ -536,12 +536,12 @@ PUBLIC Parameter* Parameter::getParameterWithDisplayName(Parameter** group,
 	return found;
 }
 
-PUBLIC Parameter* Parameter::getParameter(const char* name)
+Parameter* Parameter::getParameter(const char* name)
 {
 	return getParameter(Parameters, name);
 }
 
-PUBLIC Parameter* Parameter::getParameterWithDisplayName(const char* name)
+Parameter* Parameter::getParameterWithDisplayName(const char* name)
 {
 	return getParameterWithDisplayName(Parameters, name);
 }
@@ -565,10 +565,10 @@ PUBLIC Parameter* Parameter::getParameterWithDisplayName(const char* name)
 
 #define MAX_STATIC_PARAMETERS 256
 
-PUBLIC Parameter* Parameters[MAX_STATIC_PARAMETERS];
-PRIVATE int ParameterIndex = 0;
+Parameter* Parameters[MAX_STATIC_PARAMETERS];
+int ParameterIndex = 0;
 
-PRIVATE void add(Parameter* p)
+void add(Parameter* p)
 {
 	if (ParameterIndex >= MAX_STATIC_PARAMETERS - 1) {
 		printf("Parameter array overflow!\n");
@@ -587,7 +587,7 @@ PRIVATE void add(Parameter* p)
  * the parameters out into several files, they are no longer accessible
  * with static initializers.
  */
-PUBLIC void Parameter::initParameters()
+void Parameter::initParameters()
 {
     // ignore if already initialized
     if (ParameterIndex == 0) {
@@ -771,7 +771,7 @@ PUBLIC void Parameter::initParameters()
 /**
  * Refresh the cached display names from the message catalog.
  */
-PUBLIC void Parameter::localizeAll(MessageCatalog* cat)
+void Parameter::localizeAll(MessageCatalog* cat)
 {
 	int i;
 
@@ -793,7 +793,7 @@ PUBLIC void Parameter::localizeAll(MessageCatalog* cat)
     //    dumpFlags();
 }
 
-PRIVATE void Parameter::checkAmbiguousNames()
+void Parameter::checkAmbiguousNames()
 {
 	int i;
 
@@ -812,7 +812,7 @@ PRIVATE void Parameter::checkAmbiguousNames()
     }
 }
 
-PRIVATE void Parameter::dumpFlags()
+void Parameter::dumpFlags()
 {
     int i;
 

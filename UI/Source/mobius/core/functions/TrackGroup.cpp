@@ -13,14 +13,14 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../../model/MobiusConfig.h"
+#include "../Track.h"
 
 /****************************************************************************
  *                                                                          *
@@ -35,22 +35,22 @@ class TrackGroupFunction : public Function {
 	void invokeLong(Action* action, Loop* l);
 };
 
-PUBLIC Function* TrackGroup = new TrackGroupFunction();
+Function* TrackGroup = new TrackGroupFunction();
 
-PUBLIC TrackGroupFunction::TrackGroupFunction() :
+TrackGroupFunction::TrackGroupFunction() :
     Function("TrackGroup", MSG_FUNC_TRACK_GROUP)
 {
 	longPressable = true;
 }
 
-PUBLIC void TrackGroupFunction::invokeLong(Action* action, Loop* l)
+void TrackGroupFunction::invokeLong(Action* action, Loop* l)
 {
     Track* t = l->getTrack();
 
 	t->setGroup(0);
 }
 
-PUBLIC Event* TrackGroupFunction::invoke(Action* action, Loop* l)
+Event* TrackGroupFunction::invoke(Action* action, Loop* l)
 {
     Track* t = l->getTrack();
     Mobius* m = l->getMobius();

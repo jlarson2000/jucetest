@@ -13,14 +13,14 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+//#include "Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -56,11 +56,11 @@ class CaptureFunction : public Function {
 	bool mSave;
 };
 
-PUBLIC Function* StartCapture = new CaptureFunction(false, false);
-PUBLIC Function* StopCapture = new CaptureFunction(true, false);
-PUBLIC Function* SaveCapture = new CaptureFunction(false, true);
+Function* StartCapture = new CaptureFunction(false, false);
+Function* StopCapture = new CaptureFunction(true, false);
+Function* SaveCapture = new CaptureFunction(false, true);
 
-PUBLIC CaptureFunction::CaptureFunction(bool stop, bool save)
+CaptureFunction::CaptureFunction(bool stop, bool save)
 {
 	global = true;
 	mStop = stop;
@@ -83,7 +83,7 @@ PUBLIC CaptureFunction::CaptureFunction(bool stop, bool save)
 	}
 }
 
-PUBLIC void CaptureFunction::invoke(Action* action, Mobius* m)
+void CaptureFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

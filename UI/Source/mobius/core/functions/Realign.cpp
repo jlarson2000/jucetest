@@ -39,22 +39,22 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Mode.h"
-#include "Setup.h"
-#include "Synchronizer.h"
-#include "SyncState.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../../model/MobiusConfig.h"
+#include "../Mode.h"
+#include "../Setup.h"
+#include "../Synchronizer.h"
+#include "../SyncState.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -67,12 +67,12 @@ class RealignEventType : public EventType {
 	RealignEventType();
 };
 
-PUBLIC RealignEventType::RealignEventType()
+RealignEventType::RealignEventType()
 {
 	name = "Realign";
 }
 
-PUBLIC EventType* RealignEvent = new RealignEventType();
+EventType* RealignEvent = new RealignEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -93,10 +93,10 @@ class RealignFunction : public Function {
 	bool mute;
 };
 
-PUBLIC Function* Realign = new RealignFunction(false);
-PUBLIC Function* MuteRealign = new RealignFunction(true);
+Function* Realign = new RealignFunction(false);
+Function* MuteRealign = new RealignFunction(true);
 
-PUBLIC RealignFunction::RealignFunction(bool b)
+RealignFunction::RealignFunction(bool b)
 {
 	eventType = RealignEvent;
 	cancelReturn = true;
@@ -138,7 +138,7 @@ PUBLIC RealignFunction::RealignFunction(bool b)
  *
  * 
  */
-PUBLIC Event* RealignFunction::scheduleEvent(Action* action, Loop* l)
+Event* RealignFunction::scheduleEvent(Action* action, Loop* l)
 {
     EventManager* em = l->getTrack()->getEventManager();
 	Event* realignEvent = NULL;
@@ -222,7 +222,7 @@ PUBLIC Event* RealignFunction::scheduleEvent(Action* action, Loop* l)
 	return realignEvent;
 }
 
-PUBLIC Event* RealignFunction::scheduleSwitchStack(Action* action, Loop* l)
+Event* RealignFunction::scheduleSwitchStack(Action* action, Loop* l)
 {
 	Event* event = Function::scheduleSwitchStack(action, l);
 
@@ -243,9 +243,9 @@ class DriftCorrectFunction : public Function {
   private:
 };
 
-PUBLIC Function* DriftCorrect = new DriftCorrectFunction();
+Function* DriftCorrect = new DriftCorrectFunction();
 
-PUBLIC DriftCorrectFunction::DriftCorrectFunction() :
+DriftCorrectFunction::DriftCorrectFunction() :
     Function("DriftCorrect", 0)
 {
     global = true;
@@ -259,7 +259,7 @@ PUBLIC DriftCorrectFunction::DriftCorrectFunction() :
     scriptOnly = true;
 }
 
-PUBLIC void DriftCorrectFunction::invoke(Action* action, Mobius* m)
+void DriftCorrectFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

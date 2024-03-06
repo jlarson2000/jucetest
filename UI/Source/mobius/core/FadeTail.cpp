@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
 // for AUDIO_MAX_CHANNELS, etc.
 #include "AudioInterface.h"
@@ -32,7 +32,7 @@
  * to our base location in the audio interrupt buffer.  So the buffer must
  * be ast least as large as one interrupt buffer, plus the fade length.
  */
-PUBLIC FadeTail::FadeTail()
+FadeTail::FadeTail()
 {
 	mMaxFrames = AUDIO_MAX_FRAMES_PER_BUFFER + AUDIO_MAX_FADE_FRAMES;
 	mTail = NULL;
@@ -48,19 +48,19 @@ PUBLIC FadeTail::FadeTail()
 	memset(mTail, 0, tailSamples * sizeof(float));
 }
 
-PUBLIC FadeTail::~FadeTail()
+FadeTail::~FadeTail()
 {
 	delete mTail;
 }
 
-PUBLIC void FadeTail::reset()
+void FadeTail::reset()
 {
 	mStart = 0;
 	mFrames = 0;
 	mRecordOffset = 0;
 }
 
-PUBLIC int FadeTail::getFrames()
+int FadeTail::getFrames()
 {
 	return mFrames;
 }
@@ -68,7 +68,7 @@ PUBLIC int FadeTail::getFrames()
 /**
  * Reset the record offset at the start of a new interrupt.
  */
-PUBLIC void FadeTail::initRecordOffset()
+void FadeTail::initRecordOffset()
 {
 	mRecordOffset = 0;
 }
@@ -78,7 +78,7 @@ PUBLIC void FadeTail::initRecordOffset()
  * to the record offset.  This will happen only if the interrupt block is being
  * broken up with events.
  */
-PUBLIC void FadeTail::incRecordOffset(int frames)
+void FadeTail::incRecordOffset(int frames)
 {
 	mRecordOffset += frames;
 }
@@ -88,7 +88,7 @@ static int AddTailCount = 1;
 /**
  * Add a captured tail to the tail buffer.
  */
-PUBLIC void FadeTail::add(float* tail, long frames)
+void FadeTail::add(float* tail, long frames)
 {
 	if (frames > 0) {
 		bool trace = false;
@@ -166,7 +166,7 @@ PUBLIC void FadeTail::add(float* tail, long frames)
  * we can merge all the tails captured during the block, and can
  * therefore reset the record offset.
  */
-PUBLIC long FadeTail::play(float* outbuf, long frames) 
+long FadeTail::play(float* outbuf, long frames) 
 {
 	long playFrames = 0;
 
@@ -198,7 +198,7 @@ PUBLIC long FadeTail::play(float* outbuf, long frames)
  * in the tail.  Besides copying the frames, we also zero
  * the tail source so we can wrap and keep accumulating new tails.
  */
-PRIVATE float* FadeTail::playRegion(float* outbuf, long frames)
+float* FadeTail::playRegion(float* outbuf, long frames)
 {
 	int samples = frames * mChannels;
 

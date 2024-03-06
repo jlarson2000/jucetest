@@ -13,15 +13,15 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Layer.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Layer.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -54,11 +54,11 @@ class ResetFunction : public Function {
   private:
 };
 
-PUBLIC Function* Reset = new ResetFunction(false, false);
-PUBLIC Function* TrackReset = new ResetFunction(true, false);
-PUBLIC Function* GlobalReset = new ResetFunction(false, true);
+Function* Reset = new ResetFunction(false, false);
+Function* TrackReset = new ResetFunction(true, false);
+Function* GlobalReset = new ResetFunction(false, true);
 
-PUBLIC ResetFunction::ResetFunction(bool gen, bool glob)
+ResetFunction::ResetFunction(bool gen, bool glob)
 {
     mMode = ResetMode;
 	majorMode = true;
@@ -90,7 +90,7 @@ PUBLIC ResetFunction::ResetFunction(bool gen, bool glob)
 	}
 }
 
-PUBLIC Event* ResetFunction::invoke(Action* action, Loop* loop)
+Event* ResetFunction::invoke(Action* action, Loop* loop)
 {
 	if (action->down) {
 		trace(action, loop);

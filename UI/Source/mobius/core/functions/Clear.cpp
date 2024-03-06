@@ -13,15 +13,15 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Stream.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+//#include "Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Stream.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -34,12 +34,12 @@ class ClearEventType : public EventType {
 	ClearEventType();
 };
 
-PUBLIC ClearEventType::ClearEventType()
+ClearEventType::ClearEventType()
 {
 	name = "Clear";
 }
 
-PUBLIC EventType* ClearEvent = new ClearEventType();
+EventType* ClearEvent = new ClearEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -56,9 +56,9 @@ class ClearFunction : public Function {
 	bool start;
 };
 
-PUBLIC Function* Clear = new ClearFunction();
+Function* Clear = new ClearFunction();
 
-PUBLIC ClearFunction::ClearFunction() :
+ClearFunction::ClearFunction() :
     Function("Clear", MSG_FUNC_CLEAR)
 {
 	eventType = ClearEvent;
@@ -72,7 +72,7 @@ PUBLIC ClearFunction::ClearFunction() :
  * shift by entering a minor mute mode but that seems
  * unreliable?
  */
-PUBLIC void ClearFunction::doEvent(Loop* loop, Event* event)
+void ClearFunction::doEvent(Loop* loop, Event* event)
 {
 	OutputStream* output = loop->getOutputStream();
 

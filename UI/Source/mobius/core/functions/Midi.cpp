@@ -17,24 +17,24 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "MidiByte.h"
-#include "MidiEvent.h"
-#include "MidiInterface.h"
+#include "../MidiByte.h"
+#include "../MidiEvent.h"
+#include "../MidiInterface.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Expr.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Expr.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -47,12 +47,12 @@ class MidiStartEventType : public EventType {
 	MidiStartEventType();
 };
 
-PUBLIC MidiStartEventType::MidiStartEventType()
+MidiStartEventType::MidiStartEventType()
 {
 	name = "MidiStart";
 }
 
-PUBLIC EventType* MidiStartEvent = new MidiStartEventType();
+EventType* MidiStartEvent = new MidiStartEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -71,10 +71,10 @@ class MidiStartFunction : public Function {
 	bool mute;
 };
 
-PUBLIC Function* MidiStart = new MidiStartFunction(false);
-PUBLIC Function* MuteMidiStart = new MidiStartFunction(true);
+Function* MidiStart = new MidiStartFunction(false);
+Function* MuteMidiStart = new MidiStartFunction(true);
 
-PUBLIC MidiStartFunction::MidiStartFunction(bool b)
+MidiStartFunction::MidiStartFunction(bool b)
 {
 	eventType = MidiStartEvent;
 	resetEnabled = true;
@@ -113,7 +113,7 @@ PUBLIC MidiStartFunction::MidiStartFunction(bool b)
  * while there is a MidiStart event at the end, if the loop length is
  * changed we should try to reschedule the event.
  */
-PUBLIC Event* MidiStartFunction::scheduleEvent(Action* action, Loop* l)
+Event* MidiStartFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* startEvent = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -231,12 +231,12 @@ class MidiStopEventType : public EventType {
 	MidiStopEventType();
 };
 
-PUBLIC MidiStopEventType::MidiStopEventType()
+MidiStopEventType::MidiStopEventType()
 {
 	name = "MidiStop";
 }
 
-PUBLIC EventType* MidiStopEvent = new MidiStopEventType();
+EventType* MidiStopEvent = new MidiStopEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -251,9 +251,9 @@ class MidiStopFunction : public Function {
     void doEvent(Loop* l, Event* e);
 };
 
-PUBLIC Function* MidiStop = new MidiStopFunction();
+Function* MidiStop = new MidiStopFunction();
 
-PUBLIC MidiStopFunction::MidiStopFunction() :
+MidiStopFunction::MidiStopFunction() :
     Function("MidiStop", MSG_FUNC_MIDI_STOP)
 {
 	setHelp("Send MIDI Stop");
@@ -266,7 +266,7 @@ PUBLIC MidiStopFunction::MidiStopFunction() :
 	switchStack = true;
 }
 
-PUBLIC Event* MidiStopFunction::scheduleEvent(Action* action, Loop* l)
+Event* MidiStopFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* e = Function::scheduleEvent(action, l);
 	if (l->getMode() == ResetMode)
@@ -307,9 +307,9 @@ class MidiOutFunction : public Function {
 	void invoke(Action* action, Mobius* m);
 };
 
-PUBLIC Function* MidiOut = new MidiOutFunction();
+Function* MidiOut = new MidiOutFunction();
 
-PUBLIC MidiOutFunction::MidiOutFunction() :
+MidiOutFunction::MidiOutFunction() :
     Function("MidiOut", MSG_FUNC_MIDI_OUT)
 {
 	setHelp("Send MIDI message");
@@ -331,7 +331,7 @@ PUBLIC MidiOutFunction::MidiOutFunction() :
  * value: 0-127
  * velocity: 0-127
  */
-PUBLIC void MidiOutFunction::invoke(Action* action, Mobius* m)
+void MidiOutFunction::invoke(Action* action, Mobius* m)
 {
 	int status = 0;
 	int channel = 0;

@@ -42,15 +42,15 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Layer.h"
-#include "Loop.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Layer.h"
+#include "../Loop.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -84,12 +84,12 @@ class OverdubEventType : public EventType {
 	OverdubEventType();
 };
 
-PUBLIC OverdubEventType::OverdubEventType()
+OverdubEventType::OverdubEventType()
 {
 	name = "Overdub";
 }
 
-PUBLIC EventType* OverdubEvent = new OverdubEventType();
+EventType* OverdubEvent = new OverdubEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -116,13 +116,13 @@ class OverdubFunction : public Function {
 };
 
 // have to define sus first for longFunction
-PUBLIC Function* SUSOverdub = new OverdubFunction(true, true, false);
-PUBLIC Function* Overdub = new OverdubFunction(false, true, false);
+Function* SUSOverdub = new OverdubFunction(true, true, false);
+Function* Overdub = new OverdubFunction(false, true, false);
 
-PUBLIC Function* OverdubOff = new OverdubFunction(false, false, true);
-PUBLIC Function* OverdubOn = new OverdubFunction(false, false, false);
+Function* OverdubOff = new OverdubFunction(false, false, true);
+Function* OverdubOn = new OverdubFunction(false, false, false);
 
-PUBLIC OverdubFunction::OverdubFunction(bool sus, bool tog, bool turnOff)
+OverdubFunction::OverdubFunction(bool sus, bool tog, bool turnOff)
 {
 	eventType = OverdubEvent;
     mMode = OverdubMode;
@@ -173,7 +173,7 @@ PUBLIC OverdubFunction::OverdubFunction(bool sus, bool tog, bool turnOff)
 	}
 }
 
-PUBLIC bool OverdubFunction::isSustain(Preset* p)
+bool OverdubFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -193,7 +193,7 @@ PUBLIC bool OverdubFunction::isSustain(Preset* p)
  * quantization rather than cancels the event.  This could lead to some
  * meaningless event stacks
  */
-PUBLIC Event* OverdubFunction::scheduleEvent(Action* action, Loop* l)
+Event* OverdubFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
 	MobiusMode* mode = l->getMode();
@@ -267,7 +267,7 @@ void OverdubFunction::doEvent(Loop* loop, Event* event)
 /**
  * TODO: Long-Overdub is supposed to become SUSOverdub
  */
-PUBLIC void OverdubFunction::invokeLong(Action* action, Loop* l)
+void OverdubFunction::invokeLong(Action* action, Loop* l)
 {
 }
 

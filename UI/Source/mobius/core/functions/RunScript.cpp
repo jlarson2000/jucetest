@@ -14,17 +14,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Script.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Script.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -41,12 +41,12 @@ class RunScriptEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC RunScriptEventType::RunScriptEventType()
+RunScriptEventType::RunScriptEventType()
 {
 	name = "RunScript";
 }
 
-PUBLIC void RunScriptEventType::invoke(Loop* l, Event* e)
+void RunScriptEventType::invoke(Loop* l, Event* e)
 {
     // Original Action must be left on the event, steal it
     Action* action = e->getAction();
@@ -67,7 +67,7 @@ PUBLIC void RunScriptEventType::invoke(Loop* l, Event* e)
 	}
 }
 
-PUBLIC EventType* RunScriptEvent = new RunScriptEventType();
+EventType* RunScriptEvent = new RunScriptEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -84,12 +84,12 @@ class ScriptEventType : public EventType {
 	void invoke(Loop* l, Event* e);
 };
 
-PUBLIC ScriptEventType::ScriptEventType()
+ScriptEventType::ScriptEventType()
 {
 	name = "Script";
 }
 
-PUBLIC void ScriptEventType::invoke(Loop* l, Event* e)
+void ScriptEventType::invoke(Loop* l, Event* e)
 {
 	ScriptInterpreter* si = e->getScript();
 
@@ -99,7 +99,7 @@ PUBLIC void ScriptEventType::invoke(Loop* l, Event* e)
 	  si->scriptEvent(l, e);
 }
 
-PUBLIC EventType* ScriptEvent = new ScriptEventType();
+EventType* ScriptEvent = new ScriptEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -126,7 +126,7 @@ class RunScriptFunction : public Function {
 };
 #endif
 
-PUBLIC RunScriptFunction::RunScriptFunction(Script* s)
+RunScriptFunction::RunScriptFunction(Script* s)
 {
 	eventType = RunScriptEvent;
 	object = s;
@@ -170,7 +170,7 @@ PUBLIC RunScriptFunction::RunScriptFunction(Script* s)
  * Overload this so we can search for script functions by name as
  * if they were builtins.
  */
-PUBLIC bool RunScriptFunction::isMatch(const char* xname)
+bool RunScriptFunction::isMatch(const char* xname)
 {
 	bool match = Function::isMatch(xname);
 	if (!match)
@@ -184,7 +184,7 @@ PUBLIC bool RunScriptFunction::isMatch(const char* xname)
  * as a track event, in which case we'll end up in the Loop invoke
  * method below.
  */
-PUBLIC void RunScriptFunction::invoke(Action* action, Mobius* m)
+void RunScriptFunction::invoke(Action* action, Mobius* m)
 {
 	m->runScript(action);
 }
@@ -205,9 +205,9 @@ class ResumeScriptFunction : public Function {
 	Event* invoke(Action* action, Loop* l);
 };
 
-PUBLIC Function* ResumeScript = new ResumeScriptFunction();
+Function* ResumeScript = new ResumeScriptFunction();
 
-PUBLIC ResumeScriptFunction::ResumeScriptFunction() :
+ResumeScriptFunction::ResumeScriptFunction() :
     Function("ResumeScript", MSG_FUNC_RESUME_SCRIPT)
 {
 	noFocusLock = true;
@@ -216,7 +216,7 @@ PUBLIC ResumeScriptFunction::ResumeScriptFunction() :
     scriptOnly = true;
 }
 
-PUBLIC Event* ResumeScriptFunction::invoke(Action* action, Loop* l)
+Event* ResumeScriptFunction::invoke(Action* action, Loop* l)
 {
 	if (action->down) {
 		trace(action, l);
@@ -239,9 +239,9 @@ class ReloadScriptsFunction : public Function {
 	void invoke(Action* action, Mobius* m);
 };
 
-PUBLIC Function* ReloadScripts = new ReloadScriptsFunction();
+Function* ReloadScripts = new ReloadScriptsFunction();
 
-PUBLIC ReloadScriptsFunction::ReloadScriptsFunction() :
+ReloadScriptsFunction::ReloadScriptsFunction() :
     Function("reloadScripts", MSG_FUNC_RELOAD_SCRIPTS)
 {
     global = true;
@@ -250,7 +250,7 @@ PUBLIC ReloadScriptsFunction::ReloadScriptsFunction() :
     outsideInterrupt = true;
 }
 
-PUBLIC void ReloadScriptsFunction::invoke(Action* action, Mobius* m)
+void ReloadScriptsFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

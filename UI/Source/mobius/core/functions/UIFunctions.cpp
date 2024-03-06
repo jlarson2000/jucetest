@@ -17,14 +17,14 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -46,10 +46,10 @@ class UIFunction : public Function {
     UIFunctionType mType;
 };
 
-PUBLIC Function* UIRedraw = new UIFunction(UI_REDRAW);
+Function* UIRedraw = new UIFunction(UI_REDRAW);
 
 
-PUBLIC UIFunction::UIFunction(UIFunctionType type)
+UIFunction::UIFunction(UIFunctionType type)
 {
     mType = type;
 	global = true;
@@ -63,7 +63,7 @@ PUBLIC UIFunction::UIFunction(UIFunctionType type)
     }
 }
 
-PUBLIC void UIFunction::invoke(Action* action, Mobius* m)
+void UIFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);

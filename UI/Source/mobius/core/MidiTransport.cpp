@@ -52,8 +52,8 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#include "Trace.h"
-#include "Thread.h"
+#include "../../util/Trace.h"
+//#include "Thread.h"
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
@@ -71,7 +71,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MidiTransport::MidiTransport(MidiInterface* midi, int sampleRate)
+MidiTransport::MidiTransport(MidiInterface* midi, int sampleRate)
 {
     mMidi = midi;
     mSampleRate = sampleRate;
@@ -94,7 +94,7 @@ PUBLIC MidiTransport::MidiTransport(MidiInterface* midi, int sampleRate)
     mImmediateTransportQueue = false;
 }
 
-PUBLIC MidiTransport::~MidiTransport()
+MidiTransport::~MidiTransport()
 {
 	if (mMidi != NULL)
 	  mMidi->setClockListener(NULL);
@@ -116,7 +116,7 @@ PUBLIC MidiTransport::~MidiTransport()
  * sending start or continue which is what the MIDI spec requires.  
  * MidiQueue knows to merge those when converting them to Events.
  */
-PUBLIC void MidiTransport::midiClockEvent()
+void MidiTransport::midiClockEvent()
 {
     // After posting transport events like MS_START or MS_CONTINUE 
     // we normally want to ignore the few remaining clock pulses that 
@@ -132,7 +132,7 @@ PUBLIC void MidiTransport::midiClockEvent()
  * Note that MidiTimer will immediately call midiClockEvent since
  * it must send a clock after every START or CONTINUE
  */
-PUBLIC void MidiTransport::midiStartEvent()
+void MidiTransport::midiStartEvent()
 {
     if (mImmediateTransportQueue) {
         // we queued the events in start() don't need to do them here
@@ -149,7 +149,7 @@ PUBLIC void MidiTransport::midiStartEvent()
 /**
  * Called indirectly by MidiTimer when it sends an MS_CONTINUE event.
  */
-PUBLIC void MidiTransport::midiContinueEvent()
+void MidiTransport::midiContinueEvent()
 {
     if (mImmediateTransportQueue) {
         // we queued the events in midiContinue() don't need to do them here
@@ -166,7 +166,7 @@ PUBLIC void MidiTransport::midiContinueEvent()
 /**
  * Called indirectly by MidiTimer when it sends an MS_STOP event.
  */
-PUBLIC void MidiTransport::midiStopEvent()
+void MidiTransport::midiStopEvent()
 {
     if (mImmediateTransportQueue) {
         // we queued the event in stop() don't need to do it here
@@ -186,7 +186,7 @@ PUBLIC void MidiTransport::midiStopEvent()
 /**
  * Changes the the output tempo.
  */
-PUBLIC void MidiTransport::setTempo(TraceContext* context, float tempo)
+void MidiTransport::setTempo(TraceContext* context, float tempo)
 {
 	if (tempo < 0) {
 		Trace(context, 1, "MidiTransport: Invalid negative tempo!\n");
@@ -218,7 +218,7 @@ PUBLIC void MidiTransport::setTempo(TraceContext* context, float tempo)
  * Call this only for the master track after the tempo has been calculated.
  * This should only called when SyncMode=OutUserStart.
  */
-PUBLIC void MidiTransport::startClocks(TraceContext* c)
+void MidiTransport::startClocks(TraceContext* c)
 {
 	if (!mSending && mTempo > 0) {
 
@@ -237,7 +237,7 @@ PUBLIC void MidiTransport::startClocks(TraceContext* c)
  * the internal millisecond counters that determine when the next
  * clock will be sent, so we get a full pulse width after the start event.
  */
-PUBLIC void MidiTransport::start(TraceContext* c)
+void MidiTransport::start(TraceContext* c)
 {
 	Trace(c, 2, "MidiTransport: Sending MIDI Start, tempo (x100) %ld\n",
 		  (long)(mTempo * 100));
@@ -289,7 +289,7 @@ PUBLIC void MidiTransport::start(TraceContext* c)
  * Send a MIDI stop event and optionally stop clocks.
  * Call this only for the out sync master track.
  */
-PUBLIC void MidiTransport::stop(TraceContext* c, bool sendStop, 
+void MidiTransport::stop(TraceContext* c, bool sendStop, 
                                 bool stopClocks)
 {
     if (sendStop) {
@@ -325,7 +325,7 @@ PUBLIC void MidiTransport::stop(TraceContext* c, bool sendStop,
  * This little pattern was used in a few places in Synchronizer, 
  * not sure if it is necessary but preserve it.
  */
-PUBLIC void MidiTransport::fullStop(TraceContext* c, const char* msg)
+void MidiTransport::fullStop(TraceContext* c, const char* msg)
 {
     if (mSending) {
         Trace(c, 2, msg);
@@ -335,7 +335,7 @@ PUBLIC void MidiTransport::fullStop(TraceContext* c, const char* msg)
     mIgnoreClocks = false;
 }
 
-PUBLIC void MidiTransport::midiContinue(TraceContext* c)
+void MidiTransport::midiContinue(TraceContext* c)
 {
 	Trace(c, 2, "MidiTransport: Sending MIDI Continue\n");
 		
@@ -376,7 +376,7 @@ PUBLIC void MidiTransport::midiContinue(TraceContext* c)
  * already there, still increment the start count."
  *
  */
-PUBLIC void MidiTransport::incStarts()
+void MidiTransport::incStarts()
 {
     mStarts++;
 }
@@ -390,7 +390,7 @@ PUBLIC void MidiTransport::incStarts()
 /**
  * For variable syncOutTempo.
  */
-PUBLIC float MidiTransport::getTempo()
+float MidiTransport::getTempo()
 {
 	return mTempo;
 }
@@ -401,7 +401,7 @@ PUBLIC float MidiTransport::getTempo()
  * The current raw beat count maintained by the internal clock.
  * This will be zero if the internal clock is not running.
  */
-PUBLIC int MidiTransport::getRawBeat()
+int MidiTransport::getRawBeat()
 {
 	MidiState* s = mQueue.getMidiState();
 	return s->beat;
@@ -415,7 +415,7 @@ PUBLIC int MidiTransport::getRawBeat()
  * beatsPerBar will be taken from the recordBeats or subcycles
  * parameters of the track preset.
  */
-PUBLIC int MidiTransport::getBeat(int beatsPerBar)
+int MidiTransport::getBeat(int beatsPerBar)
 {
 	MidiState* s = mQueue.getMidiState();
 	int beat = s->beat;
@@ -435,7 +435,7 @@ PUBLIC int MidiTransport::getBeat(int beatsPerBar)
  * beatsPerBar will be taken from the recordBeats or subcycles
  * parameters of the track preset.
  */
-PUBLIC int MidiTransport::getBar(int beatsPerBar)
+int MidiTransport::getBar(int beatsPerBar)
 {
 	MidiState* s = mQueue.getMidiState();
 	int beat = s->beat;
@@ -450,7 +450,7 @@ PUBLIC int MidiTransport::getBar(int beatsPerBar)
  * For variable syncOutSending.
  * Return true if we're sending clocks.
  */
-PUBLIC bool MidiTransport::isSending()
+bool MidiTransport::isSending()
 {
 	return mSending;
 }
@@ -459,7 +459,7 @@ PUBLIC bool MidiTransport::isSending()
  * For variable syncOutStarted.
  * Return true if we've sent the MIDI Start event and are sending clocks.
  */
-PUBLIC bool MidiTransport::isStarted()
+bool MidiTransport::isStarted()
 {
 	return (mStarts > 0);
 }
@@ -469,7 +469,7 @@ PUBLIC bool MidiTransport::isStarted()
  * Return the number of Start messages sent since the last stop.
  * Used by unit tests to verify that we're sending start messages.
  */
-PUBLIC int MidiTransport::getStarts()
+int MidiTransport::getStarts()
 {
 	return mStarts;
 }
@@ -480,7 +480,7 @@ PUBLIC int MidiTransport::getStarts()
  * Be sure to return the ITERATOR clock, not the global one that hasn't
  * been incremented yet.
  */
-PUBLIC int MidiTransport::getSongClock()
+int MidiTransport::getSongClock()
 {
 	MidiState* s = mQueue.getMidiState();
 	return s->songClock;
@@ -495,7 +495,7 @@ PUBLIC int MidiTransport::getSongClock()
 /**
  * Called at the beginning of each audio interrupt to prepare the MidiQueue.
  */
-PUBLIC void MidiTransport::interruptStart(long millisecond)
+void MidiTransport::interruptStart(long millisecond)
 {
     // remember for a few adjusments
     mInterruptMsec = millisecond;
@@ -507,12 +507,12 @@ PUBLIC void MidiTransport::interruptStart(long millisecond)
  * The queue is updated as we send MIDI events to the output port.
  * Generates start/stop/continue/clockPulse/barPulse events
  */
-PUBLIC Event* MidiTransport::getEvents(EventPool* pool, long interruptFrames)
+Event* MidiTransport::getEvents(EventPool* pool, long interruptFrames)
 {
     return mQueue.getEvents(pool, interruptFrames);
 }
 
-PUBLIC bool MidiTransport::hasEvents()
+bool MidiTransport::hasEvents()
 {
     return mQueue.hasEvents();
 }

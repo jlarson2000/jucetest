@@ -23,24 +23,24 @@
 #include <memory.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "List.h"
-#include "MessageCatalog.h"
-#include "XmlModel.h"
-#include "XmlBuffer.h"
+#include "../../util/Util.h"
+#include "../../util/List.h"
+//#include "MessageCatalog.h"
+//#include "XmlModel.h"
+//#include "XmlBuffer.h"
 
 #include "Action.h"
-#include "Audio.h"
+#include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-#include "Messages.h"
+//#include "Messages.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "Mode.h"
 #include "Project.h"
-#include "Recorder.h"
+//#include "Recorder.h"
 #include "Resampler.h"
-#include "Setup.h"
+#include "../../model/Setup.h"
 #include "Track.h"
 #include "Script.h"
 #include "Synchronizer.h"
@@ -189,7 +189,7 @@ void SubCycleParameterType::setValue(Preset* p, ExValue* value)
 	p->setSubcycles(value->getInt());
 }
 
-PUBLIC Parameter* SubCycleParameter = new SubCycleParameterType();
+Parameter* SubCycleParameter = new SubCycleParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -254,7 +254,7 @@ void MultiplyModeParameterType::setValue(Preset* p, ExValue* value)
 	p->setMultiplyMode((Preset::MultiplyMode)getEnum(value));
 }
 
-PUBLIC Parameter* MultiplyModeParameter = new MultiplyModeParameterType();
+Parameter* MultiplyModeParameter = new MultiplyModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -307,7 +307,7 @@ void ShuffleModeParameterType::setValue(Preset* p, ExValue* value)
 	p->setShuffleMode((Preset::ShuffleMode)getEnum(value));
 }
 
-PUBLIC Parameter* ShuffleModeParameter = new ShuffleModeParameterType();
+Parameter* ShuffleModeParameter = new ShuffleModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -346,7 +346,7 @@ void AltFeedbackEnableParameterType::setValue(Preset* p, ExValue* value)
 	p->setAltFeedbackEnable(value->getBool());
 }
 
-PUBLIC Parameter* AltFeedbackEnableParameter = new AltFeedbackEnableParameterType();
+Parameter* AltFeedbackEnableParameter = new AltFeedbackEnableParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -410,7 +410,7 @@ void EmptyLoopActionParameterType::setValue(Preset* p, ExValue* value)
       p->setEmptyLoopAction((Preset::EmptyLoopAction)getEnum(value));
 }
 
-PUBLIC Parameter* EmptyLoopActionParameter = new EmptyLoopActionParameterType();
+Parameter* EmptyLoopActionParameter = new EmptyLoopActionParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -451,7 +451,7 @@ void EmptyTrackActionParameterType::setValue(Preset* p, ExValue* value)
 	p->setEmptyTrackAction((Preset::EmptyLoopAction)getEnum(value));
 }
 
-PUBLIC Parameter* EmptyTrackActionParameter = new EmptyTrackActionParameterType();
+Parameter* EmptyTrackActionParameter = new EmptyTrackActionParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -503,7 +503,7 @@ void TrackLeaveActionParameterType::setValue(Preset* p, ExValue* value)
 	p->setTrackLeaveAction((Preset::TrackLeaveAction)getEnum(value));
 }
 
-PUBLIC Parameter* TrackLeaveActionParameter = new TrackLeaveActionParameterType();
+Parameter* TrackLeaveActionParameter = new TrackLeaveActionParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -550,7 +550,7 @@ void LoopCountParameterType::setValue(Preset* p, ExValue* value)
 	p->setLoops(value->getInt());
 }
 
-PUBLIC Parameter* LoopCountParameter = new LoopCountParameterType();
+Parameter* LoopCountParameter = new LoopCountParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -607,7 +607,7 @@ void MuteModeParameterType::setValue(Preset* p, ExValue* value)
 	p->setMuteMode((Preset::MuteMode)getEnum(value));
 }
 
-PUBLIC Parameter* MuteModeParameter = new MuteModeParameterType();
+Parameter* MuteModeParameter = new MuteModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -667,7 +667,7 @@ void MuteCancelParameterType::setValue(Preset* p, ExValue* value)
 	p->setMuteCancel((Preset::MuteCancel)getEnum(value));
 }
 
-PUBLIC Parameter* MuteCancelParameter = new MuteCancelParameterType();
+Parameter* MuteCancelParameter = new MuteCancelParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -708,7 +708,7 @@ void OverdubQuantizedParameterType::setValue(Preset* p, ExValue* value)
 	p->setOverdubQuantized(value->getBool());
 }
 
-PUBLIC Parameter* OverdubQuantizedParameter = new OverdubQuantizedParameterType();
+Parameter* OverdubQuantizedParameter = new OverdubQuantizedParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -761,7 +761,7 @@ void QuantizeParameterType::setValue(Preset* p, ExValue* value)
 	p->setQuantize((Preset::QuantizeMode)getEnum(value));
 }
 
-PUBLIC Parameter* QuantizeParameter = new QuantizeParameterType();
+Parameter* QuantizeParameter = new QuantizeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -802,7 +802,7 @@ void BounceQuantizeParameterType::setValue(Preset* p, ExValue* value)
 	p->setBounceQuantize((Preset::QuantizeMode)getEnum(value));
 }
 
-PUBLIC Parameter* BounceQuantizeParameter = new BounceQuantizeParameterType();
+Parameter* BounceQuantizeParameter = new BounceQuantizeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -841,7 +841,7 @@ void RecordResetsFeedbackParameterType::setValue(Preset* p, ExValue* value)
 	p->setRecordResetsFeedback(value->getBool());
 }
 
-PUBLIC Parameter* RecordResetsFeedbackParameter = new RecordResetsFeedbackParameterType();
+Parameter* RecordResetsFeedbackParameter = new RecordResetsFeedbackParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -881,7 +881,7 @@ void SpeedRecordParameterType::setValue(Preset* p, ExValue* value)
 	p->setSpeedRecord(value->getBool());
 }
 
-PUBLIC Parameter* SpeedRecordParameter = new SpeedRecordParameterType();
+Parameter* SpeedRecordParameter = new SpeedRecordParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -924,7 +924,7 @@ void RoundingOverdubParameterType::setValue(Preset* p, ExValue* value)
 	p->setRoundingOverdub(value->getBool());
 }
 
-PUBLIC Parameter* RoundingOverdubParameter = new RoundingOverdubParameterType();
+Parameter* RoundingOverdubParameter = new RoundingOverdubParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -977,7 +977,7 @@ void SwitchLocationParameterType::setValue(Preset* p, ExValue* value)
 	p->setSwitchLocation(getEnum(value));
 }
 
-PUBLIC Parameter* SwitchLocationParameter = new SwitchLocationParameterType();
+Parameter* SwitchLocationParameter = new SwitchLocationParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1018,7 +1018,7 @@ void ReturnLocationParameterType::setValue(Preset* p, ExValue* value)
 	p->setReturnLocation(getEnum(value));
 }
 
-PUBLIC Parameter* ReturnLocationParameter = new ReturnLocationParameterType();
+Parameter* ReturnLocationParameter = new ReturnLocationParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1072,7 +1072,7 @@ void SwitchDurationParameterType::setValue(Preset* p, ExValue* value)
 	p->setSwitchDuration(getEnum(value));
 }
 
-PUBLIC Parameter* SwitchDurationParameter = new SwitchDurationParameterType();
+Parameter* SwitchDurationParameter = new SwitchDurationParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1132,7 +1132,7 @@ void SwitchQuantizeParameterType::setValue(Preset* p, ExValue* value)
 	p->setSwitchQuantize((Preset::SwitchQuantize)getEnum(value));
 }
 
-PUBLIC Parameter* SwitchQuantizeParameter = new SwitchQuantizeParameterType();
+Parameter* SwitchQuantizeParameter = new SwitchQuantizeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1185,7 +1185,7 @@ void TimeCopyParameterType::setValue(Preset* p, ExValue* value)
 	p->setTimeCopyMode((Preset::CopyMode)getEnum(value));
 }
 
-PUBLIC Parameter* TimeCopyParameter = new TimeCopyParameterType();
+Parameter* TimeCopyParameter = new TimeCopyParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1226,7 +1226,7 @@ void SoundCopyParameterType::setValue(Preset* p, ExValue* value)
 	p->setSoundCopyMode((Preset::CopyMode)getEnum(value));
 }
 
-PUBLIC Parameter* SoundCopyParameter = new SoundCopyParameterType();
+Parameter* SoundCopyParameter = new SoundCopyParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1269,7 +1269,7 @@ void RecordThresholdParameterType::setValue(Preset* p, ExValue* value)
 	p->setRecordThreshold(value->getInt());
 }
 
-PUBLIC Parameter* RecordThresholdParameter = new RecordThresholdParameterType();
+Parameter* RecordThresholdParameter = new RecordThresholdParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1308,7 +1308,7 @@ void SwitchVelocityParameterType::setValue(Preset* p, ExValue* value)
 	p->setSwitchVelocity(value->getBool());
 }
 
-PUBLIC Parameter* SwitchVelocityParameter = new SwitchVelocityParameterType();
+Parameter* SwitchVelocityParameter = new SwitchVelocityParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1348,7 +1348,7 @@ void MaxUndoParameterType::setValue(Preset* p, ExValue* value)
 	p->setMaxUndo(value->getInt());
 }
 
-PUBLIC Parameter* MaxUndoParameter = new MaxUndoParameterType();
+Parameter* MaxUndoParameter = new MaxUndoParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1387,7 +1387,7 @@ void MaxRedoParameterType::setValue(Preset* p, ExValue* value)
 	p->setMaxRedo(value->getInt());
 }
 
-PUBLIC Parameter* MaxRedoParameter = new MaxRedoParameterType();
+Parameter* MaxRedoParameter = new MaxRedoParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1426,7 +1426,7 @@ void NoFeedbackUndoParameterType::setValue(Preset* p, ExValue* value)
 	p->setNoFeedbackUndo(value->getBool());
 }
 
-PUBLIC Parameter* NoFeedbackUndoParameter = new NoFeedbackUndoParameterType();
+Parameter* NoFeedbackUndoParameter = new NoFeedbackUndoParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1465,7 +1465,7 @@ void NoLayerFlatteningParameterType::setValue(Preset* p, ExValue* value)
 	p->setNoLayerFlattening(value->getBool());
 }
 
-PUBLIC Parameter* NoLayerFlatteningParameter = new NoLayerFlatteningParameterType();
+Parameter* NoLayerFlatteningParameter = new NoLayerFlatteningParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1502,7 +1502,7 @@ void SpeedSequenceParameterType::setValue(Preset* p, ExValue* value)
 	p->getSpeedSequence()->setSource(value->getString());
 }
 
-PUBLIC Parameter* SpeedSequenceParameter = new SpeedSequenceParameterType();
+Parameter* SpeedSequenceParameter = new SpeedSequenceParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1543,7 +1543,7 @@ void SpeedShiftRestartParameterType::setValue(Preset* p, ExValue* value)
 	p->setSpeedShiftRestart(value->getBool());
 }
 
-PUBLIC Parameter* SpeedShiftRestartParameter = new SpeedShiftRestartParameterType(); 
+Parameter* SpeedShiftRestartParameter = new SpeedShiftRestartParameterType(); 
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1579,7 +1579,7 @@ void PitchSequenceParameterType::setValue(Preset* p, ExValue* value)
 	p->getPitchSequence()->setSource(value->getString());
 }
 
-PUBLIC Parameter* PitchSequenceParameter = new PitchSequenceParameterType();
+Parameter* PitchSequenceParameter = new PitchSequenceParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1619,7 +1619,7 @@ void PitchShiftRestartParameterType::setValue(Preset* p, ExValue* value)
 	p->setPitchShiftRestart(value->getBool());
 }
 
-PUBLIC Parameter* PitchShiftRestartParameter = new PitchShiftRestartParameterType();
+Parameter* PitchShiftRestartParameter = new PitchShiftRestartParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1654,7 +1654,7 @@ void SpeedStepRangeParameterType::setValue(Preset* p, ExValue* value)
     p->setSpeedStepRange(value->getInt());
 }
 
-PUBLIC Parameter* SpeedStepRangeParameter = new SpeedStepRangeParameterType();
+Parameter* SpeedStepRangeParameter = new SpeedStepRangeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1689,7 +1689,7 @@ void SpeedBendRangeParameterType::setValue(Preset* p, ExValue* value)
 	p->setSpeedBendRange(value->getInt());
 }
 
-PUBLIC Parameter* SpeedBendRangeParameter = new SpeedBendRangeParameterType();
+Parameter* SpeedBendRangeParameter = new SpeedBendRangeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1727,7 +1727,7 @@ void PitchStepRangeParameterType::setValue(Preset* p, ExValue* value)
 	p->setPitchStepRange(value->getInt());
 }
 
-PUBLIC Parameter* PitchStepRangeParameter = new PitchStepRangeParameterType();
+Parameter* PitchStepRangeParameter = new PitchStepRangeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1765,7 +1765,7 @@ void PitchBendRangeParameterType::setValue(Preset* p, ExValue* value)
 	p->setPitchBendRange(value->getInt());
 }
 
-PUBLIC Parameter* PitchBendRangeParameter = new PitchBendRangeParameterType();
+Parameter* PitchBendRangeParameter = new PitchBendRangeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1803,7 +1803,7 @@ void TimeStretchRangeParameterType::setValue(Preset* p, ExValue* value)
 	p->setTimeStretchRange(value->getInt());
 }
 
-PUBLIC Parameter* TimeStretchRangeParameter = new TimeStretchRangeParameterType();
+Parameter* TimeStretchRangeParameter = new TimeStretchRangeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1863,7 +1863,7 @@ void SlipModeParameterType::setValue(Preset* p, ExValue* value)
 	p->setSlipMode((Preset::SlipMode)getEnum(value));
 }
 
-PUBLIC Parameter* SlipModeParameter = new SlipModeParameterType();
+Parameter* SlipModeParameter = new SlipModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1906,7 +1906,7 @@ void SlipTimeParameterType::setValue(Preset* p, ExValue* value)
 	p->setSlipTime(value->getInt());
 }
 
-PUBLIC Parameter* SlipTimeParameter = new SlipTimeParameterType();
+Parameter* SlipTimeParameter = new SlipTimeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1946,7 +1946,7 @@ void AutoRecordTempoParameterType::setValue(Preset* p, ExValue* value)
 	p->setAutoRecordTempo(value->getInt());
 }
 
-PUBLIC Parameter* AutoRecordTempoParameter = new AutoRecordTempoParameterType();
+Parameter* AutoRecordTempoParameter = new AutoRecordTempoParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1992,7 +1992,7 @@ void AutoRecordBarsParameterType::setValue(Preset* p, ExValue* value)
 	p->setAutoRecordBars(value->getInt());
 }
 
-PUBLIC Parameter* AutoRecordBarsParameter = new AutoRecordBarsParameterType();
+Parameter* AutoRecordBarsParameter = new AutoRecordBarsParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2028,7 +2028,7 @@ void SustainFunctionsParameterType::setValue(Preset* p, ExValue* value)
 	p->setSustainFunctions(value->getString());
 }
 
-PUBLIC Parameter* SustainFunctionsParameter = new SustainFunctionsParameterType();
+Parameter* SustainFunctionsParameter = new SustainFunctionsParameterType();
 
 /****************************************************************************
  *                                                                          *
@@ -2103,7 +2103,7 @@ void RecordTransferParameterType::setValue(Preset* p, ExValue* value)
       p->setRecordTransfer((Preset::TransferMode)mode);
 }
 
-PUBLIC Parameter* RecordTransferParameter = new RecordTransferParameterType();
+Parameter* RecordTransferParameter = new RecordTransferParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2157,7 +2157,7 @@ void OverdubTransferParameterType::setValue(Preset* p, ExValue* value)
 	p->setOverdubTransfer((Preset::TransferMode)getEnum(value));
 }
 
-PUBLIC Parameter* OverdubTransferParameter = new OverdubTransferParameterType();
+Parameter* OverdubTransferParameter = new OverdubTransferParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2200,7 +2200,7 @@ void ReverseTransferParameterType::setValue(Preset* p, ExValue* value)
 	p->setReverseTransfer((Preset::TransferMode)getEnum(value));
 }
 
-PUBLIC Parameter* ReverseTransferParameter = new ReverseTransferParameterType();
+Parameter* ReverseTransferParameter = new ReverseTransferParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2244,7 +2244,7 @@ void SpeedTransferParameterType::setValue(Preset* p, ExValue* value)
 	p->setSpeedTransfer((Preset::TransferMode)getEnum(value));
 }
 
-PUBLIC Parameter* SpeedTransferParameter = new SpeedTransferParameterType();
+Parameter* SpeedTransferParameter = new SpeedTransferParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2287,7 +2287,7 @@ void PitchTransferParameterType::setValue(Preset* p, ExValue* value)
 	p->setPitchTransfer((Preset::TransferMode)getEnum(value));
 }
 
-PUBLIC Parameter* PitchTransferParameter = new PitchTransferParameterType();
+Parameter* PitchTransferParameter = new PitchTransferParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2341,7 +2341,7 @@ void WindowSlideUnitParameterType::setValue(Preset* p, ExValue* value)
 	p->setWindowSlideUnit((Preset::WindowUnit)getEnum(value));
 }
 
-PUBLIC Parameter* WindowSlideUnitParameter = new WindowSlideUnitParameterType();
+Parameter* WindowSlideUnitParameter = new WindowSlideUnitParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2395,7 +2395,7 @@ void WindowEdgeUnitParameterType::setValue(Preset* p, ExValue* value)
 	p->setWindowEdgeUnit((Preset::WindowUnit)getEnum(value));
 }
 
-PUBLIC Parameter* WindowEdgeUnitParameter = new WindowEdgeUnitParameterType();
+Parameter* WindowEdgeUnitParameter = new WindowEdgeUnitParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2438,7 +2438,7 @@ void WindowSlideAmountParameterType::setValue(Preset* p, ExValue* value)
 	p->setWindowSlideAmount(value->getInt());
 }
 
-PUBLIC Parameter* WindowSlideAmountParameter = new WindowSlideAmountParameterType();
+Parameter* WindowSlideAmountParameter = new WindowSlideAmountParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2481,7 +2481,7 @@ void WindowEdgeAmountParameterType::setValue(Preset* p, ExValue* value)
 	p->setWindowEdgeAmount(value->getInt());
 }
 
-PUBLIC Parameter* WindowEdgeAmountParameter = new WindowEdgeAmountParameterType();
+Parameter* WindowEdgeAmountParameter = new WindowEdgeAmountParameterType();
 
 /****************************************************************************/
 /****************************************************************************
@@ -2541,7 +2541,7 @@ void AutoRecordParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* AutoRecordParameter = new AutoRecordParameterType();
+Parameter* AutoRecordParameter = new AutoRecordParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2585,7 +2585,7 @@ void InsertModeParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* InsertModeParameter = new InsertModeParameterType();
+Parameter* InsertModeParameter = new InsertModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2631,7 +2631,7 @@ void InterfaceModeParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* InterfaceModeParameter = new InterfaceModeParameterType();
+Parameter* InterfaceModeParameter = new InterfaceModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2693,7 +2693,7 @@ void LoopCopyParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* LoopCopyParameter = new LoopCopyParameterType();
+Parameter* LoopCopyParameter = new LoopCopyParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2740,7 +2740,7 @@ void OverdubModeParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* OverdubModeParameter = new OverdubModeParameterType();
+Parameter* OverdubModeParameter = new OverdubModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2787,7 +2787,7 @@ void RecordModeParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* RecordModeParameter = new RecordModeParameterType();
+Parameter* RecordModeParameter = new RecordModeParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2863,7 +2863,7 @@ void SamplerStyleParameterType::setValue(Preset* p, ExValue* value)
 
 }
 
-PUBLIC Parameter* SamplerStyleParameter = new SamplerStyleParameterType();
+Parameter* SamplerStyleParameter = new SamplerStyleParameterType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2930,7 +2930,7 @@ void TrackCopyParameterType::setValue(Preset* p, ExValue* value)
     }
 }
 
-PUBLIC Parameter* TrackCopyParameter = new TrackCopyParameterType();
+Parameter* TrackCopyParameter = new TrackCopyParameterType();
 
 /****************************************************************************/
 /****************************************************************************/

@@ -32,9 +32,9 @@
 #include <memory.h>
 #include <math.h>
 
-#include "Util.h"
-#include "Trace.h"
-#include "Audio.h"
+#include "../../util/Util.h"
+#include "../../util/Trace.h"
+#include "../Audio.h"
 
 #include "Event.h"
 #include "Layer.h"
@@ -222,7 +222,7 @@ int Stream::getCorrection()
  * EDP says nothing about half speed, assume yes.
  * Do the other loops get to remember their reset/speed status?
  */
-PUBLIC void Stream::reset()
+void Stream::reset()
 {
     // this gets mSpeedOctave, mSpeedStep, mSpeedBend, mTimeStretch, and mSpeed
     initSpeed();
@@ -242,7 +242,7 @@ PUBLIC void Stream::reset()
 // Speed
 //
 
-PUBLIC float Stream::getSpeed()
+float Stream::getSpeed()
 {
     return mSpeed;
 }
@@ -251,7 +251,7 @@ PUBLIC float Stream::getSpeed()
  * Called during reset to initialize rate state.
  * This also initializes time stretch.
  */
-PUBLIC void Stream::initSpeed()
+void Stream::initSpeed()
 {
     mSpeed = 1.0;
     mSpeedOctave = 0;
@@ -265,7 +265,7 @@ PUBLIC void Stream::initSpeed()
  * Recalculate the stream rate from the three components
  * and adjust latency.
  */
-PRIVATE void Stream::recalculateSpeed()
+void Stream::recalculateSpeed()
 {
     mSpeed = Resampler::getSpeed(mSpeedOctave, mSpeedStep, mSpeedBend, 
                                  mTimeStretch);
@@ -273,12 +273,12 @@ PRIVATE void Stream::recalculateSpeed()
     adjustSpeedLatency();
 }
 
-PUBLIC int Stream::getSpeedOctave()
+int Stream::getSpeedOctave()
 {
     return mSpeedOctave;
 }
 
-PUBLIC void Stream::setSpeedOctave(int degree)
+void Stream::setSpeedOctave(int degree)
 {
     if (mSpeedOctave != degree) {
         mSpeedOctave = degree;
@@ -286,12 +286,12 @@ PUBLIC void Stream::setSpeedOctave(int degree)
     }
 }
 
-PUBLIC int Stream::getSpeedStep()
+int Stream::getSpeedStep()
 {
     return mSpeedStep;
 }
 
-PUBLIC void Stream::setSpeedStep(int degree)
+void Stream::setSpeedStep(int degree)
 {
     if (mSpeedStep != degree) {
         mSpeedStep = degree;
@@ -299,12 +299,12 @@ PUBLIC void Stream::setSpeedStep(int degree)
     }
 }
 
-PUBLIC int Stream::getSpeedBend()
+int Stream::getSpeedBend()
 {
     return mSpeedBend;
 }
 
-PUBLIC void Stream::setSpeedBend(int degree)
+void Stream::setSpeedBend(int degree)
 {
     if (mSpeedBend != degree) {
         mSpeedBend = degree;
@@ -316,7 +316,7 @@ PUBLIC void Stream::setSpeedBend(int degree)
  * Set all three rate components at once.  
  * Special rate setter for JumpPlayEvent.
  */
-PUBLIC void Stream::setSpeed(int octave, int semitone, int bend)
+void Stream::setSpeed(int octave, int semitone, int bend)
 {
     mSpeedOctave = octave;
     mSpeedStep = semitone;
@@ -324,12 +324,12 @@ PUBLIC void Stream::setSpeed(int octave, int semitone, int bend)
     recalculateSpeed();
 }
 
-PUBLIC int Stream::getTimeStretch()
+int Stream::getTimeStretch()
 {
     return mTimeStretch;
 }
 
-PUBLIC void Stream::setTimeStretch(int degree) 
+void Stream::setTimeStretch(int degree) 
 {
     if (mTimeStretch != degree) {
         mTimeStretch = degree;
@@ -365,7 +365,7 @@ void Stream::adjustSpeedLatency()
 /**
  * Helper for JumpPlayEvent to determine what latencies will eventually be.
  */
-PUBLIC int Stream::getAdjustedLatency(int latency)
+int Stream::getAdjustedLatency(int latency)
 {
 	if (mSpeed != 1.0)
 	  latency = (int)ceil(latency * mSpeed);
@@ -377,7 +377,7 @@ PUBLIC int Stream::getAdjustedLatency(int latency)
  * This for the case where we can't update the stream latency yet,
  * but we need to know what it will be.
  */
-PUBLIC int Stream::getAdjustedLatency(int octave, int semitone, int bend, 
+int Stream::getAdjustedLatency(int octave, int semitone, int bend, 
                                       int stretch)
 {
 	int latency = mNormalLatency;
@@ -393,7 +393,7 @@ PUBLIC int Stream::getAdjustedLatency(int octave, int semitone, int bend,
 // Pitch
 //
 
-PUBLIC float Stream::getPitch()
+float Stream::getPitch()
 {
     return mPitch;
 }
@@ -401,7 +401,7 @@ PUBLIC float Stream::getPitch()
 /**
  * Called during reset to initialize rate state.
  */
-PUBLIC void Stream::initPitch()
+void Stream::initPitch()
 {
     mPitch = 1.0;
     mPitchOctave = 0;
@@ -412,7 +412,7 @@ PUBLIC void Stream::initPitch()
 /**
  * Recalculate the stream pitch from the three components.
  */
-PRIVATE void Stream::recalculatePitch()
+void Stream::recalculatePitch()
 {
     // invert the stretch, when the speed gets slower the 
     // pitch gets faster
@@ -420,12 +420,12 @@ PRIVATE void Stream::recalculatePitch()
     mPitch = Resampler::getSpeed(mPitchOctave, mPitchStep, mPitchBend, stretch);
 }
 
-PUBLIC int Stream::getPitchOctave()
+int Stream::getPitchOctave()
 {
     return mPitchOctave;
 }
 
-PUBLIC void Stream::setPitchOctave(int degree)
+void Stream::setPitchOctave(int degree)
 {
     if (mPitchOctave != degree) {
         mPitchOctave = degree;
@@ -433,12 +433,12 @@ PUBLIC void Stream::setPitchOctave(int degree)
     }
 }
 
-PUBLIC int Stream::getPitchStep()
+int Stream::getPitchStep()
 {
     return mPitchStep;
 }
 
-PUBLIC void Stream::setPitchStep(int degree)
+void Stream::setPitchStep(int degree)
 {
     if (mPitchStep != degree) {
         mPitchStep = degree;
@@ -446,12 +446,12 @@ PUBLIC void Stream::setPitchStep(int degree)
     }
 }
 
-PUBLIC int Stream::getPitchBend()
+int Stream::getPitchBend()
 {
     return mPitchBend;
 }
 
-PUBLIC void Stream::setPitchBend(int degree)
+void Stream::setPitchBend(int degree)
 {
     if (mPitchBend != degree) {
         mPitchBend = degree;
@@ -463,7 +463,7 @@ PUBLIC void Stream::setPitchBend(int degree)
  * Set all three rate components at once.  
  * Special rate setter for JumpPlayEvent.
  */
-PUBLIC void Stream::setPitch(int octave, int step, int bend)
+void Stream::setPitch(int octave, int step, int bend)
 {
     mPitchOctave = octave;
     mPitchStep = step;
@@ -471,11 +471,11 @@ PUBLIC void Stream::setPitch(int octave, int step, int bend)
     recalculatePitch();
 }
 
-PUBLIC void Stream::setPitchTweak(int tweak, int value)
+void Stream::setPitchTweak(int tweak, int value)
 {
 }
 
-PUBLIC int Stream::getPitchTweak(int tweak)
+int Stream::getPitchTweak(int tweak)
 {
     return 0;
 }
@@ -484,7 +484,7 @@ PUBLIC int Stream::getPitchTweak(int tweak)
 // Frame Position
 //
 
-PUBLIC long Stream::deltaFrames(float* start, float* end)
+long Stream::deltaFrames(float* start, float* end)
 {
 	long bytes = (long)((long)end - (long)start);
 	long samples = bytes / sizeof(float);
@@ -498,13 +498,13 @@ PUBLIC long Stream::deltaFrames(float* start, float* end)
  * frames *before* we assign the buffers for this interrupt.  Need
  * to make sure this returns zero.
  */
-PUBLIC void Stream::initProcessedFrames()
+void Stream::initProcessedFrames()
 {
 	mAudioBuffer = NULL;
 	mAudioPtr = NULL;
 }
 
-PUBLIC long Stream::getProcessedFrames()
+long Stream::getProcessedFrames()
 {
 	return deltaFrames(mAudioBuffer, mAudioPtr);
 }
@@ -513,12 +513,12 @@ PUBLIC long Stream::getProcessedFrames()
  * Rather obscure accessor for Synchronizer to compute the
  * drift between the track sync master and its sync master.
  */
-PUBLIC long Stream::getInterruptFrames()
+long Stream::getInterruptFrames()
 {
 	return mAudioBufferFrames;
 }
 
-PUBLIC long Stream::getRemainingFrames()
+long Stream::getRemainingFrames()
 {
 	return mAudioBufferFrames - deltaFrames(mAudioBuffer, mAudioPtr);
 }
@@ -528,7 +528,7 @@ PUBLIC long Stream::getRemainingFrames()
  * value inherited from LayerContext will be changed gradually
  * as the interrupt buffer is processed.
  */
-PUBLIC void Stream::setTargetLevel(int level)
+void Stream::setTargetLevel(int level)
 {
 	mSmoother->setTarget(level);
 }
@@ -541,7 +541,7 @@ PUBLIC void Stream::setTargetLevel(int level)
  * This is essentially the same as what SyncTracker::calcDrift does
  * but without less confusing words.
  */
-PUBLIC long Stream::calcDrift(long targetFrame, long currentFrame, 
+long Stream::calcDrift(long targetFrame, long currentFrame, 
                               long loopFrames)
 {
     long drift = 0;
@@ -581,7 +581,7 @@ PUBLIC long Stream::calcDrift(long targetFrame, long currentFrame,
  * This is technically okay, but I added this to make it look like 2.1
  * until we're ready to regen all the test files.
  */
-PUBLIC void Stream::resetResampler()
+void Stream::resetResampler()
 {
     mResampler->reset();
 }
@@ -594,7 +594,7 @@ PUBLIC void Stream::resetResampler()
  ****************************************************************************/
 /****************************************************************************/
 
-PUBLIC OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
+OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
 {
 	mInput = in;
     mAudioPool = aupool;
@@ -644,7 +644,7 @@ PUBLIC OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
 	mCaptureMax = 50000;
 }
 
-PUBLIC OutputStream::~OutputStream()
+OutputStream::~OutputStream()
 {
 	delete mTail;
 	delete mOuterTail;
@@ -663,24 +663,24 @@ PUBLIC OutputStream::~OutputStream()
  * about letting the existing plugin "drain" and possibly do some fades
  * between them.
  */
-PUBLIC void OutputStream::setPlugin(StreamPlugin* p)
+void OutputStream::setPlugin(StreamPlugin* p)
 {
     delete mPlugin;
     mPlugin = p;
 }
 
-PUBLIC void OutputStream::setCapture(bool b)
+void OutputStream::setCapture(bool b)
 {
 	mCapture = b;
 }
 
-PUBLIC void OutputStream::setPitchTweak(int tweak, int value)
+void OutputStream::setPitchTweak(int tweak, int value)
 {
 	if (mPitchShifter != NULL)
 	  mPitchShifter->setTweak(tweak, value);
 }
 
-PUBLIC int OutputStream::getPitchTweak(int tweak)
+int OutputStream::getPitchTweak(int tweak)
 {
     int value = 0;
 	if (mPitchShifter != NULL)
@@ -688,7 +688,7 @@ PUBLIC int OutputStream::getPitchTweak(int tweak)
     return value;
 }
 
-PUBLIC void OutputStream::setPan(int p)
+void OutputStream::setPan(int p)
 {
 	mPan = p;
 
@@ -720,33 +720,33 @@ PUBLIC void OutputStream::setPan(int p)
  * be clicks of you turn mono on and off while something is playing.  It is intended
  * to be set once in the track setup and not changed.
  */
-PUBLIC void OutputStream::setMono(bool b)
+void OutputStream::setMono(bool b)
 {
 	mMono = b;
 }
 
-PUBLIC void OutputStream::clearMaxSample()
+void OutputStream::clearMaxSample()
 {
 	mMaxSample = 0.0f;
 }
 
-PUBLIC float OutputStream::getMaxSample()
+float OutputStream::getMaxSample()
 {
 	return mMaxSample;
 }
 
-PUBLIC int OutputStream::getMonitorLevel()
+int OutputStream::getMonitorLevel()
 {
 	// convert to 16 bit integer
 	return (int)(mMaxSample * 32767.0f);
 }
 
-PUBLIC void OutputStream::setLayerShift(bool b)
+void OutputStream::setLayerShift(bool b)
 {
 	mLayerShift = b;
 }
 
-PUBLIC Layer* OutputStream::getLastLayer()
+Layer* OutputStream::getLastLayer()
 {
 	return mLastLayer;
 }
@@ -772,7 +772,7 @@ PUBLIC Layer* OutputStream::getLastLayer()
  * playing the record layer and may still need a fade.  So only squelch
  * of the last layer was also the record layer we're squelcing.
  */
-PUBLIC void OutputStream::squelchLastLayer(Layer* rec, Layer* play, long playFrame)
+void OutputStream::squelchLastLayer(Layer* rec, Layer* play, long playFrame)
 {
 	if (mLastLayer != NULL && play != NULL && mLastLayer == rec) {
 		mLastLayer = play;
@@ -781,7 +781,7 @@ PUBLIC void OutputStream::squelchLastLayer(Layer* rec, Layer* play, long playFra
 	}
 }
 
-PUBLIC long OutputStream::getLastFrame()
+long OutputStream::getLastFrame()
 {
 	return mLastFrame;
 }
@@ -790,12 +790,12 @@ PUBLIC long OutputStream::getLastFrame()
  * Adjust the last frame counter to reflect a fundamental change
  * in the layer, such as unrounded multiply/insert.
  */
-PUBLIC void OutputStream::adjustLastFrame(int delta)
+void OutputStream::adjustLastFrame(int delta)
 {
     mLastFrame += delta;
 }
 
-PUBLIC void OutputStream::setLastFrame(long frame)
+void OutputStream::setLastFrame(long frame)
 {
     mLastFrame = frame;
 }
@@ -808,7 +808,7 @@ PUBLIC void OutputStream::setLastFrame(long frame)
  * The loop will be different when a pending loop is cleared 
  * for LoopCopy.
  */
-PUBLIC void OutputStream::resetHistory(Loop* l)
+void OutputStream::resetHistory(Loop* l)
 {
 	if (mLastLayer != NULL && mLastLayer->getLoop() == l) {
 
@@ -826,7 +826,7 @@ PUBLIC void OutputStream::resetHistory(Loop* l)
 /**
  * Initialize the stream for processing a new audio interrupt buffer.
  */
-PUBLIC void OutputStream::setOutputBuffer(AudioStream* aus, float* b, long l)
+void OutputStream::setOutputBuffer(AudioStream* aus, float* b, long l)
 {
     // the above are the original master values, these
     // AudioContext values may change as we go
@@ -849,7 +849,7 @@ PUBLIC void OutputStream::setOutputBuffer(AudioStream* aus, float* b, long l)
  * by InputStream to 128 frames.  Here we ask for 128 frames and interpolate
  * them to 256 frames.
  */
-PUBLIC void OutputStream::play(Loop* loop, long blockFrames, bool last)
+void OutputStream::play(Loop* loop, long blockFrames, bool last)
 {
 	long remaining = getRemainingFrames();
 
@@ -1094,7 +1094,7 @@ PUBLIC void OutputStream::play(Loop* loop, long blockFrames, bool last)
  * through the pitch shifter.  The shifter causes a latency delay, this tail
  * needs to be merged immediately.
  */
-PRIVATE void OutputStream::captureOutsideFadeTail()
+void OutputStream::captureOutsideFadeTail()
 {
 	captureTail(mOuterTail, 1.0);
 }
@@ -1108,7 +1108,7 @@ PRIVATE void OutputStream::captureOutsideFadeTail()
  * NOTE: Trying an experimental fade technique that is a lot easier than capturing
  * a true forward fade tail and feeding it into the plugin.
  */
-PRIVATE void OutputStream::capturePitchShutdownFadeTail()
+void OutputStream::capturePitchShutdownFadeTail()
 {
 	// first capture a fade tail from the current location
 	// this may or may not be necessary, but if there isn't enough in the
@@ -1130,7 +1130,7 @@ PRIVATE void OutputStream::capturePitchShutdownFadeTail()
  * Multiplied the logic to reduce the number of multiplies.
  * May not save much but it just feels better.
  */
-PRIVATE void OutputStream::adjustLevel(long frames)
+void OutputStream::adjustLevel(long frames)
 {
 	long samples = frames * channels;
 	float outLevel = mSmoother->getValue();
@@ -1266,7 +1266,7 @@ PRIVATE void OutputStream::adjustLevel(long frames)
 	}
 }
 
-PRIVATE void OutputStream::capture(float* buffer, long frames)
+void OutputStream::capture(float* buffer, long frames)
 {
 	if (mCaptureTotal < mCaptureMax) {
 		if (mCaptureAudio == NULL)
@@ -1278,7 +1278,7 @@ PRIVATE void OutputStream::capture(float* buffer, long frames)
 	}
 }
 
-PRIVATE void OutputStream::checkMax(float sample)
+void OutputStream::checkMax(float sample)
 {
 	if (sample < 0)
 	  sample = -sample;
@@ -1335,7 +1335,7 @@ PRIVATE void OutputStream::checkMax(float sample)
  * If we're changing pitch shift, but not going to or from 1.0, then
  * just play normally.
  */
-PUBLIC void OutputStream::play(Layer* layer, long playFrame, long playFrames,
+void OutputStream::play(Layer* layer, long playFrame, long playFrames,
                                bool mute)
 {
 	if (playFrames > 0) {
@@ -1478,7 +1478,7 @@ PUBLIC void OutputStream::play(Layer* layer, long playFrame, long playFrames,
  * avoid a break when moving from the play layer to the record layer and
  * the record layer has reduced feedback.
  */
-PUBLIC void OutputStream::captureTail(FadeTail* tail, float adjust)
+void OutputStream::captureTail(FadeTail* tail, float adjust)
 {
 	if (mLastLayer != NULL) {
 
@@ -1499,7 +1499,7 @@ PUBLIC void OutputStream::captureTail(FadeTail* tail, float adjust)
  * and Function when it needs to make a change to the layer structure so we
  * can't defer capturing the fade until the next interrupt.
  */
-PUBLIC void OutputStream::captureTail()
+void OutputStream::captureTail()
 {
     captureTail(mTail, 1.0f);
 }
@@ -1508,7 +1508,7 @@ PUBLIC void OutputStream::captureTail()
  * Capture a normal fade tail with a feedback adjust. 
  * Only used internally when we cross an edge during preplay.
  */
-PUBLIC void OutputStream::captureTail(float adjust)
+void OutputStream::captureTail(float adjust)
 {
     captureTail(mTail, adjust);
 }
@@ -1525,7 +1525,7 @@ PUBLIC void OutputStream::captureTail(float adjust)
  * layer to create a gradual fade of sufficient length.  This is now
  * handled by Layer.
  */
-PRIVATE void OutputStream::captureTail(FadeTail* tail, Layer* src, long playFrame,
+void OutputStream::captureTail(FadeTail* tail, Layer* src, long playFrame,
                                        float adjust)
 {
     long remainder = src->getFrames() - playFrame;
@@ -1887,7 +1887,7 @@ InputStream::~InputStream()
  * frames *before* we assign the buffers for this interrupt.  Need
  * to make sure this returns zero.
  */
-PUBLIC void InputStream::initProcessedFrames()
+void InputStream::initProcessedFrames()
 {
 	mOriginalFramesConsumed = 0;
 }
@@ -1902,7 +1902,7 @@ PUBLIC void InputStream::initProcessedFrames()
  * it looks like there are assumptions handling the sync event "offset"
  * that the buffer rate will remain constant.  This may be a larger problem.
  */
-PUBLIC long InputStream::getProcessedFrames()
+long InputStream::getProcessedFrames()
 {
 	return mOriginalFramesConsumed;
 }
@@ -1912,7 +1912,7 @@ PUBLIC long InputStream::getProcessedFrames()
  * It turns out we don't actually need to overload this since only
  * Track calls it on OutputStream as a sanity check.
  */
-PUBLIC long InputStream::getRemainingFrames()
+long InputStream::getRemainingFrames()
 {
 	return mAudioBufferFrames - mOriginalFramesConsumed;
 }
@@ -1920,7 +1920,7 @@ PUBLIC long InputStream::getRemainingFrames()
 /**
  * Get the scaled remaining frames.
  */
-PUBLIC long InputStream::getScaledRemainingFrames()
+long InputStream::getScaledRemainingFrames()
 {
     return mRemainingFrames;
 }
@@ -1930,7 +1930,7 @@ PUBLIC long InputStream::getScaledRemainingFrames()
  * this is needed by EventManager and I want to make sure we're always
  * returning the right thing.
  */
-PUBLIC long InputStream::getOriginalFramesConsumed()
+long InputStream::getOriginalFramesConsumed()
 {
     return mOriginalFramesConsumed;
 }
@@ -1940,23 +1940,23 @@ PUBLIC long InputStream::getOriginalFramesConsumed()
  * about letting the existing plugin "drain" and possibly do some fades
  * between them.
  */
-PUBLIC void InputStream::setPlugin(StreamPlugin* p)
+void InputStream::setPlugin(StreamPlugin* p)
 {
     delete mPlugin;
     mPlugin = p;
 }
 
-PUBLIC Synchronizer* InputStream::getSynchronizer()
+Synchronizer* InputStream::getSynchronizer()
 {
 	return mSynchronizer;
 }
 
-PUBLIC int InputStream::getMonitorLevel()
+int InputStream::getMonitorLevel()
 {
     return mMonitorLevel;
 }
 
-PUBLIC int InputStream::getSampleRate()
+int InputStream::getSampleRate()
 {
 	return mSampleRate;
 }
@@ -1969,7 +1969,7 @@ PUBLIC int InputStream::getSampleRate()
  * The loop will be different when a pending loop is cleared 
  * for LoopCopy.
  */
-PUBLIC void InputStream::resetHistory(Loop* l)
+void InputStream::resetHistory(Loop* l)
 {
 	if (mLastLayer != NULL && mLastLayer->getLoop() == l)
 	  mLastLayer = NULL;
@@ -2005,7 +2005,7 @@ PUBLIC void InputStream::resetHistory(Loop* l)
  * the middle.  The bufferModified method will be called by Recorder.
  * 
  */
-PUBLIC void InputStream::setInputBuffer(AudioStream* aus, float* input,
+void InputStream::setInputBuffer(AudioStream* aus, float* input,
 										long frames, float* echo)
 {
 	mAudioBuffer = input;
@@ -2084,7 +2084,7 @@ PUBLIC void InputStream::setInputBuffer(AudioStream* aus, float* input,
  * Since this is required only for audio insertion in 
  * the unit tests assume for now that we don't have to deal with it.
  */
-PUBLIC void InputStream::bufferModified(float* buffer)
+void InputStream::bufferModified(float* buffer)
 {
 	if (buffer == mAudioBuffer) {
 
@@ -2111,7 +2111,7 @@ PUBLIC void InputStream::bufferModified(float* buffer)
  * Apply input buffer rate adjustments if the rate changed on 
  * the last event.
  */
-PUBLIC void InputStream::rescaleInput()
+void InputStream::rescaleInput()
 {
 	if (mSpeed != mLastSpeed) {
 		// last event changed the rate, resample the remainder
@@ -2123,7 +2123,7 @@ PUBLIC void InputStream::rescaleInput()
 /**
  * Apply rate adjustments to the remainder of the input buffer.
  */
-PRIVATE void InputStream::scaleInput()
+void InputStream::scaleInput()
 {
 	float* src = &mLevelBuffer[mOriginalFramesConsumed * channels];
 	long remaining = mAudioBufferFrames - mOriginalFramesConsumed;
@@ -2166,7 +2166,7 @@ PRIVATE void InputStream::scaleInput()
  * Return the number of Loop frames we advanced so OutputStream can advance
  * the same number.
  */
-PUBLIC long InputStream::record(Loop* loop, Event* event)
+long InputStream::record(Loop* loop, Event* event)
 {
 	long recordFrames = mRemainingFrames;
 

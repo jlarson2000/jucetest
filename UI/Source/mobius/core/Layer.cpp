@@ -314,15 +314,15 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Audio.h"
+#include "../Audio.h"
 #include "FadeWindow.h"
 #include "Layer.h"
 #include "Loop.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
-#include "MobiusState.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/MobiusState.h"
 #include "Mode.h"
 #include "Project.h"
 #include "Script.h"
@@ -355,25 +355,25 @@ static int FadeTraceLevel = 2;
  * sensitive areas.
  */
 
-PUBLIC bool CovFadeLeftBoth = false;
-PUBLIC bool CovFadeLeftForegroundRev = false;
-PUBLIC bool CovFadeLeftForeground = false;
-PUBLIC bool CovFadeLeftBackgroundRev = false;
-PUBLIC bool CovFadeLeftBackground = false;
-PUBLIC bool CovFadeRightBoth = false;
-PUBLIC bool CovFadeRightForegroundRev = false;
-PUBLIC bool CovFadeRightForeground = false;
-PUBLIC bool CovFadeRightBackgroundRev = false;
-PUBLIC bool CovFadeRightBackground = false;
-PUBLIC bool CovFadeOutCrossing = false;
-PUBLIC bool CovFadeOutHeadOverlap = false;
-PUBLIC bool CovFadeOutPrev = false;
-PUBLIC bool CovFinalizeFadeHead = false;
-PUBLIC bool CovFinalizeRaiseBackgroundHead = false;
-PUBLIC bool CovFinalizeFadeBackgroundHead = false;
-PUBLIC bool CovFinalizeLowerBackgroundHead = false;
+bool CovFadeLeftBoth = false;
+bool CovFadeLeftForegroundRev = false;
+bool CovFadeLeftForeground = false;
+bool CovFadeLeftBackgroundRev = false;
+bool CovFadeLeftBackground = false;
+bool CovFadeRightBoth = false;
+bool CovFadeRightForegroundRev = false;
+bool CovFadeRightForeground = false;
+bool CovFadeRightBackgroundRev = false;
+bool CovFadeRightBackground = false;
+bool CovFadeOutCrossing = false;
+bool CovFadeOutHeadOverlap = false;
+bool CovFadeOutPrev = false;
+bool CovFinalizeFadeHead = false;
+bool CovFinalizeRaiseBackgroundHead = false;
+bool CovFinalizeFadeBackgroundHead = false;
+bool CovFinalizeLowerBackgroundHead = false;
 
-PUBLIC void Layer::initCoverage()
+void Layer::initCoverage()
 {
     CovFadeLeftBoth = false;
     CovFadeLeftForegroundRev = false;
@@ -394,7 +394,7 @@ PUBLIC void Layer::initCoverage()
     CovFinalizeLowerBackgroundHead = false;
 }
 
-PUBLIC void Layer::showCoverage()
+void Layer::showCoverage()
 {
     printf("Layer coverage gaps:\n");
 
@@ -620,7 +620,7 @@ void Layer::reset()
 /**
  * We're a trace context, supply track/loop/time.
  */
-PUBLIC void Layer::getTraceContext(int* context, long* time)
+void Layer::getTraceContext(int* context, long* time)
 {
 	if (mLoop != NULL)
 	  mLoop->getTraceContext(context, time);
@@ -1513,7 +1513,7 @@ void Layer::setSegments(Segment* list)
  * Perform a fade to the left edge.
  * Used to apply deferred edge fades, and also by splice().
  */
-PRIVATE void Layer::fadeLeft(bool foreground, bool background, float baseLevel)
+void Layer::fadeLeft(bool foreground, bool background, float baseLevel)
 {
     int fadeFrames = AudioFade::getRange();
 
@@ -1643,7 +1643,7 @@ void Layer::applyDeferredFadeLeft()
 /**
  * Perform a fade to the right edge of the local audio.
  */
-PRIVATE void Layer::fadeRight(bool foreground, bool background, float baseLevel)
+void Layer::fadeRight(bool foreground, bool background, float baseLevel)
 {
 	long startFrame = mAudio->getFrames();
 	int fadeFrames = AudioFade::getRange();
@@ -1757,7 +1757,7 @@ PRIVATE void Layer::fadeRight(bool foreground, bool background, float baseLevel)
 /**
  * Utility to capture a portion of the local audio and save it to a file.
  */
-PUBLIC void Layer::saveRegion(long startFrame, long frames, const char* name)
+void Layer::saveRegion(long startFrame, long frames, const char* name)
 {
 	long samples = frames * mAudio->getChannels();
 	float* buffer = new float[samples];
@@ -1793,7 +1793,7 @@ void Layer::applyDeferredFadeRight()
  * If there is a gap between the current frame and the last recorded frame,
  * apply fades to the edges.  The frame must not be reflected.
  */
-PRIVATE void Layer::checkRecording(LayerContext* con, long startFrame)
+void Layer::checkRecording(LayerContext* con, long startFrame)
 {
     bool firstTime = !mRecordable;
 
@@ -1954,7 +1954,7 @@ PRIVATE void Layer::checkRecording(LayerContext* con, long startFrame)
  * of not recording.  Begin applying a permanent upward fade to 
  * our local Audio.
  */
-PRIVATE void Layer::startRecordFade(LayerContext* con)
+void Layer::startRecordFade(LayerContext* con)
 {
     // frame passed in only for this message
     Trace(this, 2, "Layer: Starting record fade in\n");
@@ -1983,7 +1983,7 @@ PRIVATE void Layer::startRecordFade(LayerContext* con)
  * speed, which if we were recording in half speed will result in a
  * shorter than normal fade when we return to full speed.
  */
-PUBLIC void Layer::fadeOut(LayerContext* con)
+void Layer::fadeOut(LayerContext* con)
 {
 	if (ScriptBreak) {
 		int x = 0;
@@ -2052,7 +2052,7 @@ PUBLIC void Layer::fadeOut(LayerContext* con)
  * fade out at the end of the previous layer when the fade needs to 
  * span the layer boundary.
  */
-PRIVATE void Layer::fadeOut(LayerContext* con, long frames)
+void Layer::fadeOut(LayerContext* con, long frames)
 {
 	// This should only happen if we had a deferred fade out, which
 	// means the tail window must be all the way to the end
@@ -2442,7 +2442,7 @@ void Layer::compileSegmentFades(bool checkConsistency)
  * of the record layer.  It will also happen when we begin playing
  * a layer that was loaded from a project.
  */
-PUBLIC void Layer::prepare(LayerContext* con)
+void Layer::prepare(LayerContext* con)
 {
 	if (!mPlayable) {
 
@@ -2471,7 +2471,7 @@ PUBLIC void Layer::prepare(LayerContext* con)
  * Called by Loop when we're about to reenter this layer after an 
  * undo or redo.  
  */
-PUBLIC void Layer::restore(bool undo)
+void Layer::restore(bool undo)
 {
     if (undo) {
         // always apply the trailing deferred fade
@@ -2569,7 +2569,7 @@ PUBLIC void Layer::restore(bool undo)
  * Check MobiusConfig::isAutoFeedbackReduction
  *
  */
-PUBLIC int Layer::lockStartingFeedback()
+int Layer::lockStartingFeedback()
 {
     int level = mStartingFeedback;
     if (mNoFlattening) {
@@ -2671,7 +2671,7 @@ void Layer::save(const char* file)
  * initial recording.  I don't like this convention, but it will
  * be difficult to change.
  */
-PRIVATE long Layer::reflectFrame(LayerContext* con, long frame) 
+long Layer::reflectFrame(LayerContext* con, long frame) 
 {
 	if (con->isReverse())
 	  frame = mAudio->getFrames() - frame - 1;
@@ -2682,7 +2682,7 @@ PRIVATE long Layer::reflectFrame(LayerContext* con, long frame)
  * Variant of reflectFrame that calculates the start of the
  * reflected regin.
  */
-PRIVATE long Layer::reflectRegion(LayerContext* con, long frame, long frames) 
+long Layer::reflectRegion(LayerContext* con, long frame, long frames) 
 {
 	if (con->isReverse()) {
 		// reflect to get to the end of the region
@@ -2699,7 +2699,7 @@ PRIVATE long Layer::reflectRegion(LayerContext* con, long frame, long frames)
  * method to do the work passing in a flag indicating that we're
  * playing rather than copying.
  */
-PUBLIC void Layer::play(LayerContext* con, long startFrame, bool fadeIn)
+void Layer::play(LayerContext* con, long startFrame, bool fadeIn)
 {
 	prepare(con);
 	if (fadeIn) {
@@ -2885,7 +2885,7 @@ void Layer::getNoReflect(LayerContext* con, long startFrame,
  * before resetting the loop!
  * 
  */
-PUBLIC Audio* Layer::flatten()
+Audio* Layer::flatten()
 {
 	Audio* flat = mAudioPool->newAudio();
 	AudioCursor* cursor = new AudioCursor("flatten", NULL);
@@ -2935,7 +2935,7 @@ PUBLIC Audio* Layer::flatten()
  * exists in the copy.  The result is that the background head will be
  * raised to match the level of the previous layer tail.
  */
-PUBLIC long Layer::captureTail(LayerContext* con, long playFrame, 
+long Layer::captureTail(LayerContext* con, long playFrame, 
                                float adjust)
 {
     long tailFrames = AudioFade::getRange();
@@ -3018,7 +3018,7 @@ PUBLIC long Layer::captureTail(LayerContext* con, long playFrame,
  * While recording, keep track of the maximum sample we encounter.
  * Used to determine if we really need to keep an overdub loop for undo.
  */
-PRIVATE void Layer::watchMax(LayerContext* con)
+void Layer::watchMax(LayerContext* con)
 {
 	float* src = con->buffer;
 	long frames = con->frames;
@@ -3493,7 +3493,7 @@ void Layer::coalesce()
  * times during while paused, just set a flag and let checkRecording
  * deal with it when we wake up.
  */
-PUBLIC void Layer::pause(LayerContext* con, long startFrame)
+void Layer::pause(LayerContext* con, long startFrame)
 {
 	mPaused = true;
 }
@@ -3589,7 +3589,7 @@ void Layer::multiplyCycle(LayerContext* con, Layer* src, long modeStartFrame)
  * of fading is usually not noticeable when flattening, though it could
  * be bad if there are multiple levels of them when not flattening.
  */
-PRIVATE void Layer::adjustSegmentFades(Segment* s)
+void Layer::adjustSegmentFades(Segment* s)
 {
     Layer* layer = s->getLayer();
 
@@ -3608,7 +3608,7 @@ PRIVATE void Layer::adjustSegmentFades(Segment* s)
  * 
  * Apply fades to the edges of the local Audio if necessary.
  */
-PUBLIC void Layer::splice(LayerContext* con, long startFrame, long frames, 
+void Layer::splice(LayerContext* con, long startFrame, long frames, 
 						  int cycles)
 {
 	// Loop will already have emitted trace mesages
@@ -3853,7 +3853,7 @@ PUBLIC void Layer::splice(LayerContext* con, long startFrame, long frames,
  * Remove any segments that are marked as being unused.
  * Used to cleanup after splice.
  */
-PRIVATE void Layer::pruneSegments()
+void Layer::pruneSegments()
 {
 	if (mSegments != NULL) {
 
@@ -3933,7 +3933,7 @@ PRIVATE void Layer::pruneSegments()
  * with a backing segment, or after frame zero.
  *
  */
-PUBLIC void Layer::startInsert(LayerContext* con, long startFrame)
+void Layer::startInsert(LayerContext* con, long startFrame)
 {
 	if (mInserting) {
 		// this won't happen if endInsert is called properly
@@ -3970,7 +3970,7 @@ PUBLIC void Layer::startInsert(LayerContext* con, long startFrame)
  * it look like there was a segment fade rather than a gradual feedback
  * reduction over the segment boundary.
  */
-PUBLIC void Layer::fadeBackground(LayerContext* con, long startFrame)
+void Layer::fadeBackground(LayerContext* con, long startFrame)
 {
     long fadeFrames = AudioFade::getRange();
     long fadeStartFrame = startFrame - fadeFrames;
@@ -4005,7 +4005,7 @@ PUBLIC void Layer::fadeBackground(LayerContext* con, long startFrame)
  * to push a segment that overlaps the final frame of the cycle rather
  * than splitting it.  In practice this doesn't often happen.
  */
-PRIVATE void Layer::insertCycle(LayerContext* con, long startFrame)
+void Layer::insertCycle(LayerContext* con, long startFrame)
 {
 	Trace(this, 2, "Layer: Adding cycle\n");
 
@@ -4032,7 +4032,7 @@ PRIVATE void Layer::insertCycle(LayerContext* con, long startFrame)
  * are split.  The frame must already be reflected.
  *
  */
-PRIVATE void Layer::insertSegmentGap(long startFrame, long frames)
+void Layer::insertSegmentGap(long startFrame, long frames)
 {
 	// we need to iterate over the current segments while inserting new
 	// ones into the list, so be careful not to process the new ones
@@ -4129,7 +4129,7 @@ PRIVATE void Layer::insertSegmentGap(long startFrame, long frames)
  * copying content from the previous layer (hmm, this might be interesting?).
  * But feedback is passed in so we can track changes.
  */
-PUBLIC void Layer::insert(LayerContext* con, long startFrame, int feedback)
+void Layer::insert(LayerContext* con, long startFrame, int feedback)
 {
 	if (!mInserting) {
 		Trace(this, 1, "Layer: Uninitialized layer insert!\n");
@@ -4172,7 +4172,7 @@ PUBLIC void Layer::insert(LayerContext* con, long startFrame, int feedback)
  * boundary, we're processing the LoopEvent and have to make the
  * layer larger now or else we'll never move beyond the loop end.
  */
-PUBLIC void Layer::continueInsert(LayerContext* con, long startFrame)
+void Layer::continueInsert(LayerContext* con, long startFrame)
 {
 	if (!mInserting) {
 		Trace(this, 1, "Layer: Uninitialized layer insert!\n");
@@ -4198,7 +4198,7 @@ PUBLIC void Layer::continueInsert(LayerContext* con, long startFrame)
  * Since we've been inserting full cycles, on an unrounded insert we
  * have to remove the part of the cycle we decided not to fill.
  */
-PUBLIC void Layer::endInsert(LayerContext* con, long endFrame, bool unrounded)
+void Layer::endInsert(LayerContext* con, long endFrame, bool unrounded)
 {
 	if (!mInserting)
 	  Trace(this, 1, "Layer: Meaningless insert ending!\n");
@@ -4364,7 +4364,7 @@ void Layer::stutterCycle(LayerContext* con, Layer* src, long srcFrame,
  * on the previous layer, other than in Segments which will keep
  * the reference count up.
  */
-PUBLIC void Layer::finalize(LayerContext* con, Layer* next)
+void Layer::finalize(LayerContext* con, Layer* next)
 {
 	if (mFinalized) {
 		Trace(this, 1, "Layer: already finalized!\n");
@@ -4621,7 +4621,7 @@ PUBLIC void Layer::finalize(LayerContext* con, Layer* next)
  * Thsi is done by capturing a fade tail from the beginning of the previous
  * layer, and adding it to the beginning of this layer.
  */
-PRIVATE void Layer::raiseBackgroundHead(LayerContext* con)
+void Layer::raiseBackgroundHead(LayerContext* con)
 {
     CovFinalizeRaiseBackgroundHead = true;
 
@@ -4661,7 +4661,7 @@ PRIVATE void Layer::raiseBackgroundHead(LayerContext* con)
  * Helper for finalize()
  * Fade the background tail to zero.
  */
-PRIVATE void Layer::fadeBackgroundTail(LayerContext* con)
+void Layer::fadeBackgroundTail(LayerContext* con)
 {
     CovFinalizeFadeBackgroundHead = true;
 	if (mReverseRecord)
@@ -4674,7 +4674,7 @@ PRIVATE void Layer::fadeBackgroundTail(LayerContext* con)
  * Helper for finalize()
  * Lower the background head to match the level of the tail.
  */
-PRIVATE void Layer::lowerBackgroundHead(LayerContext* con)
+void Layer::lowerBackgroundHead(LayerContext* con)
 {
     CovFinalizeLowerBackgroundHead = true;
 	float* ramp = AudioFade::getRamp128();
@@ -4704,7 +4704,7 @@ PRIVATE void Layer::lowerBackgroundHead(LayerContext* con)
  * After a layer has been finalized, check the undo limit.
  * At this point, we are the play layer at the head of the undo list.
  */
-PRIVATE void Layer::checkMaxUndo()
+void Layer::checkMaxUndo()
 {
     Layer* oldest = NULL;
     Preset* p = mLoop->getPreset();
@@ -4745,7 +4745,7 @@ PRIVATE void Layer::checkMaxUndo()
  * allocation interface like this is still necessary to manage the
  * reference count.
  */
-PUBLIC LayerPool::LayerPool(AudioPool* aupool)
+LayerPool::LayerPool(AudioPool* aupool)
 {
     mAudioPool = aupool;
     mLayers = NULL;
@@ -4759,7 +4759,7 @@ PUBLIC LayerPool::LayerPool(AudioPool* aupool)
  * This can only be called during shutdown when we know we won't
  * be in an interrupt trying to allocate layers.
  */
-PUBLIC LayerPool::~LayerPool()
+LayerPool::~LayerPool()
 {
     delete mCopyContext;
 
@@ -4791,7 +4791,7 @@ LayerContext* LayerPool::getCopyContext()
  * This is a static in Loop so we allocate only one for the 
  * Mobius instance.
  */
-PUBLIC Layer* LayerPool::getMuteLayer()
+Layer* LayerPool::getMuteLayer()
 {
     if (mMuteLayer == NULL) {
 
@@ -4914,7 +4914,7 @@ void LayerPool::resetCounter()
     mCounter = 0;
 }
 
-PUBLIC void LayerPool::dump()
+void LayerPool::dump()
 {
     int count = 0;
 

@@ -102,9 +102,9 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
-#include "Thread.h"
-#include "Trace.h"
+#include "../../util/Util.h"
+//#include "Thread.h"
+#include "../../util/Trace.h"
 #include "ObjectPool.h"
 
 /****************************************************************************
@@ -113,51 +113,51 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC PooledObject::PooledObject()
+PooledObject::PooledObject()
 {
     mPool = NULL;
     mPoolChain = NULL;
     mPooled = false;
 }
 
-PUBLIC PooledObject::~PooledObject()
+PooledObject::~PooledObject()
 {
     // we do NOT free the pool list
     if (mPool != NULL || mPooled)
       Trace(1, "Deleting pooled object!\n");
 }
 
-PUBLIC void PooledObject::setPool(class ObjectPool* p)
+void PooledObject::setPool(class ObjectPool* p)
 {
     mPool = p;
 }
 
-PUBLIC class ObjectPool* PooledObject::getPool()
+class ObjectPool* PooledObject::getPool()
 {
     return mPool;
 }
 
-PUBLIC void PooledObject::setPoolChain(PooledObject* p)
+void PooledObject::setPoolChain(PooledObject* p)
 {
     mPoolChain = p;
 }
 
-PUBLIC PooledObject* PooledObject::getPoolChain()
+PooledObject* PooledObject::getPoolChain()
 {
     return mPoolChain;
 }
 
-PUBLIC void PooledObject::setPooled(bool b)
+void PooledObject::setPooled(bool b)
 {
     mPooled = b;
 }
 
-PUBLIC bool PooledObject::isPooled()
+bool PooledObject::isPooled()
 {
     return mPooled;
 }
 
-PUBLIC void PooledObject::free()
+void PooledObject::free()
 {
     if (mPool != NULL)
       mPool->free(this);
@@ -171,12 +171,12 @@ PUBLIC void PooledObject::free()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC PooledBuffer::PooledBuffer()
+PooledBuffer::PooledBuffer()
 {
     mBuffer = NULL;
 }
 
-PUBLIC PooledBuffer::~PooledBuffer()
+PooledBuffer::~PooledBuffer()
 {
     if (mBuffer != NULL) {
         unsigned char* block = (mBuffer - sizeof(PooledBuffer*));
@@ -188,7 +188,7 @@ PUBLIC PooledBuffer::~PooledBuffer()
  * Allocate the buffer.  Factored out of the constructor so we have
  * more control over sizing.
  */
-PUBLIC void PooledBuffer::alloc()
+void PooledBuffer::alloc()
 {
     if (mBuffer == NULL) {
         long bytes = getByteSize();
@@ -205,7 +205,7 @@ PUBLIC void PooledBuffer::alloc()
 /**
  * Return the external buffer to the application.
  */
-PUBLIC unsigned char* PooledBuffer::getBuffer()
+unsigned char* PooledBuffer::getBuffer()
 {
     return mBuffer;
 }
@@ -214,7 +214,7 @@ PUBLIC unsigned char* PooledBuffer::getBuffer()
  * Given the external buffer, extract the pointer to the 
  * owning PooledBuffer.
  */
-PUBLIC PooledBuffer* PooledBuffer::getPooledBuffer(unsigned char* buffer)
+PooledBuffer* PooledBuffer::getPooledBuffer(unsigned char* buffer)
 {
     PooledBuffer* pb = NULL;
     if (buffer != NULL)
@@ -228,14 +228,14 @@ PUBLIC PooledBuffer* PooledBuffer::getPooledBuffer(unsigned char* buffer)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ObjectPool::ObjectPool()
+ObjectPool::ObjectPool()
 {
 }
 
 /**
  * Called by the subclass constructor.
  */
-PRIVATE void ObjectPool::initObjectPool(const char* name)
+void ObjectPool::initObjectPool(const char* name)
 {
 	mNext = NULL;
 	mName = CopyString(name);
@@ -257,7 +257,7 @@ PRIVATE void ObjectPool::initObjectPool(const char* name)
 /**
  * Called by the subclass constructor after it has specified options.
  */
-PRIVATE void ObjectPool::prepare()
+void ObjectPool::prepare()
 {
     if (mName == NULL)
       mName = CopyString("unspecified");
@@ -288,7 +288,7 @@ PRIVATE void ObjectPool::prepare()
 	memset(mFreeRing, 0, sizeof(PooledObject*) * mFreeSize);
 }
 
-PUBLIC ObjectPool::~ObjectPool()
+ObjectPool::~ObjectPool()
 {
     // free the allocation list
     while (mAllocList != NULL) {
@@ -331,7 +331,7 @@ PUBLIC ObjectPool::~ObjectPool()
     }
 }
 
-PRIVATE void ObjectPool::deleteObject(PooledObject* obj)
+void ObjectPool::deleteObject(PooledObject* obj)
 {
     // clear these to avoid warnings in the destructor
     obj->setPool(NULL);
@@ -339,22 +339,22 @@ PRIVATE void ObjectPool::deleteObject(PooledObject* obj)
     delete obj;
 }
 
-PUBLIC void ObjectPool::setNext(ObjectPool* p)
+void ObjectPool::setNext(ObjectPool* p)
 {
     mNext = p;
 }
 
-PUBLIC ObjectPool* ObjectPool::getNext()
+ObjectPool* ObjectPool::getNext()
 {
     return mNext;
 }
 
-PUBLIC const char* ObjectPool::getName()
+const char* ObjectPool::getName()
 {
 	return mName;
 }
 
-PUBLIC void ObjectPool::setThread(Thread* t)
+void ObjectPool::setThread(Thread* t)
 {
     mThread = t;
 }
@@ -363,7 +363,7 @@ PUBLIC void ObjectPool::setThread(Thread* t)
  * Called internally to allocate a new object from the heap.
  * The newObject method must be overloaded in the subclass.
  */
-PRIVATE PooledObject* ObjectPool::allocNew()
+PooledObject* ObjectPool::allocNew()
 {
     PooledObject* obj = newObject();
     obj->setPool(this);
@@ -374,7 +374,7 @@ PRIVATE PooledObject* ObjectPool::allocNew()
  * Called indirectly by the interrupt handler when it wants the
  * maintenance thread to run soon.
  */
-PRIVATE void ObjectPool::requestMaintenance()
+void ObjectPool::requestMaintenance()
 {
     if (mThread != NULL)
       mThread->signal();
@@ -383,7 +383,7 @@ PRIVATE void ObjectPool::requestMaintenance()
 /**
  * Called by the interrupt handler to allocate an object.
  */
-PUBLIC PooledObject* ObjectPool::alloc()
+PooledObject* ObjectPool::alloc()
 {
 	PooledObject* obj = NULL;
 
@@ -435,7 +435,7 @@ PUBLIC PooledObject* ObjectPool::alloc()
 /**
  * Called by the interrupt handler to free an object.
  */
-PUBLIC void ObjectPool::free(PooledObject* obj)
+void ObjectPool::free(PooledObject* obj)
 {
     if (obj->isPooled()) {
         Trace(1, "Attempt to pool object already in pool %s\n", mName);
@@ -480,7 +480,7 @@ PUBLIC void ObjectPool::free(PooledObject* obj)
 /**
  * Called by the application thread to perform pending operations.
  */
-PUBLIC void ObjectPool::maintain()
+void ObjectPool::maintain()
 {
     // consume the free ring
 	int freed = 0;
@@ -531,7 +531,7 @@ PUBLIC void ObjectPool::maintain()
 			(long)added);
 }
 
-PUBLIC void ObjectPool::dump()
+void ObjectPool::dump()
 {
 	PooledObject* o;
 
@@ -598,13 +598,13 @@ class PoolThread : public Thread {
 
 };
 
-PUBLIC PoolThread::PoolThread(ObjectPoolManager* pm)
+PoolThread::PoolThread(ObjectPoolManager* pm)
 {
     mPools = pm;
 	setName("PoolThread");
 }
 
-PUBLIC PoolThread::~PoolThread()
+PoolThread::~PoolThread()
 {
 }
 
@@ -690,7 +690,7 @@ ObjectPoolManager::~ObjectPoolManager()
 	mExternalThread = false;
 }
 
-PUBLIC ObjectPoolManager* ObjectPoolManager::instance()
+ObjectPoolManager* ObjectPoolManager::instance()
 {
     if (Singleton == NULL) {
 		Trace(2, "ObjectPoolManager: creating global pool!\n");
@@ -699,7 +699,7 @@ PUBLIC ObjectPoolManager* ObjectPoolManager::instance()
     return Singleton;
 }
 
-PUBLIC void ObjectPoolManager::exit(bool dumpit)
+void ObjectPoolManager::exit(bool dumpit)
 {
 	if (Singleton != NULL) {
 		Trace(2, "ObjectPoolManager: deleting global pool!\n");
@@ -710,27 +710,27 @@ PUBLIC void ObjectPoolManager::exit(bool dumpit)
 	}
 }
 
-PUBLIC void ObjectPoolManager::dump()
+void ObjectPoolManager::dump()
 {
 	printf("*** Object Pools ***\n");
     for (ObjectPool* p = mPools ; p != NULL ; p = p->getNext())
 	  p->dump();
 }
 
-PUBLIC void ObjectPoolManager::sdump()
+void ObjectPoolManager::sdump()
 {
 	if (Singleton != NULL)
 	  Singleton->dump();
 }
 
-PUBLIC void ObjectPoolManager::add(ObjectPool* p)
+void ObjectPoolManager::add(ObjectPool* p)
 {
     p->setNext(mPools);
     p->setThread(mThread);
     mPools = p;
 }
 
-PUBLIC ObjectPool* ObjectPoolManager::get(const char* name)
+ObjectPool* ObjectPoolManager::get(const char* name)
 {
     ObjectPool* found = NULL;
     for (ObjectPool* p = mPools ; p != NULL ; p = p->getNext()) {
@@ -742,7 +742,7 @@ PUBLIC ObjectPool* ObjectPoolManager::get(const char* name)
     return found;
 }
 
-PUBLIC void ObjectPoolManager::maintain()
+void ObjectPoolManager::maintain()
 {
     // TODO: if we have a lot of these, could add a flag that marks
     // only those that requested maintenance
@@ -761,22 +761,22 @@ PUBLIC void ObjectPoolManager::maintain()
  * extremely common in audio applications.
  */
 
-PUBLIC SampleBuffer::SampleBuffer(long samples)
+SampleBuffer::SampleBuffer(long samples)
 {
     mSamples = samples;
     alloc();
 }
 
-PUBLIC SampleBuffer::~SampleBuffer()
+SampleBuffer::~SampleBuffer()
 {
 }
 
-PUBLIC long SampleBuffer::getByteSize()
+long SampleBuffer::getByteSize()
 {
     return mSamples * sizeof(float);
 }
 
-PUBLIC float* SampleBuffer::getSamples()
+float* SampleBuffer::getSamples()
 {
     return (float*)getBuffer();
 }
@@ -785,19 +785,19 @@ PUBLIC float* SampleBuffer::getSamples()
 // Pool
 //
 
-PUBLIC SampleBufferPool::SampleBufferPool(long samples)
+SampleBufferPool::SampleBufferPool(long samples)
 {
     mSamples = samples;
 }
 
-PUBLIC SampleBufferPool::~SampleBufferPool()
+SampleBufferPool::~SampleBufferPool()
 {
 }
 
 /**
  * Required overload from ObjectPool.
  */
-PUBLIC PooledObject* SampleBufferPool::newObject()
+PooledObject* SampleBufferPool::newObject()
 {
     return new SampleBuffer(mSamples);
 }
@@ -805,21 +805,21 @@ PUBLIC PooledObject* SampleBufferPool::newObject()
 /**
  * Required overload from ObjectPool.
  */
-PUBLIC void SampleBufferPool::prepareObject(PooledObject* o)
+void SampleBufferPool::prepareObject(PooledObject* o)
 {
     SampleBuffer* sb = (SampleBuffer*)o;
     float* samples = sb->getSamples();
     memset(samples, 0, sizeof(float) * mSamples);
 }
 
-PUBLIC float* SampleBufferPool::allocSamples()
+float* SampleBufferPool::allocSamples()
 {
     // machinery inherited from ObjectPool, downcast the result
     SampleBuffer* sb = (SampleBuffer*)alloc();
     return sb->getSamples();
 }
 
-PUBLIC void SampleBufferPool::freeSamples(float* buffer)
+void SampleBufferPool::freeSamples(float* buffer)
 {
     // extract the PooledBuffer pointer from the block prefix
     PooledBuffer* pb = PooledBuffer::getPooledBuffer((unsigned char*)buffer);

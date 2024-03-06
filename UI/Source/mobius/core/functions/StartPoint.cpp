@@ -14,18 +14,18 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Segment.h"
-#include "Stream.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Segment.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -38,12 +38,12 @@ class StartPointEventType : public EventType {
 	StartPointEventType();
 };
 
-PUBLIC StartPointEventType::StartPointEventType()
+StartPointEventType::StartPointEventType()
 {
 	name = "StartPoint";
 }
 
-PUBLIC EventType* StartPointEvent = new StartPointEventType();
+EventType* StartPointEvent = new StartPointEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -74,10 +74,10 @@ class StartPointFunction : public Function {
     bool mMidi;
 };
 
-PUBLIC Function* StartPoint = new StartPointFunction(false);
-PUBLIC Function* SyncStartPoint = new StartPointFunction(true);
+Function* StartPoint = new StartPointFunction(false);
+Function* SyncStartPoint = new StartPointFunction(true);
 
-PUBLIC StartPointFunction::StartPointFunction(bool midiop)
+StartPointFunction::StartPointFunction(bool midiop)
 {
 	eventType = StartPointEvent;
 	mayCancelMute = true;
@@ -99,7 +99,7 @@ PUBLIC StartPointFunction::StartPointFunction(bool midiop)
 	}
 }
 
-PUBLIC Event* StartPointFunction::scheduleEvent(Action* action, Loop* l)
+Event* StartPointFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -129,7 +129,7 @@ PUBLIC Event* StartPointFunction::scheduleEvent(Action* action, Loop* l)
 	return event;
 }
 
-PUBLIC void StartPointFunction::invokeLong(Action* action, Loop* l)
+void StartPointFunction::invokeLong(Action* action, Loop* l)
 {
     EventManager* em = l->getTrack()->getEventManager();
 

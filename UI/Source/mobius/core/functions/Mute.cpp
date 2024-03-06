@@ -13,22 +13,22 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Stream.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Mode.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Stream.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Mobius.h"
+#include "../../model/MobiusConfig.h"
+#include "../Mode.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -115,12 +115,12 @@ class MuteEventType : public EventType {
 	MuteEventType();
 };
 
-PUBLIC MuteEventType::MuteEventType()
+MuteEventType::MuteEventType()
 {
 	name = "Mute";
 }
 
-PUBLIC EventType* MuteEvent = new MuteEventType();
+EventType* MuteEvent = new MuteEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -148,20 +148,20 @@ class MuteFunction : public Function {
 };
 
 // SUS first for longFunction
-PUBLIC Function* SUSMute = new MuteFunction(false, true, false, false, false);
-PUBLIC Function* SUSPause = new MuteFunction(true, true, false, false, false);
+Function* SUSMute = new MuteFunction(false, true, false, false, false);
+Function* SUSPause = new MuteFunction(true, true, false, false, false);
 
-PUBLIC Function* Mute = new MuteFunction(false, false, false, false, false);
-PUBLIC Function* MuteOn = new MuteFunction(false, true, false, false, true);
-PUBLIC Function* MuteOff = new MuteFunction(false, false, false, false, true);
-PUBLIC Function* Pause = new MuteFunction(true, false, false, false, false);
-PUBLIC Function* SUSMuteRestart = new MuteFunction(false, true, true, false, false);
-PUBLIC Function* GlobalMute = new MuteFunction(false, false, false, true, false);
-PUBLIC Function* GlobalPause = new MuteFunction(true, false, false, true, false);
+Function* Mute = new MuteFunction(false, false, false, false, false);
+Function* MuteOn = new MuteFunction(false, true, false, false, true);
+Function* MuteOff = new MuteFunction(false, false, false, false, true);
+Function* Pause = new MuteFunction(true, false, false, false, false);
+Function* SUSMuteRestart = new MuteFunction(false, true, true, false, false);
+Function* GlobalMute = new MuteFunction(false, false, false, true, false);
+Function* GlobalPause = new MuteFunction(true, false, false, true, false);
 
 // TODO: SUSGlobalMute and SUSGlobalPause seem useful
 
-PUBLIC MuteFunction::MuteFunction(bool pause, bool sus, bool start, bool glob,
+MuteFunction::MuteFunction(bool pause, bool sus, bool start, bool glob,
 								  bool absolute)
 {
 	eventType = MuteEvent;
@@ -259,7 +259,7 @@ PUBLIC MuteFunction::MuteFunction(bool pause, bool sus, bool start, bool glob,
  * unless a hidden flag is set.
  *
  */
-PUBLIC Event* MuteFunction::invoke(Action* action, Loop* loop)
+Event* MuteFunction::invoke(Action* action, Loop* loop)
 {
 	Event* event = NULL;
     MobiusConfig* config = loop->getMobius()->getInterruptConfiguration();
@@ -330,7 +330,7 @@ Event* MuteFunction::scheduleEvent(Action* action, Loop* l)
  * have been created for the MidiStart function and we need to 
  * retain the reference to that function.
  */
-PUBLIC Event* MuteFunction::rescheduleEvent(Loop* l, Event* previous, Event* next)
+Event* MuteFunction::rescheduleEvent(Loop* l, Event* previous, Event* next)
 {
 	Event* neu = Function::rescheduleEvent(l, previous, next);
 	neu->function = next->function;
@@ -344,7 +344,7 @@ PUBLIC Event* MuteFunction::rescheduleEvent(Loop* l, Event* previous, Event* nex
  * 
  * This is complicated by the MuteMode preset parameter.
  */
-PUBLIC void MuteFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void MuteFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
 	// by current convention, e will always be a JumpPlayEvent unless
 	// we're stacked
@@ -457,7 +457,7 @@ PUBLIC void MuteFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 /**
  * TODO: Long-Mute is supposed to become SUSMultiply
  */
-PUBLIC void MuteFunction::invokeLong(Action* action, Loop* l)
+void MuteFunction::invokeLong(Action* action, Loop* l)
 {
 }
 
@@ -478,7 +478,7 @@ PUBLIC void MuteFunction::invokeLong(Action* action, Loop* l)
  * and MuteOn as the event function.  Need to retool this to use actions
  * or make Solo part of the same function family!
  */
-PUBLIC void MuteFunction::doEvent(Loop* l, Event* e)
+void MuteFunction::doEvent(Loop* l, Event* e)
 {
     Function* invoker = e->getInvokingFunction();
 
@@ -619,7 +619,7 @@ PUBLIC void MuteFunction::doEvent(Loop* l, Event* e)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void MuteFunction::invoke(Action* action, Mobius* m)
+void MuteFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
@@ -639,7 +639,7 @@ PUBLIC void MuteFunction::invoke(Action* action, Mobius* m)
  * schedules the Pause functions in each track.  This wouldn't need to be a 
  * global function.
  */
-PRIVATE void MuteFunction::globalPause(Action* action, Mobius* m)
+void MuteFunction::globalPause(Action* action, Mobius* m)
 {
     // punt and assume for now that we don't have to deal with
     // tracks that are already paused
@@ -660,7 +660,7 @@ PRIVATE void MuteFunction::globalPause(Action* action, Mobius* m)
  * that were playing before the mute, and on the next mute will unmute just
  * those tracks. 
  */
-PRIVATE void MuteFunction::globalMute(Action* action, Mobius* m)
+void MuteFunction::globalMute(Action* action, Mobius* m)
 {
 	if (action->down) {
 

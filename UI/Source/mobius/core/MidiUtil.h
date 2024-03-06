@@ -12,12 +12,12 @@
 #ifndef MIDIUTIL_H
 #define MIDIUTIL_H
 
-INTERFACE void	MidiNoteName(int note, char *buf);
-INTERFACE int	MidiNoteNumber(const char *str);
+void	MidiNoteName(int note, char *buf);
+int	MidiNoteNumber(const char *str);
 
-INTERFACE int	MidiChecksum(unsigned char *buffer, int len);
+int	MidiChecksum(unsigned char *buffer, int len);
 
-INTERFACE void	MidiGetName(unsigned char *src, int size, char *dest);
-INTERFACE void	MidiSetName(unsigned char *dest, int size, char *src);
+void	MidiGetName(unsigned char *src, int size, char *dest);
+void	MidiSetName(unsigned char *dest, int size, char *src);
 
 #endif

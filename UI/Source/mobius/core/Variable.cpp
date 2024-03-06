@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
-#include "Vbuf.h"
+#include "../../util/Util.h"
+#include "../../util/Vbuf.h"
 
 #include "Event.h"
 #include "EventManager.h"
@@ -33,7 +33,7 @@
 #include "Mobius.h"
 #include "Mode.h"
 #include "Project.h"
-#include "Recorder.h"
+//#include "Recorder.h"
 #include "Script.h"
 #include "Synchronizer.h"
 #include "SyncState.h"
@@ -48,31 +48,31 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptInternalVariable::ScriptInternalVariable()
+ScriptInternalVariable::ScriptInternalVariable()
 {
     mName = NULL;
 	mAlias = NULL;
 	mType = TYPE_INT;
 }
 
-PUBLIC ScriptInternalVariable::~ScriptInternalVariable()
+ScriptInternalVariable::~ScriptInternalVariable()
 {
     delete mName;
 	delete mAlias;
 }
 
-PUBLIC void ScriptInternalVariable::setName(const char* name)
+void ScriptInternalVariable::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
 }
 
-PUBLIC const char* ScriptInternalVariable::getName()
+const char* ScriptInternalVariable::getName()
 {
     return mName;
 }
 
-PUBLIC void ScriptInternalVariable::setAlias(const char* name)
+void ScriptInternalVariable::setAlias(const char* name)
 {
     delete mAlias;
     mAlias = CopyString(name);
@@ -83,7 +83,7 @@ PUBLIC void ScriptInternalVariable::setAlias(const char* name)
  * Kludge to handle renames of a few variables.  Should support
  * multiple aliases.
  */
-PUBLIC bool ScriptInternalVariable::isMatch(const char* name)
+bool ScriptInternalVariable::isMatch(const char* name)
 {
 	return (StringEqualNoCase(name, mName) ||
 			StringEqualNoCase(name, mAlias));
@@ -94,13 +94,13 @@ PUBLIC bool ScriptInternalVariable::isMatch(const char* name)
  * We almost always forward this so the active track, but in a few cases
  * it will be overloaded to extract information from the interpreter.
  */
-PUBLIC void ScriptInternalVariable::getValue(ScriptInterpreter* si, 	
+void ScriptInternalVariable::getValue(ScriptInterpreter* si, 	
 											 ExValue* value)
 {
 	getTrackValue(si->getTargetTrack(), value);
 }
 
-PUBLIC void ScriptInternalVariable::getTrackValue(Track* t, ExValue* value)
+void ScriptInternalVariable::getTrackValue(Track* t, ExValue* value)
 {
 	value->setInt(0);
 }
@@ -109,7 +109,7 @@ PUBLIC void ScriptInternalVariable::getTrackValue(Track* t, ExValue* value)
  * Verify few variables can be set, the ones that can are usually
  * just for unit tests and debugging.
  */
-PUBLIC void ScriptInternalVariable::setValue(ScriptInterpreter* si, 
+void ScriptInternalVariable::setValue(ScriptInterpreter* si, 
 											 ExValue* value)
 {
 	Trace(1, "Attempt to set script internal variable %s\n", mName);
@@ -145,7 +145,7 @@ void SustainCountVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getSustainCount());
 }
 
-PUBLIC SustainCountVariableType* SustainCountVariable = 
+SustainCountVariableType* SustainCountVariable = 
 new SustainCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ void ClickCountVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getClickCount());
 }
 
-PUBLIC ClickCountVariableType* ClickCountVariable = 
+ClickCountVariableType* ClickCountVariable = 
 new ClickCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ void TriggerSourceValueVariableType::getValue(ScriptInterpreter* si, ExValue* va
       value->setNull();
 }
 
-PUBLIC TriggerSourceValueVariableType* TriggerSourceValueVariable = 
+TriggerSourceValueVariableType* TriggerSourceValueVariable = 
 new TriggerSourceValueVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ void TriggerNumberVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getTriggerId());
 }
 
-PUBLIC TriggerNumberVariableType* TriggerNumberVariable = 
+TriggerNumberVariableType* TriggerNumberVariable = 
 new TriggerNumberVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ void TriggerValueVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getTriggerValue());
 }
 
-PUBLIC TriggerValueVariableType* TriggerValueVariable = 
+TriggerValueVariableType* TriggerValueVariable = 
 new TriggerValueVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -293,7 +293,7 @@ void TriggerOffsetVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getTriggerOffset());
 }
 
-PUBLIC TriggerOffsetVariableType* TriggerOffsetVariable = 
+TriggerOffsetVariableType* TriggerOffsetVariable = 
 new TriggerOffsetVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ void MidiTypeVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setString(type);
 }
 
-PUBLIC MidiTypeVariableType* MidiTypeVariable = 
+MidiTypeVariableType* MidiTypeVariable = 
 new MidiTypeVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -363,7 +363,7 @@ void MidiChannelVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(channel);
 }
 
-PUBLIC MidiChannelVariableType* MidiChannelVariable = 
+MidiChannelVariableType* MidiChannelVariable = 
 new MidiChannelVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -392,7 +392,7 @@ void MidiNumberVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(number);
 }
 
-PUBLIC MidiNumberVariableType* MidiNumberVariable = 
+MidiNumberVariableType* MidiNumberVariable = 
 new MidiNumberVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -420,7 +420,7 @@ void MidiValueVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getTriggerValue());
 }
 
-PUBLIC MidiValueVariableType* MidiValueVariable = 
+MidiValueVariableType* MidiValueVariable = 
 new MidiValueVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -450,13 +450,13 @@ void ReturnCodeVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 	value->setInt(si->getReturnCode());
 }
 
-PUBLIC void ReturnCodeVariableType::setValue(ScriptInterpreter* si, 
+void ReturnCodeVariableType::setValue(ScriptInterpreter* si, 
 											 ExValue* value)
 {
 	si->setReturnCode(value->getInt());
 }
 
-PUBLIC ReturnCodeVariableType* ReturnCodeVariable = 
+ReturnCodeVariableType* ReturnCodeVariable = 
 new ReturnCodeVariableType();
 
 /****************************************************************************
@@ -490,7 +490,7 @@ void BlockFramesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(AUDIO_FRAMES_PER_BUFFER);
 }
 
-PUBLIC BlockFramesVariableType* BlockFramesVariable = 
+BlockFramesVariableType* BlockFramesVariable = 
 new BlockFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -517,7 +517,7 @@ void SampleFramesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getMobius()->getLastSampleFrames());
 }
 
-PUBLIC SampleFramesVariableType* SampleFramesVariable = 
+SampleFramesVariableType* SampleFramesVariable = 
 new SampleFramesVariableType();
 
 /****************************************************************************
@@ -563,7 +563,7 @@ void NoExternalAudioVariableType::setValue(ScriptInterpreter* si,
 	m->setNoExternalInput(value->getBool());
 }
 
-PUBLIC NoExternalAudioVariableType* NoExternalAudioVariable = 
+NoExternalAudioVariableType* NoExternalAudioVariable = 
 new NoExternalAudioVariableType();
 
 /****************************************************************************
@@ -600,7 +600,7 @@ void LoopCountVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(t->getLoopCount());
 }
 
-PUBLIC LoopCountVariableType* LoopCountVariable = 
+LoopCountVariableType* LoopCountVariable = 
 new LoopCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -636,7 +636,7 @@ void LoopNumberVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(t->getLoop()->getNumber());
 }
 
-PUBLIC LoopNumberVariableType* LoopNumberVariable = 
+LoopNumberVariableType* LoopNumberVariable = 
 new LoopNumberVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -663,7 +663,7 @@ void LoopFramesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getLoop()->getFrames());
 }
 
-PUBLIC LoopFramesVariableType* LoopFramesVariable = 
+LoopFramesVariableType* LoopFramesVariable = 
 new LoopFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -690,7 +690,7 @@ void LoopFrameVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getLoop()->getFrame());
 }
 
-PUBLIC LoopFrameVariableType* LoopFrameVariable = 
+LoopFrameVariableType* LoopFrameVariable = 
 new LoopFrameVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -740,7 +740,7 @@ void CycleCountVariableType::getTrackValue(Track* t, ExValue* value)
  * If you undo the cycle count will revert to what it is in the play layer.
  *
  */
-PUBLIC void CycleCountVariableType::setValue(ScriptInterpreter* si, 
+void CycleCountVariableType::setValue(ScriptInterpreter* si, 
                                              ExValue* value)
 {
     Track* t = si->getTargetTrack();
@@ -748,7 +748,7 @@ PUBLIC void CycleCountVariableType::setValue(ScriptInterpreter* si,
     l->setCycles(value->getInt());
 }
 
-PUBLIC CycleCountVariableType* CycleCountVariable = 
+CycleCountVariableType* CycleCountVariable = 
 new CycleCountVariableType();
  
 //////////////////////////////////////////////////////////////////////
@@ -778,7 +778,7 @@ void CycleNumberVariableType::getTrackValue(Track* t, ExValue* value)
     value->setLong(frame / cycleFrames);
 }
 
-PUBLIC CycleNumberVariableType* CycleNumberVariable = 
+CycleNumberVariableType* CycleNumberVariable = 
 new CycleNumberVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -805,7 +805,7 @@ void CycleFramesVariableType::getTrackValue(Track* t, ExValue* value)
     value->setLong(t->getLoop()->getCycleFrames());
 }
 
-PUBLIC CycleFramesVariableType* CycleFramesVariable = 
+CycleFramesVariableType* CycleFramesVariable = 
 new CycleFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -835,7 +835,7 @@ void CycleFrameVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(frame % cycleFrames);
 }
 
-PUBLIC CycleFrameVariableType* CycleFrameVariable = 
+CycleFrameVariableType* CycleFrameVariable = 
 new CycleFrameVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -866,7 +866,7 @@ void SubCycleCountVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(p->getSubcycles());
 }
 
-PUBLIC SubCycleCountVariableType* SubCycleCountVariable = 
+SubCycleCountVariableType* SubCycleCountVariable = 
 new SubCycleCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -905,7 +905,7 @@ void SubCycleNumberVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(subCycle);
 }
 
-PUBLIC SubCycleNumberVariableType* SubCycleNumberVariable = 
+SubCycleNumberVariableType* SubCycleNumberVariable = 
 new SubCycleNumberVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -932,7 +932,7 @@ void SubCycleFramesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getLoop()->getSubCycleFrames());
 }
 
-PUBLIC SubCycleFramesVariableType* SubCycleFramesVariable = 
+SubCycleFramesVariableType* SubCycleFramesVariable = 
 new SubCycleFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -963,7 +963,7 @@ void SubCycleFrameVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(frame % subCycleFrames);
 }
 
-PUBLIC SubCycleFrameVariableType* SubCycleFrameVariable = 
+SubCycleFrameVariableType* SubCycleFrameVariable = 
 new SubCycleFrameVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1003,7 +1003,7 @@ void LayerCountVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(count);
 }
 
-PUBLIC LayerCountVariableType* LayerCountVariable = 
+LayerCountVariableType* LayerCountVariable = 
 new LayerCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1045,7 +1045,7 @@ void RedoCountVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(count);
 }
 
-PUBLIC RedoCountVariableType* RedoCountVariable = 
+RedoCountVariableType* RedoCountVariable = 
 new RedoCountVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1077,7 +1077,7 @@ void EffectiveFeedbackVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(loop->getEffectiveFeedback());
 }
 
-PUBLIC EffectiveFeedbackVariableType* EffectiveFeedbackVariable = 
+EffectiveFeedbackVariableType* EffectiveFeedbackVariable = 
 new EffectiveFeedbackVariableType();
 
 /****************************************************************************
@@ -1136,7 +1136,7 @@ const char* NextEventVariableType::getReturnValue(Event* e)
 	return e->type->name;
 }
 
-PUBLIC NextEventVariableType* NextEventVariable = new NextEventVariableType();
+NextEventVariableType* NextEventVariable = new NextEventVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1171,7 +1171,7 @@ const char* NextEventFunctionVariableType::getReturnValue(Event* e)
 	return value;
 }
 
-PUBLIC NextEventFunctionVariableType* NextEventFunctionVariable = 
+NextEventFunctionVariableType* NextEventFunctionVariable = 
 new NextEventFunctionVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1201,7 +1201,7 @@ void NextLoopVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(t->getLoop()->getNextLoop());
 }
 
-PUBLIC NextLoopVariableType* NextLoopVariable = new NextLoopVariableType();
+NextLoopVariableType* NextLoopVariable = new NextLoopVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1278,7 +1278,7 @@ void EventSummaryVariableType::getTrackValue(Track* t, ExValue* value)
     delete buf;
 }
 
-PRIVATE int EventSummaryVariableType::getEventIndex(Event* list, Event* event)
+int EventSummaryVariableType::getEventIndex(Event* list, Event* event)
 {
     int index = 0;
 
@@ -1298,7 +1298,7 @@ PRIVATE int EventSummaryVariableType::getEventIndex(Event* list, Event* event)
 }
 
 
-PUBLIC EventSummaryVariableType* EventSummaryVariable = new EventSummaryVariableType();
+EventSummaryVariableType* EventSummaryVariable = new EventSummaryVariableType();
 
 /****************************************************************************
  *                                                                          *
@@ -1330,7 +1330,7 @@ void ModeVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setString(t->getLoop()->getMode()->getName());
 }
 
-PUBLIC ModeVariableType* ModeVariable = new ModeVariableType();
+ModeVariableType* ModeVariable = new ModeVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1358,7 +1358,7 @@ void IsRecordingVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getLoop()->isRecording());
 }
 
-PUBLIC IsRecordingVariableType* IsRecordingVariable = new IsRecordingVariableType();
+IsRecordingVariableType* IsRecordingVariable = new IsRecordingVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1386,7 +1386,7 @@ void InOverdubVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getLoop()->isOverdub());
 }
 
-PUBLIC InOverdubVariableType* InOverdubVariable = new InOverdubVariableType();
+InOverdubVariableType* InOverdubVariable = new InOverdubVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1416,7 +1416,7 @@ void InHalfspeedVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSpeedToggle() == -12);
 }
 
-PUBLIC InHalfspeedVariableType* InHalfspeedVariable = 
+InHalfspeedVariableType* InHalfspeedVariable = 
 new InHalfspeedVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1444,7 +1444,7 @@ void InReverseVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getLoop()->isReverse());
 }
 
-PUBLIC InReverseVariableType* InReverseVariable = new InReverseVariableType();
+InReverseVariableType* InReverseVariable = new InReverseVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1477,7 +1477,7 @@ void InMuteVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getLoop()->isMuteMode());
 }
 
-PUBLIC InMuteVariableType* InMuteVariable = new InMuteVariableType();
+InMuteVariableType* InMuteVariable = new InMuteVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1506,7 +1506,7 @@ void InPauseVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getLoop()->isPaused());
 }
 
-PUBLIC InPauseVariableType* InPauseVariable = new InPauseVariableType();
+InPauseVariableType* InPauseVariable = new InPauseVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1535,7 +1535,7 @@ void InRealignVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(e != NULL);
 }
 
-PUBLIC InRealignVariableType* InRealignVariable = new InRealignVariableType();
+InRealignVariableType* InRealignVariable = new InRealignVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1566,7 +1566,7 @@ void InReturnVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(e != NULL);
 }
 
-PUBLIC InReturnVariableType* InReturnVariable = new InReturnVariableType();
+InReturnVariableType* InReturnVariable = new InReturnVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1596,7 +1596,7 @@ void RateVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(t->getSpeedStep());
 }
 
-PUBLIC RateVariableType* RateVariable = new RateVariableType();
+RateVariableType* RateVariable = new RateVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1627,7 +1627,7 @@ void RawSpeedVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)(t->getEffectiveSpeed() * 1000000));
 }
 
-PUBLIC RawSpeedVariableType* RawSpeedVariable = new RawSpeedVariableType();
+RawSpeedVariableType* RawSpeedVariable = new RawSpeedVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1653,7 +1653,7 @@ void RawPitchVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)(t->getEffectivePitch() * 1000000));
 }
 
-PUBLIC RawPitchVariableType* RawPitchVariable = new RawPitchVariableType();
+RawPitchVariableType* RawPitchVariable = new RawPitchVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1681,7 +1681,7 @@ void SpeedToggleVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(t->getSpeedToggle());
 }
 
-PUBLIC SpeedToggleVariableType* SpeedToggleVariable = new SpeedToggleVariableType();
+SpeedToggleVariableType* SpeedToggleVariable = new SpeedToggleVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1722,7 +1722,7 @@ void SpeedSequenceIndexVariableType::setValue(ScriptInterpreter* si,
     t->setSpeedSequenceIndex(index);
 }
 
-PUBLIC SpeedSequenceIndexVariableType* SpeedSequenceIndexVariable = new SpeedSequenceIndexVariableType();
+SpeedSequenceIndexVariableType* SpeedSequenceIndexVariable = new SpeedSequenceIndexVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1763,7 +1763,7 @@ void PitchSequenceIndexVariableType::setValue(ScriptInterpreter* si,
     t->setPitchSequenceIndex(index);
 }
 
-PUBLIC PitchSequenceIndexVariableType* PitchSequenceIndexVariable = new PitchSequenceIndexVariableType();
+PitchSequenceIndexVariableType* PitchSequenceIndexVariable = new PitchSequenceIndexVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1790,7 +1790,7 @@ void HistoryFramesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getLoop()->getHistoryFrames());
 }
 
-PUBLIC HistoryFramesVariableType* HistoryFramesVariable = 
+HistoryFramesVariableType* HistoryFramesVariable = 
 new HistoryFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1818,7 +1818,7 @@ void WindowOffsetVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getLoop()->getWindowOffset());
 }
 
-PUBLIC WindowOffsetVariableType* WindowOffsetVariable = new WindowOffsetVariableType();
+WindowOffsetVariableType* WindowOffsetVariable = new WindowOffsetVariableType();
 
 /****************************************************************************
  *                                                                          *
@@ -1852,7 +1852,7 @@ void TrackCountVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(m->getTrackCount());
 }
 
-PUBLIC TrackCountVariableType* TrackCountVariable = 
+TrackCountVariableType* TrackCountVariable = 
 new TrackCountVariableType();
 
 
@@ -1882,7 +1882,7 @@ void TrackVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong(t->getDisplayNumber());
 }
 
-PUBLIC TrackVariableType* TrackVariable = new TrackVariableType();
+TrackVariableType* TrackVariable = new TrackVariableType();
 
 //////////////////////////////////////////////////////////////////////
 // 
@@ -1911,7 +1911,7 @@ void GlobalMuteVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->isGlobalMute());
 }
 
-PUBLIC GlobalMuteVariableType* GlobalMuteVariable = 
+GlobalMuteVariableType* GlobalMuteVariable = 
 new GlobalMuteVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -1942,7 +1942,7 @@ void SoloVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->isSolo());
 }
 
-PUBLIC SoloVariableType* SoloVariable = new SoloVariableType();
+SoloVariableType* SoloVariable = new SoloVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -1976,7 +1976,7 @@ void TrackSyncMasterVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(number);
 }
 
-PUBLIC TrackSyncMasterVariableType* TrackSyncMasterVariable = 
+TrackSyncMasterVariableType* TrackSyncMasterVariable = 
 new TrackSyncMasterVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2012,7 +2012,7 @@ void OutSyncMasterVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(number);
 }
 
-PUBLIC OutSyncMasterVariableType* OutSyncMasterVariable = 
+OutSyncMasterVariableType* OutSyncMasterVariable = 
 new OutSyncMasterVariableType();
 
 /****************************************************************************
@@ -2052,7 +2052,7 @@ void SyncTempoVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)tempo);
 }
 
-PUBLIC SyncTempoVariableType* SyncTempoVariable = new SyncTempoVariableType();
+SyncTempoVariableType* SyncTempoVariable = new SyncTempoVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2081,7 +2081,7 @@ void SyncRawBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getRawBeat(t));
 }
 
-PUBLIC SyncRawBeatVariableType* SyncRawBeatVariable = 
+SyncRawBeatVariableType* SyncRawBeatVariable = 
 new SyncRawBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2111,7 +2111,7 @@ void SyncBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getBeat(t));
 }
 
-PUBLIC SyncBeatVariableType* SyncBeatVariable = new SyncBeatVariableType();
+SyncBeatVariableType* SyncBeatVariable = new SyncBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2140,7 +2140,7 @@ void SyncBarVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getBar(t));
 }
 
-PUBLIC SyncBarVariableType* SyncBarVariable = new SyncBarVariableType();
+SyncBarVariableType* SyncBarVariable = new SyncBarVariableType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -2173,7 +2173,7 @@ void SyncPulsesVariableType::getTrackValue(Track* t, ExValue* value)
     }
 }
 
-PUBLIC SyncPulsesVariableType* SyncPulsesVariable = 
+SyncPulsesVariableType* SyncPulsesVariable = 
 new SyncPulsesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2205,7 +2205,7 @@ void SyncPulseVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncPulseVariableType* SyncPulseVariable = 
+SyncPulseVariableType* SyncPulseVariable = 
 new SyncPulseVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2237,7 +2237,7 @@ void SyncPulseFramesVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncPulseFramesVariableType* SyncPulseFramesVariable = 
+SyncPulseFramesVariableType* SyncPulseFramesVariable = 
 new SyncPulseFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2269,7 +2269,7 @@ void SyncLoopFramesVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncLoopFramesVariableType* SyncLoopFramesVariable = 
+SyncLoopFramesVariableType* SyncLoopFramesVariable = 
 new SyncLoopFramesVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2302,7 +2302,7 @@ void SyncAudioFrameVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncAudioFrameVariableType* SyncAudioFrameVariable = 
+SyncAudioFrameVariableType* SyncAudioFrameVariable = 
 new SyncAudioFrameVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2335,7 +2335,7 @@ void SyncDriftVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncDriftVariableType* SyncDriftVariable = 
+SyncDriftVariableType* SyncDriftVariable = 
 new SyncDriftVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2369,7 +2369,7 @@ void SyncAverageDriftVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncAverageDriftVariableType* SyncAverageDriftVariable = 
+SyncAverageDriftVariableType* SyncAverageDriftVariable = 
 new SyncAverageDriftVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2402,7 +2402,7 @@ void SyncDriftChecksVariableType::getTrackValue(Track* t, ExValue* value)
       value->setNull();
 }
 
-PUBLIC SyncDriftChecksVariableType* SyncDriftChecksVariable = 
+SyncDriftChecksVariableType* SyncDriftChecksVariable = 
 new SyncDriftChecksVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2441,7 +2441,7 @@ void SyncCorrectionsVariableType::getTrackValue(Track* t, ExValue* value)
  * We allow this so we can force a drift realign, then reset the counter
  * so we can continue testing for zero in other parts of the test.
  */
-PUBLIC void SyncCorrectionsVariableType::setValue(ScriptInterpreter* si, 
+void SyncCorrectionsVariableType::setValue(ScriptInterpreter* si, 
                                                   ExValue* value)
 {
     Track* t = si->getTargetTrack();
@@ -2451,7 +2451,7 @@ PUBLIC void SyncCorrectionsVariableType::setValue(ScriptInterpreter* si,
       tracker->setDriftCorrections(value->getInt());
 }
 
-PUBLIC SyncCorrectionsVariableType* SyncCorrectionsVariable = 
+SyncCorrectionsVariableType* SyncCorrectionsVariable = 
 new SyncCorrectionsVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2484,7 +2484,7 @@ void SyncDealignVariableType::getTrackValue(Track* t, ExValue* value)
       value->setLong(tracker->getDealign(t));
 }
 
-PUBLIC SyncDealignVariableType* SyncDealignVariable = 
+SyncDealignVariableType* SyncDealignVariable = 
 new SyncDealignVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2512,7 +2512,7 @@ void SyncPreRealignFrameVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(state->getPreRealignFrame());
 }
 
-PUBLIC SyncPreRealignFrameVariableType* SyncPreRealignFrameVariable = 
+SyncPreRealignFrameVariableType* SyncPreRealignFrameVariable = 
 new SyncPreRealignFrameVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2540,7 +2540,7 @@ void SyncCyclePulsesVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(state->getCyclePulses());
 }
 
-PUBLIC SyncCyclePulsesVariableType* SyncCyclePulsesVariable = 
+SyncCyclePulsesVariableType* SyncCyclePulsesVariable = 
 new SyncCyclePulsesVariableType();
 
 /****************************************************************************
@@ -2579,7 +2579,7 @@ void SyncOutTempoVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)tempo);
 }
 
-PUBLIC SyncOutTempoVariableType* SyncOutTempoVariable = 
+SyncOutTempoVariableType* SyncOutTempoVariable = 
 new SyncOutTempoVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2608,7 +2608,7 @@ void SyncOutRawBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getOutRawBeat());
 }
 
-PUBLIC SyncOutRawBeatVariableType* SyncOutRawBeatVariable = 
+SyncOutRawBeatVariableType* SyncOutRawBeatVariable = 
 new SyncOutRawBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2637,7 +2637,7 @@ void SyncOutBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getOutBeat());
 }
 
-PUBLIC SyncOutBeatVariableType* SyncOutBeatVariable = 
+SyncOutBeatVariableType* SyncOutBeatVariable = 
 new SyncOutBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2665,7 +2665,7 @@ void SyncOutBarVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getOutBar());
 }
 
-PUBLIC SyncOutBarVariableType* SyncOutBarVariable = 
+SyncOutBarVariableType* SyncOutBarVariable = 
 new SyncOutBarVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2692,7 +2692,7 @@ void SyncOutSendingVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSynchronizer()->isSending());
 }
 
-PUBLIC SyncOutSendingVariableType* SyncOutSendingVariable = 
+SyncOutSendingVariableType* SyncOutSendingVariable = 
 new SyncOutSendingVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2719,7 +2719,7 @@ void SyncOutStartedVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSynchronizer()->isStarted());
 }
 
-PUBLIC SyncOutStartedVariableType* SyncOutStartedVariable = 
+SyncOutStartedVariableType* SyncOutStartedVariable = 
 new SyncOutStartedVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2747,7 +2747,7 @@ void SyncOutStartsVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setInt(t->getSynchronizer()->getStarts());
 }
 
-PUBLIC SyncOutStartsVariableType* SyncOutStartsVariable = 
+SyncOutStartsVariableType* SyncOutStartsVariable = 
 new SyncOutStartsVariableType();
 
 /****************************************************************************
@@ -2786,7 +2786,7 @@ void SyncInTempoVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)tempo);
 }
 
-PUBLIC SyncInTempoVariableType* SyncInTempoVariable = 
+SyncInTempoVariableType* SyncInTempoVariable = 
 new SyncInTempoVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2814,7 +2814,7 @@ void SyncInRawBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getInRawBeat());
 }
 
-PUBLIC SyncInRawBeatVariableType* SyncInRawBeatVariable = 
+SyncInRawBeatVariableType* SyncInRawBeatVariable = 
 new SyncInRawBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2843,7 +2843,7 @@ void SyncInBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getInBeat());
 }
 
-PUBLIC SyncInBeatVariableType* SyncInBeatVariable = 
+SyncInBeatVariableType* SyncInBeatVariable = 
 new SyncInBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2871,7 +2871,7 @@ void SyncInBarVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getInBar());
 }
 
-PUBLIC SyncInBarVariableType* SyncInBarVariable = 
+SyncInBarVariableType* SyncInBarVariable = 
 new SyncInBarVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2898,7 +2898,7 @@ void SyncInReceivingVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSynchronizer()->isInReceiving());
 }
 
-PUBLIC SyncInReceivingVariableType* SyncInReceivingVariable = 
+SyncInReceivingVariableType* SyncInReceivingVariable = 
 new SyncInReceivingVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2925,7 +2925,7 @@ void SyncInStartedVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSynchronizer()->isInStarted());
 }
 
-PUBLIC SyncInStartedVariableType* SyncInStartedVariable = 
+SyncInStartedVariableType* SyncInStartedVariable = 
 new SyncInStartedVariableType();
 
 /****************************************************************************
@@ -2962,7 +2962,7 @@ void SyncHostTempoVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setLong((long)tempo);
 }
 
-PUBLIC SyncHostTempoVariableType* SyncHostTempoVariable = 
+SyncHostTempoVariableType* SyncHostTempoVariable = 
 new SyncHostTempoVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -2990,7 +2990,7 @@ void SyncHostRawBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getHostRawBeat());
 }
 
-PUBLIC SyncHostRawBeatVariableType* SyncHostRawBeatVariable = 
+SyncHostRawBeatVariableType* SyncHostRawBeatVariable = 
 new SyncHostRawBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -3018,7 +3018,7 @@ void SyncHostBeatVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getHostBeat());
 }
 
-PUBLIC SyncHostBeatVariableType* SyncHostBeatVariable = 
+SyncHostBeatVariableType* SyncHostBeatVariable = 
 new SyncHostBeatVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -3046,7 +3046,7 @@ void SyncHostBarVariableType::getTrackValue(Track* t, ExValue* value)
     value->setInt(s->getHostBar());
 }
 
-PUBLIC SyncHostBarVariableType* SyncHostBarVariable = 
+SyncHostBarVariableType* SyncHostBarVariable = 
 new SyncHostBarVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -3077,7 +3077,7 @@ void SyncHostReceivingVariableType::getTrackValue(Track* t, ExValue* value)
 	value->setBool(t->getSynchronizer()->isHostReceiving());
 }
 
-PUBLIC SyncHostReceivingVariableType* SyncHostReceivingVariable = 
+SyncHostReceivingVariableType* SyncHostReceivingVariable = 
 new SyncHostReceivingVariableType();
 
 /****************************************************************************
@@ -3115,7 +3115,7 @@ void InstallationDirectoryVariableType::getValue(ScriptInterpreter* si,
     value->setString(mc->getInstallationDirectory());
 }
 
-PUBLIC InstallationDirectoryVariableType* InstallationDirectoryVariable = 
+InstallationDirectoryVariableType* InstallationDirectoryVariable = 
 new InstallationDirectoryVariableType();
 
 //////////////////////////////////////////////////////////////////////
@@ -3147,7 +3147,7 @@ void ConfigurationDirectoryVariableType::getValue(ScriptInterpreter* si,
     value->setString(mc->getConfigurationDirectory());
 }
 
-PUBLIC ConfigurationDirectoryVariableType* ConfigurationDirectoryVariable = 
+ConfigurationDirectoryVariableType* ConfigurationDirectoryVariable = 
 new ConfigurationDirectoryVariableType();
 
 /****************************************************************************
@@ -3159,7 +3159,7 @@ new ConfigurationDirectoryVariableType();
 /**
  * The collection of all internal variables.
  */
-PRIVATE ScriptInternalVariable* InternalVariables[] = {
+ScriptInternalVariable* InternalVariables[] = {
 
 	// Script state
 
@@ -3295,7 +3295,7 @@ PRIVATE ScriptInternalVariable* InternalVariables[] = {
 /**
  * Lookup an internal variable during script parsing.
  */
-PUBLIC ScriptInternalVariable* 
+ScriptInternalVariable* 
 ScriptInternalVariable::getVariable(const char* name)
 {
     ScriptInternalVariable* found = NULL;

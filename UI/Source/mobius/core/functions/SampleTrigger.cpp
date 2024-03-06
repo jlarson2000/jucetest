@@ -18,12 +18,12 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -39,12 +39,12 @@ class SampleTriggerEventType : public EventType {
 	SampleTriggerEventType();
 };
 
-PUBLIC SampleTriggerEventType::SampleTriggerEventType()
+SampleTriggerEventType::SampleTriggerEventType()
 {
 	name = "SampleTrigger";
 }
 
-PUBLIC EventType* SampleTriggerEvent = new SampleTriggerEventType();
+EventType* SampleTriggerEvent = new SampleTriggerEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -61,17 +61,17 @@ class SampleTriggerFunction : public ReplicatedFunction {
 
 // TODO: need a way to define these on the fly
 
-PUBLIC Function* SampleN = new SampleTriggerFunction(0);
-PUBLIC Function* Sample1 = new SampleTriggerFunction(1);
-PUBLIC Function* Sample2 = new SampleTriggerFunction(2);
-PUBLIC Function* Sample3 = new SampleTriggerFunction(3);
-PUBLIC Function* Sample4 = new SampleTriggerFunction(4);
-PUBLIC Function* Sample5 = new SampleTriggerFunction(5);
-PUBLIC Function* Sample6 = new SampleTriggerFunction(6);
-PUBLIC Function* Sample7 = new SampleTriggerFunction(7);
-PUBLIC Function* Sample8 = new SampleTriggerFunction(8);
+Function* SampleN = new SampleTriggerFunction(0);
+Function* Sample1 = new SampleTriggerFunction(1);
+Function* Sample2 = new SampleTriggerFunction(2);
+Function* Sample3 = new SampleTriggerFunction(3);
+Function* Sample4 = new SampleTriggerFunction(4);
+Function* Sample5 = new SampleTriggerFunction(5);
+Function* Sample6 = new SampleTriggerFunction(6);
+Function* Sample7 = new SampleTriggerFunction(7);
+Function* Sample8 = new SampleTriggerFunction(8);
 
-PUBLIC SampleTriggerFunction::SampleTriggerFunction(int i)
+SampleTriggerFunction::SampleTriggerFunction(int i)
 {
 	eventType = SampleTriggerEvent;
 	global = true;
@@ -111,7 +111,7 @@ void SampleTriggerFunction::invoke(Action* action, Mobius* m)
 /**
  * We don't schedule events for these yet, but may want to for quantization.
  */
-PUBLIC void SampleTriggerFunction::doEvent(Loop* l, Event* e)
+void SampleTriggerFunction::doEvent(Loop* l, Event* e)
 {
 	Trace(l, 1, "SampleTriggerEvent: no handler defined\n");
 }

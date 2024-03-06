@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "Port.h"
+//#include "Port.h"
 #include "MidiUtil.h"
 
 /****************************************************************************
@@ -32,10 +32,10 @@
  * Renders a printed representation of the note number into a buffer.
  ****************************************************************************/
 
-PRIVATE const char *notenames[] = {"C ", "C#", "D ", "D#", "E ", "F ", 
+const char *notenames[] = {"C ", "C#", "D ", "D#", "E ", "F ", 
 								   "F#", "G ", "G#", "A ", "A#", "B "};
 
-INTERFACE void MidiNoteName(int note, char *buf)
+void MidiNoteName(int note, char *buf)
 {
 	int octave;
 
@@ -69,7 +69,7 @@ INTERFACE void MidiNoteName(int note, char *buf)
  *
  ****************************************************************************/
 
-INTERFACE int MidiNoteNumber(const char *str)
+int MidiNoteNumber(const char *str)
 {
 	const char *key_base_chars = "CDEFGAB";			// base names
 	int key_bases[] = {0, 2, 4, 5, 7, 9, 11};		// semitone offsets
@@ -156,7 +156,7 @@ INTERFACE int MidiNoteNumber(const char *str)
  * Yamaha style sysex buffer checksum calculator.
  ****************************************************************************/
 
-INTERFACE int MidiChecksum(unsigned char *buffer, int len)
+int MidiChecksum(unsigned char *buffer, int len)
 {
 	unsigned char check;
 	unsigned int sum;
@@ -187,7 +187,7 @@ INTERFACE int MidiChecksum(unsigned char *buffer, int len)
  * is within a fixed field and not necessarily zero terminated.
  ****************************************************************************/
 
-INTERFACE void MidiGetName(unsigned char *src, int size, char *dest)
+void MidiGetName(unsigned char *src, int size, char *dest)
 {
 	int i;
 
@@ -212,7 +212,7 @@ INTERFACE void MidiGetName(unsigned char *src, int size, char *dest)
  * The name is blank padded if necessary.
  ****************************************************************************/
 
-INTERFACE void MidiSetName(unsigned char *dest, int size, char *src)
+void MidiSetName(unsigned char *dest, int size, char *src)
 {
 	int i;
 

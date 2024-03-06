@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 #include "ObjectPool.h"
 
 #include "Event.h"
@@ -36,19 +36,19 @@ class EventObjectPool : public ObjectPool {
 
 };
 
-PUBLIC EventObjectPool::EventObjectPool()
+EventObjectPool::EventObjectPool()
 {
     initObjectPool("Event");
     // defaults are fine, we don't use the free ring
 	prepare();
 }
 
-PUBLIC PooledObject* EventObjectPool::newObject()
+PooledObject* EventObjectPool::newObject()
 {
     return NULL;
 }
 
-PUBLIC void EventObjectPool::prepareObject(PooledObject* obj)
+void EventObjectPool::prepareObject(PooledObject* obj)
 {
     //((Event*)obj)->init();
 }
@@ -59,7 +59,7 @@ PUBLIC void EventObjectPool::prepareObject(PooledObject* obj)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void Mobius::initObjectPools()
+void Mobius::initObjectPools()
 {
 	// !! Tried to use a singleton, but if we leave the pool thread
 	// running after the VST has closed this causes hosts to crash.
@@ -72,7 +72,7 @@ PUBLIC void Mobius::initObjectPools()
 	}
 }
 
-PUBLIC void Mobius::flushObjectPools()
+void Mobius::flushObjectPools()
 {
 	if (mPools != NULL) {
 		Trace(this, 2, "Flushing object pools\n");
@@ -83,7 +83,7 @@ PUBLIC void Mobius::flushObjectPools()
 	}
 }
 
-PUBLIC void Mobius::dumpObjectPools()
+void Mobius::dumpObjectPools()
 {
 	if (mPools != NULL) {
 		mPools->dump();

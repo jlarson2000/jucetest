@@ -13,17 +13,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Stream.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Synchronizer.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Stream.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -36,12 +36,12 @@ class InstantMultiplyEventType : public EventType {
 	InstantMultiplyEventType();
 };
 
-PUBLIC InstantMultiplyEventType::InstantMultiplyEventType()
+InstantMultiplyEventType::InstantMultiplyEventType()
 {
 	name = "InstantMultiply";
 }
 
-PUBLIC EventType* InstantMultiplyEvent = new InstantMultiplyEventType();
+EventType* InstantMultiplyEvent = new InstantMultiplyEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -66,11 +66,11 @@ class InstantMultiplyFunction : public Function {
 	int mMultiple;
 };
 
-PUBLIC Function* InstantMultiply = new InstantMultiplyFunction(0);
-PUBLIC Function* InstantMultiply3 = new InstantMultiplyFunction(3);
-PUBLIC Function* InstantMultiply4 = new InstantMultiplyFunction(4);
+Function* InstantMultiply = new InstantMultiplyFunction(0);
+Function* InstantMultiply3 = new InstantMultiplyFunction(3);
+Function* InstantMultiply4 = new InstantMultiplyFunction(4);
 
-PUBLIC InstantMultiplyFunction::InstantMultiplyFunction(int n)
+InstantMultiplyFunction::InstantMultiplyFunction(int n)
 {
 	eventType = InstantMultiplyEvent;
 	cancelReturn = true;

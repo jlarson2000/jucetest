@@ -14,14 +14,14 @@
 #include <memory.h>
 #include <string.h>
 
-#include "util.h"
-#include "List.h"
-#include "Trace.h"
+#include "../../util/Util.h"
+#include "../../util/List.h"
+#include "../../util/Trace.h"
 
-#include "Messages.h"
-#include "MessageCatalog.h"
+//#include "Messages.h"
+//#include "MessageCatalog.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "Mode.h"
 #include "Function.h"
 
@@ -106,10 +106,10 @@ void MobiusMode::format(char* buffer, int arg)
 
 #define MAX_MODES 50
 
-PUBLIC MobiusMode* Modes[MAX_MODES];
-PRIVATE int ModeIndex = 0;
+MobiusMode* Modes[MAX_MODES];
+int ModeIndex = 0;
 
-PRIVATE void add(MobiusMode* mode)
+void add(MobiusMode* mode)
 {
     if (mode == NULL) {
         // must be a link problem
@@ -131,7 +131,7 @@ PRIVATE void add(MobiusMode* mode)
  * Called early during Mobius initializations to initialize the 
  * static mode arrays. This never changes once initialized.
  */
-PUBLIC void MobiusMode::initModes()
+void MobiusMode::initModes()
 {
     // ignore if already initialized
     if (ModeIndex == 0) {
@@ -175,7 +175,7 @@ PUBLIC void MobiusMode::initModes()
     }
 };
 
-PUBLIC MobiusMode** MobiusMode::getModes()
+MobiusMode** MobiusMode::getModes()
 {
 	return Modes;
 }
@@ -183,7 +183,7 @@ PUBLIC MobiusMode** MobiusMode::getModes()
 /**
  * Search for a mode by name or display name.
  */
-PUBLIC MobiusMode* MobiusMode::getMode(const char* name) 
+MobiusMode* MobiusMode::getMode(const char* name) 
 {
 	MobiusMode* found = NULL;
 	if (name != NULL) {
@@ -202,7 +202,7 @@ PUBLIC MobiusMode* MobiusMode::getMode(const char* name)
 /**
  * Set the mode display names from a message catalog.
  */
-PUBLIC void MobiusMode::localizeAll(MessageCatalog* cat)
+void MobiusMode::localizeAll(MessageCatalog* cat)
 {
 	for (int i = 0 ; Modes[i] != NULL ; i++) {
 		MobiusMode* mode = Modes[i];
@@ -213,7 +213,7 @@ PUBLIC void MobiusMode::localizeAll(MessageCatalog* cat)
 /**
  * Check the global configuration and update some of the mode options.
  */
-PUBLIC void MobiusMode::updateConfiguration(MobiusConfig* config)
+void MobiusMode::updateConfiguration(MobiusConfig* config)
 {
 	StringList* names = config->getAltFeedbackDisables();
 	
@@ -240,7 +240,7 @@ PUBLIC void MobiusMode::updateConfiguration(MobiusConfig* config)
  * Should only be here if we declare invokeHandler in which case
  * the method must be overloaded.
  */
-PUBLIC void MobiusMode::invoke(Action* action, Loop* loop)
+void MobiusMode::invoke(Action* action, Loop* loop)
 {
     Trace(1, "MobiusMode::invoke should have been overloaded!\n");
 }

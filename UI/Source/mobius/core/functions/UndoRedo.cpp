@@ -19,19 +19,19 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Synchronizer.h"
-#include "Stream.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Synchronizer.h"
+#include "../Stream.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -44,12 +44,12 @@ class UndoEventType : public EventType {
 	UndoEventType();
 };
 
-PUBLIC UndoEventType::UndoEventType()
+UndoEventType::UndoEventType()
 {
 	name = "Undo";
 }
 
-PUBLIC EventType* UndoEvent = new UndoEventType();
+EventType* UndoEvent = new UndoEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -62,12 +62,12 @@ class RedoEventType : public EventType {
 	RedoEventType();
 };
 
-PUBLIC RedoEventType::RedoEventType()
+RedoEventType::RedoEventType()
 {
 	name = "Redo";
 }
 
-PUBLIC EventType* RedoEvent = new RedoEventType();
+EventType* RedoEvent = new RedoEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -88,12 +88,12 @@ class UndoFunction : public Function {
 	bool mOnly;
 };
 
-PUBLIC Function* Undo = new UndoFunction(true, false, false);
-PUBLIC Function* UndoOnly = new UndoFunction(true, false, true);
-PUBLIC Function* ShortUndo = new UndoFunction(false, true, false);
-PUBLIC Function* LongUndo = new UndoFunction(false, false, false);
+Function* Undo = new UndoFunction(true, false, false);
+Function* UndoOnly = new UndoFunction(true, false, true);
+Function* ShortUndo = new UndoFunction(false, true, false);
+Function* LongUndo = new UndoFunction(false, false, false);
 
-PUBLIC UndoFunction::UndoFunction(bool dynamic, bool shortpress, bool only)
+UndoFunction::UndoFunction(bool dynamic, bool shortpress, bool only)
 {
 	eventType = UndoEvent;
 	thresholdEnabled = true;
@@ -201,7 +201,7 @@ Event* UndoFunction::scheduleEvent(Action* action, Loop* l)
  * will have rerouted this to Confirm::invoke so if we get here
  * we know we can undo the confirmation.
  */
-PUBLIC Event* UndoFunction::scheduleSwitchStack(Action* action, Loop* l)
+Event* UndoFunction::scheduleSwitchStack(Action* action, Loop* l)
 {
 	if (action->down) {
         EventManager* em = l->getTrack()->getEventManager();
@@ -224,7 +224,7 @@ PUBLIC Event* UndoFunction::scheduleSwitchStack(Action* action, Loop* l)
  * opposite of what is in MuteMode.
  * 
  */
-PUBLIC void UndoFunction::invokeLong(Action* action, Loop* l)
+void UndoFunction::invokeLong(Action* action, Loop* l)
 {
 }
 
@@ -232,7 +232,7 @@ PUBLIC void UndoFunction::invokeLong(Action* action, Loop* l)
  * RedoEvent event handler.
  * The redo list is a fifo, see addRedo for comments.
  */
-PUBLIC void UndoFunction::doEvent(Loop* l, Event* e)
+void UndoFunction::doEvent(Loop* l, Event* e)
 {
 	l->undoEvent(e);
 }
@@ -255,9 +255,9 @@ class RedoFunction : public Function {
   private:
 };
 
-PUBLIC Function* Redo = new RedoFunction();
+Function* Redo = new RedoFunction();
 
-PUBLIC RedoFunction::RedoFunction() :
+RedoFunction::RedoFunction() :
     Function("Redo", MSG_FUNC_REDO)
 {
 	eventType = RedoEvent;
@@ -290,7 +290,7 @@ Event* RedoFunction::scheduleEvent(Action* action, Loop* l)
  * !! What about return transitions, and scheduled events, 
  * do we just let them hang into the next layer?
  */
-PUBLIC void RedoFunction::doEvent(Loop* l, Event* e)
+void RedoFunction::doEvent(Loop* l, Event* e)
 {
     EventManager* em = l->getTrack()->getEventManager();
 

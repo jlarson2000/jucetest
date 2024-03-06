@@ -31,17 +31,17 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
-#include "Stream.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mode.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -54,12 +54,12 @@ class TrimEventType : public EventType {
 	TrimEventType();
 };
 
-PUBLIC TrimEventType::TrimEventType()
+TrimEventType::TrimEventType()
 {
 	name = "Trim";
 }
 
-PUBLIC EventType* TrimEvent = new TrimEventType();
+EventType* TrimEvent = new TrimEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -83,10 +83,10 @@ class TrimFunction : public Function {
 	bool start;
 };
 
-PUBLIC Function* TrimStart = new TrimFunction(true);
-PUBLIC Function* TrimEnd = new TrimFunction(false);
+Function* TrimStart = new TrimFunction(true);
+Function* TrimEnd = new TrimFunction(false);
 
-PUBLIC TrimFunction::TrimFunction(bool startop)
+TrimFunction::TrimFunction(bool startop)
 {
 	eventType = TrimEvent;
 	cancelReturn = true;
@@ -107,7 +107,7 @@ PUBLIC TrimFunction::TrimFunction(bool startop)
     }
 }
 
-PUBLIC void TrimFunction::doEvent(Loop* loop, Event* event)
+void TrimFunction::doEvent(Loop* loop, Event* event)
 {
     EventManager* em = loop->getTrack()->getEventManager();
 	InputStream* input = loop->getInputStream();
@@ -236,7 +236,7 @@ PUBLIC void TrimFunction::doEvent(Loop* loop, Event* event)
  * but now that we can set cycleCount in scripts it's not that
  * important.
  */
-PRIVATE long TrimFunction::calcCycleCount(Layer* layer, long newFrames)
+long TrimFunction::calcCycleCount(Layer* layer, long newFrames)
 {
     // resizes to 1 if not exact
     long cycles = 1;

@@ -21,21 +21,21 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Stream.h"
-#include "Layer.h"
-#include "Loop.h"   
-#include "Mobius.h"
-#include "Mode.h"
-#include "Messages.h"
-#include "Segment.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Stream.h"
+#include "../Layer.h"
+#include "../Loop.h"   
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Messages.h"
+#include "../Segment.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 /**
  * Experiment.
@@ -75,13 +75,13 @@ class InsertEventType : public EventType {
 	InsertEventType();
 };
 
-PUBLIC InsertEventType::InsertEventType()
+InsertEventType::InsertEventType()
 {
 	name = "Insert";
 	reschedules = true;
 }
 
-PUBLIC EventType* InsertEvent = new InsertEventType();
+EventType* InsertEvent = new InsertEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -94,13 +94,13 @@ class InsertEndEventType : public EventType {
 	InsertEndEventType();
 };
 
-PUBLIC InsertEndEventType::InsertEndEventType()
+InsertEndEventType::InsertEndEventType()
 {
 	name = "InsertEnd";
 	reschedules = true;
 }
 
-PUBLIC EventType* InsertEndEvent = new InsertEndEventType();
+EventType* InsertEndEvent = new InsertEndEventType();
 
 /****************************************************************************
  *                                                                          *
@@ -124,11 +124,11 @@ class InsertFunction : public Function {
 };
 
 // should we have an UnroundedInsert?
-PUBLIC Function* Insert = new InsertFunction(false, false);
-PUBLIC Function* SUSInsert = new InsertFunction(true, false);
-PUBLIC Function* SUSUnroundedInsert = new InsertFunction(true, true);
+Function* Insert = new InsertFunction(false, false);
+Function* SUSInsert = new InsertFunction(true, false);
+Function* SUSUnroundedInsert = new InsertFunction(true, true);
 
-PUBLIC InsertFunction::InsertFunction(bool sus, bool unrounded)
+InsertFunction::InsertFunction(bool sus, bool unrounded)
 {
 	eventType = InsertEvent;
     mMode = InsertMode;
@@ -159,7 +159,7 @@ PUBLIC InsertFunction::InsertFunction(bool sus, bool unrounded)
 
 }
 
-PUBLIC bool InsertFunction::isSustain(Preset* p)
+bool InsertFunction::isSustain(Preset* p)
 {
     bool isSustain = sustain;
     if (!isSustain) {
@@ -175,7 +175,7 @@ PUBLIC bool InsertFunction::isSustain(Preset* p)
  * Return true if the function being used to end the multiply
  * will result in an unrounded multiply.
  */
-PRIVATE bool InsertFunction::isUnroundedEnding(Preset* p, Function* f)
+bool InsertFunction::isUnroundedEnding(Preset* p, Function* f)
 {
     return (f == Record || 
             f == SUSUnroundedInsert);
@@ -301,7 +301,7 @@ Event* InsertFunction::scheduleEvent(Action* action, Loop* l)
  * !! If the current mode is Mute, this is supposed to restart the
  * loop, let it play once, then mute again.
  */
-PUBLIC void InsertFunction::invokeLong(Action* action, Loop* l)
+void InsertFunction::invokeLong(Action* action, Loop* l)
 {
 }
 
@@ -310,7 +310,7 @@ PUBLIC void InsertFunction::invokeLong(Action* action, Loop* l)
  * can be associated with either an InsertEvent to start the insert,
  * or InsertEventEvent to end it.
  */
-PUBLIC void InsertFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
+void InsertFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
 {
 	Event* parent = e->getParent();
 
@@ -344,7 +344,7 @@ PUBLIC void InsertFunction::prepareJump(Loop* l, Event* e, JumpContext* jump)
  ****************************************************************************/
 
 // KLUDGE: selects new insert behavior
-PUBLIC void InsertFunction::doEvent(Loop* l, Event* e)
+void InsertFunction::doEvent(Loop* l, Event* e)
 {
     // unfortunately this is still too tightlyl wound around Loop
 

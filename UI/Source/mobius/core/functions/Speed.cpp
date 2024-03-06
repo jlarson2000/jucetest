@@ -18,24 +18,24 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
-#include "MidiByte.h"
+#include "../../util/Util.h"
+#include "../MidiByte.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "FunctionUtil.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "MobiusConfig.h"
-#include "Mode.h"
-#include "Resampler.h"
-#include "Stream.h"
-#include "Synchronizer.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../FunctionUtil.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../../model/MobiusConfig.h"
+#include "../Mode.h"
+#include "../Resampler.h"
+#include "../Stream.h"
+#include "../Synchronizer.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -134,7 +134,7 @@ class SpeedEventType : public EventType {
 	SpeedEventType();
 };
 
-PUBLIC SpeedEventType::SpeedEventType()
+SpeedEventType::SpeedEventType()
 {
 	name = "Speed";
     // !! had to do this when we could have overlapping
@@ -142,7 +142,7 @@ PUBLIC SpeedEventType::SpeedEventType()
 	reschedules = true;
 }
 
-PUBLIC EventType* SpeedEvent = new SpeedEventType();
+EventType* SpeedEvent = new SpeedEventType();
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -294,21 +294,21 @@ class SpeedFunction : public Function {
     bool mCanRestart;
 };
 
-PUBLIC Function* SpeedCancel = new SpeedFunction(SPEED_CANCEL);
-PUBLIC Function* SpeedOctave = new SpeedFunction(SPEED_OCTAVE);
-PUBLIC Function* SpeedStep = new SpeedFunction(SPEED_STEP);
-PUBLIC Function* SpeedBend = new SpeedFunction(SPEED_BEND);
-PUBLIC Function* SpeedUp = new SpeedFunction(SPEED_UP);
-PUBLIC Function* SpeedDown = new SpeedFunction(SPEED_DOWN);
-PUBLIC Function* SpeedNext = new SpeedFunction(SPEED_NEXT);
-PUBLIC Function* SpeedPrev = new SpeedFunction(SPEED_PREV);
-PUBLIC Function* SpeedToggle = new SpeedFunction(SPEED_TOGGLE);
-PUBLIC Function* SUSSpeedToggle = new SpeedFunction(SPEED_SUS_TOGGLE);
-PUBLIC Function* Halfspeed = new SpeedFunction(SPEED_HALF);
-PUBLIC Function* SpeedRestore = new SpeedFunction(SPEED_RESTORE);
-PUBLIC Function* TimeStretch = new SpeedFunction(SPEED_STRETCH);
+Function* SpeedCancel = new SpeedFunction(SPEED_CANCEL);
+Function* SpeedOctave = new SpeedFunction(SPEED_OCTAVE);
+Function* SpeedStep = new SpeedFunction(SPEED_STEP);
+Function* SpeedBend = new SpeedFunction(SPEED_BEND);
+Function* SpeedUp = new SpeedFunction(SPEED_UP);
+Function* SpeedDown = new SpeedFunction(SPEED_DOWN);
+Function* SpeedNext = new SpeedFunction(SPEED_NEXT);
+Function* SpeedPrev = new SpeedFunction(SPEED_PREV);
+Function* SpeedToggle = new SpeedFunction(SPEED_TOGGLE);
+Function* SUSSpeedToggle = new SpeedFunction(SPEED_SUS_TOGGLE);
+Function* Halfspeed = new SpeedFunction(SPEED_HALF);
+Function* SpeedRestore = new SpeedFunction(SPEED_RESTORE);
+Function* TimeStretch = new SpeedFunction(SPEED_STRETCH);
 
-PUBLIC SpeedFunction::SpeedFunction(SpeedFunctionType type)
+SpeedFunction::SpeedFunction(SpeedFunctionType type)
 {
 	mType = type;
 
@@ -444,7 +444,7 @@ PUBLIC SpeedFunction::SpeedFunction(SpeedFunctionType type)
  * This is true if the function is can be used during recording.
  * Since we didn't do this originally, it is controlled by a preset parameter.
  */
-PUBLIC bool SpeedFunction::isRecordable(Preset* p)
+bool SpeedFunction::isRecordable(Preset* p)
 {
 	return p->isSpeedRecord();
 }
@@ -491,7 +491,7 @@ PUBLIC bool SpeedFunction::isRecordable(Preset* p)
  *      - Like speedBendRange but for the SPEED_STRETCH function.
  *
  */
-PRIVATE void SpeedFunction::convertAction(Action* action, Loop* l, SpeedChange* change)
+void SpeedFunction::convertAction(Action* action, Loop* l, SpeedChange* change)
 {
     InputStream* istream = l->getInputStream();
 
@@ -652,7 +652,7 @@ PRIVATE void SpeedFunction::convertAction(Action* action, Loop* l, SpeedChange* 
  * Hmm, actually checking quant isn't entirely accurate since quantization
  * may just be turned off.  It 
  */
-PUBLIC Event* SpeedFunction::invoke(Action* action, Loop* loop)
+Event* SpeedFunction::invoke(Action* action, Loop* loop)
 {
 	Event* event = NULL;
     bool standard = true;
@@ -703,7 +703,7 @@ PUBLIC Event* SpeedFunction::invoke(Action* action, Loop* loop)
  * quantization boundary.  
  *
  */
-PUBLIC Event* SpeedFunction::scheduleEvent(Action* action, Loop* l)
+Event* SpeedFunction::scheduleEvent(Action* action, Loop* l)
 {
 	Event* event = NULL;
     MobiusMode* mode = l->getMode();
@@ -785,7 +785,7 @@ PUBLIC Event* SpeedFunction::scheduleEvent(Action* action, Loop* l)
 /**
  * Annotate the event after scheduling.
  */ 
-PRIVATE void SpeedFunction::annotateEvent(Event* event, SpeedChange* change)
+void SpeedFunction::annotateEvent(Event* event, SpeedChange* change)
 {
 
     // transfer the change to the Event
@@ -822,7 +822,7 @@ PRIVATE void SpeedFunction::annotateEvent(Event* event, SpeedChange* change)
  * quantization boundary.  This is expected of half speed toggle, 
  * but we we're doing it for 
  */
-PRIVATE bool SpeedFunction::isIneffective(Action* a, Loop* l, SpeedChange* change)
+bool SpeedFunction::isIneffective(Action* a, Loop* l, SpeedChange* change)
 {
     bool ineffective = false;
 
@@ -863,7 +863,7 @@ PRIVATE bool SpeedFunction::isIneffective(Action* a, Loop* l, SpeedChange* chang
  * Absolutel change events need to modify previous events.
  *
  */
-PUBLIC Event* SpeedFunction::scheduleSwitchStack(Action* action, Loop* l)
+Event* SpeedFunction::scheduleSwitchStack(Action* action, Loop* l)
 {
 	Event* event = NULL;
     EventManager* em = l->getTrack()->getEventManager();
@@ -920,7 +920,7 @@ PUBLIC Event* SpeedFunction::scheduleSwitchStack(Action* action, Loop* l)
  * If we're using TRANSFER_FOLLOW we don't have to do anything since
  * stream state is kept on the track, we just change loops and it stays.
  */
-PUBLIC Event* SpeedFunction::scheduleTransfer(Loop* l)
+Event* SpeedFunction::scheduleTransfer(Loop* l)
 {
     Event* event = NULL;
     Preset* p = l->getPreset();
@@ -965,7 +965,7 @@ PUBLIC Event* SpeedFunction::scheduleTransfer(Loop* l)
  *
  * OutputStream should already be where we are about to be.
  */
-PUBLIC void SpeedFunction::doEvent(Loop* l, Event* e)
+void SpeedFunction::doEvent(Loop* l, Event* e)
 {
     if (e->function == SpeedRestore) {
         // we only change the input stream, output stream should
@@ -1030,7 +1030,7 @@ PUBLIC void SpeedFunction::doEvent(Loop* l, Event* e)
 /**
  * Convert the contents of an Event into a SpeedChange.
  */
-PRIVATE void SpeedFunction::convertEvent(Event* e, SpeedChange* change)
+void SpeedFunction::convertEvent(Event* e, SpeedChange* change)
 {
     change->value = e->number;
     change->unit = (SpeedUnit)e->fields.speed.unit;
@@ -1045,7 +1045,7 @@ PRIVATE void SpeedFunction::convertEvent(Event* e, SpeedChange* change)
  * XFER_RESTORE.  That seems right to me, but might want to merge them?
  * You can tell if we're transfering when next->speedTransfer is true.
  */
-PUBLIC void SpeedFunction::prepareJump(Loop* l, Event* e, JumpContext* next)
+void SpeedFunction::prepareJump(Loop* l, Event* e, JumpContext* next)
 {
     Event* speedEvent = NULL;
     bool switchStack = false;
@@ -1096,7 +1096,7 @@ PUBLIC void SpeedFunction::prepareJump(Loop* l, Event* e, JumpContext* next)
  * a SpeedEvent and only need to set the input stream.  The output
  * stream will have been processed by the JumpPlayEvent.
  */
-PRIVATE void SpeedFunction::applySpeedChange(Loop* l, SpeedChange* change, 
+void SpeedFunction::applySpeedChange(Loop* l, SpeedChange* change, 
                                              bool both)
 {
     Track* t = l->getTrack();
@@ -1127,7 +1127,7 @@ PRIVATE void SpeedFunction::applySpeedChange(Loop* l, SpeedChange* change,
 
 }
 
-PRIVATE void SpeedFunction::applySpeedChange(SpeedChange* change, 
+void SpeedFunction::applySpeedChange(SpeedChange* change, 
                                              Stream* stream)
 {
     stream->setSpeed(change->newOctave,  change->newStep, change->newBend);
@@ -1151,7 +1151,7 @@ PRIVATE void SpeedFunction::applySpeedChange(SpeedChange* change,
  * If an overlapping toggle comes in, we first cancel the last toggle
  * then apply the next.
  */
-PRIVATE void SpeedFunction::calculateNewSpeed(SpeedChange* change)
+void SpeedFunction::calculateNewSpeed(SpeedChange* change)
 {
     if (change->unit == SPEED_UNIT_TOGGLE) {
         int lastToggle = change->newToggle;

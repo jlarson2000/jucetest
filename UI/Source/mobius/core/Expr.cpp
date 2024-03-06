@@ -66,10 +66,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "Util.h"
-#include "Vbuf.h"
-#include "Trace.h"
-#include "List.h"
+#include "../../util/Util.h"
+#include "../../util/Vbuf.h"
+#include "../../util/Trace.h"
+#include "../../util/List.h"
 
 #include "Expr.h"
 
@@ -80,7 +80,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-PUBLIC ExValueList::ExValueList()
+ExValueList::ExValueList()
 {
     mOwner = NULL;
 }
@@ -89,7 +89,7 @@ PUBLIC ExValueList::ExValueList()
  * For some shitty C++ reason we have to define a destructor or else
  * our overloaded deleteElement method won't be called.
  */
-PUBLIC ExValueList::~ExValueList()
+ExValueList::~ExValueList()
 {
     reset();
 }
@@ -104,7 +104,7 @@ void ExValueList::deleteElement(void* o)
  * with add() or set().  We don't actually copy but this provides
  * a hook where we can make sure ownership of embedded lists is taken.
  */
-PUBLIC void* ExValueList::copyElement(void* src)
+void* ExValueList::copyElement(void* src)
 {
     if (src != NULL) {
         ExValue* srcv = (ExValue*)src;
@@ -750,7 +750,7 @@ int ExValue::compare(ExValue* other)
 	return retval;
 }
 
-PRIVATE int ExValue::compareInt(ExValue *other)
+int ExValue::compareInt(ExValue *other)
 {
 	int retval = 0;
 	int myval = getInt();
@@ -764,7 +764,7 @@ PRIVATE int ExValue::compareInt(ExValue *other)
 	return retval;
 }
 
-PRIVATE int ExValue::compareFloat(ExValue *other)
+int ExValue::compareFloat(ExValue *other)
 {
 	int retval = 0;
 	float myval = getFloat();
@@ -778,7 +778,7 @@ PRIVATE int ExValue::compareFloat(ExValue *other)
 	return retval;
 }
 
-PRIVATE int ExValue::compareBool(ExValue *other)
+int ExValue::compareBool(ExValue *other)
 {
 	int retval = 0;
 	bool myval = getBool();
@@ -792,7 +792,7 @@ PRIVATE int ExValue::compareBool(ExValue *other)
 	return retval;
 }
 
-PRIVATE int ExValue::compareString(ExValue *other)
+int ExValue::compareString(ExValue *other)
 {
 	int retval = 0;
 	const char* myval = getString();
@@ -1068,14 +1068,14 @@ void ExNode::eval(ExContext* context, ExValue* v)
 	v->setString(NULL);
 }
 
-PRIVATE void ExNode::eval1(ExContext* context, ExValue* v1)
+void ExNode::eval1(ExContext* context, ExValue* v1)
 {
 	v1->setString(NULL);
 	if (mChildren != NULL)
 	  mChildren->eval(context, v1);
 }
 
-PRIVATE void ExNode::eval2(ExContext* context, ExValue* v1, ExValue* v2)
+void ExNode::eval2(ExContext* context, ExValue* v1, ExValue* v2)
 {
 	v1->setString(NULL);
 	v2->setString(NULL);
@@ -1088,7 +1088,7 @@ PRIVATE void ExNode::eval2(ExContext* context, ExValue* v1, ExValue* v2)
 	}
 }
 
-PRIVATE void ExNode::evaln(ExContext* context, ExValue* values, int max)
+void ExNode::evaln(ExContext* context, ExValue* values, int max)
 {
 	int i;
 
@@ -2179,7 +2179,7 @@ void ExParser::printError()
 /**
  * Delete nodes remaining on a stack.
  */
-PRIVATE void ExParser::deleteStack(ExNode* stack)
+void ExParser::deleteStack(ExNode* stack)
 {
 	while (stack != NULL) {
 		ExNode* prev = stack->getParent();
@@ -2191,19 +2191,19 @@ PRIVATE void ExParser::deleteStack(ExNode* stack)
 /**
  * Push a node on the operand stack.
  */
-PRIVATE void ExParser::pushOperand(ExNode* n)
+void ExParser::pushOperand(ExNode* n)
 {
 	n->setParent(mOperands);
 	mOperands = n;
 }
 
-PRIVATE void ExParser::pushOperator(ExNode* n)
+void ExParser::pushOperator(ExNode* n)
 {
 	n->setParent(mOperators);
 	mOperators = n;
 }
 
-PRIVATE ExNode* ExParser::popOperator()
+ExNode* ExParser::popOperator()
 {
 	ExNode* op = mOperators;
 	if (op != NULL) {
@@ -2217,7 +2217,7 @@ PRIVATE ExNode* ExParser::popOperator()
 	return op;
 }
 
-PRIVATE ExNode* ExParser::popOperand()
+ExNode* ExParser::popOperand()
 {
 	ExNode* op = mOperands;
 	if (op != NULL) {
@@ -2239,7 +2239,7 @@ PRIVATE ExNode* ExParser::popOperand()
  * adjacent non-operators which we coerce to a list constructor.
  * UPDATE: Not used...
  */
-PRIVATE bool ExParser::isOperatorSatisfied()
+bool ExParser::isOperatorSatisfied()
 {
     bool satisfied = false;
     if (mOperators != NULL) {
@@ -2259,7 +2259,7 @@ PRIVATE bool ExParser::isOperatorSatisfied()
  * Pop the top operator and its operands from the stacks
  * and move the operator node to the operand stack.
  */
-PRIVATE void ExParser::shiftOperator()
+void ExParser::shiftOperator()
 {
 	ExNode* op = popOperator();
     int desired = op->getDesiredOperands();
@@ -2514,7 +2514,7 @@ ExNode* ExParser::parse(const char* src)
  * Called when we're transforming a node.  Delete the original
  * and remove any potential references to avoid invalid memory refs.
  */
-PRIVATE void ExParser::deleteNode(ExNode* node)
+void ExParser::deleteNode(ExNode* node)
 {
     delete node;
     
@@ -2531,7 +2531,7 @@ PRIVATE void ExParser::deleteNode(ExNode* node)
  * Isolate the next token in the source stream, and create an ExNode.
  * Look ma, it's lexical analysis!
  */
-PRIVATE ExNode* ExParser::nextToken()
+ExNode* ExParser::nextToken()
 {
     ExNode* node = NULL;
 
@@ -2582,7 +2582,7 @@ PRIVATE ExNode* ExParser::nextToken()
     return node;
 }
 
-PRIVATE ExNode* ExParser::nextTokenForReal()
+ExNode* ExParser::nextTokenForReal()
 {
 	ExNode* node = NULL;
 
@@ -2748,7 +2748,7 @@ PRIVATE ExNode* ExParser::nextTokenForReal()
 /**
  * Adavnce the character position.
  */
-PRIVATE void ExParser::nextChar()
+void ExParser::nextChar()
 {
 	if (mNext)
 	  mNext = mSource[++mSourcePsn];
@@ -2757,7 +2757,7 @@ PRIVATE void ExParser::nextChar()
 /**
  * Add the next character to the token and advance the character.
  */
-PRIVATE void ExParser::toToken()
+void ExParser::toToken()
 {
 	if (mNext) {
 		if (mTokenPsn >= EX_MAX_TOKEN)
@@ -2777,7 +2777,7 @@ PRIVATE void ExParser::toToken()
  * Special tokens ( and ) won't turn into nodes, we'll
  * handle them up in parse().
  */
-PRIVATE ExNode* ExParser::newOperator(const char* name)
+ExNode* ExParser::newOperator(const char* name)
 {
 	ExNode* node = NULL;
 
@@ -2832,7 +2832,7 @@ PRIVATE ExNode* ExParser::newOperator(const char* name)
 /**
  * Create a function node from a symbol
  */
-PRIVATE ExNode* ExParser::newFunction(const char* name)
+ExNode* ExParser::newFunction(const char* name)
 {
 	ExNode* func = NULL;
 	

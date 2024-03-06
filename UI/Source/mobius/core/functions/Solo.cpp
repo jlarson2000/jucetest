@@ -17,15 +17,15 @@
 #include <string.h>
 #include <memory.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mobius.h"
-#include "Mode.h"
-#include "Track.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Messages.h"
+#include "../Mobius.h"
+#include "../Mode.h"
+#include "../Track.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -72,9 +72,9 @@ class SoloFunction : public Function {
     void invoke(Action* action, Mobius* m);
 };
 
-PUBLIC Function* Solo = new SoloFunction();
+Function* Solo = new SoloFunction();
 
-PUBLIC SoloFunction::SoloFunction() :
+SoloFunction::SoloFunction() :
     Function("Solo", MSG_FUNC_SOLO)
 {
 	global = true;
@@ -103,7 +103,7 @@ PUBLIC SoloFunction::SoloFunction() :
  * means for the group.  Actually group scope is ignored right now.
  * 
  */
-PUBLIC void SoloFunction::invoke(Action* action, Mobius* m)
+void SoloFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 

@@ -22,18 +22,18 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Util.h"
+#include "../../util/Util.h"
 
-#include "Action.h"
-#include "Event.h"
-#include "EventManager.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Track.h"
-#include "Stream.h"
-#include "Messages.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../EventManager.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+#include "../Track.h"
+#include "../Stream.h"
+#include "../Messages.h"
+#include "../Mode.h"
 
 /****************************************************************************
  *                                                                          *
@@ -47,9 +47,9 @@ class ConfirmFunction : public Function {
     Event* invoke(Action* action, Loop* l);
 };
 
-PUBLIC Function* Confirm = new ConfirmFunction();
+Function* Confirm = new ConfirmFunction();
 
-PUBLIC ConfirmFunction::ConfirmFunction() :
+ConfirmFunction::ConfirmFunction() :
     Function("Confirm", MSG_FUNC_CONFIRM)
 {
 }

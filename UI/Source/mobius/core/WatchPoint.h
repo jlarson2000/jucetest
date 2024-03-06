@@ -24,7 +24,7 @@
 #ifndef WATCHPOINT_H
 #define WATCHPOINT_H
 
-#include "SystemConstant.h"
+#include "../../model/SystemConstant.h"
 
 //////////////////////////////////////////////////////////////////////
 //

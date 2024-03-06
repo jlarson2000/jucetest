@@ -22,8 +22,8 @@
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
-//#include "MidiInterface.h"
-//#include "HostMidiInterface.h"
+#include "MidiInterface.h"
+#include "HostMidiInterface.h"
 
 #include "Action.h"
 //#include "Binding.h"
@@ -62,7 +62,7 @@
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MobiusAlerts::MobiusAlerts()
+MobiusAlerts::MobiusAlerts()
 {
     audioInputInvalid = false;
     audioOutputInvalid = false;
@@ -95,7 +95,7 @@ PUBLIC MobiusAlerts::MobiusAlerts()
  * as a plugin.
  */
 
-PUBLIC Mobius::Mobius(MobiusKernel* kernel)
+Mobius::Mobius(MobiusKernel* kernel)
 {
     Trace(2, "Mobius::Mobius");
 
@@ -189,7 +189,7 @@ PUBLIC Mobius::Mobius(MobiusKernel* kernel)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC AudioStream* Mobius::getAudioStream()
+AudioStream* Mobius::getAudioStream()
 {
     return mAudioStream;
 }
@@ -197,7 +197,7 @@ PUBLIC AudioStream* Mobius::getAudioStream()
 /**
  * Finish Mobius initialization, initialize tracks, and open devices.
  */
-PUBLIC void Mobius::start()
+void Mobius::start()
 {
 
 		initObjectPools();
@@ -246,7 +246,7 @@ PUBLIC void Mobius::start()
  * Return an object with information about unusual things that
  * have been happening so that the user can be notified.
  */
-PUBLIC MobiusAlerts* Mobius::getAlerts()
+MobiusAlerts* Mobius::getAlerts()
 {
     // always refresh device status
     mAlerts.audioInputInvalid = false;
@@ -293,7 +293,7 @@ PUBLIC MobiusAlerts* Mobius::getAlerts()
  * 
  */
 #if 0
-PUBLIC CalibrationResult* Mobius::calibrateLatency()
+CalibrationResult* Mobius::calibrateLatency()
 {
 	CalibrationResult* result = NULL;
 
@@ -325,7 +325,7 @@ PUBLIC CalibrationResult* Mobius::calibrateLatency()
 }
 #endif
 
-PUBLIC int Mobius::getActiveTrack()
+int Mobius::getActiveTrack()
 {
     return (mTrack != NULL) ? mTrack->getRawNumber() : 0;
 }
@@ -339,7 +339,7 @@ PUBLIC int Mobius::getActiveTrack()
 /**
  * Return the sample rate.
  */
-PUBLIC int Mobius::getSampleRate()
+int Mobius::getSampleRate()
 {
     int rate = CD_SAMPLE_RATE;
     //if (mRecorder != NULL)
@@ -350,7 +350,7 @@ PUBLIC int Mobius::getSampleRate()
 /**
  * Return the set of user defined global variables.
  */
-PUBLIC UserVariables* Mobius::getVariables()
+UserVariables* Mobius::getVariables()
 {
     return mVariables;
 }
@@ -362,7 +362,7 @@ PUBLIC UserVariables* Mobius::getVariables()
  * to find scripts when using relative paths.
  */
 #if 0
-PUBLIC const char* Mobius::getHomeDirectory()
+const char* Mobius::getHomeDirectory()
 {
 	// TODO: MobiusThread supports a MOBIUS_HOME environment
 	// variable override, should we do that too?
@@ -378,7 +378,7 @@ PUBLIC const char* Mobius::getHomeDirectory()
 /**
  * We're a trace context, supply track/loop/time.
  */
-PUBLIC void Mobius::getTraceContext(int* context, long* time)
+void Mobius::getTraceContext(int* context, long* time)
 {
 	*context = 0;
 	*time = 0;
@@ -392,7 +392,7 @@ PUBLIC void Mobius::getTraceContext(int* context, long* time)
  * how to make this more pluggable.
  */
 #if 0
-PRIVATE void Mobius::updateControlSurfaces()
+void Mobius::updateControlSurfaces()
 {
 	delete mControlSurfaces;
 	mControlSurfaces = NULL;
@@ -415,7 +415,7 @@ PRIVATE void Mobius::updateControlSurfaces()
  * Factored this out of the destructor to track down an annoying
  * race condition when the VST plugin is deleted.
  */
-PRIVATE void Mobius::stop()
+void Mobius::stop()
 {
 	mHalting = true;
 
@@ -466,7 +466,7 @@ PRIVATE void Mobius::stop()
  * is that while it is in limbo, the audio and midi devices are left open
  * and you can't start another mobius process.  Try to close the devices first.
  */
-PUBLIC void Mobius::emergencyExit()
+void Mobius::emergencyExit()
 {
 	Trace(1, "Mobius: emergency exit!\n");
 	Trace(1, "Mobius: Shutting down MIDI...\n");
@@ -479,7 +479,7 @@ PUBLIC void Mobius::emergencyExit()
 	exit(1);	
 }
 
-PUBLIC Mobius::~Mobius()
+Mobius::~Mobius()
 {
 	if (!mHalting)
 	  stop();
@@ -537,13 +537,13 @@ PUBLIC Mobius::~Mobius()
     delete mAudioStream;
 }
 
-PUBLIC void Mobius::setCheckInterrupt(bool b)
+void Mobius::setCheckInterrupt(bool b)
 {
 	if (mThread != NULL)
 	  mThread->setCheckInterrupt(b);
 }
 
-PUBLIC void Mobius::setListener(MobiusListener* l)
+void Mobius::setListener(MobiusListener* l)
 {
 	mListener = l;
 }
@@ -551,7 +551,7 @@ PUBLIC void Mobius::setListener(MobiusListener* l)
 /**
  * Internal use only.
  */
-PUBLIC Watchers* Mobius::getWatchers()
+Watchers* Mobius::getWatchers()
 {
     return mWatchers;
 }
@@ -559,7 +559,7 @@ PUBLIC Watchers* Mobius::getWatchers()
 /**
  * For MobiusThread only.
  */
-PUBLIC MobiusListener* Mobius::getListener()
+MobiusListener* Mobius::getListener()
 {
 	return mListener;
 }
@@ -567,13 +567,13 @@ PUBLIC MobiusListener* Mobius::getListener()
 /**
  * Thread access for internal components.
  */
-PUBLIC class MobiusThread* Mobius::getThread() 
+class MobiusThread* Mobius::getThread() 
 {
     return mThread;
 }
 
 /*
-PUBLIC void Mobius::addEvent(ThreadEvent* te)
+void Mobius::addEvent(ThreadEvent* te)
 {
 	if (mThread != NULL)
 	  mThread->addEvent(te);
@@ -581,7 +581,7 @@ PUBLIC void Mobius::addEvent(ThreadEvent* te)
 	  delete te;
 }
 
-PUBLIC void Mobius::addEvent(ThreadEventType type)
+void Mobius::addEvent(ThreadEventType type)
 {
 	if (mThread != NULL)
 	  mThread->addEvent(type);
@@ -593,7 +593,7 @@ PUBLIC void Mobius::addEvent(ThreadEventType type)
  * Used with getInterrupts to determine whether the interrupt
  * handler is stuck in an infinite loop.
  */
-PUBLIC bool Mobius::isInInterrupt()
+bool Mobius::isInInterrupt()
 {
 	return (mInterruptStream != NULL);
 }
@@ -603,7 +603,7 @@ PUBLIC bool Mobius::isInInterrupt()
  * Used by MobiusThread to detect infinite loops during interrupts which
  * will lock up the machine.
  */
-PUBLIC long Mobius::getInterrupts()
+long Mobius::getInterrupts()
 {
 	return mInterrupts;
 }
@@ -611,12 +611,12 @@ PUBLIC long Mobius::getInterrupts()
 /**
  * The current value of the millisecond clock.
  */
-PUBLIC long Mobius::getClock()
+long Mobius::getClock()
 {
 	return ((mMidi != NULL) ? mMidi->getMilliseconds() : 0);
 }
 
-PUBLIC Synchronizer* Mobius::getSynchronizer()
+Synchronizer* Mobius::getSynchronizer()
 {
 	return mSynchronizer;
 }
@@ -627,7 +627,7 @@ PUBLIC Synchronizer* Mobius::getSynchronizer()
  * beheavior, now you have to ask for that with the
  * groupFocusLock global parameter.
  */
-PRIVATE bool Mobius::isFocused(Track* t) 
+bool Mobius::isFocused(Track* t) 
 {
     int group = t->getGroup();
 
@@ -642,7 +642,7 @@ PRIVATE bool Mobius::isFocused(Track* t)
  * Return the Setup from the interrupt configuration.
  * Used by Synchronizer when it needs to get setup parameters.
  */
-PUBLIC Setup* Mobius::getInterruptSetup()
+Setup* Mobius::getInterruptSetup()
 {
     return mInterruptConfig->getCurrentSetup();
 }
@@ -661,7 +661,7 @@ PUBLIC Setup* Mobius::getInterruptSetup()
  * work but you're not ensured that the same MobiusConfig object will
  * be valid for the duration of the interrupt.
  */
-PUBLIC MobiusConfig* Mobius::getConfiguration()
+MobiusConfig* Mobius::getConfiguration()
 {
     if (mConfig == NULL) {
         Trace(1, "Bootstrapping empty configuration!\n");
@@ -673,7 +673,7 @@ PUBLIC MobiusConfig* Mobius::getConfiguration()
 /**
  * This is what all non-UI code should call to make it clear what it wants.
  */
-PUBLIC MobiusConfig* Mobius::getMasterConfiguration()
+MobiusConfig* Mobius::getMasterConfiguration()
 {
     return getConfiguration();
 }
@@ -682,7 +682,7 @@ PUBLIC MobiusConfig* Mobius::getMasterConfiguration()
  * Get the MobiusConfig object for use by code within the interrupt handler.
  * This is guarenteed not to change for the duration of the interrupt.
  */
-PUBLIC MobiusConfig* Mobius::getInterruptConfiguration()
+MobiusConfig* Mobius::getInterruptConfiguration()
 {
     return mInterruptConfig;
 }
@@ -691,7 +691,7 @@ PUBLIC MobiusConfig* Mobius::getInterruptConfiguration()
  * Get the inner Recorder.  This is exposed only for MonitorAudioParameter.
  * Think about adding a special method to propagate this?
  */
-PUBLIC Recorder* Mobius::getRecorder()
+Recorder* Mobius::getRecorder()
 {
     return mKernel->getRecorder();
 }
@@ -702,7 +702,7 @@ PUBLIC Recorder* Mobius::getRecorder()
  * of mInterruptConfig and that can't escape.  If caller needs the
  * Preset object they have to search in the public MobiusConfig.
  */
-PUBLIC int Mobius::getTrackPreset()
+int Mobius::getTrackPreset()
 {
     // this is from the InterruptConfig
     Preset* p = mTrack->getPreset();
@@ -714,7 +714,7 @@ PUBLIC int Mobius::getTrackPreset()
     return index;
 }
 
-PUBLIC void Mobius::setFullConfiguration(MobiusConfig* config)
+void Mobius::setFullConfiguration(MobiusConfig* config)
 {
     config->setNoSetupChanges(false);
     config->setNoPresetChanges(false);
@@ -730,7 +730,7 @@ PUBLIC void Mobius::setFullConfiguration(MobiusConfig* config)
  * unnecessary work?
  *
  */
-PRIVATE void Mobius::setConfiguration(MobiusConfig* config)
+void Mobius::setConfiguration(MobiusConfig* config)
 {
         installConfiguration(config);
 
@@ -776,7 +776,7 @@ PRIVATE void Mobius::setConfiguration(MobiusConfig* config)
  * because all dialogs are modal.
  *
  */
-PRIVATE void Mobius::installConfiguration(MobiusConfig* config)
+void Mobius::installConfiguration(MobiusConfig* config)
 {
     // Push the new one onto the history list
     // Need to be smarter about detecting loops in case the UI isn't
@@ -871,7 +871,7 @@ PRIVATE void Mobius::installConfiguration(MobiusConfig* config)
  * continue using the original track count.
  * as they may have changed.
  */
-PRIVATE void Mobius::buildTracks(int count)
+void Mobius::buildTracks(int count)
 {
 	int i;
 
@@ -917,7 +917,7 @@ PRIVATE void Mobius::buildTracks(int count)
  * and must be returned to the pool.
  */
 #if 0
-PUBLIC Action* Mobius::getScriptButtonActions()
+Action* Mobius::getScriptButtonActions()
 {
     Action* actions = NULL;
     Action* last = NULL;
@@ -961,7 +961,7 @@ PUBLIC Action* Mobius::getScriptButtonActions()
  * Force a reload of all scripts, useful for debugging when
  * you forgot !autoload.
  */
-PUBLIC void Mobius::reloadScripts()
+void Mobius::reloadScripts()
 {
     installScripts(mConfig->getScriptConfig(), true);
 }
@@ -981,7 +981,7 @@ PUBLIC void Mobius::reloadScripts()
  * place to reliably phase in parts of the config and update the 
  * dependencies, we'll have to maintain these on a history list.
  */
-PRIVATE bool Mobius::installScripts(ScriptConfig* config, bool force)
+bool Mobius::installScripts(ScriptConfig* config, bool force)
 {
     bool changed = false;
 
@@ -1028,7 +1028,7 @@ PRIVATE bool Mobius::installScripts(ScriptConfig* config, bool force)
 /**
  * Initialize script parameters after installing a ScriptEnv.
  */
-PRIVATE void Mobius::initScriptParameters()
+void Mobius::initScriptParameters()
 {
     if (mScriptEnv != NULL) {
         for (Script* script = mScriptEnv->getScripts() ; script != NULL ; 
@@ -1059,7 +1059,7 @@ PRIVATE void Mobius::initScriptParameters()
  * Parameter and ScriptParamStatement !autoload is disabled for 
  * any file that contains a Param.  Need to work this out...
  */
-PRIVATE void Mobius::addScriptParameter(ScriptParamStatement* s)
+void Mobius::addScriptParameter(ScriptParamStatement* s)
 {
     const char* name = s->getName();
 
@@ -1088,17 +1088,17 @@ PRIVATE void Mobius::addScriptParameter(ScriptParamStatement* s)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC AudioPool* Mobius::getAudioPool()
+AudioPool* Mobius::getAudioPool()
 {
     return mAudioPool;
 }
 
-PUBLIC LayerPool* Mobius::getLayerPool()
+LayerPool* Mobius::getLayerPool()
 {
     return mLayerPool;
 }
 
-PUBLIC EventPool* Mobius::getEventPool()
+EventPool* Mobius::getEventPool()
 {
     return mEventPool;
 }
@@ -1107,32 +1107,32 @@ PUBLIC EventPool* Mobius::getEventPool()
  * Return the list of all functions.
  * Should only be used by the binding UI.
  */
-PUBLIC Function** Mobius::getFunctions()
+Function** Mobius::getFunctions()
 {
     return mFunctions;
 }
 
-PUBLIC Parameter** Mobius::getParameters()
+Parameter** Mobius::getParameters()
 {
     return Parameters;
 }
 
-PUBLIC Parameter* Mobius::getParameter(const char* name)
+Parameter* Mobius::getParameter(const char* name)
 {
     return Parameter::getParameter(name);
 }
 
-PUBLIC Parameter* Mobius::getParameterWithDisplayName(const char* name)
+Parameter* Mobius::getParameterWithDisplayName(const char* name)
 {
     return Parameter::getParameterWithDisplayName(name);
 }
 
-PUBLIC MobiusMode** Mobius::getModes()
+MobiusMode** Mobius::getModes()
 {
     return Modes;
 }
 
-PUBLIC MobiusMode* Mobius::getMode(const char* name)
+MobiusMode* Mobius::getMode(const char* name)
 {
     return MobiusMode::getMode(name);
 }
@@ -1146,7 +1146,7 @@ PUBLIC MobiusMode* Mobius::getMode(const char* name)
 /**
  * Search the dynamic function list.
  */
-PUBLIC Function* Mobius::getFunction(const char * name)
+Function* Mobius::getFunction(const char * name)
 {
     Function* found = Function::getFunction(mFunctions, name);
     
@@ -1176,7 +1176,7 @@ PUBLIC Function* Mobius::getFunction(const char * name)
  * for any system constant that keeps localized names, but those can be
  * copied to private arrays.
  */
-PRIVATE void Mobius::initFunctions()
+void Mobius::initFunctions()
 {
     Function** functions = NULL;
 	int i;
@@ -1228,7 +1228,7 @@ PRIVATE void Mobius::initFunctions()
  * designated as obeying focus lock and track groups.
  * Update the Function objects for later reference.
  */
-PUBLIC void Mobius::updateGlobalFunctionPreferences()
+void Mobius::updateGlobalFunctionPreferences()
 {
 	StringList* names = mConfig->getFocusLockFunctions();
 	
@@ -1286,7 +1286,7 @@ PUBLIC void Mobius::updateGlobalFunctionPreferences()
  * Load a new project, this must be processed in the interrupt handler
  * to avoid contention.  See loadProjectInternal below.
  */
-PUBLIC void Mobius::loadProject(Project* p)
+void Mobius::loadProject(Project* p)
 {
 	// not bothering with a csect since you really can't laod these that fast
 	if (mPendingProject == NULL)
@@ -1302,7 +1302,7 @@ PUBLIC void Mobius::loadProject(Project* p)
  * Convenience method to load a project containing a single layer
  * into the active loop.
  */
-PUBLIC void Mobius::loadLoop(Audio* a)
+void Mobius::loadLoop(Audio* a)
 {
     if (mTrack != NULL) {
         Loop* loop = mTrack->getLoop();
@@ -1332,7 +1332,7 @@ PUBLIC void Mobius::loadLoop(Audio* a)
  * setOverlayBindingConfig() come to mind.  But if we're in generalreset
  * I guess it doesn't matter if we miss a few interrupts.
  */
-PRIVATE void Mobius::loadProjectInternal(Project* p)
+void Mobius::loadProjectInternal(Project* p)
 {
 	p->resolveLayers(mLayerPool);
 
@@ -1474,7 +1474,7 @@ PRIVATE void Mobius::loadProjectInternal(Project* p)
  * didn't wait for the save, or if you were using MIDI control at the
  * same time you were saving the project.  Both are unlikely and avoidable.
  */
-PUBLIC Project* Mobius::saveProject()
+Project* Mobius::saveProject()
 {
     Project* p = new Project();
 
@@ -1498,7 +1498,7 @@ PUBLIC Project* Mobius::saveProject()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC MobiusState* Mobius::getState(int track)
+MobiusState* Mobius::getState(int track)
 {
 	MobiusState* s = &mState;
 
@@ -1521,7 +1521,7 @@ PUBLIC MobiusState* Mobius::getState(int track)
 	return &mState;
 }
 
-PUBLIC int Mobius::getReportedInputLatency()
+int Mobius::getReportedInputLatency()
 {
 	int latency = 0;
     //	if (mRecorder != NULL) {
@@ -1536,7 +1536,7 @@ PUBLIC int Mobius::getReportedInputLatency()
  * The configuration may override what the audio device reports
  * in order to fine tune actual latency.
  */
-PUBLIC int Mobius::getEffectiveInputLatency()
+int Mobius::getEffectiveInputLatency()
 {
 	int latency = mConfig->getInputLatency();
 	if (latency == 0)
@@ -1544,7 +1544,7 @@ PUBLIC int Mobius::getEffectiveInputLatency()
 	return latency;
 }
 
-PUBLIC int Mobius::getReportedOutputLatency()
+int Mobius::getReportedOutputLatency()
 {
 	int latency = 0;
 	//if (mRecorder != NULL) {
@@ -1554,7 +1554,7 @@ PUBLIC int Mobius::getReportedOutputLatency()
 	return latency;
 }
 
-PUBLIC int Mobius::getEffectiveOutputLatency()
+int Mobius::getEffectiveOutputLatency()
 {
 	int latency = mConfig->getOutputLatency();
     if (latency == 0)
@@ -1562,17 +1562,17 @@ PUBLIC int Mobius::getEffectiveOutputLatency()
 	return latency;
 }
 
-PUBLIC long Mobius::getFrame()
+long Mobius::getFrame()
 {
 	return mTrack->getFrame();
 }
 
-PUBLIC MobiusMode* Mobius::getMode()
+MobiusMode* Mobius::getMode()
 {
 	return mTrack->getMode();
 }
 
-PUBLIC void Mobius::logStatus()
+void Mobius::logStatus()
 {
     // !!!!!!!!!!!!!!!!!!!!!!!!
     // we are leaking audio buffers and all kinds of shit
@@ -1610,7 +1610,7 @@ PUBLIC void Mobius::logStatus()
  * if the script enters some arbitrary user-defined mode.
  * !! should this be persisted?
  */
-PUBLIC void Mobius::setCustomMode(const char* s)
+void Mobius::setCustomMode(const char* s)
 {
 	strcpy(mCustomMode, "");
 	if (s != NULL) {
@@ -1620,7 +1620,7 @@ PUBLIC void Mobius::setCustomMode(const char* s)
 	}
 }
 
-PUBLIC const char* Mobius::getCustomMode()
+const char* Mobius::getCustomMode()
 {
 	const char* mode = NULL;
 	if (mCustomMode[0] != 0)
@@ -1631,7 +1631,7 @@ PUBLIC const char* Mobius::getCustomMode()
 /**
  * Called by the MobiusListener after it finishes processing a Prompt.
  */
-PUBLIC void Mobius::finishPrompt(Prompt* p)
+void Mobius::finishPrompt(Prompt* p)
 {
 	if (mThread != NULL) 
 	  mThread->finishPrompt(p);
@@ -1640,7 +1640,7 @@ PUBLIC void Mobius::finishPrompt(Prompt* p)
 }
 
 #if 0
-PUBLIC ControlSurface* Mobius::getControlSurfaces()
+ControlSurface* Mobius::getControlSurfaces()
 {
     return mControlSurfaces;
 }
@@ -1658,7 +1658,7 @@ PUBLIC ControlSurface* Mobius::getControlSurfaces()
  * This handles both normal bindings and OSC bindings.
  */
 #if 0
-PUBLIC Action* Mobius::resolveAction(Binding* b)
+Action* Mobius::resolveAction(Binding* b)
 {
     Action* a = NULL;
 
@@ -1698,7 +1698,7 @@ PUBLIC Action* Mobius::resolveAction(Binding* b)
  * may be used by the binding windows to validate selections.
  */
 #if 0
-PUBLIC ResolvedTarget* Mobius::resolveTarget(Binding* b)
+ResolvedTarget* Mobius::resolveTarget(Binding* b)
 {
     ResolvedTarget* resolved = NULL;
 
@@ -1721,7 +1721,7 @@ PUBLIC ResolvedTarget* Mobius::resolveTarget(Binding* b)
  * from 1.  Groups are identified with upper case letters A-Z.
  */
 #if 0
-PRIVATE void Mobius::parseBindingScope(const char* scope, int* track, int* group)
+void Mobius::parseBindingScope(const char* scope, int* track, int* group)
 {
     *track = 0;
     *group = 0;
@@ -1761,7 +1761,7 @@ PRIVATE void Mobius::parseBindingScope(const char* scope, int* track, int* group
  * !!
  */
 #if 0
-PRIVATE ResolvedTarget* Mobius::internTarget(Target* target, 
+ResolvedTarget* Mobius::internTarget(Target* target, 
                                              const char* name,
                                              int track,
                                              int group)
@@ -1893,7 +1893,7 @@ PRIVATE ResolvedTarget* Mobius::internTarget(Target* target,
  *
  */
 #if 0
-PRIVATE Action* Mobius::resolveOscAction(Binding* b)
+Action* Mobius::resolveOscAction(Binding* b)
 {
     Action* action = NULL;
     bool error = false;
@@ -2148,7 +2148,7 @@ PRIVATE Action* Mobius::resolveOscAction(Binding* b)
 /**
  * Helper for target path parsing.
  */
-PRIVATE const char* Mobius::getToken(const char* ptr, char* token)
+const char* Mobius::getToken(const char* ptr, char* token)
 {
     // skip over initial / if we're there
     if (*ptr == '/') ptr++;
@@ -2165,7 +2165,7 @@ PRIVATE const char* Mobius::getToken(const char* ptr, char* token)
 /**
  * Unescape an OSC name which has + substituted for space.
  */
-PRIVATE void Mobius::oscUnescape(const char* src, char* dest, int max)
+void Mobius::oscUnescape(const char* src, char* dest, int max)
 {
     int len = strlen(src);
     if (len > (max - 1))
@@ -2206,7 +2206,7 @@ PRIVATE void Mobius::oscUnescape(const char* src, char* dest, int max)
  * have accessors that can dig them out of the action id.
  */
 #if 0
-PRIVATE void Mobius::resolveTrigger(Binding* binding, Action* action)
+void Mobius::resolveTrigger(Binding* binding, Action* action)
 {
     int midiStatus = 0;
 
@@ -2333,7 +2333,7 @@ PRIVATE void Mobius::resolveTrigger(Binding* binding, Action* action)
  * by the caller.  If the caller no longer wants the listener it
  * must call the remove() method on the listener.
  */
-PUBLIC WatchPoint* Mobius::addWatcher(WatchPointListener* l)
+WatchPoint* Mobius::addWatcher(WatchPointListener* l)
 {
     const char* name = l->getWatchPointName();
     WatchPoint* wp = WatchPoint::getWatchPoint(name);
@@ -2350,7 +2350,7 @@ PUBLIC WatchPoint* Mobius::addWatcher(WatchPointListener* l)
 /**
  * Called inside the interrupt to transition in new watch point listeners.
  */
-PRIVATE void Mobius::installWatchers()
+void Mobius::installWatchers()
 {
     if (mNewWatchers->size() > 0) {
         mCsect->enter("installWatcher");
@@ -2379,7 +2379,7 @@ PRIVATE void Mobius::installWatchers()
  * Called internally to notify the watch point listeners.
  * This is IN THE INTERRUPT.
  */
-PUBLIC void Mobius::notifyWatchers(WatchPoint* wp, int value)
+void Mobius::notifyWatchers(WatchPoint* wp, int value)
 {
     List* listeners = wp->getListeners(mWatchers);
     if (listeners != NULL) {
@@ -2412,7 +2412,7 @@ PUBLIC void Mobius::notifyWatchers(WatchPoint* wp, int value)
  * These are maintained in a pool that both the application threads
  * and the interrupt threads can access so have to use a Csect.
  */
-PUBLIC Action* Mobius::newAction()
+Action* Mobius::newAction()
 {
     Action* action = NULL;
 
@@ -2426,7 +2426,7 @@ PUBLIC Action* Mobius::newAction()
     return action;
 }
 
-PUBLIC void Mobius::freeAction(Action* a)
+void Mobius::freeAction(Action* a)
 {
     // you normally don't do this, just delete them
     if (a->isRegistered())
@@ -2437,7 +2437,7 @@ PUBLIC void Mobius::freeAction(Action* a)
     //mCsect->leave("newAction");
 }
 
-PUBLIC Action* Mobius::cloneAction(Action* src)
+Action* Mobius::cloneAction(Action* src)
 {
     Action* action = NULL;
 
@@ -2487,7 +2487,7 @@ PUBLIC Action* Mobius::cloneAction(Action* src)
  * which means that the few functions that set outsideInterrupt and
  * the UI controls can't respond to long presses.  Seems fine.
  */
-PUBLIC void Mobius::doAction(Action* a)
+void Mobius::doAction(Action* a)
 {
     bool ignore = false;
     bool defer = false;
@@ -2605,7 +2605,7 @@ PUBLIC void Mobius::doAction(Action* a)
 /**
  * Process the action list when we're inside the interrupt.
  */
-PRIVATE void Mobius::doInterruptActions()
+void Mobius::doInterruptActions()
 {
     Action* actions = NULL;
     Action* next = NULL;
@@ -2632,7 +2632,7 @@ PRIVATE void Mobius::doInterruptActions()
  * Called when the action has finished processing.
  * Notify the listener if there is one.
  */
-PUBLIC void Mobius::completeAction(Action* a)
+void Mobius::completeAction(Action* a)
 {
     // TODO: listener
 
@@ -2672,7 +2672,7 @@ PUBLIC void Mobius::completeAction(Action* a)
  * schedule more than one event.  The Action object passed to 
  * Function::invoke must be returned with the "primary" event.
  */
-PUBLIC void Mobius::doActionNow(Action* a)
+void Mobius::doActionNow(Action* a)
 {
     Target* t = a->getTarget();
 
@@ -2724,7 +2724,7 @@ PUBLIC void Mobius::doActionNow(Action* a)
  * This may be a surprise for some users, consider a global parameter
  * similar to FocusLockFunctions to disable this?
  */
-PRIVATE void Mobius::doPreset(Action* a)
+void Mobius::doPreset(Action* a)
 {
     Preset* p = (Preset*)a->getTargetObject();
     if (p == NULL) {    
@@ -2787,7 +2787,7 @@ PRIVATE void Mobius::doPreset(Action* a)
  * We have to change the setup in both the external and interrupt config,
  * the first so it can be seen and the second so it can be used.
  */
-PRIVATE void Mobius::doSetup(Action* a)
+void Mobius::doSetup(Action* a)
 {
     // If we're here from a Binding should have resolved
     Setup* s = (Setup*)a->getTargetObject();
@@ -2830,7 +2830,7 @@ PRIVATE void Mobius::doSetup(Action* a)
  * set the current overlay binding in mConfig which, we don't have
  * to phase it in, it will just be used on the next trigger.
  */
-PRIVATE void Mobius::doBindings(Action* a)
+void Mobius::doBindings(Action* a)
 {
     // If we're here from a Binding should have resolved
     BindingConfig* bc = (BindingConfig*)a->getTargetObject();
@@ -2867,7 +2867,7 @@ PRIVATE void Mobius::doBindings(Action* a)
  * remembering the invoking ScriptInterpreter in the event, because
  * ScriptInterpreters can die before the events they launch are finished.
  */
-PRIVATE void Mobius::doScriptNotification(Action* a)
+void Mobius::doScriptNotification(Action* a)
 {
     if (a->trigger != TriggerThread)
       Trace(1, "Unexpected script notification trigger!\n");
@@ -2901,7 +2901,7 @@ PRIVATE void Mobius::doScriptNotification(Action* a)
  * after long-press detection.
  *
  */
-PRIVATE void Mobius::doFunction(Action* a)
+void Mobius::doFunction(Action* a)
 {
     // Client's won't set down in some trigger modes, but there is a lot
     // of code from here on down that looks at it
@@ -2982,7 +2982,7 @@ PRIVATE void Mobius::doFunction(Action* a)
  * This can be called by a few function handlers that declare
  * themselves global but may want to target the current track.
  */
-PUBLIC Track* Mobius::resolveTrack(Action* action)
+Track* Mobius::resolveTrack(Action* action)
 {
     Track* track = NULL;
 
@@ -3036,7 +3036,7 @@ PUBLIC Track* Mobius::resolveTrack(Action* action)
  * trigger is released.  I don't really like this 
  *
  */
-PRIVATE void Mobius::doFunction(Action* action, Function* f, Track* t)
+void Mobius::doFunction(Action* action, Function* f, Track* t)
 {
     // set this so if we need to reschedule it will always go back
     // here and not try to do group/focus lock replication
@@ -3114,7 +3114,7 @@ PRIVATE void Mobius::doFunction(Action* action, Function* f, Track* t)
  * Also since these don't schedule Events, we can reuse the same
  * action if it needs to be replicated due to group scope or focus lock.
  */
-PRIVATE void Mobius::doParameter(Action* a)
+void Mobius::doParameter(Action* a)
 {
     Parameter* p = (Parameter*)a->getTargetObject();
     if (p == NULL) {
@@ -3200,7 +3200,7 @@ PRIVATE void Mobius::doParameter(Action* a)
  * bindingArgs for strings and action.value for ints and bools.
  *
  */
-PRIVATE void Mobius::doParameter(Action* a, Parameter* p, Track* t)
+void Mobius::doParameter(Action* a, Parameter* p, Track* t)
 {
     ParameterType type = p->type;
 
@@ -3275,7 +3275,7 @@ PRIVATE void Mobius::doParameter(Action* a, Parameter* p, Track* t)
  * This isn't necessarily just for scripts, think about other uses
  * for this now that we have it
  */
-PUBLIC void Mobius::addMessage(const char* msg)
+void Mobius::addMessage(const char* msg)
 {
 	// farm this out to MobiusThread?
 	if (mListener != NULL)
@@ -3286,7 +3286,7 @@ PUBLIC void Mobius::addMessage(const char* msg)
  * RunScriptFunction global function handler.
  * RunScriptFunction::invoke calls back to to this.
  */
-PUBLIC void Mobius::runScript(Action* action)
+void Mobius::runScript(Action* action)
 {
     Function* function = NULL;
     Script* script = NULL;
@@ -3373,7 +3373,7 @@ PUBLIC void Mobius::runScript(Action* action)
  * use focus lock and may be run in multiple tracks and the action
  * may target a group.
  */
-PRIVATE void Mobius::startScript(Action* action, Script* script)
+void Mobius::startScript(Action* action, Script* script)
 {
 	Track* track = resolveTrack(action);
 
@@ -3419,7 +3419,7 @@ PRIVATE void Mobius::startScript(Action* action, Script* script)
  * !! Think more about how reentrant scripts and sustain scripts interact,
  * feels like we have more work here.
  */
-PRIVATE void Mobius::startScript(Action* action, Script* s, Track* t)
+void Mobius::startScript(Action* action, Script* s, Track* t)
 {
 
 	if (s->isContinuous()) {
@@ -3560,7 +3560,7 @@ PRIVATE void Mobius::startScript(Action* action, Script* s, Track* t)
  * scripts where we may be queueing several for the next interrupt but
  * they must be done in invocation order.
  */
-PRIVATE void Mobius::addScript(ScriptInterpreter* si)
+void Mobius::addScript(ScriptInterpreter* si)
 {
 	ScriptInterpreter* last = NULL;
 	for (ScriptInterpreter* s = mScripts ; s != NULL ; s = s->getNext())
@@ -3584,7 +3584,7 @@ PRIVATE void Mobius::addScript(ScriptInterpreter* si)
  * 
  * !! This is bad, need to think more about how autoload scripts die gracefully.
  */
-PRIVATE bool Mobius::isInUse(Script* s) 
+bool Mobius::isInUse(Script* s) 
 {
 	bool inuse = false;
 
@@ -3608,7 +3608,7 @@ PRIVATE bool Mobius::isInUse(Script* s)
  * not receive retrancy or sustain callbacks if it turns off focus lock.
  *
  */
-PRIVATE ScriptInterpreter* Mobius::findScript(Action* action, Script* s,
+ScriptInterpreter* Mobius::findScript(Action* action, Script* s,
 											  Track* t)
 {
 	ScriptInterpreter* found = NULL;
@@ -3643,7 +3643,7 @@ PRIVATE ScriptInterpreter* Mobius::findScript(Action* action, Script* s,
  * a reset?
  * 
  */
-PUBLIC void Mobius::resumeScript(Track* t, Function* f)
+void Mobius::resumeScript(Track* t, Function* f)
 {
 	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
 		if (si->getTargetTrack() == t) {
@@ -3689,7 +3689,7 @@ PUBLIC void Mobius::resumeScript(Track* t, Function* f)
  * to be canceled.  
  *
  */
-PUBLIC void Mobius::cancelScripts(Action* action, Track* t)
+void Mobius::cancelScripts(Action* action, Track* t)
 {
     if (action == NULL) {
         // we had been ignoring these, when can this happen?
@@ -3801,7 +3801,7 @@ void Mobius::doScriptMaintenance()
  * anywhere else we run the risk of freeing a thread that 
  * doScriptMaintenance is still iterating over.
  */
-PRIVATE void Mobius::freeScripts()
+void Mobius::freeScripts()
 {
 	ScriptInterpreter* next = NULL;
 	ScriptInterpreter* prev = NULL;
@@ -3839,7 +3839,7 @@ PRIVATE void Mobius::freeScripts()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC bool Mobius::isNoExternalInput()
+bool Mobius::isNoExternalInput()
 {
 	return mNoExternalInput;
 }
@@ -3847,7 +3847,7 @@ PUBLIC bool Mobius::isNoExternalInput()
 /**
  * Called indirectly by the NoExternalAudio script variable setter.
  */
-PUBLIC void Mobius::setNoExternalInput(bool b)
+void Mobius::setNoExternalInput(bool b)
 {
 	mNoExternalInput = b;
 
@@ -3882,7 +3882,7 @@ PUBLIC void Mobius::setNoExternalInput(bool b)
  * The name is optional and will default to the "quick save" file
  * global parameter.
  */
-PUBLIC void Mobius::saveLoop(const char* name)
+void Mobius::saveLoop(const char* name)
 {
 	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
     if (name != NULL)
@@ -3896,7 +3896,7 @@ PUBLIC void Mobius::saveLoop(const char* name)
  * SaveLoop is one of the few that could be declared with 
  * outsideInterrupt since all we do is schedule a MobiusThread event.
  */
-PUBLIC void Mobius::saveLoop(Action* action)
+void Mobius::saveLoop(Action* action)
 {
 	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
 
@@ -3937,7 +3937,7 @@ Audio* Mobius::getPlaybackAudio()
  * even though it has global in the name.  This will always be scheduled
  * on a track and be called from within the interrupt.
  */
-PUBLIC void Mobius::globalReset(Action* action)
+void Mobius::globalReset(Action* action)
 {
 	// let action be null so we can call it internally
 	if (action == NULL || action->down) {
@@ -3984,7 +3984,7 @@ PUBLIC void Mobius::globalReset(Action* action)
  * it's own global state.  Can't do this directly from globalReset() 
  * because we can't touch the UI from within the audio interrupt.
  */
-PUBLIC void Mobius::notifyGlobalReset()
+void Mobius::notifyGlobalReset()
 {
 	Trace(mTrack, 2, "Mobius::notifyGlobalReset\n");
 
@@ -4000,7 +4000,7 @@ PUBLIC void Mobius::notifyGlobalReset()
  * Giving this an Action for symetry, though since we're called
  * from an event handler won't have one.
  */
-PUBLIC void Mobius::cancelGlobalMute(Action* action)
+void Mobius::cancelGlobalMute(Action* action)
 {
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
@@ -4030,7 +4030,7 @@ PUBLIC void Mobius::cancelGlobalMute(Action* action)
  * like we do for Loops.  I don't think that's worth messing with.
  */
 #if 0
-PUBLIC void Mobius::sampleTrigger(Action* action, int index)
+void Mobius::sampleTrigger(Action* action, int index)
 {
 	mSampleTrack->trigger(mInterruptStream, index, action->down);
 }
@@ -4039,7 +4039,7 @@ PUBLIC void Mobius::sampleTrigger(Action* action, int index)
  * This if for the script interpreter so it can know
  * the number of frames in the last triggered sample.
  */
-PUBLIC long Mobius::getLastSampleFrames()
+long Mobius::getLastSampleFrames()
 {
 	return mSampleTrack->getLastSampleFrames();
 }
@@ -4064,7 +4064,7 @@ PUBLIC long Mobius::getLastSampleFrames()
  *
  */
 #if 0
-PUBLIC void Mobius::unitTestSetup()
+void Mobius::unitTestSetup()
 {
     bool saveConfig = false;
 	bool saveSamples = false;
@@ -4098,7 +4098,7 @@ PUBLIC void Mobius::unitTestSetup()
  * the interrupt config to make sure they're both in sync without
  * having to worry about cloning and adding to the history list.
  */
-PRIVATE bool Mobius::unitTestSetup(MobiusConfig* config)
+bool Mobius::unitTestSetup(MobiusConfig* config)
 {
     bool needsSaving = false;
 
@@ -4156,7 +4156,7 @@ PRIVATE bool Mobius::unitTestSetup(MobiusConfig* config)
  * to be more precise.  The block offset for the first block is stored
  * in mCaptureOffset, used once then reset back to zero.
  */
-PUBLIC void Mobius::startCapture(Action* action)
+void Mobius::startCapture(Action* action)
 {
 	if (!mCapturing) {
 		if (mAudio != NULL)
@@ -4188,7 +4188,7 @@ PUBLIC void Mobius::startCapture(Action* action)
  * UPDATE: Any reason why we should only do this from a script?
  * Seems like something we should do all the time, especially for bounces.
  */
-PUBLIC void Mobius::stopCapture(Action* action)
+void Mobius::stopCapture(Action* action)
 {
 
 	if (mCapturing && mAudio != NULL && mInterruptStream != NULL
@@ -4214,7 +4214,7 @@ PUBLIC void Mobius::stopCapture(Action* action)
  * 
  * Since this involves file IO, have to pass it to the thread.
  */
-PUBLIC void Mobius::saveCapture(Action* action)
+void Mobius::saveCapture(Action* action)
 {
     const char* file = NULL;
     if (action != NULL && action->arg.getType() == EX_STRING)
@@ -4294,7 +4294,7 @@ Audio* Mobius::getCapture()
  * Voting would be nice but complicated, assume for now we can pick
  * the first one from the left.
  */
-PUBLIC void Mobius::toggleBounceRecording(Action* action)
+void Mobius::toggleBounceRecording(Action* action)
 {
 	if (!mCapturing) {
 		// start one, use the same function that StartCapture uses
@@ -4404,7 +4404,7 @@ PUBLIC void Mobius::toggleBounceRecording(Action* action)
  * of the copy.  Currently defining this as the adjacent track on the left,
  * could be fancier, but it might require saving some state?
  */
-PUBLIC Track* Mobius::getSourceTrack()
+Track* Mobius::getSourceTrack()
 {
 	Track* src = NULL;
 
@@ -4429,7 +4429,7 @@ PUBLIC Track* Mobius::getSourceTrack()
  *
  * This must be called in the interrupt, currently it is only used by Loop.
  */
-PUBLIC void Mobius::setTrack(int index)
+void Mobius::setTrack(int index)
 {
     if (index >= 0 && index < mTrackCount) {
         mTrack = mTracks[index];
@@ -4588,7 +4588,7 @@ void Mobius::recorderMonitorEnter(AudioStream* stream)
  * code in the interrupt handler and this could cause inconsistencies
  * or other problems if changed in the middle of an interrupt.
  */
-PRIVATE void Mobius::propagateInterruptConfig() 
+void Mobius::propagateInterruptConfig() 
 {
     // turn monitoring on or off
 	//if (mRecorder != NULL)
@@ -4625,7 +4625,7 @@ PRIVATE void Mobius::propagateInterruptConfig()
 /**
  * Called from within the interrupt to change setups.
  */
-PUBLIC void Mobius::setSetupInternal(int index)
+void Mobius::setSetupInternal(int index)
 {
     Setup* setup = mInterruptConfig->getSetup(index);
     if (setup == NULL)
@@ -4646,7 +4646,7 @@ PUBLIC void Mobius::setSetupInternal(int index)
  *     - unitTestSetup to select the unit test setup
  * 
  */
-PUBLIC void Mobius::setSetupInternal(Setup* setup)
+void Mobius::setSetupInternal(Setup* setup)
 {
 	if (setup != NULL) {
         // need to track the selection here so Reset processing
@@ -4679,7 +4679,7 @@ PUBLIC void Mobius::setSetupInternal(Setup* setup)
  * must set the master MobiusConfig object to change the
  * binding overlay since that is not used inside the interrupt.
  */
-PRIVATE void Mobius::propagateSetupGlobals(Setup* setup)
+void Mobius::propagateSetupGlobals(Setup* setup)
 {
     // changes the active track without TrackCopy semantics
     setTrack(setup->getActiveTrack());
@@ -4707,7 +4707,7 @@ PRIVATE void Mobius::propagateSetupGlobals(Setup* setup)
  * Called at the end of the Recorder interrupt for each buffer.
  * All tracks have been processed.
  */
-PUBLIC void Mobius::recorderMonitorExit(AudioStream* stream)
+void Mobius::recorderMonitorExit(AudioStream* stream)
 {
 	if (mHalting) return;
 
@@ -4770,7 +4770,7 @@ PUBLIC void Mobius::recorderMonitorExit(AudioStream* stream)
  * just Insert to change the preset.  This is an old EDPism that I
  * don't really like.  We are inside the interrupt.
  */
-PUBLIC void Mobius::setPresetInternal(int number)
+void Mobius::setPresetInternal(int number)
 {
     mTrack->setPreset(number);
 }
@@ -4784,17 +4784,17 @@ PUBLIC void Mobius::setPresetInternal(int number)
  * Originally just for the unit tests, but not used by Project too.
  */
 
-PUBLIC Track* Mobius::getTrack()
+Track* Mobius::getTrack()
 {
     return mTrack;
 }
 
-PUBLIC int Mobius::getTrackCount()
+int Mobius::getTrackCount()
 {
 	return mTrackCount;
 }
 
-PUBLIC Track* Mobius::getTrack(int index)
+Track* Mobius::getTrack(int index)
 {
 	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
 }

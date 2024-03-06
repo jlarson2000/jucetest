@@ -13,13 +13,13 @@
 #include <memory.h>
 #include <string.h>
 
-#include "Action.h"
-#include "Event.h"
-#include "Function.h"
-#include "Layer.h"
-#include "Loop.h"
-#include "Messages.h"
-#include "Mode.h"
+#include "../Action.h"
+#include "../Event.h"
+#include "../Function.h"
+#include "../Layer.h"
+#include "../Loop.h"
+//#include "Messages.h"
+#include "../Mode.h"
 
 /****************************************************************************
  *                                                                          *
@@ -39,9 +39,9 @@ class CheckpointFunction : public Function {
   private:
 };
 
-PUBLIC Function* Checkpoint = new CheckpointFunction();
+Function* Checkpoint = new CheckpointFunction();
 
-PUBLIC CheckpointFunction::CheckpointFunction() :
+CheckpointFunction::CheckpointFunction() :
     Function("Checkpoint", MSG_FUNC_CHECKPOINT)
 {
 	mayCancelMute = true;
@@ -55,7 +55,7 @@ PUBLIC CheckpointFunction::CheckpointFunction() :
  * we don't need any of the backing layers.
  *
  */
-PUBLIC Event* CheckpointFunction::invoke(Action* action, Loop* loop)
+Event* CheckpointFunction::invoke(Action* action, Loop* loop)
 {
 	Layer* l = loop->getRecordLayer();
 	if (l != NULL) {

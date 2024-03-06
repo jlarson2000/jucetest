@@ -14,7 +14,7 @@
 #ifndef FADE_WINDOW_H
 #define FADE_WINDOW_H
 
-#include "Audio.h"
+#include "../Audio.h"
 
 /****************************************************************************
  *                                                                          *

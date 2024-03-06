@@ -47,8 +47,8 @@
 #include <ctype.h>
 
 #include "Expr.h"
-#include "List.h"
-#include "Util.h"
+#include "../../util/List.h"
+#include "../../util/Util.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -58,15 +58,15 @@
 #include "Layer.h"
 #include "Loop.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "MobiusThread.h"
 #include "Mode.h"
 #include "Project.h"
-#include "Recorder.h"
+//#include "Recorder.h"
 #include "Script.h"
 #include "Synchronizer.h"
 #include "Track.h"
-#include "UserVariable.h"
+#include "../../model/UserVariable.h"
 #include "Variable.h"
 
 /****************************************************************************
@@ -98,7 +98,7 @@
  * Names of wait types used in the script.  Order must
  * correspond to the WaitType enumeration.
  */
-PUBLIC const char* WaitTypeNames[] = {
+const char* WaitTypeNames[] = {
 	"none",
 	"last",
 	"function",
@@ -127,7 +127,7 @@ PUBLIC const char* WaitTypeNames[] = {
  * Names of wait unites used in the script. Order must correspond
  * to the WaitUnit enumeration.
  */
-PUBLIC const char* WaitUnitNames[] = {
+const char* WaitUnitNames[] = {
 	"none",
 	"msec",
 	"frame",
@@ -143,7 +143,7 @@ PUBLIC const char* WaitUnitNames[] = {
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC void ScriptResolver::init(ExSymbol* symbol)
+void ScriptResolver::init(ExSymbol* symbol)
 {
 	mSymbol = symbol;
     mStackArg = 0;
@@ -152,37 +152,37 @@ PUBLIC void ScriptResolver::init(ExSymbol* symbol)
     mParameter = NULL;
 }
 
-PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, int arg)
+ScriptResolver::ScriptResolver(ExSymbol* symbol, int arg)
 {
 	init(symbol);
     mStackArg = arg;
 }
 
-PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, ScriptInternalVariable* v)
+ScriptResolver::ScriptResolver(ExSymbol* symbol, ScriptInternalVariable* v)
 {
 	init(symbol);
     mInternalVariable = v;
 }
 
-PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, ScriptVariableStatement* v)
+ScriptResolver::ScriptResolver(ExSymbol* symbol, ScriptVariableStatement* v)
 {
 	init(symbol);
     mVariable = v;
 }
 
-PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, Parameter* p)
+ScriptResolver::ScriptResolver(ExSymbol* symbol, Parameter* p)
 {
 	init(symbol);
     mParameter = p;
 }
 
-PUBLIC ScriptResolver::ScriptResolver(ExSymbol* symbol, const char* name)
+ScriptResolver::ScriptResolver(ExSymbol* symbol, const char* name)
 {
 	init(symbol);
     mInterpreterVariable = name;
 }
 
-PUBLIC ScriptResolver::~ScriptResolver()
+ScriptResolver::~ScriptResolver()
 {
 	// we don't own the symbol, it owns us
 }
@@ -191,7 +191,7 @@ PUBLIC ScriptResolver::~ScriptResolver()
  * Return the value of a resolved reference.
  * The ExContext passed here will be a ScriptInterpreter.
  */
-PUBLIC void ScriptResolver::getExValue(ExContext* exContext, ExValue* value)
+void ScriptResolver::getExValue(ExContext* exContext, ExValue* value)
 {
 	// Here is the thing I hate about the interface.  We need to implement
 	// a generic context, but when we eventually call back into ourselves
@@ -259,7 +259,7 @@ PUBLIC void ScriptResolver::getExValue(ExContext* exContext, ExValue* value)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptArgument::ScriptArgument()
+ScriptArgument::ScriptArgument()
 {
     mLiteral = NULL;
     mStackArg = 0;
@@ -268,22 +268,22 @@ PUBLIC ScriptArgument::ScriptArgument()
     mParameter = NULL;
 }
 
-PUBLIC const char* ScriptArgument::getLiteral()
+const char* ScriptArgument::getLiteral()
 {
     return mLiteral;
 }
 
-PUBLIC void ScriptArgument::setLiteral(const char* lit) 
+void ScriptArgument::setLiteral(const char* lit) 
 {
 	mLiteral = lit;
 }
 
-PUBLIC Parameter* ScriptArgument::getParameter()
+Parameter* ScriptArgument::getParameter()
 {
     return mParameter;
 }
 
-PUBLIC bool ScriptArgument::isResolved()
+bool ScriptArgument::isResolved()
 {
 	return (mStackArg > 0 ||
 			mInternalVariable != NULL ||
@@ -296,7 +296,7 @@ PUBLIC bool ScriptArgument::isResolved()
  * internal variables, local script variables, or parameters.
  * If it doesn't resolve it is left as a literal.
  */
-PUBLIC void ScriptArgument::resolve(Mobius* m, ScriptBlock* block, 
+void ScriptArgument::resolve(Mobius* m, ScriptBlock* block, 
                                     const char* literal)
 {
 	mLiteral = literal;
@@ -344,7 +344,7 @@ PUBLIC void ScriptArgument::resolve(Mobius* m, ScriptBlock* block,
  * !! This is exactly the same as ScriptResolver::getExValue, try to 
  * merge these.
  */
-PUBLIC void ScriptArgument::get(ScriptInterpreter* si, ExValue* value)
+void ScriptArgument::get(ScriptInterpreter* si, ExValue* value)
 {
 	value->setNull();
 
@@ -402,7 +402,7 @@ PUBLIC void ScriptArgument::get(ScriptInterpreter* si, ExValue* value)
  * Assign a value through a reference.
  * Not all references are writable.
  */
-PUBLIC void ScriptArgument::set(ScriptInterpreter* si, ExValue* value)
+void ScriptArgument::set(ScriptInterpreter* si, ExValue* value)
 {
     if (mStackArg > 0) {
         // you can't set stack args
@@ -483,35 +483,35 @@ PUBLIC void ScriptArgument::set(ScriptInterpreter* si, ExValue* value)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptDeclaration::ScriptDeclaration(const char* name, const char* args)
+ScriptDeclaration::ScriptDeclaration(const char* name, const char* args)
 {
     mNext = NULL;
     mName = CopyString(name);
     mArgs = CopyString(args);
 }
 
-PUBLIC ScriptDeclaration::~ScriptDeclaration()
+ScriptDeclaration::~ScriptDeclaration()
 {
     delete mName;
     delete mArgs;
 }
 
-PUBLIC ScriptDeclaration* ScriptDeclaration::getNext()
+ScriptDeclaration* ScriptDeclaration::getNext()
 {
     return mNext;
 }
 
-PUBLIC void ScriptDeclaration::setNext(ScriptDeclaration* next)
+void ScriptDeclaration::setNext(ScriptDeclaration* next)
 {
     mNext = next;
 }
 
-PUBLIC const char* ScriptDeclaration::getName()
+const char* ScriptDeclaration::getName()
 {
     return mName;
 }
 
-PUBLIC const char* ScriptDeclaration::getArgs()
+const char* ScriptDeclaration::getArgs()
 {
     return mArgs;
 }
@@ -522,7 +522,7 @@ PUBLIC const char* ScriptDeclaration::getArgs()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptBlock::ScriptBlock()
+ScriptBlock::ScriptBlock()
 {
     mParent = NULL;
     mName = NULL;
@@ -531,7 +531,7 @@ PUBLIC ScriptBlock::ScriptBlock()
 	mLast = NULL;
 }
 
-PUBLIC ScriptBlock::~ScriptBlock()
+ScriptBlock::~ScriptBlock()
 {
     // parent is not an ownership relationship, don't delete it
 
@@ -553,33 +553,33 @@ PUBLIC ScriptBlock::~ScriptBlock()
 	}
 }
 
-PUBLIC ScriptBlock* ScriptBlock::getParent()
+ScriptBlock* ScriptBlock::getParent()
 {
     return mParent;
 }
 
-PUBLIC void ScriptBlock::setParent(ScriptBlock* parent)
+void ScriptBlock::setParent(ScriptBlock* parent)
 {
     mParent = parent;
 }
 
-PUBLIC const char* ScriptBlock::getName()
+const char* ScriptBlock::getName()
 {
     return mName;
 }
 
-PUBLIC void ScriptBlock::setName(const char* name)
+void ScriptBlock::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
 }
 
-PUBLIC ScriptDeclaration* ScriptBlock::getDeclarations()
+ScriptDeclaration* ScriptBlock::getDeclarations()
 {
     return mDeclarations;
 }
 
-PUBLIC void ScriptBlock::addDeclaration(ScriptDeclaration* decl)
+void ScriptBlock::addDeclaration(ScriptDeclaration* decl)
 {
     if (decl != NULL) {
         // order doesn't matter
@@ -588,12 +588,12 @@ PUBLIC void ScriptBlock::addDeclaration(ScriptDeclaration* decl)
     }
 }
 
-PUBLIC ScriptStatement* ScriptBlock::getStatements()
+ScriptStatement* ScriptBlock::getStatements()
 {
 	return mStatements;
 }
 
-PUBLIC void ScriptBlock::add(ScriptStatement* a)
+void ScriptBlock::add(ScriptStatement* a)
 {
 	if (a != NULL) {
 		if (mLast == NULL) {
@@ -614,7 +614,7 @@ PUBLIC void ScriptBlock::add(ScriptStatement* a)
 /**
  * Resolve referenes within the block.
  */
-PUBLIC void ScriptBlock::resolve(Mobius* m)
+void ScriptBlock::resolve(Mobius* m)
 {
     for (ScriptStatement* s = mStatements ; s != NULL ; s = s->getNext())
       s->resolve(m);
@@ -623,7 +623,7 @@ PUBLIC void ScriptBlock::resolve(Mobius* m)
 /**
  * Resolve calls to other scripts within this block.
  */
-PUBLIC void ScriptBlock::link(ScriptCompiler* comp)
+void ScriptBlock::link(ScriptCompiler* comp)
 {
     for (ScriptStatement* s = mStatements ; s != NULL ; s = s->getNext())
 	  s->link(comp);
@@ -638,7 +638,7 @@ PUBLIC void ScriptBlock::link(ScriptCompiler* comp)
  * Intermediate blocks are not searched, if you want nested Procs
  * you need to pass arguments.  Could soften this?
  */
-PUBLIC ScriptVariableStatement* ScriptBlock::findVariable(const char* name) {
+ScriptVariableStatement* ScriptBlock::findVariable(const char* name) {
 
     ScriptVariableStatement* found = NULL;
 
@@ -668,7 +668,7 @@ PUBLIC ScriptVariableStatement* ScriptBlock::findVariable(const char* name) {
 /**
  * Search for a Label statement.
  */
-PUBLIC ScriptLabelStatement* ScriptBlock::findLabel(const char* name)
+ScriptLabelStatement* ScriptBlock::findLabel(const char* name)
 {
 	ScriptLabelStatement* found = NULL;
 
@@ -689,7 +689,7 @@ PUBLIC ScriptLabelStatement* ScriptBlock::findLabel(const char* name)
  * These are like Variables, we can local Procs in the block (rare)
  * or script-global procs.
  */
-PUBLIC ScriptProcStatement* ScriptBlock::findProc(const char* name)
+ScriptProcStatement* ScriptBlock::findProc(const char* name)
 {
 	ScriptProcStatement* found = NULL;
 
@@ -718,7 +718,7 @@ PUBLIC ScriptProcStatement* ScriptBlock::findProc(const char* name)
 /**
  * Search for the For/Repeat statement matching a Next.
  */
-PUBLIC ScriptIteratorStatement* ScriptBlock::findIterator(ScriptNextStatement* next)
+ScriptIteratorStatement* ScriptBlock::findIterator(ScriptNextStatement* next)
 {
     ScriptIteratorStatement* found = NULL;
 
@@ -738,7 +738,7 @@ PUBLIC ScriptIteratorStatement* ScriptBlock::findIterator(ScriptNextStatement* n
  * be either an If or Else statement.  Return value will be either
  * an Else or Endif statement.
  */
-PUBLIC ScriptStatement* ScriptBlock::findElse(ScriptStatement* start)
+ScriptStatement* ScriptBlock::findElse(ScriptStatement* start)
 {
 	ScriptStatement* found = NULL;
 	int depth = 0;
@@ -771,7 +771,7 @@ PUBLIC ScriptStatement* ScriptBlock::findElse(ScriptStatement* start)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptStatement::ScriptStatement()
+ScriptStatement::ScriptStatement()
 {
     mParentBlock = NULL;
 	mNext = NULL;
@@ -779,13 +779,13 @@ PUBLIC ScriptStatement::ScriptStatement()
 	  mArgs[i] = NULL;
 }
 
-PUBLIC ScriptStatement::~ScriptStatement()
+ScriptStatement::~ScriptStatement()
 {
 	for (int i = 0 ; i < MAX_ARGS ; i++)
 	  delete mArgs[i];
 }
 
-PUBLIC void ScriptStatement::setParentBlock(ScriptBlock* b)
+void ScriptStatement::setParentBlock(ScriptBlock* b)
 {
     if (b == (ScriptBlock*)this)
       Trace(1, "ScriptStatement::setBlock circular reference!\n");
@@ -793,22 +793,22 @@ PUBLIC void ScriptStatement::setParentBlock(ScriptBlock* b)
       mParentBlock = b;
 }
 
-PUBLIC ScriptBlock* ScriptStatement::getParentBlock()
+ScriptBlock* ScriptStatement::getParentBlock()
 {
 	return mParentBlock;
 }
 
-PUBLIC void ScriptStatement::setNext(ScriptStatement* a)
+void ScriptStatement::setNext(ScriptStatement* a)
 {
 	mNext = a;
 }
 
-PUBLIC ScriptStatement* ScriptStatement::getNext()
+ScriptStatement* ScriptStatement::getNext()
 {
 	return mNext;
 }
 
-PUBLIC void ScriptStatement::setArg(const char* arg, int psn)
+void ScriptStatement::setArg(const char* arg, int psn)
 {
 	delete mArgs[psn];
 	mArgs[psn] = NULL;
@@ -816,87 +816,87 @@ PUBLIC void ScriptStatement::setArg(const char* arg, int psn)
 	  mArgs[psn] = CopyString(arg);
 }
 
-PUBLIC const char* ScriptStatement::getArg(int psn)
+const char* ScriptStatement::getArg(int psn)
 {
 	return mArgs[psn];
 }
 
-PUBLIC void ScriptStatement::setLineNumber(int i)
+void ScriptStatement::setLineNumber(int i)
 {
     mLineNumber = i;
 }
 
-PUBLIC int ScriptStatement::getLineNumber()
+int ScriptStatement::getLineNumber()
 {
     return mLineNumber;
 }
 
-PUBLIC bool ScriptStatement::isVariable()
+bool ScriptStatement::isVariable()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isLabel()
+bool ScriptStatement::isLabel()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isIterator()
+bool ScriptStatement::isIterator()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isNext()
+bool ScriptStatement::isNext()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isEnd()
+bool ScriptStatement::isEnd()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isBlock()
+bool ScriptStatement::isBlock()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isProc()
+bool ScriptStatement::isProc()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isEndproc()
+bool ScriptStatement::isEndproc()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isParam()
+bool ScriptStatement::isParam()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isEndparam()
+bool ScriptStatement::isEndparam()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isIf()
+bool ScriptStatement::isIf()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isElse()
+bool ScriptStatement::isElse()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isEndif()
+bool ScriptStatement::isEndif()
 {
     return false;
 }
 
-PUBLIC bool ScriptStatement::isFor()
+bool ScriptStatement::isFor()
 {
     return false;
 }
@@ -907,7 +907,7 @@ PUBLIC bool ScriptStatement::isFor()
  * things within the script such as matching block statements
  * (if/endif, for/next) and variables.
  */
-PUBLIC void ScriptStatement::resolve(Mobius* m)
+void ScriptStatement::resolve(Mobius* m)
 {
 }
 
@@ -916,7 +916,7 @@ PUBLIC void ScriptStatement::resolve(Mobius* m)
  * scripts have been exported to the global function table.
  * Overloaded by the subclasses to resolve references between scripts.
  */
-PUBLIC void ScriptStatement::link(ScriptCompiler* compiler)
+void ScriptStatement::link(ScriptCompiler* compiler)
 {
 }
 
@@ -924,7 +924,7 @@ PUBLIC void ScriptStatement::link(ScriptCompiler* compiler)
  * Serialize a statement.  Assuming we can just emit the original
  * arguments, don't need to noramlize.
  */
-PUBLIC void ScriptStatement::xwrite(FILE* fp)
+void ScriptStatement::xwrite(FILE* fp)
 {
     fprintf(fp, "%s", getKeyword());
 
@@ -937,7 +937,7 @@ PUBLIC void ScriptStatement::xwrite(FILE* fp)
 /**
  * Parse the remainder of the function line into up to 8 arguments.
  */
-PRIVATE void ScriptStatement::parseArgs(char* line)
+void ScriptStatement::parseArgs(char* line)
 {
 	parseArgs(line, 0, 0);
 }
@@ -950,7 +950,7 @@ PRIVATE void ScriptStatement::parseArgs(char* line)
  * Technically this should probably go in ScriptCompiler but it's
  * easier to use if we have it here.
  */
-PRIVATE char* ScriptStatement::parseArgs(char* line, int argOffset, int toParse)
+char* ScriptStatement::parseArgs(char* line, int argOffset, int toParse)
 {
 	if (line != NULL) {
 
@@ -1000,19 +1000,19 @@ PRIVATE char* ScriptStatement::parseArgs(char* line, int argOffset, int toParse)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptEchoStatement::ScriptEchoStatement(ScriptCompiler* comp,
+ScriptEchoStatement::ScriptEchoStatement(ScriptCompiler* comp,
 												char* args)
 {
     // unlike most other functions, this one doesn't tokenize args
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptEchoStatement::getKeyword()
+const char* ScriptEchoStatement::getKeyword()
 {
     return "Echo";
 }
 
-PUBLIC ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -1050,19 +1050,19 @@ PUBLIC ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptMessageStatement::ScriptMessageStatement(ScriptCompiler* comp,
+ScriptMessageStatement::ScriptMessageStatement(ScriptCompiler* comp,
 													  char* args)
 {
     // unlike most other functions, this one doesn't tokenize args
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptMessageStatement::getKeyword()
+const char* ScriptMessageStatement::getKeyword()
 {
     return "Message";
 }
 
-PUBLIC ScriptStatement* ScriptMessageStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptMessageStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -1085,7 +1085,7 @@ PUBLIC ScriptStatement* ScriptMessageStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptPromptStatement::ScriptPromptStatement(ScriptCompiler* comp,
+ScriptPromptStatement::ScriptPromptStatement(ScriptCompiler* comp,
                                                     char* args)
 {
     // like echo, we'll assume that the remainder is the message
@@ -1093,12 +1093,12 @@ PUBLIC ScriptPromptStatement::ScriptPromptStatement(ScriptCompiler* comp,
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptPromptStatement::getKeyword()
+const char* ScriptPromptStatement::getKeyword()
 {
     return "Prompt";
 }
 
-PUBLIC ScriptStatement* ScriptPromptStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptPromptStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -1122,25 +1122,25 @@ PUBLIC ScriptStatement* ScriptPromptStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptEndStatement* ScriptEndStatement::Pseudo = 
+ScriptEndStatement* ScriptEndStatement::Pseudo = 
 new ScriptEndStatement(NULL, NULL);
 
-PUBLIC ScriptEndStatement::ScriptEndStatement(ScriptCompiler* comp,
+ScriptEndStatement::ScriptEndStatement(ScriptCompiler* comp,
 											  char* args)
 {
 }
 
-PUBLIC const char* ScriptEndStatement::getKeyword()
+const char* ScriptEndStatement::getKeyword()
 {
     return "End";
 }
 
-PUBLIC bool ScriptEndStatement::isEnd()
+bool ScriptEndStatement::isEnd()
 {
     return true;
 }
 
-PUBLIC ScriptStatement* ScriptEndStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptEndStatement::eval(ScriptInterpreter* si)
 {
     Trace(2, "Script %s: end\n", si->getTraceName());
     return NULL;
@@ -1162,19 +1162,19 @@ PUBLIC ScriptStatement* ScriptEndStatement::eval(ScriptInterpreter* si)
  *    Cancel iteration
  *    Break
  */
-PUBLIC ScriptCancelStatement::ScriptCancelStatement(ScriptCompiler* comp,
+ScriptCancelStatement::ScriptCancelStatement(ScriptCompiler* comp,
 													char* args)
 {
     parseArgs(args);
 	mCancelWait = StringEqualNoCase(mArgs[0], "wait");
 }
 
-PUBLIC const char* ScriptCancelStatement::getKeyword()
+const char* ScriptCancelStatement::getKeyword()
 {
     return "Cancel";
 }
 
-PUBLIC ScriptStatement* ScriptCancelStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptCancelStatement::eval(ScriptInterpreter* si)
 {
 	ScriptStatement* next = NULL;
 
@@ -1222,17 +1222,17 @@ PUBLIC ScriptStatement* ScriptCancelStatement::eval(ScriptInterpreter* si)
  *     Interrupt "Some Script" varname foo
  *
  */
-PUBLIC ScriptInterruptStatement::ScriptInterruptStatement(ScriptCompiler* comp, 
+ScriptInterruptStatement::ScriptInterruptStatement(ScriptCompiler* comp, 
 												  char* args)
 {
 }
 
-PUBLIC const char* ScriptInterruptStatement::getKeyword()
+const char* ScriptInterruptStatement::getKeyword()
 {
     return "Interrupt";
 }
 
-PUBLIC ScriptStatement* ScriptInterruptStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptInterruptStatement::eval(ScriptInterpreter* si)
 {
     Trace(3, "Script %s: interrupt\n", si->getTraceName());
 
@@ -1257,7 +1257,7 @@ PUBLIC ScriptStatement* ScriptInterruptStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptSetStatement::ScriptSetStatement(ScriptCompiler* comp, 
+ScriptSetStatement::ScriptSetStatement(ScriptCompiler* comp, 
 											  char* args)
 {
 	mExpression = NULL;
@@ -1281,22 +1281,22 @@ PUBLIC ScriptSetStatement::ScriptSetStatement(ScriptCompiler* comp,
     }
 }
 
-PUBLIC ScriptSetStatement::~ScriptSetStatement()
+ScriptSetStatement::~ScriptSetStatement()
 {
 	delete mExpression;
 }
 
-PUBLIC const char* ScriptSetStatement::getKeyword()
+const char* ScriptSetStatement::getKeyword()
 {
     return "Set";
 }
 
-PUBLIC void ScriptSetStatement::resolve(Mobius* m)
+void ScriptSetStatement::resolve(Mobius* m)
 {
     mName.resolve(m, mParentBlock, mArgs[0]);
 }
 
-PUBLIC ScriptStatement* ScriptSetStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptSetStatement::eval(ScriptInterpreter* si)
 {
 	if (mExpression != NULL) {
 		ExValue v;
@@ -1312,19 +1312,19 @@ PUBLIC ScriptStatement* ScriptSetStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptUseStatement::ScriptUseStatement(ScriptCompiler* comp, 
+ScriptUseStatement::ScriptUseStatement(ScriptCompiler* comp, 
 											  char* args) :
     ScriptSetStatement(comp, args)
     
 {
 }
 
-PUBLIC const char* ScriptUseStatement::getKeyword()
+const char* ScriptUseStatement::getKeyword()
 {
     return "Use";
 }
 
-PUBLIC ScriptStatement* ScriptUseStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptUseStatement::eval(ScriptInterpreter* si)
 {
     Parameter* p = mName.getParameter();
     if (p == NULL) {
@@ -1344,7 +1344,7 @@ PUBLIC ScriptStatement* ScriptUseStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptVariableStatement::ScriptVariableStatement(ScriptCompiler* comp,
+ScriptVariableStatement::ScriptVariableStatement(ScriptCompiler* comp,
 														char* args)
 {
 	mScope = SCRIPT_SCOPE_SCRIPT;
@@ -1389,27 +1389,27 @@ PUBLIC ScriptVariableStatement::ScriptVariableStatement(ScriptCompiler* comp,
     }
 }
 
-PUBLIC ScriptVariableStatement::~ScriptVariableStatement()
+ScriptVariableStatement::~ScriptVariableStatement()
 {
 	delete mExpression;
 }
 
-PUBLIC const char* ScriptVariableStatement::getKeyword()
+const char* ScriptVariableStatement::getKeyword()
 {
     return "Variable";
 }
 
-PUBLIC bool ScriptVariableStatement::isVariable()
+bool ScriptVariableStatement::isVariable()
 {
     return true;
 }
 
-PUBLIC const char* ScriptVariableStatement::getName()
+const char* ScriptVariableStatement::getName()
 {
 	return mName;
 }
 
-PUBLIC ScriptVariableScope ScriptVariableStatement::getScope()
+ScriptVariableScope ScriptVariableStatement::getScope()
 {
 	return mScope;
 }
@@ -1423,7 +1423,7 @@ PUBLIC ScriptVariableScope ScriptVariableStatement::getScope()
  * Hmm, if we run global/track expressions on non-null it means
  * that we can never set a global to null. 
  */
-PUBLIC ScriptStatement* ScriptVariableStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptVariableStatement::eval(ScriptInterpreter* si)
 {
     Trace(3, "Script %s: Variable %s\n", si->getTraceName(), mName);
 
@@ -1473,17 +1473,17 @@ PUBLIC ScriptStatement* ScriptVariableStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptConditionalStatement::ScriptConditionalStatement()
+ScriptConditionalStatement::ScriptConditionalStatement()
 {
 	mCondition = NULL;
 }
 
-PUBLIC ScriptConditionalStatement::~ScriptConditionalStatement()
+ScriptConditionalStatement::~ScriptConditionalStatement()
 {
 	delete mCondition;
 }
 
-PUBLIC bool ScriptConditionalStatement::evalCondition(ScriptInterpreter* si)
+bool ScriptConditionalStatement::evalCondition(ScriptInterpreter* si)
 {
 	bool value = false;
 
@@ -1504,7 +1504,7 @@ PUBLIC bool ScriptConditionalStatement::evalCondition(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptJumpStatement::ScriptJumpStatement(ScriptCompiler* comp, 
+ScriptJumpStatement::ScriptJumpStatement(ScriptCompiler* comp, 
 												char* args)
 {
     mStaticLabel = NULL;
@@ -1521,12 +1521,12 @@ PUBLIC ScriptJumpStatement::ScriptJumpStatement(ScriptCompiler* comp,
     }
 }
 
-PUBLIC const char* ScriptJumpStatement::getKeyword()
+const char* ScriptJumpStatement::getKeyword()
 {
     return "Jump";
 }
 
-PUBLIC void ScriptJumpStatement::resolve(Mobius* m)
+void ScriptJumpStatement::resolve(Mobius* m)
 {
     // try to resolve it to to a variable or stack arg for dynamic
     // jump labels
@@ -1538,7 +1538,7 @@ PUBLIC void ScriptJumpStatement::resolve(Mobius* m)
     }
 }
 
-PUBLIC ScriptStatement* ScriptJumpStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptJumpStatement::eval(ScriptInterpreter* si)
 {
     ScriptStatement* next = NULL;
 	ExValue v;
@@ -1573,7 +1573,7 @@ PUBLIC ScriptStatement* ScriptJumpStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptIfStatement::ScriptIfStatement(ScriptCompiler* comp, 
+ScriptIfStatement::ScriptIfStatement(ScriptCompiler* comp, 
 											char* args)
 {
     mElse = NULL;
@@ -1589,28 +1589,28 @@ PUBLIC ScriptIfStatement::ScriptIfStatement(ScriptCompiler* comp,
 	mCondition = comp->parseExpression(this, args);
 }
 
-PUBLIC const char* ScriptIfStatement::getKeyword()
+const char* ScriptIfStatement::getKeyword()
 {
     return "If";
 }
 
-PUBLIC bool ScriptIfStatement::isIf()
+bool ScriptIfStatement::isIf()
 {
 	return true;
 }
 
-PUBLIC ScriptStatement* ScriptIfStatement::getElse()
+ScriptStatement* ScriptIfStatement::getElse()
 {
 	return mElse;
 }
 
-PUBLIC void ScriptIfStatement::resolve(Mobius* m)
+void ScriptIfStatement::resolve(Mobius* m)
 {
     // search for matching else/elseif/endif
     mElse = mParentBlock->findElse(this);
 }
 
-PUBLIC ScriptStatement* ScriptIfStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptIfStatement::eval(ScriptInterpreter* si)
 {
     ScriptStatement* next = NULL;
 	ScriptIfStatement* clause = this;
@@ -1656,33 +1656,33 @@ PUBLIC ScriptStatement* ScriptIfStatement::eval(ScriptInterpreter* si)
     return next;
 }
 
-PUBLIC ScriptElseStatement::ScriptElseStatement(ScriptCompiler* comp, 
+ScriptElseStatement::ScriptElseStatement(ScriptCompiler* comp, 
 												char* args) : 
 	ScriptIfStatement(comp, args)
 {
 }
 
-PUBLIC const char* ScriptElseStatement::getKeyword()
+const char* ScriptElseStatement::getKeyword()
 {
     return (mCondition != NULL) ? "Elseif" : "Else";
 }
 
-PUBLIC bool ScriptElseStatement::isElse()
+bool ScriptElseStatement::isElse()
 {
 	return true;
 }
 
-PUBLIC ScriptEndifStatement::ScriptEndifStatement(ScriptCompiler* comp, 
+ScriptEndifStatement::ScriptEndifStatement(ScriptCompiler* comp, 
 												  char* args)
 {
 }
 
-PUBLIC const char* ScriptEndifStatement::getKeyword()
+const char* ScriptEndifStatement::getKeyword()
 {
     return "Endif";
 }
 
-PUBLIC bool ScriptEndifStatement::isEndif()
+bool ScriptEndifStatement::isEndif()
 {
 	return true;
 }
@@ -1690,7 +1690,7 @@ PUBLIC bool ScriptEndifStatement::isEndif()
 /**
  * When we finally get here, just go to the next one after it.
  */
-PUBLIC ScriptStatement* ScriptEndifStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptEndifStatement::eval(ScriptInterpreter* si)
 {
 	return NULL;
 }
@@ -1701,28 +1701,28 @@ PUBLIC ScriptStatement* ScriptEndifStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptLabelStatement::ScriptLabelStatement(ScriptCompiler* comp, 
+ScriptLabelStatement::ScriptLabelStatement(ScriptCompiler* comp, 
 												  char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptLabelStatement::getKeyword()
+const char* ScriptLabelStatement::getKeyword()
 {
     return "Label";
 }
 
-PUBLIC bool ScriptLabelStatement::isLabel()
+bool ScriptLabelStatement::isLabel()
 {   
     return true;
 }
 
-PUBLIC bool ScriptLabelStatement::isLabel(const char* name)
+bool ScriptLabelStatement::isLabel(const char* name)
 {
 	return StringEqualNoCase(name, getArg(0));
 }
 
-PUBLIC ScriptStatement* ScriptLabelStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptLabelStatement::eval(ScriptInterpreter* si)
 {
     return NULL;
 }
@@ -1733,13 +1733,13 @@ PUBLIC ScriptStatement* ScriptLabelStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptIteratorStatement::ScriptIteratorStatement()
+ScriptIteratorStatement::ScriptIteratorStatement()
 {
 	mEnd = NULL;
 	mExpression = NULL;
 }
 
-PUBLIC ScriptIteratorStatement::~ScriptIteratorStatement()
+ScriptIteratorStatement::~ScriptIteratorStatement()
 {
 	delete mExpression;
 }
@@ -1748,17 +1748,17 @@ PUBLIC ScriptIteratorStatement::~ScriptIteratorStatement()
  * Rather than try to resolve the corresponding Next statement, let
  * the Next resolve find us.
  */
-PUBLIC void ScriptIteratorStatement::setEnd(ScriptNextStatement* next)
+void ScriptIteratorStatement::setEnd(ScriptNextStatement* next)
 {
 	mEnd = next;
 }
 
-PUBLIC ScriptNextStatement* ScriptIteratorStatement::getEnd()
+ScriptNextStatement* ScriptIteratorStatement::getEnd()
 {
 	return mEnd;
 }
 
-PUBLIC bool ScriptIteratorStatement::isIterator()
+bool ScriptIteratorStatement::isIterator()
 {
 	return true;
 }
@@ -1769,7 +1769,7 @@ PUBLIC bool ScriptIteratorStatement::isIterator()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptForStatement::ScriptForStatement(ScriptCompiler* comp, 
+ScriptForStatement::ScriptForStatement(ScriptCompiler* comp, 
 											  char* args)
 {
 	// there is only oen arg, let it have spaces
@@ -1778,12 +1778,12 @@ PUBLIC ScriptForStatement::ScriptForStatement(ScriptCompiler* comp,
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptForStatement::getKeyword()
+const char* ScriptForStatement::getKeyword()
 {
     return "For";
 }
 
-PUBLIC bool ScriptForStatement::isFor()
+bool ScriptForStatement::isFor()
 {
 	return true;
 }
@@ -1797,7 +1797,7 @@ PUBLIC bool ScriptForStatement::isFor()
  * To support nesting iteratation state is maintained on a special
  * stack frame to represent a "block" rather than a call.
  */
-PUBLIC ScriptStatement* ScriptForStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptForStatement::eval(ScriptInterpreter* si)
 {
 	ScriptStatement* next = NULL;
     Mobius* m = si->getMobius();
@@ -1909,7 +1909,7 @@ PUBLIC ScriptStatement* ScriptForStatement::eval(ScriptInterpreter* si)
  * Called by the ScriptNextStatement evaluator.  
  * Advance to the next track if we can.
  */
-PUBLIC bool ScriptForStatement::isDone(ScriptInterpreter* si)
+bool ScriptForStatement::isDone(ScriptInterpreter* si)
 {
 	bool done = false;
 
@@ -1945,13 +1945,13 @@ PUBLIC bool ScriptForStatement::isDone(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptRepeatStatement::ScriptRepeatStatement(ScriptCompiler* comp, 
+ScriptRepeatStatement::ScriptRepeatStatement(ScriptCompiler* comp, 
 													char* args)
 {
 	mExpression = comp->parseExpression(this, args);
 }
 
-PUBLIC const char* ScriptRepeatStatement::getKeyword()
+const char* ScriptRepeatStatement::getKeyword()
 {
     return "Repeat";
 }
@@ -1962,7 +1962,7 @@ PUBLIC const char* ScriptRepeatStatement::getKeyword()
  * iteration ranges like "Repeat 4 8" meaning iterate from 4 to 8 by 1, 
  * but I can't see a need for that yet.
  */
-PUBLIC ScriptStatement* ScriptRepeatStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptRepeatStatement::eval(ScriptInterpreter* si)
 {
 	ScriptStatement* next = NULL;
 	char spec[MIN_ARG_VALUE + 4];
@@ -1997,7 +1997,7 @@ PUBLIC ScriptStatement* ScriptRepeatStatement::eval(ScriptInterpreter* si)
     return next;
 }
 
-PUBLIC bool ScriptRepeatStatement::isDone(ScriptInterpreter* si)
+bool ScriptRepeatStatement::isDone(ScriptInterpreter* si)
 {
 	bool done = false;
 
@@ -2029,13 +2029,13 @@ PUBLIC bool ScriptRepeatStatement::isDone(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptWhileStatement::ScriptWhileStatement(ScriptCompiler* comp, 
+ScriptWhileStatement::ScriptWhileStatement(ScriptCompiler* comp, 
 												  char* args)
 {
 	mExpression = comp->parseExpression(this, args);
 }
 
-PUBLIC const char* ScriptWhileStatement::getKeyword()
+const char* ScriptWhileStatement::getKeyword()
 {
     return "While";
 }
@@ -2046,7 +2046,7 @@ PUBLIC const char* ScriptWhileStatement::getKeyword()
  * iteration ranges like "While 4 8" meaning iterate from 4 to 8 by 1, 
  * but I can't see a need for that yet.
  */
-PUBLIC ScriptStatement* ScriptWhileStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptWhileStatement::eval(ScriptInterpreter* si)
 {
 	ScriptStatement* next = NULL;
 
@@ -2073,7 +2073,7 @@ PUBLIC ScriptStatement* ScriptWhileStatement::eval(ScriptInterpreter* si)
     return next;
 }
 
-PUBLIC bool ScriptWhileStatement::isDone(ScriptInterpreter* si)
+bool ScriptWhileStatement::isDone(ScriptInterpreter* si)
 {
 	bool done = false;
 
@@ -2111,23 +2111,23 @@ PUBLIC bool ScriptWhileStatement::isDone(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptNextStatement::ScriptNextStatement(ScriptCompiler* comp, 
+ScriptNextStatement::ScriptNextStatement(ScriptCompiler* comp, 
 												char* args)
 {
     mIterator = NULL;
 }
 
-PUBLIC const char* ScriptNextStatement::getKeyword()
+const char* ScriptNextStatement::getKeyword()
 {
     return "Next";
 }
 
-PUBLIC bool ScriptNextStatement::isNext()
+bool ScriptNextStatement::isNext()
 {
     return true;
 }
 
-PUBLIC void ScriptNextStatement::resolve(Mobius* m)
+void ScriptNextStatement::resolve(Mobius* m)
 {
     // locate the nearest For/Repeat statement
     mIterator = mParentBlock->findIterator(this);
@@ -2137,7 +2137,7 @@ PUBLIC void ScriptNextStatement::resolve(Mobius* m)
 	  mIterator->setEnd(this);
 }
 
-PUBLIC ScriptStatement* ScriptNextStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptNextStatement::eval(ScriptInterpreter* si)
 {
     ScriptStatement* next = NULL;
 
@@ -2168,7 +2168,7 @@ PUBLIC ScriptStatement* ScriptNextStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptSetupStatement::ScriptSetupStatement(ScriptCompiler* comp,	
+ScriptSetupStatement::ScriptSetupStatement(ScriptCompiler* comp,	
 												  char* args)
 {
     // This needs to take the entire argument list as a literal string
@@ -2177,17 +2177,17 @@ PUBLIC ScriptSetupStatement::ScriptSetupStatement(ScriptCompiler* comp,
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptSetupStatement::getKeyword()
+const char* ScriptSetupStatement::getKeyword()
 {
     return "Setup";
 }
 
-PUBLIC void ScriptSetupStatement::resolve(Mobius* m)
+void ScriptSetupStatement::resolve(Mobius* m)
 {
 	mSetup.resolve(m, mParentBlock, mArgs[0]);
 }
 
-PUBLIC ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -2219,7 +2219,7 @@ PUBLIC ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptPresetStatement::ScriptPresetStatement(ScriptCompiler* comp,
+ScriptPresetStatement::ScriptPresetStatement(ScriptCompiler* comp,
 													char* args)
 {
     // This needs to take the entire argument list as a literal string
@@ -2228,17 +2228,17 @@ PUBLIC ScriptPresetStatement::ScriptPresetStatement(ScriptCompiler* comp,
     setArg(args, 0);
 }
 
-PUBLIC const char* ScriptPresetStatement::getKeyword()
+const char* ScriptPresetStatement::getKeyword()
 {
     return "Preset";
 }
 
-PUBLIC void ScriptPresetStatement::resolve(Mobius* m)
+void ScriptPresetStatement::resolve(Mobius* m)
 {
 	mPreset.resolve(m, mParentBlock, mArgs[0]);
 }
 
-PUBLIC ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -2275,17 +2275,17 @@ PUBLIC ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptUnitTestSetupStatement::ScriptUnitTestSetupStatement(ScriptCompiler* comp, 
+ScriptUnitTestSetupStatement::ScriptUnitTestSetupStatement(ScriptCompiler* comp, 
                                                                   char* args)
 {
 }
 
-PUBLIC const char* ScriptUnitTestSetupStatement::getKeyword()
+const char* ScriptUnitTestSetupStatement::getKeyword()
 {
     return "UnitTestSetup";
 }
 
-PUBLIC ScriptStatement* ScriptUnitTestSetupStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptUnitTestSetupStatement::eval(ScriptInterpreter* si)
 {
     Trace(2, "Script %s: UnitTestSetup\n", si->getTraceName());
     Mobius* m = si->getMobius();
@@ -2296,12 +2296,12 @@ PUBLIC ScriptStatement* ScriptUnitTestSetupStatement::eval(ScriptInterpreter* si
 /**
  * An older function, shouldn't be using this any more!
  */
-PUBLIC ScriptInitPresetStatement::ScriptInitPresetStatement(ScriptCompiler* comp, 
+ScriptInitPresetStatement::ScriptInitPresetStatement(ScriptCompiler* comp, 
 															char* args)
 {
 }
 
-PUBLIC const char* ScriptInitPresetStatement::getKeyword()
+const char* ScriptInitPresetStatement::getKeyword()
 {
     return "InitPreset";
 }
@@ -2309,7 +2309,7 @@ PUBLIC const char* ScriptInitPresetStatement::getKeyword()
 /**
  * !! This doesn't fit with the new model for editing configurations.
  */
-PUBLIC ScriptStatement* ScriptInitPresetStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptInitPresetStatement::eval(ScriptInterpreter* si)
 {
     Trace(2, "Script %s: InitPreset\n", si->getTraceName());
 
@@ -2348,19 +2348,19 @@ PUBLIC ScriptStatement* ScriptInitPresetStatement::eval(ScriptInterpreter* si)
  * elsewhere.
  */
 
-PUBLIC bool ScriptBreak = false;
+bool ScriptBreak = false;
 
-PUBLIC ScriptBreakStatement::ScriptBreakStatement(ScriptCompiler* comp, 
+ScriptBreakStatement::ScriptBreakStatement(ScriptCompiler* comp, 
 												  char* args)
 {
 }
 
-PUBLIC const char* ScriptBreakStatement::getKeyword()
+const char* ScriptBreakStatement::getKeyword()
 {
     return "Break";
 }
 
-PUBLIC ScriptStatement* ScriptBreakStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptBreakStatement::eval(ScriptInterpreter* si)
 {
     Trace(3, "Script %s: break\n", si->getTraceName());
 	ScriptBreak = true;
@@ -2375,18 +2375,18 @@ PUBLIC ScriptStatement* ScriptBreakStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptLoadStatement::ScriptLoadStatement(ScriptCompiler* comp,
+ScriptLoadStatement::ScriptLoadStatement(ScriptCompiler* comp,
 												char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptLoadStatement::getKeyword()
+const char* ScriptLoadStatement::getKeyword()
 {
     return "Load";
 }
 
-PUBLIC ScriptStatement* ScriptLoadStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptLoadStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -2406,18 +2406,18 @@ PUBLIC ScriptStatement* ScriptLoadStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptSaveStatement::ScriptSaveStatement(ScriptCompiler* comp,
+ScriptSaveStatement::ScriptSaveStatement(ScriptCompiler* comp,
 												char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptSaveStatement::getKeyword()
+const char* ScriptSaveStatement::getKeyword()
 {
     return "Save";
 }
 
-PUBLIC ScriptStatement* ScriptSaveStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptSaveStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
@@ -2440,7 +2440,7 @@ PUBLIC ScriptStatement* ScriptSaveStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptDiffStatement::ScriptDiffStatement(ScriptCompiler* comp,
+ScriptDiffStatement::ScriptDiffStatement(ScriptCompiler* comp,
 												char* args)
 {
 	mAudio = false;
@@ -2455,12 +2455,12 @@ PUBLIC ScriptDiffStatement::ScriptDiffStatement(ScriptCompiler* comp,
 	}
 }
 
-PUBLIC const char* ScriptDiffStatement::getKeyword()
+const char* ScriptDiffStatement::getKeyword()
 {
     return "Diff";
 }
 
-PUBLIC ScriptStatement* ScriptDiffStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptDiffStatement::eval(ScriptInterpreter* si)
 {
 	ExValue file1;
 	ExValue file2;
@@ -2493,7 +2493,7 @@ PUBLIC ScriptStatement* ScriptDiffStatement::eval(ScriptInterpreter* si)
  * Could be smarter about this, but most of the time the arguments
  * are used to build file paths and need dynamic expansion.
  */
-PUBLIC ScriptCallStatement::ScriptCallStatement(ScriptCompiler* comp,
+ScriptCallStatement::ScriptCallStatement(ScriptCompiler* comp,
 												char* args)
 {
 	mProc = NULL;
@@ -2508,7 +2508,7 @@ PUBLIC ScriptCallStatement::ScriptCallStatement(ScriptCompiler* comp,
       mExpression = comp->parseExpression(this, args);
 }
 
-PUBLIC const char* ScriptCallStatement::getKeyword()
+const char* ScriptCallStatement::getKeyword()
 {
     return "Call";
 }
@@ -2518,7 +2518,7 @@ PUBLIC const char* ScriptCallStatement::getKeyword()
  * If we don't find a proc, then later during link()
  * we'll look for other scripts.
  */
-PUBLIC void ScriptCallStatement::resolve(Mobius* m)
+void ScriptCallStatement::resolve(Mobius* m)
 {
 	// think locally, then globally
 	mProc = mParentBlock->findProc(mArgs[0]);
@@ -2531,7 +2531,7 @@ PUBLIC void ScriptCallStatement::resolve(Mobius* m)
 /**
  * Resolve a call to another script in the environment.
  */
-PUBLIC void ScriptCallStatement::link(ScriptCompiler* comp)
+void ScriptCallStatement::link(ScriptCompiler* comp)
 {
 	if (mProc == NULL && mScript == NULL) {
 
@@ -2542,7 +2542,7 @@ PUBLIC void ScriptCallStatement::link(ScriptCompiler* comp)
 	}
 }
 
-PUBLIC ScriptStatement* ScriptCallStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptCallStatement::eval(ScriptInterpreter* si)
 {
     ScriptStatement* next = NULL;
 
@@ -2596,7 +2596,7 @@ PUBLIC ScriptStatement* ScriptCallStatement::eval(ScriptInterpreter* si)
  * A variant of Call that only does scripts, and launches them
  * in a parallel thread.
  */
-PUBLIC ScriptStartStatement::ScriptStartStatement(ScriptCompiler* comp,
+ScriptStartStatement::ScriptStartStatement(ScriptCompiler* comp,
 												char* args)
 {
 	mScript = NULL;
@@ -2610,7 +2610,7 @@ PUBLIC ScriptStartStatement::ScriptStartStatement(ScriptCompiler* comp,
       mExpression = comp->parseExpression(this, args);
 }
 
-PUBLIC const char* ScriptStartStatement::getKeyword()
+const char* ScriptStartStatement::getKeyword()
 {
     return "Start";
 }
@@ -2618,7 +2618,7 @@ PUBLIC const char* ScriptStartStatement::getKeyword()
 /**
  * Find the referenced script.
  */
-PUBLIC void ScriptStartStatement::link(ScriptCompiler* comp)
+void ScriptStartStatement::link(ScriptCompiler* comp)
 {
 	if (mScript == NULL) {
 		mScript = comp->resolveScript(mArgs[0]);
@@ -2628,7 +2628,7 @@ PUBLIC void ScriptStartStatement::link(ScriptCompiler* comp)
 	}
 }
 
-PUBLIC ScriptStatement* ScriptStartStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptStartStatement::eval(ScriptInterpreter* si)
 {
     return NULL;
 }
@@ -2639,12 +2639,12 @@ PUBLIC ScriptStatement* ScriptStartStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptBlockingStatement::ScriptBlockingStatement()
+ScriptBlockingStatement::ScriptBlockingStatement()
 {
     mChildBlock = NULL;
 }
 
-PUBLIC ScriptBlockingStatement::~ScriptBlockingStatement()
+ScriptBlockingStatement::~ScriptBlockingStatement()
 {
     delete mChildBlock;
 }
@@ -2652,7 +2652,7 @@ PUBLIC ScriptBlockingStatement::~ScriptBlockingStatement()
 /**
  * Since we are a blocking statement have to do recursive resolution.
  */
-PUBLIC void ScriptBlockingStatement::resolve(Mobius* m)
+void ScriptBlockingStatement::resolve(Mobius* m)
 {
     if (mChildBlock != NULL)
       mChildBlock->resolve(m);
@@ -2661,13 +2661,13 @@ PUBLIC void ScriptBlockingStatement::resolve(Mobius* m)
 /**
  * Since we are a blocking statement have to do recursive linking.
  */
-PUBLIC void ScriptBlockingStatement::link(ScriptCompiler* compiler)
+void ScriptBlockingStatement::link(ScriptCompiler* compiler)
 {
     if (mChildBlock != NULL)
       mChildBlock->link(compiler);
 }
 
-PUBLIC ScriptBlock* ScriptBlockingStatement::getChildBlock()
+ScriptBlock* ScriptBlockingStatement::getChildBlock()
 {
     if (mChildBlock == NULL)
       mChildBlock = new ScriptBlock();
@@ -2680,28 +2680,28 @@ PUBLIC ScriptBlock* ScriptBlockingStatement::getChildBlock()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptProcStatement::ScriptProcStatement(ScriptCompiler* comp, 
+ScriptProcStatement::ScriptProcStatement(ScriptCompiler* comp, 
 												char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptProcStatement::getKeyword()
+const char* ScriptProcStatement::getKeyword()
 {
     return "Proc";
 }
 
-PUBLIC bool ScriptProcStatement::isProc()
+bool ScriptProcStatement::isProc()
 {
     return true;
 }
 
-PUBLIC const char* ScriptProcStatement::getName()
+const char* ScriptProcStatement::getName()
 {
 	return getArg(0);
 }
 
-PUBLIC ScriptStatement* ScriptProcStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptProcStatement::eval(ScriptInterpreter* si)
 {
 	// no side effects, wait for a call
     return NULL;
@@ -2711,18 +2711,18 @@ PUBLIC ScriptStatement* ScriptProcStatement::eval(ScriptInterpreter* si)
 // Endproc
 //
 
-PUBLIC ScriptEndprocStatement::ScriptEndprocStatement(ScriptCompiler* comp,
+ScriptEndprocStatement::ScriptEndprocStatement(ScriptCompiler* comp,
 													  char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptEndprocStatement::getKeyword()
+const char* ScriptEndprocStatement::getKeyword()
 {
     return "Endproc";
 }
 
-PUBLIC bool ScriptEndprocStatement::isEndproc()
+bool ScriptEndprocStatement::isEndproc()
 {
 	return true;
 }
@@ -2731,7 +2731,7 @@ PUBLIC bool ScriptEndprocStatement::isEndproc()
  * No side effects, in fact we normally won't even keep these
  * in the compiled script now that Proc statements are nested.
  */
-PUBLIC ScriptStatement* ScriptEndprocStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptEndprocStatement::eval(ScriptInterpreter* si)
 {
 	return NULL;
 }
@@ -2742,23 +2742,23 @@ PUBLIC ScriptStatement* ScriptEndprocStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptParamStatement::ScriptParamStatement(ScriptCompiler* comp, 
+ScriptParamStatement::ScriptParamStatement(ScriptCompiler* comp, 
                                                   char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptParamStatement::getKeyword()
+const char* ScriptParamStatement::getKeyword()
 {
     return "Param";
 }
 
-PUBLIC bool ScriptParamStatement::isParam()
+bool ScriptParamStatement::isParam()
 {
     return true;
 }
 
-PUBLIC const char* ScriptParamStatement::getName()
+const char* ScriptParamStatement::getName()
 {
 	return getArg(0);
 }
@@ -2768,7 +2768,7 @@ PUBLIC const char* ScriptParamStatement::getName()
  * by Mobius automatically when scripts are loaded and converted
  * into Parameters.
  */
-PUBLIC ScriptStatement* ScriptParamStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptParamStatement::eval(ScriptInterpreter* si)
 {
 	// no side effects, wait for a reference
     return NULL;
@@ -2778,18 +2778,18 @@ PUBLIC ScriptStatement* ScriptParamStatement::eval(ScriptInterpreter* si)
 // Endparam
 //
 
-PUBLIC ScriptEndparamStatement::ScriptEndparamStatement(ScriptCompiler* comp,
+ScriptEndparamStatement::ScriptEndparamStatement(ScriptCompiler* comp,
 													  char* args)
 {
     parseArgs(args);
 }
 
-PUBLIC const char* ScriptEndparamStatement::getKeyword()
+const char* ScriptEndparamStatement::getKeyword()
 {
     return "Endparam";
 }
 
-PUBLIC bool ScriptEndparamStatement::isEndparam()
+bool ScriptEndparamStatement::isEndparam()
 {
 	return true;
 }
@@ -2798,7 +2798,7 @@ PUBLIC bool ScriptEndparamStatement::isEndparam()
  * No side effects, in fact we normally won't even keep these
  * in the compiled script.
  */
-PUBLIC ScriptStatement* ScriptEndparamStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptEndparamStatement::eval(ScriptInterpreter* si)
 {
 	return NULL;
 }
@@ -2813,7 +2813,7 @@ PUBLIC ScriptStatement* ScriptEndparamStatement::eval(ScriptInterpreter* si)
  * We assume arguments are expressions unless we can resolve to a static
  * function and it asks for old-school arguments.
  */
-PUBLIC ScriptFunctionStatement::ScriptFunctionStatement(ScriptCompiler* comp,
+ScriptFunctionStatement::ScriptFunctionStatement(ScriptCompiler* comp,
 														const char* name,
                                                         char* args)
 {
@@ -2856,7 +2856,7 @@ PUBLIC ScriptFunctionStatement::ScriptFunctionStatement(ScriptCompiler* comp,
 /**
  * This is only used when script recording is enabled.
  */
-PUBLIC ScriptFunctionStatement::ScriptFunctionStatement(Function* f)
+ScriptFunctionStatement::ScriptFunctionStatement(Function* f)
 {
 	init();
 	mFunctionName = CopyString(f->getName());
@@ -2873,7 +2873,7 @@ void ScriptFunctionStatement::init()
     mExpression = NULL;
 }
 
-PUBLIC ScriptFunctionStatement::~ScriptFunctionStatement()
+ScriptFunctionStatement::~ScriptFunctionStatement()
 {
 	delete mFunctionName;
 	delete mExpression;
@@ -2883,7 +2883,7 @@ PUBLIC ScriptFunctionStatement::~ScriptFunctionStatement()
  * If we have a static function, resolve the arguments if
  * the function doesn't support expressions.
  */
-PUBLIC void ScriptFunctionStatement::resolve(Mobius* m)
+void ScriptFunctionStatement::resolve(Mobius* m)
 {
     if (mFunction != NULL && 
         // if we resolved this to a script always use expressions
@@ -2911,7 +2911,7 @@ PUBLIC void ScriptFunctionStatement::resolve(Mobius* m)
  *
  * Arguments have already been parsed.
  */
-PUBLIC void ScriptFunctionStatement::link(ScriptCompiler* comp)
+void ScriptFunctionStatement::link(ScriptCompiler* comp)
 {
 	if (mFunction == NULL) {
 
@@ -2945,32 +2945,32 @@ PUBLIC void ScriptFunctionStatement::link(ScriptCompiler* comp)
     }
 }
 
-PUBLIC const char* ScriptFunctionStatement::getKeyword()
+const char* ScriptFunctionStatement::getKeyword()
 {
     return mFunctionName;
 }
 
-PUBLIC Function* ScriptFunctionStatement::getFunction()
+Function* ScriptFunctionStatement::getFunction()
 {
 	return mFunction;
 }
 
-PUBLIC const char* ScriptFunctionStatement::getFunctionName()
+const char* ScriptFunctionStatement::getFunctionName()
 {
 	return mFunctionName;
 }
 
-PUBLIC void ScriptFunctionStatement::setUp(bool b)
+void ScriptFunctionStatement::setUp(bool b)
 {
 	mUp = b;
 }
 
-PUBLIC bool ScriptFunctionStatement::isUp()
+bool ScriptFunctionStatement::isUp()
 {
 	return mUp;
 }
 
-PUBLIC ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
 {
     // has to be resolved by now...before 2.0 did another search of the
     // Functions table but that shouldn't be necessary??
@@ -3131,7 +3131,7 @@ PUBLIC ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptWaitStatement::ScriptWaitStatement(WaitType type,
+ScriptWaitStatement::ScriptWaitStatement(WaitType type,
                                                 WaitUnit unit,
                                                 long time)
 {
@@ -3149,12 +3149,12 @@ void ScriptWaitStatement::init()
 	mInPause = false;
 }
 
-PUBLIC ScriptWaitStatement::~ScriptWaitStatement()
+ScriptWaitStatement::~ScriptWaitStatement()
 {
 	delete mExpression;
 }
 
-PUBLIC const char* ScriptWaitStatement::getKeyword()
+const char* ScriptWaitStatement::getKeyword()
 {
     return "Wait";
 }
@@ -3192,7 +3192,7 @@ PUBLIC const char* ScriptWaitStatement::getKeyword()
  *     Wait inPause frame 1000
  *
  */
-PUBLIC ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
+ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
 												char* args)
 {
 	init();
@@ -3302,7 +3302,7 @@ WaitUnit ScriptWaitStatement::getWaitUnit(const char* name)
 	return unit;
 }
 
-PUBLIC ScriptStatement* ScriptWaitStatement::eval(ScriptInterpreter* si)
+ScriptStatement* ScriptWaitStatement::eval(ScriptInterpreter* si)
 {
     // reset the "interrupted" variable
     // will this work without a declaration?
@@ -3439,7 +3439,7 @@ PUBLIC ScriptStatement* ScriptWaitStatement::eval(ScriptInterpreter* si)
 /**
  * Setup a Script event on a specific frame.
  */
-PRIVATE Event* ScriptWaitStatement::setupWaitEvent(ScriptInterpreter* si, 
+Event* ScriptWaitStatement::setupWaitEvent(ScriptInterpreter* si, 
 												   long frame)
 {
     Track* track = si->getTargetTrack();
@@ -3465,7 +3465,7 @@ PRIVATE Event* ScriptWaitStatement::setupWaitEvent(ScriptInterpreter* si,
  * For accurate waits, you have to ensure that the rate can't
  * change while we're waiting.
  */
-PRIVATE long ScriptWaitStatement::getMsecFrames(ScriptInterpreter* si, long msecs)
+long ScriptWaitStatement::getMsecFrames(ScriptInterpreter* si, long msecs)
 {
 	float rate = si->getTargetTrack()->getEffectiveSpeed();
 	// should we ceil()?
@@ -3482,7 +3482,7 @@ PRIVATE long ScriptWaitStatement::getMsecFrames(ScriptInterpreter* si, long msec
  * error, also recognize WAIT_RELATIVE with UNIT_MSEC and UNIT_FRAME. 
  * If any other unit is specified assume 1 second.
  */
-PRIVATE long ScriptWaitStatement::getWaitFrame(ScriptInterpreter* si)
+long ScriptWaitStatement::getWaitFrame(ScriptInterpreter* si)
 {
 	long frame = 0;
     Track* track = si->getTargetTrack();
@@ -3604,7 +3604,7 @@ PRIVATE long ScriptWaitStatement::getWaitFrame(ScriptInterpreter* si)
 /**
  * Evaluate the time expression and return the result as a long.
  */
-PRIVATE long ScriptWaitStatement::getTime(ScriptInterpreter* si)
+long ScriptWaitStatement::getTime(ScriptInterpreter* si)
 {
     long time = 0;
     if (mExpression != NULL) {
@@ -3621,7 +3621,7 @@ PRIVATE long ScriptWaitStatement::getTime(ScriptInterpreter* si)
  * If we're finishing recording of the initial loop, 
  * don't quantize to the end of the loop, go to the next.
  */
-PRIVATE long ScriptWaitStatement::getQuantizedFrame(Loop* loop,
+long ScriptWaitStatement::getQuantizedFrame(Loop* loop,
                                                     Preset::QuantizeMode q, 
                                                     long frame, int count)
 {
@@ -3654,19 +3654,19 @@ PRIVATE long ScriptWaitStatement::getQuantizedFrame(Loop* loop,
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC Script::Script()
+Script::Script()
 {
 	init();
 }
 
-PUBLIC Script::Script(ScriptEnv* env, const char* filename)
+Script::Script(ScriptEnv* env, const char* filename)
 {
 	init();
 	mEnv = env;
     setFilename(filename);
 }
 
-PUBLIC void Script::init()
+void Script::init()
 {
 	mEnv = NULL;
 	mNext = NULL;
@@ -3699,7 +3699,7 @@ PUBLIC void Script::init()
     mEndClickLabel = NULL;
 }
 
-PUBLIC Script::~Script()
+Script::~Script()
 {
 	Script *el, *next;
 
@@ -3717,38 +3717,38 @@ PUBLIC Script::~Script()
 	}
 }
 
-PUBLIC void Script::setEnv(ScriptEnv* env)
+void Script::setEnv(ScriptEnv* env)
 {
     mEnv = env;
 }
 
-PUBLIC ScriptEnv* Script::getEnv()
+ScriptEnv* Script::getEnv()
 {
     return mEnv;
 }
 
-PUBLIC void Script::setNext(Script* s)
+void Script::setNext(Script* s)
 {
 	mNext = s;
 }
 
-PUBLIC Script* Script::getNext()
+Script* Script::getNext()
 {
 	return mNext;
 }
 
-PUBLIC void Script::setName(const char* name)
+void Script::setName(const char* name)
 {
     delete mName;
     mName = CopyString(name);
 }
 
-PUBLIC const char* Script::getName()
+const char* Script::getName()
 {
 	return mName;
 }
 
-PUBLIC const char* Script::getDisplayName()
+const char* Script::getDisplayName()
 {
 	const char* name = mName;
 	if (name == NULL) {
@@ -3769,36 +3769,36 @@ PUBLIC const char* Script::getDisplayName()
     return name;
 }
 
-PUBLIC const char* Script::getTraceName()
+const char* Script::getTraceName()
 {
     // better to always return the file name?
     return getDisplayName();
 }
 
-PUBLIC void Script::setFilename(const char* s)
+void Script::setFilename(const char* s)
 {
     delete mFilename;
     mFilename = CopyString(s);
 }
 
-PUBLIC const char* Script::getFilename()
+const char* Script::getFilename()
 {
     return mFilename;
 }
 
-PUBLIC void Script::setDirectory(const char* s)
+void Script::setDirectory(const char* s)
 {
     delete mDirectory;
     mDirectory = CopyString(s);
 }
 
-PUBLIC void Script::setDirectoryNoCopy(char* s)
+void Script::setDirectoryNoCopy(char* s)
 {
     delete mDirectory;
     mDirectory = s;
 }
 
-PUBLIC const char* Script::getDirectory()
+const char* Script::getDirectory()
 {
     return mDirectory;
 }
@@ -3807,7 +3807,7 @@ PUBLIC const char* Script::getDirectory()
 // Statements
 //
 
-PUBLIC void Script::clear()
+void Script::clear()
 {
     delete mBlock;
     mBlock = NULL;
@@ -3818,7 +3818,7 @@ PUBLIC void Script::clear()
 	mEndClickLabel = NULL;
 }
 
-PUBLIC ScriptBlock* Script::getBlock()
+ScriptBlock* Script::getBlock()
 {
     if (mBlock == NULL)
       mBlock = new ScriptBlock();
@@ -3829,124 +3829,124 @@ PUBLIC ScriptBlock* Script::getBlock()
 // parsed options
 //
 
-PUBLIC void Script::setAutoLoad(bool b)
+void Script::setAutoLoad(bool b)
 {
 	mAutoLoad = b;
 }
 
-PUBLIC bool Script::isAutoLoad()
+bool Script::isAutoLoad()
 {
 	return mAutoLoad;
 }
 
-PUBLIC void Script::setButton(bool b)
+void Script::setButton(bool b)
 {
 	mButton = b;
 }
 
-PUBLIC bool Script::isButton()
+bool Script::isButton()
 {
 	return mButton;
 }
 
-PUBLIC void Script::setHide(bool b)
+void Script::setHide(bool b)
 {
 	mHide = b;
 }
 
-PUBLIC bool Script::isHide()
+bool Script::isHide()
 {
 	return mHide;
 }
 
-PUBLIC void Script::setFocusLockAllowed(bool b)
+void Script::setFocusLockAllowed(bool b)
 {
 	mFocusLockAllowed = b;
 }
 
-PUBLIC bool Script::isFocusLockAllowed()
+bool Script::isFocusLockAllowed()
 {
 	return mFocusLockAllowed;
 }
 
-PUBLIC void Script::setQuantize(bool b)
+void Script::setQuantize(bool b)
 {
 	mQuantize = b;
 }
 
-PUBLIC bool Script::isQuantize()
+bool Script::isQuantize()
 {
 	return mQuantize;
 }
 
-PUBLIC void Script::setSwitchQuantize(bool b)
+void Script::setSwitchQuantize(bool b)
 {
 	mSwitchQuantize = b;
 }
 
-PUBLIC bool Script::isSwitchQuantize()
+bool Script::isSwitchQuantize()
 {
 	return mSwitchQuantize;
 }
 
-PUBLIC void Script::setContinuous(bool b)
+void Script::setContinuous(bool b)
 {
 	mContinuous = b;
 }
 
-PUBLIC bool Script::isContinuous()
+bool Script::isContinuous()
 {
 	return mContinuous;
 }
 
-PUBLIC void Script::setParameter(bool b)
+void Script::setParameter(bool b)
 {
 	mParameter = b;
 }
 
-PUBLIC bool Script::isParameter()
+bool Script::isParameter()
 {
 	return mParameter;
 }
 
-PUBLIC void Script::setSpread(bool b)
+void Script::setSpread(bool b)
 {
 	mSpread = b;
 }
 
-PUBLIC bool Script::isSpread()
+bool Script::isSpread()
 {
 	return mSpread;
 }
 
-PUBLIC void Script::setSpreadRange(int i)
+void Script::setSpreadRange(int i)
 {
 	mSpreadRange = i;
 }
 
-PUBLIC int Script::getSpreadRange()
+int Script::getSpreadRange()
 {
 	return mSpreadRange;
 }
 
-PUBLIC void Script::setSustainMsecs(int msecs)
+void Script::setSustainMsecs(int msecs)
 {
 	if (msecs > 0)
 	  mSustainMsecs = msecs;
 }
 
-PUBLIC int Script::getSustainMsecs()
+int Script::getSustainMsecs()
 {
 	return mSustainMsecs;
 }
 
-PUBLIC void Script::setClickMsecs(int msecs)
+void Script::setClickMsecs(int msecs)
 {
 	if (msecs > 0)
 	  mClickMsecs = msecs;
 }
 
-PUBLIC int Script::getClickMsecs()
+int Script::getClickMsecs()
 {
 	return mClickMsecs;
 }
@@ -3955,7 +3955,7 @@ PUBLIC int Script::getClickMsecs()
 // Cached labels
 //
 
-PUBLIC void Script::cacheLabels()
+void Script::cacheLabels()
 {
     if (mBlock != NULL) {
         for (ScriptStatement* s = mBlock->getStatements() ; 
@@ -3978,47 +3978,47 @@ PUBLIC void Script::cacheLabels()
     }
 }
 
-PUBLIC ScriptLabelStatement* Script::getReentryLabel()
+ScriptLabelStatement* Script::getReentryLabel()
 {
 	return mReentryLabel;
 }
 
-PUBLIC ScriptLabelStatement* Script::getSustainLabel()
+ScriptLabelStatement* Script::getSustainLabel()
 {
 	return mSustainLabel;
 }
 
-PUBLIC ScriptLabelStatement* Script::getEndSustainLabel()
+ScriptLabelStatement* Script::getEndSustainLabel()
 {
 	return mEndSustainLabel;
 }
 
-PUBLIC bool Script::isSustainAllowed()
+bool Script::isSustainAllowed()
 {
 	return (mSustainLabel != NULL || mEndSustainLabel != NULL);
 }
 
-PUBLIC ScriptLabelStatement* Script::getClickLabel()
+ScriptLabelStatement* Script::getClickLabel()
 {
 	return mClickLabel;
 }
 
-PUBLIC ScriptLabelStatement* Script::getEndClickLabel()
+ScriptLabelStatement* Script::getEndClickLabel()
 {
 	return mEndClickLabel;
 }
 
-PUBLIC bool Script::isClickAllowed()
+bool Script::isClickAllowed()
 {
 	return (mClickLabel != NULL || mEndClickLabel != NULL);
 }
 
-PUBLIC void Script::setFunction(Function* f)
+void Script::setFunction(Function* f)
 {
     mFunction = f;
 }
 
-PUBLIC Function* Script::getFunction()
+Function* Script::getFunction()
 {
     return mFunction;
 }
@@ -4032,7 +4032,7 @@ PUBLIC Function* Script::getFunction()
 /**
  * Resolve references in a script after it has been fully parsed.
  */
-PUBLIC void Script::resolve(Mobius* m)
+void Script::resolve(Mobius* m)
 {
     if (mBlock != NULL)
       mBlock->resolve(m);
@@ -4048,7 +4048,7 @@ PUBLIC void Script::resolve(Mobius* m)
  * the referenced script.  Control flow is a bit convoluted but the
  * alternatives aren't much better.
  */
-PUBLIC void Script::link(ScriptCompiler* comp)
+void Script::link(ScriptCompiler* comp)
 {
     if (mBlock != NULL)
       mBlock->link(comp);
@@ -4060,7 +4060,7 @@ PUBLIC void Script::link(ScriptCompiler* comp)
  * !!! This doesn't handle blocking statements, Procs won't write
  * properly.  Where is this used?
  */
-PUBLIC void Script::xwrite(const char* filename)
+void Script::xwrite(const char* filename)
 {
 	FILE* fp = fopen(filename, "w");
 	if (fp == NULL) {
@@ -4085,14 +4085,14 @@ PUBLIC void Script::xwrite(const char* filename)
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC ScriptEnv::ScriptEnv()
+ScriptEnv::ScriptEnv()
 {
     mNext = NULL;
     mSource = NULL;
 	mScripts = NULL;
 }
 
-PUBLIC ScriptEnv::~ScriptEnv()
+ScriptEnv::~ScriptEnv()
 {
 	ScriptEnv *el, *next;
 
@@ -4106,33 +4106,33 @@ PUBLIC ScriptEnv::~ScriptEnv()
 	}
 }
 
-PUBLIC ScriptEnv* ScriptEnv::getNext()
+ScriptEnv* ScriptEnv::getNext()
 {
     return mNext;
 }
 
-PUBLIC void ScriptEnv::setNext(ScriptEnv* env)
+void ScriptEnv::setNext(ScriptEnv* env)
 {
     mNext = env;
 }
 
-PUBLIC ScriptConfig* ScriptEnv::getSource()
+ScriptConfig* ScriptEnv::getSource()
 {
     return mSource;
 }
 
-PUBLIC void ScriptEnv::setSource(ScriptConfig* config)
+void ScriptEnv::setSource(ScriptConfig* config)
 {
     delete mSource;
     mSource = config;
 }
 
-PUBLIC Script* ScriptEnv::getScripts()
+Script* ScriptEnv::getScripts()
 {
 	return mScripts;
 }
 
-PUBLIC void ScriptEnv::setScripts(Script* scripts)
+void ScriptEnv::setScripts(Script* scripts)
 {
     delete mScripts;
     mScripts = scripts;
@@ -4143,7 +4143,7 @@ PUBLIC void ScriptEnv::setScripts(Script* scripts)
  * This is used by Function::initFunctions when building the global function
  * table.
  */
-PUBLIC List* ScriptEnv::getScriptFunctions()
+List* ScriptEnv::getScriptFunctions()
 {
 	List* functions = NULL;
 
@@ -4173,7 +4173,7 @@ PUBLIC List* ScriptEnv::getScriptFunctions()
  * ScriptConfig due to filtering out invalid names, compare with the
  * original ScriptConfig which we saved at compilation.
  */
-PUBLIC bool ScriptEnv::isDifference(ScriptConfig* config)
+bool ScriptEnv::isDifference(ScriptConfig* config)
 {
     bool difference = false;
 
@@ -4200,7 +4200,7 @@ PUBLIC bool ScriptEnv::isDifference(ScriptConfig* config)
  * if it was specified or the base file name.
  * Might want to search on full path to be safe?
  */
-PUBLIC Script* ScriptEnv::getScript(Script* src)
+Script* ScriptEnv::getScript(Script* src)
 {
     Script* found = NULL;
 
@@ -4219,7 +4219,7 @@ PUBLIC Script* ScriptEnv::getScript(Script* src)
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC ScriptCompiler::ScriptCompiler()
+ScriptCompiler::ScriptCompiler()
 {
     mMobius     = NULL;
     mParser     = NULL;
@@ -4232,7 +4232,7 @@ PUBLIC ScriptCompiler::ScriptCompiler()
     strcpy(mLine, "");
 }
 
-PUBLIC ScriptCompiler::~ScriptCompiler()
+ScriptCompiler::~ScriptCompiler()
 {
     delete mParser;
 }
@@ -4246,7 +4246,7 @@ PUBLIC ScriptCompiler::~ScriptCompiler()
  * Mobius is only necessary to get the configuration directory out of the
  * MobiusContext.
  */
-PUBLIC ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
+ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
 {
     // should not try to use this more than once
     if (mEnv != NULL)
@@ -4335,7 +4335,7 @@ PUBLIC ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
  * need to indirect through a Proc lookup table.
  * 
  */
-PUBLIC void ScriptCompiler::recompile(Mobius* m, Script* script)
+void ScriptCompiler::recompile(Mobius* m, Script* script)
 {
     mMobius = m;
 
@@ -4375,7 +4375,7 @@ PUBLIC void ScriptCompiler::recompile(Mobius* m, Script* script)
 /**
  * Final link phase for one script.
  */
-PRIVATE void ScriptCompiler::link(Script* s)
+void ScriptCompiler::link(Script* s)
 {
     // zero means we're in the link phase
     mLineNumber = 0;
@@ -4391,7 +4391,7 @@ PRIVATE void ScriptCompiler::link(Script* s)
  * Internal helper used when processing something from the script config
  * we know is an individual file.
  */
-PRIVATE void ScriptCompiler::parse(const char* filename)
+void ScriptCompiler::parse(const char* filename)
 {
     if (!IsFile(filename)) {
 		Trace(1, "Unable to locate script file %s\n", filename);
@@ -4437,7 +4437,7 @@ PRIVATE void ScriptCompiler::parse(const char* filename)
     }
 }
 
-PRIVATE bool ScriptCompiler::parse(FILE* fp, Script* script)
+bool ScriptCompiler::parse(FILE* fp, Script* script)
 {
 	char line[SCRIPT_MAX_LINE + 4];
 	char arg[SCRIPT_MAX_LINE + 4];
@@ -4624,7 +4624,7 @@ PRIVATE bool ScriptCompiler::parse(FILE* fp, Script* script)
  * uses the 0xd 0xa newline convention but Mac file streams only strip 0xa.
  * Failing to strip the 0xd can cause script name mismatches.
  */
-PRIVATE void ScriptCompiler::parseArgument(char* line, const char* keyword, 
+void ScriptCompiler::parseArgument(char* line, const char* keyword, 
                                            char* buffer)
 {
 	char* ptr = line + strlen(keyword);
@@ -4634,7 +4634,7 @@ PRIVATE void ScriptCompiler::parseArgument(char* line, const char* keyword,
 	strcpy(buffer, ptr);
 }
 
-PRIVATE ScriptStatement* ScriptCompiler::parseStatement(char* line)
+ScriptStatement* ScriptCompiler::parseStatement(char* line)
 {
     ScriptStatement* stmt = NULL;
 	char* keyword;
@@ -4765,7 +4765,7 @@ PRIVATE ScriptStatement* ScriptCompiler::parseStatement(char* line)
  * The line buffer is modified to insert a zero between the
  * keyword and the arguments.  Also return the start of the arguments.
  */
-PRIVATE char* ScriptCompiler::parseKeyword(char* line, char** retargs)
+char* ScriptCompiler::parseKeyword(char* line, char** retargs)
 {
 	char* keyword = NULL;
 	char* args = NULL;
@@ -4795,7 +4795,7 @@ PRIVATE char* ScriptCompiler::parseKeyword(char* line, char** retargs)
  * Parse a declaration found within a block.
  * Should eventually use this for parsing the script declarations?
  */
-PRIVATE void ScriptCompiler::parseDeclaration(const char* keyword, const char* args)
+void ScriptCompiler::parseDeclaration(const char* keyword, const char* args)
 {
     // mBlock has the containing ScriptBlock
     if (mBlock != NULL) {
@@ -4817,7 +4817,7 @@ PRIVATE void ScriptCompiler::parseDeclaration(const char* keyword, const char* a
 //
 //////////////////////////////////////////////////////////////////////
 
-PUBLIC Mobius* ScriptCompiler::getMobius()
+Mobius* ScriptCompiler::getMobius()
 {   
     return mMobius;
 }
@@ -4825,7 +4825,7 @@ PUBLIC Mobius* ScriptCompiler::getMobius()
 /**
  * Return the script currently being compiled or linked.
  */
-PUBLIC Script* ScriptCompiler::getScript()
+Script* ScriptCompiler::getScript()
 {
     return mScript;
 }
@@ -4849,7 +4849,7 @@ PUBLIC Script* ScriptCompiler::getScript()
  * 
  * Public so it may be used by the ScriptStatement constructors.
  */
-PUBLIC char* ScriptCompiler::skipToken(char* args, const char* token)
+char* ScriptCompiler::skipToken(char* args, const char* token)
 {
     char* next = NULL;
 
@@ -4877,7 +4877,7 @@ PUBLIC char* ScriptCompiler::skipToken(char* args, const char* token)
  * This is only called during the link phase for ScriptFunctionStatement
  * and I'm not sure why. 
  */
-PUBLIC ExNode* ScriptCompiler::parseExpression(ScriptStatement* stmt,
+ExNode* ScriptCompiler::parseExpression(ScriptStatement* stmt,
                                                const char* src)
 {
 	ExNode* expr = NULL;
@@ -4918,7 +4918,7 @@ PUBLIC ExNode* ScriptCompiler::parseExpression(ScriptStatement* stmt,
 /**
  * Generic syntax error callback.
  */
-PUBLIC void ScriptCompiler::syntaxError(ScriptStatement* stmt, const char* msg)
+void ScriptCompiler::syntaxError(ScriptStatement* stmt, const char* msg)
 {
     int line = mLineNumber;
     if (line <= 0) {
@@ -4963,7 +4963,7 @@ PUBLIC void ScriptCompiler::syntaxError(ScriptStatement* stmt, const char* msg)
  * may have things that are no longer configured.  In the second
  * case we must use what is in mEnv.
  */
-PUBLIC Script* ScriptCompiler::resolveScript(const char* name)
+Script* ScriptCompiler::resolveScript(const char* name)
 {
 	Script* found = NULL;
 
@@ -4979,7 +4979,7 @@ PUBLIC Script* ScriptCompiler::resolveScript(const char* name)
     return found;
 }
 
-PRIVATE Script* ScriptCompiler::resolveScript(Script* scripts, const char* name)
+Script* ScriptCompiler::resolveScript(Script* scripts, const char* name)
 {
 	Script* found = NULL;
 
@@ -5210,7 +5210,7 @@ void ScriptStack::setWaitBlock(bool b)
 /**
  * Called by ScriptForStatement to add a track to the loop.
  */
-PUBLIC void ScriptStack::addTrack(Track* t)
+void ScriptStack::addTrack(Track* t)
 {
     if (mMax < MAX_TRACKS)
       mTracks[mMax++] = t;
@@ -5219,7 +5219,7 @@ PUBLIC void ScriptStack::addTrack(Track* t)
 /**
  * Called by ScriptForStatement to advance to the next track.
  */
-PUBLIC Track* ScriptStack::nextTrack()
+Track* ScriptStack::nextTrack()
 {
     Track* next = NULL;
 
@@ -5233,12 +5233,12 @@ PUBLIC Track* ScriptStack::nextTrack()
 /**
  * Called by ScriptRepeatStatement to set the iteration count.
  */
-PUBLIC void ScriptStack::setMax(int max)
+void ScriptStack::setMax(int max)
 {
 	mMax = max;
 }
 
-PUBLIC int ScriptStack::getMax()
+int ScriptStack::getMax()
 {
 	return mMax;
 }
@@ -5247,7 +5247,7 @@ PUBLIC int ScriptStack::getMax()
  * Called by ScriptRepeatStatement to advance to the next iteration.
  * Return true if we're done.
  */
-PUBLIC bool ScriptStack::nextIndex()
+bool ScriptStack::nextIndex()
 {
 	bool done = false;
 
@@ -5266,7 +5266,7 @@ PUBLIC bool ScriptStack::nextIndex()
  * until we find a For.  Nested fors don't make much sense, but
  * a nested for/repeat might be useful.  
  */
-PUBLIC Track* ScriptStack::getTrack()
+Track* ScriptStack::getTrack()
 {
 	Track* track = NULL;
 	ScriptStack* stack = this;
@@ -5295,7 +5295,7 @@ PUBLIC Track* ScriptStack::getTrack()
  * the SwitchEvent event type will end the wait on any of them,
  * need a better way to declare this.
  */
-PUBLIC bool ScriptStack::finishWait(Function* f)
+bool ScriptStack::finishWait(Function* f)
 {
 	bool finished = false;
 
@@ -5326,7 +5326,7 @@ PUBLIC bool ScriptStack::finishWait(Function* f)
  * Return true if we found this event on the stack.  This used when
  * canceling events so we can emit some diagnostic messages.
  */
-PUBLIC bool ScriptStack::finishWait(Event* e)
+bool ScriptStack::finishWait(Event* e)
 {
 	bool finished = false;
 
@@ -5347,7 +5347,7 @@ PUBLIC bool ScriptStack::finishWait(Event* e)
  * Called as events are rescheduled into new events.
  * If we had been waiting on the old event, have to start wanting on the new.
  */
-PUBLIC bool ScriptStack::changeWait(Event* orig, Event* neu)
+bool ScriptStack::changeWait(Event* orig, Event* neu)
 {
 	bool found = false;
 
@@ -5367,7 +5367,7 @@ PUBLIC bool ScriptStack::changeWait(Event* orig, Event* neu)
 /**
  * Notify wait frames on the stack of the completion of a thread event.
  */
-PUBLIC bool ScriptStack::finishWait(ThreadEvent* e)
+bool ScriptStack::finishWait(ThreadEvent* e)
 {
 	bool finished = false;
  
@@ -5384,7 +5384,7 @@ PUBLIC bool ScriptStack::finishWait(ThreadEvent* e)
 	return finished;
 }
 
-PUBLIC void ScriptStack::finishWaitBlock()
+void ScriptStack::finishWaitBlock()
 {
 	mWaitBlock = false;
 	if (mStack != NULL)
@@ -5397,7 +5397,7 @@ PUBLIC void ScriptStack::finishWaitBlock()
  * How can there be waits on the stack?  Wait can only
  * be on the bottom most stack block, right?
  */
-PUBLIC void ScriptStack::cancelWaits()
+void ScriptStack::cancelWaits()
 {
 	if (mWaitEvent != NULL) {
         // will si->getTargetTrack always be right nere?
@@ -5435,14 +5435,14 @@ PUBLIC void ScriptStack::cancelWaits()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptUse::ScriptUse(Parameter* p)
+ScriptUse::ScriptUse(Parameter* p)
 {
     mNext = NULL;
     mParameter = p;
     mValue.setNull();
 }
 
-PUBLIC ScriptUse::~ScriptUse()
+ScriptUse::~ScriptUse()
 {
 	ScriptUse *el, *next;
 
@@ -5453,22 +5453,22 @@ PUBLIC ScriptUse::~ScriptUse()
 	}
 }
 
-PUBLIC void ScriptUse::setNext(ScriptUse* next) 
+void ScriptUse::setNext(ScriptUse* next) 
 {
     mNext = next;
 }
 
-PUBLIC ScriptUse* ScriptUse::getNext()
+ScriptUse* ScriptUse::getNext()
 {
     return mNext;
 }
 
-PUBLIC Parameter* ScriptUse::getParameter()
+Parameter* ScriptUse::getParameter()
 {
     return mParameter;
 }
 
-PUBLIC ExValue* ScriptUse::getValue()
+ExValue* ScriptUse::getValue()
 {
     return &mValue;
 }
@@ -5479,19 +5479,19 @@ PUBLIC ExValue* ScriptUse::getValue()
  *                                                                          *
  ****************************************************************************/
 
-PUBLIC ScriptInterpreter::ScriptInterpreter()
+ScriptInterpreter::ScriptInterpreter()
 {
 	init();
 }
 
-PUBLIC ScriptInterpreter::ScriptInterpreter(Mobius* m, Track* t)
+ScriptInterpreter::ScriptInterpreter(Mobius* m, Track* t)
 {
 	init();
 	mMobius = m;
 	mTrack = t;
 }
 
-PUBLIC void ScriptInterpreter::init()
+void ScriptInterpreter::init()
 {
 	mNext = NULL;
     mNumber = 0;
@@ -5520,7 +5520,7 @@ PUBLIC void ScriptInterpreter::init()
     mExport = NULL;
 }
 
-PUBLIC ScriptInterpreter::~ScriptInterpreter()
+ScriptInterpreter::~ScriptInterpreter()
 {
 	if (mStack != NULL)
 	  mStack->cancelWaits();
@@ -5534,32 +5534,32 @@ PUBLIC ScriptInterpreter::~ScriptInterpreter()
 
 }
 
-PUBLIC void ScriptInterpreter::setNext(ScriptInterpreter* si)
+void ScriptInterpreter::setNext(ScriptInterpreter* si)
 {
 	mNext = si;
 }
 
-PUBLIC ScriptInterpreter* ScriptInterpreter::getNext()
+ScriptInterpreter* ScriptInterpreter::getNext()
 {
 	return mNext;
 }
 
-PUBLIC void ScriptInterpreter::setNumber(int n) 
+void ScriptInterpreter::setNumber(int n) 
 {
     mNumber = n;
 }
 
-PUBLIC int ScriptInterpreter::getNumber()
+int ScriptInterpreter::getNumber()
 {
 	return mNumber;
 }
 
-PUBLIC void ScriptInterpreter::setMobius(Mobius* m)
+void ScriptInterpreter::setMobius(Mobius* m)
 {
 	mMobius = m;
 }
 
-PUBLIC Mobius* ScriptInterpreter::getMobius()
+Mobius* ScriptInterpreter::getMobius()
 {
 	return mMobius;
 }
@@ -5572,7 +5572,7 @@ PUBLIC Mobius* ScriptInterpreter::getMobius()
  * These won't have a ResolvedTarget since we've already
  * got the Parameter and we're calling it directly.
  */
-PUBLIC Action* ScriptInterpreter::getAction()
+Action* ScriptInterpreter::getAction()
 {
     if (mAction == NULL) {
         mAction = mMobius->newAction();
@@ -5595,7 +5595,7 @@ PUBLIC Action* ScriptInterpreter::getAction()
  * have a ResolvedTarget since we've already got the
  * Parameter and will be using that directly.
  */
-PUBLIC Export* ScriptInterpreter::getExport()
+Export* ScriptInterpreter::getExport()
 {
     if (mExport == NULL) {
         mExport = new Export(mMobius);
@@ -5607,7 +5607,7 @@ PUBLIC Export* ScriptInterpreter::getExport()
  * Find a suitable name to include in trace messages so we have
  * some idea of what script we're dealing with.
  */
-PUBLIC const char* ScriptInterpreter::getTraceName()
+const char* ScriptInterpreter::getTraceName()
 {
     if (mTraceName[0] == 0) {
         const char* name = "???";
@@ -5622,17 +5622,17 @@ PUBLIC const char* ScriptInterpreter::getTraceName()
     return mTraceName;
 }
 
-PUBLIC void ScriptInterpreter::setTrack(Track* m)
+void ScriptInterpreter::setTrack(Track* m)
 {
 	mTrack = m;
 }
 
-PUBLIC Track* ScriptInterpreter::getTrack()
+Track* ScriptInterpreter::getTrack()
 {
 	return mTrack;
 }
 
-PUBLIC Track* ScriptInterpreter::getTargetTrack()
+Track* ScriptInterpreter::getTargetTrack()
 {
 	Track* target = mTrack;
 	if (mStack != NULL) {
@@ -5648,72 +5648,72 @@ ScriptStack* ScriptInterpreter::getStack()
     return mStack;
 }
 
-PUBLIC bool ScriptInterpreter::isPostLatency()
+bool ScriptInterpreter::isPostLatency()
 {
 	return mPostLatency;
 }
 
-PUBLIC void ScriptInterpreter::setPostLatency(bool b)
+void ScriptInterpreter::setPostLatency(bool b)
 {
 	mPostLatency = b;
 }
 
-PUBLIC int ScriptInterpreter::getSustainedMsecs()
+int ScriptInterpreter::getSustainedMsecs()
 {
 	return mSustainedMsecs;
 }
 
-PUBLIC void ScriptInterpreter::setSustainedMsecs(int c)
+void ScriptInterpreter::setSustainedMsecs(int c)
 {
 	mSustainedMsecs = c;
 }
 
-PUBLIC int ScriptInterpreter::getSustainCount()
+int ScriptInterpreter::getSustainCount()
 {
 	return mSustainCount;
 }
 
-PUBLIC void ScriptInterpreter::setSustainCount(int c)
+void ScriptInterpreter::setSustainCount(int c)
 {
 	mSustainCount = c;
 }
 
-PUBLIC bool ScriptInterpreter::isSustaining()
+bool ScriptInterpreter::isSustaining()
 {
 	return mSustaining;
 }
 
-PUBLIC void ScriptInterpreter::setSustaining(bool b)
+void ScriptInterpreter::setSustaining(bool b)
 {
 	mSustaining = b;
 }
 
-PUBLIC int ScriptInterpreter::getClickedMsecs()
+int ScriptInterpreter::getClickedMsecs()
 {
 	return mClickedMsecs;
 }
 
-PUBLIC void ScriptInterpreter::setClickedMsecs(int c)
+void ScriptInterpreter::setClickedMsecs(int c)
 {
 	mClickedMsecs = c;
 }
 
-PUBLIC int ScriptInterpreter::getClickCount()
+int ScriptInterpreter::getClickCount()
 {
 	return mClickCount;
 }
 
-PUBLIC void ScriptInterpreter::setClickCount(int c)
+void ScriptInterpreter::setClickCount(int c)
 {
 	mClickCount = c;
 }
 
-PUBLIC bool ScriptInterpreter::isClicking()
+bool ScriptInterpreter::isClicking()
 {
 	return mClicking;
 }
 
-PUBLIC void ScriptInterpreter::setClicking(bool b)
+void ScriptInterpreter::setClicking(bool b)
 {
 	mClicking = b;
 }
@@ -5724,7 +5724,7 @@ PUBLIC void ScriptInterpreter::setClicking(bool b)
  *
  * TODO: Should we just clone the whole damn action?
  */
-PUBLIC void ScriptInterpreter::setTrigger(Action* action)
+void ScriptInterpreter::setTrigger(Action* action)
 {
     if (action == NULL) {
         mTrigger = NULL;
@@ -5740,32 +5740,32 @@ PUBLIC void ScriptInterpreter::setTrigger(Action* action)
     }
 }
 
-PUBLIC Trigger* ScriptInterpreter::getTrigger()
+Trigger* ScriptInterpreter::getTrigger()
 {
     return mTrigger;
 }
 
-PUBLIC int ScriptInterpreter::getTriggerId()
+int ScriptInterpreter::getTriggerId()
 {
     return mTriggerId;
 }
 
-PUBLIC int ScriptInterpreter::getTriggerValue()
+int ScriptInterpreter::getTriggerValue()
 {
     return mTriggerValue;
 }
 
-PUBLIC int ScriptInterpreter::getTriggerOffset()
+int ScriptInterpreter::getTriggerOffset()
 {
     return mTriggerOffset;
 }
 
-PUBLIC bool ScriptInterpreter::isTriggerEqual(Action* action)
+bool ScriptInterpreter::isTriggerEqual(Action* action)
 {
     return (action->trigger == mTrigger && action->id == mTriggerId);
 }
 
-PUBLIC void ScriptInterpreter::reset()
+void ScriptInterpreter::reset()
 {
 	mStatement = NULL;
     mTrigger = NULL;
@@ -5794,7 +5794,7 @@ PUBLIC void ScriptInterpreter::reset()
     restoreUses();
 }
 
-PUBLIC void ScriptInterpreter::setScript(Script* s, bool inuse)
+void ScriptInterpreter::setScript(Script* s, bool inuse)
 {
 	reset();
 	mScript = s;
@@ -5828,7 +5828,7 @@ Script* ScriptInterpreter::getScript()
 	return (stackScript != NULL) ? stackScript : mScript;
 }
 
-PUBLIC bool ScriptInterpreter::isFinished()
+bool ScriptInterpreter::isFinished()
 {
 	return (mStatement == NULL && !mSustaining && !mClicking);
 }
@@ -5836,12 +5836,12 @@ PUBLIC bool ScriptInterpreter::isFinished()
 /**
  * Return code accessor for the "returnCode" script variable.
  */
-PUBLIC int ScriptInterpreter::getReturnCode()
+int ScriptInterpreter::getReturnCode()
 {
 	return mReturnCode;
 }
 
-PUBLIC void ScriptInterpreter::setReturnCode(int i) 
+void ScriptInterpreter::setReturnCode(int i) 
 {
 	mReturnCode = i;
 }
@@ -5849,7 +5849,7 @@ PUBLIC void ScriptInterpreter::setReturnCode(int i)
 /**
  * Add a use rememberance.  Only do this once.
  */
-PUBLIC void ScriptInterpreter::use(Parameter* p)
+void ScriptInterpreter::use(Parameter* p)
 {
     ScriptUse* found = NULL;
 
@@ -5872,7 +5872,7 @@ PUBLIC void ScriptInterpreter::use(Parameter* p)
 /**
  * Restore the uses when the script ends.
  */
-PRIVATE void ScriptInterpreter::restoreUses()
+void ScriptInterpreter::restoreUses()
 {
     for (ScriptUse* use = mUses ; use != NULL ; use = use->getNext()) {
 
@@ -5914,7 +5914,7 @@ PRIVATE void ScriptInterpreter::restoreUses()
 /**
  * Get the value of a parameter.
  */
-PUBLIC void ScriptInterpreter::getParameter(Parameter* p, ExValue* value)
+void ScriptInterpreter::getParameter(Parameter* p, ExValue* value)
 {
     Export* exp = getExport();
 
@@ -5957,7 +5957,7 @@ PUBLIC void ScriptInterpreter::getParameter(Parameter* p, ExValue* value)
  * way, would be nice to have something like "Wait Switch any"
  * 
  */
-PUBLIC void ScriptInterpreter::resume(Function* func)
+void ScriptInterpreter::resume(Function* func)
 {
 	// if we have no stack, then can't be waiting
 	if (mStack != NULL) {
@@ -5974,7 +5974,7 @@ PUBLIC void ScriptInterpreter::resume(Function* func)
  * Note we don't run here since we're not in the audio interrupt thread.
  * Just remove the reference, the script will advance on the next interrupt.
  */
-PUBLIC void ScriptInterpreter::finishEvent(ThreadEvent* te)
+void ScriptInterpreter::finishEvent(ThreadEvent* te)
 {
 	bool ours = false;
 
@@ -6063,7 +6063,7 @@ void ScriptInterpreter::scriptEvent(Loop* l, Event* event)
  * If there was a Wait for the placeholder event, switch the wait event
  * to the new event.
  */
-PUBLIC void ScriptInterpreter::rescheduleEvent(Event* src, Event* neu)
+void ScriptInterpreter::rescheduleEvent(Event* src, Event* neu)
 {
 	if (neu != NULL) {
 
@@ -6086,7 +6086,7 @@ PUBLIC void ScriptInterpreter::rescheduleEvent(Event* src, Event* neu)
  * Factored out so we can tell if we're exactly at the start of a block,
  * or picking up in the middle.
  */
-PUBLIC void ScriptInterpreter::run()
+void ScriptInterpreter::run()
 {
 	run(true);
 }
@@ -6103,7 +6103,7 @@ PUBLIC void ScriptInterpreter::run()
  * is a Wait statement in the loop, you will suspend in that track
  * waiting for the continuation event.
  */
-PRIVATE void ScriptInterpreter::run(bool block)
+void ScriptInterpreter::run(bool block)
 {
 	if (block && mStack != NULL)
 	  mStack->finishWaitBlock();
@@ -6155,7 +6155,7 @@ PRIVATE void ScriptInterpreter::run(bool block)
  * If there is a wait frame on the top of the stack, and all the
  * wait conditions have been satisfied, remove it.
  */
-PRIVATE void ScriptInterpreter::checkWait()
+void ScriptInterpreter::checkWait()
 {
 	if (isWaiting()) {
 		if (mStack->getWaitFunction() == NULL &&
@@ -6175,7 +6175,7 @@ PRIVATE void ScriptInterpreter::checkWait()
 /**
  * Advance to the next ScriptStatement, popping the stack if necessary.
  */
-PRIVATE void ScriptInterpreter::advance()
+void ScriptInterpreter::advance()
 {
 	if (mStatement != NULL) {
 
@@ -6197,7 +6197,7 @@ PRIVATE void ScriptInterpreter::advance()
  * function that was performed outside the script.  Will want a way
  * to control this using script directives?
  */
-PUBLIC void ScriptInterpreter::stop()
+void ScriptInterpreter::stop()
 {
     // will also restore uses...
 	reset();
@@ -6208,7 +6208,7 @@ PUBLIC void ScriptInterpreter::stop()
  * Jump to a notification label.
  * These must happen while the interpreter is not running!
  */
-PUBLIC void ScriptInterpreter::notify(ScriptStatement* s)
+void ScriptInterpreter::notify(ScriptStatement* s)
 {
 	if (s == NULL)
 	  Trace(1, "Script %s: ScriptInterpreter::notify called without a statement!\n",
@@ -6240,12 +6240,12 @@ PUBLIC void ScriptInterpreter::notify(ScriptStatement* s)
  * If we're in an async notification return false so we can proceed
  * evaluating the notification block, leaving the waits in place.
  */
-PUBLIC bool ScriptInterpreter::isWaiting()
+bool ScriptInterpreter::isWaiting()
 {
 	return (mStack != NULL && mStack->getWait() != NULL);
 }
 
-PUBLIC UserVariables* ScriptInterpreter::getVariables()
+UserVariables* ScriptInterpreter::getVariables()
 {
     if (mVariables == NULL)
       mVariables = new UserVariables();
@@ -6258,7 +6258,7 @@ PUBLIC UserVariables* ScriptInterpreter::getVariables()
  * may be notified when the event has been processed.
  *
  */
-PUBLIC void ScriptInterpreter::scheduleThreadEvent(ThreadEvent* e)
+void ScriptInterpreter::scheduleThreadEvent(ThreadEvent* e)
 {
 	// this is now the "last" thing we can wait for
 	// do this before passing to the thread so we can get notified
@@ -6273,7 +6273,7 @@ PUBLIC void ScriptInterpreter::scheduleThreadEvent(ThreadEvent* e)
  * Since events may not be scheduled, be careful not to trash state
  * left behind by earlier functions.
  */
-PUBLIC void ScriptInterpreter::setLastEvents(Action* a)
+void ScriptInterpreter::setLastEvents(Action* a)
 {
 	if (a->getEvent() != NULL) {
 		mLastEvent = a->getEvent();
@@ -6294,7 +6294,7 @@ PUBLIC void ScriptInterpreter::setLastEvents(Action* a)
  * Completion is determined by waiting for either the Event or
  * ThreadEvent that was scheduled by the last function.
  */
-PUBLIC void ScriptInterpreter::setupWaitLast(ScriptStatement* src)
+void ScriptInterpreter::setupWaitLast(ScriptStatement* src)
 {
 	if (mLastEvent != NULL) {
 		ScriptStack* frame = pushStackWait(src);
@@ -6309,7 +6309,7 @@ PUBLIC void ScriptInterpreter::setupWaitLast(ScriptStatement* src)
 	}
 }
 
-PUBLIC void ScriptInterpreter::setupWaitThread(ScriptStatement* src)
+void ScriptInterpreter::setupWaitThread(ScriptStatement* src)
 {
 	if (mLastThreadEvent != NULL) {
 		ScriptStack* frame = pushStackWait(src);
@@ -6327,7 +6327,7 @@ PUBLIC void ScriptInterpreter::setupWaitThread(ScriptStatement* src)
 /**
  * Allocate a stack frame, from the pool if possible.
  */
-PRIVATE ScriptStack* ScriptInterpreter::allocStack()
+ScriptStack* ScriptInterpreter::allocStack()
 {
     ScriptStack* s = NULL;
     if (mStackPool == NULL)
@@ -6472,7 +6472,7 @@ ScriptStatement* ScriptInterpreter::popStack()
  * Recurse up the stack until we see a frame for a CallStatement,
  * then select the argument that was evaluated when the frame was pushed.
  */
-PUBLIC void ScriptInterpreter::getStackArg(int index, ExValue* value)
+void ScriptInterpreter::getStackArg(int index, ExValue* value)
 {
 	value->setNull();
 
@@ -6482,7 +6482,7 @@ PUBLIC void ScriptInterpreter::getStackArg(int index, ExValue* value)
 /**
  * Inner recursive stack walker looking for args.
  */
-PRIVATE void ScriptInterpreter::getStackArg(ScriptStack* stack,
+void ScriptInterpreter::getStackArg(ScriptStack* stack,
                                             int index, ExValue* value)
 {
     if (stack != NULL && index >= 1 && index <= MAX_ARGS) {
@@ -6571,7 +6571,7 @@ void ScriptInterpreter::expandFile(const char* value, ExValue* retval)
  * References to variables may look like $foo or $(foo) depending
  * on whether you have surrounding content that requries the () delimiters.
  */
-PRIVATE void ScriptInterpreter::expand(const char* value, ExValue* retval)
+void ScriptInterpreter::expand(const char* value, ExValue* retval)
 {
     int len = (value != NULL) ? strlen(value) : 0;
 	char* buffer = retval->getBuffer();
@@ -6683,7 +6683,7 @@ const char* InterpreterVariables[] = {
  * with how ScriptArguments are resolved?
  * 
  */
-PUBLIC ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
+ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
 {
 	ExResolver* resolver = NULL;
 	const char* name = symbol->getName();
@@ -6752,7 +6752,7 @@ PUBLIC ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
  * !! Consider doing resolver assignment up front for consistency
  * with how ScriptArguments are resolved?
  */
-PUBLIC ExResolver* ScriptInterpreter::getExResolver(ExFunction* function)
+ExResolver* ScriptInterpreter::getExResolver(ExFunction* function)
 {
 	return NULL;
 }
