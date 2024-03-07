@@ -34,7 +34,7 @@ class ActionDispatcher {
     void doUIControl(Action* a);
 
     class Mobius* mMobius;
-    class CriticalSection* mCsect;
+//    class CriticalSection* mCsect;
     class ScriptRuntime* mScripts;
     class TriggerState* mTriggerState;
     class Action *mActions;

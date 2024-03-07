@@ -31,7 +31,7 @@
 #include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-//#include "Messages.h"
+#include "Messages.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
 #include "Mode.h"
@@ -297,6 +297,7 @@ void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
 /**
  * Emit the XML attribute for a parameter.
  */
+#if 0
 void Parameter::toXml(XmlBuffer* b, void* obj)
 {
 	ExValue value;
@@ -357,6 +358,7 @@ void Parameter::parseXml(XmlElement* e, void* obj)
         setObjectValue(obj, &v);
     }
 }
+#endiif
 
 //////////////////////////////////////////////////////////////////////
 //

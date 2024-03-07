@@ -26,7 +26,7 @@ class ProjectSegment {
 
     ProjectSegment();
     ProjectSegment(class MobiusConfig* config, class Segment* src);
-    ProjectSegment(XmlElement* e);
+    ProjectSegment(class XmlElement* e);
     ~ProjectSegment();
 
 	void setOffset(long i);
@@ -44,8 +44,8 @@ class ProjectSegment {
 	void setFeedback(int i);
 	int getFeedback();
 
-	void toXml(XmlBuffer* b);
-	void parseXml(XmlElement* e);
+	void toXml(class XmlBuffer* b);
+	void parseXml(class XmlElement* e);
 
 	void setLocalCopyLeft(long frames);
 	long getLocalCopyLeft();
@@ -74,7 +74,7 @@ class ProjectLayer {
   public:
 
     ProjectLayer();
-    ProjectLayer(XmlElement* e);
+    ProjectLayer(class XmlElement* e);
     ProjectLayer(class MobiusConfig* config, class Project* p, class Layer* src);
     ProjectLayer(Audio* src);
     ~ProjectLayer();
@@ -106,8 +106,8 @@ class ProjectLayer {
 
 	void writeAudio(const char* baseName, int tracknum, int loopnum, 
 					int layernum);
-	void toXml(XmlBuffer* b);
-	void parseXml(XmlElement* e);
+	void toXml(class XmlBuffer* b);
+	void parseXml(class XmlElement* e);
 
 	void setDeferredFadeLeft(bool b);
 	bool isDeferredFadeLeft();
@@ -169,7 +169,7 @@ class ProjectLoop {
   public:
 
 	ProjectLoop();
-	ProjectLoop(XmlElement* e);
+	ProjectLoop(class XmlElement* e);
 	ProjectLoop(class MobiusConfig* config, class Project* proj, 
 				class Loop* loop);
 	~ProjectLoop();
@@ -190,8 +190,8 @@ class ProjectLoop {
 	bool isActive();
 
 	void writeAudio(const char* baseName, int tracknum, int loopnum);
-	void toXml(XmlBuffer* b);
-	void parseXml(XmlElement* e);
+	void toXml(class XmlBuffer* b);
+	void parseXml(class XmlElement* e);
 
   private:
 
@@ -229,7 +229,7 @@ class ProjectTrack {
   public:
 
 	ProjectTrack();
-	ProjectTrack(XmlElement* e);
+	ProjectTrack(class XmlElement* e);
 	ProjectTrack(class MobiusConfig* config, class Project* proj, 
 				 class Track* track);
 	~ProjectTrack();
@@ -302,9 +302,9 @@ class ProjectTrack {
 	void resolveLayers(Project* p);
 
 	void writeAudio(const char* baseName, int tracknum);
-	void toXml(XmlBuffer* b);
-	void toXml(XmlBuffer* b, bool isTemplate);
-	void parseXml(XmlElement* e);
+	void toXml(class XmlBuffer* b);
+	void toXml(class XmlBuffer* b, bool isTemplate);
+	void parseXml(class XmlElement* e);
 
 
   private:
@@ -380,7 +380,7 @@ class Project {
   public:
 
 	Project();
-	Project(XmlElement* e);
+	Project(class XmlElement* e);
 	Project(const char* file);
 	Project(Audio* a, int trackNumber, int loopNumber);
 	~Project();
@@ -445,9 +445,9 @@ class Project {
 
     void deleteAudioFiles();
 
-	void toXml(XmlBuffer* b);
-	void toXml(XmlBuffer* b, bool isTemplate);
-	void parseXml(XmlElement* e);
+	void toXml(class XmlBuffer* b);
+	void toXml(class XmlBuffer* b, bool isTemplate);
+	void parseXml(class XmlElement* e);
 
   private:
 

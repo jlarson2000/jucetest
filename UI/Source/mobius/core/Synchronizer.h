@@ -150,7 +150,7 @@ class Synchronizer {
 
     class SyncTracker* getSyncTracker(Track* t);
 	long getMidiSongClock(SyncSource src);
-	void getState(class TrackState* state, class Track* t);
+	void getState(class MobiusTrackState* state, class Track* t);
 
     //
     // Record scheduling

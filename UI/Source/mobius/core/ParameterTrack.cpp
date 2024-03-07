@@ -1,4 +1,6 @@
-
+/*
+ * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
+ * All rights reserved.
  * See the LICENSE file for the full copyright and license declaration.
  * 
  * ---------------------------------------------------------------------
@@ -31,13 +33,13 @@
 #include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-//#include "Messages.h"
+#include "Messages.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
 #include "Mode.h"
 #include "Project.h"
 //#include "Recorder.h"
-#include "../../.model/Setup.h"
+#include "../../model/Setup.h"
 #include "Track.h"
 #include "Resampler.h"
 #include "Script.h"
@@ -1233,7 +1235,7 @@ void TrackPresetParameterType::setValue(SetupTrack* t, ExValue* value)
 int TrackPresetParameterType::getOrdinalValue(Track* t)
 {
     Preset* p = t->getPreset();
-    return p->getNumber();
+    return p->ordinal;
 }
 
 void TrackPresetParameterType::getValue(Track* t, ExValue* value)
@@ -1252,7 +1254,6 @@ void TrackPresetParameterType::getValue(Track* t, ExValue* value)
 
     MobiusConfig* iconfig = t->getMobius()->getConfiguration();
     Preset* p = t->getPreset();
-    p = iconfig->getPreset(p->getNumber());
     if (p != NULL) 
       name = p->getName();
     else {
@@ -1290,12 +1291,12 @@ void TrackPresetParameterType::setValue(Action* action)
             // we'll always be in a script?
             // We should be doing this with Actions now rather than
             // yet another type of pending
-            t->setPendingPreset(preset->getNumber());
+            t->setPendingPreset(preset->ordinal);
         }
         else {
             // do it immediately so the reset of the script sees it
             // !! should be getting this from the interrupt config?
-            t->setPreset(preset->getNumber());
+            t->setPreset(preset->ordinal);
         }
 	}
 }
@@ -1382,7 +1383,7 @@ void TrackPresetNumberParameterType::setValue(SetupTrack* t, ExValue* value)
 
 void TrackPresetNumberParameterType::getValue(Track* t, ExValue* value)
 {
-	value->setInt(t->getPreset()->getNumber());
+	value->setInt(t->getPreset()->ordinal);
 }
 
 void TrackPresetNumberParameterType::setValue(Action* action)

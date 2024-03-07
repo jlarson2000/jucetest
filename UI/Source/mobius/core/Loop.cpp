@@ -65,6 +65,9 @@
 #include "Track.h"
 #include "WatchPoint.h"
 
+// for TriggerModeOnce
+#include "OldBinding.h"
+
 #include "Loop.h"
 
 // in Track.cpp
@@ -1086,7 +1089,9 @@ long Loop::reflectFrame(long frame)
  * is being applied so they can be colored differently in the loop list.
  * Would be better to return the values and let the UI decide what to draw.
  */
-void Loop::getSummary(LoopSummary* s, bool active)
+// no longer have LoopSummary, forgot why
+#if 0
+void Loop::getSummary(MobiusLoopSummary* s, bool active)
 {
 	s->frames = getFrames();
 	s->cycles = getCycles();
@@ -1128,6 +1133,7 @@ void Loop::getSummary(LoopSummary* s, bool active)
 
 	}
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -5741,8 +5747,8 @@ void Loop::trackEvent(Event* e)
             a->inInterrupt = true;
             a->setFunction(Record);
             a->setResolvedTrack(next);
-            a->trigger = TriggerEvent;
-            a->triggerMode = TriggerModeOnce;
+            a->trigger = OldTriggerEvent;
+            a->triggerMode = OldTriggerModeOnce;
             a->noLatency = e->fields.trackSwitch.latencyDelay;
 
             // might want control over this?

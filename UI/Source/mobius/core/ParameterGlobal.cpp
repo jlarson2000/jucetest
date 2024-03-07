@@ -40,7 +40,7 @@
 #include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-//#include "Messages.h"
+#include "Messages.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
 #include "Mode.h"
@@ -265,8 +265,9 @@ void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
     else 
       setup = GetSetup(c, value->getString());
 
+    // !! allocates memory
     if (setup != NULL)
-      c->setCurrentSetup(setup);
+      c->setActiveSetup(setup->getName());
 }
 
 /**
@@ -298,7 +299,9 @@ void SetupNameParameterType::setValue(Action* action)
             // in theory we could be cloning this config at the same time
             // while opening the setup window but worse case it just gets
             // the wrong selection.
-            config->setCurrentSetup(setup);
+
+            // !! allocates memory
+            config->setActiveSetup(setup->getName());
 
             // then set the one we're actually using internally
             // we're always inside the interrupt at this point
@@ -1464,7 +1467,10 @@ void IntegerWaveFileParameterType::setValue(Action* action)
     MobiusConfig* config = m->getConfiguration();
 	config->setIntegerWaveFile(isInt);
 
-    Audio::setWriteFormatPCM(isInt);
+    // this shouldn't be a parameter and we should be dealing with
+    // files at a higher level
+    Trace(1, "IntegerWaveFileParameterType: setWriteFormat!\n");
+    //Audio::setWriteFormatPCM(isInt);
 }
 
 Parameter* IntegerWaveFileParameter = new IntegerWaveFileParameterType();

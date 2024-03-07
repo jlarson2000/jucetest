@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "../../../util/Util.h"
+#include "../../../model/Preset.h"
 
 #include "../Action.h"
 #include "../Event.h"
@@ -31,11 +32,15 @@
 #include "../Mobius.h"
 #include "../Mode.h"
 #include "../Messages.h"
-#include "../Preset.h"
 #include "../Segment.h"
 #include "../Stream.h"
 #include "../Synchronizer.h"
 #include "../Track.h"
+
+// only for CD_SAMPLE_RATE which is used by MSEC_TO_FRAMES
+#include "../AudioInterface.h"
+
+
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -31,3 +31,12 @@ extern class ModeDefinition* MapMode(class MobiusMode* mode);
 
 // replacement for Parameter::getBindingHigh(MobiusInterface)
 extern int GetBindingHigh(class Parameter* p, class Mobius* m);
+// replacement for MobiusInterface
+extern void GetOrdinalLabel(class Parameter* p, class Mobius* m, int ordinal, class ExValue* value);
+// MobiusInterface
+extern int GetHigh(class Parameter* p, class Mobius* m);
+
+extern void SetActiveSetup(class MobiusConfig* config, int number);
+
+extern void SleepMillis(int);
+    

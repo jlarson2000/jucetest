@@ -604,7 +604,7 @@ Event* Function::invoke(Action* action, Loop* loop)
 			// Will need a flag in the script that says whether to perform
 			// quantize escaping or not and test it here
 
-			if (prev != NULL && !sus && action->trigger != TriggerScript) {
+			if (prev != NULL && !sus && action->trigger != OldTriggerScript) {
 
 				// an event was already posted, treat the second invocation
 				// as a "double click" and process the event immediately

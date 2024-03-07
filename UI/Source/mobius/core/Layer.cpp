@@ -1762,6 +1762,8 @@ void Layer::fadeRight(bool foreground, bool background, float baseLevel)
  */
 void Layer::saveRegion(long startFrame, long frames, const char* name)
 {
+    Trace(1, "Layer::saveRegion  files not supported!\n");
+#if 0    
 	long samples = frames * mAudio->getChannels();
 	float* buffer = new float[samples];
 	Audio* a = mAudioPool->newAudio();
@@ -1773,6 +1775,7 @@ void Layer::saveRegion(long startFrame, long frames, const char* name)
 
 	delete buffer;
 	delete a;
+#endif    
 }
 
 /**
@@ -2651,8 +2654,11 @@ void Layer::copy(Layer* src)
  */
 void Layer::save(const char* file) 
 {
+    Trace(1, "Layer::save you can't do files from here!\n");
+#if 0    
 	if (mAudio != NULL)
 	  mAudio->write(file);
+#endif    
 }
 
 /****************************************************************************

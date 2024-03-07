@@ -47,4 +47,11 @@ Mobius::newAction
 
 Track::copyPreset
 
+SetupNameParameterType
+  setCurrentSetup
+  now setActiveSetup
+  allocates a new name with CopyString
+  not really a reason this has to be a string, could use ordinal
+  except it looks obscure in XML
+  also SetupNumberParameterType
 

@@ -289,6 +289,7 @@
     <ClCompile Include="..\..\Source\mobius\core\SyncState.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\SyncTracker.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Track.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\TriggerState.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Variable.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\WatchPoint.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp"/>
@@ -2686,6 +2687,7 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiEvent.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiExporter.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiInterface.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\MidiListener.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiQueue.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiTransport.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiUtil.h"/>
@@ -2707,6 +2709,7 @@
     <ClInclude Include="..\..\Source\mobius\core\SyncState.h"/>
     <ClInclude Include="..\..\Source\mobius\core\SyncTracker.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Track.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\TriggerState.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Variable.h"/>
     <ClInclude Include="..\..\Source\mobius\core\WatchPoint.h"/>
     <ClInclude Include="..\..\Source\mobius\Audio.h"/>

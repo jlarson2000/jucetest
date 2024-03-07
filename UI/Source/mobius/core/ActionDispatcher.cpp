@@ -9,6 +9,9 @@
  *
  */
 
+#include "Mapper.h"
+
+
 #include "Action.h"
 #include "Export.h"
 #include "Mobius.h"
@@ -31,7 +34,7 @@ ActionDispatcher::ActionDispatcher(Mobius* m, CriticalSection* csect,
                                           ScriptRuntime* scripts)
 {
     mMobius = m;
-    mCsect = csect;
+    //mCsect = csect;
     mScripts = scripts;
     mTriggerState = new TriggerState();
     mActions = NULL;
@@ -79,19 +82,19 @@ void ActionDispatcher::doAction(Action* a)
     // we can let these set controls and maybe parameters
     // but
 
-    Target* target = a->getTarget();
+    OldTarget* target = a->getTarget();
 
     if (a->isRegistered()) {
         // have to clone these to do them...error in the UI
         Trace(1, "Attempt to execute a registered action!\n");
         ignore = true;
     }
-    else if (a->repeat && a->triggerMode != TriggerModeContinuous) {
+    else if (a->repeat && a->triggerMode != OldTriggerModeContinuous) {
         Trace(3, "Ignoring auto-repeat action\n");
         ignore = true;
     }
     else if (a->isSustainable() && !a->down && 
-             target != TargetFunction && target != TargetUIControl) {
+             target != OldTargetFunction && target != OldTargetUIControl) {
         // Currently functions and UIControls are the only things that support 
         // up transitions.  UIControls are messy, generalize this to 
         // be more like a parameter with trigger properties.
@@ -109,13 +112,13 @@ void ActionDispatcher::doAction(Action* a)
         // need to test this
         doActionNow(a);
     }
-    else if (a->trigger == TriggerScript ||
-             a->trigger == TriggerEvent ||
+    else if (a->trigger == OldTriggerScript ||
+             a->trigger == OldTriggerEvent ||
              // !! can't we use this reliably and not worry about trigger?
              a->inInterrupt ||
-             target == TargetUIControl ||
-             target == TargetUIConfig ||
-             target == TargetBindings) {
+             target == OldTargetUIControl ||
+             target == OldTargetUIConfig ||
+             target == OldTargetBindings) {
 
         // Script and Event triggers are in the interrupt
         // The UI targets don't have restrictions on when they can change.
@@ -123,7 +126,7 @@ void ActionDispatcher::doAction(Action* a)
 
         doActionNow(a);
     }
-    else if (target == TargetFunction) {
+    else if (target == OldTargetFunction) {
 
         Function* f = (Function*)a->getTargetObject();
         if (f == NULL) {
@@ -154,7 +157,7 @@ void ActionDispatcher::doAction(Action* a)
         else
           defer = true;
     }
-    else if (target == TargetParameter) {
+    else if (target == OldTargetParameter) {
         // TODO: Many parameters are safe to set outside
         // defrering may cause UI flicker if the change
         // doesn't happen right away and we immediately do a refresh
@@ -171,13 +174,13 @@ void ActionDispatcher::doAction(Action* a)
         // pre 2.0 we used a ring buffer in Track for this that
         // didn't require a csect, consider resurecting that?
         // !! should have a maximum on this list?
-        mCsect->enter("doAction");
+        //mCsect->enter("doAction");
         if (mLastAction == NULL)
           mActions = a;
         else 
           mLastAction->setNext(a);
         mLastAction = a;
-        mCsect->leave("doAction");
+        //mCsect->leave("doAction");
     }
     else if (!a->isRegistered()) {
         mMobius->completeAction(a);
@@ -197,11 +200,11 @@ void ActionDispatcher::startInterrupt(long frames)
     // actions to fire.
     mTriggerState->advance(mMobius, frames);
 
-    mCsect->enter("doAction");
+    //mCsect->enter("doAction");
     actions = mActions;
     mActions = NULL;
     mLastAction = NULL;
-    mCsect->leave("doAction");
+    //mCsect->leave("doAction");
 
     for (Action* action = actions ; action != NULL ; action = next) {
         next = action->getNext();
@@ -247,7 +250,7 @@ void ActionDispatcher::startInterrupt(long frames)
  */
 void ActionDispatcher::doActionNow(Action* a)
 {
-    Target* t = a->getTarget();
+    OldTarget* t = a->getTarget();
 
     // not always set if comming from the outside
     a->mobius = mMobius;
@@ -255,28 +258,28 @@ void ActionDispatcher::doActionNow(Action* a)
     if (t == NULL) {
         Trace(1, "Action with no target!\n");
     }
-    else if (t == TargetFunction) {
+    else if (t == OldTargetFunction) {
         doFunction(a);
     }
-    else if (t == TargetParameter) {
+    else if (t == OldTargetParameter) {
         doParameter(a);
     }
-    else if (t == TargetUIControl) {
+    else if (t == OldTargetUIControl) {
         doUIControl(a);
     }
-    else if (t == TargetScript) {
+    else if (t == OldTargetScript) {
         mScripts->doScriptNotification(a);
     }
-    else if (t == TargetPreset) {
+    else if (t == OldTargetPreset) {
         doPreset(a);
     }
-    else if (t == TargetSetup) {
+    else if (t == OldTargetSetup) {
         doSetup(a);
     }
-    else if (t == TargetBindings) {
+    else if (t == OldTargetBindings) {
         doBindings(a);
     }
-    else if (t == TargetUIConfig) {
+    else if (t == OldTargetUIConfig) {
         // not supported yet, there is only one UIConfig
         Trace(1, "UIConfig action not supported\n");
     }
@@ -307,7 +310,8 @@ void ActionDispatcher::doPreset(Action* a)
         if (number < 0)
           Trace(1, "Missing action Preset\n");
         else {
-            p = mMobius->getConfiguration()->getPreset(number);
+            //p = mMobius->getConfiguration()->getPreset(number);
+            p = GetPreset(mMobius->getConfiguration(), number);
             if (p == NULL) 
               Trace(1, "Invalid preset number: %ld\n", (long)number);
         }
@@ -371,7 +375,8 @@ void ActionDispatcher::doSetup(Action* a)
         if (number < 0)
           Trace(1, "Missing action Setup\n");
         else {
-            s = mMobius->getConfiguration()->getSetup(number);
+            //s = mMobius->getConfiguration()->getSetup(number);
+            s = GetSetup(mMobius->getConfiguration(), number);
             if (s == NULL) 
               Trace(1, "Invalid setup number: %ld\n", (long)number);
         }
@@ -383,9 +388,10 @@ void ActionDispatcher::doSetup(Action* a)
         Trace(2, "Setup action: %ld\n", (long)number);
 
         // This is messy, the resolved target will
-        // point to an object from the external config but we have 
+        // point to an object from the external config but we have
         // to set one from the interrupt config by number
-        mMobius->getConfiguration()->setCurrentSetup(number);
+        // mMobius->getConfiguration()->setCurrentSetup(number);
+        SetActiveSetup(mMobius->getConfiguration(), number);
         mMobius->setSetupInternal(number);
 
         // special operator just for setups to cause it to be saved
@@ -407,6 +413,8 @@ void ActionDispatcher::doSetup(Action* a)
  */
 void ActionDispatcher::doBindings(Action* a)
 {
+    // don't have BindingConfig any more
+#if 0    
     // If we're here from a Binding should have resolved
     OldBindingConfig* bc = (OldBindingConfig*)a->getTargetObject();
     if (bc == NULL) {
@@ -429,6 +437,7 @@ void ActionDispatcher::doBindings(Action* a)
         // sigh, since getState doesn't export 
 
     }
+#endif
 }
 
 /**
@@ -445,7 +454,7 @@ void ActionDispatcher::doFunction(Action* a)
 {
     // Client's won't set down in some trigger modes, but there is a lot
     // of code from here on down that looks at it
-    if (a->triggerMode != TriggerModeMomentary)
+    if (a->triggerMode != OldTriggerModeMomentary)
       a->down = true;
 
     // Only functions track long-presses, though we could
@@ -712,7 +721,8 @@ void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
     }
     else { 
         int min = p->getLow();
-        int max = p->getHigh(mMobius);
+        //int max = p->getHigh(mMobius);
+        int max = GetHigh(p, mMobius);
        
         if (min == 0 && max == 0) {
             // not a ranged type

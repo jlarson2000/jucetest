@@ -23,15 +23,17 @@
 #include <math.h>
 #include <ctype.h>
 
+#include "Mapper.h"
+
 #include "../../util/Util.h"
 #include "../../util/List.h"
 // not accurate any more
 #include "../../util/KeyCode.h"
+#include "../../model/MobiusConfig.h"
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
 #include "Mobius.h"
-#include "MobiusConfig.h"
 #include "Action.h"
 #include "OldBinding.h"
 #include "Function.h"
@@ -79,6 +81,9 @@ BindingResolver::BindingResolver(Mobius* mob)
     // but doing it here is a bit more robust since we're the only one that
     // needs the numbers.
 
+    // not named BindingConfig any more and we don't need to be doing
+    // this down here
+#if 0    
     int overlay = 0;
     OldBindingConfig* bindings = config->getBindingConfigs();
     for (OldBindingConfig* bc = bindings ; bc != NULL ; bc = bc->getNext()) {
@@ -86,6 +91,7 @@ BindingResolver::BindingResolver(Mobius* mob)
         assimilate(mob, bc);
         overlay++;
     }
+#endif    
 
 }
 
@@ -145,20 +151,20 @@ void BindingResolver::assimilate(Mobius* mobius,
         // Convert Bindigns to Actions
 		for (OldBinding* b = bindings->getBindings() ; b != NULL ;
              b = b->getNext()) {
-
+            
             // ignore ones we can't handle
-            Trigger* t = b->getTrigger();
-            if (t == TriggerKey ||  
-                t == TriggerMidi ||
-                t == TriggerNote ||
-                t == TriggerProgram ||
-                t == TriggerControl ||
-                t == TriggerPitch) {
+            OldTrigger* t = b->getTrigger();
+            if (t == OldTriggerKey ||  
+                t == OldTriggerMidi ||
+                t == OldTriggerNote ||
+                t == OldTriggerProgram ||
+                t == OldTriggerControl ||
+                t == OldTriggerPitch) {
 
                 // Resolve the target and create an action
                 Action* a = mobius->resolveAction(b);
                 if (a != NULL) {
-
+                    
                     // remember the overlay for runtime filtering
                     a->setOverlay(bindings->getNumber());
 
@@ -168,13 +174,13 @@ void BindingResolver::assimilate(Mobius* mobius,
                     }
                     else {
                         // Spread ranged functions over a range of trigger
-                        // values Ranged functions only make sense for Note 
+                        // values Ranged functions only make sense for Note
                         // triggers
-
-                        Trigger* trigger = a->trigger;
+                            
+                        OldTrigger* trigger = a->trigger;
                         int status = a->getMidiStatus();
 
-                        if (trigger != TriggerMidi) {
+                        if (trigger != OldTriggerMidi) {
                             // keys have to have an argument
                             assimilate(a);
                         }
@@ -274,16 +280,16 @@ int BindingResolver::getSpreadRange(Action* a)
  */
 void BindingResolver::assimilate(Action* a)
 {
-    Trigger* trigger = a->trigger;
+    OldTrigger* trigger = a->trigger;
 
     if (trigger == NULL) {
         Trace(1, "Unresolved trigger type!!\n");
         delete a;
     }
-    else if (trigger == TriggerKey) {
+    else if (trigger == OldTriggerKey) {
         addBinding(mKeys, KEY_MAX_CODE, a->id, a);
     }
-    else if (trigger == TriggerMidi) {
+    else if (trigger == OldTriggerMidi) {
 
         int status = a->getMidiStatus();
         int index = a->getMidiKey();
@@ -463,7 +469,11 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
     // determine the overlay to use
     // !! need to be saving the overlay number in the BindingResoler
     // rather than going back to the MobiusConfig?
+
+    // this doeesn't work any more and all this shit should be ripped
+    // out after we get this bitch to compile
     int overlay = 0;
+#if 0    
     MobiusConfig* config = mobius->getConfiguration();
     OldBindingConfig* overlayConfig = config->getOverlayBindingConfig();
     if (overlayConfig != NULL) {
@@ -477,7 +487,8 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
             }
         }
     }
-
+#endif
+    
 	for (Action* a = actions ; a != NULL ; a = a->getNext()) {
 
         // channel is part of the id so have to check that too
@@ -485,8 +496,8 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
             a->getMidiChannel() == channel) {
 
             // Ignore PitchBend bingings to non-controls
-            Target* target = a->getTarget();
-            if (status == MS_BEND && target != TargetParameter) {
+            OldTarget* target = a->getTarget();
+            if (status == MS_BEND && target != OldTargetParameter) {
                 Trace(1, "Can only bind Pitch Bend to a Parameter\n");
                 continue;
             }
@@ -502,7 +513,7 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
 
             // if this is a fixed or relative value binding for a parameter, 
             // ignore up transitions
-            if (target == TargetParameter && !down && 
+            if (target == OldTargetParameter && !down && 
                 (a->actionOperator != NULL || !a->arg.isNull()))
               continue;
 
@@ -535,10 +546,10 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
                 Parameter* p = (Parameter*)a->getTargetObject();
                 if (p != NULL) {
                     min = p->getLow();
-                    int max = p->getBindingHigh(mobius);
+                    int max = GetBindingHigh(p, mobius);
                     range = (max - min + 1);
                 }
-
+                
                 if (range > 0) {
                     // target range / bend range
                     float adjust = (float)range / 16384.0f;
@@ -548,13 +559,13 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
             }
             else if (status == MS_CONTROL && clone->arg.isNull()) {
                 // don't overwrite the binding arg
-                if (target == TargetParameter) {
+                if (target == OldTargetParameter) {
                     Parameter* p = (Parameter*)a->getTargetObject();
                     if (p != NULL) {
                         int min = p->getLow();
-                        // note that we use BindingHigh for a 
+                        // note that we use BindingHigh for a
                         // useful binding range
-                        int max = p->getBindingHigh(mobius);
+                        int max = GetBindingHigh(p, mobius);
                         int scaled = Scale128ValueIn(value, min, max);
                         clone->arg.setInt(scaled);
                     }

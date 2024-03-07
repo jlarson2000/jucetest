@@ -21,7 +21,7 @@
 #include "../Event.h"
 #include "../EventManager.h"
 #include "../Function.h"
-#include "../FunctionUtil.h"
+#include "FunctionUtil.h"
 #include "../Layer.h"
 #include "../Loop.h"
 #include "../Messages.h"

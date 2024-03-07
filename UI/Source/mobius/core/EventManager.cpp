@@ -128,6 +128,8 @@
 // went missing, probably in one of the config files
 #define MAX_CUSTOM_MODE 256
 
+#include "Mapper.h"
+
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
 
@@ -141,9 +143,12 @@
 #include "Synchronizer.h"
 #include "Track.h"
 
+// TriggerScript
+#include "OldBinding.h"
+
+
 #include "EventManager.h"
 
-#include "Mapper.h"
 
 /****************************************************************************
  *                                                                          *
@@ -561,7 +566,7 @@ Event* EventManager::getFunctionEvent(Action* action,
 				// in scripts with Insert/Insert and Multiply/Multiply
 				// which handle their own rounding so ignore this if
 				// we're in a script.  
-				if (action->trigger != TriggerScript)
+				if (action->trigger != OldTriggerScript)
 				  Trace(mTrack, 1, "EventManager: Extremely short function duration: %s\n", 
 						func->getDisplayName());
 			}

@@ -72,6 +72,19 @@ class SystemConstant {
         return ((displayName != nullptr) ? displayName : name);
     }
 
+    // old replicated Functions want to call these
+    void setName(const char* argName) {
+        name = argName;
+    }
+
+    void setKey(int) {
+        // if a message catalog falls in a forest?
+    }
+
+    // wow, Reset actually used this, was it a cry for help?
+    void setHelp(const char*) {
+    }
+    
     virtual ~SystemConstant() {};
 
 };

@@ -277,6 +277,7 @@
                 file="Source/mobius/core/MidiExporter.cpp"/>
           <FILE id="Zj4dMd" name="MidiExporter.h" compile="0" resource="0" file="Source/mobius/core/MidiExporter.h"/>
           <FILE id="s9kpHB" name="MidiInterface.h" compile="0" resource="0" file="Source/mobius/core/MidiInterface.h"/>
+          <FILE id="HptBRf" name="MidiListener.h" compile="0" resource="0" file="Source/mobius/core/MidiListener.h"/>
           <FILE id="gg7Msb" name="MidiQueue.cpp" compile="1" resource="0" file="Source/mobius/core/MidiQueue.cpp"/>
           <FILE id="yGA3bC" name="MidiQueue.h" compile="0" resource="0" file="Source/mobius/core/MidiQueue.h"/>
           <FILE id="KyL9xW" name="MidiTransport.cpp" compile="1" resource="0"
@@ -334,6 +335,9 @@
           <FILE id="R2mCoz" name="SyncTracker.h" compile="0" resource="0" file="Source/mobius/core/SyncTracker.h"/>
           <FILE id="U54Yyx" name="Track.cpp" compile="1" resource="0" file="Source/mobius/core/Track.cpp"/>
           <FILE id="Pk3xfB" name="Track.h" compile="0" resource="0" file="Source/mobius/core/Track.h"/>
+          <FILE id="eAJ65C" name="TriggerState.cpp" compile="1" resource="0"
+                file="Source/mobius/core/TriggerState.cpp"/>
+          <FILE id="sLafRe" name="TriggerState.h" compile="0" resource="0" file="Source/mobius/core/TriggerState.h"/>
           <FILE id="e5tfsC" name="Variable.cpp" compile="1" resource="0" file="Source/mobius/core/Variable.cpp"/>
           <FILE id="knqe8D" name="Variable.h" compile="0" resource="0" file="Source/mobius/core/Variable.h"/>
           <FILE id="zygAvH" name="WatchPoint.cpp" compile="1" resource="0" file="Source/mobius/core/WatchPoint.cpp"/>

@@ -1,7 +1,12 @@
 
 // for atoi
 #include <stdlib.h>
+// strcmp
+#include <string.h>
+// sprintf
+#include <stdio.h>
 
+#include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../util/KeyCode.h"
 #include "MidiUtil.h"

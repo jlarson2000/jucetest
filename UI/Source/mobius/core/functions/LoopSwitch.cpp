@@ -502,7 +502,7 @@ Event* LoopTriggerFunction::invoke(Action* action, Loop* l)
                 // require that we include the full Action in the Event
                 // !! we have that now, figure it out
                 if (replicated &&
-                    action->trigger == TriggerMidi &&
+                    action->trigger == OldTriggerMidi &&
                     p->isSwitchVelocity()) {
                     t->setOutputLevel(action->triggerValue);
                 }

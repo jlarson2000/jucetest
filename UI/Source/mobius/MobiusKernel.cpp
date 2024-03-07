@@ -14,6 +14,9 @@
 #include "Audio.h"
 #include "SampleTrack.h"
 
+// drag this bitch in
+#include "core/Mobius.h"
+
 #include "MobiusKernel.h"
 
 //////////////////////////////////////////////////////////////////////

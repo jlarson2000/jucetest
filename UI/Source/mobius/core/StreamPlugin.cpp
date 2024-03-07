@@ -20,9 +20,11 @@
 #include "../../util/Util.h"
 #include "../../util/Trace.h"
 #include "../WaveFile.h"
-#include "AudioInterface.h"
-
+#include "../AudioPool.h"
 #include "../Audio.h"
+
+// probably the usual constants
+#include "AudioInterface.h"
 
 // !! this is for FadeWindow and FadeTail, try to factor this out so we don't have
 // so many dependencies

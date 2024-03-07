@@ -26,6 +26,8 @@
 #include "../Stream.h"
 #include "../Synchronizer.h"
 #include "../Track.h"
+// for TriggerEvent
+#include "../OldBinding.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -147,7 +149,7 @@ void StartPointFunction::invokeLong(Action* action, Loop* l)
             Action* a = m->newAction();
             // hmm, may want a new trigger type like TriggerLong?
             // use TriggerEvent since this is indirect
-            a->trigger = TriggerEvent;
+            a->trigger = OldTriggerEvent;
             a->inInterrupt = true;
             a->down = true;
             a->setFunction(SyncStartPoint);

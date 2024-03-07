@@ -874,7 +874,7 @@ bool Track::isPriority()
  * damaging it.  We can play directly into the output buffer, but have
  * to maintain another pointer.
  */
-void Track::processBuffers(AudioStream* stream, 
+void Track::processBuffers(MobiusContainer* stream, 
 						   float* inbuf, float *outbuf, long frames, 
 						   long frameOffset)
 {

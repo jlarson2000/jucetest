@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "../../../util/Util.h"
+#include "../../../model/MobiusConfig.h"
 
 #include "../Action.h"
 #include "../Event.h"
@@ -23,7 +24,6 @@
 #include "../Layer.h"
 #include "../Loop.h"
 #include "../Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "../Mode.h"
 #include "../Messages.h"
 #include "../Segment.h"

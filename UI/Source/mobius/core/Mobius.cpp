@@ -8,6 +8,8 @@
 #include <math.h>
 #include <ctype.h>
 
+#include "Mapper.h"
+
 #include "../../util/Util.h"
 //#include "Thread.h"
 #include "../../util/List.h"
@@ -21,7 +23,7 @@
 #include "Action.h"
 #include "OldBinding.h"
 #include "BindingResolver.h"
-#include "ControlSurface.h"
+//#include "ControlSurface.h"
 #include "Event.h"
 #include "Export.h"
 #include "Function.h"
@@ -46,6 +48,7 @@
 
 // temporary
 #include "OldBinding.h"
+#include "AudioInterface.h"
 
 #include "Mobius.h"
 
@@ -108,7 +111,8 @@ Mobius::Mobius(MobiusKernel* kernel)
     // adapters for old interfaces
     
     mMidi = new StubMidiInterface();
-    mAudioStream = new StubAudioStream();
+    mAudioInterface = new StubAudioInterface();
+    mAudioStream = new StubAudioStream(mAudioInterface);
     mAudioPool = kernel->getAudioPool();
     
     // this is now shared with Kernel
@@ -152,7 +156,7 @@ Mobius::Mobius(MobiusKernel* kernel)
     mBindingResolver = NULL;
     mMidiExporter = NULL;
 	//mOsc = NULL;
-    mControlSurfaces = NULL;
+    //mControlSurfaces = NULL;
     mTriggerState = new TriggerState();
 	mThread = NULL;
 	mTracks = NULL;
@@ -176,7 +180,7 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mSynchronizer = NULL;
 	mHalting = false;
 	mNoExternalInput = false;
-	mCatalog = NULL;
+	//mCatalog = NULL;
     mWatchers = new Watchers();
     mNewWatchers = new List();
 
@@ -223,7 +227,7 @@ void Mobius::shutdown()
  * Called by Kernel after initialization and we've been running and
  * the user has edited the configuration.
  */
-void Moibus::reconfigure(class MobiusConfig* config)
+void Mobius::reconfigure(class MobiusConfig* config)
 {
     // need to work through the propagation logic
     // defer for now
@@ -268,7 +272,7 @@ void Mobius::start()
     // not a true thread any more, but packages some necessary
     // stuff that needs to be redesigned
     mThread = new MobiusThread(this);
-    mThread->start();
+    //mThread->start();
 
     // once the thread starts we can start queueing trace messages
     //if (!mContext->isDebugging())
@@ -288,7 +292,7 @@ void Mobius::start()
     // start the recorder (opens streams) and begins interrupt
     //mRecorder->start();
 
-    updateControlSurfaces();
+    //updateControlSurfaces();
 
     // Formerly looked for an init.mos script and ran it.
     // Never used this and it didn't fit well in the new ScriptEnv world.
@@ -464,6 +468,7 @@ void Mobius::getTraceContext(int* context, long* time)
  * Just a stub right now for the Launchpad, need to figure out
  * how to make this more pluggable.
  */
+#if 0
 void Mobius::updateControlSurfaces()
 {
 	delete mControlSurfaces;
@@ -480,6 +485,7 @@ void Mobius::updateControlSurfaces()
 		}
 	}
 }
+#endif
 
 /**
  * Shut mobius down, but leave most of the structure intact.
@@ -501,6 +507,7 @@ void Mobius::stop()
 	}
 
     // this is pretending to be a thread but it actually isn't
+#if 0
 	if (mThread != NULL && mThread->isRunning()) {
 		if (!mThread->stopAndWait()) {
 			// unusual, must be stuck, continuing may crash
@@ -508,7 +515,8 @@ void Mobius::stop()
 			Trace(1, "Mobius: Unable to stop Mobius thread!\n");
 		}
 	}
-
+#endif
+    
 	// shutting down the Recorder will stop the timer which will send
 	// a final MIDI stop event if the timer has a MidiOutput port,
 	// not sure how necessary that is if we're being deleted, but
@@ -518,6 +526,7 @@ void Mobius::stop()
     //mRecorder->shutdown();
 
 	// sleep to make sure we're not in a timer or midi interrupt
+    // MobiusContainer can do this now
 	SleepMillis(100);
 
 	// paranioa to help catch shutdown errors
@@ -596,7 +605,7 @@ Mobius::~Mobius()
 	delete mBindingResolver;
     delete mMidiExporter;
 	//delete mOsc;
-    delete mControlSurfaces;
+    //delete mControlSurfaces;
     delete mFunctions;
 	delete mScriptEnv;
 	delete mTracks;
@@ -839,7 +848,8 @@ int Mobius::getTrackPreset()
     // !! potential race condition if we're shifting the interrupt
     // config at this moment, p could be deleted
     // ugh, may have to maintain history here too
-    int index = p->getNumber();
+    //int index = p->getNumber();
+    int index = p->ordinal;
 
     return index;
 }
@@ -1828,10 +1838,12 @@ void Mobius::finishPrompt(Prompt* p)
 	  delete p;
 }
 
+#if 0
 ControlSurface* Mobius::getControlSurfaces()
 {
     return mControlSurfaces;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -2922,7 +2934,7 @@ void Mobius::doPreset(Action* a)
     }
 
     if (p != NULL) {
-        int number = p->getNumber();
+        int number = p->ordinal;
 
         Trace(2, "Preset action: %ld\n", (long)number);
 
@@ -2985,7 +2997,7 @@ void Mobius::doSetup(Action* a)
     }
 
     if (s != NULL) {
-        int number = s->getNumber();
+        int number = s->ordinal;
         Trace(2, "Setup action: %ld\n", (long)number);
 
         // This is messy, the resolved target will
@@ -3013,6 +3025,7 @@ void Mobius::doSetup(Action* a)
  */
 void Mobius::doBindings(Action* a)
 {
+#if 0    
     // If we're here from a Binding should have resolved
     BindingConfig* bc = (BindingConfig*)a->getTargetObject();
     if (bc == NULL) {
@@ -3035,6 +3048,7 @@ void Mobius::doBindings(Action* a)
         // sigh, since getState doesn't export 
 
     }
+#endif    
 }
 
 /**

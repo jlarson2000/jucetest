@@ -18,7 +18,7 @@
 #include "../Function.h"
 #include "../Layer.h"
 #include "../Loop.h"
-//#include "Messages.h"
+#include "../Messages.h"
 #include "../Mobius.h"
 #include "../Mode.h"
 

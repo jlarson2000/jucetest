@@ -14,6 +14,9 @@
 #include <string.h>
 #include <ctype.h>
 
+// Scale functions want to Trace
+#include "Trace.h"
+
 #include "Util.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -436,4 +439,161 @@ int Random(int min, int max)
 	int value = (rand() % range) + min;
 
 	return value;
+}
+
+float RandomFloat()
+{
+	if (!RandomSeeded) {
+		srand(2);
+		RandomSeeded = true;
+	}
+
+	return (float)rand() / (float)RAND_MAX;
+}
+
+/****************************************************************************
+ *                                                                          *
+ *                                  SCALING                                 *
+ *                                                                          *
+ ****************************************************************************/
+
+/**
+ * Convert a floating point nubmer from 0.0 to 1.0 into an integer
+ * within the specified range.
+ *
+ * This can be used to scale both OSC arguments and VST host parameter
+ * values into scaled integers for Mobius parameters and controls.
+ *
+ * VstMobius notes
+ * 
+ * On the way in values are quantized to the beginning of their chunk
+ * like ScaleValueOut, but when the value reaches 1.0 we'll be
+ * at the beginning of the chunk beyond the last one so we have
+ * to limit it.
+ *
+ * HACK: For parameters that have chunk sizes that are repeating
+ * fractions we have to be careful about rounding down.  Example
+ * trackCount=6 so selectedTrack has a chunk size of .16666667
+ * Track 3 (base 0) scales out to .5 since the begging of the chunk
+ * is exactly in the middle of the range.  When we try to apply
+ * that value here, .5 / .16666667 results in 2.99999 which rounds
+ * down to 2 instead of 3.
+ *
+ * There are proably several ways to handle this, could add a little
+ * extra to ScaleParameterOut to be sure we'll cross the boundary
+ * when scaling back.  Here we'll check to see if the beginning of
+ * the chunk after the one we calculate here is equal to the
+ * starting value and if so bump to the next chunk.
+ * 
+ */
+int ScaleValueIn(float value, int min, int max)
+{
+    int ivalue = 0;
+    int range = max - min + 1;
+
+    if (range > 0) {
+        float chunk = (1.0f / (float)range);
+        ivalue = (int)(value / chunk);
+        
+        // check round down
+        float next = (ivalue + 1) * chunk;
+        if (next <= value)
+          ivalue++;
+
+        // add in min and constraint range
+        ivalue += min;
+        if (ivalue > max) 
+          ivalue = max; // must be at 1.0
+    }
+
+    return ivalue;
+}
+
+/**
+ * Scale a value within a range to a float from 0.0 to 1.0.
+ * VstMobius notes
+ * 
+ * On the way out, the float values will be quantized
+ * to the beginning of their "chunk".  This makes zero
+ * align with the left edge, but makes the max value slightly
+ * less than the right edge.
+ */
+float ScaleValueOut(int value, int min, int max)
+{
+    float fvalue = 0.0;
+
+    int range = max - min + 1;
+    float chunk = 1.0f / (float)range;
+
+    int base = value - min;
+    fvalue = chunk * base;
+
+    return fvalue;
+}
+
+/**
+ * Scale an integer from 0 to 127 into a smaller numeric range.
+ */
+int Scale128ValueIn(int value, int min, int max)
+{
+    int scaled = 0;
+    
+    if (value < 0 || value > 127) {
+        Trace(1, "Invalid value at Scale128ValueIn %ld\n", (long)value);
+    }
+    else if (min == 0 && max == 127) {
+        // don't round it
+        scaled = value;
+    }
+    else {
+        int range = max - min + 1;
+        if (range > 0) {
+            float chunk = 128.0f / (float)range;
+            scaled = (int)((float)value / chunk);
+
+            // check round down
+            float next = (scaled + 1) * chunk;
+            if (next <= value)
+              scaled++;
+
+            // add in min and constraint range
+            scaled += min;
+            if (scaled > max) 
+              scaled = max;
+        }
+    }
+
+    return scaled;
+}
+
+/**
+ * Scale a value from one range to another.
+ */
+int ScaleValue(int value, int inmin, int inmax, int outmin, int outmax)
+{
+    int scaled = 0;
+    
+    if (value < inmin || value > inmax) {
+        Trace(1, "ScaleValue out of range %ld\n", (long)value);
+    }
+    else if (inmin == outmin && inmax == outmax) {
+        // don't round it
+        scaled = value;
+    }
+    else {
+        int inrange = inmax - inmin;
+        int outrange = outmax - outmin;
+        
+        if (inrange == 0 || outrange == 0) {
+            // shouldn't see this on outrange but
+            // some Mobius states can be empty
+            // avoid div by zero
+        }
+        else {
+            float fraction = (float)value / (float)inrange;
+            scaled = outmin + (int)(fraction * (float)outrange);
+        }
+    }
+
+    return scaled;
 }

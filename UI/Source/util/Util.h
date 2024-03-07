@@ -76,8 +76,18 @@ int ToInt(const char* str);
 
 int Random(int low, int high);
 
+// sigh, Random() already used on Mac in Quickdraw.h
+float RandomFloat();
+
 int IndexOf(const char* str, const char* substr);
 int IndexOf(const char* str, const char* substr, int start);
+
+// started using in BindingResolver, probably don't need all of them
+int ScaleValueIn(float value, int min, int max);
+float ScaleValueOut(int value, int min, int max);
+int Scale128ValueIn(int value, int min, int max);
+int ScaleValue(int value, int inmin, int inmax, int outmin, int outmax);
+
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -15,6 +15,9 @@
 #include "Script.h"
 #include "Track.h"
 
+// for TriggerEvent
+#include "OldBinding.h"
+
 #include "ScriptRuntime.h"
 
 /****************************************************************************
@@ -79,7 +82,7 @@ void ScriptRuntime::runScript(Action* action)
         // here, but with TriggerEvent so we know not to do it again.
 
         if ((script->isQuantize() || script->isSwitchQuantize()) &&
-            action->trigger != TriggerEvent) {
+            action->trigger != OldTriggerEvent) {
 
             // Schedule it for a quantization boundary and come back later.
             // This may look like what we do in doFunction() but  there

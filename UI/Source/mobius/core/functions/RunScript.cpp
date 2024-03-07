@@ -25,6 +25,7 @@
 #include "../Mode.h"
 #include "../Script.h"
 #include "../Track.h"
+#include "../OldBinding.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -59,7 +60,7 @@ void RunScriptEventType::invoke(Loop* l, Event* e)
 
         // Set the trigger to this so Mobius::runScript knows to run
         // synchronously without quantizing again.
-        action->trigger = TriggerEvent;
+        action->trigger = OldTriggerEvent;
         action->inInterrupt = true;
 
         Mobius* m = l->getMobius();
@@ -161,7 +162,10 @@ RunScriptFunction::RunScriptFunction(Script* s)
 	// after an autoload
 	strcpy(mScriptName, s->getDisplayName());
     setName(mScriptName);
-    setDisplayName(mScriptName);
+
+    // removed from SystemConstant
+    //setDisplayName(mScriptName);
+    
 	// this tells the localizer that it is ok we don't have a key
 	externalName = true;
 }

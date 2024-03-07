@@ -5,6 +5,8 @@
  * It is a significantly reduced and modified veraion of the original
  * interface.  The names of the classes are the same so you won't be
  * able to continue using the old ones as old code is ported over.
+ *
+ * Had to change the names when the core code was brought in.
  */
 
 #pragma once

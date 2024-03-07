@@ -1268,7 +1268,9 @@ void OutputStream::adjustLevel(long frames)
 
 void OutputStream::capture(float* buffer, long frames)
 {
-	if (mCaptureTotal < mCaptureMax) {
+    Trace(1, "OutputStream::capture wants to write to a file!\n");
+#if 0    
+    if (mCaptureTotal < mCaptureMax) {
 		if (mCaptureAudio == NULL)
           mCaptureAudio = mAudioPool->newAudio();
 		mCaptureAudio->append(buffer, frames);
@@ -1276,6 +1278,7 @@ void OutputStream::capture(float* buffer, long frames)
 		if (mCaptureTotal >= mCaptureMax)
 		  mCaptureAudio->write("capture.wav");
 	}
+#endif    
 }
 
 void OutputStream::checkMax(float sample)
@@ -1552,13 +1555,14 @@ void OutputStream::captureTail(FadeTail* tail, Layer* src, long playFrame,
 
 		buffer = saveBuffer;
 		frames = saveFrames;
-
+#if 0
 		if (false) {
 			Audio* trace = new Audio();
 			trace->append(tailBuffer, tailFrames);
 			trace->write("tail.wav");
 			delete trace;
 		}
+#endif        
 
 		tail->add(tailBuffer, tailFrames);
     }

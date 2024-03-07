@@ -163,7 +163,7 @@ ExportType Export::getType()
     if (mTarget != NULL) {
         ExportType extype = EXP_INT;
 
-        Target* ttype = mTarget->getTarget();
+        OldTarget* ttype = mTarget->getTarget();
 
         if (ttype == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
@@ -198,7 +198,7 @@ int Export::getMinimum()
 
     if (mTarget != NULL) {
 
-        Target* type = mTarget->getTarget();
+        OldTarget* type = mTarget->getTarget();
 
         if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
@@ -223,7 +223,7 @@ int Export::getMaximum()
     int max = 0;
 
     if (mTarget != NULL) {
-        Target* type = mTarget->getTarget();
+        OldTarget* type = mTarget->getTarget();
 
         if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
@@ -246,7 +246,7 @@ const char** Export::getValueLabels()
 
     if (mTarget != NULL) {
 
-        Target* type = mTarget->getTarget();
+        OldTarget* type = mTarget->getTarget();
         if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL)
@@ -279,10 +279,10 @@ void Export::getOrdinalLabel(int ordinal, ExValue* value)
     value->setString("???");
 
     if (mTarget != NULL) {
-        Target* target = mTarget->getTarget();
+        OldTarget* target = mTarget->getTarget();
         if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
-            p->getOrdinalLabel(mMobius, ordinal, value);
+            GetOrdinalLabel(p, mMobius, ordinal, value);
         }
     }
 }
@@ -297,7 +297,7 @@ bool Export::isDisplayable()
     bool displayable = false;
 
     if (mTarget != NULL) {
-        Target* type = mTarget->getTarget();
+        OldTarget* type = mTarget->getTarget();
         if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             displayable = (p != NULL && p->bindable);
@@ -360,7 +360,7 @@ int Export::getOrdinalValue()
         // resolve track so Parameter doesn't have to
         mTrack = getTargetTrack();
 
-        Target* target = mTarget->getTarget();
+        OldTarget* target = mTarget->getTarget();
 
         if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
@@ -384,7 +384,7 @@ void Export::getValue(ExValue* value)
         // have to resresolve the track each time
         mTrack = getTargetTrack();
 
-        Target* target = mTarget->getTarget();
+        OldTarget* target = mTarget->getTarget();
 
         if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();

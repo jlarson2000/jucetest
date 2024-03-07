@@ -1060,6 +1060,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Track.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\TriggerState.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Variable.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -3891,6 +3894,9 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiInterface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MidiListener.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\MidiQueue.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3952,6 +3958,9 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Track.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\TriggerState.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Variable.h">

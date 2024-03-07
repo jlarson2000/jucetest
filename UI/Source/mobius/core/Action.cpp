@@ -218,7 +218,7 @@ const char* ResolvedTarget::getDisplayName()
             dname = f->getDisplayName();
         }
         else if (mTarget == OldTargetUIControl) {
-            UIControl* uic = mObject.uicontrol;
+            OldUIControl* uic = mObject.uicontrol;
             dname = uic->getDisplayName();
         }
         else if (mTarget == OldTargetParameter) {

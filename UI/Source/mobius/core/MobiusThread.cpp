@@ -29,6 +29,9 @@
 #include "Project.h"
 #include "Script.h"
 
+// OldTargetScript, OldTriggerThread
+#include "OldBinding.h"
+
 /****************************************************************************
  *                                                                          *
  *                                 CONSTANTS                                *
@@ -252,7 +255,8 @@ void Prompt::setOk(bool b)
 
 MobiusThread::MobiusThread(Mobius* m)
 {
-	setTimeout(DEFAULT_TIMEOUT);
+    // not a Thread any more
+	//setTimeout(DEFAULT_TIMEOUT);
     mMobius = m;
 	mEvents = NULL;
 	mOneShot = TE_NONE;
@@ -266,7 +270,8 @@ MobiusThread::MobiusThread(Mobius* m)
 	// we can work out a way to pass this in as an option
 	mCheckInterrupt = false;
 
-    setName("Mobius");
+    // also not a Thread
+    //setName("Mobius");
 }
 
 MobiusThread::~MobiusThread()
@@ -352,7 +357,7 @@ void MobiusThread::addEvent(ThreadEvent* e)
 
 	// this will signal the inherited Thread::run loop and we should
 	// shortly end up in processEvent
-	signal();
+	//signal();
 }
 
 /**
@@ -368,7 +373,7 @@ void MobiusThread::addEvent(ThreadEvent* e)
 void MobiusThread::addEvent(ThreadEventType tet)
 {
 	mOneShot = tet;
-	signal();
+	//signal();
 }
 
 /**
@@ -378,7 +383,7 @@ void MobiusThread::addEvent(ThreadEventType tet)
  */
 void MobiusThread::traceEvent()
 {
-	signal();
+	//signal();
 }
 
 /****************************************************************************
@@ -449,7 +454,7 @@ void MobiusThread::eventTimeout()
 				// we appear stuck
 				Trace(1, "Interrupt handler looks stuck, emergency exit!\n");
 				mMobius->emergencyExit();
-				stop();
+				//stop();
 			}
 		}
 		mInterrupts = interrupts;
@@ -468,13 +473,13 @@ void MobiusThread::processEvent()
 
 		switch (type) {
 
+// needs files
+#if 0            
 			case TE_SAVE_CONFIG: {
                 mMobius->writeConfiguration();
 			}
 			break;
 
-// needs files
-#if 0            
 			case TE_SAVE_LOOP: {
 				Audio* a = mMobius->getPlaybackAudio();
 				if (a != NULL) {
@@ -596,9 +601,7 @@ void MobiusThread::processEvent()
 
 			case TE_ECHO: {
 				const char* msg = e->getArg(0);
-#ifdef _WIN32
-				OutputDebugString(msg);
-#endif
+                Trace(1, msg);
 				printf("%s", msg);
 				fflush(stdout);
 			}	
@@ -1055,8 +1058,8 @@ void MobiusThread::finishPrompt(Prompt* p)
 void MobiusThread::finishEvent(ThreadEvent* e)
 {
     Action* a = mMobius->newAction();
-    a->trigger = TriggerThread;
-    a->setTarget(TargetScript);
+    a->trigger = OldTriggerThread;
+    a->setTarget(OldTargetScript);
 
     // this is a little unusual because we use this
     // for an input to the action and it's usually a return

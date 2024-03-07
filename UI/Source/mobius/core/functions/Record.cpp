@@ -127,6 +127,7 @@
 #include "../Synchronizer.h"
 #include "../SyncState.h"
 #include "../Track.h"
+#include "../OldBinding.h"
 
 /****************************************************************************
  *                                                                          *
@@ -367,7 +368,7 @@ void RecordFunction::invokeLong(Action* action, Loop* l)
         // !! No, if we go through Mobius::doAction we can't use the 
         // original trigger.  think about this...
 
-        a->trigger = TriggerEvent;
+        a->trigger = OldTriggerEvent;
         a->inInterrupt = true;
         a->down = true;
         a->setFunction(Reset);

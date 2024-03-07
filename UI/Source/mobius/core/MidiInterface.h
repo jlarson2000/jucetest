@@ -7,38 +7,6 @@
 
 #pragma once
 
-// Listeners formerly in MidiListener.h
-
-/**
- * The interface of an object that may be registered MidiInterface
- * to recieve individual MIDI events.
- * This is only used by MidiInterface so it cold be moved there.
- */
-class MidiEventListener {
-
-  public:
-
-	virtual void midiEvent(class MidiEvent* e) = 0;
-
-};
-
-/**
- * The interface of an object that may be registered with a Timer or MidiInterface
- * to receive MIDI clock callbacks.  These aren't events, you will
- * be called in the timer interrupt whenever a MIDI clock is advanced,
- * and optionally when a MIDI clock is sent to the MIDI output device.
- */
-class MidiClockListener {
-
-  public:
-
-	virtual void midiClockEvent() = 0;
-	virtual void midiStartEvent() = 0;
-	virtual void midiStopEvent() = 0;
-	virtual void midiContinueEvent() = 0;
-
-};
-
 /****************************************************************************
  *                                                                          *
  *   							MIDI INTERFACE                              *

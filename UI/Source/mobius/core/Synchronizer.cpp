@@ -109,6 +109,9 @@
 #include <memory.h>
 #include <math.h>
 
+#include "../../model/MobiusConfig.h"
+#include "../../model/MobiusState.h"
+
 //#include "Thread.h"
 
 #include "MidiByte.h"
@@ -125,12 +128,16 @@
 #include "MidiTransport.h"
 #include "Mode.h"
 #include "Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "Script.h"
 #include "Stream.h"
 #include "SyncState.h"
 #include "SyncTracker.h"
 #include "Track.h"
+
+// TriggerScript
+#include "OldBinding.h"
+// AudioStream
+#include "AudioInterface.h"
 
 #include "Synchronizer.h"
 
@@ -919,7 +926,7 @@ long Synchronizer::getMidiSongClock(SyncSource src)
  * but you can't have one track with Sync=Host and another with Sync=Midi,
  * some of the state variables could be moved up?
  */
-void Synchronizer::getState(TrackState* state, Track* t)
+void Synchronizer::getState(MobiusTrackState* state, Track* t)
 {
 	SyncState* syncState = t->getSyncState();
     SyncSource source = syncState->getEffectiveSyncSource();
@@ -1097,7 +1104,7 @@ Event* Synchronizer::scheduleRecordStart(Action* action,
 		// a script Wait, it will be done relative to -InputLatency.
 		// Try to detect this and preemtively set the frame to zero.
 		// !! does the source matter, do this always?
-		if (action->trigger == TriggerScript) {
+		if (action->trigger == OldTriggerScript) {
 			long frame = l->getFrame();
 			if (frame == event->frame) {
 				l->setFrame(0);

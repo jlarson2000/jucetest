@@ -207,7 +207,10 @@ class Track : public RecorderTrack, public TraceContext
     bool isPriority();
 
 	void prepareForInterrupt();
-	void processBuffers(AudioStream* stream, 
+
+    // this is the first necessary leak of MobiusContainer
+    // replacing AudioStream
+	void processBuffers(class MobiusContainer* stream, 
 						float* in, float *out, long frames, 
 						long frameOffset);
 

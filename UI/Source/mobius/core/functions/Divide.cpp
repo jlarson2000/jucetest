@@ -85,17 +85,17 @@ DivideFunction::DivideFunction(int n)
 
     if (n == 0) {
         // divide by two unless there is a binding arg
-		setName("Divide");
+		name = "Divide";
         alias1 = "Divide2";
-		setKey(MSG_FUNC_DIVIDE);
+		//setKey(MSG_FUNC_DIVIDE);
 	}
 	else if (n == 3) {
 		setName("Divide3");
-		setKey(MSG_FUNC_DIVIDE_3);
+		//setKey(MSG_FUNC_DIVIDE_3);
 	}
 	else if (n == 4) {
 		setName("Divide4");
-		setKey(MSG_FUNC_DIVIDE_4);
+		//setKey(MSG_FUNC_DIVIDE_4);
 	}
 }
 

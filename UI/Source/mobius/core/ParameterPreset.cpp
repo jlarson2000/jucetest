@@ -33,7 +33,7 @@
 #include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
-//#include "Messages.h"
+#include "Messages.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
 #include "Mode.h"

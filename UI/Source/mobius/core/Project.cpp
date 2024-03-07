@@ -27,7 +27,7 @@
 
 #include "Loop.h"
 #include "Mobius.h"
-#include "../../.model/MobiusConfig.h"
+#include "../../../model/MobiusConfig.h"
 #include "Layer.h"
 #include "Project.h"
 #include "../../model/Setup.h"

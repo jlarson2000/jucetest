@@ -16,6 +16,8 @@
 #include <string.h>
 #include <memory.h>
 
+#include "../../../model/Preset.h"
+
 #include "../Action.h"
 #include "../Event.h"
 #include "../EventManager.h"
@@ -25,7 +27,6 @@
 #include "../Mobius.h"
 #include "../Mode.h"
 #include "../Messages.h"
-#include "../Preset.h"
 #include "../Synchronizer.h"
 #include "../Track.h"
 

@@ -1,3 +1,5 @@
+// never did finish this and I don't want to drag it over
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -60,6 +62,7 @@ SurfaceFunction::SurfaceFunction() :
 
 void SurfaceFunction::invoke(Action* action, Mobius* m)
 {
+#if 0    
     ControlSurface* cs = m->getControlSurfaces();
 
     // TODO: if we have more than one, should we search for the launchpad
@@ -68,6 +71,7 @@ void SurfaceFunction::invoke(Action* action, Mobius* m)
 
     for ( ; cs != NULL ; cs = cs->getNext())
       cs->scriptInvoke(action);
+#endif    
 }
 
 /****************************************************************************/

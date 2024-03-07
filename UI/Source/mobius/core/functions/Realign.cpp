@@ -41,6 +41,7 @@
 
 #include "../../../util/Util.h"
 #include "../../../model/MobiusConfig.h"
+#include "../../../model/Setup.h"
 
 #include "../Action.h"
 #include "../Event.h"
@@ -51,7 +52,6 @@
 #include "../Messages.h"
 #include "../Mobius.h"
 #include "../Mode.h"
-#include "../Setup.h"
 #include "../Synchronizer.h"
 #include "../SyncState.h"
 #include "../Track.h"
