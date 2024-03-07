@@ -6,6 +6,9 @@
  * between the old and new worlds util we can retool the old world
  * to use MobiusContainer
  *
+ * Keep the old constants in here to get compilation going, but AudioTime
+ * and AudioInterface are stubbed out elsewhere.
+ *
  */
 
 #pragma once
@@ -93,6 +96,8 @@ class AudioHandler {
  *                                                                          *
  ****************************************************************************/
 
+// this is now in MobiusContainer
+#if 0
 /**
  * VST and AU streams can also include synchronization info.
  * I don't really like having this in AudioInterface, but the things
@@ -179,6 +184,7 @@ class AudioTime {
 	}
 
 };
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -327,7 +333,7 @@ class AudioStream {
 	virtual void getInterruptBuffers(int inport, float** input, 
 									 int outport, float** output) = 0;
 	
-	virtual AudioTime* getTime() = 0;
+	virtual class AudioTime* getTime() = 0;
 
 };
 
@@ -455,7 +461,7 @@ class StubAudioStream : public AudioStream
                              int outport, float** output) {
     }
 	
-	AudioTime* getTime() {
+	class AudioTime* getTime() {
         return nullptr;
     }
 

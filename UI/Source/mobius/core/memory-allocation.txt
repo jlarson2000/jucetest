@@ -6,3 +6,45 @@ Need to use CSVs consnstently.
 Any config parameter that uses const char* and allows the value
 to be set from scripts.
 
+Mobius::installScripts
+  allocates a temporary ScriptCompiler
+
+GENERAL PROBLEM - multiple plugin instances
+
+  See words in Mobius::initFunctions
+  there may be issues with multiple plugin instances share the same
+  static data objects, which was apparently a problem for the Function array
+  when we wanted to dynamically extend it for scripts.
+
+  We don't really need multiple instances, but it can happen and we should be
+  graceful about it.
+
+  This also argues against using the static objects to hold runtime changes like
+  "resettable" flags.
+
+Mobius::initFunctions
+  allocates an array to hold Function pointers combining the static Function objects
+  with objects representing scripts
+
+  needs redesign for several reasons
+
+Mobius::updateGlobalFunctionPreferences
+  stuff related to focus configuration and shared static objects between plugin instances
+
+Mobius::loadProject, loadProjectInternal
+  deletes the Project after loading
+  load/save needs a complete overhaul
+
+Mobius::saveProject
+  old assumptions about this being above the interrupt which no longer apply
+  there was concern about this taking too much time which is still valid
+
+Mobius::internTarget
+
+Mobius::newAction
+  everything surrounding how Actions work needs to be redesigned
+  if we need to allocate an "interned" model, this needs to be done in Shell and phased down
+
+Track::copyPreset
+
+

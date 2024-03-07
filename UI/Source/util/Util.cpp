@@ -23,6 +23,25 @@
 //////////////////////////////////////////////////////////////////////
 
 /**
+ * Copy a string to a point.
+ */
+char* CopyString(const char* src, int len)
+{
+	char* copy = NULL;
+	if (src != NULL && len > 0) {
+		int srclen = strlen(src);
+		if (len <= srclen) {
+			copy = new char[len + 1];
+			if (copy != NULL) {
+				strncpy(copy, src, len);
+				copy[len] = 0;
+			}
+		}
+	}
+	return copy;
+}
+
+/**
  * Copy one string to a buffer with care.
  * The max argument is assumed to be the maximum number
  * of char elements in the dest array *including* the nul terminator.
@@ -213,12 +232,44 @@ int ParseNumberString(const char* src, int* numbers, int max)
 	return parsed;
 }
 
+bool StartsWith(const char* str, const char* prefix)
+{
+	bool startsWith = false;
+	if (str != NULL && prefix != NULL)
+      startsWith = !strncmp(str, prefix, strlen(prefix));
+    return startsWith;
+}
+
 bool StartsWithNoCase(const char* str, const char* prefix)
 {
 	bool startsWith = false;
 	if (str != NULL && prefix != NULL)
         startsWith = StringEqualNoCase(str, prefix, strlen(prefix));
 	return startsWith;
+}
+
+bool EndsWith(const char* str, const char* suffix)
+{
+	bool endsWith = false;
+	if (str != NULL && suffix != NULL) {
+		int len1 = strlen(str);
+		int len2 = strlen(suffix);
+		if (len1 > len2)
+		  endsWith = !strcmp(suffix, &str[len1 - len2]);
+	}
+	return endsWith;
+}
+
+bool EndsWithNoCase(const char* str, const char* suffix)
+{
+	bool endsWith = false;
+	if (str != NULL && suffix != NULL) {
+		int len1 = strlen(str);
+		int len2 = strlen(suffix);
+		if (len1 > len2)
+		  endsWith = StringEqualNoCase(suffix, &str[len1 - len2]);
+	}
+	return endsWith;
 }
 
 /**
@@ -250,6 +301,60 @@ bool IsInteger(const char* str)
         }
     }
     return is;
+}
+
+void GetLeafName(const char* path, char* buffer, bool extension)
+{
+	int last = strlen(path) - 1;
+	int dot = -1;
+	int psn = last;
+
+	while (psn > 0 && path[psn] != '/' && path[psn] != '\\') {
+		if (path[psn] == '.')
+		  dot = psn;
+		psn--;
+	}
+
+	if (psn < 0) {
+		// looked like a simple file name, no change
+		psn = 0;
+	}
+	else
+	  psn++;
+
+	if (!extension && dot > 0)
+	  last = dot - 1;
+
+	int len = last - psn + 1;
+
+	strncpy(buffer, &path[psn], len);
+	buffer[len] = 0;
+}
+
+int IndexOf(const char* str, const char* substr)
+{
+    return IndexOf(str, substr, 0);
+}
+
+int IndexOf(const char* str, const char* substr, int start)
+{
+	int index = -1;
+
+	// not a very smart search
+	if (str != NULL && substr != NULL) {
+		int len = strlen(str);
+		int sublen = strlen(substr);
+        int max = len - sublen;
+        if (sublen > 0 && max >= 0) {
+            for (int i = 0 ; i <= max ; i++) {
+                if (strncmp(&str[i], substr, sublen) == 0) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+	}
+	return index;
 }
 
 //////////////////////////////////////////////////////////////////////

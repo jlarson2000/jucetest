@@ -16,6 +16,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "Mapper.h"
+
 #include "../../util/Util.h"
 #include "../../util/List.h"
 #include "../../util/XmlModel.h"
@@ -867,7 +869,7 @@ ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
     mTimeStretch = t->getTimeStretch();
 
     // include preset only if different than the setup
-    Setup* setup = config->getCurrentSetup();
+    Setup* setup = GetCurrentSetup(config);
     SetupTrack* st = setup->getTrack(t->getRawNumber());
 
     Preset* pre = t->getPreset();

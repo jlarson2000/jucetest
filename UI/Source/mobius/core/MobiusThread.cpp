@@ -1,3 +1,6 @@
+// comments out most of the code related to reading and writing files
+// since that was almost all that was in here, not much left
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -470,6 +473,8 @@ void MobiusThread::processEvent()
 			}
 			break;
 
+// needs files
+#if 0            
 			case TE_SAVE_LOOP: {
 				Audio* a = mMobius->getPlaybackAudio();
 				if (a != NULL) {
@@ -580,7 +585,8 @@ void MobiusThread::processEvent()
 				}
 			}
 			break;
-
+#endif
+            
 			case TE_WAIT: {
 				// will be handled by ScriptInterpreter below
 				// I don't think we really need this any more now
@@ -644,6 +650,8 @@ void MobiusThread::processEvent()
 	if (NewTraceListener == this) FlushTrace();
 }
 
+// no, no, no file handling
+#if 0
 /**
  * Determine the root of the directory containing the files to 
  * read and write when using relative paths.  
@@ -971,6 +979,7 @@ void MobiusThread::diff(int type, bool reverse,
 
 	fflush(stdout);
 }
+#endif
 
 /****************************************************************************
  *                                                                          *

@@ -14,6 +14,9 @@
     <Filter Include="UI\Source\ui">
       <UniqueIdentifier>{ABDD14AA-01B6-2D9B-2038-B446693E43DE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Source\mobius\core\functions">
+      <UniqueIdentifier>{5C304E85-D1E8-DD60-D865-E0391401BBEF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI\Source\mobius\core">
       <UniqueIdentifier>{893BC79D-1B15-5C3E-8F62-F7FD05B168B2}</UniqueIdentifier>
     </Filter>
@@ -796,6 +799,138 @@
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Bounce.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Capture.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Checkpoint.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Clear.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Confirm.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Coverage.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Debug.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Divide.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\FocusLock.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\FunctionUtil.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Insert.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\InstantMultiply.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\LoopSwitch.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Midi.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Move.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Multiply.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Mute.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Overdub.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Pitch.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Play.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Realign.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Record.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Replace.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Reset.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Reverse.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\RunScript.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\SampleTrigger.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Save.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Shuffle.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Slip.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Solo.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Speed.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\StartPoint.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Stutter.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Substitute.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Surface.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Sync.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\TrackCopy.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\TrackGroup.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\TrackSelect.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Trim.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\UIFunctions.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\UndoRedo.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Window.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Action.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -803,6 +938,12 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\AudioInterface.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\BindingResolver.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ControlSurface.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Event.cpp">
@@ -826,6 +967,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Function.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\HostConfig.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Layer.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -845,6 +989,81 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiUtil.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\MobiusPools.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\MobiusThread.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Mode.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ObjectPool.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\OldBinding.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Parameter.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ParameterGlobal.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ParameterPreset.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ParameterSetup.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ParameterTrack.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\PitchPlugin.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Project.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Resampler.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Script.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ScriptRuntime.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Segment.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Stream.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\StreamPlugin.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Synchronizer.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\SyncState.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\SyncTracker.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Track.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Variable.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\WatchPoint.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp">
@@ -3603,6 +3822,9 @@
     <ClInclude Include="..\..\Source\ui\TestPanel.h">
       <Filter>UI\Source\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\functions\FunctionUtil.h">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Action.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3610,6 +3832,12 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\AudioInterface.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\BindingResolver.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\ControlSurface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h">
@@ -3631,6 +3859,9 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Function.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\HostConfig.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\HostMidiInterface.h">
@@ -3667,6 +3898,66 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\MidiUtil.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Mobius.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MobiusInterface.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\MobiusThread.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Mode.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\OldBinding.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Parameter.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Project.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Resampler.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Script.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\ScriptRuntime.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Segment.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Stream.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\StreamPlugin.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Synchronizer.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\SyncState.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\SyncTracker.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Track.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Variable.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\WatchPoint.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Audio.h">

@@ -1103,20 +1103,21 @@ void Function::changePreset(Action* action, Loop* loop, bool after)
 {
     Mobius* m = loop->getMobius();
     MobiusConfig* config = m->getConfiguration();
-    Preset* presets = config->getPresets();
+    Structure* presets = config->getPresets();
     Preset* current = loop->getPreset();
-    Preset* next = NULL;
+    Structure* next = NULL;
 
+    // ugh, Structure base class makes iteration harder
     if (current != NULL && presets != NULL) {
         if (after)
-          next = current->getNext();
+          next = (Preset*)current->getNext();
         else if (current == presets) {
             // get the last one
-            for (Preset* p = presets ; p != NULL ; p = p->getNext())
+            for (Structure* p = presets ; p != NULL ; p = p->getNext())
               next = p;
         }
         else {
-            for (Preset* p = presets ; p != NULL ; p = p->getNext()) {
+            for (Structure* p = presets ; p != NULL ; p = p->getNext()) {
                 if (p->getNext() == current) {
                     next = p;
                     break;
@@ -1124,8 +1125,11 @@ void Function::changePreset(Action* action, Loop* loop, bool after)
             }
         }
 
-        if (next != NULL && next != current)
-          m->setPresetInternal(next->getNumber());
+        if (next != NULL && next != current) {
+            // !! pretty sure these are zero based like the new ordinals
+            //m->setPresetInternal(((Preset*)next)->getNumber());
+            m->setPresetInternal(((Preset*)next)->ordinal);
+        }
     }
 }
 

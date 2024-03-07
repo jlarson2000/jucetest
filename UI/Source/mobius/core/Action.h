@@ -66,7 +66,8 @@
 #define ACTION_H
 
 #include "../../model/SystemConstant.h"
-#include "../../model/Binding.h"
+//#include "../../model/Binding.h"
+#include "OldBinding.h"
 
 // sigh, need this until we can figure out what to do with ExValue
 #include "Expr.h"
@@ -115,8 +116,8 @@ typedef union {
     void* object;
     class Function* function;
     class Parameter* parameter;
-    class Bindable* bindable;
-    class UIControl* uicontrol;
+    class OldBindable* bindable;
+    class OldUIControl* uicontrol;
 
 } TargetPointer;
 
@@ -153,8 +154,8 @@ class ResolvedTarget {
 
     bool isInterned();
 
-    class Target* getTarget();
-    void setTarget(class Target* t);
+    class OldTarget* getTarget();
+    void setTarget(class OldTarget* t);
 
     const char* getName();
     void setName(const char* name);
@@ -186,7 +187,7 @@ class ResolvedTarget {
 
     bool mInterned;
     ResolvedTarget* mNext;
-    class Target* mTarget;
+    class OldTarget* mTarget;
     char* mName;
     TargetPointer mObject;
     int mTrack;
@@ -285,12 +286,12 @@ class Action {
 	/**
 	 * The trigger that was detected.
 	 */
-	Trigger* trigger;
+	OldTrigger* trigger;
 
     /**
      * The behavior of this trigger if ambiguous.
      */
-    TriggerMode* triggerMode;
+    OldTriggerMode* triggerMode;
 
     /**
      * True if we will be passing the OSC message argument
@@ -350,7 +351,7 @@ class Action {
 
     bool isResolved();
     bool isSustainable();
-    Target* getTarget();
+    OldTarget* getTarget();
     void* getTargetObject();
     class Function* getFunction();
     int getTargetTrack();
@@ -358,8 +359,8 @@ class Action {
 
     bool isTargetEqual(Action* other);
 
-    void setTarget(Target* t);
-    void setTarget(Target* t, void* object);
+    void setTarget(OldTarget* t);
+    void setTarget(OldTarget* t, void* object);
     void setFunction(class Function* f);
     void setParameter(class Parameter* p);
     void setTargetTrack(int track);

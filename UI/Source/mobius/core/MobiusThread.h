@@ -125,6 +125,13 @@ class MobiusThread : public TraceListener
 	void traceEvent();
 	void threadEnding();
 
+    // these were defined in Thread, stub them
+    void enterCriticalSection() {
+    }
+
+    void leaveCriticalSection() {
+    }
+
   private:
 
 	void flushEvents();

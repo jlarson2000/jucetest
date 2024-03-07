@@ -19,8 +19,10 @@
 #ifndef STREAM_PLUGIN_H
 #define STREAM_PLUGIN_H
 
-// for MAX_HOST_BUFFER_SIZE, need to be consistent
-#include "HostInterface.h"
+// this only provided MAX_HOST_BUFFER_FRAMES
+// needs a lot of thought
+// #include "HostInterface.h"
+#define MAX_HOST_BUFFER_FRAMES 4096
 
 /****************************************************************************
  *                                                                          *

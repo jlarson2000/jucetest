@@ -149,7 +149,7 @@ class Loop : public TraceContext {
     // Status
     //
 
-    class LoopState* getState();
+    class MobiusLoopState* getState();
     class StreamState* getRestoreState();
 	void getSummary(class LoopSummary* s, bool active);
 	class MobiusMode* getMode();
@@ -309,7 +309,7 @@ class Loop : public TraceContext {
     void init(class Mobius* mob, class Track* track, 
 			  class InputStream* input, class OutputStream* output);
 
-	void refreshState(class LoopState* s);
+	void refreshState(class MobiusLoopState* s);
 	void clear();
     bool checkThreshold();
 	void notifyBeatListeners(class Layer* layer, long frames);
@@ -325,7 +325,7 @@ class Loop : public TraceContext {
 	long getModeInsertedFrames(Event* endEvent);
 	long getModeEndFrame(Event* event);
 
-	void getLayerState(class Layer* layers, class LayerState* states, int max,
+	void getLayerState(class Layer* layers, class MobiusLayerState* states, int max,
 					   int *retAdded, int* retLost);
     long reflectFrame(long frame);
 

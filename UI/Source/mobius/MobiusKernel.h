@@ -57,6 +57,10 @@ class MobiusKernel : public MobiusContainer::AudioListener
     class Recorder* getRecorder() {
         return mRecorder;
     }
+
+    class MobiusContainer* getContainer() {
+        return container;
+    }
     
   private:
 
@@ -75,6 +79,9 @@ class MobiusKernel : public MobiusContainer::AudioListener
     class Recorder* mRecorder = nullptr;
     class SampleTrack* sampleTrack = nullptr;
 
+    // the big guy
+    class Mobius* mCore = nullptr;
+    
     // AudioListener activities
     void interruptStart();
     void interruptEnd();

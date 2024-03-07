@@ -42,7 +42,7 @@ ScriptRuntime::~ScriptRuntime()
  * RunScriptFunction global function handler.
  * RunScriptFunction::invoke calls back to to this.
  */
-PUBLIC void ScriptRuntime::runScript(Action* action)
+void ScriptRuntime::runScript(Action* action)
 {
     Function* function = NULL;
     Script* script = NULL;
@@ -130,7 +130,7 @@ PUBLIC void ScriptRuntime::runScript(Action* action)
  * use focus lock and may be run in multiple tracks and the action
  * may target a group.
  */
-PRIVATE void ScriptRuntime::startScript(Action* action, Script* script)
+void ScriptRuntime::startScript(Action* action, Script* script)
 {
 	Track* track = mMobius->resolveTrack(action);
 
@@ -176,7 +176,7 @@ PRIVATE void ScriptRuntime::startScript(Action* action, Script* script)
  * !! Think more about how reentrant scripts and sustain scripts interact,
  * feels like we have more work here.
  */
-PRIVATE void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
+void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 {
 
 	if (s->isContinuous()) {
@@ -318,7 +318,7 @@ PRIVATE void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
  * scripts where we may be queueing several for the next interrupt but
  * they must be done in invocation order.
  */
-PRIVATE void ScriptRuntime::addScript(ScriptInterpreter* si)
+void ScriptRuntime::addScript(ScriptInterpreter* si)
 {
 	ScriptInterpreter* last = NULL;
 	for (ScriptInterpreter* s = mScripts ; s != NULL ; s = s->getNext())
@@ -342,7 +342,7 @@ PRIVATE void ScriptRuntime::addScript(ScriptInterpreter* si)
  * 
  * !! This is bad, need to think more about how autoload scripts die gracefully.
  */
-PRIVATE bool ScriptRuntime::isInUse(Script* s)
+bool ScriptRuntime::isInUse(Script* s)
 {
 	bool inuse = false;
 
@@ -366,7 +366,7 @@ PRIVATE bool ScriptRuntime::isInUse(Script* s)
  * not receive retrancy or sustain callbacks if it turns off focus lock.
  *
  */
-PRIVATE ScriptInterpreter* ScriptRuntime::findScript(Action* action, Script* s,
+ScriptInterpreter* ScriptRuntime::findScript(Action* action, Script* s,
                                                      Track* t)
 {
 	ScriptInterpreter* found = NULL;
@@ -401,7 +401,7 @@ PRIVATE ScriptInterpreter* ScriptRuntime::findScript(Action* action, Script* s,
  * a reset?
  * 
  */
-PUBLIC void ScriptRuntime::resumeScript(Track* t, Function* f)
+void ScriptRuntime::resumeScript(Track* t, Function* f)
 {
 	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
 		if (si->getTargetTrack() == t) {
@@ -447,7 +447,7 @@ PUBLIC void ScriptRuntime::resumeScript(Track* t, Function* f)
  * to be canceled.  
  *
  */
-PUBLIC void ScriptRuntime::cancelScripts(Action* action, Track* t)
+void ScriptRuntime::cancelScripts(Action* action, Track* t)
 {
     if (action == NULL) {
         // we had been ignoring these, when can this happen?
@@ -478,7 +478,7 @@ PUBLIC void ScriptRuntime::cancelScripts(Action* action, Track* t)
  * Some of the scripts need to know the millisecond size of the buffer
  * so the sampleRate and frame count is passed.
  */
-PUBLIC void ScriptRuntime::doScriptMaintenance(int sampleRate, long frames)
+void ScriptRuntime::doScriptMaintenance(int sampleRate, long frames)
 {
 	int msecsInBuffer = (int)((float)frames / ((float)sampleRate / 1000.0));
 	// just in case we're having rounding errors, make sure this advances
@@ -558,7 +558,7 @@ PUBLIC void ScriptRuntime::doScriptMaintenance(int sampleRate, long frames)
  * anywhere else we run the risk of freeing a thread that 
  * doScriptMaintenance is still iterating over.
  */
-PRIVATE void ScriptRuntime::freeScripts()
+void ScriptRuntime::freeScripts()
 {
 	ScriptInterpreter* next = NULL;
 	ScriptInterpreter* prev = NULL;
@@ -601,7 +601,7 @@ PRIVATE void ScriptRuntime::freeScripts()
  * remembering the invoking ScriptInterpreter in the event, because
  * ScriptInterpreters can die before the events they launch are finished.
  */
-PUBLIC void ScriptRuntime::doScriptNotification(Action* a)
+void ScriptRuntime::doScriptNotification(Action* a)
 {
     if (a->trigger != TriggerThread)
       Trace(1, "Unexpected script notification trigger!\n");

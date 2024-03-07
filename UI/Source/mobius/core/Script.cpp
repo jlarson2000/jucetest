@@ -1,3 +1,5 @@
+// commented out file handling, need to move this up
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -46,6 +48,11 @@
 #include <memory.h>
 #include <ctype.h>
 
+#include "Mapper.h"
+
+// for CD_SAMPLE_RATE, MSEC_TO_FRAMES, move these to Mapper
+#include "AudioInterface.h"
+
 #include "Expr.h"
 #include "../../util/List.h"
 #include "../../util/Util.h"
@@ -68,6 +75,9 @@
 #include "Track.h"
 #include "../../model/UserVariable.h"
 #include "Variable.h"
+
+// for Trigger
+#include "OldBinding.h"
 
 /****************************************************************************
  *                                                                          *
@@ -2198,12 +2208,12 @@ ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
 
     Mobius* m = si->getMobius();
     MobiusConfig* config = m->getInterruptConfiguration();
-	Setup* s = config->getSetup(name);
+	Setup* s = GetSetup(config, name);
 
     // if a name lookup didn't work it may be a number, 
     // these will be zero based!!
     if (s == NULL)
-      s = config->getSetup(ToInt(name));
+      s = GetSetup(config, ToInt(name));
 
     if (s != NULL) {
         // special interface for us to avoid queueing for the next interrupt
@@ -2248,12 +2258,12 @@ ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
 
     Mobius* m = si->getMobius();
     MobiusConfig* config = m->getInterruptConfiguration();
-    Preset* p = config->getPreset(name);
+    Preset* p = GetPreset(config, name);
 
     // if a name lookup didn't work it may be a number, 
     // these will be zero based!
     if (p == NULL)
-      p = config->getPreset(ToInt(name));
+      p = GetPreset(config, ToInt(name));
 
     if (p != NULL) {
 		Track* t = si->getTargetTrack();
@@ -4264,6 +4274,7 @@ ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
 		for (ScriptRef* ref = config->getScripts() ; ref != NULL ; 
 			 ref = ref->getNext()) {
 
+#if 0            
             // allow relative paths so we can distribute examples
             char path[1024];
 			const char* file = ref->getFile();
@@ -4306,6 +4317,7 @@ ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
             else {
                 Trace(1, "Invalid script path: %s\n", file);
             }
+#endif            
 		}
 	}
 
@@ -4342,6 +4354,7 @@ void ScriptCompiler::recompile(Mobius* m, Script* script)
 	if (script->isAutoLoad()) {
         const char* filename = script->getFilename();
         if (filename != NULL) {
+#if 0            
             FILE* fp = fopen(filename, "r");
             if (fp == NULL) {
                 Trace(1, "Unable to refresh script %s\n", filename);
@@ -4368,6 +4381,7 @@ void ScriptCompiler::recompile(Mobius* m, Script* script)
 
                 fclose(fp);
             }
+#endif
         }
     }
 }
@@ -4393,6 +4407,7 @@ void ScriptCompiler::link(Script* s)
  */
 void ScriptCompiler::parse(const char* filename)
 {
+#if 0
     if (!IsFile(filename)) {
 		Trace(1, "Unable to locate script file %s\n", filename);
 	}
@@ -4435,8 +4450,10 @@ void ScriptCompiler::parse(const char* filename)
             fclose(fp);
         }
     }
+#endif    
 }
 
+#if 0
 bool ScriptCompiler::parse(FILE* fp, Script* script)
 {
 	char line[SCRIPT_MAX_LINE + 4];
@@ -4614,6 +4631,7 @@ bool ScriptCompiler::parse(FILE* fp, Script* script)
     // parse errors and let the script do the best it can?
     return true;
 }
+#endif
 
 /**
  * Helper for script declaration argument parsing.
@@ -6517,6 +6535,7 @@ void ScriptInterpreter::getStackArg(ScriptStack* stack,
  */
 void ScriptInterpreter::expandFile(const char* value, ExValue* retval)
 {
+#if 0    
 	retval->setNull();
 
     // first do basic expansion
@@ -6559,6 +6578,7 @@ void ScriptInterpreter::expandFile(const char* value, ExValue* retval)
 			}
 		}
 	}
+#endif
 }
 
 /**

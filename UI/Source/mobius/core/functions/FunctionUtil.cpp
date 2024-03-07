@@ -17,7 +17,7 @@
 #include <memory.h>
 #include <string.h>
 
-#include "../../util/Util.h"
+#include "../../../util/Util.h"
 #include "../MidiByte.h"
 
 #include "../Action.h"

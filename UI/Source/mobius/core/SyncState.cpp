@@ -31,6 +31,7 @@
 #include "../../model/Setup.h"
 #include "Synchronizer.h"
 
+#include "Event.h"
 #include "SyncState.h"
 
 /****************************************************************************

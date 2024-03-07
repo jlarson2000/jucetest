@@ -314,7 +314,8 @@ void ActionDispatcher::doPreset(Action* a)
     }
 
     if (p != NULL) {
-        int number = p->getNumber();
+        //int number = p->getNumber();
+        int number = p->ordinal;
 
         Trace(2, "Preset action: %ld\n", (long)number);
 
@@ -377,7 +378,8 @@ void ActionDispatcher::doSetup(Action* a)
     }
 
     if (s != NULL) {
-        int number = s->getNumber();
+        //int number = s->getNumber();
+        int number = s->ordinal;
         Trace(2, "Setup action: %ld\n", (long)number);
 
         // This is messy, the resolved target will
@@ -406,7 +408,7 @@ void ActionDispatcher::doSetup(Action* a)
 void ActionDispatcher::doBindings(Action* a)
 {
     // If we're here from a Binding should have resolved
-    BindingConfig* bc = (BindingConfig*)a->getTargetObject();
+    OldBindingConfig* bc = (OldBindingConfig*)a->getTargetObject();
     if (bc == NULL) {
         // may be a dynamic action
         int number = a->arg.getInt();

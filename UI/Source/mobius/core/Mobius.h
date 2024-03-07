@@ -1,6 +1,12 @@
 /**
  * Heavily reduced copy of the original code.
- * No MobiusInterface, no Dialogs, much of model moved up, etc.
+ * Mobius now lives entirely in the Kernel and does not have
+ * to worry about which thread it is on.
+ *
+ * MobiusConfig is shared with Kernel
+ *
+ * Still using some communication classes in MobiusInterface
+ * like MobiusAlerts but we are no longer a MobiusInterface implementation.
  */
 
 #pragma once
@@ -44,41 +50,126 @@ class Mobius :
 
   public:
 
-	Mobius(MobiusKernel* kernel);
+    /**
+     * Constructred by Kernel, pull MobiusConfig and other things from there.
+     */
+	Mobius(class MobiusKernel* kernel);
 	~Mobius();
 
+    /**
+     * Called by Kernel at a suitable time after construction to flesh out the
+     * internal components.
+     */
+    void initialize(class MobiusConfig* config);
+
+    /**
+     * Called by Kernel during application shutdown to release any resources,
+     * though at this point since we can't allocate memory there
+     * shouldn't be much to do.
+     */
+    void shutdown();
+
+    /**
+     * Called by Kernel after initialization and we've been running and
+     * the user has edited the configuration.
+     */
+    void reconfigure(class MobiusConfig* config);
+
+    /**
+     * Called by Kernel at the beginning of each audio block "interrupt".
+     * The MobiusKernel and anything we extracted from it in the constructor
+     * will still be valid.
+     *
+     * THINK: Might still want to pass an AudioStream wrapper here so kernel
+     * has the flexibility to splice in something different for testing.
+     */
+    void beginAudioInterrupt();
+
+    /**
+     * Called by Kernel at the end of each audio block.
+     */
+    void endAudioInterrupt();
+
+    /**
+     * Process actions using the new UIAction model.
+     * This will be internally convreted into the old Action model in all
+     * it's gory detail.
+     *
+     * The UIAction has been copied from what was passed by the  UI so
+     * it is safe to use, but it is owned by the Kernel and must not
+     * be deleted.
+     */
+    void doAction(UIAction* action);
+
     //////////////////////////////////////////////////////////////////////
+    // 
+    // Legacy Interface
     //
-    // MobiusInterface
-    // These are the only methods that applications should use
-    // all the others are "protected" for use in function invocation
+    // Things that used to be in MobiusInterface. Keep a few of them around
+    // for the Kernel/Mobius interface but refactor when ready.
+    //
+    // Some are used by internal components to get to important objects
+    // like AudioStream and MidiInterface
     //
     //////////////////////////////////////////////////////////////////////
 
-    // Configuration
+    /**
+     * Return the shared MobiusConfig for use by internal components.
+     *
+     * This is shared with Kernel and should have limited modifications.
+     * To support changing runtime parameters from
+     * scripts, each track will be given a copy of the Preset.  Script changes go
+     * into those copies.  On Reset, the original values are restored from this
+     * master config.
+     *
+     * Scripts can also change things in Global config.  This is rare and I don't
+     * know if it's worth making an entire copy of the MobiusConfig.  This does
+     * however mean that Shell/Kernel can go out of sync.  Need to think about
+     * what that would mean.
+     */
+    class MobiusConfig* getConfiguration();
 
-    //MobiusContext* getContext();
+    /**
+     * Return an object that implements the old AudioStream interface.
+     * This will now be bridge code between core code and MobiusContainer.
+     */
     class AudioStream* getAudioStream();
-    //void preparePluginBindings();
-	void start();
+
+    // formerly a combo of getContxt and getMidiInterface
+    class MidiInterface* getMidiInterface();
+
+    class HostMidiInterface* getHostMidiInterface();
+
+    // formerly on MobiusContext
+    bool isPlugin() {
+        return false;
+    }
+    
+    /**
+     * Keep listener support for awhile until we clean up the MobiusThread
+     * control handling.  Should be able to get rid of this.
+     */
 	void setListener(MobiusListener* mon);
 	MobiusListener* getListener();
-    //void setUIBindables(UIControl** controls, UIParameter** parameters);
-    //UIControl** getUIControls();
-    //UIControl* getUIControl(const char* name);
-
-    //class HostConfigs* getHostConfigs();
-	class MobiusConfig* getConfiguration();
-	//class MobiusConfig* editConfiguration();
     
-    //bool findConfigurationFile(const char* file, char* path, int max);
+    /**
+     * Used to support an interface for assimilating an edited config
+     * but only updating internal state for a portion of it.
+     * That could still be relevant but we'll assume full reconfigure for now.
+     */
+	//void setFullConfiguration(class MobiusConfig* config);
+	//void setGeneralConfiguration(class MobiusConfig* config);
+	//void setPresetConfiguration(class MobiusConfig* config);
+	//void setSetupConfiguration(class MobiusConfig* config);
+	//void setBindingConfiguration(class MobiusConfig* config);
 
-	void setFullConfiguration(class MobiusConfig* config);
-	void setGeneralConfiguration(class MobiusConfig* config);
-	void setPresetConfiguration(class MobiusConfig* config);
-	void setSetupConfiguration(class MobiusConfig* config);
-	void setBindingConfiguration(class MobiusConfig* config);
-    //void reloadOscConfiguration();
+    /**
+     * This I think was an action handler to make it reload script files
+     * after the files were modified outside the application.
+     * Still want that but it needs to be done in Supervisor where
+     * all the other file handling lives.  Make it similar to the way
+     * SampleConfig is loaded and passed in.
+     */
     void reloadScripts();
 
     // Triggers and Actions
@@ -129,9 +220,9 @@ class Mobius :
 
     // External bindings
 
-    class ResolvedTarget* resolveTarget(Binding* b);
-    class Action* resolveAction(Binding* b);
-    class Export* resolveExport(Binding* b);
+    class ResolvedTarget* resolveTarget(OldBinding* b);
+    class Action* resolveAction(OldBinding* b);
+    class Export* resolveExport(OldBinding* b);
     class Export* resolveExport(ResolvedTarget* t);
     class Export* resolveExport(Action* a);
 
@@ -159,7 +250,7 @@ class Mobius :
 
 	//void setOverlayBindings(class BindingConfig* c);
 
-    //class ControlSurface* getControlSurfaces();
+    class ControlSurface* getControlSurfaces();
     
 	class MobiusMode* getMode();
 	long getFrame();
@@ -171,7 +262,7 @@ class Mobius :
 
 	// MidiHandler interface
 
-	//void midiEvent(class MidiEvent* e);
+	void midiEvent(class MidiEvent* e);
 
 	// RecorderMonitor interface
 	//void recorderMonitorEnter(AudioStream* stream);
@@ -192,8 +283,7 @@ class Mobius :
 
 	// Function Invocation
 
-
-    //void run(class Script* s);
+    void run(class Script* s);
 
 	// Global functions
 	// Only need to be public for the Function handlers
@@ -279,23 +369,23 @@ class Mobius :
 	void stop();
     bool installScripts(class ScriptConfig* config, bool force);
     void installWatchers();
-	void localize();
+	//void localize();
 	//class MessageCatalog* readCatalog(const char* language);
-    void localizeUIControls();
+    //void localizeUIControls();
 	void updateBindings();
     void propagateInterruptConfig();
     void propagateSetupGlobals(class Setup* setup);
     bool unitTestSetup(MobiusConfig* config);
 
     bool isFocused(class Track* t);
-    //bool isBindableDifference(Bindable* orig, Bindable* neu);
+    // bool isBindableDifference(class OldBindable* orig, class OldBindable* neu);
 	void setConfiguration(class MobiusConfig* config, bool doBindings);
 	void installConfiguration(class MobiusConfig* config, bool doBindings);
-	void writeConfiguration(MobiusConfig* config);
-	void parseCommandLine();
+	//void writeConfiguration(MobiusConfig* config);
+	//void parseCommandLine();
 	class MobiusConfig* loadConfiguration();
     class HostConfigs* loadHostConfiguration();
-    class OscConfig* loadOscConfiguration();
+    //class OscConfig* loadOscConfiguration();
 	void updateControlSurfaces();
     void initFunctions();
     void initScriptParameters();
@@ -315,10 +405,10 @@ class Mobius :
     void addBinding(class BindingConfig* config, class Parameter* param, int id);
 
     void resolveTrigger(Binding* b, Action* a);
-    class Action* resolveOscAction(Binding* b);
+    //class Action* resolveOscAction(Binding* b);
     void parseBindingScope(const char* scope, int* track, int* group);
     const char* getToken(const char* ptr, char* token);
-    void oscUnescape(const char* src, char* dest, int max);
+    //void oscUnescape(const char* src, char* dest, int max);
     ResolvedTarget* internTarget(Target* target, const char* name,
                                  int track, int group);
 
@@ -335,22 +425,31 @@ class Mobius :
     void doUIControl(Action* a);
     void invoke(Action* a, class Track* t);
 
-	MobiusContext* mContext;
-	class ObjectPoolManager* mPools;
+    //
+    // Member Variables
+    //
+
+    // Supplied by Kernel
+    class MobiusKernel* mKernel;
+    class MobiusContainer* mContainer;
     class AudioPool* mAudioPool;
+    
+    //MobiusContext* mContext;
+	class ObjectPoolManager* mPools;
     class LayerPool* mLayerPool;
     class EventPool* mEventPool;
     class ActionPool* mActionPool;
 	//class MessageCatalog* mCatalog;
-	bool mLocalized;
+	//bool mLocalized;
 	MobiusListener* mListener;
     Watchers* mWatchers;
     class List* mNewWatchers;
     UIControl** mUIControls;
     UIParameter** mUIParameters;
-	char* mConfigFile;
+	//char* mConfigFile;
 	class MobiusConfig *mConfig;
 	class MobiusConfig *mInterruptConfig;
+    class Setup* mInterruptSetup;
 	class MobiusConfig *mPendingInterruptConfig;
 	class MidiInterface* mMidi;
     class HostConfigs* mHostConfigs;
@@ -359,8 +458,8 @@ class Mobius :
     class BindingResolver* mBindingResolver;
     class TriggerState* mTriggerState;
     class MidiExporter* mMidiExporter;
-    class OscConfig* mOscConfig;
-	class OscRuntime* mOsc;
+    //class OscConfig* mOscConfig;
+	//class OscRuntime* mOsc;
     class ControlSurface* mControlSurfaces;
 
 	Recorder* mRecorder;
@@ -369,7 +468,7 @@ class Mobius :
 	class Track* mTrack;
 	int mTrackCount;
     int mTrackIndex;
-	class SampleTrack* mSampleTrack;
+	//class SampleTrack* mSampleTrack;
 	class UserVariables* mVariables;
 	class ScriptEnv* mScriptEnv;
     class Function** mFunctions;
@@ -389,7 +488,7 @@ class Mobius :
 	class Project* mPendingProject;
 
     // pending samples to install
-	class SamplePack* mPendingSamples;
+	//class SamplePack* mPendingSamples;
 
 	// pending project to be saved
 	class Project* mSaveProject;

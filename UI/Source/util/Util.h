@@ -53,13 +53,20 @@
 
 void CopyString(const char* src, char* dest, int max);
 char* CopyString(const char *src);
+char* CopyString(const char* src, int len);
 void AppendString(const char* src, char* dest, int max);
 
 bool StringEqual(const char* s1, const char* s2);
 bool StringEqualNoCase(const char* s1, const char* s2);
 bool StringEqualNoCase(const char* s1, const char* s2, int max);
 int LastIndexOf(const char* str, const char* substr);
+
+bool StartsWith(const char* str, const char* prefix);
 bool StartsWithNoCase(const char* str, const char* prefix);
+bool EndsWith(const char* str, const char* suffix);
+bool EndsWithNoCase(const char* str, const char* suffix);
+
+void GetLeafName(const char* path, char* buffer, bool extension);
 
 #define MAX_NUMBER_TOKEN 128
 int ParseNumberString(const char* src, int* numbers, int max);
@@ -68,6 +75,9 @@ bool IsInteger(const char* str);
 int ToInt(const char* str);
 
 int Random(int low, int high);
+
+int IndexOf(const char* str, const char* substr);
+int IndexOf(const char* str, const char* substr, int start);
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -13,13 +13,14 @@
 #include <string.h>
 #include <memory.h>
 
+#include "../../../model/MobiusConfig.h"
+
 #include "../Action.h"
 #include "../Event.h"
 #include "../Function.h"
 #include "../Loop.h"
 #include "../Messages.h"
 #include "../Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "../Track.h"
 
 /****************************************************************************

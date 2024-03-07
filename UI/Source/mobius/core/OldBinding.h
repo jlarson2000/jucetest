@@ -1,51 +1,162 @@
 //
 // Temporary backward compatibility for things that want the old binding model
+// This is what used to be in Binding.h but with "Old" prefixed on all the names
+// so it doesn't conflict with the new Binding model.  Only bring things inthat
+// are necessary for compiling, we'll rip all this out at some point.
 //
 
 #pragma once
 
 #include "../../model/SystemConstant.h"
 
-class Target : public SystemConstant {
+/****************************************************************************
+ *                                                                          *
+ *                                  TRIGGER                                 *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldTrigger : public SystemConstant {
   public:
 
-	static Target* get(const char* name);
+	static OldTrigger* get(const char* name);
 
-	Target(const char* name, const char* display);
+    OldTrigger(const char* name, const char* display, bool bindable);
+
+    bool isBindable();
+
+  private:
+
+   // true if this can be dynamically bound with a Binding object.
+   bool mBindable;
+
+};
+
+extern OldTrigger* OldTriggerKey;
+extern OldTrigger* OldTriggerMidi;
+extern OldTrigger* OldTriggerHost;
+extern OldTrigger* OldTriggerOsc;
+extern OldTrigger* OldTriggerUI;
+
+// these are used only for binding definitions, not for actions
+extern OldTrigger* OldTriggerNote;
+extern OldTrigger* OldTriggerProgram;
+extern OldTrigger* OldTriggerControl;
+extern OldTrigger* OldTriggerPitch;
+
+// internal triggers not used in bindings
+extern OldTrigger* OldTriggerScript;
+extern OldTrigger* OldTriggerThread;
+extern OldTrigger* OldTriggerAlert;
+extern OldTrigger* OldTriggerEvent;
+extern OldTrigger* OldTriggerUnknown;
+
+/****************************************************************************
+ *                                                                          *
+ *                                TRIGGER MODE                              *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldTriggerMode : public SystemConstant {
+  public:
+
+	static OldTriggerMode* get(const char* name);
+
+    OldTriggerMode(const char* name, const char* display);
 
   private:
 
 };
 
-extern Target* TargetFunction;
-extern Target* TargetParameter;
-extern Target* TargetSetup;
-extern Target* TargetPreset;
-extern Target* TargetBindings;
-extern Target* TargetUIControl;
-extern Target* TargetUIConfig;
+extern OldTriggerMode* OldTriggerModeContinuous;
+extern OldTriggerMode* OldTriggerModeOnce;
+extern OldTriggerMode* OldTriggerModeMomentary;
+extern OldTriggerMode* OldTriggerModeToggle;
+extern OldTriggerMode* OldTriggerModeXY;
+extern OldTriggerMode* OldTriggerModes[];
+
+/****************************************************************************
+ *                                                                          *
+ *   							   TARGETS                                  *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldTarget : public SystemConstant {
+  public:
+
+	static OldTarget* get(const char* name);
+
+	OldTarget(const char* name, const char* display);
+
+  private:
+
+};
+
+extern OldTarget* OldTargetFunction;
+extern OldTarget* OldTargetParameter;
+extern OldTarget* OldTargetSetup;
+extern OldTarget* OldTargetPreset;
+extern OldTarget* OldTargetBindings;
+extern OldTarget* OldTargetUIControl;
+extern OldTarget* OldTargetUIConfig;
 
 // internal targets, can't be used in bindings
-extern Target* TargetScript;
+extern OldTarget* OldTargetScript;
 
-extern Target* Targets[];
+extern OldTarget* OldTargets[];
 
-/**
- * Common base class for configuration objects that can be selected
- * with Triggers.
- *
- * Currently this is Setup, Preset, and BindingConfig.
- *
- * Like UIControl, this isn't part of the Binding model so it doesn't
- * really belong here, but I don't have a better place for it.
- */
-class Bindable {
+/****************************************************************************
+ *                                                                          *
+ *                                 UI CONTROL                               *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldUIControl : public SystemConstant {
 
   public:
 
-	Bindable();
-	~Bindable();
-	void clone(Bindable* src);
+	OldUIControl();
+	OldUIControl(const char* name, int key);
+
+  private:
+
+    void init();
+
+};
+
+/****************************************************************************
+ *                                                                          *
+ *                                UI PARAMETER                              *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldUIParameter : public SystemConstant {
+
+  public:
+
+    OldUIParameter(const char* name, int key);
+
+    // never existed...
+	//static UIParameter** getParameters();
+	//static UIParameter* getParameter(const char* name);
+	//static void localizeAll(class MessageCatalog* cat);
+
+  private:
+
+};
+
+/****************************************************************************
+ *                                                                          *
+ *   							   BINDABLE                                 *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldBindable {
+
+  public:
+
+	OldBindable();
+	~OldBindable();
+	void clone(OldBindable* src);
 
 	void setNumber(int i);
 	int getNumber();
@@ -53,11 +164,8 @@ class Bindable {
 	void setName(const char* name);
 	const char* getName();
 
-    virtual Bindable* getNextBindable() = 0;
-	virtual class Target* getTarget() = 0;
-
-	void toXmlCommon(class XmlBuffer* b);
-	void parseXmlCommon(class XmlElement* e);
+    virtual OldBindable* getNextBindable() = 0;
+	virtual class OldTarget* getTarget() = 0;
 
   protected:
 
@@ -75,45 +183,152 @@ class Bindable {
 
 };
 
-/**
- * Defines a control managed by the UI that may be a binding target.
- * These are given to Mobius during initialization, the core code
- * does not have any predefined knowledge of what these are.
- *
- * These are functionally the same as a Function or Parameter objects,
- * so they don't really belong with the Binding definition classes
- * but I don't have a better place for it.  UITypes.h shouldn't be used
- * because that has things in it specific to the UI which core Mobius
- * shouldn't know about.
- * 
- * There are two types of controls: instant and continuous.
- * Instant controls are like Mobius functions, they are one-shot
- * actions that do not have a range of values.
- *
- * Continuous controls are like Mobius controls, they have a range
- * of values.
- *
- * NOTE: Continuous controls have never been used, the current
- * controls are: nextParameter, prevParameter, incParameter, decParameter,
- * spaceDrag (aka Move Display Components).
- *
- * We don't have a way to define min/max ranges even if we did have
- * continuous controls and we don't have a way to define sustain behavior.
- * Basically we'd need things from Function and Parameter combined, 
- * this isn't such a bad thing but it may be better to have the UI
- * give us Function and Parameter objects instead so we have
- * a consistent way of dealing with both internal and UI functions.
- *
- */
-class UIControl : public SystemConstant {
+/****************************************************************************
+ *                                                                          *
+ *   							   BINDING                                  *
+ *                                                                          *
+ ****************************************************************************/
 
+class OldBinding {
+	
   public:
+	
+	OldBinding();
+	virtual ~OldBinding();
 
-	UIControl();
-	UIControl(const char* name, int key);
+	void setNext(OldBinding* c);
+	OldBinding* getNext();
+
+	bool isValid();
+	bool isMidi();
+
+	//
+	// trigger
+	//
+
+	void setTrigger(OldTrigger* t);
+	OldTrigger* getTrigger();
+
+    // for MIDI, key, and host parameter triggers
+	void setValue(int v);
+	int getValue();
+
+	// only for MIDI triggers
+	void setChannel(int c);
+	int getChannel();
+
+    // only for OSC triggers
+    void setTriggerPath(const char* s);
+    const char* getTriggerPath();
+
+    // only for OSC triggers
+    void setTriggerMode(OldTriggerMode* tt);
+    OldTriggerMode* getTriggerMode();
+
+	//
+	// target
+	//
+
+    void setTargetPath(const char* s);
+    const char* getTargetPath();
+
+	void setTarget(OldTarget* t);
+	OldTarget* getTarget();
+
+	void setName(const char* s);
+	const char* getName();
+
+	void setArgs(const char* c);
+	const char* getArgs();
+
+	//
+	// scope
+	//
+
+    const char* getScope();
+    void setScope(const char* s);
+
+    // parsed scopes
+	void setTrack(int t);
+	int getTrack();
+	void setGroup(int g);
+	int getGroup();
+
+	//
+	// Utils
+	//
+
+	void getSummary(char* buffer);
+    void getMidiString(char* buffer, bool includeChannel);
+    void getKeyString(char* buffer, int max);
 
   private:
 
-    void init();
+	void init();
+    void parseScope();
+
+	OldBinding* mNext;
+
+	// trigger
+	OldTrigger* mTrigger;
+    OldTriggerMode* mTriggerMode;
+    char* mTriggerPath;
+	int mValue;
+	int mChannel;
+
+	// target
+    char* mTargetPath;
+	OldTarget* mTarget;
+	char* mName;
+
+	// scope, tracks and groups are both numberd from 1
+    // both zero means "currently selected track"
+    char* mScope;
+	int mTrack;
+	int mGroup;
+
+    // arguments
+	char* mArgs;
 
 };
+
+/****************************************************************************
+ *                                                                          *
+ *   							BINDING CONFIG                              *
+ *                                                                          *
+ ****************************************************************************/
+
+class OldBindingConfig : public OldBindable {
+
+  public:
+
+	OldBindingConfig();
+	~OldBindingConfig();
+	OldBindingConfig* clone();
+
+    OldBindable* getNextBindable();
+	OldTarget* getTarget();
+	
+	void setNext(OldBindingConfig* c);
+	OldBindingConfig* getNext();
+
+	void addBinding(OldBinding* c);
+	void removeBinding(OldBinding* c);
+
+	OldBinding* getBindings();
+	void setBindings(OldBinding* b);
+
+    OldBinding* getBinding(OldTrigger* trig, int value);
+
+  private:
+
+	void init();
+
+	OldBindingConfig* mNext;
+	OldBinding* mBindings;
+	
+};
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

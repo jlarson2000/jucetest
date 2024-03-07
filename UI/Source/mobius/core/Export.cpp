@@ -15,6 +15,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "Mapper.h"
+
+
 #include "../../util/Util.h"
 
 #include "Action.h"
@@ -162,7 +165,7 @@ ExportType Export::getType()
 
         Target* ttype = mTarget->getTarget();
 
-        if (ttype == TargetParameter) {
+        if (ttype == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL) {
                 ParameterType ptype = p->type;
@@ -197,7 +200,7 @@ int Export::getMinimum()
 
         Target* type = mTarget->getTarget();
 
-        if (type == TargetParameter) {
+        if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL) {
                 ParameterType type = p->type;
@@ -222,11 +225,11 @@ int Export::getMaximum()
     if (mTarget != NULL) {
         Target* type = mTarget->getTarget();
 
-        if (type == TargetParameter) {
+        if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             // note that we use "binding high" here so that INT params
             // are constrained to a useful range for binding
-            max = p->getBindingHigh(mMobius);
+            max = GetBindingHigh(p, mMobius);
         }
     }
 
@@ -244,7 +247,7 @@ const char** Export::getValueLabels()
     if (mTarget != NULL) {
 
         Target* type = mTarget->getTarget();
-        if (type == TargetParameter) {
+        if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL)
               labels = p->valueLabels;
@@ -277,7 +280,7 @@ void Export::getOrdinalLabel(int ordinal, ExValue* value)
 
     if (mTarget != NULL) {
         Target* target = mTarget->getTarget();
-        if (target == TargetParameter) {
+        if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             p->getOrdinalLabel(mMobius, ordinal, value);
         }
@@ -295,7 +298,7 @@ bool Export::isDisplayable()
 
     if (mTarget != NULL) {
         Target* type = mTarget->getTarget();
-        if (type == TargetParameter) {
+        if (type == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             displayable = (p != NULL && p->bindable);
         }
@@ -359,7 +362,7 @@ int Export::getOrdinalValue()
 
         Target* target = mTarget->getTarget();
 
-        if (target == TargetParameter) {
+        if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             value = p->getOrdinalValue(this);
         }
@@ -383,7 +386,7 @@ void Export::getValue(ExValue* value)
 
         Target* target = mTarget->getTarget();
 
-        if (target == TargetParameter) {
+        if (target == OldTargetParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             p->getValue(this, value);
         }

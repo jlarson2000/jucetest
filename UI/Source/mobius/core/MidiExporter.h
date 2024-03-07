@@ -43,8 +43,8 @@ class MidiExporter {
 
   private:
 
-    void addExports(class Mobius* m, class BindingConfig* bindings);
-    class Export* convertBinding(class Mobius* mobius, class Binding* b);
+    void addExports(class Mobius* m, class OldBindingConfig* bindings);
+    class Export* convertBinding(class Mobius* mobius, class OldBinding* b);
 
     MidiExporter* mHistory;
     class Mobius* mMobius;

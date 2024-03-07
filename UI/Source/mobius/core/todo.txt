@@ -1,0 +1,21 @@
+
+Mobius::getState
+  - don't need to be returning OverlayBindings?  Well I guess a script
+    could have changed them
+
+Mobius::getReportedLatency, getEffectiveInputLatency
+  who uses this?
+
+Mobius::setCustomMode
+  vaguely remember this, scripts can invent their own modes and want the UI
+  to display them
+
+Mobius::internTarget
+  removed resolutions for BindingConfig, I changed the name and we shouldn't
+  be doing this down here
+
+Mobius::isNoExternalInput etc.
+  seems to be a testing hack when running in a context that has no audio coming in
+
+
+  

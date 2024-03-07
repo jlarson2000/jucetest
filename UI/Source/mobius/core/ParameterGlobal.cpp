@@ -1,3 +1,5 @@
+// commented out things related to BindingConfig
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -25,6 +27,8 @@
 #include <string.h>
 #include <memory.h>
 #include <ctype.h>
+
+#include "Mapper.h"
 
 #include "../../util/Util.h"
 #include "../../util/List.h"
@@ -237,13 +241,14 @@ SetupNameParameterType::SetupNameParameterType() :
 
 int SetupNameParameterType::getOrdinalValue(MobiusConfig* c)
 {
-    Setup* setup = c->getCurrentSetup();
-    return setup->getNumber();
+    Setup* setup = GetCurrentSetup(c);
+    // return setup->getNumber();
+    return setup->ordinal;
 }
 
 void SetupNameParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = c->getCurrentSetup();
+    Setup* setup = GetCurrentSetup(c);
 	value->setString(setup->getName());
 }
 
@@ -256,9 +261,9 @@ void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
     Setup* setup = NULL;
 
     if (value->getType() == EX_INT)
-      setup = c->getSetup(value->getInt());
+      setup = GetSetup(c, value->getInt());
     else 
-      setup = c->getSetup(value->getString());
+      setup = GetSetup(c, value->getString());
 
     if (setup != NULL)
       c->setCurrentSetup(setup);
@@ -283,9 +288,9 @@ void SetupNameParameterType::setValue(Action* action)
 
         Setup* setup = NULL;
         if (action->arg.getType() == EX_INT)
-          setup = config->getSetup(action->arg.getInt());
+          setup = GetSetup(config, action->arg.getInt());
         else 
-          setup = config->getSetup(action->arg.getString());
+          setup = GetSetup(config, action->arg.getString());
 
         if (setup != NULL) {
             // Set the external one so that if you open the setup
@@ -297,7 +302,8 @@ void SetupNameParameterType::setValue(Action* action)
 
             // then set the one we're actually using internally
             // we're always inside the interrupt at this point
-            m->setSetupInternal(setup->getNumber());
+            //m->setSetupInternal(setup->getNumber());
+            m->setSetupInternal(setup->ordinal);
         }
     }
 }
@@ -309,7 +315,7 @@ void SetupNameParameterType::setValue(Action* action)
 int SetupNameParameterType::getHigh(MobiusInterface* m)
 {
 	MobiusConfig* config = m->getConfiguration();
-    int max = config->getSetupCount();
+    int max = GetSetupCount(config);
     // this is the number of configs, the max ordinal is zero based
     max--;
 
@@ -326,7 +332,7 @@ void SetupNameParameterType::getOrdinalLabel(MobiusInterface* mobius,
     // use the interrupt config since that's the one we're really using
     Mobius* m = (Mobius*)mobius;
 	MobiusConfig* config = m->getInterruptConfiguration();
-	Setup* setup = config->getSetup(i);
+	Setup* setup = GetSetup(config, i);
 	if (setup != NULL)
 	  value->setString(setup->getName());
 	else
@@ -374,8 +380,9 @@ SetupNumberParameterType::SetupNumberParameterType() :
 
 void SetupNumberParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = c->getCurrentSetup();
-    value->setInt(setup->getNumber());
+    Setup* setup = GetCurrentSetup(c);
+    // value->setInt(setup->getNumber());
+    value->setInt(setup->ordinal);
 }
 
 /**
@@ -391,7 +398,7 @@ void SetupNumberParameterType::setValue(Action* action)
     // validate using the external config
     MobiusConfig* config = m->getConfiguration();
     int index = action->arg.getInt();
-    Setup* setup = config->getSetup(index);
+    Setup* setup = GetSetup(config, index);
 
     if (setup != NULL) {
         // we're always in the interrupt so can set it now
@@ -521,9 +528,13 @@ BindingsParameterType::BindingsParameterType() :
 int BindingsParameterType::getOrdinalValue(MobiusConfig* c)
 {
     int value = 0;
+
+    Trace(1, "BindingsParameterType touched\n");
+#if 0    
 	BindingConfig* bindings = c->getOverlayBindingConfig();
     if (bindings != NULL) 
-	  value = bindings->getNumber();
+      value = bindings->getNumber();
+#endif
     return value;
 }
 
@@ -532,24 +543,26 @@ int BindingsParameterType::getOrdinalValue(MobiusConfig* c)
  */
 void BindingsParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-	BindingConfig* bindings = c->getOverlayBindingConfig();
-    if (bindings != NULL) 
-	  value->setString(bindings->getName());
-	else
-      value->setNull();
+    Trace(1, "BindingsParameterType touched\n");
+//	BindingConfig* bindings = c->getOverlayBindingConfig();
+//    if (bindings != NULL) 
+//	  value->setString(bindings->getName());
+//	else
+//      value->setNull();
 }
 
 void BindingsParameterType::setValue(MobiusConfig* c, ExValue* value)
 {
-    if (value->getType() == EX_INT) {
-        // assume it's an int, these are numbered from zero but zero 
-        // is always the base binding
-        int index = value->getInt();
-        c->setOverlayBindingConfig(index);
-    }
-    else {
-        c->setOverlayBindingConfig(value->getString());
-    }
+    Trace(1, "BindingsParameterType touched\n");
+//    if (value->getType() == EX_INT) {
+//        // assume it's an int, these are numbered from zero but zero 
+//        // is always the base binding
+//        int index = value->getInt();
+//        c->setOverlayBindingConfig(index);
+//    }
+//    else {
+//        c->setOverlayBindingConfig(value->getString());
+//    }
 }
 
 /**
@@ -561,6 +574,8 @@ void BindingsParameterType::setValue(MobiusConfig* c, ExValue* value)
  */
 void BindingsParameterType::setValue(Action* action)
 {
+    Trace(1, "BindingsParameterType touched\n");
+#if 0    
     Mobius* m = (Mobius*)action->mobius;
 	MobiusConfig* config = m->getConfiguration();
 
@@ -579,6 +594,7 @@ void BindingsParameterType::setValue(Action* action)
         BindingConfig* b = config->getBindingConfig(action->arg.getInt());
         m->setOverlayBindings(b);
     }
+#endif    
 }
 
 /**
@@ -587,6 +603,8 @@ void BindingsParameterType::setValue(Action* action)
  */
 int BindingsParameterType::getHigh(MobiusInterface* m)
 {
+    Trace(1, "BindingsParameterType touched\n");
+#if 0    
     int max = 0;
 
 	MobiusConfig* config = m->getConfiguration();
@@ -595,6 +613,8 @@ int BindingsParameterType::getHigh(MobiusInterface* m)
     max--;
 
     return max;
+#endif
+    return 0;
 }
 
 /**
@@ -603,6 +623,8 @@ int BindingsParameterType::getHigh(MobiusInterface* m)
 void BindingsParameterType::getOrdinalLabel(MobiusInterface* m,
                                                    int i, ExValue* value)
 {
+    Trace(1, "BindingsParameterType touched\n");
+#if 0    
 	MobiusConfig* config = m->getConfiguration();
 	BindingConfig* bindings = config->getBindingConfig(i);
     if (i == 0) {
@@ -614,6 +636,8 @@ void BindingsParameterType::getOrdinalLabel(MobiusInterface* m,
 	  value->setString(bindings->getName());
 	else
 	  value->setString("???");
+#endif    
+    value->setString("???");
 }
 
 Parameter* BindingsParameter = new BindingsParameterType();

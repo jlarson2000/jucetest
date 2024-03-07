@@ -132,7 +132,8 @@ class Preset : public Structure {
     ~Preset();
 
     Structure* clone();
-
+    void copy(Preset* src);
+    
     void reset();
     void copyNoAlloc(Preset* src);
     

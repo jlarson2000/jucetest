@@ -19,6 +19,11 @@
 
 #include "../../util/List.h"
 
+// ExValue moved out so the UI could use it without everything
+// else in here
+#include "../../model/ExValue.h"
+
+#if 0
 /****************************************************************************
  *                                                                          *
  *   								VALUE                                   *
@@ -183,6 +188,7 @@ class ExValueList : public List {
     void* mOwner;
 
 };
+#endif
 
 /****************************************************************************
  *                                                                          *

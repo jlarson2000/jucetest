@@ -314,6 +314,9 @@
 #include <stdio.h>
 #include <memory.h>
 
+// for some constants like AUDIO_MAX_FRAMES_PER_BUFFER
+#include "AudioInterface.h"
+
 #include "../../util/Util.h"
 
 #include "../Audio.h"
@@ -1345,7 +1348,7 @@ Layer* Layer::getTail()
  * Helper for Loop::getState.
  * Return interesting things about this layer.
  */
-void Layer::getState(LayerState* s)
+void Layer::getState(MobiusLayerState* s)
 {
 	s->checkpoint = isCheckpoint();
 }

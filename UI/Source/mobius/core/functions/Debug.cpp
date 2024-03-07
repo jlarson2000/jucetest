@@ -1,3 +1,7 @@
+// this reached all the way up to MobiusContext and pulled information
+// from teh AudioInterface and AudioStream
+// stubbed
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -53,6 +57,7 @@ void DebugFunction::invoke(Action* action, Mobius* m)
 {
   if (action->down) {
 		trace(action, m);
+#if 0        
 
         MobiusContext* con = m->getContext();
         MidiInterface* midi = con->getMidiInterface();
@@ -69,6 +74,7 @@ void DebugFunction::invoke(Action* action, Mobius* m)
 
 		// test loop detection
 		//while (true);
+#endif        
 	}
 }
 

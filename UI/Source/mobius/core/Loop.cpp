@@ -42,6 +42,8 @@
 #include <memory.h>
 #include <math.h>
 
+#include "Mapper.h"
+
 #include "../Audio.h"
 #include "../../util/List.h"
 //#include "Thread.h"
@@ -893,7 +895,7 @@ long Loop::wrapFrame(long frame, long loopFrames)
  *                                                                          *
  ****************************************************************************/
 
-LoopState* Loop::getState()
+MobiusLoopState* Loop::getState()
 {
 	refreshState(&mState);
 	return &mState;
@@ -913,7 +915,7 @@ StreamState* Loop::getRestoreState()
  * !! Actually, there are race conditions all over here, mRecord, 
  * and mRedo are all assumed to be stable.
  */
-void Loop::refreshState(LoopState* s)
+void Loop::refreshState(MobiusLoopState* s)
 {
 	s->number = mNumber;
 	s->recording = mRecording;
@@ -1000,20 +1002,20 @@ void Loop::refreshState(LoopState* s)
 		}
 	}
 
-    s->mode = mMode;
+    s->mode = MapMode(mMode);
 
 	// calculate the number of layers, the record loop is invisible
 	int added = 0;
 	int lost = 0;
 	if (mRecord != NULL)
-	  getLayerState(mRecord->getPrev(), s->layers, MAX_INFO_LAYERS, 
+	  getLayerState(mRecord->getPrev(), s->layers, MaxLayers,
 					&added, &lost);
 
 	s->layerCount = added;
 	s->lostLayers = lost;
 
 	// same for redo layers
-	getLayerState(mRedo, s->redoLayers, MAX_INFO_REDO_LAYERS, &added, &lost);
+	getLayerState(mRedo, s->redoLayers, MaxRedoLayers, &added, &lost);
 	s->redoCount = added;
 	s->lostRedo = lost;
 }
@@ -1030,7 +1032,7 @@ void Loop::refreshState(LoopState* s)
  *
  * The redo layers are in the order in which they will be redone.
  */
-void Loop::getLayerState(Layer* layers, LayerState* states, int max,
+void Loop::getLayerState(Layer* layers, MobiusLayerState* states, int max,
 								 int *retAdded, int* retLost)
 {
 	int added = 0;

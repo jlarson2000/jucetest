@@ -22,6 +22,8 @@
 #include <memory.h>
 #include <ctype.h>
 
+#include "Mapper.h"
+
 #include "../../util/Util.h"
 #include "../../util/List.h"
 //#include "MessageCatalog.h"
@@ -112,7 +114,7 @@ Setup* SetupParameter::getTargetSetup(Mobius* m)
     Setup* target = NULL;
     MobiusConfig* iconfig = m->getInterruptConfiguration();
     if (iconfig != NULL)
-      target = iconfig->getCurrentSetup();
+      target = GetCurrentSetup(iconfig);
 
     if (target == NULL)
 		Trace(1, "SetupParameter: Unable to resolve setup!\n");

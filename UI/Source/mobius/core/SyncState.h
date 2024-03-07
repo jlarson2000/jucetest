@@ -60,8 +60,8 @@ class SyncState {
     void scheduleStop(int trackerPulses, long trackerFrames);
     void stopRecording();
 
-    void setBoundaryEvent(EventType* t);
-    EventType* getBoundaryEvent();
+    void setBoundaryEvent(class EventType* t);
+    class EventType* getBoundaryEvent();
 
     // Recording state
 
@@ -200,7 +200,7 @@ class SyncState {
      * or loop boundary is seen during an interrupt.  This is used
      * by checkDrift to determine whether we've crossed a drift check point.
      */
-    EventType* mBoundaryEvent;
+    class EventType* mBoundaryEvent;
 
     //
     // Unit Test Statistics

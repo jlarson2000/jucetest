@@ -147,12 +147,12 @@ void ResolvedTarget::setNext(ResolvedTarget* t)
     mNext = t;
 }
 
-Target* ResolvedTarget::getTarget()
+OldTarget* ResolvedTarget::getTarget()
 {
     return mTarget;
 }
 
-void ResolvedTarget::setTarget(Target* t)
+void ResolvedTarget::setTarget(OldTarget* t)
 {
     mTarget = t;
 }
@@ -213,22 +213,22 @@ const char* ResolvedTarget::getDisplayName()
             
     if (mObject.object != NULL) {
 
-        if (mTarget == TargetFunction) {
+        if (mTarget == OldTargetFunction) {
             Function* f = mObject.function;
             dname = f->getDisplayName();
         }
-        else if (mTarget == TargetUIControl) {
+        else if (mTarget == OldTargetUIControl) {
             UIControl* uic = mObject.uicontrol;
             dname = uic->getDisplayName();
         }
-        else if (mTarget == TargetParameter) {
+        else if (mTarget == OldTargetParameter) {
             Parameter* p = mObject.parameter;
             dname = p->getDisplayName();
         }
-        else if (mTarget == TargetSetup ||
-                 mTarget == TargetPreset ||
-                 mTarget == TargetBindings) {
-            Bindable* b = mObject.bindable;
+        else if (mTarget == OldTargetSetup ||
+                 mTarget == OldTargetPreset ||
+                 mTarget == OldTargetBindings) {
+            OldBindable* b = mObject.bindable;
             dname = b->getName();
         }
     }
@@ -244,12 +244,12 @@ const char* ResolvedTarget::getTypeDisplayName()
     const char* type = mTarget->getDisplayName();
 
     // Scripts are TargetFunction but we'd like a more specicic name
-    if (mTarget == TargetFunction) {
+    if (mTarget == OldTargetFunction) {
         Function* f = mObject.function;
         if (f != NULL && f->eventType == RunScriptEvent)
           type = "Script";
     }
-    else if (mTarget == TargetParameter) {
+    else if (mTarget == OldTargetParameter) {
         Parameter* p = mObject.parameter;
         if (p->control)
           type = "Control";
@@ -521,8 +521,8 @@ void Action::clone(Action* src)
  
 bool Action::isSustainable()
 {
-    return (triggerMode == TriggerModeMomentary ||
-            triggerMode == TriggerModeToggle);
+    return (triggerMode == OldTriggerModeMomentary ||
+            triggerMode == OldTriggerModeToggle);
 }
 
 void Action::setPooled(bool b)
@@ -583,7 +583,7 @@ ResolvedTarget* Action::getResolvedTarget()
     return t;
 }
 
-Target* Action::getTarget()
+OldTarget* Action::getTarget()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getTarget() : NULL;
@@ -685,12 +685,12 @@ bool Action::isTargetEqual(Action* other)
  * This should only be used for a small number of internally
  * constructed actions.
  */
-void Action::setTarget(Target* t)
+void Action::setTarget(OldTarget* t)
 {
     setTarget(t, NULL);
 }
 
-void Action::setTarget(Target* t, void* object)
+void Action::setTarget(OldTarget* t, void* object)
 {
     // we may have started with an interned target, switch
     mInternedTarget = NULL;
@@ -706,13 +706,13 @@ void Action::setTarget(Target* t, void* object)
  */
 void Action::setFunction(Function* f)
 {
-    setTarget(TargetFunction, f);
+    setTarget(OldTargetFunction, f);
 }
 
 Function* Action::getFunction()
 {
     Function* f = NULL;
-    if (getTarget() == TargetFunction)
+    if (getTarget() == OldTargetFunction)
       f = (Function*)getTargetObject();
     return f;
 }
@@ -733,7 +733,7 @@ Function* Action::getLongFunction()
  */
 void Action::setParameter(Parameter* p)
 {
-    setTarget(TargetParameter, p);
+    setTarget(OldTargetParameter, p);
 }
 
 /**
@@ -847,7 +847,7 @@ void Action::setMidiKey(int i)
 bool Action::isSpread() 
 {
 	bool spread = false;
-    if (getTarget() == TargetFunction) {
+    if (getTarget() == OldTargetFunction) {
         Function* f = (Function*)getTargetObject();
         if (f != NULL)
           spread = f->isSpread();

@@ -176,6 +176,56 @@
       </GROUP>
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
         <GROUP id="{8E4BAFF4-3AEF-CED4-3179-55768C778B1C}" name="core">
+          <GROUP id="{7F4264E6-7D7C-D713-8A19-178DDC4B82F9}" name="functions">
+            <FILE id="bJwqIY" name="Bounce.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Bounce.cpp"/>
+            <FILE id="LY3sKE" name="Capture.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Capture.cpp"/>
+            <FILE id="NvOinP" name="Checkpoint.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Checkpoint.cpp"/>
+            <FILE id="xOxovJ" name="Clear.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Clear.cpp"/>
+            <FILE id="jwCnaO" name="Confirm.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Confirm.cpp"/>
+            <FILE id="xPUwL0" name="Coverage.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Coverage.cpp"/>
+            <FILE id="mzXteI" name="Debug.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Debug.cpp"/>
+            <FILE id="cSSxV7" name="Divide.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Divide.cpp"/>
+            <FILE id="T67WnF" name="FocusLock.cpp" compile="1" resource="0" file="Source/mobius/core/functions/FocusLock.cpp"/>
+            <FILE id="Xem7S0" name="FunctionUtil.cpp" compile="1" resource="0"
+                  file="Source/mobius/core/functions/FunctionUtil.cpp"/>
+            <FILE id="vm16kR" name="FunctionUtil.h" compile="0" resource="0" file="Source/mobius/core/functions/FunctionUtil.h"/>
+            <FILE id="ug2fwv" name="Insert.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Insert.cpp"/>
+            <FILE id="VdeV2m" name="InstantMultiply.cpp" compile="1" resource="0"
+                  file="Source/mobius/core/functions/InstantMultiply.cpp"/>
+            <FILE id="xejWBa" name="LoopSwitch.cpp" compile="1" resource="0" file="Source/mobius/core/functions/LoopSwitch.cpp"/>
+            <FILE id="nYzaWL" name="Midi.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Midi.cpp"/>
+            <FILE id="rShFn1" name="Move.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Move.cpp"/>
+            <FILE id="RXSmY5" name="Multiply.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Multiply.cpp"/>
+            <FILE id="ZkSgQR" name="Mute.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Mute.cpp"/>
+            <FILE id="BOXlnS" name="Overdub.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Overdub.cpp"/>
+            <FILE id="sBmc1w" name="Pitch.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Pitch.cpp"/>
+            <FILE id="VV4hjg" name="Play.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Play.cpp"/>
+            <FILE id="nBOor2" name="Realign.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Realign.cpp"/>
+            <FILE id="zKi9RI" name="Record.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Record.cpp"/>
+            <FILE id="cXwV7P" name="Replace.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Replace.cpp"/>
+            <FILE id="E6iHan" name="Reset.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reset.cpp"/>
+            <FILE id="fmL5aI" name="Reverse.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reverse.cpp"/>
+            <FILE id="EKTDgU" name="RunScript.cpp" compile="1" resource="0" file="Source/mobius/core/functions/RunScript.cpp"/>
+            <FILE id="ABbQMc" name="SampleTrigger.cpp" compile="1" resource="0"
+                  file="Source/mobius/core/functions/SampleTrigger.cpp"/>
+            <FILE id="yL28ee" name="Save.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Save.cpp"/>
+            <FILE id="dshLuO" name="Shuffle.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Shuffle.cpp"/>
+            <FILE id="KPWyA3" name="Slip.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Slip.cpp"/>
+            <FILE id="mwzyP2" name="Solo.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Solo.cpp"/>
+            <FILE id="TuKQVO" name="Speed.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Speed.cpp"/>
+            <FILE id="W2lMIy" name="StartPoint.cpp" compile="1" resource="0" file="Source/mobius/core/functions/StartPoint.cpp"/>
+            <FILE id="BD9WVu" name="Stutter.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Stutter.cpp"/>
+            <FILE id="nZvo45" name="Substitute.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Substitute.cpp"/>
+            <FILE id="dpZGIb" name="Surface.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Surface.cpp"/>
+            <FILE id="v9vyy1" name="Sync.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Sync.cpp"/>
+            <FILE id="geL4FJ" name="TrackCopy.cpp" compile="1" resource="0" file="Source/mobius/core/functions/TrackCopy.cpp"/>
+            <FILE id="diKBBx" name="TrackGroup.cpp" compile="1" resource="0" file="Source/mobius/core/functions/TrackGroup.cpp"/>
+            <FILE id="ZHJtYT" name="TrackSelect.cpp" compile="1" resource="0" file="Source/mobius/core/functions/TrackSelect.cpp"/>
+            <FILE id="QolWqa" name="Trim.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Trim.cpp"/>
+            <FILE id="Zq6SkH" name="UIFunctions.cpp" compile="1" resource="0" file="Source/mobius/core/functions/UIFunctions.cpp"/>
+            <FILE id="a17JLI" name="UndoRedo.cpp" compile="1" resource="0" file="Source/mobius/core/functions/UndoRedo.cpp"/>
+            <FILE id="yBhzyV" name="Window.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Window.cpp"/>
+          </GROUP>
           <FILE id="bzTZ6i" name="Action.cpp" compile="1" resource="0" file="Source/mobius/core/Action.cpp"/>
           <FILE id="KEOJ4i" name="Action.h" compile="0" resource="0" file="Source/mobius/core/Action.h"/>
           <FILE id="rqQM7E" name="ActionDispatcher.cpp" compile="1" resource="0"
@@ -186,6 +236,14 @@
                 file="Source/mobius/core/AudioInterface.cpp"/>
           <FILE id="TGNbG4" name="AudioInterface.h" compile="0" resource="0"
                 file="Source/mobius/core/AudioInterface.h"/>
+          <FILE id="ewJHI3" name="BindingResolver.cpp" compile="1" resource="0"
+                file="Source/mobius/core/BindingResolver.cpp"/>
+          <FILE id="vY7FnX" name="BindingResolver.h" compile="0" resource="0"
+                file="Source/mobius/core/BindingResolver.h"/>
+          <FILE id="DNNCGR" name="ControlSurface.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ControlSurface.cpp"/>
+          <FILE id="oOuRzd" name="ControlSurface.h" compile="0" resource="0"
+                file="Source/mobius/core/ControlSurface.h"/>
           <FILE id="ESvyKr" name="CriticalSection.h" compile="0" resource="0"
                 file="Source/mobius/core/CriticalSection.h"/>
           <FILE id="fBI64E" name="Event.cpp" compile="1" resource="0" file="Source/mobius/core/Event.cpp"/>
@@ -202,6 +260,8 @@
           <FILE id="GBOHKf" name="FadeWindow.h" compile="0" resource="0" file="Source/mobius/core/FadeWindow.h"/>
           <FILE id="OP6PC2" name="Function.cpp" compile="1" resource="0" file="Source/mobius/core/Function.cpp"/>
           <FILE id="yk0tvL" name="Function.h" compile="0" resource="0" file="Source/mobius/core/Function.h"/>
+          <FILE id="UnAQ0k" name="HostConfig.cpp" compile="1" resource="0" file="Source/mobius/core/HostConfig.cpp"/>
+          <FILE id="OwbhBR" name="HostConfig.h" compile="0" resource="0" file="Source/mobius/core/HostConfig.h"/>
           <FILE id="kS8oJb" name="HostMidiInterface.h" compile="0" resource="0"
                 file="Source/mobius/core/HostMidiInterface.h"/>
           <FILE id="GOMBhW" name="Layer.cpp" compile="1" resource="0" file="Source/mobius/core/Layer.cpp"/>
@@ -224,6 +284,60 @@
           <FILE id="DkLhzz" name="MidiTransport.h" compile="0" resource="0" file="Source/mobius/core/MidiTransport.h"/>
           <FILE id="pqDdT0" name="MidiUtil.cpp" compile="1" resource="0" file="Source/mobius/core/MidiUtil.cpp"/>
           <FILE id="Bs6RgF" name="MidiUtil.h" compile="0" resource="0" file="Source/mobius/core/MidiUtil.h"/>
+          <FILE id="lHBt2R" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/core/Mobius.cpp"/>
+          <FILE id="LMQl5U" name="Mobius.h" compile="0" resource="0" file="Source/mobius/core/Mobius.h"/>
+          <FILE id="H1Ewbr" name="MobiusInterface.h" compile="0" resource="0"
+                file="Source/mobius/core/MobiusInterface.h"/>
+          <FILE id="Pa4qyU" name="MobiusPools.cpp" compile="1" resource="0" file="Source/mobius/core/MobiusPools.cpp"/>
+          <FILE id="R4QzT1" name="MobiusThread.cpp" compile="1" resource="0"
+                file="Source/mobius/core/MobiusThread.cpp"/>
+          <FILE id="BiGiSh" name="MobiusThread.h" compile="0" resource="0" file="Source/mobius/core/MobiusThread.h"/>
+          <FILE id="UE7nUh" name="Mode.cpp" compile="1" resource="0" file="Source/mobius/core/Mode.cpp"/>
+          <FILE id="yTJ6C3" name="Mode.h" compile="0" resource="0" file="Source/mobius/core/Mode.h"/>
+          <FILE id="Fcr1VD" name="ObjectPool.cpp" compile="1" resource="0" file="Source/mobius/core/ObjectPool.cpp"/>
+          <FILE id="kYFzc1" name="ObjectPool.h" compile="0" resource="0" file="Source/mobius/core/ObjectPool.h"/>
+          <FILE id="eC4fld" name="OldBinding.cpp" compile="1" resource="0" file="Source/mobius/core/OldBinding.cpp"/>
+          <FILE id="Fgq1Z7" name="OldBinding.h" compile="0" resource="0" file="Source/mobius/core/OldBinding.h"/>
+          <FILE id="WMBb80" name="Parameter.cpp" compile="1" resource="0" file="Source/mobius/core/Parameter.cpp"/>
+          <FILE id="GWezJ4" name="Parameter.h" compile="0" resource="0" file="Source/mobius/core/Parameter.h"/>
+          <FILE id="NolJMo" name="ParameterGlobal.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ParameterGlobal.cpp"/>
+          <FILE id="wRUIqb" name="ParameterPreset.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ParameterPreset.cpp"/>
+          <FILE id="EiCEqS" name="ParameterSetup.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ParameterSetup.cpp"/>
+          <FILE id="e8xP8p" name="ParameterTrack.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ParameterTrack.cpp"/>
+          <FILE id="QYMlnj" name="PitchPlugin.cpp" compile="1" resource="0" file="Source/mobius/core/PitchPlugin.cpp"/>
+          <FILE id="CC49Jg" name="Project.cpp" compile="1" resource="0" file="Source/mobius/core/Project.cpp"/>
+          <FILE id="WRiG9w" name="Project.h" compile="0" resource="0" file="Source/mobius/core/Project.h"/>
+          <FILE id="q4kSE4" name="Resampler.cpp" compile="1" resource="0" file="Source/mobius/core/Resampler.cpp"/>
+          <FILE id="ciXgnG" name="Resampler.h" compile="0" resource="0" file="Source/mobius/core/Resampler.h"/>
+          <FILE id="T2PYXg" name="Script.cpp" compile="1" resource="0" file="Source/mobius/core/Script.cpp"/>
+          <FILE id="iKu9PT" name="Script.h" compile="0" resource="0" file="Source/mobius/core/Script.h"/>
+          <FILE id="dnsemY" name="ScriptRuntime.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ScriptRuntime.cpp"/>
+          <FILE id="fVkEKL" name="ScriptRuntime.h" compile="0" resource="0" file="Source/mobius/core/ScriptRuntime.h"/>
+          <FILE id="rfccJC" name="Segment.cpp" compile="1" resource="0" file="Source/mobius/core/Segment.cpp"/>
+          <FILE id="dcWfMT" name="Segment.h" compile="0" resource="0" file="Source/mobius/core/Segment.h"/>
+          <FILE id="oiXDfr" name="Stream.cpp" compile="1" resource="0" file="Source/mobius/core/Stream.cpp"/>
+          <FILE id="tqPxNY" name="Stream.h" compile="0" resource="0" file="Source/mobius/core/Stream.h"/>
+          <FILE id="CEziwz" name="StreamPlugin.cpp" compile="1" resource="0"
+                file="Source/mobius/core/StreamPlugin.cpp"/>
+          <FILE id="bDbVYT" name="StreamPlugin.h" compile="0" resource="0" file="Source/mobius/core/StreamPlugin.h"/>
+          <FILE id="RA1PQz" name="Synchronizer.cpp" compile="1" resource="0"
+                file="Source/mobius/core/Synchronizer.cpp"/>
+          <FILE id="mydA6m" name="Synchronizer.h" compile="0" resource="0" file="Source/mobius/core/Synchronizer.h"/>
+          <FILE id="QocDfP" name="SyncState.cpp" compile="1" resource="0" file="Source/mobius/core/SyncState.cpp"/>
+          <FILE id="xzjuPE" name="SyncState.h" compile="0" resource="0" file="Source/mobius/core/SyncState.h"/>
+          <FILE id="ro4223" name="SyncTracker.cpp" compile="1" resource="0" file="Source/mobius/core/SyncTracker.cpp"/>
+          <FILE id="R2mCoz" name="SyncTracker.h" compile="0" resource="0" file="Source/mobius/core/SyncTracker.h"/>
+          <FILE id="U54Yyx" name="Track.cpp" compile="1" resource="0" file="Source/mobius/core/Track.cpp"/>
+          <FILE id="Pk3xfB" name="Track.h" compile="0" resource="0" file="Source/mobius/core/Track.h"/>
+          <FILE id="e5tfsC" name="Variable.cpp" compile="1" resource="0" file="Source/mobius/core/Variable.cpp"/>
+          <FILE id="knqe8D" name="Variable.h" compile="0" resource="0" file="Source/mobius/core/Variable.h"/>
+          <FILE id="zygAvH" name="WatchPoint.cpp" compile="1" resource="0" file="Source/mobius/core/WatchPoint.cpp"/>
+          <FILE id="lKKJtr" name="WatchPoint.h" compile="0" resource="0" file="Source/mobius/core/WatchPoint.h"/>
         </GROUP>
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>

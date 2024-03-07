@@ -111,8 +111,11 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "../Action.h"
+#include "../Mapper.h"
+#include "../../../model/Setup.h"
 #include "../../Audio.h"
+
+#include "../Action.h"
 #include "../Event.h"
 #include "../EventManager.h"
 #include "../Function.h"
@@ -124,7 +127,6 @@
 #include "../Synchronizer.h"
 #include "../SyncState.h"
 #include "../Track.h"
-#include "../../model/Setup.h"
 
 /****************************************************************************
  *                                                                          *
@@ -651,7 +653,7 @@ void RecordFunction::doEvent(Loop* loop, Event* event)
                 Track* track = loop->getTrack();
                 Mobius* mobius = loop->getMobius();
                 MobiusConfig* config = mobius->getConfiguration();
-                Setup* setup = config->getCurrentSetup();
+                Setup* setup = GetCurrentSetup(config);
                 SetupTrack* strack = setup->getTrack(track->getRawNumber());
                 if (strack != NULL)
                   feedback = strack->getFeedback();

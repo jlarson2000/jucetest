@@ -1,3 +1,5 @@
+// stubbed out various file oriented variables
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -24,6 +26,9 @@
 #include "../../util/Util.h"
 #include "../../util/Vbuf.h"
 
+// for AUDIO_FRAMES_PER_BUFFER
+#include "AudioInterface.h"
+
 #include "Event.h"
 #include "EventManager.h"
 #include "Expr.h"
@@ -39,6 +44,7 @@
 #include "SyncState.h"
 #include "SyncTracker.h"
 #include "Track.h"
+#include "OldBinding.h"
 
 #include "Variable.h"
 
@@ -198,7 +204,7 @@ TriggerSourceValueVariableType::TriggerSourceValueVariableType()
 
 void TriggerSourceValueVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 {
-	Trigger* t = si->getTrigger();
+	OldTrigger* t = si->getTrigger();
     if (t != NULL)
       value->setString(t->getName());
     else
@@ -3110,9 +3116,10 @@ InstallationDirectoryVariableType::InstallationDirectoryVariableType()
 void InstallationDirectoryVariableType::getValue(ScriptInterpreter* si, 
                                                  ExValue* value)
 {
-    Mobius* m = si->getMobius();
-    MobiusContext* mc = m->getContext();
-    value->setString(mc->getInstallationDirectory());
+    //Mobius* m = si->getMobius();
+    //MobiusContext* mc = m->getContext();
+    //value->setString(mc->getInstallationDirectory());
+    value->setNull();
 }
 
 InstallationDirectoryVariableType* InstallationDirectoryVariable = 
@@ -3142,9 +3149,10 @@ ConfigurationDirectoryVariableType::ConfigurationDirectoryVariableType()
 void ConfigurationDirectoryVariableType::getValue(ScriptInterpreter* si, 
                                                  ExValue* value)
 {
-    Mobius* m = si->getMobius();
-    MobiusContext* mc = m->getContext();
-    value->setString(mc->getConfigurationDirectory());
+    //Mobius* m = si->getMobius();
+    //MobiusContext* mc = m->getContext();
+    //value->setString(mc->getConfigurationDirectory());
+    value->setNull();
 }
 
 ConfigurationDirectoryVariableType* ConfigurationDirectoryVariable = 

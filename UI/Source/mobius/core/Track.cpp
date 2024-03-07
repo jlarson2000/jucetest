@@ -1,3 +1,10 @@
+// Track keeps a private Preset object to hold runtime changes that
+// are transient and won't persist after Reset.  At various points
+// a different preset needs to be "activated" in this track, we copy
+// from the master preset into the local one.  This uses Preset::copyNoAlloc
+// to do a field by field copy.
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -33,6 +40,8 @@
 
 #include <stdio.h>
 #include <memory.h>
+
+#include "Mapper.h"
 
 #include "../../util/Util.h"
 #include "../../util/List.h"
@@ -678,9 +687,9 @@ void Track::doFunction(Action* action)
  * This may be used directly by the UI and as such must be changed
  * carefully since more than one thread may be accessing it at once.
  */
-TrackState* Track::getState()
+MobiusTrackState* Track::getState()
 {
-	TrackState* s = &mState;
+	MobiusTrackState* s = &mState;
 
     s->name = mName;
 
@@ -690,7 +699,9 @@ TrackState* Track::getState()
     // the UI is being refreshed which for complex values like
     // speed/pitch sequence could cause inconsistencies.    Would realy like
     // to avoid this.
-	s->preset = mPreset;
+    //
+    // new: well we do now, preset is now an ordinal in state
+	s->preset = mPreset->ordinal;
 
 	s->number = mRawNumber;
 	s->loops = mLoopCount;
@@ -727,8 +738,14 @@ TrackState* Track::getState()
 	// !! race condition, we might have just processed a parameter
     // that changed the number of loops, the current value of mLoop
     // could be deleted
-	s->loop = mLoop->getState();
 
+    // formerly set this to a pointer to the LoopState for the active loop
+    // now it is just an index?
+    // okay this is weird, I guess Loop had a pointer to a struct within
+    // the same MobiusState because we're going to treat this like a pointer
+    // this needs to die
+	s->activeLoop = mLoop->getNumber();
+#if 0    
     // KLUDGE: If we're switching, override the percieved mode
     Event* switche = mEventManager->getSwitchEvent();
 	if (switche != NULL) {
@@ -740,9 +757,12 @@ TrackState* Track::getState()
 
     // this really belongs in TrackState...
     mEventManager->getEventSummary(s->loop);
-
+#endif
+    
 	// brief summaries for the other loops
-	int max = (mLoopCount < MAX_INFO_LOOPS) ? mLoopCount : MAX_INFO_LOOPS;
+    // changed from MAX_INFO_LOOPS to MaxLoops which upon seeing it
+    // is way to generic to know where it came from
+	int max = (mLoopCount < MaxLoops) ? mLoopCount : MaxLoops;
 	for (int i = 0 ; i < max ; i++) {
 		Loop* l = mLoops[i];
 		l->getSummary(&(s->summaries[i]), (l == mLoop));
@@ -1097,7 +1117,7 @@ void Track::updateConfiguration(MobiusConfig* config)
     Preset* newPreset = NULL;
     if (!config->isNoSetupChanges()) {
         // the setups either changed, or this is the first load
-        Setup* setup = config->getCurrentSetup();
+        Setup* setup = GetCurrentSetup(config);
         newPreset = getStartingPreset(config, setup);
     }
     else if (!config->isNoPresetChanges()) {
@@ -1108,16 +1128,18 @@ void Track::updateConfiguration(MobiusConfig* config)
         
         if (this == mMobius->getTrack()) {
             // current track follows the lingering selection
-            newPreset = config->getCurrentPreset();
+            // newPreset = config->getCurrentPreset();
+            newPreset = GetCurrentPreset(config);
         }
         else {
             // other tracks refresh the preset but retain their current
             // selection which may be different than the setup
-            newPreset = config->getPreset(mPreset->getNumber());
+            // newPreset = config->getPreset(mPreset->getNumber());
+            newPreset = GetPreset(config, mPreset->ordinal);
             if (newPreset == NULL) {
                 // can this happen?  maybe if we deleted the preset
                 // the track was using?
-                newPreset = config->getCurrentPreset();
+                newPreset = GetCurrentPreset(config);
             }
         }
     }
@@ -1131,7 +1153,7 @@ void Track::updateConfiguration(MobiusConfig* config)
     if (!config->isNoSetupChanges()) {
 
         // doPreset flag is false here because we've already handled that above
-        Setup* setup = config->getCurrentSetup();
+        Setup* setup = GetCurrentSetup(config);
         setSetup(setup, false);
     }
 }
@@ -1171,14 +1193,14 @@ Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
     Preset* preset = NULL;
 
     if (setup == NULL)
-      setup = config->getCurrentSetup();
+      setup = GetCurrentSetup(config);
 
     if (setup != NULL) {
         SetupTrack* st = setup->getTrack(mRawNumber);
         if (st != NULL) {
             const char* pname = st->getPreset();
             if (pname != NULL) {
-                preset = config->getPreset(pname);
+                preset = GetPreset(config, pname);
                 if (preset == NULL)
                   Trace(this, 1, "ERROR: Unable to resolve preset from setup: %s\n",
                         pname);
@@ -1192,10 +1214,11 @@ Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
         // inital preset, if this isn't the initial load this
         // will have no effect unless the interrupt config changed,
         // which we should be tracking anyway
-        preset = config->getPreset(mPreset->getNumber());
+        //preset = config->getPreset(mPreset->getNumber());
+        preset = GetPreset(config, mPreset->ordinal);
         if (preset == NULL) {
             // might happen if we deleted a preset?  
-            preset = config->getCurrentPreset();
+            preset = GetCurrentPreset(config);
         }
     }
 
@@ -1227,7 +1250,7 @@ void Track::doPendingConfiguration()
 void Track::setPreset(int number)
 {
     MobiusConfig* config = mMobius->getInterruptConfiguration();
-    Preset* preset = config->getPreset(number);
+    Preset* preset = GetPreset(config, number);
     
     if (preset == NULL) {
         Trace(this, 1, "ERROR: Unable to locate preset %ld\n", (long)number);
@@ -1247,7 +1270,7 @@ void Track::setPreset(int number)
 void Track::setPreset(Preset* src)
 {
     if (src != NULL && mPreset != src) {
-        mPreset->copy(src);
+        mPreset->copyNoAlloc(src);
 
         // sigh...Preset::copy does not copy the name, but we need
         // that because the UI is expecting to see names in the TrackState
@@ -1503,7 +1526,7 @@ void Track::loadProject(ProjectTrack* pt)
 	const char* preset = pt->getPreset();
 	if (preset != NULL) {
 		MobiusConfig* config = mMobius->getInterruptConfiguration();
-		Preset* p = config->getPreset(preset);
+		Preset* p = GetPreset(config, preset);
 		if (p != NULL)
 		  setPreset(p);
 	}
@@ -1624,7 +1647,7 @@ void Track::trackReset(Action* action)
 
 	// reset the track parameters
     MobiusConfig* config = mMobius->getInterruptConfiguration();
-	Setup* setup = config->getCurrentSetup();
+	Setup* setup = GetCurrentSetup(config);
 
 	// Second arg says whether this is a global reset, in which case we
 	// unconditionally return to the Setup parameters.  If this is an
@@ -1687,49 +1710,52 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 	// for each parameter we can reset, check to see if the setup allows it
 	// or if it is supposed to retain its current value
 
-	if (global || setup->isResetable(InputLevelParameter)) {
+    // an unfortunate kludge because Setup was changed to use the new UIParameter
+    // objects, but here we have the old ones
+
+	if (global || setup->isResetable(MapParameter(InputLevelParameter))) {
 		if (st == NULL)
 		  mInputLevel = 127;
 		else
 		  mInputLevel = st->getInputLevel();
 	}
 
-	if (global || setup->isResetable(OutputLevelParameter)) {
+	if (global || setup->isResetable(MapParameter(OutputLevelParameter))) {
 		if (st == NULL) 
 		  mOutputLevel = 127;
 		else
 		  mOutputLevel = st->getOutputLevel();
 	}
 
-	if (global || setup->isResetable(FeedbackLevelParameter)) {
+	if (global || setup->isResetable(MapParameter(FeedbackLevelParameter))) {
 		if (st == NULL) 
 		  mFeedbackLevel = 127;
 		else
 		  mFeedbackLevel = st->getFeedback();
 	}
 
-	if (global || setup->isResetable(AltFeedbackLevelParameter)) {
+	if (global || setup->isResetable(MapParameter(AltFeedbackLevelParameter))) {
 		if (st == NULL) 
 		  mAltFeedbackLevel = 127;
 		else
 		  mAltFeedbackLevel = st->getAltFeedback();
 	}
 
-	if (global || setup->isResetable(PanParameter)) {
+	if (global || setup->isResetable(MapParameter(PanParameter))) {
 		if (st == NULL) 
 		  mPan = 64;
 		else
 		  mPan = st->getPan();
 	}
 
-	if (global || setup->isResetable(FocusParameter)) {
+	if (global || setup->isResetable(MapParameter(FocusParameter))) {
 		if (st == NULL) 
 		  mFocusLock = false;
 		else
 		  mFocusLock = st->isFocusLock();
 	}
 
-	if (global || setup->isResetable(GroupParameter)) {
+	if (global || setup->isResetable(MapParameter(GroupParameter))) {
 		if (st == NULL) 
 		  mGroup = 0;
 		else
@@ -1739,7 +1765,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
     // setting the preset can be disabled in some code paths since it
     // already have been refreshed
     if (doPreset && 
-        (global || setup->isResetable(TrackPresetParameter))) {
+        (global || setup->isResetable(MapParameter(TrackPresetParameter)))) {
 
 		if (st == NULL) {
 			// ?? should we auto-select the first preset
@@ -1748,7 +1774,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 			const char* presetName = st->getPreset();
 			if (presetName != NULL) {
 				MobiusConfig* config = mMobius->getInterruptConfiguration();
-				Preset* p = config->getPreset(presetName);
+				Preset* p = GetPreset(config, presetName);
 				if (p != NULL)
 				  setPreset(p);
 			}
@@ -1796,8 +1822,8 @@ void Track::resetPorts(SetupTrack* st)
 
         // does it make any sense to defer these till a reset?
         // we could have clicks if we do it immediately
-        MobiusContext* mc = mMobius->getContext();
-		if (mc->isPlugin()) {
+        // MobiusContext* mc = mMobius->getContext();
+		if (mMobius->isPlugin()) {
 			setInputPort(st->getPluginInputPort());
 			setOutputPort(st->getPluginOutputPort());
 		}

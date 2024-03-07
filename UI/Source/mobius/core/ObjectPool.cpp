@@ -1,3 +1,6 @@
+// I think this was an experiment that had problems and was never used.
+// Commented out startThread and other code related to refresh thread handling.
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -239,7 +242,7 @@ void ObjectPool::initObjectPool(const char* name)
 {
 	mNext = NULL;
 	mName = CopyString(name);
-    mThread = NULL;
+//    mThread = NULL;
 	mAllocList = NULL;
 	mAllocRing = NULL;
 	mAllocHead = 0;
@@ -354,10 +357,12 @@ const char* ObjectPool::getName()
 	return mName;
 }
 
+/*
 void ObjectPool::setThread(Thread* t)
 {
     mThread = t;
 }
+*/
 
 /**
  * Called internally to allocate a new object from the heap.
@@ -374,11 +379,13 @@ PooledObject* ObjectPool::allocNew()
  * Called indirectly by the interrupt handler when it wants the
  * maintenance thread to run soon.
  */
+/*
 void ObjectPool::requestMaintenance()
 {
     if (mThread != NULL)
       mThread->signal();
 }
+*/
 
 /**
  * Called by the interrupt handler to allocate an object.
@@ -578,6 +585,8 @@ void ObjectPool::dump()
  *                                                                          *
  ****************************************************************************/
 
+#if 0
+
 /**
  * Simple thread that waits for a signal from one of the object pools,
  * then performs pool maintenance.
@@ -626,6 +635,7 @@ void PoolThread::processEvent()
     // take the opportunity to do proactive maintenance
     mPools->maintain();
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -638,14 +648,15 @@ ObjectPoolManager* ObjectPoolManager::Singleton = NULL;
 ObjectPoolManager::ObjectPoolManager()
 {
     mPools = NULL;
-	mThread = NULL;
-	mExternalThread = false;
+	//mThread = NULL;
+	//mExternalThread = false;
 }
 
 /**
  * Call this if you want the pool to be updated by a thread managed
  * by the application.
  */
+#if 0
 void ObjectPoolManager::setThread(Thread* t)
 {
 	if (mThread != NULL) {
@@ -667,9 +678,11 @@ void ObjectPoolManager::startThread()
 		mThread->start();
 	}
 }
+#endif
 
 ObjectPoolManager::~ObjectPoolManager()
 {
+#if 0    
 	if (mThread != NULL && !mExternalThread) {
 		if (mThread->stopAndWait()) {
 			ObjectPool* next = NULL;
@@ -688,6 +701,7 @@ ObjectPoolManager::~ObjectPoolManager()
 	}
 	mThread = NULL;
 	mExternalThread = false;
+#endif    
 }
 
 ObjectPoolManager* ObjectPoolManager::instance()
@@ -726,7 +740,7 @@ void ObjectPoolManager::sdump()
 void ObjectPoolManager::add(ObjectPool* p)
 {
     p->setNext(mPools);
-    p->setThread(mThread);
+    //p->setThread(mThread);
     mPools = p;
 }
 

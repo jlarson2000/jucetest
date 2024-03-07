@@ -39,6 +39,13 @@ MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
  */
 MobiusKernel::~MobiusKernel()
 {
+    // old interface wanted a shutdown method not in the destructor
+    // revisit this
+    if (mCore != nullptr) {
+        mCore->shutdown();
+        delete mCore;
+    }
+    
     // we do not own shell, communicator, or container
     delete configuration;
     
@@ -72,6 +79,13 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
     // unclear when things start pumping in, but do this last
     // after we've had a chance to make ourselves look pretty
     cont->setAudioListener(this);
+
+    // build the Mobius core
+    // still have the "probe" vs "real" instantiation problem
+    // if core initialization is too expensive to do all the time
+    // then need to defer this until the first audio interrupt
+    mCore = new Mobius(this);
+    mCore->initialize(configuration);
 }
 
 /**
@@ -124,6 +138,8 @@ void MobiusKernel::reconfigure(KernelMessage* msg)
     // this would be the place where make changes for
     // the new configuration, nothing right now
     // this is NOT where track configuration comes in
+
+    mCore->reconfigure(configuration);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -240,6 +256,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 void MobiusKernel::interruptStart()
 {
     consumeCommunications();
+    mCore->beginAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -250,6 +267,7 @@ void MobiusKernel::interruptStart()
 
 void MobiusKernel::interruptEnd()
 {
+    mCore->endAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////

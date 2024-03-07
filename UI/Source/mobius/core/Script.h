@@ -1757,7 +1757,7 @@ class ScriptInterpreter : public ExContext {
 	// Called by Mobius to keep track of a sustainable script trigger,
 	// and save trigger info for range and control scripts.
 	void setTrigger(class Action* action);
-    Trigger* getTrigger();
+    class OldTrigger* getTrigger();
     int getTriggerId();
     int getTriggerValue();
     int getTriggerOffset();
@@ -1830,7 +1830,7 @@ class ScriptInterpreter : public ExContext {
 	class UserVariables *mVariables;
     Action* mAction;
     Export* mExport;
-    Trigger* mTrigger;
+    class OldTrigger* mTrigger;
     int mTriggerId;
     int mTriggerValue;
     int mTriggerOffset;

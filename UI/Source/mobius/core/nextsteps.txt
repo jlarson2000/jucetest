@@ -10,3 +10,45 @@ engine is in the kernel now.
 
 Go over the stuff in new and see what was used
 
+----------------------------------------------------------------------
+
+startup/configuration
+
+Mobius no longer has to deal with above/below interrupt, everything is Kernel
+except for a brief period during initialization.
+
+Shell/Kernel can handle the gate that prevents interrupts from comming in before
+being fully initialized.
+
+Supervisor reads MobiusConfig file
+  MobiusShell gets config config from Supervisor, makes two copies one
+    for shell and one for Kernel
+
+  Kernel wakes up and takes it's copy
+
+  Kernel initializes core and shares it's MobiusConfig
+
+  Mobius just keeps a handle to the Mobius config, and goes not modify it
+
+  Mobius copies portions of the config to the Tracks
+  
+Keep an initialize/start interface in Mobius for the VST probing thing though
+we won't use it yet?  Or can this be done higher, yes, shell should do that
+
+Mobius() constructor
+  don't do much
+
+Mobius::initialize(kernel)
+  save Kernel and pull Configuration and other things from it
+
+MobiusContext
+  formerly provided path names and two main interfaces
+     AudioInterface
+     MidiInterface
+       leave these as stubs for now, but implement as bridges between
+       core and Kernel/MobiusContainer
+
+HostMidiInterface
+  keep around briefly, need to refactor all midi handling to go through
+  MobiusContainer
+

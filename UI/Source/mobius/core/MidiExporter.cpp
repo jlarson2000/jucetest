@@ -1,3 +1,7 @@
+// BindingConfig is gone and we have BindingSet now
+// commented out most of this to get the compilation moving
+// the concept of MidiExport needs to be redesigned
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -76,12 +80,12 @@ MidiExporter::MidiExporter(Mobius* m)
 	MobiusConfig* config = m->getConfiguration();
 
     // start with the defaults
-    addExports(m, config->getBaseBindingConfig());
+    //addExports(m, config->getBaseBindingConfig());
 
     // and add the overlay
     // !! this isn't tracking overlay changes, we should
     // add all of them and then filter when we export
-    addExports(m, config->getOverlayBindingConfig());
+    //addExports(m, config->getOverlayBindingConfig());
 }
 
 void MidiExporter::setHistory(MidiExporter* me) 
@@ -97,10 +101,10 @@ MidiExporter* MidiExporter::getHistory()
 /**
  * Import a list of Bindings.
  */
-void MidiExporter::addExports(Mobius* m, BindingConfig* config)
+void MidiExporter::addExports(Mobius* m, OldBindingConfig* config)
 {
     if (config != NULL) {
-        Binding* bindings = config->getBindings();
+        OldBinding* bindings = config->getBindings();
         if (bindings != NULL) {
 
             // keep them in order
@@ -108,7 +112,7 @@ void MidiExporter::addExports(Mobius* m, BindingConfig* config)
             while (last != NULL && last->getNext() != NULL)
               last = last->getNext();
 
-            for (Binding* b = bindings ; b != NULL ; b = b->getNext()) {
+            for (OldBinding* b = bindings ; b != NULL ; b = b->getNext()) {
                 Export* exp = convertBinding(m, b);
                 if (exp != NULL) {
                     if (last != NULL)
@@ -122,18 +126,18 @@ void MidiExporter::addExports(Mobius* m, BindingConfig* config)
     }
 }
 
-Export* MidiExporter::convertBinding(Mobius* mobius, Binding* b) 
+Export* MidiExporter::convertBinding(Mobius* mobius, OldBinding* b) 
 {
     Export* exp = NULL;
 
     // only concerned with things that can be controlled with knobs
-    Target* target = b->getTarget();
-    if (target == TargetParameter) {
+    OldTarget* target = b->getTarget();
+    if (target == OldTargetParameter) {
 
-        Trigger* trigger = b->getTrigger();
+        OldTrigger* trigger = b->getTrigger();
 
         // I suppose Note and Program could be used for latching buttons?
-        if (trigger == TriggerControl) {
+        if (trigger == OldTriggerControl) {
             
             exp = mobius->resolveExport(b);
             if (exp != NULL) {
@@ -182,11 +186,11 @@ void MidiExporter::sendEvents()
     MobiusConfig* config = mMobius->getConfiguration();
     if (config->isMidiExport() || config->isHostMidiExport()) {
 
-        MobiusContext* con = mMobius->getContext();
-        HostMidiInterface* hostMidi = con->getHostMidiInterface();
+        //MobiusContext* con = mMobius->getContext();
+        HostMidiInterface* hostMidi = mMobius->getHostMidiInterface();
 
         // this is both an allocator of MidiEvents and an output
-        MidiInterface* midi = con->getMidiInterface();
+        MidiInterface* midi = mMobius->getMidiInterface();
 
         for (Export* exp = mExports ; exp != NULL ; exp = exp->getNext()) {
 

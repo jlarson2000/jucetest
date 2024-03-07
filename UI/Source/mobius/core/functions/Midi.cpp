@@ -1,3 +1,4 @@
+// wanted to use 
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -17,7 +18,7 @@
 #include <string.h>
 #include <memory.h>
 
-#include "../../util/Util.h"
+#include "../../../util/Util.h"
 
 #include "../MidiByte.h"
 #include "../MidiEvent.h"
@@ -401,8 +402,8 @@ void MidiOutFunction::invoke(Action* action, Mobius* m)
             
 	if (status > 0) {
 
-        MobiusContext* con = m->getContext();
-        MidiInterface* midi = con->getMidiInterface();
+        // MobiusContext* con = m->getContext();
+        MidiInterface* midi = m->getMidiInterface();
 
         MidiEvent* mevent = midi->newEvent(status, channel, value, velocity);
         midi->send(mevent);

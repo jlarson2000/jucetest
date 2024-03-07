@@ -13,9 +13,10 @@
 #include <memory.h>
 #include <string.h>
 
-#include "../../util/Util.h"
-#include "../MidiByte.h"
+#include "../../../util/Util.h"
+#include "../../../model/MobiusConfig.h"
 
+#include "../MidiByte.h"
 #include "../Action.h"
 #include "../Event.h"
 #include "../EventManager.h"
@@ -25,7 +26,6 @@
 #include "../Loop.h"
 #include "../Messages.h"
 #include "../Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "../Mode.h"
 #include "../Resampler.h"
 #include "../Stream.h"

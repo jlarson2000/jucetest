@@ -1,3 +1,5 @@
+// Formerly wrapped SoundTouch, stubbed out till we find something better
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -91,7 +93,7 @@ void PseudoPlugin::updatePitch()
 // SoundTouchPlugin
 //
 //////////////////////////////////////////////////////////////////////
-
+#if 0
 /**
  * This implements PitchPlugin, but it also has methods for
  * time stretch and rate change.  If we ever have more than
@@ -551,6 +553,7 @@ long SoundTouchPlugin::process(float* input, float* output,
 	mBlocks++;
 	return returned;
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -560,8 +563,8 @@ long SoundTouchPlugin::process(float* input, float* output,
 
 PitchPlugin* PitchPlugin::getPlugin(int sampleRate)
 {
-	//return new PseudoPlugin();
-	return new SoundTouchPlugin(sampleRate);
+	return new PseudoPlugin(0);
+	//return new SoundTouchPlugin(sampleRate);
 }
 
 /****************************************************************************/
