@@ -904,9 +904,6 @@
     <ClCompile Include="..\..\Source\mobius\core\functions\Substitute.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\functions\Surface.cpp">
-      <Filter>UI\Source\mobius\core\functions</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\Sync.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
@@ -922,9 +919,6 @@
     <ClCompile Include="..\..\Source\mobius\core\functions\Trim.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\functions\UIFunctions.cpp">
-      <Filter>UI\Source\mobius\core\functions</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\UndoRedo.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
@@ -934,16 +928,7 @@
     <ClCompile Include="..\..\Source\mobius\core\Action.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\ActionDispatcher.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\AudioInterface.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\BindingResolver.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\ControlSurface.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Event.cpp">
@@ -967,9 +952,6 @@
     <ClCompile Include="..\..\Source\mobius\core\Function.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\HostConfig.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Layer.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -980,9 +962,6 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\MidiExporter.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiQueue.cpp">
@@ -1004,9 +983,6 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\ObjectPool.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\OldBinding.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Parameter.cpp">
@@ -3837,16 +3813,7 @@
     <ClInclude Include="..\..\Source\mobius\core\Action.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\ActionDispatcher.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\AudioInterface.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\BindingResolver.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\ControlSurface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h">
@@ -3870,9 +3837,6 @@
     <ClInclude Include="..\..\Source\mobius\core\Function.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\HostConfig.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\HostMidiInterface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3894,9 +3858,6 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiEvent.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\MidiExporter.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\MidiInterface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3912,9 +3873,6 @@
     <ClInclude Include="..\..\Source\mobius\core\Mobius.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\MobiusInterface.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\MobiusThread.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3922,9 +3880,6 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\OldBinding.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h">

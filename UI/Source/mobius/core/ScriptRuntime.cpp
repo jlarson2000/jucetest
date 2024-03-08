@@ -9,14 +9,14 @@
  *
  */
 
+// for TriggerEvent
+#include "../../model/Trigger.h"
+
 #include "Action.h"
 #include "Mobius.h"
 #include "MobiusThread.h"
 #include "Script.h"
 #include "Track.h"
-
-// for TriggerEvent
-#include "OldBinding.h"
 
 #include "ScriptRuntime.h"
 

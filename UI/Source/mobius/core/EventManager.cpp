@@ -132,6 +132,7 @@
 
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
+#include "../../model/Trigger.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -142,10 +143,6 @@
 #include "Stream.h"
 #include "Synchronizer.h"
 #include "Track.h"
-
-// TriggerScript
-#include "OldBinding.h"
-
 
 #include "EventManager.h"
 

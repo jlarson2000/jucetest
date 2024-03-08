@@ -93,6 +93,7 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
 	mSynchronizer = sync;
     mSyncState = new SyncState(this);
     mEventManager = new EventManager(this);
+    mEventManager = nullptr;
     mSetup = NULL;
 	mInput = new InputStream(sync, m->getSampleRate());
 	mOutput = new OutputStream(mInput, m->getAudioPool());
@@ -154,7 +155,7 @@ Track::~Track()
       delete mLoops[i];
 
     delete mSyncState;
-    delete mEventManager;
+    //delete mEventManager;
     // mSetup is not owned by us
 	delete mInput;
 	delete mOutput;

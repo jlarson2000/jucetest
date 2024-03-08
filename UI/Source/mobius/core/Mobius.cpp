@@ -26,17 +26,11 @@
 #include "HostMidiInterface.h"
 
 #include "Action.h"
-#include "OldBinding.h"
-#include "BindingResolver.h"
-//#include "ControlSurface.h"
 #include "Event.h"
 #include "Export.h"
 #include "Function.h"
-#include "HostConfig.h"
-//#include "Launchpad.h"
 #include "Layer.h"
 #include "Loop.h"
-#include "MidiExporter.h"
 #include "MobiusThread.h"
 #include "Mode.h"
 //#include "OscConfig.h"
@@ -54,8 +48,6 @@
 // for ScriptInternalVariable, encapsulation sucks
 #include "Variable.h"
 
-// temporary
-#include "OldBinding.h"
 #include "AudioInterface.h"
 
 #include "Mobius.h"
@@ -143,11 +135,6 @@ Mobius::Mobius(MobiusKernel* kernel)
     //
     // Legacy Initialization
     //
-
-    // might still be relevant?
-    // this used a separate host.xml file I don't want to mess with right now
-    //mHostConfigs = loadHostConfiguration();
-    mHostConfigs = nullptr;
     
     // this only really provided the AudioStream, don't bring it over
 	//mContext = context;
@@ -162,17 +149,18 @@ Mobius::Mobius(MobiusKernel* kernel)
     // are always in the interrupt now
 	//mCsect = new CriticalSection("Mobius");
 
-	mPools = NULL;
+    // whatever the fuck this was it was leaking
+    // see initObjectPools, flushObjectPools
+	//mPools = NULL;
+    
     mLayerPool = new LayerPool(mAudioPool);
     mEventPool = new EventPool();
     mActionPool = new ActionPool();
+        
     mListener = NULL;
     mScriptThreadCounter = 0;
-    mResolvedTargets = NULL;
-    mBindingResolver = NULL;
-    mMidiExporter = NULL;
+    //mResolvedTargets = NULL;
 	//mOsc = NULL;
-    //mControlSurfaces = NULL;
     mTriggerState = new TriggerState();
 	mThread = NULL;
 	mTracks = NULL;
@@ -239,12 +227,10 @@ Mobius::~Mobius()
     //delete mAudioPool;
 
     delete mWatchers;
+    delete mNewWatchers;
     delete mTriggerState;
 	delete mThread;
-	delete mBindingResolver;
-    delete mMidiExporter;
 	//delete mOsc;
-    //delete mControlSurfaces;
 
     // functions are a mess, this is an array that combined
     // StaticFunctions with generated Script functions
@@ -268,12 +254,12 @@ Mobius::~Mobius()
     delete mVariables;
 
     // avoid a warning message
-    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext())
-      t->setInterned(false);
-    delete mResolvedTargets;
+    //for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext())
+    //t->setInterned(false);
+    //delete mResolvedTargets;
 
     // sweet jesus this is aweful, redesign
-	flushObjectPools();
+	//flushObjectPools();
     
     mActionPool->dump();
     delete mActionPool;
@@ -431,7 +417,7 @@ void Mobius::reconfigure(class MobiusConfig* config)
  */
 void Mobius::start()
 {
-    initObjectPools();
+    //initObjectPools();
 
     // will need a way for this to get MIDI
     mSynchronizer = new Synchronizer(this, mMidi);
@@ -458,8 +444,6 @@ void Mobius::start()
 
     // start the recorder (opens streams) and begins interrupt
     //mRecorder->start();
-
-    //updateControlSurfaces();
 
     // Formerly looked for an init.mos script and ran it.
     // Never used this and it didn't fit well in the new ScriptEnv world.
@@ -519,6 +503,7 @@ MobiusAlerts* Mobius::getAlerts()
             AudioStream* s = mRecorder->getStream();
             mAlerts.audioInputInvalid = (s->getInputDevice() == NULL);
         }
+
 
         if (mConfig->getAudioOutput() != NULL) {
             AudioStream* s = mRecorder->getStream();
@@ -650,33 +635,6 @@ void Mobius::getTraceContext(int* context, long* time)
 	*context = 0;
 	*time = 0;
 }
-
-/**
- * Install control surface handlers for the globally registered
- * control surfaces.
- *
- * Just a stub right now for the Launchpad, need to figure out
- * how to make this more pluggable.
- */
-#if 0
-void Mobius::updateControlSurfaces()
-{
-	delete mControlSurfaces;
-	mControlSurfaces = NULL;
-
-	ControlSurfaceConfig* configs = mConfig->getControlSurfaces();
-	for (ControlSurfaceConfig* config = configs ; config != NULL ; 
-		 config = config->getNext()) {
-
-		if (StringEqual(config->getName(), "launchpad")) {
-			ControlSurface* cs = new Launchpad(this);
-			cs->setNext(mControlSurfaces);
-			mControlSurfaces = cs;
-		}
-	}
-}
-#endif
-
 
 /**
  * Called by MobiusThread when we think the interrupt handler looks
@@ -1070,6 +1028,8 @@ void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
     }
 
     // update focus lock/mute cancel limits
+    // update: focus lock has moved up, still need mute cancel
+    // but it doesn't have to be done down here
     updateGlobalFunctionPreferences();
 
 	// global settings
@@ -1094,9 +1054,12 @@ void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
         bool allReset = true;
         for (int i = 0 ; i < mTrackCount ; i++) {
             Track* t = mTracks[i];
-            if (!t->getLoop()->isReset()) {
-                allReset = false;
-                break;
+            Loop* l = t->getLoop();
+            if (l != nullptr) {
+                if (!l->isReset()) {
+                    allReset = false;
+                    break;
+                }
             }
         }
         if (allReset) {
@@ -1150,10 +1113,9 @@ void Mobius::buildTracks(int count)
             tracks[i] = t;
             rec->add(t);
         }
-	
         mTracks = tracks;
-        mTrackCount = count;
         mTrack = tracks[0];
+        mTrackCount = count;
     }
 }
 
@@ -1241,6 +1203,9 @@ void Mobius::reloadScripts()
  * TODO: Obviously a lot of work to do here.  I think we can factor
  * out all of the race conditions and avoid the history list, but
  * file handling needs to be moved up.
+ *
+ * update: BindingResolver is gone for whatever good that does
+ * force flag will be unused
  */
 bool Mobius::installScripts(ScriptConfig* config, bool force)
 {
@@ -1275,20 +1240,14 @@ bool Mobius::installScripts(ScriptConfig* config, bool force)
         // rebuild the global parameter table
         initScriptParameters();
 
-        // I wanted to install script buttons here but we need to
-        // call back to the UI.  Instead have the UI call 
-        // getScriptButtonActions when appropriate
-
-        // have to update ResolvedTargets to point to the new scripts
-        // if we're not forcing, then let the caller do it
-        //
-        // TODO; Keeping this for now for the old Action model, but
-        // the whole notion of resolving targets needs to be redesigned
-
-        // new: well we removed this method so we can't call it
-        // any binding 
-        if (force)
-          updateBindings();
+        // at this point, old comments mention updating ResolvedTargets
+        // to point to new Script objects, I think that was done
+        // in BindingResolver which is gone.  Cross that bridge later
+        // yes, see save/binding-resolver-use, it replaces Script pointers
+        // in ResolvedTargets i hate ResolvedTargets soo much
+        // we can remove references to config Structures easily
+        // but scripts are hard, really should only be updating ScriptConfig
+        // in a state of global reset
     }
 
     return changed;
@@ -1349,67 +1308,6 @@ void Mobius::addScriptParameter(ScriptParamStatement* s)
     else {
         Trace(1, "Ignoring Param statement without name\n");
     }
-}
-
-/**
- * I originally omitted this, but it seems to be the only thing that
- * builds out BindingResolver and MidiExporter so I want to understand how it works.
- * 
- * Rebuild the binding cache to reflect changes made to the binding definitions,
- * the scripts, or one of the bindable config objects
- * (presets, setups, overlays).
- * 
- * Have to be careful since the MIDI thread can be using the current
- * binding cache, so build and set the new one before deleting the old one.
- *
- * !! This is messy.  Need a more encapsulated environment for ui level threads
- * that gets phased in consistently instead of several pieces.
- */
-void Mobius::updateBindings()
-{
-    BindingResolver* old = mBindingResolver;
-    mBindingResolver = new BindingResolver(this);
-
-    // pause to make sure the new one is being used
-    // would be better if we assigned it as a pending change and
-    // processed it on the next MIDI interrupt
-    SleepMillis(100);
-        
-    delete old;
-
-    // This could be in use by MobiusThread so have to phase
-    // it out and let MobiusThread reclaim it.
-    MidiExporter* exporter = new MidiExporter(this);
-    exporter->setHistory(mMidiExporter);
-    mMidiExporter = exporter;
-
-    // refresh the previously resolved targets
-    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
-        ActionType* target = t->getTarget();
-
-        // The new target may no longer exist in which case the binding
-        // goes to null.  Trigger processing needs to deal with this.
-
-        if (target == ActionFunction) {
-            // !! is this safe?  shouldn't be be getting a new 
-            // RunScriptFunction wrapper too?
-            Function* f = (Function*)t->getObject();
-            if (f != NULL && f->isScript()) {
-                Script* script = (Script*)f->object;
-                f->object = mScriptEnv->getScript(script);
-            }
-        }
-        else if (target == ActionSetup) {
-            t->setObject(GetSetup(mConfig, t->getName()));
-        }
-        else if (target == ActionPreset) {
-            t->setObject(GetPreset(mConfig, t->getName()));
-        }
-        else if (target == ActionBindings) {
-            //t->setObject(mConfig->getBindingConfig(t->getName()));
-        }
-    }
-
 }
 
 /****************************************************************************
@@ -1986,681 +1884,14 @@ void Mobius::finishPrompt(Prompt* p)
 	  delete p;
 }
 
-#if 0
-ControlSurface* Mobius::getControlSurfaces()
-{
-    return mControlSurfaces;
-}
-#endif
-
 /****************************************************************************
  *                                                                          *
  *                             ACTION RESOLUTION                            *
  *                                                                          *
  ****************************************************************************/
 
-/**
- * Resolve a Binding to an Action.
- * First we intern a ResolvedTarget, then we build the Action around it.
- * This handles both normal bindings and OSC bindings.
- */
-Action* Mobius::resolveAction(OldBinding* b)
-{
-    Action* a = NULL;
 
-    // we make assumptions about the trigger so it must be set
-    if (b->getTrigger() == NULL) {
-        Trace(1, "Mobius::resolveAction binding with no trigger\n");
-    }
-    else if (b->getTargetPath() != NULL) {
-        // an OSC binding
-        //a = resolveOscAction(b);
-    }
-    else {
-        ResolvedTarget* t = resolveTarget(b);
-        if (t != NULL) {
-            a = new Action(t);
 
-            // parse binding arguments
-            CopyString(b->getArgs(), a->bindingArgs, sizeof(a->bindingArgs));
-            a->parseBindingArgs();
-
-            resolveTrigger(b, a);
-        }
-    }
-
-    return a;
-}
-
-/**
- * Resolve the target represented in a Binding and return
- * an interned ResolvedTarget if we could resolve the target.  
- * The returned object remains owned by Mobius and must not be
- * modified by the caller.
- *
- * This will NOT handle Bindings that use targetPath.  For those
- * you must call resolveAction.  This is only public so that it
- * may be used by the binding windows to validate selections.
- */
-ResolvedTarget* Mobius::resolveTarget(OldBinding* b)
-{
-    ResolvedTarget* resolved = NULL;
-
-    if (b->getTargetPath()) {
-        Trace(1, "resolveTarget called with targetPath!\n");
-    }
-    else {
-        int track, group;
-        parseBindingScope(b->getScope(), &track, &group);
-        resolved = internTarget(b->getTarget(), b->getName(), track, group);
-    }
-
-    return resolved;
-}
-
-/**
- * Parse a scope into track an group numbers.
- * Tracks are expected to be identified with integers starting
- * from 1.  Groups are identified with upper case letters A-Z.
- */
-void Mobius::parseBindingScope(const char* scope, int* track, int* group)
-{
-    *track = 0;
-    *group = 0;
-
-    if (scope != NULL) {
-        int len = strlen(scope);
-        if (len > 1) {
-            // must be a number 
-            *track = atoi(scope);
-        }
-        else if (len == 1) {
-            char ch = scope[0];
-            if (ch >= 'A') {
-                *group = (ch - 'A') + 1;
-            }
-            else {
-                // normally an integer, anything else
-                // collapses to zero
-                *track = atoi(scope);
-            }
-        }
-    }
-}
-
-/**
- * Resolve and intern a target using given it's properties.
- * Returns NULL if the target name is invalid, or if this is a UIControl
- * and we don't know what they are yet.
- *
- * Config object handling is messy.  We resolve to the 
- * external config not the interrupt config.  But when we
- * need to use this action we have to convert that to the
- * interrupt config object, so resolving it here doesn't accomplish
- * anything other than to make sure the name is valid.  Should just
- * leave the number in the Action instead?
- * !!
- *
- * UPDATE: may not be relevant any more
- */
-ResolvedTarget* Mobius::internTarget(ActionType* target, 
-                                             const char* name,
-                                             int track,
-                                             int group)
-{
-    ResolvedTarget* resolved = NULL;
-    MobiusConfig* config = getConfiguration();
-    void* resolvedTarget = NULL;
-    bool tolerate = false;
-
-    if (target == NULL) {
-        Trace(1, "Unable to resolve Binding: no target\n");
-    }
-    else if (name == NULL) {
-        Trace(1, "Unable to resolve Binding: no name\n");
-    }
-    else if (target == ActionFunction) {
-        Function* f = getFunction(name);
-        // these can have aliases, upgrade the name
-        if (f != NULL)
-          name = f->getName();
-        resolvedTarget = f;
-    }
-    else if (target == ActionParameter) {
-        Parameter* p = Parameter::getParameter(name);
-        // these can have aliases, upgrade the name
-        if (p != NULL)
-          name = p->getName();
-        resolvedTarget = p;
-    }
-    else if (target == ActionSetup) {
-        resolvedTarget = GetSetup(config, name);
-    }
-    else if (target == ActionPreset) {
-        resolvedTarget = GetPreset(config, name);
-    }
-    else if (target == ActionBindings) {
-        // changed the name
-        //resolvedTarget = config->getBindingConfig(name);
-    }
-    //else if (target == ActionUIControl) {
-    // doesn't exist, and not relevant
-    //resolvedTarget = getUIControl(name);
-    // tolerate this at first
-    //tolerate = true;
-    //}
-    //else if (target == ActionUIConfig) {
-    //// where??
-    //Trace(1, "Unable to resolve Binding: UIConfig\n");
-    //}
-    else {
-        Trace(1, "Unable to resolve Binding: unsupported target %ld\n",
-              (long)target);
-    }
-
-    // must have at least the name, some we'll defer
-    if (name != NULL) {
-        if (resolvedTarget == NULL && !tolerate)
-          Trace(1, "Unrecognized binding target: %s\n", name);
-        else {
-            // see if we already have one
-            for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
-                if (t->getTarget() == target &&
-                    StringEqual(t->getName(), name) &&
-                    t->getTrack() == track &&
-                    t->getGroup() == group) {
-                    resolved = t;
-                    break;
-                }
-            }
-            
-            if (resolved == NULL) {
-                resolved = new ResolvedTarget();
-                resolved->setTarget(target);
-                resolved->setName(name);
-                resolved->setObject(resolvedTarget);
-                resolved->setTrack(track);
-                resolved->setGroup(group);
-
-                //mCsect->enter("internTarget");
-                resolved->setInterned(true);
-                resolved->setNext(mResolvedTargets);
-                mResolvedTargets = resolved;
-                //mCsect->leave("internTarget");
-            }
-        }
-    }
-            
-    return resolved;
-}
-
-/**
- * Resolve an Action from an OSC path.
- * 
- * /mobius/trigger/scope/target/value
- *
- * /mobius must be at the front of the path.
- *
- * Second container is optional and contains
- * information about the trigger:
- *
- *     range(low,high)
- *       - specifies the value range if not 0.0 to 1.0
- *
- *     noup
- *       - implies TriggerModeOnce
- *
- * The scope container is optional and may contain:
- *
- *    global, track number, group letter
- *
- * If not specified it defaults to global.
- *
- * After scope is the target name which will either
- * be a Parameter or a Function.
- *
- * After target name is an optional value which may take
- * these forms.  All but two are used only with parameter targets.
- *
- *   <enumeration>      
- *   <name>             + substituted for space
- *   <number>           parameter or function
- *   min                
- *   max                
- *   center             
- *   up             
- *   down
- *   up/<number>
- *   down/<number>
- *   arg                value taken from the OSC argument
- *
- */
-#if 0
-Action* Mobius::resolveOscAction(Binding* b)
-{
-    Action* action = NULL;
-    bool error = false;
-    char token[128];
-    char name[128];
-    Target* target = NULL;
-    Parameter* parameter = NULL;
-    int track = 0;
-    int group = 0;
-    ActionOperator* op = NULL;
-    ExValue argument;
-    bool noup = false;
-    bool passArg = false;
-
-    name[0] = 0;
-    argument.setNull();
-
-    const char* path = b->getTargetPath();
-    const char* ptr = path;
-
-    // osc.xml often has example Bindings with no path so ignore them
-    if (path == NULL || strlen(path) == 0) {
-        Trace(3, "resolveOscAction: Empty path\n");
-        error = true;
-    }
-
-    // I don't normally like the !error pattern but nesting gets
-    // too deep without it and I can't stand inline returns
-    if (!error) {
-        // skip over /mobius
-        ptr = getToken(ptr, token);
-        if (!StringEqualNoCase(token, "mobius")) {
-            Trace(2, "resolveOscAction: /mobius prefix not found\n");
-            error = true;
-        }
-        else
-          ptr = getToken(ptr, token);
-    }
-    
-    //
-    // Trigger
-    //
-
-    if (!error) {
-        if (StringEqualNoCase(token, "noup")) {
-            noup = true;
-            ptr = getToken(ptr, token);
-        }
-        else if (StartsWithNoCase(token, "range")) {
-            Trace(1, "Not supporting OSC trigger ranges yet\n");
-            ptr = getToken(ptr, token);
-        }
-    }
-
-    //
-    // Scope
-    //
-
-    if (!error) {
-        bool skip = true;
-        if (isdigit(token[0])) {
-            // must be a track number starting at 1
-            int i = atoi(token);
-            if (i >= 1 && i <= mTrackCount)
-              track = i;
-            else {
-                Trace(2, "resolveOscAction: Invalid track number %s\n", token);
-                error = true;
-            }
-        }
-        else if (token[1] == 0) {
-            // single letter, must be group number
-            int i = (int)(token[0]) - (int)'A';
-            if (i < 0 || i >= 26) {
-                // not a letter
-                Trace(2, "resolveOscAction: Invalid group letter %s\n", token);
-                error = true;
-            }
-            else {
-                // group in the binding starts from 1
-                // TODO: check config for max group
-                group = i + 1;
-            }
-        }
-        else if (!StringEqualNoCase(token, "global")) {
-            // global is optional, consider this the target
-            skip = false;
-        }
-        if (skip)
-          ptr = getToken(ptr, token);
-    }
-
-    //
-    // Target
-    //
-    // Orignally we had a type here, but now we're assuming
-    // that all targets have unique names.  This does mean that
-    // we'll search the name lists twice, once here and again
-    // in internTarget.  Oh well.
-    // !! what about scripts with user defined names, 
-    // use the "script:" prefix?
-    //
-
-    // do parameters first so we get SpeedStep and PitchStep
-    // as parameters rather than spread functions
-    if (!error) {
-        // remember this for later
-        parameter = Parameter::getParameter(token);
-        if (parameter != NULL) {
-            target = TargetParameter;
-            CopyString(token, name, sizeof(name));
-        }
-    }
-
-    if (!error && target == NULL) {
-        // TODO: include UIControls?
-    }
-
-    if (!error && target == NULL) {
-        // script names may have escaped spaces!
-        char namebuf[128];
-        oscUnescape(token, namebuf, sizeof(namebuf));
-
-        Function* f = getFunction(namebuf);
-        if (f != NULL) {
-            target = TargetFunction;
-            // save the unescaped name
-            CopyString(namebuf, name, sizeof(name));
-        }
-    }
-
-    if (!error) {
-        if (target != NULL)
-          ptr = getToken(ptr, token);
-        else {
-            Trace(2, "resolveOscAction: Unknown target %s\n", token);
-            error = true;
-        }
-    }
-
-    //
-    // Special values
-    //
-
-    if (!error) {
-        // up, down, min, max, center, arg
-        op = ActionOperator::get(token);
-        if (op == NULL && StringEqualNoCase(token, "arg"))
-          passArg = true;
-
-        if (op != NULL || passArg)
-          ptr = getToken(ptr, token);
-    }
-
-    if (!error && op != NULL) {
-        // operator can also use "arg" for it's operand
-        if (StringEqualNoCase(token, "arg")) {
-            passArg = true;
-            ptr = getToken(ptr, token);
-        }
-    }
-
-    //
-    // Value
-    // enumeration name, user defined name, number
-    // if passArg became true there shouldn't be anything left
-    //
-
-    if (!error) {
-        if (IsInteger(token)) {
-            // Leave the value as an int. 
-            // For config objects in theory you can name something "123" 
-            // which needs to be searched as a string, but we're not 
-            // allowing that.
-            argument.setInt(ToInt(token));
-
-            // TODO: Could validate parameter ranges...
-        }
-        else {
-            char valbuf[128];
-            oscUnescape(token, valbuf, sizeof(valbuf));
-            if (strlen(valbuf) > 0) {
-                // For config objects, resolve directly to the object
-                // internTarget will log errors
-                MobiusConfig* config = getConfiguration();
-                if (parameter == BindingsParameter) {
-                    target = TargetBindings;
-                    CopyString(valbuf, name, sizeof(name));
-                }
-                else if (parameter == SetupNameParameter) {
-                    target = TargetSetup;
-                    CopyString(valbuf, name, sizeof(name));
-                }
-                else if (parameter == TrackPresetParameter) {
-                    target = TargetPreset;
-                    CopyString(valbuf, name, sizeof(name));
-                }
-                else {
-                    // just leave it as a string argument
-                    argument.setString(valbuf);
-                }
-            }
-        }
-    }
-
-    // finally!
-    if (!error) {
-        // this will trace errors
-        ResolvedTarget* rt = internTarget(target, name, track, group);
-        if (rt != NULL) {
-            // the id must be set by the caller
-            action = new Action(rt);
-            action->trigger = TriggerOsc;
-            action->arg.set(&argument);
-            action->actionOperator = op;
-            action->passOscArg = passArg;
-
-            // Binding contains a TriggerMode but we don't need it, 
-            // though it might be important to convey Toggle.
-            // Mode is implied by the target and options on the path and
-            // you are expected to write paths that match the trigger mode.
-
-            if (target == TargetParameter) {
-                // parameters expect continuous triggers unless they
-                // have an explicit value
-                if (op == NULL && argument.isNull() && !passArg)
-                  action->triggerMode = TriggerModeContinuous;
-                else
-                  action->triggerMode = TriggerModeOnce;
-            }
-            else if (target == TargetFunction) {
-                if (noup || passArg)
-                  action->triggerMode = TriggerModeOnce;
-                else
-                  action->triggerMode = TriggerModeMomentary;
-            }
-            else {
-                // config objects were orignially params with values
-                action->triggerMode = TriggerModeOnce;
-            }
-
-            // A binding can have args for min/max/set etc. 
-            // We could support those if someone bothered to edit
-            // OscConfig XML, but now that we can do it in paths
-            // it isn't necessary and just confuses things.
-        }
-    }
-
-    return action;
-}
-
-/**
- * Helper for target path parsing.
- */
-const char* Mobius::getToken(const char* ptr, char* token)
-{
-    // skip over initial / if we're there
-    if (*ptr == '/') ptr++;
-
-    char* dest = token;
-    while (*ptr && *ptr != '/')
-      *dest++ = *ptr++;
-
-    *dest = 0;
-
-    return ptr;
-}
-
-/**
- * Unescape an OSC name which has + substituted for space.
- */
-void Mobius::oscUnescape(const char* src, char* dest, int max)
-{
-    int len = strlen(src);
-    if (len > (max - 1))
-      Trace(1, "oscUnescape: Token too long %s\n", src);
-    else {
-        const char* srcptr = src;
-        char* destptr = dest;
-        while (*srcptr) {
-            char ch = *srcptr;
-            if (ch == '+') ch = ' ';
-            *destptr++ = ch;
-            srcptr++;
-        }
-        *destptr = 0;
-    }
-}
-#endif
-
-/**
- * After resolving a Binding for a non-OSC target, initialize
- * trigger properties.
- *
- * Arguably this could go in each of the "clients": OscConfig, 
- * MobiusPlugin, and BindingResolver, but we have all the OSC parsing
- * stuff down here, and that defines trigger properties so keep it
- * all in one place.
- *
- * The one exception is the UI since it is less predictable, it must
- * set the trigger properties after resolving the action.
- *
- * MIDI is ugly because the Action model was designed long after
- * the Binding model.  Bindings maintain specific fields for MIDI 
- * triggers, Actions are more generic so we have to convert them.
- * 
- * Bindings have so far used three target constants for MIDI notes, 
- * programs, and CCs.  Actions collapse this into a single TargetMidi.
- * Actions also do not have fields for values in a MIDI message but they
- * have accessors that can dig them out of the action id.
- */
-void Mobius::resolveTrigger(OldBinding* binding, Action* action)
-{
-    int midiStatus = 0;
-
-    // defaults usually convey
-    Trigger* trigger = binding->getTrigger();
-    TriggerMode* mode = binding->getTriggerMode();
-
-    if (trigger == TriggerNote) {
-        trigger = TriggerMidi;
-        midiStatus = MS_NOTEON;
-        if (mode == NULL) {
-          mode = TriggerModeMomentary;
-        }
-        else if (mode != TriggerModeMomentary &&
-                 mode != TriggerModeOnce) {
-            Trace(1, "Overriding invalid note trigger mode %s\n",
-                  mode->getName());
-            mode = TriggerModeMomentary;
-        }
-    }
-    else if (trigger == TriggerProgram) {
-        trigger = TriggerMidi;
-        midiStatus = MS_PROGRAM;
-        mode = TriggerModeOnce;
-    }
-    else if (trigger == TriggerControl) {
-        trigger = TriggerMidi;
-        midiStatus = MS_CONTROL;
-        // some controllers can be programmed to send zero/nono-zero
-        // assume that if it is bound to anything other than a parameter
-        // it is momentary
-        ActionType* t = action->getTarget();
-        if (t == ActionParameter) {
-            if (mode == NULL)
-              mode = TriggerModeContinuous;
-            else if (mode != TriggerModeContinuous &&
-                     mode != TriggerModeMomentary &&
-                     mode != TriggerModeOnce) {
-                Trace(1, "Overriding invalid control trigger mode %s\n",
-                      mode->getName());
-                mode = TriggerModeContinuous;
-            }
-        }
-        else {
-            if (mode != NULL && mode != TriggerModeMomentary)
-              Trace(1, "Overriding invalid control trigger mode %s\n",
-                    mode->getName());
-            mode = TriggerModeMomentary;
-        }
-    }
-    else if (trigger == TriggerPitch) {
-        trigger = TriggerMidi;
-        midiStatus = MS_BEND;
-        // some controllers can be programmed to send zero/nono-zero
-        mode = TriggerModeContinuous;
-    }
-    else if (trigger == TriggerKey) {
-        mode = TriggerModeMomentary;
-    }
-    else if (trigger == TriggerUI) {
-        // this can be either momentary or continuous
-        // make UI set it appropriately
-    }
-    else if (trigger == TriggerHost) {
-        // We don't need triggerType in the Binding do we?  Host
-        // parameters always behave this way.
-        ActionType* t = action->getTarget();
-        if (t == ActionParameter &&
-            action->actionOperator == NULL && 
-            action->arg.isNull()) {
-            mode = TriggerModeContinuous;
-        }
-        else {
-            // Functions and config objects are assumed to behave
-            // like buttons, can change this later for !continuous scripts
-            mode = TriggerModeMomentary;
-        }
-    }
-    else if (trigger == TriggerOsc) {
-        // parsing the path will have already handled this
-    }
-
-    // If we've bound to a !continuous script, make it feel
-    // like a Parameter.
-    // NOTE: We'll never call this for TriggerOsc but in theory
-    // it could work the same way.  Do we need that?
-    if (trigger == TriggerHost || trigger == TriggerOsc) {
-        if (action->getTarget() == ActionFunction) {
-            Function* f = (Function*)action->getTargetObject();
-            if (f != NULL && f->isScript()) {
-                Script* s = (Script*)f->object;
-                if (s != NULL && s->isContinuous())
-                  mode = TriggerModeContinuous;
-            }
-        }
-    }
-
-    // save what we came up with
-    action->trigger = trigger;
-    action->triggerMode = mode;
-
-    if (trigger != TriggerMidi) {
-        action->id = binding->getValue();
-    }
-    else {
-        // for MIDI triggers compress the MIDI message fields into
-        // the action id which will already have the MS_ status code
-        action->setMidiStatus(midiStatus);
-        action->setMidiChannel(binding->getChannel());
-        action->setMidiKey(binding->getValue());
-    }
-}
 
 /****************************************************************************
  *                                                                          *
@@ -2872,10 +2103,6 @@ void Mobius::doAction(Action* a)
              a->trigger == TriggerEvent ||
              // !! can't we use this reliably and not worry about trigger?
              a->inInterrupt) {
-             //target == ActionUIControl ||
-             //target == ActionUIConfig ||
-             //target == ActionBindings)
-
         // Script and Event triggers are in the interrupt
         // The UI targets don't have restrictions on when they can change.
         // Bindings are used outside the interrupt.
@@ -3030,10 +2257,6 @@ void Mobius::doActionNow(Action* a)
     else if (t == ActionParameter) {
         doParameter(a);
     }
-    //else if (t == ActionUIControl) {
-    // no longer exists
-    //doUIControl(a);
-    // }
     else if (t == ActionScript) {
         doScriptNotification(a);
     }
@@ -5210,20 +4433,11 @@ Track* Mobius::getTrack(int index)
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Create an Export for a Binding.
- */
-Export* Mobius::resolveExport(OldBinding* b)
-{
-    Export* exp = NULL;
-    ResolvedTarget* target = resolveTarget(b);
-    if (target != NULL)
-      exp = resolveExport(target);
-    return exp;
-}
-
-/**
  * Create an Export for the target of an Action.
+ * Export lost the ResolvedTarget so if we still need this
+ * will need another way to resolve it
  */
+#if 0
 Export* Mobius::resolveExport(Action* a)
 {
     return resolveExport(a->getResolvedTarget());
@@ -5260,54 +4474,7 @@ Export* Mobius::resolveExport(ResolvedTarget* resolved)
 
     return exp;
 }
-
-/**
- * Called periodically by MobiusThread to export status to bi-directional
- * MIDI controllers, control surfaces, and OSC clients.
- *
- * mobiusThread is true if we're being called by MobiusThread which means
- * it is safe to clean up a previous exporter that is being phased out.
- * NOTE: This is always true since we're never called outside the thread,
- * I don't remember why this was here.
- *
- */
-void Mobius::exportStatus(bool inThread)
-{
-    // nab a copy to it doesn't change out from under us
-    // maybe it would be better if MobiusThread managed it's own copy
-    // and we just posted a new version 
-    MidiExporter *exporter = mMidiExporter;
-    if (exporter != NULL) {
-
-        if (inThread) {
-            // reclaim old versions
-            MidiExporter* old = exporter->getHistory();
-            if (old != NULL) {
-                exporter->setHistory(NULL);
-                delete old;
-            }
-        }
-
-        exporter->sendEvents();
-    }
-
-	// don't have a mechanism for editing these yet so we don't
-	// have to deal with the old/new thing like MidiExporter
-	// this will change...
-#if 0 
-    for (ControlSurface* cs = mControlSurfaces ; cs != NULL ; 
-         cs = cs->getNext()) {
-        cs->refresh();
-    }
-
-    // the thread starts running before we're fully initialized so
-    // always check for null here
-    if (mOsc != NULL)
-      mOsc->exportStatus();
-#endif    
-}
-
-
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //

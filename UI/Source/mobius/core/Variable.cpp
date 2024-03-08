@@ -26,6 +26,7 @@
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../util/Vbuf.h"
+#include "../../model/Trigger.h"
 
 // for AUDIO_FRAMES_PER_BUFFER
 #include "AudioInterface.h"
@@ -39,13 +40,11 @@
 #include "Mobius.h"
 #include "Mode.h"
 #include "Project.h"
-//#include "Recorder.h"
 #include "Script.h"
 #include "Synchronizer.h"
 #include "SyncState.h"
 #include "SyncTracker.h"
 #include "Track.h"
-#include "OldBinding.h"
 
 #include "Variable.h"
 

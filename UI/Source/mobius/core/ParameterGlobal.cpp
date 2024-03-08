@@ -1658,7 +1658,6 @@ void MuteCancelFunctionsParameterType::setValue(Action* action)
 
     // this is normally called by installConfig when the
     // scripts are compiled, here we track dynamic changes
-    // sigh, not in MobiusInterface
     m->updateGlobalFunctionPreferences();
 }
 
@@ -1724,7 +1723,6 @@ void ConfirmationFunctionsParameterType::setValue(Action* action)
 
     // this is normally called by installConfig when the
     // scripts are compiled, here we track dynamic changes
-    // sigh, not in MobiusInterface
     m->updateGlobalFunctionPreferences();
 }
 

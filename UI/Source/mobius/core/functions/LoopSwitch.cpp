@@ -42,6 +42,7 @@
 #include <string.h>
 
 #include "../../../util/Util.h"
+#include "../../../model/Trigger.h"
 
 #include "../Action.h"
 #include "../Event.h"

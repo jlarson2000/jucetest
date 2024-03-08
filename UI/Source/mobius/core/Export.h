@@ -50,6 +50,8 @@
 #ifndef EXPORT_H
 #define EXPORT_H
 
+// for TargetPointer
+#include "Action.h"
 
 /**
  * An enumeration used to convey the data type of the export.
@@ -82,9 +84,10 @@ class Export {
     void setNext(Export* e);
 
     class Mobius* getMobius();
-    class ResolvedTarget* getTarget();
+    // class ResolvedTarget* getTarget();
+    class ActionType* getTargetType();
     class Track* getTrack();
-
+    
     //
     // Target properties
     //
@@ -117,7 +120,7 @@ class Export {
 	Export(class Mobius* m);
 	Export(class Mobius* m, class State* s);
 	Export(class Action* a);
-    void setTarget(class ResolvedTarget* t);
+    //void setTarget(class ResolvedTarget* t);
     void setTrack(class Track* t);
 
   private:
@@ -140,8 +143,12 @@ class Export {
     /**
      * The target resolved by Mobius.
      */
-    class ResolvedTarget* mTarget;
-
+    //class ResolvedTarget* mTarget;
+    class ActionType* mType;
+    TargetPointer mObject;
+    int mScopeTrack;
+    int mScopeGroup;
+    
     /**
      * The specific target track when the target
      * specifies a group.

@@ -15,6 +15,7 @@
 
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
+#include "../../model/Trigger.h"
 
 #include "Action.h"
 #include "Function.h"

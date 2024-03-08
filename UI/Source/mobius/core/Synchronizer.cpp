@@ -111,6 +111,8 @@
 
 #include "../../model/MobiusConfig.h"
 #include "../../model/MobiusState.h"
+// TriggerScript
+#include "../../model/Trigger.h"
 
 //#include "Thread.h"
 
@@ -134,8 +136,6 @@
 #include "SyncTracker.h"
 #include "Track.h"
 
-// TriggerScript
-#include "OldBinding.h"
 // AudioStream
 #include "AudioInterface.h"
 

@@ -36,13 +36,6 @@ Stream::capture
 
 Trigger etc.
 
-A LOT of files are including OldBinding to get Trigger and Target
-constants.  Factor that out and/or use the new Binding model, but
-really most of this doesn't care about how bindings are defined
-
-Have just Trigger.h Target.h or maybe BindingConstants.h
-that can be used everywhere
-
 Git MidiListener drug in for something, revisit everything that
 thinks about Midi
 

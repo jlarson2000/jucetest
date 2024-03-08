@@ -21,25 +21,22 @@
 #include <memory.h>
 
 #include "../../util/List.h"
-//#include "MessageCatalog.h"
 #include "../../util/Util.h"
+#include "../../model/SystemConstant.h"
+#include "../../model/Trigger.h"
 
 #include "Action.h"
 #include "../Audio.h"
-//#include "ControlSurface.h"
 #include "Event.h"
 #include "EventManager.h"
 #include "Layer.h"
 #include "Loop.h"
-//#include "Messages.h"
 #include "Mobius.h"
 #include "Mode.h"
 #include "Project.h"
-//#include "Recorder.h"
 #include "Script.h"
 #include "Stream.h"
 #include "Synchronizer.h"
-#include "../../model/SystemConstant.h"
 #include "Track.h"
 
 #include "Function.h"
@@ -1431,7 +1428,6 @@ void Function::initStaticFunctions()
 
         add(StaticFunctions, DebugStatus);
 
-        add(StaticFunctions, UIRedraw);
         add(StaticFunctions, ReloadScripts);
 
         // 
@@ -1443,7 +1439,6 @@ void Function::initStaticFunctions()
         add(HiddenFunctions, Coverage);
         add(HiddenFunctions, Debug);
         add(HiddenFunctions, InitCoverage);
-        add(HiddenFunctions, Surface);
     }
 }
 

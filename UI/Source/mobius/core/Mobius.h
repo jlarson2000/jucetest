@@ -17,7 +17,6 @@
 #include "../Audio.h"
 #include "../AudioPool.h"
 #include "../MobiusKernel.h"
-#include "OldBinding.h"
 
 // for MobiusAlerts, OldMobiusListener
 #include "OldMobiusInterface.h"
@@ -188,9 +187,6 @@ class Mobius :
     void doActionNow(Action* a);
     void completeAction(Action* a);
     
-    //void doKeyEvent(int key, bool down, bool repeat);
-	//void doMidiEvent(class MidiEvent* e);
-
 	void setCheckInterrupt(bool b);
 	class CalibrationResult* calibrateLatency();
 	void finishPrompt(Prompt* p);
@@ -226,11 +222,11 @@ class Mobius :
 
     // External bindings
 
-    class ResolvedTarget* resolveTarget(OldBinding* b);
-    class Action* resolveAction(OldBinding* b);
-    class Export* resolveExport(OldBinding* b);
-    class Export* resolveExport(ResolvedTarget* t);
-    class Export* resolveExport(Action* a);
+    //class ResolvedTarget* resolveTarget(OldBinding* b);
+    //class Action* resolveAction(OldBinding* b);
+    //class Export* resolveExport(OldBinding* b);
+    //class Export* resolveExport(class ResolvedTarget* t);
+    class Export* resolveExport(class Action* a);
 
     Action* getScriptButtonActions();
 
@@ -260,8 +256,6 @@ class Mobius :
 
 	//void setOverlayBindings(class BindingConfig* c);
 
-    //class ControlSurface* getControlSurfaces();
-    
 	class MobiusMode* getMode();
 	long getFrame();
 
@@ -368,7 +362,6 @@ class Mobius :
 	void loadProjectInternal(class Project* p);
     class MobiusThread* getThread();
 	void emergencyExit();
-    void exportStatus(bool inThread);
 	void notifyGlobalReset();
 
     // Need these for the Setup and Preset script statements
@@ -396,9 +389,7 @@ class Mobius :
 	//void writeConfiguration(MobiusConfig* config);
 	//void parseCommandLine();
 	class MobiusConfig* loadConfiguration();
-    class HostConfigs* loadHostConfiguration();
     //class OscConfig* loadOscConfiguration();
-	//void updateControlSurfaces();
     void initFunctions();
     void initScriptParameters();
     void addScriptParameter(class ScriptParamStatement* s);
@@ -414,15 +405,6 @@ class Mobius :
 	class ScriptInterpreter* findScript(class Action* action, class Script* s, class Track* t);
     void doScriptMaintenance();
 	void freeScripts();
-    void addBinding(class BindingConfig* config, class Parameter* param, int id);
-
-    void resolveTrigger(OldBinding* b, Action* a);
-    //class Action* resolveOscAction(Binding* b);
-    void parseBindingScope(const char* scope, int* track, int* group);
-    const char* getToken(const char* ptr, char* token);
-    //void oscUnescape(const char* src, char* dest, int max);
-    ResolvedTarget* internTarget(class ActionType* target, const char* name,
-                                 int track, int group);
 
     void doInterruptActions();
     void doPreset(Action* a);
@@ -466,15 +448,11 @@ class Mobius :
     class Setup* mInterruptSetup;
 	class MobiusConfig *mPendingInterruptConfig;
 	class MidiInterface* mMidi;
-    class HostConfigs* mHostConfigs;
 
-    class ResolvedTarget* mResolvedTargets;
-    class BindingResolver* mBindingResolver;
+    //class ResolvedTarget* mResolvedTargets;
     class TriggerState* mTriggerState;
-    class MidiExporter* mMidiExporter;
     //class OscConfig* mOscConfig;
 	//class OscRuntime* mOsc;
-    //class ControlSurface* mControlSurfaces;
 
 	Recorder* mRecorder;
     class MobiusThread* mThread;

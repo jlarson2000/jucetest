@@ -44,10 +44,11 @@
 
 #include "Mapper.h"
 
-#include "../Audio.h"
 #include "../../util/List.h"
-//#include "Thread.h"
 #include "../../util/Util.h"
+#include "../../model/Trigger.h"
+
+#include "../Audio.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -64,9 +65,6 @@
 #include "SyncState.h"
 #include "Track.h"
 #include "WatchPoint.h"
-
-// for TriggerModeOnce
-#include "OldBinding.h"
 
 #include "Loop.h"
 
@@ -191,7 +189,8 @@ void Loop::init(Mobius* m, Track* track,
 	mState.init();
 
 	// since we're in Reset, this has to start here
-	setFrame(-(mInput->latency));
+    if (mInput != nullptr)
+      setFrame(-(mInput->latency));
 }
 
 Loop::~Loop()
@@ -664,7 +663,8 @@ void Loop::setFrame(long l)
     mFrame = l;
 
     EventManager* em = mTrack->getEventManager();
-    em->resetLastSyncEventFrame();
+    if (em != nullptr)
+      em->resetLastSyncEventFrame();
 }
 
 /**

@@ -1,47 +1,21 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * Model for sending commands or "actions" to mobius.
+ * An internal core model for UIAction that includes additional
+ * engine specific state.  One of these will be created when
+ * receiving a UIAction from the outside, and can also be created
+ * on the fly within the engine, especially in scripts.
  *
- * Once the Mobius engine is initialized, it is controlled primarily
- * by the posting of Actions.  An Action object is created and given
- * to Mobius with the doAction command.  The Action is carried out 
- * synchronously if possible, otherwise it is placed in an action
- * queue and processed at the beginning of the next audio interrupt.
+ * Actions can live for an indefinite period after they have requested
+ * if they are scheduled and associated with events or scripts.
  *
- * The Action model contains the following things, described here using
- * the classic W's model.
+ * They are allocated from a pool since they need to be created randomly
+ * within the engine.
  *
- *   Trigger (Who)
+ * See UIAction.h for more on the general structure of the action members.
+ * The terminology changed during the Juce port so some of the legacy
+ * access methods are maintained until we can evolve the old code that
+ * uses actions.
  *
- *    Information about the trigger that is causing this action to
- *    be performed including the trigger type (midi, key, osc, script),
- *    trigger values (midi note number, velocity), and trigger
- *    behavior (sustainable, up, down).
- *
- *   Target (What)
- *
- *    Defines what is to be done.  Execute a function, change a control,
- *    set a parameter, select a configuration object.
- *
- *   Scope (Where)
- *
- *    Where the target is to be modified: global, track, or group.
- *
- *   Time (When)
- *
- *    When the target is to be modified: immediate, after latency delay,
- *    at a scheduled time, etc.
- *
- *   Arguments (How)
- *
- *    Additional information that may effect the processing of the action.
- *    Arguments may be specified in the binding or may be passed from
- *    scripts.
+ * One important difference with UIAction is the notion of "results"
  *
  *   Results
  *
@@ -49,6 +23,8 @@
  *    be set to let the caller how it was processed.  This is relevant
  *    only for the script interpreter.
  *
+ * Old comments:
+ * 
  * Actions may be created from scratch at runtime but it is more common
  * to create them once and "register" them so that they may be reused.
  * Using registered actions avoids the overhead of searching for the
@@ -59,126 +35,61 @@
  * Before you execute a registered action you must make a copy of it.
  * Actions submitted to Mobius are assumed to be autonomous objects
  * that will become owned by Mobius and deleted when the action is complete.
+ *
+ * New Notes:
+ *
+ * Mobius has the notion of interning or registering an action for reuse by
+ * the old UI.  Retain this for awhile but I think we can get rid of it.
  * 
  */
 
-#ifndef ACTION_H
-#define ACTION_H
+#pragma once
 
 #include "../../model/SystemConstant.h"
-//#include "../../model/Binding.h"
-#include "OldBinding.h"
+#include "../../model/UIAction.h"
 
 // sigh, need this until we can figure out what to do with ExValue
 #include "Expr.h"
 
-/****************************************************************************
- *                                                                          *
- *                              RESOLVED TARGET                             *
- *                                                                          *
- ****************************************************************************/
+//////////////////////////////////////////////////////////////////////
+//
+// TargetPointer
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
- * Union of possible target pointers.
- * While the code deals with these as a void* and casts 
- * when necessary, it is nice in the debugger to have these
- * in a union so we can see what they are.
+ * This corresponds to UIAction::ActionImplementation
+ * It has the same meaning except that it points to the internal
+ * model for Parameter and Function.
+ * 
+ * Direct references to what used to be called "Bindable"s and what
+ * are now Structures (Preset, Setup, BindingSet) have been removed
+ * and those are now referenced with an ordinal number.  Keeping a cached
+ * pointer to those causes lots of complications since unlike Function and
+ * Parameter the model for those can change which would invalidate
+ * the cache we would keep here.  Since actions on structures is rare
+ * and there aren't many of them, we just save the name and look
+ * it up in the current model by name when necessary.
+ *
+ * There are still cache invalidation problems for Scripts which are
+ * referenced here as dynamically allocated Functions.  Need to rethink
+ * how that works, it's by far easiest just to require that scripts
+ * can only be changed in a state of Global Reset.
  */
 typedef union {
 
     void* object;
     class Function* function;
     class Parameter* parameter;
-    class OldBindable* bindable;
-    //class OldUIControl* uicontrol;
-
+    int ordinal;
+    
 } TargetPointer;
-
-/**
- * A runtime representation of a binding target that has been resolved
- * to the internal Mobius object where possible.  This serves two purposes:
- *
- *    - It allows us to cache pointers to Functions, Parameters, and
- *      Controls so we don't have to do a linear search by name every time
- *      they are needed.
- *
- *    - It provides a level of indirection so that the Function and
- *      Bindable objects can be replaced if the configuration changes.
- *      For Function objects, this only happens as you add or remove 
- *      scripts, which are wrapped in dynamically allocated Functions.
- *      For Bindables (Preset, Setup, BindingConfig), they can change
- *      whenever  the configuration is edited.
- *
- * Once a target is resolved, it is normally registered with Mobius,
- * which means that the object will live for the duration of the Mobius
- * object and it will be refreshed as the configuration changes. 
- * Application level code is allowed to keep pointers to these objects
- * and be assured that they can always be used for Actions and Exports.
- */
-class ResolvedTarget {
-
-    friend class Mobius;
-
-  public:
-
-	ResolvedTarget();
-	~ResolvedTarget();
-    void clone(ResolvedTarget* t);
-
-    bool isInterned();
-
-    class ActionType* getTarget();
-    void setTarget(class ActionType* t);
-
-    const char* getName();
-    void setName(const char* name);
-
-    int getTrack();
-    void setTrack(int t);
-
-    int getGroup();
-    void setGroup(int t);
-
-    void* getObject();
-    void setObject(void* o);
-
-    bool isResolved();
-    const char* getDisplayName();
-    const char* getTypeDisplayName();
-    void getGroupName(char* buf);
-    void getFullName(char* buffer, int max);
-
-  protected:
-
-    void setInterned(bool b);
-    ResolvedTarget* getNext();
-    void setNext(ResolvedTarget* rt);
-
-  private:
-
-    void init();
-
-    bool mInterned;
-    ResolvedTarget* mNext;
-    class ActionType* mTarget;
-    char* mName;
-    TargetPointer mObject;
-    int mTrack;
-    int mGroup;
-
-};
 
 /****************************************************************************
  *                                                                          *
  *                                   ACTION                                 *
  *                                                                          *
  ****************************************************************************/
-
-/**
- * Maximum length of a string argument in an Action.
- * There are four of these so make them relatively short.
- */
-#define MAX_ARG_LENGTH 128
 
 /**
  * An object containing information about an action that is to 
@@ -189,30 +100,45 @@ class ResolvedTarget {
  */
 class Action {
 
+    // actions are normally associated with a pool
     friend class ActionPool;
 
   public:
 
 	Action();
+    Action(class UIAction* src);
+
+    // clone the action, who uses this?
 	Action(Action* src);
-    Action(class ResolvedTarget* targ);
-    Action(class Binding* src, class ResolvedTarget* targ);
+
+    // must be a shorthand for a common dynamically created Function action
     Action(class Function* func);
 
+    // destructor should normally be called only by the pool
 	~Action();
+
+    // application code normally frees it which returns it to the pool
     void free();
 
+    // pool state
     Action* getNext();
     void setNext(Action* a);
-
     bool isRegistered();
     void setRegistered(bool b);
 
-    int getOverlay();
-    void setOverlay(int i);
-
+    // called by Mobius::doParameter to convert an argument string
+    // from a binding model into the actionOperator and numeric argument
+    // variables.  This is optional, the caller could have set those
+    // directly if known
     void parseBindingArgs();
 
+    // these are things to unpack MIDI message pieces that are held
+    // in the "id" value
+    // this shoudl NOT be necessary in core code, all we should care about
+    // is that the id be unique for sustain and longPress detection
+    // keep around temporarily but revisit this and if we really need them
+    // UIAction can provide the utilities
+    
     int getMidiStatus();
     void setMidiStatus(int i);
 
@@ -222,154 +148,71 @@ class Action {
     int getMidiKey();
     void setMidiKey(int i);
 
+    // pretty sure this is only related to how bindings are processed
+    // and does not need to be replicated down here
     bool isSpread();
+
+    // for trace logging, and probably the old UI, get a readable
+    // representation of what this action does
     void getDisplayName(char* buffer, int max);
+    const char* getDisplayName();
+    const char* getTypeDisplayName();
+    void getGroupName(char* buf);
+    void getFullName(char* buffer, int max);
 
     //////////////////////////////////////////////////////////////////////
-    //
-    // Trigger (Who)
-    //
+    // Trigger
     //////////////////////////////////////////////////////////////////////
 
-	/**
-	 * A unique identifier for the action.
-	 * This is used when matching the down and up transitions of
-	 * sustainable triggers with script threads.
-	 * The combination of the Trigger and this id must be unique.
-	 * It is also exposed as a variable for scripts so we need to
-     * lock down the meaning.  
-     *
-     * For MIDI triggers it will be the first byte containing both
-     * the status and channel plus the second byte containing the note
-     * number.  The format is:
-     *
-     *      ((status | channel) << 8) | key
-     *
-     * For Key triggers it will be the key code.
-     *
-     * For Host triggers it will be the host parameter id, but this
-     * is not currently used since we handle parameter bindings at a higher
-     * level in MobiusPlugin.
-     *
-     * For script triggers, this will be the address of the ScriptInterpreter.
-     * This is only used for some special handling of the GlobalReset function.
-	 */
+    // things that are direct copies from UIAction
+    //
+    // !! For script triggers, this will be the address of the ScriptInterpreter.
+    // "This is only used for some special handling of the GlobalReset function."
+    // this has the 64-bit pointer problem, need another way to do this
 	long id;
 
-	/**
-	 * The trigger that was detected.
-	 */
-	Trigger* trigger;
-
-    /**
-     * The behavior of this trigger if ambiguous.
-     */
-    TriggerMode* triggerMode;
-
-    /**
-     * True if we will be passing the OSC message argument
-     * along as a function argument or using it as the parameter value.
-     * This effects the triggerMode.
-     */
-    bool passOscArg;
-
-    // From here down are dynamic values that change for every
-    // invocation of the action.
-
-    /**
-     * A secondary value for the the trigger.
-     * This is only used for TriggerMidi and contains the key velocity
-     * for notes and the controller value for CCs.  It is used only
-     * by the LoopSwitch function to set output levels.
-     */
+	class Trigger* trigger;
+    class TriggerMode* triggerMode;
     int triggerValue;
-
-	/**
-	 * For ranged triggers, this is the relative location within the range.
-     * Negative if less than center, positive if greater than center.
-	 */
 	int triggerOffset;
-
-	/**
-	 * True if the trigger was is logically down.  If the trigger
-     * is not sustainable this should always be true.
-	 */
 	bool down;
-
-    /**
-     * true if the trigger is in "auto repeat" mode.
-     * This is relevant only for TriggerKey;
-     */
-    bool repeat;
-
-	/**
-	 * True if this is the up transition after a long press.
-	 * Also true for invocations that are done at the moment
-	 * the long-press time elapses.  
-	 */
 	bool longPress;
 
-    //////////////////////////////////////////////////////////////////////
-    //
-    // Target (What)
-    // Scope (Where)
-    //
-    // These are more complicated and must be accessed with methods.
-    // If the Action was created from a Binding we'll have a ResolvedTarget.
-    // IF the Action is created dynamically we'll have a private set
-    // of properties that define the target.  We don't have interfaces
-    // for the dynamic construction all possible targets only Functions.  
-    //
-    //////////////////////////////////////////////////////////////////////
+    // still used by Mobius but shouldn't be necessary
+    bool repeat;
 
-    bool isResolved();
-    bool isSustainable();
-    ActionType* getTarget();
-    void* getTargetObject();
-    class Function* getFunction();
-    int getTargetTrack();
-    int getTargetGroup();
+    // UIAction has this but it should have been filtered out long ago
+    // bool repeat;
 
-    bool isTargetEqual(Action* other);
-
-    void setTarget(ActionType* t);
-    void setTarget(ActionType* t, void* object);
-    void setFunction(class Function* f);
-    void setParameter(class Parameter* p);
-    void setTargetTrack(int track);
-    void setTargetGroup(int group);
-
-    // kludge for long press, make this cleaner
-    void setLongFunction(class Function*f);
-    Function* getLongFunction();
-
-    // internal use only, not for the UI
-    void setResolvedTrack(class Track* t);
-    Track* getResolvedTrack();
-
-    ResolvedTarget* getResolvedTarget();
-
-    class ThreadEvent* getThreadEvent();
-    void setThreadEvent(class ThreadEvent* te);
-
-    class Event* getEvent();
-
-    void setEvent(class Event* e);
-    void changeEvent(class Event* e);
-    void detachEvent(class Event* e);
-    void detachEvent();
-
-    const char* getName();
-    void setName(const char* name);
+    // UIAction had this but it shouldn't be necessary in core
+    //bool passOscArg;
 
     //////////////////////////////////////////////////////////////////////
-    //
-    // Time (When)
-    //
-    // TODO: Might be interesting for OSC to schedule things in the future.  
-    // 
-    // Might be a good place to control latency adjustments.
-    //
+    // ActionType (the artist formerly known as Target)
+    //////////////////////////////////////////////////////////////////////
+    
+    ActionType* type;
+    char actionName[MAX_TARGET_NAME];
+
+    // These were inside a ResolvedTarget in old code
+
+    // Corresponds to UIAction::actionImplementation
+    TargetPointer implementation;
+
+    //////////////////////////////////////////////////////////////////////
+    // Scope
+    //////////////////////////////////////////////////////////////////////
+
+    // track number we still want to pass down, it will
+    // be resolved to a Track poitner
+    int scopeTrack;
+
+    // groups should be handled in the UI, but keep it around
+    // until we can remove the group tooling in the engine
+    int scopeGroup;
+
+    //////////////////////////////////////////////////////////////////////
+    // Time
     //////////////////////////////////////////////////////////////////////
 
 	/**
@@ -393,76 +236,12 @@ class Action {
     bool noSynchronization;
 
     //////////////////////////////////////////////////////////////////////
-    //
-    // Arguments (How)
-    //
-    // TODO: Figure out a way to install new configration objects
-    // through this interface so we don't have to have
-    // Mobius methods setConfiguration, etc.  
-    //
+    // Arguments
     //////////////////////////////////////////////////////////////////////
 
-    /**
-     * Optional binding arguments.
-     * These are taken from Binding.arguments and are processed differently for
-     * each target.  For numeric parameters they may be:
-     *
-     *    center 
-     *      calculate the center value
-     *    up X
-     *      raise the value by X
-     *    down X
-     *      lower the value by X
-     *    set X
-     *      set the value to X
-     *
-     * Other parameter types and functions support different arguments.
-     * If the args include both an operator and a numeric operand, the
-     * operand is left in the "arg".
-     */
     char bindingArgs[MAX_ARG_LENGTH];
-
-    /**
-     * Operator to apply to the current value of a parameter or control.
-     * Normally this is parsed from bindingArgs.
-     * sigh, "operator" is a reserved word
-     */
     class ActionOperator* actionOperator;
-
-    /**
-     * The primary argument of the action.
-     * This must be set for Parameter targets.  For function targets
-     * there are a few that require an argument: LoopN, TrackN, 
-     * InstantMultiply etc.
-     *
-     * For Host bindings, this will be the scaled value of the
-     * host parameter value.
-     *
-     * For Actions created by the UI it will be an integer.  For
-     * controls knobs it will be 0-127, for replicated functions
-     * like LoopN and TrackN it will be the object index.
-     * 
-     * For Key bindigns, this will start 0 but may be adjusted
-     * by bindingArguments.
-     *
-     * For MIDI note bindings, this will start 0 but may be adjusted
-     * for bindingArguments.
-     *
-     * For MIDI CC bindings, this will be scaled CC value.
-     * 
-     * For OSC bindings, this will be the scaled first message argument.
-     *
-     * In all cases bindingArgs may contain commands to recalculate
-     * the value relative to the current value.
-     */
     ExValue arg;
-
-    /** 
-	 * Optional arguments, only valid in scripts.
-     * This is used for a small number of script functions that
-     * take more than one argument.  The list is of variable length,
-     * dynamically allocated, and must be freed.
-	 */
     class ExValueList* scriptArgs;
 
     //////////////////////////////////////////////////////////////////////
@@ -508,10 +287,55 @@ class Action {
      */
     bool noTrace;
 
-
     // temporary for debugging trigger timing
     long millisecond;
     double streamTime;
+
+    //////////////////////////////////////////////////////////////////////
+    // Legacy Accessors
+    //////////////////////////////////////////////////////////////////////
+
+    bool isResolved();
+    bool isSustainable();
+    
+    class ActionType* getTarget() {return type;}
+    void* getTargetObject() {return implementation.object;}
+    class Function* getFunction();
+    int getTargetTrack() {return scopeTrack;}
+    int getTargetGroup() {return scopeGroup;}
+
+    // probably used with "interning" still need this?
+    bool isTargetEqual(Action* other);
+
+    void setTarget(class ActionType* t);
+    void setTarget(ActionType* t, void* object);
+    void setFunction(class Function* f);
+    void setParameter(class Parameter* p);
+    void setTargetTrack(int track);
+    void setTargetGroup(int group);
+
+    // kludge for long press, make this cleaner
+    void setLongFunction(class Function*f);
+    Function* getLongFunction();
+
+    // internal use only, not for the UI
+    void setResolvedTrack(class Track* t);
+    Track* getResolvedTrack();
+
+    class ThreadEvent* getThreadEvent();
+    void setThreadEvent(class ThreadEvent* te);
+
+    class Event* getEvent();
+
+    void setEvent(class Event* e);
+    void changeEvent(class Event* e);
+    void detachEvent(class Event* e);
+    void detachEvent();
+
+    // name is weird, this seems to be something left over from OSC
+    // it is not the same as actionName
+    const char* getName();
+    void setName(const char* name);
 
     //////////////////////////////////////////////////////////////////////
     //
@@ -566,29 +390,11 @@ class Action {
 	class ThreadEvent* mThreadEvent;
 
     /**
-     * Reference to an interned target when the action is created from
-     * a Binding.
-     */
-    ResolvedTarget* mInternedTarget;
-    
-    /**
-     * Private target properties for actions that are not associated 
-     * with bindings.  These are typically created on the fly by the UI.
-     */
-    ResolvedTarget mPrivateTarget;
-
-    /**
      * Set during internal processing to the resolved Track
      * in which this action will run.  Overrides whatever is specified
      * in the target.
      */
     class Track* mResolvedTrack;
-
-    /**
-     * Internal field set by BindingResolver to indicate which
-     * BindingConfig overlay this action came from.
-     */
-    int mOverlay;
 
     /**
      * Allow the client to specify a name, convenient for
@@ -638,4 +444,3 @@ class ActionPool {
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/
-#endif

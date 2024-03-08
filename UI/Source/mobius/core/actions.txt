@@ -1,4 +1,30 @@
 
+
+Action
+  - pooled object that lives for an indefinite period of time
+  - may be synchronously executed, or given to an event
+  - needs complex implementation structure and pooling, not worth sharing
+    with UIAction
+  - does NOT mess with track or groups
+
+Focus/Groups
+  - make this purely a UI tier concept
+
+Trigger Sensitivity
+  - long press, key repeat, whatever
+
+Engine should just do what it is told with the simplest possible model
+
+FocusLockFunctions moves to UIConfig
+
+
+     
+   
+
+
+----------------------------------------------------------------------
+
+
 Mobius
     mActionPool = new ActionPool();
     mActions = NULL;

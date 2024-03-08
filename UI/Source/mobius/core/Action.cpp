@@ -1,12 +1,6 @@
 /*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * A model for representing actions to be taken within the Mobius
- * engine.  These are created in response to triggers.
+ * Model for Actions that do the things.
+ * See UIAction.cpp for general comments about the action model
  */
 
 #include <stdio.h>
@@ -18,302 +12,16 @@
 #include "../../util/Util.h"
 #include "../../util/Trace.h"
 #include "../../util/List.h"
-//#include "MessageCatalog.h"
-
-// ActionOperator moved up here
 #include "../../model/UIAction.h"
+#include "../../model/Trigger.h"
 
 #include "MidiByte.h"
-
-#include "../../model/Trigger.h"
-#include "../../model/Binding.h"
-#include "OldBinding.h"
-
 #include "Function.h"
 #include "Event.h"
 #include "Script.h"
 #include "Parameter.h"
 
 #include "Action.h"
-
-/****************************************************************************
- *                                                                          *
- *                              ACTION OPERATOR                             *
- *                                                                          *
- ****************************************************************************/
-
-// these are now in UIAction
-#if 0
-ActionOperator* OperatorMin = new ActionOperator("min", "Minimum");
-ActionOperator* OperatorMax = new ActionOperator("max", "Maximum");
-ActionOperator* OperatorCenter = new ActionOperator("center", "Center");
-ActionOperator* OperatorUp = new ActionOperator("up", "Up");
-ActionOperator* OperatorDown = new ActionOperator("down", "Down");
-ActionOperator* OperatorSet = new ActionOperator("set", "Set");
-ActionOperator* OperatorPermanent = new ActionOperator("permanent", "Permanent");
-
-ActionOperator* ActionOperators[] = {
-	OperatorMin,
-	OperatorMax,
-	OperatorCenter,
-	OperatorUp,
-	OperatorDown,
-	OperatorSet,
-    // technically I would say this is a qualification to the above
-    // operators rather than it's own operator...only using
-    // for setup selection now
-	OperatorPermanent,
-	NULL
-};
-
-ActionOperator* ActionOperator::get(const char* name) 
-{
-	ActionOperator* found = NULL;
-	if (name != NULL) {
-		for (int i = 0 ; ActionOperators[i] != NULL ; i++) {
-			ActionOperator* cc = ActionOperators[i];
-			if (StringEqualNoCase(cc->getName(), name)) {
-				found = cc;
-				break;
-			}
-		}
-	}
-	return found;
-}
-#endif
-
-/****************************************************************************
- *                                                                          *
- *                              RESOLVED TARGET                             *
- *                                                                          *
- ****************************************************************************/
-
-void ResolvedTarget::init()
-{
-    mInterned = false;
-    mNext = NULL;
-    mTarget = NULL;
-    mName = NULL;
-    mObject.object = NULL;
-    mTrack = 0;
-    mGroup = 0;
-}
-
-ResolvedTarget::ResolvedTarget()
-{
-    init();
-}
-
-/**
- * Called by Action::clone, we're by definition
- * not interned.
- */
-void ResolvedTarget::clone(ResolvedTarget* src)
-{
-    mTarget = src->mTarget;
-    // names are not cloned
-    mObject = src->mObject;
-    mTrack = src->mTrack;
-    mGroup = src->mGroup;
-}
-
-
-ResolvedTarget::~ResolvedTarget()
-{
-    // we can't stop it now, but warn if we try to do this
-    if (mInterned) 
-      Trace(1, "ResolvedTarget: deleting interned object!\n");
-
-    delete mName;
-
-	ResolvedTarget *el, *next;
-	for (el = mNext ; el != NULL ; el = next) {
-		next = el->getNext();
-		el->setNext(NULL);
-		delete el;
-	}
-}
-
-bool ResolvedTarget::isInterned()
-{
-    return mInterned;
-}
-
-void ResolvedTarget::setInterned(bool b)
-{
-    mInterned = b;
-}
-
-ResolvedTarget* ResolvedTarget::getNext()
-{
-    return mNext;
-}
-
-void ResolvedTarget::setNext(ResolvedTarget* t)
-{
-    mNext = t;
-}
-
-ActionType* ResolvedTarget::getTarget()
-{
-    return mTarget;
-}
-
-void ResolvedTarget::setTarget(ActionType* t)
-{
-    mTarget = t;
-}
-
-const char* ResolvedTarget::getName()
-{
-    return mName;
-}
-
-void ResolvedTarget::setName(const char* name)
-{
-    delete mName;
-    mName = CopyString(name);
-}
-
-void* ResolvedTarget::getObject()
-{
-    return mObject.object;
-}
-
-void ResolvedTarget::setObject(void* o)
-{
-    mObject.object = o;
-}
-
-int ResolvedTarget::getTrack()
-{
-    return mTrack;
-}
-
-void ResolvedTarget::setTrack(int t)
-{
-    mTrack = t;
-}
-
-int ResolvedTarget::getGroup()
-{
-    return mGroup;
-}
-
-void ResolvedTarget::setGroup(int g)
-{
-    mGroup = g;
-}
-
-bool ResolvedTarget::isResolved()
-{
-    return (mObject.object != NULL);
-}
-
-/**
- * The UI likes to resolve targets so it can get from the
- * raw binding name to a nicer display name.
- */
-const char* ResolvedTarget::getDisplayName()
-{
-    const char* dname = mName;
-            
-    if (mObject.object != NULL) {
-
-        if (mTarget == ActionFunction) {
-            Function* f = mObject.function;
-            dname = f->getDisplayName();
-        }
-        //else if (mTarget == ActionTypeUIControl) {
-        //OldUIControl* uic = mObject.uicontrol;
-        //dname = uic->getDisplayName();
-        //}
-        else if (mTarget == ActionParameter) {
-            Parameter* p = mObject.parameter;
-            dname = p->getDisplayName();
-        }
-        else if (mTarget == ActionSetup ||
-                 mTarget == ActionPreset ||
-                 mTarget == ActionBindings) {
-            OldBindable* b = mObject.bindable;
-            dname = b->getName();
-        }
-    }
-
-    return dname;
-}
-
-/**
- * Return a nice name to display for the type of this target.
- */
-const char* ResolvedTarget::getTypeDisplayName()
-{
-    const char* type = mTarget->getDisplayName();
-
-    // Scripts are TargetFunction but we'd like a more specicic name
-    if (mTarget == ActionFunction) {
-        Function* f = mObject.function;
-        if (f != NULL && f->eventType == RunScriptEvent)
-          type = "Script";
-    }
-    else if (mTarget == ActionParameter) {
-        Parameter* p = mObject.parameter;
-        if (p->control)
-          type = "Control";
-    }
-
-    return type;
-}
-
-/**
- * Return the group name as a letter.
- * Supplied buffer must be at least 2 characters long.
- */
-void ResolvedTarget::getGroupName(char* buf)
-{
-    strcpy(buf, "");
-    if (mGroup > 0) {
-		// naughty ASCII hack
-		char letter = (char)((int)'A' + (mGroup - 1));
-		sprintf(buf, "%c", letter);
-    }
-}
-
-/**
- * Return a full description of the resolved target, suitable
- * for presentation in the UI.
- *
- * This was designed for the two help dialogs (MIDI, Key).
- * There is a similar rendering used in the binding dialogs.
- * !! Try to merge these?
- */
-void ResolvedTarget::getFullName(char* buffer, int max)
-{
-    strcpy(buffer, "");
-
-    if (mTrack > 0) {
-        char buf[8];
-        sprintf(buf, "%d", mTrack);
-        AppendString(buf, buffer, max);
-        AppendString(":", buffer, max);
-    }
-    else if (mGroup > 0) {
-        char buf[8];
-        getGroupName(buf);
-        AppendString(buf, buffer, max);
-        AppendString(":", buffer, max);
-    }
-
-    // Leave the type off since this is usually unambiguous
-    /*
-    if (mTarget != TargetFunction) {
-        AppendString(getTypeDisplayName(), buffer, max);
-        AppendString(":", buffer, max);
-    }
-    */
-
-    AppendString(getDisplayName(), buffer, max);
-}
 
 /****************************************************************************
  *                                                                          *
@@ -327,17 +35,18 @@ void Action::init()
     id = 0;
     trigger = NULL;
     triggerMode = NULL;
-    passOscArg = false;
     triggerValue = 0;
     triggerOffset = 0;
     down = false;
-    repeat = false;
     longPress = false;
-
+    repeat = false;
+    
     // Target, Scope
-    mInternedTarget = NULL;
-    mResolvedTrack = NULL;
-    mLongFunction = NULL;
+    type = nullptr;
+    strcpy(actionName, "");
+    implementation.object = nullptr;
+    scopeTrack = 0;
+    scopeGroup = 0;
 
     // Time
     escapeQuantization = false;
@@ -366,11 +75,13 @@ void Action::init()
     mNext = NULL;
     mPooled = false;
     mRegistered = false;
-
+    mPool = nullptr;
+    
     mEvent = NULL;
     mThreadEvent = NULL;
+    mResolvedTrack = NULL;
+    mLongFunction = NULL;
 
-    mOverlay = 0;
     mName = NULL;
 }
 
@@ -386,23 +97,23 @@ Action::Action(Action* src)
       clone(src);
 }
 
-Action::Action(ResolvedTarget* t)
+Action::Action(UIAction * src)
 {
     init();
-    mInternedTarget = t;
 }
 
 /**
- * We own nothing except the chain pointer.
- * scrptArgs is transient and owned by the script interpreter that
- * built the action
+ * Normally called only by the pool, have historically deleted
+ * the list remainder.
+ *
+ * Most things we point too are (or were) internal core structures
+ * that are deleted elsewhere.
  */
 Action::~Action()
 {
     if (mRegistered)
       Trace(1, "Atttempt to delete registered action!\n");
 
-    // scriptArgs is dynamically allocated and must be freed
     delete scriptArgs;
     delete mName;
 
@@ -457,32 +168,26 @@ void Action::setName(const char* name)
  */
 void Action::clone(Action* src)
 {
-    mobius = src->mobius;
-
     // assume names don't need to convey
 
     // Trigger
     id = src->id;
     trigger = src->trigger;
     triggerMode = src->triggerMode;
-    passOscArg = src->passOscArg;
     triggerValue = src->triggerValue;
     triggerOffset = src->triggerOffset;
     down = src->down;
-    repeat = src->repeat;
     longPress = src->longPress;
-
+    repeat = src->repeat;
+    
     // Target, Scope
     // take the private target if we have one
-    mInternedTarget = src->mInternedTarget;
-    mPrivateTarget.clone(&(src->mPrivateTarget));
-    mLongFunction = src->mLongFunction;
-
-    // Should we clone these?  They're supposed to be transient!
-    mResolvedTrack = src->mResolvedTrack;
-    noGroup = src->noGroup;
-    noTrace = src->noTrace;
-
+    type = src->type;
+    strcpy(actionName, src->actionName);
+    implementation.object = src->implementation.object;
+    scopeTrack = src->scopeTrack;
+    scopeGroup = src->scopeGroup;
+    
     // Time
     escapeQuantization = src->escapeQuantization;
     noLatency = src->noLatency;
@@ -503,27 +208,39 @@ void Action::clone(Action* src)
     delete scriptArgs;
     scriptArgs = NULL;
 
-    // relevant runtime status
+    // Runtime
+
+    // !! not sure, probably should reset
+    rescheduling = src->rescheduling;
+    reschedulingReason = src->reschedulingReason;
+    
+    mobius = src->mobius;
+
     inInterrupt = src->inInterrupt;
+    noGroup = src->noGroup;
+    noTrace = src->noTrace;
 
     // are these really necessary?
     millisecond = src->millisecond;
     streamTime = src->streamTime;
 
+    // did not copy pool status mNext and mPooled
+    // I think just let them be what init() set them
+    // why not clear them then?
+    mRegistered = false;
+    
     // absolutely not these
     mEvent = NULL;
     mThreadEvent = NULL;
+    
+    // Should we clone these?  They're supposed to be transient!
+    mResolvedTrack = src->mResolvedTrack;
 
-    // !! not sure, probably should reset
-    rescheduling = src->rescheduling;
-    reschedulingReason = src->reschedulingReason;
+    mLongFunction = src->mLongFunction;
 
-    // mNext and mPooled maintained by the pool functions
-
-    // mRegistered and mOverlay are not cloned, they are only used
-    // by BindingResolver for actions we do clone
-    mRegistered = false;
-    mOverlay = 0;
+    // what about mName?
+    // punt on that since we're not using OSC yet
+    mName = nullptr;
 }
  
 bool Action::isSustainable()
@@ -567,51 +284,9 @@ void Action::setRegistered(bool b)
     mRegistered = b;
 }
 
-int Action::getOverlay()
-{
-    return mOverlay;
-}
-
-void Action::setOverlay(int i)
-{
-    mOverlay = i;
-}
-
 bool Action::isResolved()
 {
     return (getTargetObject() != NULL);
-}
-
-ResolvedTarget* Action::getResolvedTarget()
-{
-    ResolvedTarget* t = mInternedTarget;
-    if (t == NULL)
-      t = &mPrivateTarget;
-    return t;
-}
-
-ActionType* Action::getTarget()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != NULL) ? rt->getTarget() : NULL;
-}
-
-void* Action::getTargetObject()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != NULL) ? rt->getObject() : NULL;
-}
-
-int Action::getTargetTrack()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != NULL) ? rt->getTrack() : 0;
-}
-
-int Action::getTargetGroup()
-{
-    ResolvedTarget* rt = getResolvedTarget();
-    return (rt != NULL) ? rt->getGroup() : 0;
 }
 
 /**
@@ -677,6 +352,7 @@ char* Action::advance(char* start, bool stopAtSpace)
  * Return true if our target is the same as another.
  * The action must be resolved by now.
  * Used by BindingResolver to filter redundant bindings.
+ * udpate: BindingResolver is gone
  */
 bool Action::isTargetEqual(Action* other)
 {
@@ -699,10 +375,9 @@ void Action::setTarget(ActionType* t)
 
 void Action::setTarget(ActionType* t, void* object)
 {
-    // we may have started with an interned target, switch
-    mInternedTarget = NULL;
-    mPrivateTarget.setTarget(t);
-    mPrivateTarget.setObject(object);
+    // used to be more complicated when we had "interned" targets
+    type = t;
+    implementation.object = object;
 }
 
 /**
@@ -710,6 +385,9 @@ void Action::setTarget(ActionType* t, void* object)
  * This is used when building Actions on the fly rather than from Bindings.
  * This can only be used with static functions, you can't use this
  * for scripts, those are only accessible through ResolvedTargets.
+ * update: don't have ResolvedTargets any more and I think that just
+ * means that the resolution process had been done to convert a name
+ * to the Function wrapper around the script
  */
 void Action::setFunction(Function* f)
 {
@@ -748,17 +426,15 @@ void Action::setParameter(Parameter* p)
  * function targets.
  *
  * Note that the track argument is 1 based like a Binding.
- * This does not switch from mInternedTarget to mPrivate target,
- * you need to call setTarget() first.
  */
 void Action::setTargetTrack(int track)
 {
-    mPrivateTarget.setTrack(track);
+    scopeTrack = track;
 }
 
 void Action::setTargetGroup(int group)
 {
-    mPrivateTarget.setGroup(group);
+    scopeGroup = group;
 }
 
 /**
@@ -863,40 +539,6 @@ bool Action::isSpread()
 }
 
 /**
- * Calculate a display name for this action.
- * Used in the KeyHelp dialog, possibly others.
- */
-void Action::getDisplayName(char* buffer, int max)
-{
-    // TODO: add a trigger prefix!
-    buffer[0] = 0;
-
-    if (mInternedTarget != NULL) {
-        mInternedTarget->getFullName(buffer, max);
-
-        if (strlen(bindingArgs) > 0) {
-            // unparsed, unusual
-            AppendString(" ", buffer, max);
-            AppendString(bindingArgs, buffer, max);
-        }
-        else {
-            // already parsed
-            if (actionOperator != NULL && 
-                actionOperator != OperatorSet) {
-                AppendString(" ", buffer, max);
-                AppendString(actionOperator->getName(), buffer, max);
-            }
-
-            if (!arg.isNull()) {
-                AppendString(" ", buffer, max);
-                int start = strlen(buffer);
-                arg.getString(&buffer[start], max - start);
-            }
-        }
-    }
-}
-
-/**
  * Set the event that owns this action, checking for error conditions.
  * Check a bunch of "not supposed to happen" integrity constraints to
  * find bugs.
@@ -969,6 +611,149 @@ void Action::detachEvent(Event* e)
 void Action::detachEvent()
 {
     detachEvent(mEvent);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Diagnostic Utilities
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Calculate a display name for this action.
+ * Used in the KeyHelp dialog, possibly others.
+ */
+void Action::getDisplayName(char* buffer, int max)
+{
+    // TODO: add a trigger prefix!
+    buffer[0] = 0;
+
+    getFullName(buffer, max);
+
+    if (strlen(bindingArgs) > 0) {
+        // unparsed, unusual
+        AppendString(" ", buffer, max);
+        AppendString(bindingArgs, buffer, max);
+    }
+    else {
+        // already parsed
+        if (actionOperator != NULL && 
+            actionOperator != OperatorSet) {
+            AppendString(" ", buffer, max);
+            AppendString(actionOperator->getName(), buffer, max);
+        }
+
+        if (!arg.isNull()) {
+            AppendString(" ", buffer, max);
+            int start = strlen(buffer);
+            arg.getString(&buffer[start], max - start);
+        }
+    }
+}
+
+/**
+ * Return something interesting to display to the user.
+ * Probably used in the old UI, still useful for trace messages.
+ */
+const char* Action::getDisplayName()
+{
+    const char* dname = nullptr;
+
+    if (implementation.object != NULL) {
+
+        if (type == ActionFunction) {
+            Function* f = implementation.function;
+            dname = f->getDisplayName();
+        }
+        else if (type == ActionParameter) {
+            Parameter* p = implementation.parameter;
+            dname = p->getDisplayName();
+        }
+        else {
+            // for structures, we no longer keep resolved
+            // pointers, have to pass down the name
+            dname = actionName;
+        }
+    }
+
+    // still unclear what to do this but it was apparently
+    // important for OSC
+    if (mName != nullptr)
+      dname = mName;
+
+    return dname;
+}
+
+/**
+ * Return a nice name to display for the type of this target.
+ */
+const char* Action::getTypeDisplayName()
+{
+    const char* dname = type->getDisplayName();
+
+    // Scripts are TargetFunction but we'd like a more specicic name
+    if (type == ActionFunction) {
+        Function* f = implementation.function;
+        if (f != NULL && f->eventType == RunScriptEvent)
+          dname = "Script";
+    }
+    else if (type == ActionParameter) {
+        Parameter* p = implementation.parameter;
+        if (p->control)
+          dname = "Control";
+    }
+
+    return dname;
+}
+
+/**
+ * Return the group name as a letter.
+ * Supplied buffer must be at least 2 characters long.
+ */
+void Action::getGroupName(char* buf)
+{
+    strcpy(buf, "");
+    if (scopeGroup > 0) {
+		// naughty ASCII hack
+		char letter = (char)((int)'A' + (scopeGroup - 1));
+		sprintf(buf, "%c", letter);
+    }
+}
+
+/**
+ * Return a full description of the resolved target, suitable
+ * for presentation in the UI.
+ *
+ * This was designed for the two help dialogs (MIDI, Key).
+ * There is a similar rendering used in the binding dialogs.
+ * !! Try to merge these?
+ */
+void Action::getFullName(char* buffer, int max)
+{
+    strcpy(buffer, "");
+
+    if (scopeTrack > 0) {
+        char buf[8];
+        sprintf(buf, "%d", scopeTrack);
+        AppendString(buf, buffer, max);
+        AppendString(":", buffer, max);
+    }
+    else if (scopeGroup > 0) {
+        char buf[8];
+        getGroupName(buf);
+        AppendString(buf, buffer, max);
+        AppendString(":", buffer, max);
+    }
+
+    // Leave the type off since this is usually unambiguous
+    /*
+    if (mTarget != TargetFunction) {
+        AppendString(getTypeDisplayName(), buffer, max);
+        AppendString(":", buffer, max);
+    }
+    */
+
+    AppendString(getDisplayName(), buffer, max);
 }
 
 /****************************************************************************

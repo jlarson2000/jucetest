@@ -31,9 +31,6 @@
 #include "Project.h"
 #include "Script.h"
 
-// OldTargetScript, OldTriggerThread
-#include "OldBinding.h"
-
 /****************************************************************************
  *                                                                          *
  *                                 CONSTANTS                                *
@@ -447,8 +444,8 @@ void MobiusThread::eventTimeout()
 	if (ml != NULL)
 	  ml->MobiusRefresh();
     
-    // this exports changes to parameters/controls to MIDI control surfaces
-    mMobius->exportStatus(true);
+    // formerly exported status to parameters/controls to MIDI control surfaces
+    //mMobius->exportStatus(true);
 
 	if (mCheckInterrupt) {
 		long interrupts = mMobius->getInterrupts();

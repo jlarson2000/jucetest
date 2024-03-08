@@ -17,12 +17,12 @@
 
 #include "Mapper.h"
 
-
 #include "../../util/Util.h"
+#include "../../model/ActionType.h"
 
 #include "Action.h"
-#include "OldBinding.h"
 #include "Mobius.h"
+#include "Function.h"
 #include "Parameter.h"
 #include "Track.h"
 
@@ -44,7 +44,17 @@ Export::Export(Action* a)
 {
     init();
     mMobius = a->mobius;
-    mTarget = a->getResolvedTarget();
+
+    // formerly had a ResolvedTarget here
+    // mTarget = a->getResolvedTarget();
+    // in retrospect this is a little blob of variables
+    // that would be nice to keep around so reconsider removing that
+    mType = a->type;
+    // need the name?
+    mObject.object = a->implementation.object;
+    mScopeTrack = a->scopeTrack;
+    mScopeGroup = a->scopeGroup;
+    
     mTrack = a->getResolvedTrack();
 }
 
@@ -52,7 +62,10 @@ void Export::init()
 {
     mNext = NULL;
     mMobius = NULL;
-    mTarget = NULL;
+    mType = NULL;
+    mObject.object = NULL;
+    mScopeTrack = 0;
+    mScopeGroup = 0;
     mTrack = NULL;
     mLast = -1;
     mMidiChannel = 0;
@@ -62,9 +75,6 @@ void Export::init()
 Export::~Export()
 {
 	Export *el, *next;
-
-    // target is normally interned
-    setTarget(NULL);
 
 	for (el = mNext ; el != NULL ; el = next) {
 		next = el->getNext();
@@ -88,16 +98,16 @@ void Export::setNext(Export* e)
     mNext = e;
 }
 
-ResolvedTarget* Export::getTarget() 
+ActionType* Export::getTargetType()
 {
-    return mTarget;
+    return mType;
 }
 
-void Export::setTarget(ResolvedTarget* t)
-{
-	// target is never owned
-	mTarget = t;
-}
+//void Export::setTarget(ResolvedTarget* t)
+//{
+//	// target is never owned
+//	mTarget = t;
+//}
 
 Track* Export::getTrack()
 {
@@ -160,27 +170,21 @@ ExportType Export::getType()
 {
     ExportType extype = EXP_INT;
 
-    if (mTarget != NULL) {
-        ExportType extype = EXP_INT;
-
-        ActionType* ttype = mTarget->getTarget();
-
-        if (ttype == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            if (p != NULL) {
-                ParameterType ptype = p->type;
-                if (ptype == TYPE_INT) {
-                    extype = EXP_INT;
-                }
-                else if (ptype == TYPE_BOOLEAN) {
-                    extype = EXP_BOOLEAN;
-                }
-                else if (ptype == TYPE_ENUM) {
-                    extype = EXP_ENUM;
-                }
-                else if (ptype == TYPE_STRING) {
-                    extype = EXP_STRING;
-                }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != NULL) {
+            ParameterType ptype = p->type;
+            if (ptype == TYPE_INT) {
+                extype = EXP_INT;
+            }
+            else if (ptype == TYPE_BOOLEAN) {
+                extype = EXP_BOOLEAN;
+            }
+            else if (ptype == TYPE_ENUM) {
+                extype = EXP_ENUM;
+            }
+            else if (ptype == TYPE_STRING) {
+                extype = EXP_STRING;
             }
         }
     }
@@ -196,17 +200,12 @@ int Export::getMinimum()
 {
     int min = 0;
 
-    if (mTarget != NULL) {
-
-        ActionType* type = mTarget->getTarget();
-
-        if (type == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            if (p != NULL) {
-                ParameterType type = p->type;
-                if (type == TYPE_INT) {
-                    min = p->getLow();
-                }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != NULL) {
+            ParameterType type = p->type;
+            if (type == TYPE_INT) {
+                min = p->getLow();
             }
         }
     }
@@ -222,15 +221,11 @@ int Export::getMaximum()
 {
     int max = 0;
 
-    if (mTarget != NULL) {
-        ActionType* type = mTarget->getTarget();
-
-        if (type == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            // note that we use "binding high" here so that INT params
-            // are constrained to a useful range for binding
-            max = p->getHigh(mMobius);
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        // note that we use "binding high" here so that INT params
+        // are constrained to a useful range for binding
+        max = p->getHigh(mMobius);
     }
 
     return max;
@@ -244,14 +239,10 @@ const char** Export::getValueLabels()
 {
     const char** labels = NULL;
 
-    if (mTarget != NULL) {
-
-        ActionType* type = mTarget->getTarget();
-        if (type == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            if (p != NULL)
-              labels = p->valueLabels;
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != NULL)
+          labels = p->valueLabels;
     }
 
     return labels;
@@ -259,13 +250,24 @@ const char** Export::getValueLabels()
 
 /**
  * Get the display name for the target.
+ *
+ * This lost a lot with the removal of ResolvedTarget.
+ * Start simple because this isn't used much
  */
 const char* Export::getDisplayName()
 {
     const char* dname = NULL;
 
-    if (mTarget != NULL)
-      dname = mTarget->getDisplayName();
+    if (mType == ActionFunction) {
+        Function* f = mObject.function;
+        if (f != nullptr)
+          dname = f->getDisplayName();
+    }
+    else if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != nullptr)
+          dname = p->getDisplayName();
+    }
         
     return dname;
 }
@@ -278,12 +280,9 @@ void Export::getOrdinalLabel(int ordinal, ExValue* value)
 {
     value->setString("???");
 
-    if (mTarget != NULL) {
-        ActionType* target = mTarget->getTarget();
-        if (target == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            p->getOrdinalLabel(mMobius, ordinal, value);
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        p->getOrdinalLabel(mMobius, ordinal, value);
     }
 }
 
@@ -296,12 +295,9 @@ bool Export::isDisplayable()
 {
     bool displayable = false;
 
-    if (mTarget != NULL) {
-        ActionType* type = mTarget->getTarget();
-        if (type == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            displayable = (p != NULL && p->bindable);
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        displayable = (p != NULL && p->bindable);
     }
 
     return displayable;
@@ -321,16 +317,16 @@ Track* Export::getTargetTrack()
 {
     Track* found = NULL;
 
-    if (mTarget->getTrack() > 0) {
+    if (mScopeTrack > 0) {
         // track specific binding
-        found = mMobius->getTrack(mTarget->getTrack() - 1);
+        found = mMobius->getTrack(mScopeTrack - 1);
     }
-    else if (mTarget->getGroup() > 0) {
+    else if (mScopeGroup > 0) {
         // group specific binding
         // for exports we just find the first track in the group
         for (int i = 0 ; i < mMobius->getTrackCount() ; i++) {
             Track* track = mMobius->getTrack(i);
-            if (track->getGroup() == mTarget->getGroup()) {
+            if (track->getGroup() == mScopeGroup) {
                 found = track;
                 break;
             }
@@ -355,17 +351,15 @@ int Export::getOrdinalValue()
 {
     int value = -1;
 
-    if (mTarget != NULL) {
+    // resolve track so Parameter doesn't have to
+    // wtf was this done?  it isn't needed for this method
+    // but it does have the side effect of resolving the Track
+    mTrack = getTargetTrack();
 
-        // resolve track so Parameter doesn't have to
-        mTrack = getTargetTrack();
-
-        ActionType* target = mTarget->getTarget();
-
-        if (target == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            value = p->getOrdinalValue(this);
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != nullptr) 
+          value = p->getOrdinalValue(this);
     }
 
     return value;
@@ -379,17 +373,13 @@ void Export::getValue(ExValue* value)
 {
     value->setNull();
 
-    if (mTarget != NULL) {
+    // have to resresolve the track each time
+    mTrack = getTargetTrack();
 
-        // have to resresolve the track each time
-        mTrack = getTargetTrack();
-
-        ActionType* target = mTarget->getTarget();
-
-        if (target == ActionParameter) {
-            Parameter* p = (Parameter*)mTarget->getObject();
-            p->getValue(this, value);
-        }
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != nullptr)
+          p->getValue(this, value);
     }
 
 }

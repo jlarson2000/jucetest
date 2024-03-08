@@ -241,7 +241,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
     interruptStart();
 
     // this isn't a listener, but we make the interface use the same signature
-    mRecorder->containerAudioAvailable(cont);
+    //mRecorder->containerAudioAvailable(cont);
 
     interruptEnd();
 }
@@ -259,7 +259,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 void MobiusKernel::interruptStart()
 {
     consumeCommunications();
-    mCore->beginAudioInterrupt();
+    //mCore->beginAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ void MobiusKernel::interruptStart()
 
 void MobiusKernel::interruptEnd()
 {
-    mCore->endAudioInterrupt();
+    //mCore->endAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////

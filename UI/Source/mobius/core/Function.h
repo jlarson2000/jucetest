@@ -12,8 +12,6 @@
 #ifndef MOBIUS_FUNCTION_H
 #define MOBIUS_FUNCTION_H
 
-//#include "MobiusInterface.h"
-
 #include "../../model/SystemConstant.h"
 
 /****************************************************************************
