@@ -1,0 +1,352 @@
+
+Mobius
+    mActionPool = new ActionPool();
+    mActions = NULL;
+    mLastAction = NULL;
+
+/**
+ * Resolve a Binding to an Action.
+ * First we intern a ResolvedTarget, then we build the Action around it.
+ * This handles both normal bindings and OSC bindings.
+ */
+Action* Mobius::resolveAction(OldBinding* b)
+{
+
+resolveAction starts by calling resolveTarget
+
+        ResolvedTarget* t = resolveTarget(b);
+        if (t != NULL) {
+            a = new Action(t);
+
+            // parse binding arguments
+            CopyString(b->getArgs(), a->bindingArgs, sizeof(a->bindingArgs));
+            a->parseBindingArgs();
+
+            resolveTrigger(b, a);
+
+ResolvedTarget* Mobius::resolveTarget(OldBinding* b)
+{
+    ResolvedTarget* resolved = NULL;
+
+    if (b->getTargetPath()) {
+        Trace(1, "resolveTarget called with targetPath!\n");
+    }
+    else {
+        int track, group;
+        parseBindingScope(b->getScope(), &track, &group);
+        resolved = internTarget(b->getTarget(), b->getName(), track, group);
+    }
+
+    return resolved;
+}
+
+/**
+ * Resolve and intern a target using given it's properties.
+ * Returns NULL if the target name is invalid, or if this is a UIControl
+ * and we don't know what they are yet.
+ *
+ * Config object handling is messy.  We resolve to the 
+ * external config not the interrupt config.  But when we
+ * need to use this action we have to convert that to the
+ * interrupt config object, so resolving it here doesn't accomplish
+ * anything other than to make sure the name is valid.  Should just
+ * leave the number in the Action instead?
+ * !!
+ *
+ * UPDATE: may not be relevant any more
+ */
+ResolvedTarget* Mobius::internTarget(ActionType* target, 
+                                             const char* name,
+                                             int track,
+                                             int group)
+{
+
+internTarget looks at the ActionType and the name and locates
+the corresponding system object: Funtion, Parameter, named Setup,
+named Preset, named BindingConfig.  Removed support for UIControl
+and UIConfig.
+
+It then looks to see if we already have a ResolvedTarget on a list
+
+            for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
+                if (t->getTarget() == target &&
+                    StringEqual(t->getName(), name) &&
+                    t->getTrack() == track &&
+                    t->getGroup() == group) {
+                    resolved = t;
+                    break;
+                }
+            }
+
+if it is not found it makes one and adds it to the list
+
+This primarily caches the name lookup of functions, parameters, etc.
+
+Complexity added after configuration changes and we have to refresh the
+pointers to Setups, Presets, etc.  It's probably that there is a similar
+issues with reloding Scripts since those extend the dynamic Function
+table and the pointers to the script Functions may change.
+
+Mobius::resolveAction is only used by BindingResolver
+
+BindingResolver::assimilate takes a BindingConfig and adds them to binding
+arrays.  If Action is not "spread" it calls assimilate(Action)
+
+assimilate looks at the Trigger and calls addBinding to one of the
+various arrays.
+
+complexity around spread bindings and overlapping bindings
+
+The end result is a set of Action arrays
+
+	class Action** mKeys;
+	class Action** mNotes;
+	class Action** mPrograms;
+	class Action** mControls;
+	class Action** mPitches;
+
+The Action objects are "interned" within the BindingResolver,
+the ResolvedTargets are interned within Mobius.
+
+So BindingResolver is the set of jump tables for triggers and owns
+a bunch of Actions.  The Actions contain ResolvedTargets which Mobius owns.
+You can throw away and rebuild the BindingResolver structure while preserving
+the ResolvedTargets.
+
+In MobiusInterface there is an action executor:
+
+    /**
+     * Clone an action for processing.
+     */
+    virtual class Action* cloneAction(class Action* src) = 0;
+
+    /**
+     * Execute an action.
+     * Ownership of the object is taken and it will be deleted.
+     * This should only be called on actions that have been cloned.
+     */
+    virtual void doAction(Action* a) = 0;
+
+I don't think this is how most things got done, rather you build the
+BindingResolver from BindingConfigs, then MobiusInterface would get these:
+
+  	virtual void doMidiEvent(class MidiEvent* e) = 0;
+
+    /**
+     * Process a key event.
+     * Called by the UI when keys are pressed and released.
+     * Mobius internally maintains a BindingResolver to quickly map
+     * keys to previous build Actions.
+     */
+    virtual void doKeyEvent(int key, bool down, bool repeat) = 0;
+
+For doAction, ownership of the Action is taken, performed synchrously
+or scheduled, and then returned to a pool.
+
+doAction has some logic around auto-repeat and sustain
+
+it either calls doActionNow, f->invoke.  If we need to defer it to the
+interrupt handler it gets pushed on the mActions/mLastAction list.
+
+deferred actions call doActionNow in the interrupt
+
+doActionNow is the big Target switch
+
+PUBLIC void Mobius::doActionNow(Action* a)
+{
+    Target* t = a->getTarget();
+
+    // not always set if comming from the outside
+    a->mobius = this;
+
+    if (t == NULL) {
+        Trace(1, "Action with no target!\n");
+    }
+    else if (t == TargetFunction) {
+        doFunction(a);
+    }
+    else if (t == TargetParameter) {
+        doParameter(a);
+    }
+
+/**
+ * Process a function action.
+ *
+ * We will replicate the action if it needs to be sent to more than
+ * one track due to group scope or focus lock.
+ *
+ * If a->down and a->longPress are both true, we're being called
+ * after long-press detection.
+ *
+ */
+PRIVATE void Mobius::doFunction(Action* a)
+{
+
+lots of logic around long press but they all eventlly get to
+
+   f->invoke or f->invokeLong
+
+The Function is now in control of the Action.
+
+lol, ActionDispatcher doesn't seem to be used anywhere, it must
+have been an abandoned attempt to factor out all the dispatch logic
+which is a good goal but it was never finished, all the logic
+is still in Mobius
+
+doKey uses BindingResolver
+
+PUBLIC void Mobius::doKeyEvent(int key, bool down, bool repeat)
+{
+    mBindingResolver->doKeyEvent(this, key, down, repeat);
+}
+
+same for MidiEvent after letting the Listener and ControlSurface
+think about it
+
+BindingResolver::doKeyEvent looks up the Action in the various tables
+then calls back to Mobius::doAction
+
+void BindingResolver::doKeyEvent(Mobius* mobius, int key, 
+                                           bool down, bool repeat)
+{
+   	if (key < 0 || key > KEY_MAX_CODE) {
+        Trace(1, "Illegal key trigger code %ld\n", (long)key);
+    }
+    else {
+        Action* actions = mKeys[key];
+
+        if (!down) {
+            int x = 0;
+        }
+
+        // determine the overlay to use
+        // this actually isn't necessary since we won't have key overlays
+        // yet, but maybe someday...
+        int overlay = 0;
+
+        for (Action* a = actions ; a != NULL ; a = a->getNext()) {
+            
+            if (a->getOverlay() == overlay) {
+
+                Action* clone = mobius->cloneAction(a);
+
+                clone->id = key;
+                clone->down = down;
+                clone->repeat = repeat;
+
+                // value is unspecified here, but Mobius may
+                // calculate one if there are binding args
+
+                mobius->doAction(clone);
+            }
+        }
+    }
+}
+
+
+So...
+
+For keyboard and midi events the sequence is
+
+  Mobius::doKey
+    BindingResolver::doKeyEvent
+      if binding for this key found
+         get the resolved Action from the table
+         clone it
+         call Mobius::doAction
+           eventually calls Function::invoke(action)
+
+doAction takes ownership because the Action can get stuck on an Event
+and the caller doesnt' know when that will finish, when going through
+BIndingResolver it does the clone.  When using UI Buttons the clone must
+have been done above MObiusINterface.
+
+I'm guessing if something comes in randomly and isn't resolved, the
+ResolvedTarget will be interned.
+
+The new world looks like this
+
+  UI Whatever
+    creates a UIAction resolved to definition objects but not
+    the Mobius internal objects
+    For structures, it will resolve to an ordinal
+
+    Mobius::doAction(UIAction)
+      ownership of the Action is NOT taken
+      will be converted to an internal Action and Mobius::doAction works
+      much like it did before
+        todo: factor this out to ActionExecutor
+
+      Most of the trigger sensitivy can be removed
+
+Conversion of UIAction to Action
+
+  If UIAction has a pointer to a FunctionDefinition
+     locate corresponding Function with ordinal mapping
+  else
+     locate Function by name
+
+   same for Parameter and Structure
+
+  since structure actions are rare, don't have to worry about performance
+    don't need to mess with a resolution cache
+
+  So really that's it, ResolvedTarget isn't necessary any more if we
+  can do ordinal mapping and fall back on name lookup if it is missing
+
+  all the logic around spreads is pushed up
+
+  monitoring up/down is pushed up
+    nice because you may want this for other plugins
+
+Scope is unclear, I'd really like focus/groups to be done with
+replication in the UI.  Need to find out how that is currently done
+and whether focus/group is saved and function invocation or event scheduling
+is sensitive to it.
+
+End Result
+
+  ActionDispatcher goes away
+  BindingResolver goes away
+
+  Mobius::doAction logic moves to new ActionProcessor that keeps
+  most of the same logic
+
+  That should be the end of OldBinding and all the noise around
+  binding assimilation
+
+Scripts call Mobius::doActionNow
+Look carefully at ScriptFunctionStatement, that's close to what the UI would do
+
+64-bit Pointer!!
+
+        // this is for GlobalReset handling
+        a->id = (long)si;
+
+scripts look for events left in the Action so it can wait on them
+
+Next: get clarity on what the "return" of an action is
+
+   - synchronous execution succeeded or failed
+   - queued with an event or event id
+
+Think about how the UI deals with scheduled actions.  Could allow
+it to poll for completion, or be notified through the listener
+when it complete.  But I can't think of a reason it would need to.
+
+Scripts do since they can wait on events.
+
+This part I don't want to rewrite, once the Action goes into Function::invoke
+then it has it's own life and will be returned to the pool when done.
+
+The above/below interrupt state was complicated because so much was being
+done above
+
+key events will first pass through Supervisor::doAction which decides
+if it wants to handle it in the UI
+
+  then MobiusShell::doAction gets it and decides to handle it in the shell
+
+  then MobiusKernel::doAtion gets it and passes it to Core
+  everything in Core can assume interrupt context
+
