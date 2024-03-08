@@ -24,6 +24,8 @@
 #include <ctype.h>
 
 #include "Mapper.h"
+// ActionOperator moved here
+#include "../../model/UIAction.h"
 
 #include "../../util/Util.h"
 #include "../../util/List.h"
@@ -153,13 +155,13 @@ void BindingResolver::assimilate(Mobius* mobius,
              b = b->getNext()) {
             
             // ignore ones we can't handle
-            OldTrigger* t = b->getTrigger();
-            if (t == OldTriggerKey ||  
-                t == OldTriggerMidi ||
-                t == OldTriggerNote ||
-                t == OldTriggerProgram ||
-                t == OldTriggerControl ||
-                t == OldTriggerPitch) {
+            Trigger* t = b->getTrigger();
+            if (t == TriggerKey ||  
+                t == TriggerMidi ||
+                t == TriggerNote ||
+                t == TriggerProgram ||
+                t == TriggerControl ||
+                t == TriggerPitch) {
 
                 // Resolve the target and create an action
                 Action* a = mobius->resolveAction(b);
@@ -177,10 +179,10 @@ void BindingResolver::assimilate(Mobius* mobius,
                         // values Ranged functions only make sense for Note
                         // triggers
                             
-                        OldTrigger* trigger = a->trigger;
+                        Trigger* trigger = a->trigger;
                         int status = a->getMidiStatus();
 
-                        if (trigger != OldTriggerMidi) {
+                        if (trigger != TriggerMidi) {
                             // keys have to have an argument
                             assimilate(a);
                         }
@@ -280,16 +282,16 @@ int BindingResolver::getSpreadRange(Action* a)
  */
 void BindingResolver::assimilate(Action* a)
 {
-    OldTrigger* trigger = a->trigger;
+    Trigger* trigger = a->trigger;
 
     if (trigger == NULL) {
         Trace(1, "Unresolved trigger type!!\n");
         delete a;
     }
-    else if (trigger == OldTriggerKey) {
+    else if (trigger == TriggerKey) {
         addBinding(mKeys, KEY_MAX_CODE, a->id, a);
     }
-    else if (trigger == OldTriggerMidi) {
+    else if (trigger == TriggerMidi) {
 
         int status = a->getMidiStatus();
         int index = a->getMidiKey();
@@ -496,8 +498,8 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
             a->getMidiChannel() == channel) {
 
             // Ignore PitchBend bingings to non-controls
-            OldTarget* target = a->getTarget();
-            if (status == MS_BEND && target != OldTargetParameter) {
+            ActionType* target = a->getTarget();
+            if (status == MS_BEND && target != ActionParameter) {
                 Trace(1, "Can only bind Pitch Bend to a Parameter\n");
                 continue;
             }
@@ -513,7 +515,7 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
 
             // if this is a fixed or relative value binding for a parameter, 
             // ignore up transitions
-            if (target == OldTargetParameter && !down && 
+            if (target == ActionParameter && !down && 
                 (a->actionOperator != NULL || !a->arg.isNull()))
               continue;
 
@@ -546,7 +548,7 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
                 Parameter* p = (Parameter*)a->getTargetObject();
                 if (p != NULL) {
                     min = p->getLow();
-                    int max = GetBindingHigh(p, mobius);
+                    int max = p->getHigh(mobius);
                     range = (max - min + 1);
                 }
                 
@@ -559,13 +561,13 @@ void BindingResolver::doMidiEvent(Mobius* mobius, MidiEvent* e)
             }
             else if (status == MS_CONTROL && clone->arg.isNull()) {
                 // don't overwrite the binding arg
-                if (target == OldTargetParameter) {
+                if (target == ActionParameter) {
                     Parameter* p = (Parameter*)a->getTargetObject();
                     if (p != NULL) {
                         int min = p->getLow();
                         // note that we use BindingHigh for a
                         // useful binding range
-                        int max = GetBindingHigh(p, mobius);
+                        int max = p->getHigh(mobius);
                         int scaled = Scale128ValueIn(value, min, max);
                         clone->arg.setInt(scaled);
                     }

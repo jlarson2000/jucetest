@@ -151,7 +151,7 @@ class Loop : public TraceContext {
 
     class MobiusLoopState* getState();
     class StreamState* getRestoreState();
-	void getSummary(class LoopSummary* s, bool active);
+	void getSummary(class MobiusLoopState* s, bool active);
 	class MobiusMode* getMode();
 	bool isEmpty();
     Function* isSyncWaiting();

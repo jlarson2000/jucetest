@@ -6,6 +6,10 @@
  *
  * Like FunctionDefinition, the engine will subclass or map this
  * add mode specific properties and behavior.
+ *
+ * Need different constant object pointer names to avoid conflicts
+ * with core.  Need to start being consistent and use the UI prefix
+ * for both classes and pointer names.
  */
 
 #pragma once
@@ -27,52 +31,52 @@ class ModeDefinition : public SystemConstant
     //////////////////////////////////////////////////////////////////////
 
     static std::vector<ModeDefinition*> Modes;
+	static ModeDefinition* find(const char* name);
     static void dumpModes();
-	static ModeDefinition* getMode(const char* name);
 
 };
 
 // Major modes
 
-extern ModeDefinition* GlobalResetMode;
+extern ModeDefinition* UIGlobalResetMode;
 
-extern ModeDefinition* ConfirmMode;
-extern ModeDefinition* InsertMode;
-extern ModeDefinition* MultiplyMode;
-extern ModeDefinition* MuteMode;
-extern ModeDefinition* OverdubMode;
-extern ModeDefinition* PauseMode;
-extern ModeDefinition* PlayMode;
-extern ModeDefinition* RecordMode;
-extern ModeDefinition* RehearseMode;
-extern ModeDefinition* RehearseRecordMode;
-extern ModeDefinition* ReplaceMode;
-extern ModeDefinition* ResetMode;
-extern ModeDefinition* RunMode;
-extern ModeDefinition* StutterMode;
-extern ModeDefinition* SubstituteMode;
-extern ModeDefinition* SwitchMode;
-extern ModeDefinition* SynchronizeMode;
-extern ModeDefinition* ThresholdMode;
+extern ModeDefinition* UIConfirmMode;
+extern ModeDefinition* UIInsertMode;
+extern ModeDefinition* UIMultiplyMode;
+extern ModeDefinition* UIMuteMode;
+extern ModeDefinition* UIOverdubMode;
+extern ModeDefinition* UIPauseMode;
+extern ModeDefinition* UIPlayMode;
+extern ModeDefinition* UIRecordMode;
+extern ModeDefinition* UIRehearseMode;
+extern ModeDefinition* UIRehearseRecordMode;
+extern ModeDefinition* UIReplaceMode;
+extern ModeDefinition* UIResetMode;
+extern ModeDefinition* UIRunMode;
+extern ModeDefinition* UIStutterMode;
+extern ModeDefinition* UISubstituteMode;
+extern ModeDefinition* UISwitchMode;
+extern ModeDefinition* UISynchronizeMode;
+extern ModeDefinition* UIThresholdMode;
 
 
 // Minor modes
 
-extern ModeDefinition* CaptureMode;
-extern ModeDefinition* GlobalMuteMode;
-extern ModeDefinition* GlobalPauseMode;
-extern ModeDefinition* HalfSpeedMode;
-extern ModeDefinition* MIDISyncMasterMode;
-extern ModeDefinition* PitchOctaveMode;
-extern ModeDefinition* PitchStepMode;
-extern ModeDefinition* PitchBendMode;
-extern ModeDefinition* SpeedOctaveMode;
-extern ModeDefinition* SpeedStepMode;
-extern ModeDefinition* SpeedBendMode;
-extern ModeDefinition* SpeedToggleMode;
-extern ModeDefinition* TimeStretchMode;
-extern ModeDefinition* ReverseMode;
-extern ModeDefinition* SoloMode;
-extern ModeDefinition* SyncMasterMode;
-extern ModeDefinition* TrackSyncMasterMode;
-extern ModeDefinition* WindowMode;
+extern ModeDefinition* UICaptureMode;
+extern ModeDefinition* UIGlobalMuteMode;
+extern ModeDefinition* UIGlobalPauseMode;
+extern ModeDefinition* UIHalfSpeedMode;
+extern ModeDefinition* UIMIDISyncMasterMode;
+extern ModeDefinition* UIPitchOctaveMode;
+extern ModeDefinition* UIPitchStepMode;
+extern ModeDefinition* UIPitchBendMode;
+extern ModeDefinition* UISpeedOctaveMode;
+extern ModeDefinition* UISpeedStepMode;
+extern ModeDefinition* UISpeedBendMode;
+extern ModeDefinition* UISpeedToggleMode;
+extern ModeDefinition* UITimeStretchMode;
+extern ModeDefinition* UIReverseMode;
+extern ModeDefinition* UISoloMode;
+extern ModeDefinition* UISyncMasterMode;
+extern ModeDefinition* UITrackSyncMasterMode;
+extern ModeDefinition* UIWindowMode;

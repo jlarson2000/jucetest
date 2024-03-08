@@ -339,7 +339,7 @@ class InputStream : public Stream {
 
 	class Synchronizer* getSynchronizer();
     void setPlugin(class StreamPlugin* plugin);
-	void setInputBuffer(class AudioStream* stream, float* input, long frames, 
+	void setInputBuffer(class MobiusContainer* stream, float* input, long frames, 
 						float* echo);
 	void bufferModified(float* buffer);
 
@@ -459,7 +459,7 @@ class OutputStream : public Stream {
 	Layer* getLastLayer();
 	long getLastFrame();
 
-	void setOutputBuffer(class AudioStream* stream, float* b, long l);
+	void setOutputBuffer(class MobiusContainer* stream, float* b, long l);
 
 	// called by Track
 	void play(Loop* loop, long outframes, bool last);

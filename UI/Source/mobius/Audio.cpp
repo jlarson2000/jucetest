@@ -895,9 +895,13 @@ int Audio::write(const char *name, int format)
  * Copy methods should no longer be used by the interrupt handler
  *  classes, but may still be usefull elsewhere?
  *
+ * Yes, they're used for Projects which we will still need at some point
+ * but they run in the shell thread.  If we can allocate strictly from
+ * the pool won't need "new" but when copying large amounts of state
+ * it is more likely to exhaust and require allocation.
+ *
  */
 
-#if 0
 /**
  * Copy the contents of one Audio into another.
  * Note that this assumes the buffer doesn't have a lot of wasted
@@ -948,7 +952,6 @@ void Audio::applyFeedback(float* buffer, int feedback)
 		  buffer[i] = buffer[i] * modifier;
 	}
 }
-#endif
 
 /****************************************************************************
  *                                                                          *

@@ -97,7 +97,8 @@ SwitchModeType::SwitchModeType() :
 {
 }
 
-MobiusMode* SwitchMode = new SwitchModeType();
+SwitchModeType SwitchModeObj;
+MobiusMode* SwitchMode = &SwitchModeObj;
 
 // Confirm
 
@@ -111,7 +112,8 @@ ConfirmModeType::ConfirmModeType() :
 {
 }
 
-MobiusMode* ConfirmMode = new ConfirmModeType();
+ConfirmModeType ConfirmModeObj;
+MobiusMode* ConfirmMode = new &ConfirmModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -502,7 +504,7 @@ Event* LoopTriggerFunction::invoke(Action* action, Loop* l)
                 // require that we include the full Action in the Event
                 // !! we have that now, figure it out
                 if (replicated &&
-                    action->trigger == OldTriggerMidi &&
+                    action->trigger == TriggerMidi &&
                     p->isSwitchVelocity()) {
                     t->setOutputLevel(action->triggerValue);
                 }

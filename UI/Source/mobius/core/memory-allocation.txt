@@ -55,3 +55,6 @@ SetupNameParameterType
   except it looks obscure in XML
   also SetupNumberParameterType
 
+MobiusConfig::setActiveSetup
+  see todo
+  

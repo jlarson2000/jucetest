@@ -149,7 +149,7 @@ class UIParameter : public SystemConstant
 
     /**
      * Indicates that this parameter cannot be bound to MIDI or host parameters
-     * so keep it out of the operation selection UI.
+     * so keep it out of the action selection UI.
      */
     bool noBinding;
 

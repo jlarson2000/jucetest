@@ -1,5 +1,5 @@
 /*
- * Model for associationg triggers, operations, and destinations.
+ * Model for associationg triggers, actions, and destinations.
  *
  * I'd like to keep as much awareness of this model out of the engine
  * as possible.  The only exceptions may be these old Trigger types
@@ -12,228 +12,14 @@
  * I forget how these were used, try to get rid of them.
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <math.h>
-//#include <ctype.h>
-
-#include <vector>
-
 #include "../util/Util.h"
 #include "../util/Trace.h"
 
+#include "Trigger.h"
+#include "ActionType.h"
 #include "Structure.h"
+
 #include "Binding.h"
-
-//////////////////////////////////////////////////////////////////////
-//
-// Triggers
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Do we really need display names for these?
- * We don't currently show a consolidated table of all
- * merged bindings and even if we did the internal name is enough.
- */
-Trigger::Trigger(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-    Triggers.push_back(this);
-}
-
-/**
- * This formerly tested a "bindable" flag and filtered
- * those out.  Unbindables were things like TriggerEvent
- * and TriggerThread which I don't think we need.
- */
-Trigger* Trigger::find(const char* name) 
-{
-	Trigger* found = nullptr;
-	if (name != nullptr) {
-		for (int i = 0 ; Triggers.size() ; i++) {
-			Trigger* t = Triggers[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-/**
- * Until we decide to stop using concrete MIDI event types
- * for trigger types, provide a convenient type tester.
- */
-bool Trigger::isMidi(Trigger* t)
-{
-    return (t == TriggerMidi ||
-            t == TriggerNote ||
-            t == TriggerProgram ||
-            t == TriggerControl ||
-            t == TriggerPitch);
-}
-
-std::vector<Trigger*> Trigger::Triggers;
-
-// unlike Parameter we don't have subclasses so can just extern
-// the Trigger object
-// everything really wants to deal with a pointer to them and I don't want
-// to mess with reference conversion right now
-
-Trigger TriggerKeyObj("key", "Key");
-Trigger* TriggerKey = &TriggerKeyObj;
-
-Trigger TriggerMidiObj("midi", "MIDI");
-Trigger* TriggerMidi = &TriggerMidiObj;
-
-Trigger TriggerHostObj("host", "Host");
-Trigger* TriggerHost = &TriggerHostObj;
-
-Trigger TriggerOscObj("osc", "OSC");
-Trigger* TriggerOsc = &TriggerOscObj;
-
-Trigger TriggerUIObj("ui", "UI");
-Trigger* TriggerUI = &TriggerUIObj;
-
-// have been using these in Bindings to make it
-// easier to identify the most common trigger types
-// rather than just trigger="midi" 
-// think about converting this to just trigger='midi' with midiType='note'
-
-Trigger TriggerNoteObj("note", "Note");
-Trigger* TriggerNote = &TriggerNoteObj;
-
-Trigger TriggerProgramObj("program", "Program");
-Trigger* TriggerProgram = &TriggerProgramObj;
-
-Trigger TriggerControlObj("control", "Control");
-Trigger* TriggerControl = &TriggerControlObj;
-
-Trigger TriggerPitchObj("pitch", "Pitch Bend");
-Trigger* TriggerPitch = &TriggerPitchObj;
-
-// these were special-case triggers that may not be necessary
-// revisit with the engine porting is complete
-
-Trigger TriggerScriptObj("script", "Script");
-Trigger* TriggerScript = &TriggerScriptObj;
-
-Trigger TriggerAlertObj("alert", "Alert");
-Trigger* TriggerAlert = &TriggerAlertObj;
-
-Trigger TriggerEventObj("event", "Event");
-Trigger* TriggerEvent = &TriggerEventObj;
-
-Trigger TriggerThreadObj("thread", "Mobius Thread");
-Trigger* TriggerThread = &TriggerThreadObj;
-
-Trigger TriggerUnknownObj("unknown", "unknown");
-Trigger* TriggerUnknown = &TriggerUnknownObj;
-
-//////////////////////////////////////////////////////////////////////
-//
-// Trigger Modes
-//
-// These were part of the old model and not currently used in the UI.
-// It seems useful though so keep it around.
-//
-//////////////////////////////////////////////////////////////////////
-
-std::vector<TriggerMode*> TriggerMode::TriggerModes;
-
-TriggerMode TriggerModeOnceObj("once", "Once");
-TriggerMode* TriggerModeOnce = &TriggerModeOnceObj;
-
-TriggerMode TriggerModeMomentaryObj("momentary", "Momentary");
-TriggerMode* TriggerModeMomentary = &TriggerModeMomentaryObj;
-
-TriggerMode TriggerModeContinuousObj("continuous", "Continuous");
-TriggerMode* TriggerModeContinuous = &TriggerModeContinuousObj;
-
-TriggerMode TriggerModeToggleObj("toggle", "Toggle");
-TriggerMode* TriggerModeToggle = &TriggerModeToggleObj;
-
-TriggerMode TriggerModeXYObj("xy", "X,Y");
-TriggerMode* TriggerModeXY = &TriggerModeXYObj;
-
-
-TriggerMode::TriggerMode(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-    TriggerModes.push_back(this);
-}
-
-TriggerMode* TriggerMode::find(const char* name) 
-{
-	TriggerMode* found = nullptr;
-	if (name != nullptr) {
-		for (int i = 0 ; i < TriggerModes.size() ; i++) {
-			TriggerMode* t = TriggerModes[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Operations
-//
-//////////////////////////////////////////////////////////////////////
-
-std::vector<Operation*> Operation::Operations;
-
-Operation::Operation(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-    Operations.push_back(this);
-}
-
-// can't we push this shit into SystemConstant and share it!?
-Operation* Operation::find(const char* name) 
-{
-	Operation* found = nullptr;
-
-	if (name != nullptr) {
-		for (int i = 0 ; i < Operations.size() ; i++) {
-			Operation* op = Operations[i];
-			if (!strcmp(op->getName(), name)) {
-				found = op;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-Operation OpFunctionObj("function", "Function");
-Operation* OpFunction = &OpFunctionObj;
-
-Operation OpParameterObj("parameter", "Parameter");
-Operation* OpParameter = &OpParameterObj;
-
-Operation OpActivationObj("activation", "Activation");
-Operation* OpActivation = &OpActivationObj;
-
-Operation OpScriptObj("script", "Script");
-Operation* OpScript = &OpScriptObj;
-
-// should just be an enumeration or another SystemConstant
-
-Operation OpPresetObj("preset", "Preset");
-Operation* OpPreset = &OpPresetObj;
-
-Operation OpSetupObj("setup", "Setup");
-Operation* OpSetup = &OpSetupObj;
-
-Operation OpBindingsObj("bindings", "Bindings");
-Operation* OpBindings = &OpBindingsObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -247,12 +33,12 @@ Binding::Binding()
     triggerMode = nullptr;
     triggerValue =  0;
     midiChannel = 0;
-    op = nullptr;
+    action = nullptr;
     trackNumber = 0;
     groupOrdinal = 0;
     
 	mNext = nullptr;
-    mOperationName = nullptr;
+    mActionName = nullptr;
     mArguments = nullptr;
     mScope = nullptr;
 }
@@ -261,7 +47,7 @@ Binding::~Binding()
 {
 	Binding *el, *next;
 
-	delete mOperationName;
+	delete mActionName;
     delete mArguments;
     delete mScope;
 
@@ -275,7 +61,7 @@ Binding::~Binding()
 Binding::Binding(Binding* src)
 {
 	mNext = nullptr;
-    mOperationName = nullptr;
+    mActionName = nullptr;
     mArguments = nullptr;
     mScope = nullptr;
     
@@ -284,8 +70,8 @@ Binding::Binding(Binding* src)
     triggerValue = src->triggerValue;
     midiChannel = src->midiChannel;
 
-    op = src->op;
-    setOperationName(src->getOperationName());
+    action = src->action;
+    setActionName(src->getActionName());
     setArguments(src->getArguments());
     setScope(src->getScope());
 
@@ -304,15 +90,15 @@ Binding* Binding::getNext()
 	return mNext;
 }
 
-void Binding::setOperationName(const char *name) 
+void Binding::setActionName(const char *name) 
 {
-	delete mOperationName;
-	mOperationName = CopyString(name);
+	delete mActionName;
+	mActionName = CopyString(name);
 }
 
-const char* Binding::getOperationName()
+const char* Binding::getActionName()
 {
-	return mOperationName;
+	return mActionName;
 }
 
 void Binding::setArguments(const char* args) 
@@ -412,21 +198,21 @@ bool Binding::isValid()
 {
 	bool valid = false;
 
-    if (mOperationName == nullptr) {
+    if (mActionName == nullptr) {
         trace("Binding: Filtering binding with no name\n");
     }
     else if (trigger == nullptr) {
-        trace("Binding: Filtering binding with no trigger: %s\n", mOperationName);
+        trace("Binding: Filtering binding with no trigger: %s\n", mActionName);
     }
-    else if (op == nullptr) {
-        trace("Binding: Filtering binding with no operation: %s\n", mOperationName);
+    else if (action == nullptr) {
+        trace("Binding: Filtering binding with no action type: %s\n", mActionName);
     }
     else {
 		if (trigger == TriggerKey) {
 			// key must have a non-zero value
 			valid = (triggerValue > 0);
             if (!valid)
-              trace("Filtering binding with no value %s\n", mOperationName);
+              trace("Filtering binding with no value %s\n", mActionName);
 		}
 		else if (trigger == TriggerNote ||
 				 trigger == TriggerProgram ||
@@ -437,7 +223,7 @@ bool Binding::isValid()
 			// must have a midi status
 			valid = (triggerValue >= 0);
             if (!valid)
-              trace("Filtering binding with no value %s\n", mOperationName);
+              trace("Filtering binding with no value %s\n", mActionName);
 		}
         else if (trigger == TriggerPitch) {
             // doesn't need a value

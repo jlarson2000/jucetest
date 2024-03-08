@@ -226,8 +226,8 @@ class SetupNameParameterType : public GlobalParameter
 	void setValue(MobiusConfig* c, ExValue* value);
     int getOrdinalValue(MobiusConfig* c);
 
-	int getHigh(MobiusInterface* m);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+	int getHigh(Mobius* m);
+    void getOrdinalLabel(Mobius* m, int i, ExValue* value);
 };
 
 SetupNameParameterType::SetupNameParameterType() :
@@ -315,7 +315,7 @@ void SetupNameParameterType::setValue(Action* action)
  * !! The max can change as setups are added/removed.
  * Need to work out a way to convey that to ParameterEditor.
  */
-int SetupNameParameterType::getHigh(MobiusInterface* m)
+int SetupNameParameterType::getHigh(Mobius* m)
 {
 	MobiusConfig* config = m->getConfiguration();
     int max = GetSetupCount(config);
@@ -329,7 +329,7 @@ int SetupNameParameterType::getHigh(MobiusInterface* m)
  * Given an ordinal, map it into a display label.
  * Since we set the interrupt setup, that
  */
-void SetupNameParameterType::getOrdinalLabel(MobiusInterface* mobius,
+void SetupNameParameterType::getOrdinalLabel(Mobius* mobius,
                                                     int i, ExValue* value)
 {
     // use the interrupt config since that's the one we're really using
@@ -509,8 +509,8 @@ class BindingsParameterType : public GlobalParameter
 	BindingsParameterType();
 
     int getOrdinalValue(MobiusConfig* c);
-	int getHigh(MobiusInterface* m);
-    void getOrdinalLabel(MobiusInterface* m, int i, ExValue* value);
+	int getHigh(Mobius* m);
+    void getOrdinalLabel(Mobius* m, int i, ExValue* value);
 
 	void getValue(MobiusConfig* c, ExValue* value);
 	void setValue(MobiusConfig* c, ExValue* value);
@@ -604,7 +604,7 @@ void BindingsParameterType::setValue(Action* action)
  * !! The max can change as bindings are added/removed.
  * Need to work out a way to convey that to ParameterEditor.
  */
-int BindingsParameterType::getHigh(MobiusInterface* m)
+int BindingsParameterType::getHigh(Mobius* m)
 {
     Trace(1, "BindingsParameterType touched\n");
 #if 0    
@@ -623,7 +623,7 @@ int BindingsParameterType::getHigh(MobiusInterface* m)
 /**
  * Given an ordinal, map it into a display label.
  */
-void BindingsParameterType::getOrdinalLabel(MobiusInterface* m,
+void BindingsParameterType::getOrdinalLabel(Mobius* m,
                                                    int i, ExValue* value)
 {
     Trace(1, "BindingsParameterType touched\n");

@@ -82,7 +82,7 @@ void ScriptRuntime::runScript(Action* action)
         // here, but with TriggerEvent so we know not to do it again.
 
         if ((script->isQuantize() || script->isSwitchQuantize()) &&
-            action->trigger != OldTriggerEvent) {
+            action->trigger != TriggerEvent) {
 
             // Schedule it for a quantization boundary and come back later.
             // This may look like what we do in doFunction() but  there

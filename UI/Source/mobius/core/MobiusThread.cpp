@@ -25,6 +25,8 @@
 #include "Action.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
+#include "../../model/Trigger.h"
+#include "../../model/ActionType.h"
 #include "MobiusThread.h"
 #include "Project.h"
 #include "Script.h"
@@ -182,6 +184,12 @@ int ThreadEvent::getReturnCode()
 	return mReturnCode;
 }
 
+
+/**
+ * This is called during shutdown, we're supposed to release
+ * resources.
+ */
+
 /****************************************************************************
  *                                                                          *
  *   								PROMPT                                  *
@@ -241,11 +249,6 @@ void Prompt::setOk(bool b)
 {
 	mOk = b;
 }
-
-/**
- * This is called during shutdown, we're supposed to release
- * resources.
- */
 
 /****************************************************************************
  *                                                                          *
@@ -440,7 +443,7 @@ void MobiusThread::eventTimeout()
     }
 
     // this is typically the UI
-	MobiusListener* ml = mMobius->getListener();
+	OldMobiusListener* ml = mMobius->getListener();
 	if (ml != NULL)
 	  ml->MobiusRefresh();
     
@@ -537,7 +540,7 @@ void MobiusThread::processEvent()
 							// localize!!
 							sprintf(mMessage, "Invalid project file: %s", path);
 							Trace(1, "%s\n", mMessage);
-							MobiusListener* ml = mMobius->getListener();
+							OldMobiusListener* ml = mMobius->getListener();
 							if (ml != NULL)
 							  ml->MobiusAlert(mMessage);
 							delete p;
@@ -557,7 +560,7 @@ void MobiusThread::processEvent()
 							// localize!!
 							sprintf(mMessage, "Invalid file: %s", path);
 							Trace(1, "%s\n", mMessage);
-							MobiusListener* ml = mMobius->getListener();
+							OldMobiusListener* ml = mMobius->getListener();
 							if (ml != NULL)
 							  ml->MobiusAlert(mMessage);
 						}
@@ -643,7 +646,7 @@ void MobiusThread::processEvent()
 	if (mOneShot == TE_TIME_BOUNDARY) {
 		// we crossed a beat/cycle/loop boundary, tell the  UI
 		// so it can refresn immediately
-		MobiusListener* ml = mMobius->getListener();
+		OldMobiusListener* ml = mMobius->getListener();
 		if (ml != NULL)
 		  ml->MobiusTimeBoundary();
 		mOneShot = TE_NONE;
@@ -1003,7 +1006,7 @@ void MobiusThread::diff(int type, bool reverse,
  */
 void MobiusThread::prompt(ThreadEvent* e)
 {
-	MobiusListener* l = mMobius->getListener();
+	OldMobiusListener* l = mMobius->getListener();
 	if (l != NULL) {
 		Prompt* p = new Prompt();
 		// keep a counter for sanity checks
@@ -1058,8 +1061,8 @@ void MobiusThread::finishPrompt(Prompt* p)
 void MobiusThread::finishEvent(ThreadEvent* e)
 {
     Action* a = mMobius->newAction();
-    a->trigger = OldTriggerThread;
-    a->setTarget(OldTargetScript);
+    a->trigger = TriggerThread;
+    a->setTarget(ActionScript);
 
     // this is a little unusual because we use this
     // for an input to the action and it's usually a return

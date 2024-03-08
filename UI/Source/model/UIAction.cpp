@@ -9,67 +9,13 @@
 
 #include "ExValue.h"
 
-#include "Binding.h"
+#include "Trigger.h"
+#include "ActionType.h"
 #include "FunctionDefinition.h"
 #include "UIParameter.h"
+#include "Binding.h"
 
 #include "UIAction.h"
-
-//////////////////////////////////////////////////////////////////////
-//
-// ActionOperator
-//
-//////////////////////////////////////////////////////////////////////
-
-std::vector<ActionOperator*> ActionOperator::Operators;
-
-ActionOperator::ActionOperator(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-    ordinal = Operators.size();
-    Operators.push_back(this);
-}
-
-/**
- * Find an Operator by name
- * This doesn't happen often so we can do a liner search.
- */
-ActionOperator* ActionOperator::getOperator(const char* name)
-{
-	ActionOperator* found = nullptr;
-	
-    // todo: need to support display names?
-	for (int i = 0 ; i < Operators.size() ; i++) {
-		ActionOperator* op = Operators[i];
-		if (StringEqualNoCase(op->getName(), name)) {
-            found = op;
-            break;
-        }
-	}
-	return found;
-}
-
-ActionOperator OperatorMinObj{"min", "Minimum"};
-ActionOperator* OperatorMin = &OperatorMinObj;
-
-ActionOperator OperatorMaxObj{"max", "Maximum"};
-ActionOperator* OperatorMax = &OperatorMaxObj;
-
-ActionOperator OperatorCenterObj{"center", "Center"};
-ActionOperator* OperatorCenter = &OperatorCenterObj;
-
-ActionOperator OperatorUpObj{"up", "Up"};
-ActionOperator* OperatorUp = &OperatorUpObj;
-
-ActionOperator OperatorDownObj{"down", "Down"};
-ActionOperator* OperatorDown = &OperatorDownObj;
-
-ActionOperator OperatorSetObj{"set", "Set"};
-ActionOperator* OperatorSet = &OperatorSetObj;
-
-// todo: this sounds dangerous, what did it do?
-ActionOperator OperatorPermanentObj{"permanent", "Permanent"};
-ActionOperator* OperatorPermanent = &OperatorPermanentObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -111,9 +57,9 @@ UIAction::UIAction(UIAction* src)
     repeat = src->repeat;
     longPress = src->longPress;
 
-    // Operation
-    op = src->op;
-    strcpy(operationName, src->operationName);
+    // Action
+    type = src->type;
+    strcpy(actionName, src->actionName);
     implementation.object = src->implementation.object;
     longFunction = src->longFunction;
 
@@ -156,8 +102,8 @@ void UIAction::init()
     longPress = false;
 
     // Operation
-    op = nullptr;
-    strcpy(operationName, "");
+    type = nullptr;
+    strcpy(actionName, "");
     implementation.object = nullptr;
     longFunction = nullptr;
 
@@ -193,8 +139,8 @@ void UIAction::init(Binding* b)
     setMidiStatus(b->triggerValue);
     setMidiChannel(b->midiChannel);
 
-    op = b->op;
-    CopyString(b->getOperationName(), operationName, sizeof(operationName));
+    type = b->action;
+    CopyString(b->getActionName(), actionName, sizeof(actionName));
     CopyString(b->getArguments(), bindingArgs, sizeof(bindingArgs));
 
     // initially at least, all binding argument strings will be numbers
@@ -226,13 +172,13 @@ void UIAction::reset()
 void UIAction::resolve()
 {
     if (implementation.object == nullptr) {
-        if (op == OpFunction) {
-            implementation.function = FunctionDefinition::getFunction(operationName);
+        if (type == ActionFunction) {
+            implementation.function = FunctionDefinition::find(actionName);
         }
     }
 
     if (implementation.object == nullptr) {
-        trace("Unresolved operation: %s\n", operationName);
+        trace("Unresolved action: %s\n", actionName);
     }
 }
 
@@ -267,7 +213,7 @@ void UIAction::getDisplayName(char* buffer, int max)
     // TODO: add a trigger prefix!
     buffer[0] = 0;
 
-    AppendString(operationName, buffer, max);
+    AppendString(actionName, buffer, max);
 
     if (strlen(bindingArgs) > 0) {
         // unparsed, unusual
@@ -315,7 +261,7 @@ bool UIAction::isSustainable()
  */
 bool UIAction::isTargetEqual(UIAction* other)
 {
-    return (op == other->op &&
+    return (type == other->type &&
             implementation.object == other->implementation.object &&
             scopeTrack == other->scopeTrack &&
             scopeGroup == other->scopeGroup);
@@ -379,7 +325,7 @@ void UIAction::setMidiKey(int i)
 bool UIAction::isSpread() 
 {
 	bool spread = false;
-    if (op == OpFunction) {
+    if (type == ActionFunction) {
         FunctionDefinition* f = implementation.function;
         if (f != nullptr)
           spread = f->isSpread();
@@ -414,7 +360,7 @@ void UIAction::parseBindingArgs()
         char save = *end;
         *end = 0;
 
-        actionOperator = ActionOperator::getOperator(psn);
+        actionOperator = ActionOperator::find(psn);
         if (actionOperator != nullptr) {
             // skip to the operand
             *end = save;

@@ -52,7 +52,7 @@ void ModeDefinition::dumpModes()
  * Find a Function by name
  * This doesn't happen often so we can do a liner search.
  */
-ModeDefinition* ModeDefinition::getMode(const char* name)
+ModeDefinition* ModeDefinition::find(const char* name)
 {
 	ModeDefinition* found = nullptr;
 	
@@ -100,61 +100,61 @@ ModeDefinition::~ModeDefinition()
 // not technically a Loop mode, the mode the engine is
 // logically in when all theh tracks are in Reset
 ModeDefinition GlobalResetModeDef {"Global Reset"};
-ModeDefinition* GlobalResetMode = &GlobalResetModeDef;
+ModeDefinition* UIGlobalResetMode = &GlobalResetModeDef;
 
 ModeDefinition ConfirmModeDef {"Confirm"};
-ModeDefinition* ConfirmMode = &ConfirmModeDef;
+ModeDefinition* UIConfirmMode = &ConfirmModeDef;
 
 ModeDefinition InsertModeDef {"Insert"};
-ModeDefinition* InsertMode = &InsertModeDef;
+ModeDefinition* UIInsertMode = &InsertModeDef;
 
 ModeDefinition MultiplyModeDef {"Multiply"};
-ModeDefinition* MultiplyMode = &MultiplyModeDef;
+ModeDefinition* UIMultiplyMode = &MultiplyModeDef;
 
 ModeDefinition MuteModeDef {"Mute"};
-ModeDefinition* MuteMode = &MuteModeDef;
+ModeDefinition* UIMuteMode = &MuteModeDef;
 
 ModeDefinition OverdubModeDef {"Overdub"};
-ModeDefinition* OverdubMode = &OverdubModeDef;
+ModeDefinition* UIOverdubMode = &OverdubModeDef;
 
 ModeDefinition PauseModeDef {"Pause"};
-ModeDefinition* PauseMode = &PauseModeDef;
+ModeDefinition* UIPauseMode = &PauseModeDef;
 
 ModeDefinition PlayModeDef {"Play"};
-ModeDefinition* PlayMode = &PlayModeDef;
+ModeDefinition* UIPlayMode = &PlayModeDef;
 
 ModeDefinition RecordModeDef {"Record"};
-ModeDefinition* RecordMode = &RecordModeDef;
+ModeDefinition* UIRecordMode = &RecordModeDef;
 
 ModeDefinition RehearseModeDef {"Rehearse"};
-ModeDefinition* RehearseMode = &RehearseModeDef;
+ModeDefinition* UIRehearseMode = &RehearseModeDef;
 
 ModeDefinition RehearseRecordModeDef {"RehearseRecord"};
-ModeDefinition* RehearseRecordMode = &RehearseRecordModeDef;
+ModeDefinition* UIRehearseRecordMode = &RehearseRecordModeDef;
 
 ModeDefinition ReplaceModeDef {"Replace"};
-ModeDefinition* ReplaceMode = &ReplaceModeDef;
+ModeDefinition* UIReplaceMode = &ReplaceModeDef;
 
 ModeDefinition ResetModeDef {"Reset"};
-ModeDefinition* ResetMode = &ResetModeDef;
+ModeDefinition* UIResetMode = &ResetModeDef;
 
 ModeDefinition RunModeDef {"Run"};
-ModeDefinition* RunMode = &RunModeDef;
+ModeDefinition* UIRunMode = &RunModeDef;
 
 ModeDefinition StutterModeDef {"Stutter"};
-ModeDefinition* StutterMode = &StutterModeDef;
+ModeDefinition* UIStutterMode = &StutterModeDef;
 
 ModeDefinition SubstituteModeDef {"Substitute"};
-ModeDefinition* SubstituteMode = &SubstituteModeDef;
+ModeDefinition* UISubstituteMode = &SubstituteModeDef;
 
 ModeDefinition SwitchModeDef {"Switch"};
-ModeDefinition* SwitchMode = &SwitchModeDef;
+ModeDefinition* UISwitchMode = &SwitchModeDef;
 
 ModeDefinition SynchronizeModeDef {"Synchronize"};
-ModeDefinition* SynchronizeMode = &SynchronizeModeDef;
+ModeDefinition* UISynchronizeMode = &SynchronizeModeDef;
 
 ModeDefinition ThresholdModeDef {"Threshold"};
-ModeDefinition* ThresholdMode = &ThresholdModeDef;
+ModeDefinition* UIThresholdMode = &ThresholdModeDef;
 
 
 //
@@ -164,56 +164,56 @@ ModeDefinition* ThresholdMode = &ThresholdModeDef;
 //
 
 ModeDefinition CaptureModeDef {"Capture"};
-ModeDefinition* CaptureMode = &CaptureModeDef;
+ModeDefinition* UICaptureMode = &CaptureModeDef;
 
 ModeDefinition GlobalMuteModeDef {"GlobalMute"};
-ModeDefinition* GlobalMuteMode = &GlobalMuteModeDef;
+ModeDefinition* UIGlobalMuteMode = &GlobalMuteModeDef;
 
 ModeDefinition GlobalPauseModeDef {"GlobalPause"};
-ModeDefinition* GlobalPauseMode = &GlobalPauseModeDef;
+ModeDefinition* UIGlobalPauseMode = &GlobalPauseModeDef;
 
 ModeDefinition HalfSpeedModeDef {"HalfSpeed"};
-ModeDefinition* HalfSpeedMode = &HalfSpeedModeDef;
+ModeDefinition* UIHalfSpeedMode = &HalfSpeedModeDef;
 
 ModeDefinition MIDISyncMasterModeDef {"MIDISyncMaster"};
-ModeDefinition* MIDISyncMasterMode = &MIDISyncMasterModeDef;
+ModeDefinition* UIMIDISyncMasterMode = &MIDISyncMasterModeDef;
 
 ModeDefinition PitchOctaveModeDef {"PitchOctave"};
-ModeDefinition* PitchOctaveMode = &PitchOctaveModeDef;
+ModeDefinition* UIPitchOctaveMode = &PitchOctaveModeDef;
 
 ModeDefinition PitchStepModeDef {"PitchStep"};
-ModeDefinition* PitchStepMode = &PitchStepModeDef;
+ModeDefinition* UIPitchStepMode = &PitchStepModeDef;
 
 ModeDefinition PitchBendModeDef {"PitchBend"};
-ModeDefinition* PitchBendMode = &PitchBendModeDef;
+ModeDefinition* UIPitchBendMode = &PitchBendModeDef;
 
 ModeDefinition SpeedOctaveModeDef {"SpeedOctave"};
-ModeDefinition* SpeedOctaveMode = &SpeedOctaveModeDef;
+ModeDefinition* UISpeedOctaveMode = &SpeedOctaveModeDef;
 
 ModeDefinition SpeedStepModeDef {"SpeedStep"};
-ModeDefinition* SpeedStepMode = &SpeedStepModeDef;
+ModeDefinition* UISpeedStepMode = &SpeedStepModeDef;
 
 ModeDefinition SpeedBendModeDef {"SpeedBend"};
-ModeDefinition* SpeedBendMode = &SpeedBendModeDef;
+ModeDefinition* UISpeedBendMode = &SpeedBendModeDef;
 
 ModeDefinition SpeedToggleModeDef {"SpeedToggle"};
-ModeDefinition* SpeedToggleMode = &SpeedToggleModeDef;
+ModeDefinition* UISpeedToggleMode = &SpeedToggleModeDef;
 
 ModeDefinition TimeStretchModeDef {"TimeStretch"};
-ModeDefinition* TimeStretchMode = &TimeStretchModeDef;
+ModeDefinition* UITimeStretchMode = &TimeStretchModeDef;
 
 ModeDefinition ReverseModeDef {"Reverse"};
-ModeDefinition* ReverseMode = &ReverseModeDef;
+ModeDefinition* UIReverseMode = &ReverseModeDef;
 
 ModeDefinition SoloModeDef {"Solo"};
-ModeDefinition* SoloMode = &SoloModeDef;
+ModeDefinition* UISoloMode = &SoloModeDef;
 
 ModeDefinition SyncMasterModeDef {"SyncMaster"};
-ModeDefinition* SyncMasterMode = &SyncMasterModeDef;
+ModeDefinition* UISyncMasterMode = &SyncMasterModeDef;
 
 ModeDefinition TrackSyncMasterModeDef {"TrackSyncMaster"};
-ModeDefinition* TrackSyncMasterMode = &TrackSyncMasterModeDef;
+ModeDefinition* UITrackSyncMasterMode = &TrackSyncMasterModeDef;
 
 ModeDefinition WindowModeDef {"Window"};
-ModeDefinition* WindowMode = &WindowModeDef;
+ModeDefinition* UIWindowMode = &WindowModeDef;
 

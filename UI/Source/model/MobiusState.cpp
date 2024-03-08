@@ -22,7 +22,7 @@ void MobiusEventState::init()
 void MobiusLoopState::init()
 {
     number = 0;
-    mode = ResetMode;
+    mode = UIResetMode;
     recording = false;
     paused = false;
     frame = 0;
@@ -46,7 +46,8 @@ void MobiusLoopState::init()
     speed = false;
     pitch = false;
     mute = false;
-
+    summary = false;
+    
      eventCount = 0;
     for (int i = 0 ; i < MaxEvents ; i++)
       events[i].init();

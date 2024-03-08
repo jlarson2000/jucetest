@@ -20,8 +20,12 @@
 #include "../../util/List.h"
 //#include "MessageCatalog.h"
 
+// ActionOperator moved up here
+#include "../../model/UIAction.h"
+
 #include "MidiByte.h"
 
+#include "../../model/Trigger.h"
 #include "../../model/Binding.h"
 #include "OldBinding.h"
 
@@ -38,6 +42,8 @@
  *                                                                          *
  ****************************************************************************/
 
+// these are now in UIAction
+#if 0
 ActionOperator* OperatorMin = new ActionOperator("min", "Minimum");
 ActionOperator* OperatorMax = new ActionOperator("max", "Maximum");
 ActionOperator* OperatorCenter = new ActionOperator("center", "Center");
@@ -74,6 +80,7 @@ ActionOperator* ActionOperator::get(const char* name)
 	}
 	return found;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -147,12 +154,12 @@ void ResolvedTarget::setNext(ResolvedTarget* t)
     mNext = t;
 }
 
-OldTarget* ResolvedTarget::getTarget()
+ActionType* ResolvedTarget::getTarget()
 {
     return mTarget;
 }
 
-void ResolvedTarget::setTarget(OldTarget* t)
+void ResolvedTarget::setTarget(ActionType* t)
 {
     mTarget = t;
 }
@@ -213,21 +220,21 @@ const char* ResolvedTarget::getDisplayName()
             
     if (mObject.object != NULL) {
 
-        if (mTarget == OldTargetFunction) {
+        if (mTarget == ActionFunction) {
             Function* f = mObject.function;
             dname = f->getDisplayName();
         }
-        else if (mTarget == OldTargetUIControl) {
-            OldUIControl* uic = mObject.uicontrol;
-            dname = uic->getDisplayName();
-        }
-        else if (mTarget == OldTargetParameter) {
+        //else if (mTarget == ActionTypeUIControl) {
+        //OldUIControl* uic = mObject.uicontrol;
+        //dname = uic->getDisplayName();
+        //}
+        else if (mTarget == ActionParameter) {
             Parameter* p = mObject.parameter;
             dname = p->getDisplayName();
         }
-        else if (mTarget == OldTargetSetup ||
-                 mTarget == OldTargetPreset ||
-                 mTarget == OldTargetBindings) {
+        else if (mTarget == ActionSetup ||
+                 mTarget == ActionPreset ||
+                 mTarget == ActionBindings) {
             OldBindable* b = mObject.bindable;
             dname = b->getName();
         }
@@ -244,12 +251,12 @@ const char* ResolvedTarget::getTypeDisplayName()
     const char* type = mTarget->getDisplayName();
 
     // Scripts are TargetFunction but we'd like a more specicic name
-    if (mTarget == OldTargetFunction) {
+    if (mTarget == ActionFunction) {
         Function* f = mObject.function;
         if (f != NULL && f->eventType == RunScriptEvent)
           type = "Script";
     }
-    else if (mTarget == OldTargetParameter) {
+    else if (mTarget == ActionParameter) {
         Parameter* p = mObject.parameter;
         if (p->control)
           type = "Control";
@@ -521,8 +528,8 @@ void Action::clone(Action* src)
  
 bool Action::isSustainable()
 {
-    return (triggerMode == OldTriggerModeMomentary ||
-            triggerMode == OldTriggerModeToggle);
+    return (triggerMode == TriggerModeMomentary ||
+            triggerMode == TriggerModeToggle);
 }
 
 void Action::setPooled(bool b)
@@ -583,7 +590,7 @@ ResolvedTarget* Action::getResolvedTarget()
     return t;
 }
 
-OldTarget* Action::getTarget()
+ActionType* Action::getTarget()
 {
     ResolvedTarget* rt = getResolvedTarget();
     return (rt != NULL) ? rt->getTarget() : NULL;
@@ -628,7 +635,7 @@ void Action::parseBindingArgs()
         char save = *end;
         *end = 0;
 
-        actionOperator = ActionOperator::get(psn);
+        actionOperator = ActionOperator::find(psn);
         if (actionOperator != NULL) {
             // skip to the operand
             *end = save;
@@ -685,12 +692,12 @@ bool Action::isTargetEqual(Action* other)
  * This should only be used for a small number of internally
  * constructed actions.
  */
-void Action::setTarget(OldTarget* t)
+void Action::setTarget(ActionType* t)
 {
     setTarget(t, NULL);
 }
 
-void Action::setTarget(OldTarget* t, void* object)
+void Action::setTarget(ActionType* t, void* object)
 {
     // we may have started with an interned target, switch
     mInternedTarget = NULL;
@@ -706,13 +713,13 @@ void Action::setTarget(OldTarget* t, void* object)
  */
 void Action::setFunction(Function* f)
 {
-    setTarget(OldTargetFunction, f);
+    setTarget(ActionFunction, f);
 }
 
 Function* Action::getFunction()
 {
     Function* f = NULL;
-    if (getTarget() == OldTargetFunction)
+    if (getTarget() == ActionFunction)
       f = (Function*)getTargetObject();
     return f;
 }
@@ -733,7 +740,7 @@ Function* Action::getLongFunction()
  */
 void Action::setParameter(Parameter* p)
 {
-    setTarget(OldTargetParameter, p);
+    setTarget(ActionParameter, p);
 }
 
 /**
@@ -847,7 +854,7 @@ void Action::setMidiKey(int i)
 bool Action::isSpread() 
 {
 	bool spread = false;
-    if (getTarget() == OldTargetFunction) {
+    if (getTarget() == ActionFunction) {
         Function* f = (Function*)getTargetObject();
         if (f != NULL)
           spread = f->isSpread();

@@ -63,7 +63,7 @@ bool RescaleActionValue(Action* action, Loop* loop,
 {
     bool rescaled = false;
 
-    if (action->trigger == OldTriggerMidi) {
+    if (action->trigger == TriggerMidi) {
 
         int status = action->getMidiStatus();
         if (status == MS_CONTROL || status == MS_BEND) {
@@ -104,8 +104,8 @@ bool RescaleActionValue(Action* action, Loop* loop,
             }
         }
     }
-    else if (action->trigger == OldTriggerHost ||
-             action->trigger == OldTriggerOsc) {
+    else if (action->trigger == TriggerHost ||
+             action->trigger == TriggerOsc) {
         // These could be rescaled like MIDI CCs
         // but the original values are different.
         // punt for now and use the default range.

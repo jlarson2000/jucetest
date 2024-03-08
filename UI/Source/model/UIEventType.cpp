@@ -37,6 +37,19 @@ UIEventType::UIEventType(const char* name, const char* symbol, bool s, bool e, b
     isWeird = w;
 }
 
+UIEventType* UIEventType::find(const char* name)
+{
+    UIEventType* found = nullptr;
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        UIEventType* t = Instances[i];
+        if (strcmp(name, t->name) == 0) {
+            found = t;
+            break;
+        }
+    }
+    return found;
+}
+
 // usualy ugly SystemConstant pointer dance for auto-free
 // to avoid link conflicts with the same objects in old code
 // use the Type suffix, but should really decide if we need these at all
@@ -44,151 +57,151 @@ UIEventType::UIEventType(const char* name, const char* symbol, bool s, bool e, b
 
 // shouldn't try to display these on the timeline
 UIEventType InvokeEventObj {"Invoke", "?"};
-UIEventType* InvokeEventType = &InvokeEventObj;
+UIEventType* UIInvokeEventType = &InvokeEventObj;
 
 UIEventType ValidateEventObj {"Validate", "V"};
-UIEventType* ValidateEventType = &ValidateEventObj;
+UIEventType* UIValidateEventType = &ValidateEventObj;
 
 
 UIEventType RecordEventObj {"Record", "R", true, false, false};
-UIEventType* RecordEventType = &RecordEventObj;
+UIEventType* UIRecordEventType = &RecordEventObj;
 
 // same symbol as Record, but isEnd will color it red
 UIEventType RecordStopEventObj {"RecordStop", "R", false, true, false};
-UIEventType* RecordStopEventType = &RecordStopEventObj;
+UIEventType* UIRecordStopEventType = &RecordStopEventObj;
 
 UIEventType PlayEventObj {"Play", "P"};
-UIEventType* PlayEventType = &PlayEventObj;
+UIEventType* UIPlayEventType = &PlayEventObj;
 
 UIEventType OverdubEventObj {"Overdub", "O"};
-UIEventType* OverdubEventType = &OverdubEventObj;
+UIEventType* UIOverdubEventType = &OverdubEventObj;
 
 UIEventType MultiplyEventObj {"Multiply", "M", true, false, false};
-UIEventType* MultiplyEventType = &MultiplyEventObj;
+UIEventType* UIMultiplyEventType = &MultiplyEventObj;
 
 UIEventType MultiplyEndEventObj {"MultiplyEnd", "M", false, true, false};
-UIEventType* MultiplyEndEventType = &MultiplyEndEventObj;
+UIEventType* UIMultiplyEndEventType = &MultiplyEndEventObj;
 
 UIEventType InstantMultiplyEventObj {"InstantMultiply", "IM"};
-UIEventType* InstantMultiplyEventType = &InstantMultiplyEventObj;
+UIEventType* UIInstantMultiplyEventType = &InstantMultiplyEventObj;
 
 UIEventType InstantDivideEventObj {"InstantDivide", "ID"};
-UIEventType* InstantDivideEventType = &InstantDivideEventObj;
+UIEventType* UIInstantDivideEventType = &InstantDivideEventObj;
 
 UIEventType InsertEventObj {"Insert", "I", true, false, false};
-UIEventType* InsertEventType = &InsertEventObj;
+UIEventType* UIInsertEventType = &InsertEventObj;
 
 UIEventType InsertEndEventObj {"InsertEnd", "I", false, true, false};
-UIEventType* InsertEndEventType = &InsertEndEventObj;
+UIEventType* UIInsertEndEventType = &InsertEndEventObj;
 
 UIEventType StutterEventObj {"Stutter", "St"};
-UIEventType* StutterEventType = &StutterEventObj;
+UIEventType* UIStutterEventType = &StutterEventObj;
 
 UIEventType ReplaceEventObj {"Replace", "Rp"};
-UIEventType* ReplaceEventType = &ReplaceEventObj;
+UIEventType* UIReplaceEventType = &ReplaceEventObj;
 
 UIEventType SubstituteEventObj {"Substitute", "S"};
-UIEventType* SubstituteEventType = &SubstituteEventObj;
+UIEventType* UISubstituteEventType = &SubstituteEventObj;
 
 // I think the next three are internal only
 UIEventType LoopEventObj {"Loop", "?"};
-UIEventType* LoopEventType = &LoopEventObj;
+UIEventType* UILoopEventType = &LoopEventObj;
 
 UIEventType CycleEventObj {"Cycle", "?"};
-UIEventType* CycleEventType = &CycleEventObj;
+UIEventType* UICycleEventType = &CycleEventObj;
 
 UIEventType SubCycleEventObj {"Subcycle", "?"};
-UIEventType* SubCycleEventType = &SubCycleEventObj;
+UIEventType* UISubCycleEventType = &SubCycleEventObj;
 
 UIEventType ReverseEventObj {"Reverse", "Rv"};
-UIEventType* ReverseEventType = &ReverseEventObj;
+UIEventType* UIReverseEventType = &ReverseEventObj;
 
 // I think internal due to latency compensation
 UIEventType ReversePlayEventObj {"ReversePlay", "?"};
-UIEventType* ReversePlayEventType = &ReversePlayEventObj;
+UIEventType* UIReversePlayEventType = &ReversePlayEventObj;
 
 UIEventType SpeedEventObj {"Speed", "Sp"};
-UIEventType* SpeedEventType = &SpeedEventObj;
+UIEventType* UISpeedEventType = &SpeedEventObj;
 
 UIEventType RateEventObj {"Rate", "Ra"};
-UIEventType* RateEventType = &RateEventObj;
+UIEventType* UIRateEventType = &RateEventObj;
 
 UIEventType PitchEventObj {"Pitch", "Pi"};
-UIEventType* PitchEventType = &PitchEventObj;
+UIEventType* UIPitchEventType = &PitchEventObj;
 
 UIEventType BounceEventObj {"Bounce", "B"};
-UIEventType* BounceEventType = &BounceEventObj;
+UIEventType* UIBounceEventType = &BounceEventObj;
 
 UIEventType MuteEventObj {"Mute", "Mu"};
-UIEventType* MuteEventType = &MuteEventObj;
+UIEventType* UIMuteEventType = &MuteEventObj;
 
 // should be filtered
 UIEventType JumpPlayEventObj {"Jump", "J"};
-UIEventType* JumpPlayEventType = &JumpPlayEventObj;
+UIEventType* UIJumpPlayEventType = &JumpPlayEventObj;
 
 UIEventType UndoEventObj {"Undo", "U"};
-UIEventType* UndoEventType = &UndoEventObj;
+UIEventType* UIUndoEventType = &UndoEventObj;
 
 UIEventType RedoEventObj {"Redo", "Re"};
-UIEventType* RedoEventType = &RedoEventObj;
+UIEventType* UIRedoEventType = &RedoEventObj;
 
 // how does this differ from RunScriptEventObj?
 UIEventType ScriptEventObj {"Script", "Sc", false, false, true};
-UIEventType* ScriptEventType = &ScriptEventObj;
+UIEventType* UIScriptEventType = &ScriptEventObj;
 
 UIEventType StartPointEventObj {"StartPoint", "SP"};
-UIEventType* StartPointEventType = &StartPointEventObj;
+UIEventType* UIStartPointEventType = &StartPointEventObj;
 
 UIEventType RealignEventObj {"Realign", "Rl"};
-UIEventType* RealignEventType = &RealignEventObj;
+UIEventType* UIRealignEventType = &RealignEventObj;
 
 // probably only in scripts, but might be nice to see
 UIEventType MidiStartEventObj {"MIDIStart", "Ms"};
-UIEventType* MidiStartEventType = &MidiStartEventObj;
+UIEventType* UIMidiStartEventType = &MidiStartEventObj;
 
 // these are common and really need an icon
 UIEventType SwitchEventObj {"Switch", "LS"};
-UIEventType* SwitchEventType = &SwitchEventObj;
+UIEventType* UISwitchEventType = &SwitchEventObj;
 
 UIEventType ReturnEventObj {"Return", "Rt"};
-UIEventType* ReturnEventType = &ReturnEventObj;
+UIEventType* UIReturnEventType = &ReturnEventObj;
 
 // weird, I guess paired with ReturnEvent?
 UIEventType SUSReturnEventObj {"SUSReturn", "Rt", false, false, true};
-UIEventType* SUSReturnEventType = &SUSReturnEventObj;
+UIEventType* UISUSReturnEventType = &SUSReturnEventObj;
 
 // pretty sure these are instant
 UIEventType TrackEventObj {"Track", "Tk"};
-UIEventType* TrackEventType = &TrackEventObj;
+UIEventType* UITrackEventType = &TrackEventObj;
 
 // would be nice to capture the Script name in the event summary
 // for the extended display
 // wait, how does this differ from just ScriptEvent?
 UIEventType RunScriptEventObj {"Script", "Sc", false, false, true};
-UIEventType* RunScriptEventType = &RunScriptEventObj;
+UIEventType* UIRunScriptEventType = &RunScriptEventObj;
 
 UIEventType SampleTriggerEventObj {"Sample", "Sm"};
-UIEventType* SampleTriggerEventType = &SampleTriggerEventObj;
+UIEventType* UISampleTriggerEventType = &SampleTriggerEventObj;
 
 // not sure if these can happen
 UIEventType SyncEventObj {"Sync", "Sy"};
-UIEventType* SyncEventType = &SyncEventObj;
+UIEventType* UISyncEventType = &SyncEventObj;
 
 UIEventType SlipEventObj {"Slip", "Sl"};
-UIEventType* SlipEventType = &SlipEventObj;
+UIEventType* UISlipEventType = &SlipEventObj;
 
 UIEventType MoveEventObj {"Move", "Mv"};
-UIEventType* MoveEventType = &MoveEventObj;
+UIEventType* UIMoveEventType = &MoveEventObj;
 
 UIEventType ShuffleEventObj {"Shuffle", "Sh"};
-UIEventType* ShuffleEventType = &ShuffleEventObj;
+UIEventType* UIShuffleEventType = &ShuffleEventObj;
 
 // I think just somethign I use for debugging
 UIEventType SyncCheckEventObj {"SyncCheck", "?"};
-UIEventType* SyncCheckEventType = &SyncCheckEventObj;
+UIEventType* UISyncCheckEventType = &SyncCheckEventObj;
 
 UIEventType MidiOutEventObj {"MIDIOut", "Mo"};
-UIEventType* MidiOutEventType = &MidiOutEventObj;
+UIEventType* UIMidiOutEventType = &MidiOutEventObj;
 
 /****************************************************************************/
 /****************************************************************************/

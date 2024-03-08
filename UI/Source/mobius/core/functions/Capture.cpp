@@ -39,7 +39,8 @@ CaptureModeType::CaptureModeType() :
 	minor = true;
 }
 
-MobiusMode* CaptureMode = new CaptureModeType();
+CaptureModeType CaptureModeObj;
+MobiusMode* CaptureMode = &CaptureModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //

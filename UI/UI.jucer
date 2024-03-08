@@ -268,6 +268,7 @@
           <FILE id="QooRmj" name="Layer.h" compile="0" resource="0" file="Source/mobius/core/Layer.h"/>
           <FILE id="MjJST1" name="Loop.cpp" compile="1" resource="0" file="Source/mobius/core/Loop.cpp"/>
           <FILE id="A548Vd" name="Loop.h" compile="0" resource="0" file="Source/mobius/core/Loop.h"/>
+          <FILE id="q1lpim" name="Mapper.cpp" compile="1" resource="0" file="Source/mobius/core/Mapper.cpp"/>
           <FILE id="BHbh81" name="Mapper.h" compile="0" resource="0" file="Source/mobius/core/Mapper.h"/>
           <FILE id="W6SHN9" name="Messages.h" compile="0" resource="0" file="Source/mobius/core/Messages.h"/>
           <FILE id="o71Rla" name="MidiByte.h" compile="0" resource="0" file="Source/mobius/core/MidiByte.h"/>
@@ -283,8 +284,6 @@
           <FILE id="KyL9xW" name="MidiTransport.cpp" compile="1" resource="0"
                 file="Source/mobius/core/MidiTransport.cpp"/>
           <FILE id="DkLhzz" name="MidiTransport.h" compile="0" resource="0" file="Source/mobius/core/MidiTransport.h"/>
-          <FILE id="pqDdT0" name="MidiUtil.cpp" compile="1" resource="0" file="Source/mobius/core/MidiUtil.cpp"/>
-          <FILE id="Bs6RgF" name="MidiUtil.h" compile="0" resource="0" file="Source/mobius/core/MidiUtil.h"/>
           <FILE id="lHBt2R" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/core/Mobius.cpp"/>
           <FILE id="LMQl5U" name="Mobius.h" compile="0" resource="0" file="Source/mobius/core/Mobius.h"/>
           <FILE id="H1Ewbr" name="MobiusInterface.h" compile="0" resource="0"
@@ -299,6 +298,8 @@
           <FILE id="kYFzc1" name="ObjectPool.h" compile="0" resource="0" file="Source/mobius/core/ObjectPool.h"/>
           <FILE id="eC4fld" name="OldBinding.cpp" compile="1" resource="0" file="Source/mobius/core/OldBinding.cpp"/>
           <FILE id="Fgq1Z7" name="OldBinding.h" compile="0" resource="0" file="Source/mobius/core/OldBinding.h"/>
+          <FILE id="Gx8l1C" name="OldMobiusInterface.h" compile="0" resource="0"
+                file="Source/mobius/core/OldMobiusInterface.h"/>
           <FILE id="WMBb80" name="Parameter.cpp" compile="1" resource="0" file="Source/mobius/core/Parameter.cpp"/>
           <FILE id="GWezJ4" name="Parameter.h" compile="0" resource="0" file="Source/mobius/core/Parameter.h"/>
           <FILE id="NolJMo" name="ParameterGlobal.cpp" compile="1" resource="0"
@@ -409,6 +410,8 @@
         <FILE id="s5ZXBc" name="XomParser.h" compile="0" resource="0" file="Source/util/XomParser.h"/>
       </GROUP>
       <GROUP id="{35F5BDA4-4F12-7FE6-B25F-7B2965D913CF}" name="model">
+        <FILE id="jPc72V" name="ActionType.cpp" compile="1" resource="0" file="Source/model/ActionType.cpp"/>
+        <FILE id="rE9rrD" name="ActionType.h" compile="0" resource="0" file="Source/model/ActionType.h"/>
         <FILE id="DDTUb4" name="Binding.cpp" compile="1" resource="0" file="Source/model/Binding.cpp"/>
         <FILE id="Kl8nMI" name="Binding.h" compile="0" resource="0" file="Source/model/Binding.h"/>
         <FILE id="azEsBL" name="ExValue.cpp" compile="1" resource="0" file="Source/model/ExValue.cpp"/>
@@ -443,6 +446,8 @@
         <FILE id="UvI59d" name="Structure.h" compile="0" resource="0" file="Source/model/Structure.h"/>
         <FILE id="JZYXKm" name="SystemConstant.h" compile="0" resource="0"
               file="Source/model/SystemConstant.h"/>
+        <FILE id="Gs8SHl" name="Trigger.cpp" compile="1" resource="0" file="Source/model/Trigger.cpp"/>
+        <FILE id="A7dZul" name="Trigger.h" compile="0" resource="0" file="Source/model/Trigger.h"/>
         <FILE id="AbOPmx" name="UIAction.cpp" compile="1" resource="0" file="Source/model/UIAction.cpp"/>
         <FILE id="coRPMH" name="UIAction.h" compile="0" resource="0" file="Source/model/UIAction.h"/>
         <FILE id="vOMGOg" name="UIConfig.cpp" compile="1" resource="0" file="Source/model/UIConfig.cpp"/>

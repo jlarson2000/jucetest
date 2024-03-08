@@ -10,12 +10,18 @@
  */
 
 #include "Mapper.h"
+// MobiusListener
+#include "OldMobiusInterface.h"
 
+// ActionOperator moved up here
+#include "../../model/UIAction.h"
 
 #include "Action.h"
 #include "Export.h"
 #include "Mobius.h"
 #include "../../model/MobiusConfig.h"
+#include "../../model/Trigger.h"
+#include "../../model/ActionType.h"
 #include "MobiusThread.h"
 #include "Script.h"
 #include "ScriptRuntime.h"
@@ -82,19 +88,19 @@ void ActionDispatcher::doAction(Action* a)
     // we can let these set controls and maybe parameters
     // but
 
-    OldTarget* target = a->getTarget();
+    ActionType* target = a->getTarget();
 
     if (a->isRegistered()) {
         // have to clone these to do them...error in the UI
         Trace(1, "Attempt to execute a registered action!\n");
         ignore = true;
     }
-    else if (a->repeat && a->triggerMode != OldTriggerModeContinuous) {
+    else if (a->repeat && a->triggerMode != TriggerModeContinuous) {
         Trace(3, "Ignoring auto-repeat action\n");
         ignore = true;
     }
     else if (a->isSustainable() && !a->down && 
-             target != OldTargetFunction && target != OldTargetUIControl) {
+             target != ActionFunction) {
         // Currently functions and UIControls are the only things that support 
         // up transitions.  UIControls are messy, generalize this to 
         // be more like a parameter with trigger properties.
@@ -112,21 +118,21 @@ void ActionDispatcher::doAction(Action* a)
         // need to test this
         doActionNow(a);
     }
-    else if (a->trigger == OldTriggerScript ||
-             a->trigger == OldTriggerEvent ||
+    else if (a->trigger == TriggerScript ||
+             a->trigger == TriggerEvent ||
              // !! can't we use this reliably and not worry about trigger?
-             a->inInterrupt ||
-             target == OldTargetUIControl ||
-             target == OldTargetUIConfig ||
-             target == OldTargetBindings) {
-
+             a->inInterrupt) {
+        //target == OldTargetUIControl ||
+        //target == OldTargetUIConfig ||
+        //target == OldTargetBindings)
+        
         // Script and Event triggers are in the interrupt
         // The UI targets don't have restrictions on when they can change.
         // Bindings are used outside the interrupt.
 
         doActionNow(a);
     }
-    else if (target == OldTargetFunction) {
+    else if (target == ActionFunction) {
 
         Function* f = (Function*)a->getTargetObject();
         if (f == NULL) {
@@ -157,7 +163,7 @@ void ActionDispatcher::doAction(Action* a)
         else
           defer = true;
     }
-    else if (target == OldTargetParameter) {
+    else if (target == ActionParameter) {
         // TODO: Many parameters are safe to set outside
         // defrering may cause UI flicker if the change
         // doesn't happen right away and we immediately do a refresh
@@ -250,7 +256,7 @@ void ActionDispatcher::startInterrupt(long frames)
  */
 void ActionDispatcher::doActionNow(Action* a)
 {
-    OldTarget* t = a->getTarget();
+    ActionType* t = a->getTarget();
 
     // not always set if comming from the outside
     a->mobius = mMobius;
@@ -258,31 +264,31 @@ void ActionDispatcher::doActionNow(Action* a)
     if (t == NULL) {
         Trace(1, "Action with no target!\n");
     }
-    else if (t == OldTargetFunction) {
+    else if (t == ActionFunction) {
         doFunction(a);
     }
-    else if (t == OldTargetParameter) {
+    else if (t == ActionParameter) {
         doParameter(a);
     }
-    else if (t == OldTargetUIControl) {
-        doUIControl(a);
-    }
-    else if (t == OldTargetScript) {
+    //else if (t == OldTargetUIControl) {
+    //doUIControl(a);
+    //}
+    else if (t == ActionScript) {
         mScripts->doScriptNotification(a);
     }
-    else if (t == OldTargetPreset) {
+    else if (t == ActionPreset) {
         doPreset(a);
     }
-    else if (t == OldTargetSetup) {
+    else if (t == ActionSetup) {
         doSetup(a);
     }
-    else if (t == OldTargetBindings) {
+    else if (t == ActionBindings) {
         doBindings(a);
     }
-    else if (t == OldTargetUIConfig) {
-        // not supported yet, there is only one UIConfig
-        Trace(1, "UIConfig action not supported\n");
-    }
+    //else if (t == OldTargetUIConfig) {
+    //// not supported yet, there is only one UIConfig
+    //Trace(1, "UIConfig action not supported\n");
+    //}
     else {
         Trace(1, "Invalid action target\n");
     }
@@ -391,7 +397,7 @@ void ActionDispatcher::doSetup(Action* a)
         // point to an object from the external config but we have
         // to set one from the interrupt config by number
         // mMobius->getConfiguration()->setCurrentSetup(number);
-        SetActiveSetup(mMobius->getConfiguration(), number);
+        SetCurrentSetup(mMobius->getConfiguration(), number);
         mMobius->setSetupInternal(number);
 
         // special operator just for setups to cause it to be saved
@@ -454,7 +460,7 @@ void ActionDispatcher::doFunction(Action* a)
 {
     // Client's won't set down in some trigger modes, but there is a lot
     // of code from here on down that looks at it
-    if (a->triggerMode != OldTriggerModeMomentary)
+    if (a->triggerMode != TriggerModeMomentary)
       a->down = true;
 
     // Only functions track long-presses, though we could
@@ -722,7 +728,7 @@ void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
     else { 
         int min = p->getLow();
         //int max = p->getHigh(mMobius);
-        int max = GetHigh(p, mMobius);
+        int max = p->getHigh(mMobius);
        
         if (min == 0 && max == 0) {
             // not a ranged type
@@ -777,15 +783,17 @@ void ActionDispatcher::doParameter(Action* a, Parameter* p, Track* t)
  */
 void ActionDispatcher::doUIControl(Action* a)
 {
+#if 0    
     UIControl* c = (UIControl*)a->getTargetObject();
     if (c == NULL) {
         Trace(1, "Missing action UI Control\n");
     }
     else {
-        MobiusListener* listener = mMobius->getListener();
+        OldMobiusListener* listener = mMobius->getListener();
         if (listener != NULL)
           listener->MobiusAction(a);
     }
+#endif    
 }
 
 /****************************************************************************/

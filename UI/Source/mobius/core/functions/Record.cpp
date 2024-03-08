@@ -368,7 +368,7 @@ void RecordFunction::invokeLong(Action* action, Loop* l)
         // !! No, if we go through Mobius::doAction we can't use the 
         // original trigger.  think about this...
 
-        a->trigger = OldTriggerEvent;
+        a->trigger = TriggerEvent;
         a->inInterrupt = true;
         a->down = true;
         a->setFunction(Reset);

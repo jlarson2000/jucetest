@@ -6,7 +6,7 @@
  *
  * This interface provides a way for them to be dealt with generically
  * in the configuration user interface, and to be used in Bindings
- * with the OpActivation operation to select them for use.
+ * with the ActionActivation action type to select them for use.
  *
  * Some characteristics of a Structure
  *

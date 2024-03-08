@@ -57,8 +57,8 @@ class FunctionDefinition : public SystemConstant {
     //////////////////////////////////////////////////////////////////////
 
     static std::vector<FunctionDefinition*> Functions;
+	static FunctionDefinition* find(const char* name);
     static void dumpFunctions();
-	static FunctionDefinition* getFunction(const char* name);
 
   private:
 

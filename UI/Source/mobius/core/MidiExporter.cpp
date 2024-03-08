@@ -131,13 +131,13 @@ Export* MidiExporter::convertBinding(Mobius* mobius, OldBinding* b)
     Export* exp = NULL;
 
     // only concerned with things that can be controlled with knobs
-    OldTarget* target = b->getTarget();
-    if (target == OldTargetParameter) {
+    ActionType* target = b->getTarget();
+    if (target == ActionParameter) {
 
-        OldTrigger* trigger = b->getTrigger();
+        Trigger* trigger = b->getTrigger();
 
         // I suppose Note and Program could be used for latching buttons?
-        if (trigger == OldTriggerControl) {
+        if (trigger == TriggerControl) {
             
             exp = mobius->resolveExport(b);
             if (exp != NULL) {

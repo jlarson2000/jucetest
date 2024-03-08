@@ -597,3 +597,27 @@ int ScaleValue(int value, int inmin, int inmax, int outmin, int outmax)
 
     return scaled;
 }
+
+/**
+ * Trim leading and trailing whitespace from a string buffer.
+ * Note that this MUST NOT be a static string, we modify the 
+ * buffer when trimming on the right.
+ */
+char* TrimString(char* src)
+{
+	char* start = src;
+
+	if (start != NULL) {
+		// skip preceeding whitespace
+		while (*start && isspace(*start)) start++;
+
+		// remove trailing whitespace
+		int last = strlen(start) - 1;
+		while (last >= 0 && isspace(start[last])) {
+			start[last] = '\0';
+			last--;
+		}
+	}
+
+	return start;
+}

@@ -604,7 +604,7 @@ Event* Function::invoke(Action* action, Loop* loop)
 			// Will need a flag in the script that says whether to perform
 			// quantize escaping or not and test it here
 
-			if (prev != NULL && !sus && action->trigger != OldTriggerScript) {
+			if (prev != NULL && !sus && action->trigger != TriggerScript) {
 
 				// an event was already posted, treat the second invocation
 				// as a "double click" and process the event immediately
@@ -1439,6 +1439,32 @@ void Function::initStaticFunctions()
         add(HiddenFunctions, InitCoverage);
         add(HiddenFunctions, Surface);
     }
+}
+
+/**
+ * Delete all the dynamically allocated Functions created
+ * during static initialization to clean up memory.
+ * Mostly to avoid VisualStudio barking about memory leaks.
+ *
+ * This may not work with plugins if the plugin object can be
+ * deleted and recreated several times but the Function
+ * objects are only created once during static initialization of
+ * the plugin DLL.  Will have to revisit this
+ * and start using static objects or smart containers.
+ *
+ * Such a mess, only doing static functions right now, hopefully
+ * be using a vector by the time scripts roll in.
+ * 
+ */
+void Function::deleteFunctions()
+{
+    for (int i = 0 ; StaticFunctions[i] != NULL ; i++) {
+        Function* f = StaticFunctions[i];
+        delete f;
+    }
+    
+    StaticFunctions[0] = nullptr;
+    FunctionIndex = 0;
 }
 
 /**

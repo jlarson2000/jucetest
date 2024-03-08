@@ -289,7 +289,7 @@ class Track : public RecorderTrack, public TraceContext
     class SetupTrack* mSetup;
 	class InputStream* mInput;
 	class OutputStream* mOutput;
-	class CriticalSection* mCsect;
+	//class CriticalSection* mCsect;
 	class UserVariables* mVariables;
 	class Preset* mPreset;		// private copy
 

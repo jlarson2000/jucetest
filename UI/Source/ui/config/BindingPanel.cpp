@@ -196,7 +196,7 @@ void BindingPanel::traceBindingList(const char* title, Binding* blist)
     int count = 0;
     trace("*** Bindings %s\n", title);
     while (blist != nullptr) {
-        trace("%s\n", blist->getOperationName());
+        trace("%s\n", blist->getActionName());
         blist = blist->getNext();
         count++;
     }
@@ -208,7 +208,7 @@ void BindingPanel::traceBindingList(const char* title, juce::Array<Binding*> &bl
     trace("*** Bindings %s\n", title);
     for (int i = 0 ; i < blist.size() ; i++) {
         Binding* b = blist[i];
-        trace("%s\n", b->getOperationName());
+        trace("%s\n", b->getActionName());
     }
     trace("*** %s %d total bindings\n", title, blist.size());
 }

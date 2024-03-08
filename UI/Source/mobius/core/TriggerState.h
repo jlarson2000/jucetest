@@ -43,7 +43,7 @@ class TriggerWatcher {
     /**
      * The trigger that went down.
      */
-    class OldTrigger* trigger;
+    class Trigger* trigger;
 
     /**
      * The unique id of the trigger.

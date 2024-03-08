@@ -3,14 +3,16 @@
  * This was derived from the old Action model used by the engine and heavily
  * simplified.
  *
- * It has all of the same target properties as Binding with additions for the
- * trigger and other execution state.
+ * It uses the same Trigger and ActionType constant objects as Binding
+ * and is usually built from a Binding but can exist independently.
  *
  */
 
 #pragma once
 
 #include "SystemConstant.h"
+#include "Trigger.h"
+#include "ActionType.h"
 #include "Binding.h"
 
 // sigh, need this until we can figure out what to do with ExValue
@@ -18,42 +20,12 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// ActionOperator
+// Implementation
 //
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Constants that describe operations that produce a relative change to
- * a control or parameter binding.
- */
-class ActionOperator : public SystemConstant {
-  public:
-    static ActionOperator* get(const char* name);
-
-    ActionOperator(const char* name, const char* display);
-
-    static std::vector<ActionOperator*> Operators;
-	static ActionOperator* getOperator(const char* name);
-
-    int ordinal;
-};
-
-extern ActionOperator* OperatorMin;
-extern ActionOperator* OperatorMax;
-extern ActionOperator* OperatorCenter;
-extern ActionOperator* OperatorUp;
-extern ActionOperator* OperatorDown;
-extern ActionOperator* OperatorSet;
-extern ActionOperator* OperatorPermanent;
-
-//////////////////////////////////////////////////////////////////////
-//
-// OperationObject
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Union of possible operation implementation pointers.
+ * Union of possible action implementation pointers.
  * This is set during the resolution of the symbolic references
  * in the Binding (or UIButton) objects to the concrete objects
  * that are named.
@@ -77,7 +49,7 @@ typedef union {
     int ordinal;
     //class Bindable* bindable;
 
-} OperationImplementation;
+} ActionImplementation;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -236,18 +208,18 @@ class UIAction {
 	bool longPress;
 
     //////////////////////////////////////////////////////////////////////
-    // Operation
+    // Action
     //////////////////////////////////////////////////////////////////////
 
     /**
      * The type of Operation to perform (Function, Parameter, or Activate)
      */
-    Operation* op;
+    ActionType* type;
 
     /**
-     * The name of the operation to perform
+     * The name of the internal object that defines what the action does.
      */
-    char operationName[MAX_TARGET_NAME];
+    char actionName[MAX_TARGET_NAME];
 
     /**
      * A resolved pointer to a system constant object like Function
@@ -255,7 +227,7 @@ class UIAction {
      * that can be activated, it will be ordinal of the object.
      * 
      */
-    OperationImplementation implementation;
+    ActionImplementation implementation;
     
     /**
      * Alternate function to have the up transition after a long press.  

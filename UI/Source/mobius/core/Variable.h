@@ -28,7 +28,8 @@ class ScriptInternalVariable {
   public:
 
     static ScriptInternalVariable* getVariable(const char* name);
-
+    static void deleteVariables();
+    
     ScriptInternalVariable();
     ~ScriptInternalVariable();
 

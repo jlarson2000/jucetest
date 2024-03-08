@@ -79,10 +79,10 @@ Binding* BindingTable::captureBindings()
         Binding* b = bindings.removeAndReturn(0);
         // clearing lingering chain pointer for cascaded delete
         b->setNext(nullptr);
-        trace("%s\n", b->getOperationName());
+        trace("%s\n", b->getActionName());
         // filter out uninitialized rows
-        if (StringEqual(b->getOperationName(), NewBindingName)) {
-            trace("filering %s\n", b->getOperationName());
+        if (StringEqual(b->getActionName(), NewBindingName)) {
+            trace("filtering %s\n", b->getActionName());
             delete b;
         }
         else {
@@ -110,7 +110,7 @@ void BindingTable::clear()
 
 bool BindingTable::isNew(Binding* b)
 {
-    return StringEqual(b->getOperationName(), NewBindingName);
+    return StringEqual(b->getActionName(), NewBindingName);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@ void BindingTable::buttonClicked(juce::String name)
             if (neu == nullptr) {
                 // generate a placeholder
                 neu = new Binding();
-                neu->setOperationName(NewBindingName);
+                neu->setActionName(NewBindingName);
             }
             
             bindings.add(neu);
@@ -308,7 +308,7 @@ juce::String BindingTable::getCellText(int row, int columnId)
     
     if (columnId == targetColumn) {
         // start with just the name and add prefixes when necessary
-        cell = juce::String(b->getOperationName());
+        cell = juce::String(b->getActionName());
     }
     else if (columnId == triggerColumn) {
         if (listener != nullptr)

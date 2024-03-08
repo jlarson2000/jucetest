@@ -1,3 +1,12 @@
+// UserVariables lost built-in XML transformation in the external model
+// which moved everything to XmlRenderer
+//
+// Projects used that, though UserVariables were rarely if ever used
+// Projects are a mess in general, decide whether these should have
+// a private XML transformer (probably) outside of XmlRenderer
+// and restore UserVarables.toXml
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -27,7 +36,7 @@
 
 #include "Loop.h"
 #include "Mobius.h"
-#include "../../../model/MobiusConfig.h"
+#include "../../model/MobiusConfig.h"
 #include "Layer.h"
 #include "Project.h"
 #include "../../model/Setup.h"
@@ -90,6 +99,7 @@
 #define ATT_CONTAINS_DEFERRED_FADE_RIGHT "containsDeferredFadeRight"
 #define ATT_REVERSE_RECORD "reverseRecord"
 
+#define EL_VARIABLES "Variables"
 
 /****************************************************************************
  *                                                                          *
@@ -573,7 +583,11 @@ void ProjectLayer::writeAudio(const char* baseName, int tracknum, int loopnum,
         // the previous path?  could be out of order by now
         setPath(path);
 
-        mAudio->write(path);
+        // like memory allocation, Project is going to need to write files
+        // push it up to Container? or should we just allow limited
+        // file access down here?
+        // will probably want Container to have more control over paths
+        WriteAudio(mAudio, path);
     }
 
 	if (mOverdub != NULL && !mOverdub->isEmpty()) {
@@ -581,7 +595,7 @@ void ProjectLayer::writeAudio(const char* baseName, int tracknum, int loopnum,
         sprintf(path, "%s-%d-%d-%d-overdub.wav", baseName, 
 				tracknum, loopnum, layernum);
 		setOverdubPath(path);
-		mOverdub->write(path);
+		WriteAudio(mOverdub, path);
 	}
 
 }
@@ -1242,9 +1256,12 @@ void ProjectTrack::toXml(XmlBuffer* b, bool isTemplate)
 			}
 		}
 
+        // UserVariables lost XML at some point, need to restore
+#if 0        
 		if (mVariables != NULL)
 		  mVariables->toXml(b);
-
+#endif
+        
 		b->decIndent();
 		b->addEndTag(EL_TRACK);
 	}
@@ -1267,7 +1284,9 @@ void ProjectTrack::parseXml(XmlElement* e)
 
 		if (child->isName(EL_VARIABLES)) {
 			delete mVariables;
-			mVariables = new UserVariables(child);
+            // lost UserVariables XML
+			//mVariables = new UserVariables(child);
+            mVariables = nullptr;
 		}
 		else
 		  add(new ProjectLoop(child));
@@ -1617,9 +1636,12 @@ void Project::toXml(XmlBuffer* b, bool isTemplate)
 			}
 		}
 
+        // lost UserVariables XML
+#if 0        
 		if (mVariables != NULL)
 		  mVariables->toXml(b);
-
+#endif
+        
 		b->decIndent();
 		b->addEndTag(EL_PROJECT);
 	}
@@ -1642,7 +1664,10 @@ void Project::parseXml(XmlElement* e)
 
 		if (child->isName(EL_VARIABLES)) {
 			delete mVariables;
-			mVariables = new UserVariables(child);
+            // we lost the ability for UserVariables to have XML at some point
+            // should restore
+			//mVariables = new UserVariables(child);
+            mVariables = nullptr;
 		}
 		else
 		  add(new ProjectTrack(child));
@@ -1718,8 +1743,10 @@ void Project::read(AudioPool* pool, const char* file)
  * After reading the Project structure from XML, traverse the hierarhcy
  * and load any referenced Audio files.
  */
+// !! FILES
 void Project::readAudio(AudioPool* pool)
 {
+#if 0    
     if (pool != NULL && mTracks != NULL) {
         for (int i = 0 ; i < mTracks->size() ; i++) {
             ProjectTrack* track = (ProjectTrack*)mTracks->get(i);
@@ -1743,6 +1770,7 @@ void Project::readAudio(AudioPool* pool)
             }
         }
     }
+#endif    
 }
 
 void Project::write()

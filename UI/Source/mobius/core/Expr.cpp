@@ -70,9 +70,13 @@
 #include "../../util/Vbuf.h"
 #include "../../util/Trace.h"
 #include "../../util/List.h"
+// ExValue and ExValue list are now in model/ExValue
+#include "../../model/ExValue.h"
 
 #include "Expr.h"
 
+
+#if 0
 //////////////////////////////////////////////////////////////////////
 //
 // ExValueList
@@ -871,6 +875,7 @@ ExValue* ExValue::getList(int index)
 	  value = mList->getValue(index);
 	return value;
 }
+#endif
 
 /****************************************************************************
  *                                                                          *

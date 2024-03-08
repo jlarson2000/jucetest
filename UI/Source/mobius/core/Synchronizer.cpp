@@ -1104,7 +1104,7 @@ Event* Synchronizer::scheduleRecordStart(Action* action,
 		// a script Wait, it will be done relative to -InputLatency.
 		// Try to detect this and preemtively set the frame to zero.
 		// !! does the source matter, do this always?
-		if (action->trigger == OldTriggerScript) {
+		if (action->trigger == TriggerScript) {
 			long frame = l->getFrame();
 			if (frame == event->frame) {
 				l->setFrame(0);

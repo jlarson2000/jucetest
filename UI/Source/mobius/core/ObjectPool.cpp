@@ -379,13 +379,12 @@ PooledObject* ObjectPool::allocNew()
  * Called indirectly by the interrupt handler when it wants the
  * maintenance thread to run soon.
  */
-/*
 void ObjectPool::requestMaintenance()
 {
-    if (mThread != NULL)
-      mThread->signal();
+    // not a Thread any more
+    //if (mThread != NULL)
+    //mThread->signal();
 }
-*/
 
 /**
  * Called by the interrupt handler to allocate an object.

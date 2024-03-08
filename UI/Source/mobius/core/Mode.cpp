@@ -181,6 +181,25 @@ MobiusMode** MobiusMode::getModes()
 }
 
 /**
+ * Call this to release resources during shutdown to avoid
+ * exit warnings and in general be a good plugin citizen.
+ * Would be better if these were static objects.
+ *
+ * It's ugly because we can't see how these were created.
+ * Instantiation is strewn about in various files that
+ * contain Function specific code.  They seem to all be
+ * created dynamically with new.
+ */
+void MobiusMode::deleteModes()
+{
+    for (int i = 0 ; Modes[i] != NULL ; i++) {
+        MobiusMode* m = Modes[i];
+        delete m;
+    }
+    Modes[0] = nullptr;
+}
+
+/**
  * Search for a mode by name or display name.
  */
 MobiusMode* MobiusMode::getMode(const char* name) 

@@ -71,6 +71,7 @@
 #include "Project.h"
 //#include "Recorder.h"
 #include "Script.h"
+#include "../../model/ScriptConfig.h"
 #include "Synchronizer.h"
 #include "Track.h"
 #include "../../model/UserVariable.h"

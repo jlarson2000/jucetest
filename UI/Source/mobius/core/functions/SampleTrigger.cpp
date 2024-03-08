@@ -1,3 +1,14 @@
+//
+// left over from when Samples were handled in core, now they're
+// up in kernel
+//
+// what's left here could still be interesting if we wanted
+// to schedule a SmapleTriggerEvent for quantized playback
+// of a Sample.  I don't think we ever did that, and if we
+// want that someday, work it into the more general event timeline
+// that isn't soo wrapped up in the legacy model
+//
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -103,8 +114,12 @@ void SampleTriggerFunction::invoke(Action* action, Mobius* m)
         // args are 1 based, convert
         sampleIndex--;
 
-        if (sampleIndex >= 0)
-          m->sampleTrigger(action, sampleIndex);
+        if (sampleIndex >= 0) {
+            // got all the way here with no place to go!
+            // ordinally would have handled this up in kernel/Recorder
+            Trace(1, "SampleTriggerFunction::invoke went through all this work for nothing!\n");
+            // m->sampleTrigger(action, sampleIndex);
+        }
     }
 }
 

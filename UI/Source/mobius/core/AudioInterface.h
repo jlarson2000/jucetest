@@ -418,7 +418,7 @@ class StubAudioStream : public AudioStream
         return mHandler;
     }
     
-	bool open() {}
+	bool open() { return false;}
 	void close() {}
 
 	const char* getLastError() {

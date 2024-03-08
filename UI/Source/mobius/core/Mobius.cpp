@@ -9,6 +9,11 @@
 #include <ctype.h>
 
 #include "Mapper.h"
+#include "OldMobiusInterface.h"
+// ActionOperator moved up here
+// factor this out into the ActionConstants file
+#include "../../model/UIAction.h"
+
 
 #include "../../util/Util.h"
 //#include "Thread.h"
@@ -45,6 +50,9 @@
 #include "TriggerState.h"
 #include "../../model/UserVariable.h"
 #include "WatchPoint.h"
+
+// for ScriptInternalVariable, encapsulation sucks
+#include "Variable.h"
 
 // temporary
 #include "OldBinding.h"
@@ -108,34 +116,44 @@ Mobius::Mobius(MobiusKernel* kernel)
 
     mKernel = kernel;
     mContainer = kernel->getContainer();
+
     // adapters for old interfaces
     
     mMidi = new StubMidiInterface();
     mAudioInterface = new StubAudioInterface();
     mAudioStream = new StubAudioStream(mAudioInterface);
     mAudioPool = kernel->getAudioPool();
-    
-    // this is now shared with Kernel
-    // do not call installConfiguration yet, just save it for later
-    mConfig = kernel->getMobiusConfig();
+	mRecorder = kernel->getRecorder();
+
+    // Kernel may not have a MobiusConfig yet so have to wait
+    // to do anything until initialize() is called
+
+    mConfig = nullptr;
     
     // this used to be a copy but now we share it
     // a lot of code still references this so keep the illusion for now
     mInterruptConfig = mConfig;
     mInterruptSetup = nullptr;
+	mInterruptStream = NULL;
     
     // don't need the "pending" concept any more
     mPendingInterruptConfig = NULL;
+    mPendingSetup = -1;
 
-    // might still be relevant? 
-    mHostConfigs = loadHostConfiguration();
+    //
+    // Legacy Initialization
+    //
 
+    // might still be relevant?
+    // this used a separate host.xml file I don't want to mess with right now
+    //mHostConfigs = loadHostConfiguration();
+    mHostConfigs = nullptr;
+    
     // this only really provided the AudioStream, don't bring it over
 	//mContext = context;
     
     // try to avoid direct references to this and only ask Kernel
     // when we need it
-	//mRecorder = NULL;
 
     // still exists but shouldn't need it down here
 	//mSampleTrack = NULL;
@@ -149,8 +167,6 @@ Mobius::Mobius(MobiusKernel* kernel)
     mEventPool = new EventPool();
     mActionPool = new ActionPool();
     mListener = NULL;
-	mConfig = NULL;
-    mPendingSetup = -1;
     mScriptThreadCounter = 0;
     mResolvedTargets = NULL;
     mBindingResolver = NULL;
@@ -168,7 +184,6 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mScripts = NULL;
     mActions = NULL;
     mLastAction = NULL;
-	mInterruptStream = NULL;
 	mInterrupts = 0;
 	mCustomMode[0] = 0;
 	mPendingProject = NULL;
@@ -187,40 +202,219 @@ Mobius::Mobius(MobiusKernel* kernel)
     // let's turn debug stream output on for now, what uses this??
     TraceToDebug = true;
     
-    // initialize the static object tables
+    // initialize the object tables
+    // some of these use "new" and just be deleted on shutdown
     MobiusMode::initModes();
     Function::initStaticFunctions();
     Parameter::initParameters();
 
 	//parseCommandLine();
-
-	// set these early so we can trace errors during initialization
-	TracePrintLevel = mConfig->getTracePrintLevel();
-	TraceDebugLevel = mConfig->getTraceDebugLevel();
-
 }
 
 /**
- * Called by Kernel at a suitable time after construction to flesh out the
- * internal components.
+ * Quite different now since we don't own everything.
+ * It is currently required that you call shutdown first.
  */
-void Mobius::initialize(class MobiusConfig* config)
+Mobius::~Mobius()
 {
-    // already did this in the constructor and it should be the same
-    // simplify this
-    // mConfig = config;
+	if (!mHalting) {
+        shutdown();
+    }
+	else {
+		Trace(1, "Mobius::~Mobius mHalting was set!\n");
+	}
 
-    // is this the equivalent of the old start() ?
-    start();
+    // interesting stats
+    // don't have history any more
+    Trace(2, "Mobius: %ld MobiusConfigs on the history list\n",
+          (long)mConfig->getHistoryCount());
+
+    // these were formerly deleted but are now shared with Kernel
+	//delete mContext;
+	//delete mConfig;
+    //delete mInterruptConfig;
+    //delete mPendingInterruptConfig;
+	//delete mRecorder;	// will delete the Tracks too
+    //mAudioPool->dump();
+    //delete mAudioPool;
+
+    delete mWatchers;
+    delete mTriggerState;
+	delete mThread;
+	delete mBindingResolver;
+    delete mMidiExporter;
+	//delete mOsc;
+    //delete mControlSurfaces;
+
+    // functions are a mess, this is an array that combined
+    // StaticFunctions with generated Script functions
+    // and deleting the array won't delete the pointers in it
+    delete mFunctions;
+    
+	delete mScriptEnv;
+
+    // tracks are a mess too, we created them and put them in this
+    // array but they were owned by Recorder which deleted them
+    // since Recorder is outside our control now, shutdown() must have
+    // detached them and here we delete them
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        delete t;
+	}
+    delete mTracks;
+    
+	delete mSynchronizer;
+	//delete mCatalog;
+    delete mVariables;
+
+    // avoid a warning message
+    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext())
+      t->setInterned(false);
+    delete mResolvedTargets;
+
+    // sweet jesus this is aweful, redesign
+	flushObjectPools();
+    
+    mActionPool->dump();
+    delete mActionPool;
+
+    mEventPool->dump();
+    delete mEventPool;
+
+    mLayerPool->dump();
+    delete mLayerPool;
+
+    // these are now stubs, but we own them
+    // do them last since the things above may have listened on them
+    delete mMidi;
+    delete mAudioStream;
+
+    MobiusMode::deleteModes();
+    Function::deleteFunctions();
+    Parameter::deleteParameters();
+
+    // the Variables and the containing array
+    // are statically constructted
+    ScriptInternalVariable::deleteVariables();
+    WatchPoint::deleteWatchPoints();
+    
 }
 
 /**
  * Called by Kernel during application shutdown to release any resources,
  * though at this point since we can't allocate memory there
  * shouldn't be much to do.
+ *
+ * Some semantic ambiguity here.
+ * In old code this left most of the internal structure intact, it just
+ * disconnected from the devices.  The notion being that after
+ * you constructed a Mobius, you could call start() and stop() several times
+ * then delete it when finally done.
+ *
+ * I don't think we need to retain that, the current assumption is that you
+ * won't call shutdown until you're ready to delete it, and if that holds
+ * this could all just be done in the destructore.
  */
 void Mobius::shutdown()
 {
+	mHalting = true;
+
+	// no more events, especially important if clocks are being received
+	if (mMidi != NULL) {
+		mMidi->setListener(NULL);
+		// Transport should have done this but make sure
+		mMidi->setClockListener(NULL);
+	}
+
+    // this is pretending to be a thread but it actually isn't
+#if 0
+	if (mThread != NULL && mThread->isRunning()) {
+		if (!mThread->stopAndWait()) {
+			// unusual, must be stuck, continuing may crash
+			NewTraceListener = NULL;
+			Trace(1, "Mobius: Unable to stop Mobius thread!\n");
+		}
+	}
+#endif
+
+    // the thread registered itself as the TraceListner, need to prune
+    // that and obviously the interface sucks here
+    NewTraceListener = nullptr;
+    
+	// shutting down the Recorder will stop the timer which will send
+	// a final MIDI stop event if the timer has a MidiOutput port,
+	// not sure how necessary that is if we're being deleted, but
+	// may as well
+    // UPDATE: not managed down here
+	//if (mRecorder != NULL)
+    //mRecorder->shutdown();
+
+	// sleep to make sure we're not in a timer or midi interrupt
+    // MobiusContainer can do this now
+	SleepMillis(100);
+
+	// paranioa to help catch shutdown errors
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->setHalting(true);
+	}
+
+    // new, awkward control flow
+    // Track owns an EventManager which for some reason deals only with events
+    // for that Track rather than using a common Event timeline
+    // EventManager has an Event list, and when you free them they go
+    // into the EventPool, created obscurely by initObjectPools in MobiusPools
+    // Recorder considers itself the owner of the Tracks and will delete them
+    // but since Recorder moved up a level it will be deleted AFTER Mobius
+    // or at an undefined time
+    // since deleting a Track needs touch the EventPool, and deleting Mobius
+    // deletes the EventPool, this has undefined behavior
+    // Since Mobius really should be in control over Track deletion
+    // let's take the approach that it must remove the Tracks from recorder during
+    // destruction which is correct encapsulation, but this is still WAY too messy
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        mRecorder->remove(t);
+	}
+
+    // !! clear the Layer pool?  Not if we're in a VST and will
+	// resume again later...
+	// this could cause large leaks
+
+	// NOTE: Do not assume that we can shut down the MidiInterface,
+	// this may be shared if the VST DLL is open more than once?
+	// Or if the VST is brought up again after closing.
+}
+
+/**
+ * Called by Kernel at a suitable time after construction to flesh out the
+ * internal components.  We now have a MobiusConfig to pull things from.
+ *
+ * This is where we would do "light" initialization necessary for the
+ * plugin host to probe the plugin for it's interface without actually
+ * making it do anything.
+ *
+ * When the plugin is actually going to be used start() is called.
+ * Until we get to plugins, do start() immediately, which in retrospect
+ * probably isn't that bad now that we don't do heavyweight stuff like
+ * managing audio/midi devices and read/writing files.
+ */
+void Mobius::initialize(class MobiusConfig* config)
+{
+    mConfig = config;
+    // this used to be a copy but now we share it
+    // a lot of code still references this so keep the illusion for now
+    mInterruptConfig = mConfig;
+    // don't need the "pending" concept any more
+    mPendingInterruptConfig = nullptr;
+    mPendingSetup = -1;
+
+	// set these early so we can trace errors during initialization
+	TracePrintLevel = mConfig->getTracePrintLevel();
+	TraceDebugLevel = mConfig->getTraceDebugLevel();
+
+    // is this the equivalent of the old start() ?
+    start();
 }
 
 /**
@@ -231,36 +425,16 @@ void Mobius::reconfigure(class MobiusConfig* config)
 {
     // need to work through the propagation logic
     // defer for now
-
-}
-
-// begin/endAudioInterrupt and doAction are at the end of this file
-
-/****************************************************************************
- *                                                                          *
- *                              MOBIUS INTERFACE                            *
- *                                                                          *
- ****************************************************************************/
-
-// used by Midi, MidiExporter
-MidiInterface* Mobius::getMidiInterface()
-{
-    return mMidi;
-}
-
-// used by MidiExporter
-HostMidiInterface* Mobius::getHostMidiInterface()
-{
-    return NULL;
-}
-
-AudioStream* Mobius::getAudioStream()
-{
-    return mAudioStream;
 }
 
 /**
- * Finish Mobius initialization, initialize tracks, and (formerly) open devices.
+ * Do remaining configuration necessary to actually process the
+ * audio stream.  Left over from the probe/activate phases
+ * plugins go through which we still likely need.
+ *
+ * Currently called directly from initialize() but may
+ * want to separate them.
+ *
  */
 void Mobius::start()
 {
@@ -307,6 +481,29 @@ void Mobius::start()
 
     // crank up OSC
     //mOsc = new OscRuntime(this);
+}
+
+/****************************************************************************
+ *                                                                          *
+ *                              MOBIUS INTERFACE                            *
+ *                                                                          *
+ ****************************************************************************/
+
+// used by Midi, MidiExporter
+MidiInterface* Mobius::getMidiInterface()
+{
+    return mMidi;
+}
+
+// used by MidiExporter
+HostMidiInterface* Mobius::getHostMidiInterface()
+{
+    return NULL;
+}
+
+AudioStream* Mobius::getAudioStream()
+{
+    return mAudioStream;
 }
 
 /**
@@ -487,62 +684,6 @@ void Mobius::updateControlSurfaces()
 }
 #endif
 
-/**
- * Shut mobius down, but leave most of the structure intact.
- * Factored this out of the destructor to track down an annoying
- * race condition when the VST plugin is deleted.
- *
- * UPDATE: Since we don't manage devices or threads any more
- * this can largelly be stubbed out.
- */
-void Mobius::stop()
-{
-	mHalting = true;
-
-	// no more events, especially important if clocks are being received
-	if (mMidi != NULL) {
-		mMidi->setListener(NULL);
-		// Transport should have done this but make sure
-		mMidi->setClockListener(NULL);
-	}
-
-    // this is pretending to be a thread but it actually isn't
-#if 0
-	if (mThread != NULL && mThread->isRunning()) {
-		if (!mThread->stopAndWait()) {
-			// unusual, must be stuck, continuing may crash
-			NewTraceListener = NULL;
-			Trace(1, "Mobius: Unable to stop Mobius thread!\n");
-		}
-	}
-#endif
-    
-	// shutting down the Recorder will stop the timer which will send
-	// a final MIDI stop event if the timer has a MidiOutput port,
-	// not sure how necessary that is if we're being deleted, but
-	// may as well
-    // UPDATE: not managed down here
-	//if (mRecorder != NULL)
-    //mRecorder->shutdown();
-
-	// sleep to make sure we're not in a timer or midi interrupt
-    // MobiusContainer can do this now
-	SleepMillis(100);
-
-	// paranioa to help catch shutdown errors
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-		t->setHalting(true);
-	}
-
-    // !! clear the Layer pool?  Not if we're in a VST and will
-	// resume again later...
-	// this could cause large leaks
-
-	// NOTE: Do not assume that we can shut down the MidiInterface,
-	// this may be shared if the VST DLL is open more than once?
-	// Or if the VST is brought up again after closing.
-}
 
 /**
  * Called by MobiusThread when we think the interrupt handler looks
@@ -567,68 +708,6 @@ void Mobius::emergencyExit()
 	//exit(1);	
 }
 
-/**
- * Quite different now since we don't own everything.
- */
-Mobius::~Mobius()
-{
-	if (!mHalting)
-	  stop();
-	else {
-		printf("Mobius::~Mobius mHalting was set!\n");
-		fflush(stdout);
-	}
-
-    // interesting stats
-    Trace(2, "Mobius: %ld MobiusConfigs on the history list\n",
-          (long)mConfig->getHistoryCount());
-
-    // these were formerly deleted but are now shared with Kernel
-	//delete mContext;
-	//delete mConfig;
-    //delete mInterruptConfig;
-    //delete mPendingInterruptConfig;
-	//delete mRecorder;	// will delete the Tracks too
-    //mAudioPool->dump();
-    //delete mAudioPool;
-
-    // these are now stubs, but we own them
-    delete mMidi;
-    delete mAudioStream;
-
-    // Assume mUIControls was set from a static array
-    // and does not need to be freed.
-
-    delete mWatchers;
-    delete mTriggerState;
-	delete mThread;
-	delete mBindingResolver;
-    delete mMidiExporter;
-	//delete mOsc;
-    //delete mControlSurfaces;
-    delete mFunctions;
-	delete mScriptEnv;
-	delete mTracks;
-	delete mSynchronizer;
-	//delete mCatalog;
-    delete mVariables;
-
-    // avoid a warning message
-    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext())
-      t->setInterned(false);
-    delete mResolvedTargets;
-
-	flushObjectPools();
-    
-    mActionPool->dump();
-    delete mActionPool;
-
-    mEventPool->dump();
-    delete mEventPool;
-
-    mLayerPool->dump();
-    delete mLayerPool;
-}
 
 /**
  * What did this do?
@@ -639,7 +718,7 @@ void Mobius::setCheckInterrupt(bool b)
 	  mThread->setCheckInterrupt(b);
 }
 
-void Mobius::setListener(MobiusListener* l)
+void Mobius::setListener(OldMobiusListener* l)
 {
 	mListener = l;
 }
@@ -655,7 +734,7 @@ Watchers* Mobius::getWatchers()
 /**
  * For MobiusThread only.
  */
-MobiusListener* Mobius::getListener()
+OldMobiusListener* Mobius::getListener()
 {
 	return mListener;
 }
@@ -764,6 +843,7 @@ Setup* Mobius::getInterruptSetup()
             mInterruptSetup = mInterruptConfig->getSetups();
         }
         else {
+            // ugly, make a better interface for this
             mInterruptSetup = (Setup*)Structure::find(mInterruptConfig->getSetups(), name);
         }
 
@@ -859,12 +939,17 @@ int Mobius::getTrackPreset()
  * Formerly tried to do incremental updates when only certain things
  * changed, which is still interesting but we can wait on that?
  */
+
+// I don't dislike having flags from the UI to provide hints for
+// incremental configuration...
+#if 0
 void Mobius::setFullConfiguration(MobiusConfig* config)
 {
     config->setNoSetupChanges(false);
     config->setNoPresetChanges(false);
     setConfiguration(config, true);
 }
+#endif
 
 /**
  * Assimilate changes made to an external copy of the configuration object.
@@ -878,24 +963,23 @@ void Mobius::setFullConfiguration(MobiusConfig* config)
  * about doing differencing at a higher level, or receiving UI hints
  * and responding to those.
  */
-void Mobius::setConfiguration(MobiusConfig* config)
+void Mobius::setConfiguration(MobiusConfig* config, bool doBindings)
 {
-        installConfiguration(config);
+    installConfiguration(config, doBindings);
 
-        // If the track count changed, send the UI an alert so the user
-        // knows they have to restart.  This can only be done from the UI thread
-        // which is the only thing that should be calling setConfiguration.
+    // If the track count changed, send the UI an alert so the user
+    // knows they have to restart.  This can only be done from the UI thread
+    // which is the only thing that should be calling setConfiguration.
 
-        if (config->getTracks() != mTrackCount) {
+    if (config->getTracks() != mTrackCount) {
 
-            // Alert handler must either process the message immediately or
-            // copy it so we can use a stack buffer
-            // UPDATE: should be handled higher
-            char message[1024];
-            sprintf(message, "You must restart Mobius to change the track count to %d", config->getTracks());
-            if (mListener != NULL)
-              mListener->MobiusAlert(message);
-        }
+        // Alert handler must either process the message immediately or
+        // copy it so we can use a stack buffer
+        // UPDATE: should be handled higher
+        char message[1024];
+        sprintf(message, "You must restart Mobius to change the track count to %d", config->getTracks());
+        if (mListener != NULL)
+          mListener->MobiusAlert(message);
     }
 }
 
@@ -928,7 +1012,7 @@ void Mobius::setConfiguration(MobiusConfig* config)
  * because all dialogs are modal.
  *
  */
-void Mobius::installConfiguration(MobiusConfig* config)
+void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
 {
     // UPDATE: no longer need a history list
     // Push the new one onto the history list
@@ -1024,7 +1108,7 @@ void Mobius::installConfiguration(MobiusConfig* config)
         }
         if (allReset) {
             int initialTrack = 0;
-            Setup* setup = mConfig->getCurrentSetup();
+            Setup* setup = GetCurrentSetup(mConfig);
             if (setup != NULL)
               initialTrack = setup->getActiveTrack();
             setTrack(initialTrack);
@@ -1207,6 +1291,9 @@ bool Mobius::installScripts(ScriptConfig* config, bool force)
         //
         // TODO; Keeping this for now for the old Action model, but
         // the whole notion of resolving targets needs to be redesigned
+
+        // new: well we removed this method so we can't call it
+        // any binding 
         if (force)
           updateBindings();
     }
@@ -1269,6 +1356,67 @@ void Mobius::addScriptParameter(ScriptParamStatement* s)
     else {
         Trace(1, "Ignoring Param statement without name\n");
     }
+}
+
+/**
+ * I originally omitted this, but it seems to be the only thing that
+ * builds out BindingResolver and MidiExporter so I want to understand how it works.
+ * 
+ * Rebuild the binding cache to reflect changes made to the binding definitions,
+ * the scripts, or one of the bindable config objects
+ * (presets, setups, overlays).
+ * 
+ * Have to be careful since the MIDI thread can be using the current
+ * binding cache, so build and set the new one before deleting the old one.
+ *
+ * !! This is messy.  Need a more encapsulated environment for ui level threads
+ * that gets phased in consistently instead of several pieces.
+ */
+void Mobius::updateBindings()
+{
+    BindingResolver* old = mBindingResolver;
+    mBindingResolver = new BindingResolver(this);
+
+    // pause to make sure the new one is being used
+    // would be better if we assigned it as a pending change and
+    // processed it on the next MIDI interrupt
+    SleepMillis(100);
+        
+    delete old;
+
+    // This could be in use by MobiusThread so have to phase
+    // it out and let MobiusThread reclaim it.
+    MidiExporter* exporter = new MidiExporter(this);
+    exporter->setHistory(mMidiExporter);
+    mMidiExporter = exporter;
+
+    // refresh the previously resolved targets
+    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
+        ActionType* target = t->getTarget();
+
+        // The new target may no longer exist in which case the binding
+        // goes to null.  Trigger processing needs to deal with this.
+
+        if (target == ActionFunction) {
+            // !! is this safe?  shouldn't be be getting a new 
+            // RunScriptFunction wrapper too?
+            Function* f = (Function*)t->getObject();
+            if (f != NULL && f->isScript()) {
+                Script* script = (Script*)f->object;
+                f->object = mScriptEnv->getScript(script);
+            }
+        }
+        else if (target == ActionSetup) {
+            t->setObject(GetSetup(mConfig, t->getName()));
+        }
+        else if (target == ActionPreset) {
+            t->setObject(GetPreset(mConfig, t->getName()));
+        }
+        else if (target == ActionBindings) {
+            //t->setObject(mConfig->getBindingConfig(t->getName()));
+        }
+    }
+
 }
 
 /****************************************************************************
@@ -1542,7 +1690,7 @@ void Mobius::loadProjectInternal(Project* p)
 		const char* name = p->getSetup();
 		if (name != NULL) {
             // remember to locate the Setup from the interrupt config
-            Setup* s = mInterruptConfig->getSetup(name);
+            Setup* s = GetSetup(mInterruptConfig, name);
             if (s != NULL)
               setSetupInternal(s);
         }
@@ -1681,7 +1829,7 @@ Project* Mobius::saveProject()
     //if (overlay != NULL)
     //p->setBindings(overlay->getName());
 
-	Setup* s = mConfig->getCurrentSetup();
+	Setup* s = GetCurrentSetup(mConfig);
 	if (s != NULL)
 	  p->setSetup(s->getName());
 
@@ -1702,19 +1850,26 @@ MobiusState* Mobius::getState(int track)
 	MobiusState* s = &mState;
 
 	// don't like returning structures, can we return just the name?
-    // it doesn't look like anyone uses this 
-	mState.bindings = mConfig->getOverlayBindingConfig();
+    // it doesn't look like anyone uses this
+    // no longer have this
+	//mState.bindings = mConfig->getOverlayBindingConfig();
 
 	// why not just keep it here?
-	strcpy(mState.customMode, mCustomMode);
+    // this got lost, if you want it back just let this be the main location for it
+	//strcpy(mState.customMode, mCustomMode);
 
 	mState.globalRecording = mCapturing;
 
-    if (track >= 0 && track < mTrackCount)
-	  mState.track = mTracks[track]->getState();
+    // state.track used to be a pointer to one of the TrackState objects
+    // for the active track, now its just the index
+    if (track >= 0 && track < mTrackCount) {
+        // mState.track = mTracks[track]->getState();
+        mState.activeTrack = track;
+    }
 	else {
 		// else, fake something up so the UI doesn't get a NULL pointer?
-		mState.track = NULL;
+		//mState.track = NULL;
+        mState.activeTrack = 0;
 	}
 
 	return &mState;
@@ -1955,7 +2110,7 @@ void Mobius::parseBindingScope(const char* scope, int* track, int* group)
  *
  * UPDATE: may not be relevant any more
  */
-ResolvedTarget* Mobius::internTarget(OldTarget* target, 
+ResolvedTarget* Mobius::internTarget(ActionType* target, 
                                              const char* name,
                                              int track,
                                              int group)
@@ -1971,39 +2126,40 @@ ResolvedTarget* Mobius::internTarget(OldTarget* target,
     else if (name == NULL) {
         Trace(1, "Unable to resolve Binding: no name\n");
     }
-    else if (target == OldTargetFunction) {
+    else if (target == ActionFunction) {
         Function* f = getFunction(name);
         // these can have aliases, upgrade the name
         if (f != NULL)
           name = f->getName();
         resolvedTarget = f;
     }
-    else if (target == OldTargetParameter) {
+    else if (target == ActionParameter) {
         Parameter* p = Parameter::getParameter(name);
         // these can have aliases, upgrade the name
         if (p != NULL)
           name = p->getName();
         resolvedTarget = p;
     }
-    else if (target == OldTargetSetup) {
-        resolvedTarget = config->getSetup(name);
+    else if (target == ActionSetup) {
+        resolvedTarget = GetSetup(config, name);
     }
-    else if (target == OldTargetPreset) {
-        resolvedTarget = config->getPreset(name);
+    else if (target == ActionPreset) {
+        resolvedTarget = GetPreset(config, name);
     }
-    else if (target == OldTargetBindings) {
+    else if (target == ActionBindings) {
         // changed the name
         //resolvedTarget = config->getBindingConfig(name);
     }
-    else if (target == OldTargetUIControl) {
-        resolvedTarget = getUIControl(name);
-        // tolerate this at first
-        tolerate = true;
-    }
-    else if (target == OldTargetUIConfig) {
-        // where??
-        Trace(1, "Unable to resolve Binding: UIConfig\n");
-    }
+    //else if (target == ActionUIControl) {
+    // doesn't exist, and not relevant
+    //resolvedTarget = getUIControl(name);
+    // tolerate this at first
+    //tolerate = true;
+    //}
+    //else if (target == ActionUIConfig) {
+    //// where??
+    //Trace(1, "Unable to resolve Binding: UIConfig\n");
+    //}
     else {
         Trace(1, "Unable to resolve Binding: unsupported target %ld\n",
               (long)target);
@@ -2033,11 +2189,11 @@ ResolvedTarget* Mobius::internTarget(OldTarget* target,
                 resolved->setTrack(track);
                 resolved->setGroup(group);
 
-                mCsect->enter("internTarget");
+                //mCsect->enter("internTarget");
                 resolved->setInterned(true);
                 resolved->setNext(mResolvedTargets);
                 mResolvedTargets = resolved;
-                mCsect->leave("internTarget");
+                //mCsect->leave("internTarget");
             }
         }
     }
@@ -2404,81 +2560,81 @@ void Mobius::resolveTrigger(OldBinding* binding, Action* action)
     int midiStatus = 0;
 
     // defaults usually convey
-    OldTrigger* trigger = binding->getTrigger();
-    OldTriggerMode* mode = binding->getTriggerMode();
+    Trigger* trigger = binding->getTrigger();
+    TriggerMode* mode = binding->getTriggerMode();
 
-    if (trigger == OldTriggerNote) {
-        trigger = OldTriggerMidi;
+    if (trigger == TriggerNote) {
+        trigger = TriggerMidi;
         midiStatus = MS_NOTEON;
         if (mode == NULL) {
-          mode = OldTriggerModeMomentary;
+          mode = TriggerModeMomentary;
         }
-        else if (mode != OldTriggerModeMomentary &&
-                 mode != OldTriggerModeOnce) {
+        else if (mode != TriggerModeMomentary &&
+                 mode != TriggerModeOnce) {
             Trace(1, "Overriding invalid note trigger mode %s\n",
                   mode->getName());
-            mode = OldTriggerModeMomentary;
+            mode = TriggerModeMomentary;
         }
     }
-    else if (trigger == OldTriggerProgram) {
-        trigger = OldTriggerMidi;
+    else if (trigger == TriggerProgram) {
+        trigger = TriggerMidi;
         midiStatus = MS_PROGRAM;
-        mode = OldTriggerModeOnce;
+        mode = TriggerModeOnce;
     }
-    else if (trigger == OldTriggerControl) {
-        trigger = OldTriggerMidi;
+    else if (trigger == TriggerControl) {
+        trigger = TriggerMidi;
         midiStatus = MS_CONTROL;
         // some controllers can be programmed to send zero/nono-zero
         // assume that if it is bound to anything other than a parameter
         // it is momentary
-        OldTarget* t = action->getTarget();
-        if (t == OldTargetParameter) {
+        ActionType* t = action->getTarget();
+        if (t == ActionParameter) {
             if (mode == NULL)
-              mode = OldTriggerModeContinuous;
-            else if (mode != OldTriggerModeContinuous &&
-                     mode != OldTriggerModeMomentary &&
-                     mode != OldTriggerModeOnce) {
+              mode = TriggerModeContinuous;
+            else if (mode != TriggerModeContinuous &&
+                     mode != TriggerModeMomentary &&
+                     mode != TriggerModeOnce) {
                 Trace(1, "Overriding invalid control trigger mode %s\n",
                       mode->getName());
-                mode = OldTriggerModeContinuous;
+                mode = TriggerModeContinuous;
             }
         }
         else {
-            if (mode != NULL && mode != OldTriggerModeMomentary)
+            if (mode != NULL && mode != TriggerModeMomentary)
               Trace(1, "Overriding invalid control trigger mode %s\n",
                     mode->getName());
-            mode = OldTriggerModeMomentary;
+            mode = TriggerModeMomentary;
         }
     }
-    else if (trigger == OldTriggerPitch) {
-        trigger = OldTriggerMidi;
+    else if (trigger == TriggerPitch) {
+        trigger = TriggerMidi;
         midiStatus = MS_BEND;
         // some controllers can be programmed to send zero/nono-zero
-        mode = OldTriggerModeContinuous;
+        mode = TriggerModeContinuous;
     }
-    else if (trigger == OldTriggerKey) {
-        mode = OldTriggerModeMomentary;
+    else if (trigger == TriggerKey) {
+        mode = TriggerModeMomentary;
     }
-    else if (trigger == OldTriggerUI) {
+    else if (trigger == TriggerUI) {
         // this can be either momentary or continuous
         // make UI set it appropriately
     }
-    else if (trigger == OldTriggerHost) {
+    else if (trigger == TriggerHost) {
         // We don't need triggerType in the Binding do we?  Host
         // parameters always behave this way.
-        OldTarget* t = action->getTarget();
-        if (t == OldTargetParameter &&
+        ActionType* t = action->getTarget();
+        if (t == ActionParameter &&
             action->actionOperator == NULL && 
             action->arg.isNull()) {
-            mode = OldTriggerModeContinuous;
+            mode = TriggerModeContinuous;
         }
         else {
             // Functions and config objects are assumed to behave
             // like buttons, can change this later for !continuous scripts
-            mode = OldTriggerModeMomentary;
+            mode = TriggerModeMomentary;
         }
     }
-    else if (trigger == OldTriggerOsc) {
+    else if (trigger == TriggerOsc) {
         // parsing the path will have already handled this
     }
 
@@ -2486,13 +2642,13 @@ void Mobius::resolveTrigger(OldBinding* binding, Action* action)
     // like a Parameter.
     // NOTE: We'll never call this for TriggerOsc but in theory
     // it could work the same way.  Do we need that?
-    if (trigger == OldTriggerHost || trigger == OldTriggerOsc) {
-        if (action->getTarget() == OldTargetFunction) {
+    if (trigger == TriggerHost || trigger == TriggerOsc) {
+        if (action->getTarget() == ActionFunction) {
             Function* f = (Function*)action->getTargetObject();
             if (f != NULL && f->isScript()) {
                 Script* s = (Script*)f->object;
                 if (s != NULL && s->isContinuous())
-                  mode = OldTriggerModeContinuous;
+                  mode = TriggerModeContinuous;
             }
         }
     }
@@ -2501,7 +2657,7 @@ void Mobius::resolveTrigger(OldBinding* binding, Action* action)
     action->trigger = trigger;
     action->triggerMode = mode;
 
-    if (trigger != OldTriggerMidi) {
+    if (trigger != TriggerMidi) {
         action->id = binding->getValue();
     }
     else {
@@ -2532,9 +2688,9 @@ WatchPoint* Mobius::addWatcher(WatchPointListener* l)
     if (wp == NULL)
       Trace(1, "Invalid watch point name: %s\n", name);
     else {
-        mCsect->enter("addWatchPoint");
+        //mCsect->enter("addWatchPoint");
         mNewWatchers->add(l);
-        mCsect->leave();
+        //mCsect->leave();
     }
     return wp;
 }
@@ -2689,19 +2845,19 @@ void Mobius::doAction(Action* a)
     // we can let these set controls and maybe parameters
     // but
 
-    OldTarget* target = a->getTarget();
+    ActionType* target = a->getTarget();
 
     if (a->isRegistered()) {
         // have to clone these to do them...error in the UI
         Trace(1, "Attempt to execute a registered action!\n");
         ignore = true;
     }
-    else if (a->repeat && a->triggerMode != OldTriggerModeContinuous) {
+    else if (a->repeat && a->triggerMode != TriggerModeContinuous) {
         Trace(3, "Ignoring auto-repeat action\n");
         ignore = true;
     }
     else if (a->isSustainable() && !a->down && 
-             target != OldTargetFunction && target != OldTargetUIControl) {
+             target != ActionFunction) {
         // Currently functions and UIControls are the only things that support 
         // up transitions.  UIControls are messy, generalize this to 
         // be more like a parameter with trigger properties.
@@ -2719,13 +2875,13 @@ void Mobius::doAction(Action* a)
         // need to test this
         doActionNow(a);
     }
-    else if (a->trigger == OldTriggerScript ||
-             a->trigger == OldTriggerEvent ||
+    else if (a->trigger == TriggerScript ||
+             a->trigger == TriggerEvent ||
              // !! can't we use this reliably and not worry about trigger?
-             a->inInterrupt ||
-             target == OldTargetUIControl ||
-             target == OldTargetUIConfig ||
-             target == OldTargetBindings) {
+             a->inInterrupt) {
+             //target == ActionUIControl ||
+             //target == ActionUIConfig ||
+             //target == ActionBindings)
 
         // Script and Event triggers are in the interrupt
         // The UI targets don't have restrictions on when they can change.
@@ -2733,7 +2889,7 @@ void Mobius::doAction(Action* a)
 
         doActionNow(a);
     }
-    else if (target == OldTargetFunction) {
+    else if (target == ActionFunction) {
 
         Function* f = (Function*)a->getTargetObject();
         if (f == NULL) {
@@ -2764,7 +2920,7 @@ void Mobius::doAction(Action* a)
         else
           defer = true;
     }
-    else if (target == OldTargetParameter) {
+    else if (target == ActionParameter) {
         // TODO: Many parameters are safe to set outside
         // defrering may cause UI flicker if the change
         // doesn't happen right away and we immediately do a refresh
@@ -2867,7 +3023,7 @@ void Mobius::completeAction(Action* a)
  */
 void Mobius::doActionNow(Action* a)
 {
-    OldTarget* t = a->getTarget();
+    ActionType* t = a->getTarget();
 
     // not always set if comming from the outside
     a->mobius = this;
@@ -2875,31 +3031,32 @@ void Mobius::doActionNow(Action* a)
     if (t == NULL) {
         Trace(1, "Action with no target!\n");
     }
-    else if (t == OldTargetFunction) {
+    else if (t == ActionFunction) {
         doFunction(a);
     }
-    else if (t == OldTargetParameter) {
+    else if (t == ActionParameter) {
         doParameter(a);
     }
-    else if (t == OldTargetUIControl) {
-        doUIControl(a);
-    }
-    else if (t == OldTargetScript) {
+    //else if (t == ActionUIControl) {
+    // no longer exists
+    //doUIControl(a);
+    // }
+    else if (t == ActionScript) {
         doScriptNotification(a);
     }
-    else if (t == OldTargetPreset) {
+    else if (t == ActionPreset) {
         doPreset(a);
     }
-    else if (t == OldTargetSetup) {
+    else if (t == ActionSetup) {
         doSetup(a);
     }
-    else if (t == OldTargetBindings) {
+    else if (t == ActionBindings) {
         doBindings(a);
     }
-    else if (t == OldTargetUIConfig) {
-        // not supported yet, there is only one UIConfig
-        Trace(1, "UIConfig action not supported\n");
-    }
+    //else if (t == ActionUIConfig) {
+    //// not supported yet, there is only one UIConfig
+    //Trace(1, "UIConfig action not supported\n");
+    //}
     else {
         Trace(1, "Invalid action target\n");
     }
@@ -2927,7 +3084,7 @@ void Mobius::doPreset(Action* a)
         if (number < 0)
           Trace(1, "Missing action Preset\n");
         else {
-            p = mConfig->getPreset(number);
+            p = GetPreset(mConfig, number);
             if (p == NULL) 
               Trace(1, "Invalid preset number: %ld\n", (long)number);
         }
@@ -2990,7 +3147,7 @@ void Mobius::doSetup(Action* a)
         if (number < 0)
           Trace(1, "Missing action Setup\n");
         else {
-            s = mConfig->getSetup(number);
+            s = GetSetup(mConfig, number);
             if (s == NULL) 
               Trace(1, "Invalid setup number: %ld\n", (long)number);
         }
@@ -3003,7 +3160,7 @@ void Mobius::doSetup(Action* a)
         // This is messy, the resolved target will
         // point to an object from the external config but we have 
         // to set one from the interrupt config by number
-        mConfig->setCurrentSetup(number);
+        SetCurrentSetup(mConfig, number);
         setSetupInternal(number);
 
         // special operator just for setups to cause it to be saved
@@ -3100,7 +3257,7 @@ void Mobius::doFunction(Action* a)
 {
     // Client's won't set down in some trigger modes, but there is a lot
     // of code from here on down that looks at it
-    if (a->triggerMode != OldTriggerModeMomentary)
+    if (a->triggerMode != TriggerModeMomentary)
       a->down = true;
 
     // Only functions track long-presses, though we could
@@ -3766,8 +3923,8 @@ void Mobius::addScript(ScriptInterpreter* si)
 	else
 	  last->setNext(si);
     
-    TRACE(2, "MOBIUS: STARTING SCRIPT THREAD %LS",
-          SI->GETTRACENAME());
+    Trace(2, "Mobius: Starting script thread %s",
+          si->getTraceName());
 }
 
 /**
@@ -4153,7 +4310,7 @@ void Mobius::globalReset(Action* action)
 
 		// return to the track selected int the setup
 		int initialTrack = 0;
-		Setup* setup = mConfig->getCurrentSetup();
+		Setup* setup = GetCurrentSetup(mConfig);
 		if (setup != NULL)
 		  initialTrack = setup->getActiveTrack();
 		setTrack(initialTrack);
@@ -4241,6 +4398,12 @@ long Mobius::getLastSampleFrames()
 #endif
 
 /**
+ * Names that used to live somewhere and need someplace better
+ */
+#define UNIT_TEST_SETUP_NAME "UnitTestSetup"
+#define UNIT_TEST_PRESET_NAME "UnitTestPreset"
+
+/**
  * Bootstrap and select a standard unit test setup.
  * This is called only by evaluation of the UnitTestSetup script statement.
  *
@@ -4257,8 +4420,11 @@ long Mobius::getLastSampleFrames()
  * captured mobius.xml file for unit tests.  But if we do that
  * then why bother with this?
  *
+ * new: leaving this in place because we're going to want it eventually
+ * but need to work out why writeConfiguration was needed and
+ * move it higher
+ *
  */
-#if 0
 void Mobius::unitTestSetup()
 {
     bool saveConfig = false;
@@ -4268,8 +4434,12 @@ void Mobius::unitTestSetup()
     // !! ordinarilly we try not to do things like write files 
     // in the interrupt handler but since this is just for testing don't
     // bother bifurcating this into a MobiusThread part and an interrupt part
-    if (unitTestSetup(mConfig))
-      writeConfiguration(mConfig);
+    if (unitTestSetup(mConfig)) {
+        // the part we can't do in the new world
+        //writeConfiguration(mConfig);
+        Trace(1, "Mobius::unitTestSetup can't write the new configuration!\n");
+    }
+    
 
     // then apply the same changes to the interrupt config so we
     // can avoid pushing another thing on the history
@@ -4277,7 +4447,7 @@ void Mobius::unitTestSetup()
 
     // then set and propagate the setup and preset
     // note that all loops have to be reset for the preset to be refreshed
-    Setup* setup = mInterruptConfig->getSetup(UNIT_TEST_SETUP_NAME);
+    Setup* setup = GetSetup(mInterruptConfig, UNIT_TEST_SETUP_NAME);
     setSetupInternal(setup);
 
     // !! not supposed to do anything in the UI thread from within
@@ -4298,7 +4468,7 @@ bool Mobius::unitTestSetup(MobiusConfig* config)
     bool needsSaving = false;
 
     // boostrap a preset
-    Preset* p = config->getPreset(UNIT_TEST_PRESET_NAME);
+    Preset* p = GetPreset(config, UNIT_TEST_PRESET_NAME);
     if (p != NULL) {
         p->reset();
     }
@@ -4308,10 +4478,14 @@ bool Mobius::unitTestSetup(MobiusConfig* config)
         config->addPreset(p);
         needsSaving = true;
     }
-    config->setCurrentPreset(p);
+    // just an ordinal now
+    // this no longer exists, need to refine a permanent MobiusConfig
+    // notion of what this means
+    Trace(1, "Mobius::unitTestSetup can't set the current preset!\n");
+    //config->setCurrentPreset(p);
 
     // boostrap a setup
-    Setup* s = config->getSetup(UNIT_TEST_SETUP_NAME);
+    Setup* s = GetSetup(config, UNIT_TEST_SETUP_NAME);
     if (s != NULL) {
         s->reset(p);
     }
@@ -4322,11 +4496,10 @@ bool Mobius::unitTestSetup(MobiusConfig* config)
         config->addSetup(s);
         needsSaving = true;
     }
-    config->setCurrentSetup(s);
+    SetCurrentSetup(config, s->ordinal);
 
     return needsSaving;
 }
-#endif
 
 /****************************************************************************
  *                                                                          *
@@ -4766,15 +4939,15 @@ void Mobius::beginAudioInterrupt()
 	// and only pass through sample content.  Necessary for repeatable
 	// tests so we don't get random noise in the input.
 	if (mNoExternalInput) {
-		long frames = stream->getInterruptFrames();
+		long frames = mInterruptStream->getInterruptFrames();
         // !! assuming 2 channel ports
 		long samples = frames * 2;
 		float* input;
-		stream->getInterruptBuffers(0, &input, 0, NULL);
+		mInterruptStream->getInterruptBuffers(0, &input, 0, NULL);
 		memset(input, 0, sizeof(float) * samples);
 	}
 
-	mSynchronizer->interruptStart(stream);
+	mSynchronizer->interruptStart(mInterruptStream);
 
 	// prepare the tracks before running scripts
     // this unbelievably ugly noise was redesigned for Kernel
@@ -4791,7 +4964,7 @@ void Mobius::beginAudioInterrupt()
 
     // Advance the long-press tracker too, this may cause other 
     // actions to fire.
-    mTriggerState->advance(this, stream->getInterruptFrames());
+    mTriggerState->advance(this, mInterruptStream->getInterruptFrames());
 
 	// process scripts
     doScriptMaintenance();
@@ -4837,7 +5010,7 @@ void Mobius::propagateInterruptConfig()
     // Update some things in the Setup that are done by
     // setSetupInternal but aren't handled by Track::updateConfiguration
     if (!mInterruptConfig->isNoSetupChanges()) {
-        Setup* setup = mInterruptConfig->getCurrentSetup();
+        Setup* setup = GetCurrentSetup(mInterruptConfig);
         propagateSetupGlobals(setup);
     }
 }
@@ -4847,7 +5020,7 @@ void Mobius::propagateInterruptConfig()
  */
 void Mobius::setSetupInternal(int index)
 {
-    Setup* setup = mInterruptConfig->getSetup(index);
+    Setup* setup = GetSetup(mInterruptConfig, index);
     if (setup == NULL)
       Trace(1, "ERROR: Invalid setup number %ld\n", (long)index);
     else
@@ -4871,7 +5044,9 @@ void Mobius::setSetupInternal(Setup* setup)
 	if (setup != NULL) {
         // need to track the selection here so Reset processing
         // can go back to the last setup
-        mInterruptConfig->setCurrentSetup(setup);
+
+        // !! not necessary, we're all sharing the same MobiusConfig object
+        // mInterruptConfig->setCurrentSetup(setup);
 
         for (int i = 0 ; i < mTrackCount ; i++) {
             Track* t = mTracks[i];
@@ -4907,6 +5082,7 @@ void Mobius::propagateSetupGlobals(Setup* setup)
     // A NULL binding value means "keep the current one", if you
     // always want the setup to remove the current binding overlay you
     // need to set it to a special value.
+#if 0
     const char* name = setup->getBindings();
     if (name != NULL) {
         BindingConfig* bindings = mConfig->getBindingConfig(name);
@@ -4921,6 +5097,7 @@ void Mobius::propagateSetupGlobals(Setup* setup)
             // could just let any invalid name cancel the bindings?
         }
     }
+#endif    
 }
 
 /**
@@ -5031,6 +5208,113 @@ Track* Mobius::getTrack(int index)
 {
 	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
 }
+
+//////////////////////////////////////////////////////////////////////
+//
+// Old stuff I omitted but needed at the end to resolve link errors
+// Mostly seems to be related to MIDI export
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Create an Export for a Binding.
+ */
+Export* Mobius::resolveExport(OldBinding* b)
+{
+    Export* exp = NULL;
+    ResolvedTarget* target = resolveTarget(b);
+    if (target != NULL)
+      exp = resolveExport(target);
+    return exp;
+}
+
+/**
+ * Create an Export for the target of an Action.
+ */
+Export* Mobius::resolveExport(Action* a)
+{
+    return resolveExport(a->getResolvedTarget());
+}
+
+/**
+ * Create an Export for a ResolvedTarget.
+ * This is the core export resolver used by all the other
+ * resolution interfaces.
+ *
+ * Returns NULL if the target can't be exported.  This is 
+ * okay since OscRuntime calls this for everything.
+ */
+Export* Mobius::resolveExport(ResolvedTarget* resolved)
+{
+    Export* exp = NULL;
+    bool exportable = false;
+
+    ActionType* t = resolved->getTarget();
+
+    if (t == ActionParameter) {
+        // Since OSC is configured in text, ignore some things
+        // we don't want to get out
+        Parameter* p = (Parameter*)resolved->getObject();
+        exportable = (p->bindable || p->control);
+    }
+    
+    if (exportable) {
+        exp = new Export(this);
+        exp->setTarget(resolved);
+        // nothing else to save, Export has logic to call
+        // back to us for interesting things
+    }
+
+    return exp;
+}
+
+/**
+ * Called periodically by MobiusThread to export status to bi-directional
+ * MIDI controllers, control surfaces, and OSC clients.
+ *
+ * mobiusThread is true if we're being called by MobiusThread which means
+ * it is safe to clean up a previous exporter that is being phased out.
+ * NOTE: This is always true since we're never called outside the thread,
+ * I don't remember why this was here.
+ *
+ */
+void Mobius::exportStatus(bool inThread)
+{
+    // nab a copy to it doesn't change out from under us
+    // maybe it would be better if MobiusThread managed it's own copy
+    // and we just posted a new version 
+    MidiExporter *exporter = mMidiExporter;
+    if (exporter != NULL) {
+
+        if (inThread) {
+            // reclaim old versions
+            MidiExporter* old = exporter->getHistory();
+            if (old != NULL) {
+                exporter->setHistory(NULL);
+                delete old;
+            }
+        }
+
+        exporter->sendEvents();
+    }
+
+	// don't have a mechanism for editing these yet so we don't
+	// have to deal with the old/new thing like MidiExporter
+	// this will change...
+#if 0 
+    for (ControlSurface* cs = mControlSurfaces ; cs != NULL ; 
+         cs = cs->getNext()) {
+        cs->refresh();
+    }
+
+    // the thread starts running before we're fully initialized so
+    // always check for null here
+    if (mOsc != NULL)
+      mOsc->exportStatus();
+#endif    
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 //

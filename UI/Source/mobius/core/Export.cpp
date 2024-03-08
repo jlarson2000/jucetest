@@ -163,9 +163,9 @@ ExportType Export::getType()
     if (mTarget != NULL) {
         ExportType extype = EXP_INT;
 
-        OldTarget* ttype = mTarget->getTarget();
+        ActionType* ttype = mTarget->getTarget();
 
-        if (ttype == OldTargetParameter) {
+        if (ttype == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL) {
                 ParameterType ptype = p->type;
@@ -198,9 +198,9 @@ int Export::getMinimum()
 
     if (mTarget != NULL) {
 
-        OldTarget* type = mTarget->getTarget();
+        ActionType* type = mTarget->getTarget();
 
-        if (type == OldTargetParameter) {
+        if (type == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL) {
                 ParameterType type = p->type;
@@ -223,13 +223,13 @@ int Export::getMaximum()
     int max = 0;
 
     if (mTarget != NULL) {
-        OldTarget* type = mTarget->getTarget();
+        ActionType* type = mTarget->getTarget();
 
-        if (type == OldTargetParameter) {
+        if (type == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             // note that we use "binding high" here so that INT params
             // are constrained to a useful range for binding
-            max = GetBindingHigh(p, mMobius);
+            max = p->getHigh(mMobius);
         }
     }
 
@@ -246,8 +246,8 @@ const char** Export::getValueLabels()
 
     if (mTarget != NULL) {
 
-        OldTarget* type = mTarget->getTarget();
-        if (type == OldTargetParameter) {
+        ActionType* type = mTarget->getTarget();
+        if (type == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             if (p != NULL)
               labels = p->valueLabels;
@@ -279,10 +279,10 @@ void Export::getOrdinalLabel(int ordinal, ExValue* value)
     value->setString("???");
 
     if (mTarget != NULL) {
-        OldTarget* target = mTarget->getTarget();
-        if (target == OldTargetParameter) {
+        ActionType* target = mTarget->getTarget();
+        if (target == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
-            GetOrdinalLabel(p, mMobius, ordinal, value);
+            p->getOrdinalLabel(mMobius, ordinal, value);
         }
     }
 }
@@ -297,8 +297,8 @@ bool Export::isDisplayable()
     bool displayable = false;
 
     if (mTarget != NULL) {
-        OldTarget* type = mTarget->getTarget();
-        if (type == OldTargetParameter) {
+        ActionType* type = mTarget->getTarget();
+        if (type == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             displayable = (p != NULL && p->bindable);
         }
@@ -360,9 +360,9 @@ int Export::getOrdinalValue()
         // resolve track so Parameter doesn't have to
         mTrack = getTargetTrack();
 
-        OldTarget* target = mTarget->getTarget();
+        ActionType* target = mTarget->getTarget();
 
-        if (target == OldTargetParameter) {
+        if (target == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             value = p->getOrdinalValue(this);
         }
@@ -384,9 +384,9 @@ void Export::getValue(ExValue* value)
         // have to resresolve the track each time
         mTrack = getTargetTrack();
 
-        OldTarget* target = mTarget->getTarget();
+        ActionType* target = mTarget->getTarget();
 
-        if (target == OldTargetParameter) {
+        if (target == ActionParameter) {
             Parameter* p = (Parameter*)mTarget->getObject();
             p->getValue(this, value);
         }

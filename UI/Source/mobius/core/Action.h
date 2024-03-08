@@ -74,33 +74,6 @@
 
 /****************************************************************************
  *                                                                          *
- *                                  OPERATOR                                *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Constants that describe operations that produce a relative change to
- * a control or parameter binding.
- */
-class ActionOperator : public SystemConstant {
-  public:
-    static ActionOperator* get(const char* name);
-
-    ActionOperator(const char* name, const char* display) :
-        SystemConstant(name, display) {
-    }
-};
-
-extern ActionOperator* OperatorMin;
-extern ActionOperator* OperatorMax;
-extern ActionOperator* OperatorCenter;
-extern ActionOperator* OperatorUp;
-extern ActionOperator* OperatorDown;
-extern ActionOperator* OperatorSet;
-extern ActionOperator* OperatorPermanent;
-
-/****************************************************************************
- *                                                                          *
  *                              RESOLVED TARGET                             *
  *                                                                          *
  ****************************************************************************/
@@ -154,8 +127,8 @@ class ResolvedTarget {
 
     bool isInterned();
 
-    class OldTarget* getTarget();
-    void setTarget(class OldTarget* t);
+    class ActionType* getTarget();
+    void setTarget(class ActionType* t);
 
     const char* getName();
     void setName(const char* name);
@@ -187,7 +160,7 @@ class ResolvedTarget {
 
     bool mInterned;
     ResolvedTarget* mNext;
-    class OldTarget* mTarget;
+    class ActionType* mTarget;
     char* mName;
     TargetPointer mObject;
     int mTrack;
@@ -286,12 +259,12 @@ class Action {
 	/**
 	 * The trigger that was detected.
 	 */
-	OldTrigger* trigger;
+	Trigger* trigger;
 
     /**
      * The behavior of this trigger if ambiguous.
      */
-    OldTriggerMode* triggerMode;
+    TriggerMode* triggerMode;
 
     /**
      * True if we will be passing the OSC message argument
@@ -351,7 +324,7 @@ class Action {
 
     bool isResolved();
     bool isSustainable();
-    OldTarget* getTarget();
+    ActionType* getTarget();
     void* getTargetObject();
     class Function* getFunction();
     int getTargetTrack();
@@ -359,8 +332,8 @@ class Action {
 
     bool isTargetEqual(Action* other);
 
-    void setTarget(OldTarget* t);
-    void setTarget(OldTarget* t, void* object);
+    void setTarget(ActionType* t);
+    void setTarget(ActionType* t, void* object);
     void setFunction(class Function* f);
     void setParameter(class Parameter* p);
     void setTargetTrack(int track);
@@ -454,7 +427,7 @@ class Action {
      * Normally this is parsed from bindingArgs.
      * sigh, "operator" is a reserved word
      */
-    ActionOperator* actionOperator;
+    class ActionOperator* actionOperator;
 
     /**
      * The primary argument of the action.

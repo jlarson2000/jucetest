@@ -1,7 +1,11 @@
 
 Once the fucker compiles...
 
+Factor out all constant objects related to actions and bindings
+  Trigger, Target, etc.
 
+into a shared ActionConstants file, this will get rid of most
+usages of OldBindings.h
 
 
 

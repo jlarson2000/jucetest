@@ -82,14 +82,15 @@ class WatchPoint : public SystemConstant {
 
     static WatchPoint** getWatchPoints();
     static WatchPoint* getWatchPoint(const char* name);
-
+    static void deleteWatchPoints();
+    
 	WatchPoint(const char* name, int key);
 	virtual ~WatchPoint();
 
     // these can be used by the client
     WatchBehavior getBehavior();
-    virtual int getMin(class MobiusInterface* m);
-    virtual int getMax(class MobiusInterface* m);
+    virtual int getMin(class Mobius* m);
+    virtual int getMax(class Mobius* m);
 
 
   protected:
@@ -115,7 +116,7 @@ class WatchPoint : public SystemConstant {
 
 /**
  * Mobius needs direct access to these, but the UI should go through
- * MobiusInterface::getWatchPoints.
+ * Mobius::getWatchPoints.
  */
 
 extern WatchPoint* LoopLocationPoint;

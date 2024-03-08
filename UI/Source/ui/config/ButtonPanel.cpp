@@ -58,8 +58,8 @@ void ButtonPanel::upgradeBindings()
             Binding b;
             b.trigger = TriggerUI;
             // we could only have had Function ops
-            b.op = OpFunction;
-            b.setOperationName(button->getName());
+            b.action = ActionFunction;
+            b.setActionName(button->getName());
             b.setArguments(button->getArguments());
 
             bindings.add(&b);

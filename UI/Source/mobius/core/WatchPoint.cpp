@@ -98,12 +98,12 @@ WatchBehavior WatchPoint::getBehavior()
     return mBehavior;
 }
 
-int WatchPoint::getMin(MobiusInterface* m)
+int WatchPoint::getMin(Mobius* m)
 {
     return mMin;
 }
 
-int WatchPoint::getMax(MobiusInterface* m)
+int WatchPoint::getMax(Mobius* m)
 {
     return mMax;
 }
@@ -317,6 +317,15 @@ WatchPoint* WatchPoint::getWatchPoint(const char* name)
 	}
 	return found;
 }
+
+void WatchPoint::deleteWatchPoints()
+{
+    for (int i = 0 ; WatchPoints[i] != NULL ; i++) {
+        WatchPoint* c = WatchPoints[i];
+        delete c;
+    }
+}
+
 
 /****************************************************************************/
 /****************************************************************************/

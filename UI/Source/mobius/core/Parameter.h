@@ -104,7 +104,7 @@ class Parameter : public SystemConstant {
     // 
 
     int getLow();
-    virtual int getHigh(class MobiusInterface* m);
+    virtual int getHigh(class Mobius* m);
 
     /**
      * The maximum value used for bindings.
@@ -113,9 +113,9 @@ class Parameter : public SystemConstant {
      * to have some bounds for scaling MIDI CCs, this will default
      * to 127 and can be overridden.
      */
-    virtual int getBindingHigh(class MobiusInterface* m);
+    virtual int getBindingHigh(class Mobius* m);
 
-	virtual void getOrdinalLabel(class MobiusInterface* m, int i, class ExValue* value);
+	virtual void getOrdinalLabel(class Mobius* m, int i, class ExValue* value);
 
 	//
 	// Parameter value access
@@ -172,7 +172,7 @@ class Parameter : public SystemConstant {
 
     // internal use only
 
-    virtual void getDisplayValue(MobiusInterface* m, ExValue* value);
+    virtual void getDisplayValue(class Mobius* m, ExValue* value);
 
 	//
 	// XML
@@ -186,7 +186,8 @@ class Parameter : public SystemConstant {
     static void initParameters();
 	//static void localizeAll(class MessageCatalog* cat);
     static void dumpFlags();
-
+    static void deleteParameters();
+    
 	static Parameter* getParameter(Parameter** group, const char* name);
 	static Parameter* getParameter(const char* name);
 

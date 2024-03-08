@@ -149,7 +149,7 @@ void StartPointFunction::invokeLong(Action* action, Loop* l)
             Action* a = m->newAction();
             // hmm, may want a new trigger type like TriggerLong?
             // use TriggerEvent since this is indirect
-            a->trigger = OldTriggerEvent;
+            a->trigger = TriggerEvent;
             a->inInterrupt = true;
             a->down = true;
             a->setFunction(SyncStartPoint);

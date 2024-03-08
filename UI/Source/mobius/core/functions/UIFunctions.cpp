@@ -26,6 +26,8 @@
 #include "../Mobius.h"
 #include "../Mode.h"
 
+#include "../OldMobiusInterface.h"
+
 //////////////////////////////////////////////////////////////////////
 //
 // UI Functions
@@ -69,7 +71,7 @@ void UIFunction::invoke(Action* action, Mobius* m)
 		trace(action, m);
 
         if (mType == UI_REDRAW) {
-            MobiusListener* l = m->getListener();
+            OldMobiusListener* l = m->getListener();
             l->MobiusRedraw();
         }
 	}

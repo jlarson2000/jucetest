@@ -7,10 +7,13 @@
  * In old code the class is EventType and the static
  * objects are strewn about all over, typically with their
  * Function definitions.  Ordinal mapping will be harder for these.
+ *
+ * Need to use the UI prefix for object pointer names to avoid conflict.
  */
 
 #pragma once
 
+#include <vector>
 #include "SystemConstant.h"
 
 class UIEventType : public SystemConstant
@@ -18,7 +21,8 @@ class UIEventType : public SystemConstant
   public:
 
     static std::vector<UIEventType*> Instances;
-
+    static UIEventType* find(const char* name);
+    
     UIEventType(const char* name, const char* displayName);
     UIEventType(const char* name, const char* displayName, bool start, bool end, bool weird);
     virtual ~UIEventType() {};
@@ -45,51 +49,51 @@ class UIEventType : public SystemConstant
  * They'll always just be returned in MobiusState
  */
 
-extern UIEventType* InvokeEventType;
-extern UIEventType* ValidateEventType;
-extern UIEventType* RecordEventType;
-extern UIEventType* RecordStopEventType;
-extern UIEventType* PlayEventType;
-extern UIEventType* OverdubEventType;
-extern UIEventType* MultiplyEventType;
-extern UIEventType* MultiplyEndEventType;
-extern UIEventType* InstantMultiplyEventType;
-extern UIEventType* InstantDivideEventType;
-extern UIEventType* InsertEventType;
-extern UIEventType* InsertEndEventType;
-extern UIEventType* StutterEventType;
-extern UIEventType* ReplaceEventType;
-extern UIEventType* SubstituteEventType;
-extern UIEventType* LoopEventType;
-extern UIEventType* CycleEventType;
-extern UIEventType* SubCycleEventType;
-extern UIEventType* ReverseEventType;
-extern UIEventType* ReversePlayEventType;
-extern UIEventType* SpeedEventType;
-extern UIEventType* RateEventType;
-extern UIEventType* PitchEventType;
-extern UIEventType* BounceEventType;
-extern UIEventType* MuteEventType;
-extern UIEventType* PlayEventType;
-extern UIEventType* JumpPlayEventType;
-extern UIEventType* UndoEventType;
-extern UIEventType* RedoEventType;
-extern UIEventType* ScriptEventType;
-extern UIEventType* StartPointEventType;
-extern UIEventType* RealignEventType;
-extern UIEventType* MidiStartEventType;
-extern UIEventType* SwitchEventType;
-extern UIEventType* ReturnEventType;
-extern UIEventType* SUSReturnEventType;
-extern UIEventType* TrackEventType;
-extern UIEventType* RunScriptEventType;
-extern UIEventType* SampleTriggerEventType;
-extern UIEventType* SyncEventType;
-extern UIEventType* SlipEventType;
-extern UIEventType* MoveEventType;
-extern UIEventType* ShuffleEventType;
-extern UIEventType* SyncCheckEventType;
-extern UIEventType* MidiOutEventType;
+extern UIEventType* UIInvokeEventType;
+extern UIEventType* UIValidateEventType;
+extern UIEventType* UIRecordEventType;
+extern UIEventType* UIRecordStopEventType;
+extern UIEventType* UIPlayEventType;
+extern UIEventType* UIOverdubEventType;
+extern UIEventType* UIMultiplyEventType;
+extern UIEventType* UIMultiplyEndEventType;
+extern UIEventType* UIInstantMultiplyEventType;
+extern UIEventType* UIInstantDivideEventType;
+extern UIEventType* UIInsertEventType;
+extern UIEventType* UIInsertEndEventType;
+extern UIEventType* UIStutterEventType;
+extern UIEventType* UIReplaceEventType;
+extern UIEventType* UISubstituteEventType;
+extern UIEventType* UILoopEventType;
+extern UIEventType* UICycleEventType;
+extern UIEventType* UISubCycleEventType;
+extern UIEventType* UIReverseEventType;
+extern UIEventType* UIReversePlayEventType;
+extern UIEventType* UISpeedEventType;
+extern UIEventType* UIRateEventType;
+extern UIEventType* UIPitchEventType;
+extern UIEventType* UIBounceEventType;
+extern UIEventType* UIMuteEventType;
+extern UIEventType* UIPlayEventType;
+extern UIEventType* UIJumpPlayEventType;
+extern UIEventType* UIUndoEventType;
+extern UIEventType* UIRedoEventType;
+extern UIEventType* UIScriptEventType;
+extern UIEventType* UIStartPointEventType;
+extern UIEventType* UIRealignEventType;
+extern UIEventType* UIMidiStartEventType;
+extern UIEventType* UISwitchEventType;
+extern UIEventType* UIReturnEventType;
+extern UIEventType* UISUSReturnEventType;
+extern UIEventType* UITrackEventType;
+extern UIEventType* UIRunScriptEventType;
+extern UIEventType* UISampleTriggerEventType;
+extern UIEventType* UISyncEventType;
+extern UIEventType* UISlipEventType;
+extern UIEventType* UIMoveEventType;
+extern UIEventType* UIShuffleEventType;
+extern UIEventType* UISyncCheckEventType;
+extern UIEventType* UIMidiOutEventType;
 
 /****************************************************************************/
 /****************************************************************************/

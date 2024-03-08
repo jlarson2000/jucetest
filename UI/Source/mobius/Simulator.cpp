@@ -91,10 +91,10 @@ void Simulator::globalReset()
  */
 void Simulator::doAction(UIAction* action)
 {
-    if (action->op == OpFunction) {
+    if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == nullptr) {
-            trace("Unresolved function: %s\n", action->operationName);
+            trace("Unresolved function: %s\n", action->actionName);
         }
         else if (StringEqual(f->getName(), "GlobalReset")) {
             globalReset();
@@ -144,10 +144,10 @@ void Simulator::doAction(UIAction* action)
             trace("Unimplemented function: %s\n", f->getName());
         }
     }
-    else if (action->op == OpParameter) {
+    else if (action->type == ActionParameter) {
         UIParameter* p = action->implementation.parameter;
         if (p == nullptr) {
-            trace("Unresolved parameter: %s\n", action->operationName);
+            trace("Unresolved parameter: %s\n", action->actionName);
         }
         else if (p == UIParameterOutput) {
             int tracknum = action->scopeTrack;
@@ -166,7 +166,7 @@ void Simulator::doAction(UIAction* action)
             
     }
     else {
-        trace("Unexpected action operation %s\n", action->op->getName());
+        trace("Unexpected action type %s\n", action->type->getName());
     }
 
     // until we support queuing make sure this is clean
@@ -249,7 +249,7 @@ void Simulator::doReset(UIAction* action)
 
 void Simulator::reset(MobiusLoopState* loop)
 {
-    loop->mode = ResetMode;
+    loop->mode = UIResetMode;
     loop->init();
 }
 
@@ -269,9 +269,9 @@ void Simulator::doRecord(UIAction* action)
     MobiusLoopState* loop = &(track->loops[track->activeLoop]);
     ModeDefinition* mode = loop->mode;
 
-    if (mode == RecordMode) {
+    if (mode == UIRecordMode) {
         // end the recording
-        loop->mode = PlayMode;
+        loop->mode = UIPlayMode;
         loop->frame = 0;
 
         // for beater testing pretend we have 2 cycles
@@ -288,7 +288,7 @@ void Simulator::doRecord(UIAction* action)
     }
     else {
         reset(loop);
-        loop->mode = RecordMode;
+        loop->mode = UIRecordMode;
     }
 }
 
@@ -312,7 +312,7 @@ void Simulator::simulateInterrupt(float* input, float* output, int frames)
         MobiusLoopState* loop = &(track->loops[track->activeLoop]);
         ModeDefinition* mode = loop->mode;
 
-        if (mode == RecordMode) {
+        if (mode == UIRecordMode) {
             // track is recording
             // technically we don't update loop frames until the recording ends
             // but we don't have anywhere else to store it
@@ -497,23 +497,23 @@ void Simulator::simulateEvents()
     // test whether we can verify that that they belong
     // together and show them in start/end colors
 
-    simulateEvent(loop, OverdubEventType, 1);
-    simulateEvent(loop, OverdubEventType, 2);
+    simulateEvent(loop, UIOverdubEventType, 1);
+    simulateEvent(loop, UIOverdubEventType, 2);
 
     // somethign with an isEnd
-    simulateEvent(loop, MultiplyEndEventType, 3);
+    simulateEvent(loop, UIMultiplyEndEventType, 3);
 
     // stacked events
-    simulateEvent(loop, InsertEventType, 4);
-    simulateEvent(loop, SpeedEventType, 4);
+    simulateEvent(loop, UIInsertEventType, 4);
+    simulateEvent(loop, UISpeedEventType, 4);
     
     // close to the end
-    MobiusEventState* ev = simulateEvent(loop, ScriptEventType, 0);
+    MobiusEventState* ev = simulateEvent(loop, UIScriptEventType, 0);
     if (ev != nullptr) {
         ev->frame = loop->frames - 100;
     
         // pending
-        ev = simulateEvent(loop, SwitchEventType, 0);
+        ev = simulateEvent(loop, UISwitchEventType, 0);
         ev->pending = true;
         ev->argument = 2;
     }

@@ -154,12 +154,12 @@ void TriggerState::assimilate(Action* action)
         // SUS functions.  We could track long presses for those but it's less
         // useful for scripts, they can do their own timing.
 
-        OldTrigger* trigger = action->trigger;
-        bool longTrigger = (trigger == OldTriggerUI ||
-                            trigger == OldTriggerKey ||
-                            trigger == OldTriggerMidi ||
-                            trigger == OldTriggerHost || 
-                            trigger == OldTriggerOsc);
+        Trigger* trigger = action->trigger;
+        bool longTrigger = (trigger == TriggerUI ||
+                            trigger == TriggerKey ||
+                            trigger == TriggerMidi ||
+                            trigger == TriggerHost || 
+                            trigger == TriggerOsc);
 
         bool longFunction = (func->longPressable || func->longFunction);
 

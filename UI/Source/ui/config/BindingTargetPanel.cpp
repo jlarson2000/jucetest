@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 
 #include "../../util/Trace.h"
+#include "../../model/ActionType.h"
 #include "../../model/FunctionDefinition.h"
 #include "../../model/UIParameter.h"
 #include "../../model/MobiusConfig.h"
@@ -101,9 +102,9 @@ bool BindingTargetPanel::isTargetSelected()
  * we'll be looking at the wrong ListBox, same for name
  */
 // !! rename this
-Operation* BindingTargetPanel::getSelectedTargetType()
+ActionType* BindingTargetPanel::getSelectedTargetType()
 {
-    Operation* op = nullptr;
+    ActionType* type = nullptr;
     
     int tab = tabs.getCurrentTabIndex();
     if (tab < 0) {
@@ -112,11 +113,12 @@ Operation* BindingTargetPanel::getSelectedTargetType()
     }
 
     switch (tab) {
-        case 0: op = OpFunction; break;
-        case 1: op = OpScript; break;
-        case 2: op = OpParameter; break; // !! visual only, still a Parameter
-        case 3: op = OpParameter; break; 
+        case 0: type = ActionFunction; break;
+        case 1: type = ActionScript; break;
+        case 2: type = ActionParameter; break; // !! visual only, still a Parameter
+        case 3: type = ActionParameter; break; 
         case 4: {
+            type = ActionActivation; break;
             // here the Binding wants the specific bindable type
             // TargetSetup, TargetPreset, TargetBindings
             // have to get the name and undo the prefix
@@ -124,7 +126,7 @@ Operation* BindingTargetPanel::getSelectedTargetType()
         }
             break;
     }
-    return op;
+    return type;
 }
 
 juce::String BindingTargetPanel::getSelectedTargetName()
@@ -255,14 +257,14 @@ bool BindingTargetPanel::isValidTarget(juce::String name)
 
 void BindingTargetPanel::capture(Binding* b)
 {
-    b->op = getSelectedTargetType();
+    b->action = getSelectedTargetType();
     juce::String name = getSelectedTargetName();
-    b->setOperationName(name.toUTF8());
+    b->setActionName(name.toUTF8());
 }
 
 void BindingTargetPanel::select(Binding* b)
 {
     // !! need to use the Target type to select the tabs
     // not just assume everything has a unique name
-    showSelectedTarget(b->getOperationName());
+    showSelectedTarget(b->getActionName());
 }

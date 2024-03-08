@@ -40,7 +40,7 @@ void FunctionDefinition::dumpFunctions()
  * Find a Function by name
  * This doesn't happen often so we can do a liner search.
  */
-FunctionDefinition* FunctionDefinition::getFunction(const char* name)
+FunctionDefinition* FunctionDefinition::find(const char* name)
 {
 	FunctionDefinition* found = nullptr;
 	

@@ -1091,6 +1091,7 @@ void XmlRenderer::parse(XmlElement* e, UserVariables* container)
 #define ATT_TRIGGER_TYPE "triggerType"
 #define ATT_TARGET_PATH "targetPath"
 #define ATT_TARGET "target"
+#define ATT_ACTION "action"
 #define ATT_OPERATION "op"
 #define ATT_ARGS "args"
 #define ATT_SCOPE "scope"
@@ -1121,18 +1122,18 @@ void XmlRenderer::render(XmlBuffer* b, BindingSet* c)
 /**
  * Note that Binding is shared by both BindingSet and OscConfig
  *
- * What is now "operationName" has historically been saved as just "name"
+ * What is now "actionName" has historically been saved as just "name"
  * which is usually obvious.  Continue with that.
  */
 void XmlRenderer::render(XmlBuffer* b, Binding* binding)
 {
     b->addOpenStartTag(EL_BINDING);
 
-    // it reads better to lead with the operation
-    if (binding->op != nullptr)
-      b->addAttribute(ATT_OPERATION, binding->op->getName());
+    // it reads better to lead with the action
+    if (binding->action != nullptr)
+      b->addAttribute(ATT_ACTION, binding->action->getName());
 
-    b->addAttribute(ATT_NAME, binding->getOperationName());
+    b->addAttribute(ATT_NAME, binding->getActionName());
     b->addAttribute(ATT_SCOPE, binding->getScope());
 
     if (binding->trigger != nullptr) {
@@ -1180,12 +1181,23 @@ void XmlRenderer::parse(XmlElement* e, Binding* b)
     b->triggerValue = e->getIntAttribute(ATT_VALUE);
     b->midiChannel = e->getIntAttribute(ATT_CHANNEL);
 
-    // operation, ATT_TARGET was the old name
-    const char* opname = e->getAttribute(ATT_OPERATION);
-    if (opname == nullptr)
-      opname = e->getAttribute(ATT_TARGET);
-    b->op = Operation::find(opname);
-    b->setOperationName(e->getAttribute(ATT_NAME));
+    // we've gone through two naming cycles on this
+    // it was "target" for awhile, which I didn't like since it
+    // was confusing with "scope", then I tried "operation" which was klunky
+    // and now it's just "action"
+    
+    const char* typeName = e->getAttribute(ATT_ACTION);
+    if (typeName == nullptr)
+      typeName = e->getAttribute(ATT_OPERATION);
+    if (typeName == nullptr)
+      typeName = e->getAttribute(ATT_TARGET);
+    
+    b->action = ActionType::find(typeName);
+
+    // now disliking calling this "action name" since it confuses
+    // with "action type name"
+    // maybe go back to target
+    b->setActionName(e->getAttribute(ATT_NAME));
 
     b->setScope(e->getAttribute(ATT_SCOPE));
     b->setArguments(e->getAttribute(ATT_ARGS));

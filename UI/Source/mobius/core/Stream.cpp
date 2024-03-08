@@ -36,6 +36,9 @@
 #include "../../util/Trace.h"
 #include "../Audio.h"
 
+// formerly AudioStream
+#include "../MobiusContainer.h"
+
 #include "Event.h"
 #include "Layer.h"
 #include "Loop.h"
@@ -826,7 +829,7 @@ void OutputStream::resetHistory(Loop* l)
 /**
  * Initialize the stream for processing a new audio interrupt buffer.
  */
-void OutputStream::setOutputBuffer(AudioStream* aus, float* b, long l)
+void OutputStream::setOutputBuffer(MobiusContainer* aus, float* b, long l)
 {
     // the above are the original master values, these
     // AudioContext values may change as we go
@@ -2009,7 +2012,7 @@ void InputStream::resetHistory(Loop* l)
  * the middle.  The bufferModified method will be called by Recorder.
  * 
  */
-void InputStream::setInputBuffer(AudioStream* aus, float* input,
+void InputStream::setInputBuffer(MobiusContainer* aus, float* input,
 										long frames, float* echo)
 {
 	mAudioBuffer = input;

@@ -8,101 +8,8 @@
 #pragma once
 
 #include "../../model/SystemConstant.h"
-
-/****************************************************************************
- *                                                                          *
- *                                  TRIGGER                                 *
- *                                                                          *
- ****************************************************************************/
-
-class OldTrigger : public SystemConstant {
-  public:
-
-	static OldTrigger* get(const char* name);
-
-    OldTrigger(const char* name, const char* display, bool bindable);
-
-    bool isBindable();
-
-  private:
-
-   // true if this can be dynamically bound with a Binding object.
-   bool mBindable;
-
-};
-
-extern OldTrigger* OldTriggerKey;
-extern OldTrigger* OldTriggerMidi;
-extern OldTrigger* OldTriggerHost;
-extern OldTrigger* OldTriggerOsc;
-extern OldTrigger* OldTriggerUI;
-
-// these are used only for binding definitions, not for actions
-extern OldTrigger* OldTriggerNote;
-extern OldTrigger* OldTriggerProgram;
-extern OldTrigger* OldTriggerControl;
-extern OldTrigger* OldTriggerPitch;
-
-// internal triggers not used in bindings
-extern OldTrigger* OldTriggerScript;
-extern OldTrigger* OldTriggerThread;
-extern OldTrigger* OldTriggerAlert;
-extern OldTrigger* OldTriggerEvent;
-extern OldTrigger* OldTriggerUnknown;
-
-/****************************************************************************
- *                                                                          *
- *                                TRIGGER MODE                              *
- *                                                                          *
- ****************************************************************************/
-
-class OldTriggerMode : public SystemConstant {
-  public:
-
-	static OldTriggerMode* get(const char* name);
-
-    OldTriggerMode(const char* name, const char* display);
-
-  private:
-
-};
-
-extern OldTriggerMode* OldTriggerModeContinuous;
-extern OldTriggerMode* OldTriggerModeOnce;
-extern OldTriggerMode* OldTriggerModeMomentary;
-extern OldTriggerMode* OldTriggerModeToggle;
-extern OldTriggerMode* OldTriggerModeXY;
-extern OldTriggerMode* OldTriggerModes[];
-
-/****************************************************************************
- *                                                                          *
- *   							   TARGETS                                  *
- *                                                                          *
- ****************************************************************************/
-
-class OldTarget : public SystemConstant {
-  public:
-
-	static OldTarget* get(const char* name);
-
-	OldTarget(const char* name, const char* display);
-
-  private:
-
-};
-
-extern OldTarget* OldTargetFunction;
-extern OldTarget* OldTargetParameter;
-extern OldTarget* OldTargetSetup;
-extern OldTarget* OldTargetPreset;
-extern OldTarget* OldTargetBindings;
-extern OldTarget* OldTargetUIControl;
-extern OldTarget* OldTargetUIConfig;
-
-// internal targets, can't be used in bindings
-extern OldTarget* OldTargetScript;
-
-extern OldTarget* OldTargets[];
+#include "../../model/Trigger.h"
+#include "../../model/ActionType.h"
 
 /****************************************************************************
  *                                                                          *
@@ -165,7 +72,7 @@ class OldBindable {
 	const char* getName();
 
     virtual OldBindable* getNextBindable() = 0;
-	virtual class OldTarget* getTarget() = 0;
+	virtual class ActionType* getTarget() = 0;
 
   protected:
 
@@ -206,8 +113,8 @@ class OldBinding {
 	// trigger
 	//
 
-	void setTrigger(OldTrigger* t);
-	OldTrigger* getTrigger();
+	void setTrigger(Trigger* t);
+	Trigger* getTrigger();
 
     // for MIDI, key, and host parameter triggers
 	void setValue(int v);
@@ -222,8 +129,8 @@ class OldBinding {
     const char* getTriggerPath();
 
     // only for OSC triggers
-    void setTriggerMode(OldTriggerMode* tt);
-    OldTriggerMode* getTriggerMode();
+    void setTriggerMode(TriggerMode* tt);
+    TriggerMode* getTriggerMode();
 
 	//
 	// target
@@ -232,8 +139,8 @@ class OldBinding {
     void setTargetPath(const char* s);
     const char* getTargetPath();
 
-	void setTarget(OldTarget* t);
-	OldTarget* getTarget();
+	void setTarget(ActionType* t);
+	ActionType* getTarget();
 
 	void setName(const char* s);
 	const char* getName();
@@ -270,15 +177,15 @@ class OldBinding {
 	OldBinding* mNext;
 
 	// trigger
-	OldTrigger* mTrigger;
-    OldTriggerMode* mTriggerMode;
+	Trigger* mTrigger;
+    TriggerMode* mTriggerMode;
     char* mTriggerPath;
 	int mValue;
 	int mChannel;
 
 	// target
     char* mTargetPath;
-	OldTarget* mTarget;
+	ActionType* mTarget;
 	char* mName;
 
 	// scope, tracks and groups are both numberd from 1
@@ -307,7 +214,7 @@ class OldBindingConfig : public OldBindable {
 	OldBindingConfig* clone();
 
     OldBindable* getNextBindable();
-	OldTarget* getTarget();
+	ActionType* getTarget();
 	
 	void setNext(OldBindingConfig* c);
 	OldBindingConfig* getNext();
@@ -318,7 +225,7 @@ class OldBindingConfig : public OldBindable {
 	OldBinding* getBindings();
 	void setBindings(OldBinding* b);
 
-    OldBinding* getBinding(OldTrigger* trig, int value);
+    OldBinding* getBinding(Trigger* trig, int value);
 
   private:
 

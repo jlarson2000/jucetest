@@ -70,9 +70,9 @@ void Binderator::installAction(Binding* b)
 {
     Trigger* trigger = b->trigger;
 
-    const char* name = b->getOperationName();
+    const char* name = b->getActionName();
     if (name == nullptr) {
-        trace("Binderator: Ignoring Bidning with no name\n");
+        trace("Binderator: Ignoring Binding with no name\n");
     }
     else if (trigger == TriggerKey) {
         int code = b->triggerValue;
@@ -84,23 +84,23 @@ void Binderator::installAction(Binding* b)
             // mask off all but the bottom byte to get rid of bit 17 for extended chars
             code &= 0xFF;
 
-            Operation* op = b->op;
-            if (op == nullptr) {
-                trace("Binderator: Ignoring Binding with no operation %s\n", name);
+            ActionType* type = b->action;
+            if (type == nullptr) {
+                trace("Binderator: Ignoring Binding with no action type %s\n", name);
             }
-            else if (op != OpFunction) {
+            else if (type != ActionFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function operation %s\n", name);
+                trace("Binderator: Ignoring Binding for non-function action %s\n", name);
             }
             else {
-                FunctionDefinition* func = FunctionDefinition::getFunction(name);
+                FunctionDefinition* func = FunctionDefinition::find(name);
                 if (func == nullptr) {
                     trace("Binderator: Ignoring Binding for invalid function %s\n", name);
                 }
                 else {
                     UIAction* action = new UIAction();
                     action->trigger = trigger;
-                    action->op = op;
+                    action->type = type;
                     action->implementation.function = func;
                     // todo: scope and args
                     keyActions.set(code, action);
@@ -116,23 +116,23 @@ void Binderator::installAction(Binding* b)
             trace("Binderator: Invalid MIDI note %d\n", note);
         }
         else {
-            Operation* op = b->op;
-            if (op == nullptr) {
-                trace("Binderator: Ignoring Binding with no operation %s\n", name);
+            ActionType* type = b->action;
+            if (type == nullptr) {
+                trace("Binderator: Ignoring Binding with no action type %s\n", name);
             }
-            else if (op != OpFunction) {
+            else if (type != ActionFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function operation %s\n", name);
+                trace("Binderator: Ignoring Binding for non-function action %s\n", name);
             }
             else {
-                FunctionDefinition* func = FunctionDefinition::getFunction(name);
+                FunctionDefinition* func = FunctionDefinition::find(name);
                 if (func == nullptr) {
                     trace("Binderator: Ignoring Binding for invalid function %s\n", name);
                 }
                 else {
                     UIAction* action = new UIAction();
                     action->trigger = trigger;
-                    action->op = op;
+                    action->type = type;
                     action->implementation.function = func;
                     // todo: scope and args
                     noteActions.set(note, action);

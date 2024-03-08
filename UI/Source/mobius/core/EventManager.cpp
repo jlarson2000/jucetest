@@ -566,7 +566,7 @@ Event* EventManager::getFunctionEvent(Action* action,
 				// in scripts with Insert/Insert and Multiply/Multiply
 				// which handle their own rounding so ignore this if
 				// we're in a script.  
-				if (action->trigger != OldTriggerScript)
+				if (action->trigger != TriggerScript)
 				  Trace(mTrack, 1, "EventManager: Extremely short function duration: %s\n", 
 						func->getDisplayName());
 			}

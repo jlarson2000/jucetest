@@ -261,11 +261,11 @@
     <ClCompile Include="..\..\Source\mobius\core\HostConfig.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Layer.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Loop.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\Mapper.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiExporter.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiQueue.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiTransport.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\core\MidiUtil.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MobiusPools.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MobiusThread.cpp"/>
@@ -319,6 +319,7 @@
     <ClCompile Include="..\..\Source\util\XmlModel.cpp"/>
     <ClCompile Include="..\..\Source\util\XmlParser.cpp"/>
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
+    <ClCompile Include="..\..\Source\model\ActionType.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
     <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
     <ClCompile Include="..\..\Source\model\FunctionDefinition.cpp"/>
@@ -331,6 +332,7 @@
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\Structure.cpp"/>
+    <ClCompile Include="..\..\Source\model\Trigger.cpp"/>
     <ClCompile Include="..\..\Source\model\UIAction.cpp"/>
     <ClCompile Include="..\..\Source\model\UIConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\UIEventType.cpp"/>
@@ -2690,13 +2692,13 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiListener.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiQueue.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiTransport.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\MidiUtil.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mobius.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MobiusThread.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mode.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h"/>
     <ClInclude Include="..\..\Source\mobius\core\OldBinding.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Parameter.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Project.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Resampler.h"/>
@@ -2737,6 +2739,7 @@
     <ClInclude Include="..\..\Source\util\XmlModel.h"/>
     <ClInclude Include="..\..\Source\util\XmlParser.h"/>
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
+    <ClInclude Include="..\..\Source\model\ActionType.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
     <ClInclude Include="..\..\Source\model\ExValue.h"/>
     <ClInclude Include="..\..\Source\model\FunctionDefinition.h"/>
@@ -2751,6 +2754,7 @@
     <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\Structure.h"/>
     <ClInclude Include="..\..\Source\model\SystemConstant.h"/>
+    <ClInclude Include="..\..\Source\model\Trigger.h"/>
     <ClInclude Include="..\..\Source\model\UIAction.h"/>
     <ClInclude Include="..\..\Source\model\UIConfig.h"/>
     <ClInclude Include="..\..\Source\model\UIEventType.h"/>

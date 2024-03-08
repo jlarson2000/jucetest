@@ -80,6 +80,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
     class SampleTrack* sampleTrack = nullptr;
 
     // the big guy
+    // make this a stack object at some point
     class Mobius* mCore = nullptr;
     
     // AudioListener activities

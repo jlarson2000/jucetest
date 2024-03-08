@@ -1088,10 +1088,11 @@ long Loop::reflectFrame(long frame)
  * Status for rate only indiciates if some form of rate shift or semitone shift
  * is being applied so they can be colored differently in the loop list.
  * Would be better to return the values and let the UI decide what to draw.
+ *
+ * Formerly has a LoopSummary which was a smaller structure, now have a full
+ * MobiusLoopState for all loops, but you only need to fill in part of it.
  */
-// no longer have LoopSummary, forgot why
-#if 0
-void Loop::getSummary(MobiusLoopSummary* s, bool active)
+void Loop::getSummary(MobiusLoopState* s, bool active)
 {
 	s->frames = getFrames();
 	s->cycles = getCycles();
@@ -1132,8 +1133,17 @@ void Loop::getSummary(MobiusLoopSummary* s, bool active)
         }
 
 	}
+
+    // for the things we decided not to set, make sure the
+    // counts are zero, feels kind of dangerous should we just
+    // dispense with summaries?
+    s->summary = true;
+    s->eventCount = 0;
+    s->layerCount = 0;
+    s->lostLayers = 0;
+    s->redoCount = 0;
+    s->lostRedo = 0;
 }
-#endif
 
 /****************************************************************************
  *                                                                          *
@@ -5747,8 +5757,8 @@ void Loop::trackEvent(Event* e)
             a->inInterrupt = true;
             a->setFunction(Record);
             a->setResolvedTrack(next);
-            a->trigger = OldTriggerEvent;
-            a->triggerMode = OldTriggerModeOnce;
+            a->trigger = TriggerEvent;
+            a->triggerMode = TriggerModeOnce;
             a->noLatency = e->fields.trackSwitch.latencyDelay;
 
             // might want control over this?

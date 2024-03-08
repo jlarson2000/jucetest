@@ -330,7 +330,7 @@ void MobiusKernel::doAction(KernelMessage* msg)
     // todo: more flexitility in targeting tracks
     // upper tracks vs. core tracks etc.
 
-    if (action->op == OpFunction) {
+    if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == SamplePlay) {
             if (sampleTrack != nullptr) {

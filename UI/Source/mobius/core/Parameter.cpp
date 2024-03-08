@@ -235,7 +235,7 @@ int Parameter::getLow()
     return low;
 }
 
-int Parameter::getHigh(MobiusInterface* m)
+int Parameter::getHigh(Mobius* m)
 {
     int max = high;
 
@@ -250,7 +250,7 @@ int Parameter::getHigh(MobiusInterface* m)
     return max;
 }
 
-int Parameter::getBindingHigh(MobiusInterface* m)
+int Parameter::getBindingHigh(Mobius* m)
 {
     int max = getHigh(m);
 
@@ -265,7 +265,7 @@ int Parameter::getBindingHigh(MobiusInterface* m)
 /**
  * Given an ordinal, map it into a display label.
  */
-void Parameter::getOrdinalLabel(MobiusInterface* m, 
+void Parameter::getOrdinalLabel(Mobius* m, 
                                        int i, ExValue* value)
 {
 	if (valueLabels != NULL) {
@@ -281,7 +281,7 @@ void Parameter::getOrdinalLabel(MobiusInterface* m,
 	  value->setInt(i);
 }
 
-void Parameter::getDisplayValue(MobiusInterface* m, ExValue* value)
+void Parameter::getDisplayValue(Mobius* m, ExValue* value)
 {
     // weird function used in just a few places by
     // things that overload getOrdinalLabel
@@ -358,7 +358,7 @@ void Parameter::parseXml(XmlElement* e, void* obj)
         setObjectValue(obj, &v);
     }
 }
-#endiif
+#endif
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -770,6 +770,19 @@ void Parameter::initParameters()
             }
         }
     }
+}
+
+/**
+ * Like MobiusMode and Function, release the dynamically
+ * allocated Parameter objects on shutdown.
+ */
+void Parameter::deleteParameters()
+{
+	for (int i = 0 ; Parameters[i] != NULL ; i++) {
+        Parameter* p = Parameters[i];
+        delete p;
+    }
+    Parameters[0] = nullptr;
 }
 
 /**

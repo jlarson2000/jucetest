@@ -62,7 +62,8 @@ InsertModeType::InsertModeType() :
 	recording = true;
 }
 
-MobiusMode* InsertMode = new InsertModeType();
+InsertModeType InsertModeObj;
+MobiusMode* InsertMode = &InsertModeType;
 
 //////////////////////////////////////////////////////////////////////
 //

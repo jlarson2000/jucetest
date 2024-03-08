@@ -1,4 +1,15 @@
 
+NewTraceListener
+  - interface is a mess, MobiusThread sets it and must remember
+    to unset it before it is deleted because we can still try to
+    trace stuff after the thread is gone.  needs better encapsulation
+    and a more obvious control flow
+
+SystemConstant
+  standardize on using Instances as the vector, find() as the search
+  function, and trace() as the dump function
+  
+
 Mobius::getState
   - don't need to be returning OverlayBindings?  Well I guess a script
     could have changed them
@@ -36,3 +47,29 @@ Git MidiListener drug in for something, revisit everything that
 thinks about Midi
 
 Lost LoopSummary along the way
+
+MobiusConfig::setActiveSetup
+  - same for other "active" indicators
+  model currently identifies these by name which means a string copy
+  core needs to call this in response to actions and scripts
+  anything that can be set in core needs to stop using names and use
+  numbers instead, same for MobiusState
+
+
+Project::readAudio
+  files
+
+
+ProjectLayer::ProjectLayer
+  calls Audio::copy which would to MASSIVE memory allocation
+  we're going to have to rethink about how save/load works in general,
+  Can't have the interrupt handler doing memory, though since projects are rare
+  glitches during save/load aren't that bad, still what does it
+  mean to save a project when you have a live loop running?
+
+  could have the shell put the core in some sort of suspended state then
+  carefully touch the internal structures in the UI thread
+
+  that's really the way this has to work, save/load/project must live entirely
+  in the shell thread, move it out of core to reinforce this
+  

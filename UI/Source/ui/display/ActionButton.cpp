@@ -167,7 +167,7 @@ void ActionButton::paintButton(juce::Graphics& g, juce::Colour background, juce:
  */
 juce::String ActionButton::formatButtonName(Binding *src)
 {
-    juce::String name = juce::String(src->getOperationName());
+    juce::String name = juce::String(src->getActionName());
     if (src->getArguments() != nullptr) {
         // formatting here could be more complicated with
         // normalization and capitalization

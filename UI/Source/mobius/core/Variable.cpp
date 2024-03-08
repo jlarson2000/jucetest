@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <memory.h>
 
+#include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../util/Vbuf.h"
 
@@ -204,7 +205,7 @@ TriggerSourceValueVariableType::TriggerSourceValueVariableType()
 
 void TriggerSourceValueVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 {
-	OldTrigger* t = si->getTrigger();
+	Trigger* t = si->getTrigger();
     if (t != NULL)
       value->setString(t->getName());
     else
@@ -520,7 +521,9 @@ SampleFramesVariableType::SampleFramesVariableType()
 
 void SampleFramesVariableType::getTrackValue(Track* t, ExValue* value)
 {
-	value->setLong(t->getMobius()->getLastSampleFrames());
+    // doesn't exist at this level any more, and why on earth was this useful
+    // value->setLong(t->getMobius()->getLastSampleFrames());
+    Trace(1, "SampleFramesVariableType touched!\n");
 }
 
 SampleFramesVariableType* SampleFramesVariable = 
@@ -3299,6 +3302,14 @@ ScriptInternalVariable* InternalVariables[] = {
 
     NULL
 };
+
+void ScriptInternalVariable::deleteVariables()
+{
+    for (int i = 0 ; InternalVariables[i] != NULL ; i++) {
+		ScriptInternalVariable* v = InternalVariables[i];
+        delete v;
+    }
+}
 
 /**
  * Lookup an internal variable during script parsing.

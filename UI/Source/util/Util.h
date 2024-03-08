@@ -88,6 +88,9 @@ float ScaleValueOut(int value, int min, int max);
 int Scale128ValueIn(int value, int min, int max);
 int ScaleValue(int value, int inmin, int inmax, int outmin, int outmax);
 
+char* TrimString(char* src);
+
+
 
 //////////////////////////////////////////////////////////////////////
 //

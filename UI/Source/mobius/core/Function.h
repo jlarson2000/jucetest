@@ -244,6 +244,7 @@ class Function : public SystemConstant {
 
     static void initStaticFunctions();
     static Function* getStaticFunction(const char * name);
+    static void deleteFunctions();
 
 	//static void localizeAll(class MessageCatalog* cat);
 

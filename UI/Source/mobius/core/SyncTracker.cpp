@@ -267,8 +267,11 @@
  * for the next MIDI clock.  This doesn't appear to help drift and dealign,
  * it seems to make it worse.  I can't explain it, need to explore this.
  * This is defined in midi/MidiTimer.cpp and is currently true.
+ *
+ * new: Since we don't link with the old MIDI library, this is not defined,
+ * just stub it out
  */
-extern bool MidiTimerDeferredTempoChange;
+bool MidiTimerDeferredTempoChange = false;
 
 /****************************************************************************
  *                                                                          *

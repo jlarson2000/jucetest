@@ -414,8 +414,9 @@ class Audio {
 	void splice(long startFrame, long frames);
 
     // try to get rid of these
-    // void copy(Audio* src);
-	// void copy(Audio* src, int feedback);
+    // sigh, necessary for Project
+    void copy(Audio* src);
+    void copy(Audio* src, int feedback);
 
 	// FIle IO
     // no longer available

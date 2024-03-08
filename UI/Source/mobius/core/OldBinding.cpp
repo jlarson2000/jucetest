@@ -9,7 +9,7 @@
 #include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../util/KeyCode.h"
-#include "MidiUtil.h"
+#include "../../util/MidiUtil.h"
 #include "OldBinding.h"
 
 /****************************************************************************
@@ -54,168 +54,6 @@ void OldBindable::clone(OldBindable* src)
 {
 	setName(src->mName);
 	mNumber = src->mNumber;
-}
-
-/****************************************************************************
- *                                                                          *
- *   							   TRIGGERS                                 *
- *                                                                          *
- ****************************************************************************/
-
-OldTrigger* OldTriggerKey = new OldTrigger("key", "Key", true);
-OldTrigger* OldTriggerMidi = new OldTrigger("midi", "MIDI", false);
-OldTrigger* OldTriggerNote = new OldTrigger("note", "Note", true);
-OldTrigger* OldTriggerProgram = new OldTrigger("program", "Program", true);
-OldTrigger* OldTriggerControl = new OldTrigger("control", "Control", true);
-OldTrigger* OldTriggerPitch = new OldTrigger("pitch", "Pitch Bend", true);
-OldTrigger* OldTriggerHost = new OldTrigger("host", "Host", true);
-OldTrigger* OldTriggerOsc = new OldTrigger("osc", "OSC", false);
-OldTrigger* OldTriggerUI = new OldTrigger("ui", "UI", true);
-OldTrigger* OldTriggerScript = new OldTrigger("script", "Script", false);
-OldTrigger* OldTriggerAlert = new OldTrigger("alert", "Alert", false);
-OldTrigger* OldTriggerEvent = new OldTrigger("event", "Event", false);
-OldTrigger* OldTriggerThread = new OldTrigger("thread", "Mobius Thread", false);
-OldTrigger* OldTriggerUnknown = new OldTrigger("unknown", "unknown", false);
-
-/**
- * Array of all triggers for resolving references in XML.
- * Only bindable triggers should be here
- */
-OldTrigger* OldTriggers[] = {
-	OldTriggerKey,
-	OldTriggerNote,
-	OldTriggerProgram,
-	OldTriggerControl,
-	OldTriggerPitch,
-	OldTriggerHost,
-	OldTriggerOsc,
-    OldTriggerUI,
-	NULL
-};
-
-OldTrigger::OldTrigger(const char* name, const char* display, bool bindable) :
-    SystemConstant(name, display)
-{
-    mBindable = bindable;
-}
-
-bool OldTrigger::isBindable()
-{
-    return mBindable;
-}
-
-/**
- * Lookup a bindable trigger by name.
- */
-OldTrigger* OldTrigger::get(const char* name) 
-{
-	OldTrigger* found = NULL;
-	if (name != NULL) {
-		for (int i = 0 ; OldTriggers[i] != NULL ; i++) {
-			OldTrigger* t = OldTriggers[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-/****************************************************************************
- *                                                                          *
- *                               TRIGGER MODES                              *
- *                                                                          *
- ****************************************************************************/
-
-OldTriggerMode* OldTriggerModeContinuous = new OldTriggerMode("continuous", "Continuous");
-OldTriggerMode* OldTriggerModeOnce = new OldTriggerMode("once", "Once");
-OldTriggerMode* OldTriggerModeMomentary = new OldTriggerMode("momentary", "Momentary");
-OldTriggerMode* OldTriggerModeToggle = new OldTriggerMode("toggle", "Toggle");
-OldTriggerMode* OldTriggerModeXY = new OldTriggerMode("xy", "X,Y");
-
-/**
- * Array of all triggers for resolving references in XML.
- */
-OldTriggerMode* OldTriggerModes[] = {
-    OldTriggerModeContinuous,
-    OldTriggerModeOnce,
-    OldTriggerModeMomentary,
-    OldTriggerModeToggle,
-    OldTriggerModeXY,
-	NULL
-};
-
-OldTriggerMode::OldTriggerMode(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-}
-
-OldTriggerMode* OldTriggerMode::get(const char* name) 
-{
-	OldTriggerMode* found = NULL;
-	if (name != NULL) {
-		for (int i = 0 ; OldTriggerModes[i] != NULL ; i++) {
-			OldTriggerMode* t = OldTriggerModes[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
-}
-
-/****************************************************************************
- *                                                                          *
- *   							   TARGETS                                  *
- *                                                                          *
- ****************************************************************************/
-
-OldTarget* OldTargetFunction = new OldTarget("function", "Function");
-OldTarget* OldTargetParameter = new OldTarget("parameter", "Parameter");
-OldTarget* OldTargetSetup = new OldTarget("setup", "Setup");
-OldTarget* OldTargetPreset = new OldTarget("preset", "Preset");
-OldTarget* OldTargetBindings = new OldTarget("bindings", "Bindings");
-OldTarget* OldTargetUIControl = new OldTarget("uiControl", "UI Control");
-OldTarget* OldTargetUIConfig = new OldTarget("uiConfig", "UI Config");
-OldTarget* OldTargetScript = new OldTarget("script", "Script");
-
-OldTarget* OldTargets[] = {
-	OldTargetFunction,
-	OldTargetParameter,
-	OldTargetSetup,
-	OldTargetPreset,
-	OldTargetBindings,
-	OldTargetUIControl,
-	OldTargetUIConfig,
-	OldTargetScript,
-	NULL
-};
- 
-OldTarget::OldTarget(const char* name, const char* display) :
-    SystemConstant(name, display)
-{
-}
-
-OldTarget* OldTarget::get(const char* name) 
-{
-	OldTarget* found = NULL;
-
-    // auto upgrade old bindings
-    if (StringEqual(name, "control"))
-      name = "parameter";
-
-	if (name != NULL) {
-		for (int i = 0 ; OldTargets[i] != NULL ; i++) {
-			OldTarget* t = OldTargets[i];
-			if (!strcmp(t->getName(), name)) {
-				found = t;
-				break;
-			}
-		}
-	}
-	return found;
 }
 
 /****************************************************************************
@@ -317,12 +155,12 @@ OldBinding* OldBinding::getNext()
 // Trigger
 //
 
-void OldBinding::setTrigger(OldTrigger* t) 
+void OldBinding::setTrigger(Trigger* t) 
 {
 	mTrigger = t;
 }
 
-OldTrigger* OldBinding::getTrigger()
+Trigger* OldBinding::getTrigger()
 {
 	return mTrigger;
 }
@@ -349,10 +187,10 @@ int OldBinding::getChannel()
 
 bool OldBinding::isMidi()
 {
-	return (mTrigger == OldTriggerNote ||
-			mTrigger == OldTriggerProgram ||
-			mTrigger == OldTriggerControl ||
-			mTrigger == OldTriggerPitch);
+	return (mTrigger == TriggerNote ||
+			mTrigger == TriggerProgram ||
+			mTrigger == TriggerControl ||
+			mTrigger == TriggerPitch);
 }
 
 void OldBinding::setTriggerPath(const char* s)
@@ -366,12 +204,12 @@ const char* OldBinding::getTriggerPath()
     return mTriggerPath;
 }
 
-void OldBinding::setTriggerMode(OldTriggerMode* t)
+void OldBinding::setTriggerMode(TriggerMode* t)
 {
     mTriggerMode = t;
 }
 
-OldTriggerMode* OldBinding::getTriggerMode()
+TriggerMode* OldBinding::getTriggerMode()
 {
     return mTriggerMode;
 }
@@ -391,12 +229,12 @@ const char* OldBinding::getTargetPath()
     return mTargetPath;
 }
 
-void OldBinding::setTarget(OldTarget* t) 
+void OldBinding::setTarget(ActionType* t) 
 {
 	mTarget = t;
 }
 
-OldTarget* OldBinding::getTarget()
+ActionType* OldBinding::getTarget()
 {
 	return mTarget;
 }
@@ -512,23 +350,23 @@ void OldBinding::getSummary(char* buffer)
 	// we display channel consistenly everywhere as 1-16
 	int channel = mChannel + 1;
 
-	if (mTrigger == OldTriggerNote) {
+	if (mTrigger == TriggerNote) {
 		char note[128];
 		MidiNoteName(mValue, note);
 		sprintf(buffer, "%d:%s", channel, note);
 	}
-	else if (mTrigger == OldTriggerProgram) {
+	else if (mTrigger == TriggerProgram) {
 		sprintf(buffer, "%d:Program %d", channel, mValue);
 	}
-	else if (mTrigger == OldTriggerControl) {
+	else if (mTrigger == TriggerControl) {
 		sprintf(buffer, "%d:Control %d", channel, mValue);
 	}
-	else if (mTrigger == OldTriggerKey) {
+	else if (mTrigger == TriggerKey) {
 		// UI should actually overload this with a smarter key 
 		// rendering utility
 		sprintf(buffer, "Key %d", mValue);
 	}
-    else if (mTrigger == OldTriggerOsc) {
+    else if (mTrigger == TriggerOsc) {
         sprintf(buffer, "OSC %s", mTriggerPath);
     }
 
@@ -541,12 +379,12 @@ void OldBinding::getMidiString(char* buffer, bool includeChannel)
 	// we display channel consistenly everywhere as 1-16
 	int channel = mChannel + 1;
 
-	if (mTrigger == OldTriggerControl) {
+	if (mTrigger == TriggerControl) {
 		int value = getValue();
 		if (value >= 0 && value < 128)
 		  sprintf(buffer, "%d:Control %d", channel, value);
 	}
-	else if (mTrigger == OldTriggerNote) {
+	else if (mTrigger == TriggerNote) {
 		char note[128];
 		int value = getValue();
 		if (value >= 0 && value < 128) {
@@ -554,7 +392,7 @@ void OldBinding::getMidiString(char* buffer, bool includeChannel)
 			sprintf(buffer, "%d:%s", channel, note);
 		}
 	}
-	else if (mTrigger == OldTriggerProgram) {
+	else if (mTrigger == TriggerProgram) {
 		int value = getValue();
 		if (value >= 0 && value < 128)
 		  sprintf(buffer, "%d:Program %d", channel, value);
@@ -610,9 +448,9 @@ OldBindingConfig::~OldBindingConfig()
 	}
 }
 
-OldTarget* OldBindingConfig::getTarget()
+ActionType* OldBindingConfig::getTarget()
 {
-	return OldTargetBindings;
+	return ActionActivation;
 }
 
 void OldBindingConfig::setNext(OldBindingConfig* c)
@@ -683,7 +521,7 @@ void OldBindingConfig::removeBinding(OldBinding* b)
  * This is intended for upgrading old KeyBinding objects, once that
  * has passed we can delete this.
  */
-OldBinding* OldBindingConfig::getBinding(OldTrigger* trigger, int value)
+OldBinding* OldBindingConfig::getBinding(Trigger* trigger, int value)
 {
 	OldBinding* found = NULL;
 
@@ -700,6 +538,7 @@ OldBinding* OldBindingConfig::getBinding(OldTrigger* trigger, int value)
 OldBindingConfig* OldBindingConfig::clone()
 {
     // formerly used XML
+    return nullptr;
 }
 
 /****************************************************************************/

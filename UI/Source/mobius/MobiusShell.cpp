@@ -293,10 +293,10 @@ void MobiusShell::consumeCommunications()
 void MobiusShell::doAction(UIAction* action)
 {
     
-    if (action->op == OpFunction) {
+    if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == nullptr) {
-            trace("Unresolved function: %s\n", action->operationName);
+            trace("Unresolved function: %s\n", action->actionName);
         }
         else if (f == SamplePlay) {
             // this one we can handle

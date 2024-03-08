@@ -204,6 +204,12 @@ class MobiusLoopState
     bool    reverse;
     bool    speed;
     bool    pitch;
+    // kludge: true if this is a summary and the other stuff
+    // should be ignored
+    // hate this, if we don't fill out everything then will
+    // need a complicated way to clear stale state which
+    // defeats the purpose except for the arrays
+    bool    summary;
 
     // in theory we could overflow this but I don't think
     // it can happen in practice to be worth bothering with

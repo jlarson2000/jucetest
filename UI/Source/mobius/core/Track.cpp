@@ -96,7 +96,7 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
     mSetup = NULL;
 	mInput = new InputStream(sync, m->getSampleRate());
 	mOutput = new OutputStream(mInput, m->getAudioPool());
-	mCsect = new CriticalSection("Track");
+	//mCsect = new CriticalSection("Track");
 	mVariables = new UserVariables();
 	mPreset = NULL;
 
@@ -159,7 +159,7 @@ Track::~Track()
 	delete mInput;
 	delete mOutput;
 	delete mPreset;
-	delete mCsect;
+	//delete mCsect;
     delete mVariables;
 }
 
@@ -624,12 +624,12 @@ OutputStream* Track::getOutputStream()
 
 void Track::enterCriticalSection(const char* reason)
 {
-    mCsect->enter(reason);
+    //mCsect->enter(reason);
 }
 
 void Track::leaveCriticalSection()
 {
-    mCsect->leave();
+    //mCsect->leave();
 }
 
 /****************************************************************************
@@ -691,7 +691,8 @@ MobiusTrackState* Track::getState()
 {
 	MobiusTrackState* s = &mState;
 
-    s->name = mName;
+    // model no longer has this, can get it from the Setup if the UI wants it
+    //s->name = mName;
 
     // NOTE: The track has it's own private Preset object which will never
     // be freed so it's relatively safe to let it escape to the UI tier. 
@@ -704,7 +705,7 @@ MobiusTrackState* Track::getState()
 	s->preset = mPreset->ordinal;
 
 	s->number = mRawNumber;
-	s->loops = mLoopCount;
+	s->loopCount = mLoopCount;
 
 	s->outputMonitorLevel = mOutput->getMonitorLevel();
     if (isSelected())
@@ -759,13 +760,16 @@ MobiusTrackState* Track::getState()
     mEventManager->getEventSummary(s->loop);
 #endif
     
-	// brief summaries for the other loops
+    // !! not seeing where the non-summarized active loop state is built
+
+    // brief summaries for the other loops
     // changed from MAX_INFO_LOOPS to MaxLoops which upon seeing it
     // is way to generic to know where it came from
+    // no longer have LoopSummary, there is just one array of LoopState for all loops
 	int max = (mLoopCount < MaxLoops) ? mLoopCount : MaxLoops;
 	for (int i = 0 ; i < max ; i++) {
 		Loop* l = mLoops[i];
-		l->getSummary(&(s->summaries[i]), (l == mLoop));
+		l->getSummary(&(s->loops[i]), (l == mLoop));
 	}
 
 	// getting the pending status is odd because we have to work from the
@@ -773,10 +777,10 @@ MobiusTrackState* Track::getState()
 	int pending = mLoop->getNextLoop();
 	if (pending > 0) {
 		// remember this is 1 based
-		s->summaries[pending - 1].pending = true;
+		s->loops[pending - 1].pending = true;
 	}
 
-	s->summaryCount = max;
+	s->loopCount = max;
 
 	return s;
 }

@@ -976,6 +976,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Loop.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Mapper.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -986,9 +989,6 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiTransport.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\MidiUtil.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp">
@@ -1150,6 +1150,9 @@
     <ClCompile Include="..\..\Source\util\XomParser.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\model\ActionType.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\model\Binding.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
@@ -1184,6 +1187,9 @@
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\Structure.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\Trigger.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\UIAction.cpp">
@@ -3903,9 +3909,6 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiTransport.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\MidiUtil.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Mobius.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3922,6 +3925,9 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\OldBinding.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Parameter.h">
@@ -4044,6 +4050,9 @@
     <ClInclude Include="..\..\Source\util\XomParser.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\model\ActionType.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\model\Binding.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
@@ -4084,6 +4093,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\SystemConstant.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\Trigger.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\UIAction.h">

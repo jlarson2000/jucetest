@@ -19,8 +19,8 @@
 #include "../MobiusKernel.h"
 #include "OldBinding.h"
 
-// for MobiusAlerts
-#include "MobiusInterface.h"
+// for MobiusAlerts, OldMobiusListener
+#include "OldMobiusInterface.h"
 
 // for ThreadEventType
 #include "MobiusThread.h"
@@ -155,8 +155,8 @@ class Mobius :
      * Keep listener support for awhile until we clean up the MobiusThread
      * control handling.  Should be able to get rid of this.
      */
-	void setListener(MobiusListener* mon);
-	MobiusListener* getListener();
+	void setListener(OldMobiusListener* mon);
+	OldMobiusListener* getListener();
     
     /**
      * Used to support an interface for assimilating an edited config
@@ -195,7 +195,7 @@ class Mobius :
 	class CalibrationResult* calibrateLatency();
 	void finishPrompt(Prompt* p);
 
-    WatchPoint* addWatcher(class WatchPointListener* l);
+    class WatchPoint* addWatcher(class WatchPointListener* l);
     void notifyWatchers(class WatchPoint* wp, int value);
 
     // Status
@@ -356,6 +356,9 @@ class Mobius :
     // for Synchronizer and a few Functions
     Setup* getInterruptSetup();
 
+    // ActionDispatcher, ScriptRuntime
+    bool isFocused(class Track* t);
+    
   protected:
 
 	// for MobiusThread and others
@@ -374,9 +377,6 @@ class Mobius :
     // for some Functions
     void setPresetInternal(int p);
 
-    // ActionDispatcher
-    bool isFocused(class Track* t);
-    
   private:
 
 	void stop();
@@ -416,12 +416,12 @@ class Mobius :
 	void freeScripts();
     void addBinding(class BindingConfig* config, class Parameter* param, int id);
 
-    void resolveTrigger(Binding* b, Action* a);
+    void resolveTrigger(OldBinding* b, Action* a);
     //class Action* resolveOscAction(Binding* b);
     void parseBindingScope(const char* scope, int* track, int* group);
     const char* getToken(const char* ptr, char* token);
     //void oscUnescape(const char* src, char* dest, int max);
-    ResolvedTarget* internTarget(OldTarget* target, const char* name,
+    ResolvedTarget* internTarget(class ActionType* target, const char* name,
                                  int track, int group);
 
     void doInterruptActions();
@@ -455,11 +455,11 @@ class Mobius :
     class ActionPool* mActionPool;
 	//class MessageCatalog* mCatalog;
 	//bool mLocalized;
-	MobiusListener* mListener;
+	OldMobiusListener* mListener;
     Watchers* mWatchers;
     class List* mNewWatchers;
-    UIControl** mUIControls;
-    UIParameter** mUIParameters;
+    class UIControl** mUIControls;
+    class UIParameter** mUIParameters;
 	//char* mConfigFile;
 	class MobiusConfig *mConfig;
 	class MobiusConfig *mInterruptConfig;
