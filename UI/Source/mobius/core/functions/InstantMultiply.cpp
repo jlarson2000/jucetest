@@ -41,7 +41,8 @@ InstantMultiplyEventType::InstantMultiplyEventType()
 	name = "InstantMultiply";
 }
 
-EventType* InstantMultiplyEvent = new InstantMultiplyEventType();
+InstantMultiplyEventType InstantMultiplyEventObj;
+EventType* InstantMultiplyEvent = &InstantMultiplyEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

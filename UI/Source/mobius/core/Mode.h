@@ -96,7 +96,6 @@ class MobiusMode : public SystemConstant {
   protected:
 
     static void initModes();
-    static void deleteModes();
 	static void updateConfiguration(class MobiusConfig* config);
 	//static void localizeAll(class MessageCatalog* cat);
 	static MobiusMode** getModes();

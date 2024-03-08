@@ -112,6 +112,7 @@
 #include <memory.h>
 
 #include "../Mapper.h"
+#include "../../../model/Trigger.h"
 #include "../../../model/Setup.h"
 #include "../../Audio.h"
 
@@ -127,7 +128,6 @@
 #include "../Synchronizer.h"
 #include "../SyncState.h"
 #include "../Track.h"
-#include "../OldBinding.h"
 
 /****************************************************************************
  *                                                                          *
@@ -149,7 +149,8 @@ RecordEventType::RecordEventType()
 	name = "Record";
 }
 
-EventType* RecordEvent = new RecordEventType();
+RecordEventType RecordEventObj;
+EventType* RecordEvent = &RecordEventObj;
 
 //
 // RecordStopEvent
@@ -176,7 +177,8 @@ RecordStopEventType::RecordStopEventType()
 	name = "RecordStop";
 }
 
-EventType* RecordStopEvent = new RecordStopEventType();
+RecordStopEventType RecordStopEventObj;
+EventType* RecordStopEvent = &RecordStopEventObj;
 
 /****************************************************************************
  *                                                                          *
@@ -200,7 +202,8 @@ RecordModeType::RecordModeType() :
 	recording = true;
 }
 
-MobiusMode* RecordMode = new RecordModeType();
+RecordModeType RecordModeObj;
+MobiusMode* RecordMode = &RecordModeObj;
 
 //
 // Synchronize
@@ -216,7 +219,8 @@ SynchronizeModeType::SynchronizeModeType() :
 {
 }
 
-MobiusMode* SynchronizeMode = new SynchronizeModeType();
+SynchronizeModeType SynchronizeModeObj;
+MobiusMode* SynchronizeMode = &SynchronizeModeObj;
 
 //
 // Threshold
@@ -232,7 +236,8 @@ ThresholdModeType::ThresholdModeType() :
 {
 }
 
-MobiusMode* ThresholdMode = new ThresholdModeType();
+ThresholdModeType ThresholdModeObj;
+MobiusMode* ThresholdMode = &ThresholdModeObj;
 
 //
 // Run
@@ -248,7 +253,8 @@ RunModeType::RunModeType() :
 {
 }
 
-MobiusMode* RunMode = new RunModeType();
+RunModeType RunModeObj;
+MobiusMode* RunMode = &RunModeObj;
 
 /****************************************************************************
  *                                                                          *

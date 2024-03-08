@@ -135,7 +135,8 @@ void InvokeEventType::invoke(Loop* l, Event* e)
 	  Trace(l, 1, "InvokeEvent called with no function!");
 }
 
-EventType* InvokeEvent = new InvokeEventType();
+InvokeEventType InvokeEventObj;
+EventType* InvokeEvent = &InvokeEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -166,7 +167,8 @@ void LoopEventType::invoke(Loop* l, Event* e)
 	l->loopEvent(e);
 }
 
-EventType* LoopEvent = new LoopEventType();
+LoopEventType LoopEventObj;
+EventType* LoopEvent = &LoopEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -203,7 +205,8 @@ void CycleEventType::invoke(Loop* l, Event* e)
       l->stutterCycle();
 }
 
-EventType* CycleEvent = new CycleEventType();
+CycleEventType CycleEventObj;
+EventType* CycleEvent = &CycleEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -235,7 +238,8 @@ void SubCycleEventType::invoke(Loop* l, Event* e)
 {
 }
 
-EventType* SubCycleEvent = new SubCycleEventType();
+SubCycleEventType SubCycleEventObj;
+EventType* SubCycleEvent = &SubCycleEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -265,7 +269,8 @@ void JumpPlayEventType::undo(Loop* l, Event* e)
 	l->jumpPlayEventUndo(e);
 }
 
-EventType* JumpPlayEvent = new JumpPlayEventType();
+JumpPlayEventType JumpPlayEventObj;
+EventType* JumpPlayEvent = &JumpPlayEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -293,7 +298,8 @@ void ValidateEventType::invoke(Loop* l, Event* e)
 	l->validateEvent(e);
 }
 
-EventType* ValidateEvent = new ValidateEventType();
+ValidateEventType ValidateEventObj;
+EventType* ValidateEvent = &ValidateEventObj;
 
 /****************************************************************************
  *                                                                          *

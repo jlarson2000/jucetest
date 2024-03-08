@@ -90,7 +90,7 @@ typedef union {
     class Function* function;
     class Parameter* parameter;
     class OldBindable* bindable;
-    class OldUIControl* uicontrol;
+    //class OldUIControl* uicontrol;
 
 } TargetPointer;
 

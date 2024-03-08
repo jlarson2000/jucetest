@@ -39,7 +39,8 @@ ClearEventType::ClearEventType()
 	name = "Clear";
 }
 
-EventType* ClearEvent = new ClearEventType();
+ClearEventType ClearEventObj;
+EventType* ClearEvent = &ClearEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

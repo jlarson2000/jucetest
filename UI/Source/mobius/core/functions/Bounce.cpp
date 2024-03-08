@@ -39,7 +39,8 @@ BounceEventType::BounceEventType()
 	noMode = true;
 }
 
-EventType* BounceEvent = new BounceEventType();
+BounceEventType BounceEventObj;
+EventType* BounceEvent = &BounceEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

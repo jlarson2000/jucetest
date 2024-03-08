@@ -59,7 +59,8 @@ void SynchronizerEventType::invoke(Loop* l, Event* e)
 	sync->syncEvent(l, e);
 }
 
-EventType* SyncEvent = new SynchronizerEventType();
+SynchronizerEventType SyncEventObj;
+EventType* SyncEvent = &SyncEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -82,7 +83,8 @@ SyncMasterModeType::SyncMasterModeType() :
 	minor = true;
 }
 
-MobiusMode* SyncMasterMode = new SyncMasterModeType();
+SyncMasterModeType SyncMasterModeObj;
+MobiusMode* SyncMasterMode = &SyncMasterModeObj;
 
 //
 // TrackSyncMaster
@@ -99,7 +101,8 @@ TrackSyncMasterModeType::TrackSyncMasterModeType() :
 	minor = true;
 }
 
-MobiusMode* TrackSyncMasterMode = new TrackSyncMasterModeType();
+TrackSyncMasterModeType TrackSyncMasterModeObj;
+MobiusMode* TrackSyncMasterMode = &TrackSyncMasterModeObj;
 
 //
 // MIDISyncMaster
@@ -116,7 +119,8 @@ MIDISyncMasterModeType::MIDISyncMasterModeType() :
 	minor = true;
 }
 
-MobiusMode* MIDISyncMasterMode = new MIDISyncMasterModeType();
+MIDISyncMasterModeType MIDISyncMasterModeObj;
+MobiusMode* MIDISyncMasterMode = &MIDISyncMasterModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //

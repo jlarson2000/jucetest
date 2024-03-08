@@ -46,7 +46,8 @@ TrackEventType::TrackEventType()
 	name = "Track";
 }
 
-EventType* TrackEvent = new TrackEventType();
+TrackEventType TrackEventObj;
+EventType* TrackEvent = &TrackEventObj;
 
 /****************************************************************************
  *                                                                          *

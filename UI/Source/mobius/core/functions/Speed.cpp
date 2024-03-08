@@ -58,7 +58,8 @@ SpeedOctaveModeType::SpeedOctaveModeType() :
 	minor = true;
 }
 
-MobiusMode* SpeedOctaveMode = new SpeedOctaveModeType();
+SpeedOctaveModeType SpeedOctaveModeObj;
+MobiusMode* SpeedOctaveMode = &SpeedOctaveModeObj;
 
 /**
  * Minor mode when a speed step is active.
@@ -74,7 +75,8 @@ SpeedStepModeType::SpeedStepModeType() :
 	minor = true;
 }
 
-MobiusMode* SpeedStepMode = new SpeedStepModeType();
+SpeedStepModeType SpeedStepModeObj;
+MobiusMode* SpeedStepMode = &SpeedStepModeObj;
 
 /**
  * Minor mode when a speed bend is active.
@@ -90,7 +92,8 @@ SpeedBendModeType::SpeedBendModeType() :
 	minor = true;
 }
 
-MobiusMode* SpeedBendMode = new SpeedBendModeType();
+SpeedBendModeType SpeedBendModeObj;
+MobiusMode* SpeedBendMode = &SpeedBendModeObj;
 
 /**
  * Minor mode when a speed toggle is active.
@@ -106,7 +109,8 @@ SpeedToggleModeType::SpeedToggleModeType() :
 	minor = true;
 }
 
-MobiusMode* SpeedToggleMode = new SpeedToggleModeType();
+SpeedToggleModeType SpeedToggleModeObj;
+MobiusMode* SpeedToggleMode = &SpeedToggleModeObj;
 
 /**
  * Minor mode when a time stretch is active.
@@ -122,7 +126,8 @@ TimeStretchModeType::TimeStretchModeType() :
 	minor = true;
 }
 
-MobiusMode* TimeStretchMode = new TimeStretchModeType();
+TimeStretchModeType TimeStretchModeObj;
+MobiusMode* TimeStretchMode = &TimeStretchModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -143,7 +148,8 @@ SpeedEventType::SpeedEventType()
 	reschedules = true;
 }
 
-EventType* SpeedEvent = new SpeedEventType();
+SpeedEventType SpeedEventObj;
+EventType* SpeedEvent = &SpeedEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

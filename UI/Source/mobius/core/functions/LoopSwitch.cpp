@@ -113,7 +113,7 @@ ConfirmModeType::ConfirmModeType() :
 }
 
 ConfirmModeType ConfirmModeObj;
-MobiusMode* ConfirmMode = new &ConfirmModeObj;
+MobiusMode* ConfirmMode = &ConfirmModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -131,7 +131,8 @@ SwitchEventType::SwitchEventType()
 	name = "Switch";
 }
 
-EventType* SwitchEvent = new SwitchEventType();
+SwitchEventType SwitchEventObj;
+EventType* SwitchEvent = &SwitchEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -149,7 +150,8 @@ ReturnEventType::ReturnEventType()
 	name = "Return";
 }
 
-EventType* ReturnEvent = new ReturnEventType();
+ReturnEventType ReturnEventObj;
+EventType* ReturnEvent = &ReturnEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -173,7 +175,8 @@ SUSReturnEventType::SUSReturnEventType()
 	noUndo = true;
 }
 
-EventType* SUSReturnEvent = new SUSReturnEventType();
+SUSReturnEventType SUSReturnEventObj;
+EventType* SUSReturnEvent = &SUSReturnEventObj;
 
 /****************************************************************************
  *                                                                          *

@@ -55,7 +55,8 @@ SampleTriggerEventType::SampleTriggerEventType()
 	name = "SampleTrigger";
 }
 
-EventType* SampleTriggerEvent = new SampleTriggerEventType();
+SampleTriggerEventType SampleTriggerEventObj;
+EventType* SampleTriggerEvent = &SampleTriggerEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

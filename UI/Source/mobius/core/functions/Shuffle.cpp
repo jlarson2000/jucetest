@@ -66,7 +66,8 @@ ShuffleEventType::ShuffleEventType()
 	name = "Shuffle";
 }
 
-EventType* ShuffleEvent = new ShuffleEventType();
+ShuffleEventType ShuffleEventObj;
+EventType* ShuffleEvent = &ShuffleEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

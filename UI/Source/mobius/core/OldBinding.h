@@ -17,6 +17,7 @@
  *                                                                          *
  ****************************************************************************/
 
+#if 0
 class OldUIControl : public SystemConstant {
 
   public:
@@ -29,13 +30,14 @@ class OldUIControl : public SystemConstant {
     void init();
 
 };
+#endif
 
 /****************************************************************************
  *                                                                          *
  *                                UI PARAMETER                              *
  *                                                                          *
  ****************************************************************************/
-
+#if 0
 class OldUIParameter : public SystemConstant {
 
   public:
@@ -50,6 +52,7 @@ class OldUIParameter : public SystemConstant {
   private:
 
 };
+#endif
 
 /****************************************************************************
  *                                                                          *

@@ -46,7 +46,8 @@ MuteModeType::MuteModeType() :
 {
 }
 
-MobiusMode* MuteMode = new MuteModeType();
+MuteModeType MuteModeObj;
+MobiusMode* MuteMode = &MuteModeObj;
 
 /**
  * A minor mode displayed when the Mute major mode is
@@ -59,11 +60,12 @@ class GlobalMuteModeType : public MobiusMode {
 };
 
 GlobalMuteModeType::GlobalMuteModeType() :
-    MobiusMode("globalMute", MSG_MODE_GLOBAL_MUTE)
+    MobiusMode("globalMute", "Global Mute")
 {
 }
 
-MobiusMode* GlobalMuteMode = new GlobalMuteModeType();
+GlobalMuteModeType GlobalMuteModeObj;
+MobiusMode* GlobalMuteMode = &GlobalMuteModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -85,7 +87,8 @@ PauseModeType::PauseModeType() :
 {
 }
 
-MobiusMode* PauseMode = new PauseModeType();
+PauseModeType PauseModeObj;
+MobiusMode* PauseMode = &PauseModeObj;
 
 /**
  * A minor mode displayed when the Pause major mode is
@@ -102,7 +105,8 @@ GlobalPauseModeType::GlobalPauseModeType() :
 {
 }
 
-MobiusMode* GlobalPauseMode = new GlobalPauseModeType();
+GlobalPauseModeType GlobalPauseModeObj;
+MobiusMode* GlobalPauseMode = &GlobalPauseModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -120,7 +124,8 @@ MuteEventType::MuteEventType()
 	name = "Mute";
 }
 
-EventType* MuteEvent = new MuteEventType();
+MuteEventType MuteEventObj;
+EventType* MuteEvent = &MuteEventObj;
 
 /****************************************************************************
  *                                                                          *

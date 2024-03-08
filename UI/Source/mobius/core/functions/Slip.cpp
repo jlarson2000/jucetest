@@ -46,7 +46,8 @@ SlipEventType::SlipEventType()
 	name = "Slip";
 }
 
-EventType* SlipEvent = new SlipEventType();
+SlipEventType SlipEventObj;
+EventType* SlipEvent = &SlipEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

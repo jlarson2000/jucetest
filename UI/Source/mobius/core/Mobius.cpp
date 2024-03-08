@@ -289,15 +289,8 @@ Mobius::~Mobius()
     delete mMidi;
     delete mAudioStream;
 
-    MobiusMode::deleteModes();
     Function::deleteFunctions();
     Parameter::deleteParameters();
-
-    // the Variables and the containing array
-    // are statically constructted
-    ScriptInternalVariable::deleteVariables();
-    WatchPoint::deleteWatchPoints();
-    
 }
 
 /**

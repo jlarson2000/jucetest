@@ -14,6 +14,8 @@
 #include <memory.h>
 #include <string.h>
 
+#include "../../../model/Trigger.h"
+
 #include "../Action.h"
 #include "../Event.h"
 #include "../EventManager.h"
@@ -25,7 +27,6 @@
 #include "../Mode.h"
 #include "../Script.h"
 #include "../Track.h"
-#include "../OldBinding.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -68,7 +69,8 @@ void RunScriptEventType::invoke(Loop* l, Event* e)
 	}
 }
 
-EventType* RunScriptEvent = new RunScriptEventType();
+RunScriptEventType RunScriptEventObj;
+EventType* RunScriptEvent = &RunScriptEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

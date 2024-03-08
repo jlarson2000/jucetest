@@ -72,7 +72,8 @@ ReplaceModeType::ReplaceModeType() :
 	recording = true;
 }
 
-MobiusMode* ReplaceMode = new ReplaceModeType();
+ReplaceModeType ReplaceModeObj;
+MobiusMode* ReplaceMode = &ReplaceModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -90,7 +91,8 @@ ReplaceEventType::ReplaceEventType()
 	name = "Replace";
 }
 
-EventType* ReplaceEvent = new ReplaceEventType();
+ReplaceEventType ReplaceEventObj;
+EventType* ReplaceEvent = &ReplaceEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -14,6 +14,7 @@
 #include <string.h>
 #include <memory.h>
 
+#include "../../../model/Trigger.h"
 #include "../Action.h"
 #include "../Event.h"
 #include "../EventManager.h"
@@ -26,8 +27,6 @@
 #include "../Stream.h"
 #include "../Synchronizer.h"
 #include "../Track.h"
-// for TriggerEvent
-#include "../OldBinding.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -45,7 +44,8 @@ StartPointEventType::StartPointEventType()
 	name = "StartPoint";
 }
 
-EventType* StartPointEvent = new StartPointEventType();
+StartPointEventType StartPointEventObj;
+EventType* StartPointEvent = &StartPointEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

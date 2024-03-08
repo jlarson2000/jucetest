@@ -92,7 +92,8 @@ ReverseModeType::ReverseModeType() :
 	minor = true;
 }
 
-MobiusMode* ReverseMode = new ReverseModeType();
+ReverseModeType ReverseModeObj;
+MobiusMode* ReverseMode = &ReverseModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -114,7 +115,8 @@ ReverseEventType::ReverseEventType()
 	reschedules = true;
 }
 
-EventType* ReverseEvent = new ReverseEventType();
+ReverseEventType ReverseEventObj;
+EventType* ReverseEvent = &ReverseEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -145,7 +147,8 @@ void ReversePlayEventType::undo(Loop* l, Event* e)
 	l->reversePlayEventUndo(e);
 }
 
-EventType* ReversePlayEvent = new ReversePlayEventType();
+ReversePlayEventType ReversePlayEventObj;
+EventType* ReversePlayEvent = &ReversePlayEventObj;
 
 /****************************************************************************
  *                                                                          *

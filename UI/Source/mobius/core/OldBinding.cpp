@@ -61,7 +61,7 @@ void OldBindable::clone(OldBindable* src)
  *                                 UI CONTROL                               *
  *                                                                          *
  ****************************************************************************/
-
+#if 0
 OldUIControl::OldUIControl()
 {
     init();
@@ -75,17 +75,19 @@ OldUIControl::OldUIControl(const char* name, int key) :
 
 void OldUIControl::init() {
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
  *                                UI PARAMETER                              *
  *                                                                          *
  ****************************************************************************/
-
+#if 0
 OldUIParameter::OldUIParameter(const char* name, int key) :
     SystemConstant(name, key)
 {
 }
+#endif
 
 /****************************************************************************
  *                                                                          *

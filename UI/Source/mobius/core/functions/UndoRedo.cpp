@@ -49,7 +49,8 @@ UndoEventType::UndoEventType()
 	name = "Undo";
 }
 
-EventType* UndoEvent = new UndoEventType();
+UndoEventType UndoEventObj;
+EventType* UndoEvent = &UndoEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -67,7 +68,8 @@ RedoEventType::RedoEventType()
 	name = "Redo";
 }
 
-EventType* RedoEvent = new RedoEventType();
+RedoEventType RedoEventObj;
+EventType* RedoEvent = &RedoEventObj;
 
 /****************************************************************************
  *                                                                          *

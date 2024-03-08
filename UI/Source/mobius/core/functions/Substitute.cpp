@@ -41,7 +41,8 @@ SubstituteModeType::SubstituteModeType() :
 	altFeedbackSensitive = true;
 }
 
-MobiusMode* SubstituteMode = new SubstituteModeType();
+SubstituteModeType SubstituteModeObj;
+MobiusMode* SubstituteMode = &SubstituteModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -59,7 +60,8 @@ SubstituteEventType::SubstituteEventType()
 	name = "Substitute";
 }
 
-EventType* SubstituteEvent = new SubstituteEventType();
+SubstituteEventType SubstituteEventObj;
+EventType* SubstituteEvent = &SubstituteEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

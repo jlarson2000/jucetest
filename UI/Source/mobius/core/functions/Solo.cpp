@@ -50,7 +50,8 @@ SoloModeType::SoloModeType() :
 {
 }
 
-MobiusMode* SoloMode = new SoloModeType();
+SoloModeType SoloModeObj;
+MobiusMode* SoloMode = &SoloModeObj;
 
 /****************************************************************************
  *                                                                          *

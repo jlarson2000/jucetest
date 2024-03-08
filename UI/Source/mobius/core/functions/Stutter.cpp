@@ -47,7 +47,8 @@ StutterModeType::StutterModeType() :
 	altFeedbackSensitive = true;
 }
 
-MobiusMode* StutterMode = new StutterModeType();
+StutterModeType StutterModeObj;
+MobiusMode* StutterMode = &StutterModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -67,7 +68,8 @@ StutterEventType::StutterEventType()
 	//reschedules = true;
 }
 
-EventType* StutterEvent = new StutterEventType();
+StutterEventType StutterEventObj;
+EventType* StutterEvent = &StutterEventObj;
 
 /****************************************************************************
  *                                                                          *

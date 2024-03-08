@@ -41,7 +41,8 @@ DivideEventType::DivideEventType()
 	name = "Divide";
 }
 
-EventType* DivideEvent = new DivideEventType();
+DivideEventType DivideEventObj;
+EventType* DivideEvent = &DivideEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

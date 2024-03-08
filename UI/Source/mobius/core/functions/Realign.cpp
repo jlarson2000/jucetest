@@ -72,7 +72,8 @@ RealignEventType::RealignEventType()
 	name = "Realign";
 }
 
-EventType* RealignEvent = new RealignEventType();
+RealignEventType RealignEventObj;
+EventType* RealignEvent = &RealignEventObj;
 
 /****************************************************************************
  *                                                                          *

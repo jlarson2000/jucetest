@@ -41,7 +41,8 @@ MoveEventType::MoveEventType()
 	name = "Move";
 }
 
-EventType* MoveEvent = new MoveEventType();
+MoveEventType MoveEventObj;
+EventType* MoveEvent = &MoveEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

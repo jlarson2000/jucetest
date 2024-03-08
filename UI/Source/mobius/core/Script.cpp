@@ -57,6 +57,11 @@
 #include "../../util/List.h"
 #include "../../util/Util.h"
 
+#include "../../model/Trigger.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/ScriptConfig.h"
+#include "../../model/UserVariable.h"
+
 #include "Action.h"
 #include "Event.h"
 #include "EventManager.h"
@@ -65,20 +70,14 @@
 #include "Layer.h"
 #include "Loop.h"
 #include "Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "MobiusThread.h"
 #include "Mode.h"
 #include "Project.h"
 //#include "Recorder.h"
 #include "Script.h"
-#include "../../model/ScriptConfig.h"
 #include "Synchronizer.h"
 #include "Track.h"
-#include "../../model/UserVariable.h"
 #include "Variable.h"
-
-// for Trigger
-#include "OldBinding.h"
 
 /****************************************************************************
  *                                                                          *

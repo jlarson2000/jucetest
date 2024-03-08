@@ -38,7 +38,8 @@ PlayModeType::PlayModeType() :
 {
 }
 
-MobiusMode* PlayMode = new PlayModeType();
+PlayModeType PlayModeObj;
+MobiusMode* PlayMode = &PlayModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -56,7 +57,8 @@ PlayEventType::PlayEventType()
 	name = "Play";
 }
 
-EventType* PlayEvent = new PlayEventType();
+PlayEventType PlayEventObj;
+EventType* PlayEvent = &PlayEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

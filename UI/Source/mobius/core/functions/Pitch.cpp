@@ -52,7 +52,8 @@ PitchOctaveModeType::PitchOctaveModeType() :
 	minor = true;
 }
 
-MobiusMode* PitchOctaveMode = new PitchOctaveModeType();
+PitchOctaveModeType PitchOctaveModeObj;
+MobiusMode* PitchOctaveMode = &PitchOctaveModeObj;
 
 /**
  * Minor mode when a pitch step is active.
@@ -68,7 +69,8 @@ PitchStepModeType::PitchStepModeType() :
 	minor = true;
 }
 
-MobiusMode* PitchStepMode = new PitchStepModeType();
+PitchStepModeType PitchStepModeObj;
+MobiusMode* PitchStepMode = &PitchStepModeObj;
 
 /**
  * Minor mode when a pitch bend is active.
@@ -84,7 +86,8 @@ PitchBendModeType::PitchBendModeType() :
 	minor = true;
 }
 
-MobiusMode* PitchBendMode = new PitchBendModeType();
+PitchBendModeType PitchBendModeObj;
+MobiusMode* PitchBendMode = &PitchBendModeObj;
 
 
 //////////////////////////////////////////////////////////////////////
@@ -103,7 +106,8 @@ PitchEventType::PitchEventType()
 	name = "Pitch";
 }
 
-EventType* PitchEvent = new PitchEventType();
+PitchEventType PitchEventObj;
+EventType* PitchEvent = &PitchEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

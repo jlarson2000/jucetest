@@ -59,7 +59,8 @@ TrimEventType::TrimEventType()
 	name = "Trim";
 }
 
-EventType* TrimEvent = new TrimEventType();
+TrimEventType TrimEventObj;
+EventType* TrimEvent = &TrimEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

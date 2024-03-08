@@ -61,7 +61,8 @@ WindowModeType::WindowModeType() :
 	minor = true;
 }
 
-MobiusMode* WindowMode = new WindowModeType();
+WindowModeType WindowModeObj;
+MobiusMode* WindowMode = &WindowModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -79,7 +80,8 @@ WindowEventType::WindowEventType()
 	name = "Window";
 }
 
-EventType* WindowEvent = new WindowEventType();
+WindowEventType WindowEventObj;
+EventType* WindowEvent = &WindowEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

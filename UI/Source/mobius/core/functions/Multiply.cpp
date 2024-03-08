@@ -59,7 +59,8 @@ MultiplyModeType::MultiplyModeType() :
 	altFeedbackSensitive = true;
 }
 
-MobiusMode* MultiplyMode = new MultiplyModeType();
+MultiplyModeType MultiplyModeObj;
+MobiusMode* MultiplyMode = &MultiplyModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -78,7 +79,8 @@ MultiplyEventType::MultiplyEventType()
 	reschedules = true;
 }
 
-EventType* MultiplyEvent = new MultiplyEventType();
+MultiplyEventType MultiplyEventObj;
+EventType* MultiplyEvent = &MultiplyEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

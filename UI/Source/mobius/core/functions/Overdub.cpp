@@ -71,7 +71,8 @@ OverdubModeType::OverdubModeType() :
 	altFeedbackSensitive = true;
 }
 
-MobiusMode* OverdubMode = new OverdubModeType();
+OverdubModeType OverdubModeObj;
+MobiusMode* OverdubMode = &OverdubModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -89,7 +90,8 @@ OverdubEventType::OverdubEventType()
 	name = "Overdub";
 }
 
-EventType* OverdubEvent = new OverdubEventType();
+OverdubEventType OverdubEventObj;
+EventType* OverdubEvent = &OverdubEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

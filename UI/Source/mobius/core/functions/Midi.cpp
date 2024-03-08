@@ -53,7 +53,8 @@ MidiStartEventType::MidiStartEventType()
 	name = "MidiStart";
 }
 
-EventType* MidiStartEvent = new MidiStartEventType();
+MidiStartEventType MidiStartEventObj;
+EventType* MidiStartEvent = &MidiStartEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -237,7 +238,8 @@ MidiStopEventType::MidiStopEventType()
 	name = "MidiStop";
 }
 
-EventType* MidiStopEvent = new MidiStopEventType();
+MidiStopEventType MidiStopEventObj;
+EventType* MidiStopEvent = &MidiStopEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //

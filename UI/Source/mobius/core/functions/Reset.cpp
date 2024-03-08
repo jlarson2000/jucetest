@@ -39,7 +39,8 @@ ResetModeType::ResetModeType() :
 {
 }
 
-MobiusMode* ResetMode = new ResetModeType();
+ResetModeType ResetModeObj;
+MobiusMode* ResetMode = &ResetModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //

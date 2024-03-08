@@ -63,7 +63,7 @@ InsertModeType::InsertModeType() :
 }
 
 InsertModeType InsertModeObj;
-MobiusMode* InsertMode = &InsertModeType;
+MobiusMode* InsertMode = &InsertModeObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -82,7 +82,8 @@ InsertEventType::InsertEventType()
 	reschedules = true;
 }
 
-EventType* InsertEvent = new InsertEventType();
+InsertEventType InsertEventObj;
+EventType* InsertEvent = &InsertEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -101,7 +102,8 @@ InsertEndEventType::InsertEndEventType()
 	reschedules = true;
 }
 
-EventType* InsertEndEvent = new InsertEndEventType();
+InsertEndEventType InsertEndEventObj;
+EventType* InsertEndEvent = &InsertEndEventObj;
 
 /****************************************************************************
  *                                                                          *

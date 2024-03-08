@@ -18,13 +18,14 @@
 #include <string.h>
 
 #include "../../../util/Util.h"
+#include "../../../model/Trigger.h"
+
 #include "../MidiByte.h"
 
 #include "../Action.h"
 #include "../Function.h"
 #include "../Loop.h"
 #include "../Resampler.h"
-#include "../OldBinding.h"
 
 //////////////////////////////////////////////////////////////////////
 //

@@ -170,7 +170,8 @@ int LoopLocationType::getValue(Mobius* m, Loop* l)
     return value;
 }
 
-WatchPoint* LoopLocationPoint = new LoopLocationType();
+LoopLocationType LoopLocationPointObj;
+WatchPoint* LoopLocationPoint = &LoopLocationPointObj;
 
 /****************************************************************************
  *                                                                          *
@@ -202,7 +203,8 @@ int LoopStartType::getValue(Mobius* m, Loop* l)
     return 1;
 }
 
-WatchPoint* LoopStartPoint = new LoopStartType();
+LoopStartType LoopStartPointObj;
+WatchPoint* LoopStartPoint = &LoopStartPointObj;
 
 /****************************************************************************
  *                                                                          *
@@ -234,7 +236,8 @@ int LoopCycleType::getValue(Mobius* m, Loop* l)
     return 1;
 }
 
-WatchPoint* LoopCyclePoint = new LoopCycleType();
+LoopCycleType LoopCyclePointObj;
+WatchPoint* LoopCyclePoint = &LoopCyclePointObj;
 
 /****************************************************************************
  *                                                                          *
@@ -267,7 +270,8 @@ int LoopSubcycleType::getValue(Mobius* m, Loop* l)
     return 1;
 }
 
-WatchPoint* LoopSubcyclePoint = new LoopSubcycleType();
+LoopSubcycleType LoopSubcyclePointObj;
+WatchPoint* LoopSubcyclePoint = &LoopSubcyclePointObj;
 
 /****************************************************************************
  *                                                                          *
@@ -317,15 +321,6 @@ WatchPoint* WatchPoint::getWatchPoint(const char* name)
 	}
 	return found;
 }
-
-void WatchPoint::deleteWatchPoints()
-{
-    for (int i = 0 ; WatchPoints[i] != NULL ; i++) {
-        WatchPoint* c = WatchPoints[i];
-        delete c;
-    }
-}
-
 
 /****************************************************************************/
 /****************************************************************************/
