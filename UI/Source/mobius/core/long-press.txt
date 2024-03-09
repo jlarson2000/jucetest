@@ -1,0 +1,69 @@
+TriggerState
+  called by Mobius::doFunction
+    mTriggerState->assimilate(a);
+    
+  called near the end of beginAudioInterrupt
+    // Advance the long-press tracker too, this may cause other 
+    // actions to fire.
+    mTriggerState->advance(this, mInterruptStream->getInterruptFrames());
+
+   has a TriggerWatcher but only used internally
+
+TriggerState::assimilate
+  if up transition
+    look for a TriggerWatcher for the given action
+    sets the action->longPress to whether the watcher had the flag set
+            // convey long press state in the action
+            action->longPress = tw->longPress;
+
+    so an Action comes in, we check to see if a down was being tracked and
+      if the watcher thinks it is long, set the longPress flag
+
+  if down transition
+    remove watcher previously saved for this action
+    allocates a new watcher from the pool and adds it to the watch list
+
+TriggerState::remove
+  looks at all the watcher for one with
+    matching matching trigger type
+    matching trigger ID
+      - this is the magic id we need for TriggerMidi, it has to be a unique
+        combo of channel/note
+
+
+Trigger::advance
+  advances a frame count, looks at all watcher to see if they've been
+  held down for mLongPressFrames
+  if long detected
+    allocates a NEW action and sets it with stuff saved in the watcher
+    remembers track/group too,
+    calls Mobius::doAction
+
+So the key parts are automatically generating Actions at the start of
+each interrupt if we've noticed a long press.  Moving this out will require
+an alternative timer.  Since long press is in the 1 second or more range the
+1/10th UI interval would be enough.
+
+This can be moved to Binderator
+  from the engine perspective an Action comes in and we do whatever it does
+  time passes, an auto-generated Action comes in to start something new
+  original Action may be gone, or still on the event list, I guess the Function
+  is responsible for correlating scheduled Actions and doing something with them
+  if it hasn't happened yet, could change the event
+  could do this entirely in the UI but it isn't that complicated
+
+
+What is sensitive to action->longPress
+  Mobius calls doActionNow
+  Mobius doFunction calls f->invokeLong rather than f->invoke
+  on up transition doFunction cal f->invoke on a DIFFERENT function
+    for cases where a long changes the ending
+
+This has a lot of subtle EDPisms in it that I think need to belong in the engine
+It isn't just long detection in the tracker, it's what happens if longPress is
+set in the Action.  That can't be moved, but tracking mechanism could.  Still there
+are some subtle conventions about what an Action created by the long press watcher
+looks like, this could be a different Trigger type?
+
+Keep this in core for now it isn't that bad.
+

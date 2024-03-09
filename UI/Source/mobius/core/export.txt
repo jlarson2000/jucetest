@@ -1,0 +1,10 @@
+
+exports were added for OSC which we can redesign
+
+replace with the Query concept or reuse the old code, but get
+it the fuck out of here
+
+Unfortunately Export is part of the core model for Scripts, it is how
+we get the value of Parameters, this will take thought
+
+It's also how doParameter gets the value when using operators...

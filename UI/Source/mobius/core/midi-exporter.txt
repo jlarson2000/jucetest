@@ -1,0 +1,5 @@
+
+The concept is still interesting, but we can start over to be rid of references
+to BindingConfig and Export
+
+

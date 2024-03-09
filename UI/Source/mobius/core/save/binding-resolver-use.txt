@@ -1,0 +1,61 @@
+/**
+ * I originally omitted this, but it seems to be the only thing that
+ * builds out BindingResolver and MidiExporter so I want to understand how it works.
+ * 
+ * Rebuild the binding cache to reflect changes made to the binding definitions,
+ * the scripts, or one of the bindable config objects
+ * (presets, setups, overlays).
+ * 
+ * Have to be careful since the MIDI thread can be using the current
+ * binding cache, so build and set the new one before deleting the old one.
+ *
+ * !! This is messy.  Need a more encapsulated environment for ui level threads
+ * that gets phased in consistently instead of several pieces.
+ */
+void Mobius::updateBindings()
+{
+    BindingResolver* old = mBindingResolver;
+    mBindingResolver = new BindingResolver(this);
+
+    // pause to make sure the new one is being used
+    // would be better if we assigned it as a pending change and
+    // processed it on the next MIDI interrupt
+    SleepMillis(100);
+        
+    delete old;
+
+    // This could be in use by MobiusThread so have to phase
+    // it out and let MobiusThread reclaim it.
+    MidiExporter* exporter = new MidiExporter(this);
+    exporter->setHistory(mMidiExporter);
+    mMidiExporter = exporter;
+
+    // refresh the previously resolved targets
+    for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
+        ActionType* target = t->getTarget();
+
+        // The new target may no longer exist in which case the binding
+        // goes to null.  Trigger processing needs to deal with this.
+
+        if (target == ActionFunction) {
+            // !! is this safe?  shouldn't be be getting a new 
+            // RunScriptFunction wrapper too?
+            Function* f = (Function*)t->getObject();
+            if (f != NULL && f->isScript()) {
+                Script* script = (Script*)f->object;
+                f->object = mScriptEnv->getScript(script);
+            }
+        }
+        else if (target == ActionSetup) {
+            t->setObject(GetSetup(mConfig, t->getName()));
+        }
+        else if (target == ActionPreset) {
+            t->setObject(GetPreset(mConfig, t->getName()));
+        }
+        else if (target == ActionBindings) {
+            //t->setObject(mConfig->getBindingConfig(t->getName()));
+        }
+    }
+
+}
+

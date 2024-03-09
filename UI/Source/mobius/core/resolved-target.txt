@@ -1,0 +1,110 @@
+Fundamentally it is this
+
+void ResolvedTarget::init()
+{
+    mInterned = false;
+    mNext = NULL;
+    mTarget = NULL;
+    mName = NULL;
+    mObject.object = NULL;
+    mTrack = 0;
+    mGroup = 0;
+}
+
+
+The Target, Name come from a binding of some sort UIAction provides
+this with ActionType and actionName
+
+mObject is this
+
+typedef union {
+
+    void* object;
+    class Function* function;
+    class Parameter* parameter;
+
+    // I want to get rid of the old binding model, don't resolve
+    // these and just look them up by name
+    //class OldBindable* bindable;
+
+} TargetPointer;
+
+Which is basically the same as ActionImplementation except
+that it points to internal objects
+
+Can keep this part the same though if we stop using pointers
+directly to config Structures there isn't much in here
+
+mTrack and mGroup are still integers, just like UIAction
+
+
+Target related things in the Action model
+
+    class ActionType* getTarget();
+    void* getTargetObject();
+    class Function* getFunction();
+    int getTargetTrack();
+    int getTargetGroup();
+    bool isTargetEqual(Action* other);
+    void setTarget(class ActionType* t);
+    //void setTarget(class ActionType* t, void* object);
+    void setFunction(class Function* f);
+    void setParameter(class Parameter* p);
+    void setTargetTrack(int track);
+    void setTargetGroup(int group);
+    //ResolvedTarget* getResolvedTarget();
+
+    /**
+     * Reference to an interned target when the action is created from
+     * a Binding.
+     */
+    ResolvedTarget* mInternedTarget;
+    
+    /**
+     * Private target properties for actions that are not associated 
+     * with bindings.  These are typically created on the fly by the UI.
+     */
+    ResolvedTarget mPrivateTarget;
+    
+    /**
+     * Allow the client to specify a name, convenient for
+     * OSC debugging.
+     */
+    char* mName;
+
+
+    // Target, Scope
+    // take the private target if we have one
+    mInternedTarget = src->mInternedTarget;
+    mPrivateTarget.clone(&(src->mPrivateTarget));
+
+ResolvedTarget* Action::getResolvedTarget()
+{
+    ResolvedTarget* t = mInternedTarget;
+    if (t == NULL)
+      t = &mPrivateTarget;
+    return t;
+}
+
+okay, here's this little dance where we have either an interned target or
+a private one and all of the accessor methods use one or the other
+but interned targets are optional
+
+ActionType* Action::getTarget()
+{
+    ResolvedTarget* rt = getResolvedTarget();
+    return (rt != NULL) ? rt->getTarget() : NULL;
+}
+
+there are only four of these
+
+  getTarget
+  getTargetObject
+  getTargetTrack
+  getTargetGroup
+
+
+don't seem to be carrying around the equivalent of UIAction.actionName
+I guess because it gets resolved and we don't need it any more
+
+

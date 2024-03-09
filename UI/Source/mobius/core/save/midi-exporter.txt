@@ -1,0 +1,42 @@
+/**
+ * Called periodically by MobiusThread to export status to bi-directional
+ * MIDI controllers, control surfaces, and OSC clients.
+ *
+ * mobiusThread is true if we're being called by MobiusThread which means
+ * it is safe to clean up a previous exporter that is being phased out.
+ * NOTE: This is always true since we're never called outside the thread,
+ * I don't remember why this was here.
+ *
+ */
+void Mobius::exportStatus(bool inThread)
+{
+    // nab a copy to it doesn't change out from under us
+    // maybe it would be better if MobiusThread managed it's own copy
+    // and we just posted a new version 
+    MidiExporter *exporter = mMidiExporter;
+    if (exporter != NULL) {
+
+        if (inThread) {
+            // reclaim old versions
+            MidiExporter* old = exporter->getHistory();
+            if (old != NULL) {
+                exporter->setHistory(NULL);
+                delete old;
+            }
+        }
+
+        exporter->sendEvents();
+    }
+
+	// don't have a mechanism for editing these yet so we don't
+	// have to deal with the old/new thing like MidiExporter
+	// this will change...
+#if 0 
+    // the thread starts running before we're fully initialized so
+    // always check for null here
+    if (mOsc != NULL)
+      mOsc->exportStatus();
+#endif    
+}
+
+

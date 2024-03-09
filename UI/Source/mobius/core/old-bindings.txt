@@ -1,0 +1,244 @@
+
+Action
+const char* ResolvedTarget::getDisplayName()
+        else if (mTarget == ActionSetup ||
+                 mTarget == ActionPreset ||
+                 mTarget == ActionBindings) {
+            OldBindable* b = mObject.bindable;
+            dname = b->getName();
+
+
+resolved target shit
+
+might be able to get rid of this entirely
+
+ActionType in the new model defines these, need to replace with structureClass
+or something
+
+extern ActionType* ActionSetup;
+extern ActionType* ActionPreset;
+extern ActionType* ActionBindings;
+
+/**
+ * Resolve a Binding to an Action.
+ * First we intern a ResolvedTarget, then we build the Action around it.
+ * This handles both normal bindings and OSC bindings.
+ */
+Action* Mobius::resolveAction(OldBinding* b)
+{
+    Action* a = NULL;
+
+    // we make assumptions about the trigger so it must be set
+    if (b->getTrigger() == NULL) {
+        Trace(1, "Mobius::resolveAction binding with no trigger\n");
+    }
+    else if (b->getTargetPath() != NULL) {
+        // an OSC binding
+        //a = resolveOscAction(b);
+    }
+    else {
+        ResolvedTarget* t = resolveTarget(b);
+        if (t != NULL) {
+            a = new Action(t);
+
+            // parse binding arguments
+            CopyString(b->getArgs(), a->bindingArgs, sizeof(a->bindingArgs));
+            a->parseBindingArgs();
+
+            resolveTrigger(b, a);
+        }
+    }
+
+    return a;
+}
+
+/**
+ * Resolve the target represented in a Binding and return
+ * an interned ResolvedTarget if we could resolve the target.  
+ * The returned object remains owned by Mobius and must not be
+ * modified by the caller.
+ *
+ * This will NOT handle Bindings that use targetPath.  For those
+ * you must call resolveAction.  This is only public so that it
+ * may be used by the binding windows to validate selections.
+ */
+ResolvedTarget* Mobius::resolveTarget(OldBinding* b)
+{
+    ResolvedTarget* resolved = NULL;
+
+    if (b->getTargetPath()) {
+        Trace(1, "resolveTarget called with targetPath!\n");
+    }
+    else {
+        int track, group;
+        parseBindingScope(b->getScope(), &track, &group);
+        resolved = internTarget(b->getTarget(), b->getName(), track, group);
+    }
+
+    return resolved;
+}
+
+/**
+ * Parse a scope into track an group numbers.
+ * Tracks are expected to be identified with integers starting
+ * from 1.  Groups are identified with upper case letters A-Z.
+ */
+void Mobius::parseBindingScope(const char* scope, int* track, int* group)
+{
+    *track = 0;
+    *group = 0;
+
+    if (scope != NULL) {
+        int len = strlen(scope);
+        if (len > 1) {
+            // must be a number 
+            *track = atoi(scope);
+        }
+        else if (len == 1) {
+            char ch = scope[0];
+            if (ch >= 'A') {
+                *group = (ch - 'A') + 1;
+            }
+            else {
+                // normally an integer, anything else
+                // collapses to zero
+                *track = atoi(scope);
+            }
+        }
+    }
+}
+
+/**
+ * After resolving a Binding for a non-OSC target, initialize
+ * trigger properties.
+ *
+ * Arguably this could go in each of the "clients": OscConfig, 
+ * MobiusPlugin, and BindingResolver, but we have all the OSC parsing
+ * stuff down here, and that defines trigger properties so keep it
+ * all in one place.
+ *
+ * The one exception is the UI since it is less predictable, it must
+ * set the trigger properties after resolving the action.
+ *
+ * MIDI is ugly because the Action model was designed long after
+ * the Binding model.  Bindings maintain specific fields for MIDI 
+ * triggers, Actions are more generic so we have to convert them.
+ * 
+ * Bindings have so far used three target constants for MIDI notes, 
+ * programs, and CCs.  Actions collapse this into a single TargetMidi.
+ * Actions also do not have fields for values in a MIDI message but they
+ * have accessors that can dig them out of the action id.
+ */
+void Mobius::resolveTrigger(OldBinding* binding, Action* action)
+{
+    int midiStatus = 0;
+
+    // defaults usually convey
+    Trigger* trigger = binding->getTrigger();
+    TriggerMode* mode = binding->getTriggerMode();
+
+    if (trigger == TriggerNote) {
+        trigger = TriggerMidi;
+        midiStatus = MS_NOTEON;
+        if (mode == NULL) {
+          mode = TriggerModeMomentary;
+        }
+        else if (mode != TriggerModeMomentary &&
+                 mode != TriggerModeOnce) {
+            Trace(1, "Overriding invalid note trigger mode %s\n",
+                  mode->getName());
+            mode = TriggerModeMomentary;
+        }
+    }
+    else if (trigger == TriggerProgram) {
+        trigger = TriggerMidi;
+        midiStatus = MS_PROGRAM;
+        mode = TriggerModeOnce;
+    }
+    else if (trigger == TriggerControl) {
+        trigger = TriggerMidi;
+        midiStatus = MS_CONTROL;
+        // some controllers can be programmed to send zero/nono-zero
+        // assume that if it is bound to anything other than a parameter
+        // it is momentary
+        ActionType* t = action->getTarget();
+        if (t == ActionParameter) {
+            if (mode == NULL)
+              mode = TriggerModeContinuous;
+            else if (mode != TriggerModeContinuous &&
+                     mode != TriggerModeMomentary &&
+                     mode != TriggerModeOnce) {
+                Trace(1, "Overriding invalid control trigger mode %s\n",
+                      mode->getName());
+                mode = TriggerModeContinuous;
+            }
+        }
+        else {
+            if (mode != NULL && mode != TriggerModeMomentary)
+              Trace(1, "Overriding invalid control trigger mode %s\n",
+                    mode->getName());
+            mode = TriggerModeMomentary;
+        }
+    }
+    else if (trigger == TriggerPitch) {
+        trigger = TriggerMidi;
+        midiStatus = MS_BEND;
+        // some controllers can be programmed to send zero/nono-zero
+        mode = TriggerModeContinuous;
+    }
+    else if (trigger == TriggerKey) {
+        mode = TriggerModeMomentary;
+    }
+    else if (trigger == TriggerUI) {
+        // this can be either momentary or continuous
+        // make UI set it appropriately
+    }
+    else if (trigger == TriggerHost) {
+        // We don't need triggerType in the Binding do we?  Host
+        // parameters always behave this way.
+        ActionType* t = action->getTarget();
+        if (t == ActionParameter &&
+            action->actionOperator == NULL && 
+            action->arg.isNull()) {
+            mode = TriggerModeContinuous;
+        }
+        else {
+            // Functions and config objects are assumed to behave
+            // like buttons, can change this later for !continuous scripts
+            mode = TriggerModeMomentary;
+        }
+    }
+    else if (trigger == TriggerOsc) {
+        // parsing the path will have already handled this
+    }
+
+    // If we've bound to a !continuous script, make it feel
+    // like a Parameter.
+    // NOTE: We'll never call this for TriggerOsc but in theory
+    // it could work the same way.  Do we need that?
+    if (trigger == TriggerHost || trigger == TriggerOsc) {
+        if (action->getTarget() == ActionFunction) {
+            Function* f = (Function*)action->getTargetObject();
+            if (f != NULL && f->isScript()) {
+                Script* s = (Script*)f->object;
+                if (s != NULL && s->isContinuous())
+                  mode = TriggerModeContinuous;
+            }
+        }
+    }
+
+    // save what we came up with
+    action->trigger = trigger;
+    action->triggerMode = mode;
+
+    if (trigger != TriggerMidi) {
+        action->id = binding->getValue();
+    }
+    else {
+        // for MIDI triggers compress the MIDI message fields into
+        // the action id which will already have the MS_ status code
+        action->setMidiStatus(midiStatus);
+        action->setMidiChannel(binding->getChannel());
+        action->setMidiKey(binding->getValue());
+    }
+}

@@ -1,0 +1,429 @@
+/**
+ * Resolve and intern a target using given it's properties.
+ * Returns NULL if the target name is invalid, or if this is a UIControl
+ * and we don't know what they are yet.
+ *
+ * Config object handling is messy.  We resolve to the 
+ * external config not the interrupt config.  But when we
+ * need to use this action we have to convert that to the
+ * interrupt config object, so resolving it here doesn't accomplish
+ * anything other than to make sure the name is valid.  Should just
+ * leave the number in the Action instead?
+ * !!
+ *
+ * UPDATE: may not be relevant any more
+ */
+ResolvedTarget* Mobius::internTarget(ActionType* target, 
+                                             const char* name,
+                                             int track,
+                                             int group)
+{
+    ResolvedTarget* resolved = NULL;
+    MobiusConfig* config = getConfiguration();
+    void* resolvedTarget = NULL;
+    bool tolerate = false;
+
+    if (target == NULL) {
+        Trace(1, "Unable to resolve Binding: no target\n");
+    }
+    else if (name == NULL) {
+        Trace(1, "Unable to resolve Binding: no name\n");
+    }
+    else if (target == ActionFunction) {
+        Function* f = getFunction(name);
+        // these can have aliases, upgrade the name
+        if (f != NULL)
+          name = f->getName();
+        resolvedTarget = f;
+    }
+    else if (target == ActionParameter) {
+        Parameter* p = Parameter::getParameter(name);
+        // these can have aliases, upgrade the name
+        if (p != NULL)
+          name = p->getName();
+        resolvedTarget = p;
+    }
+    else if (target == ActionSetup) {
+        resolvedTarget = GetSetup(config, name);
+    }
+    else if (target == ActionPreset) {
+        resolvedTarget = GetPreset(config, name);
+    }
+    else if (target == ActionBindings) {
+        // changed the name
+        //resolvedTarget = config->getBindingConfig(name);
+    }
+    else {
+        Trace(1, "Unable to resolve Binding: unsupported target %ld\n",
+              (long)target);
+    }
+
+    // must have at least the name, some we'll defer
+    if (name != NULL) {
+        if (resolvedTarget == NULL && !tolerate)
+          Trace(1, "Unrecognized binding target: %s\n", name);
+        else {
+            // see if we already have one
+            for (ResolvedTarget* t = mResolvedTargets ; t != NULL ; t = t->getNext()) {
+                if (t->getTarget() == target &&
+                    StringEqual(t->getName(), name) &&
+                    t->getTrack() == track &&
+                    t->getGroup() == group) {
+                    resolved = t;
+                    break;
+                }
+            }
+            
+            if (resolved == NULL) {
+                resolved = new ResolvedTarget();
+                resolved->setTarget(target);
+                resolved->setName(name);
+                resolved->setObject(resolvedTarget);
+                resolved->setTrack(track);
+                resolved->setGroup(group);
+
+                //mCsect->enter("internTarget");
+                resolved->setInterned(true);
+                resolved->setNext(mResolvedTargets);
+                mResolvedTargets = resolved;
+                //mCsect->leave("internTarget");
+            }
+        }
+    }
+            
+    return resolved;
+}
+
+/**
+ * Resolve an Action from an OSC path.
+ * 
+ * /mobius/trigger/scope/target/value
+ *
+ * /mobius must be at the front of the path.
+ *
+ * Second container is optional and contains
+ * information about the trigger:
+ *
+ *     range(low,high)
+ *       - specifies the value range if not 0.0 to 1.0
+ *
+ *     noup
+ *       - implies TriggerModeOnce
+ *
+ * The scope container is optional and may contain:
+ *
+ *    global, track number, group letter
+ *
+ * If not specified it defaults to global.
+ *
+ * After scope is the target name which will either
+ * be a Parameter or a Function.
+ *
+ * After target name is an optional value which may take
+ * these forms.  All but two are used only with parameter targets.
+ *
+ *   <enumeration>      
+ *   <name>             + substituted for space
+ *   <number>           parameter or function
+ *   min                
+ *   max                
+ *   center             
+ *   up             
+ *   down
+ *   up/<number>
+ *   down/<number>
+ *   arg                value taken from the OSC argument
+ *
+ */
+#if 0
+Action* Mobius::resolveOscAction(Binding* b)
+{
+    Action* action = NULL;
+    bool error = false;
+    char token[128];
+    char name[128];
+    Target* target = NULL;
+    Parameter* parameter = NULL;
+    int track = 0;
+    int group = 0;
+    ActionOperator* op = NULL;
+    ExValue argument;
+    bool noup = false;
+    bool passArg = false;
+
+    name[0] = 0;
+    argument.setNull();
+
+    const char* path = b->getTargetPath();
+    const char* ptr = path;
+
+    // osc.xml often has example Bindings with no path so ignore them
+    if (path == NULL || strlen(path) == 0) {
+        Trace(3, "resolveOscAction: Empty path\n");
+        error = true;
+    }
+
+    // I don't normally like the !error pattern but nesting gets
+    // too deep without it and I can't stand inline returns
+    if (!error) {
+        // skip over /mobius
+        ptr = getToken(ptr, token);
+        if (!StringEqualNoCase(token, "mobius")) {
+            Trace(2, "resolveOscAction: /mobius prefix not found\n");
+            error = true;
+        }
+        else
+          ptr = getToken(ptr, token);
+    }
+    
+    //
+    // Trigger
+    //
+
+    if (!error) {
+        if (StringEqualNoCase(token, "noup")) {
+            noup = true;
+            ptr = getToken(ptr, token);
+        }
+        else if (StartsWithNoCase(token, "range")) {
+            Trace(1, "Not supporting OSC trigger ranges yet\n");
+            ptr = getToken(ptr, token);
+        }
+    }
+
+    //
+    // Scope
+    //
+
+    if (!error) {
+        bool skip = true;
+        if (isdigit(token[0])) {
+            // must be a track number starting at 1
+            int i = atoi(token);
+            if (i >= 1 && i <= mTrackCount)
+              track = i;
+            else {
+                Trace(2, "resolveOscAction: Invalid track number %s\n", token);
+                error = true;
+            }
+        }
+        else if (token[1] == 0) {
+            // single letter, must be group number
+            int i = (int)(token[0]) - (int)'A';
+            if (i < 0 || i >= 26) {
+                // not a letter
+                Trace(2, "resolveOscAction: Invalid group letter %s\n", token);
+                error = true;
+            }
+            else {
+                // group in the binding starts from 1
+                // TODO: check config for max group
+                group = i + 1;
+            }
+        }
+        else if (!StringEqualNoCase(token, "global")) {
+            // global is optional, consider this the target
+            skip = false;
+        }
+        if (skip)
+          ptr = getToken(ptr, token);
+    }
+
+    //
+    // Target
+    //
+    // Orignally we had a type here, but now we're assuming
+    // that all targets have unique names.  This does mean that
+    // we'll search the name lists twice, once here and again
+    // in internTarget.  Oh well.
+    // !! what about scripts with user defined names, 
+    // use the "script:" prefix?
+    //
+
+    // do parameters first so we get SpeedStep and PitchStep
+    // as parameters rather than spread functions
+    if (!error) {
+        // remember this for later
+        parameter = Parameter::getParameter(token);
+        if (parameter != NULL) {
+            target = TargetParameter;
+            CopyString(token, name, sizeof(name));
+        }
+    }
+
+    if (!error && target == NULL) {
+        // TODO: include UIControls?
+    }
+
+    if (!error && target == NULL) {
+        // script names may have escaped spaces!
+        char namebuf[128];
+        oscUnescape(token, namebuf, sizeof(namebuf));
+
+        Function* f = getFunction(namebuf);
+        if (f != NULL) {
+            target = TargetFunction;
+            // save the unescaped name
+            CopyString(namebuf, name, sizeof(name));
+        }
+    }
+
+    if (!error) {
+        if (target != NULL)
+          ptr = getToken(ptr, token);
+        else {
+            Trace(2, "resolveOscAction: Unknown target %s\n", token);
+            error = true;
+        }
+    }
+
+    //
+    // Special values
+    //
+
+    if (!error) {
+        // up, down, min, max, center, arg
+        op = ActionOperator::get(token);
+        if (op == NULL && StringEqualNoCase(token, "arg"))
+          passArg = true;
+
+        if (op != NULL || passArg)
+          ptr = getToken(ptr, token);
+    }
+
+    if (!error && op != NULL) {
+        // operator can also use "arg" for it's operand
+        if (StringEqualNoCase(token, "arg")) {
+            passArg = true;
+            ptr = getToken(ptr, token);
+        }
+    }
+
+    //
+    // Value
+    // enumeration name, user defined name, number
+    // if passArg became true there shouldn't be anything left
+    //
+
+    if (!error) {
+        if (IsInteger(token)) {
+            // Leave the value as an int. 
+            // For config objects in theory you can name something "123" 
+            // which needs to be searched as a string, but we're not 
+            // allowing that.
+            argument.setInt(ToInt(token));
+
+            // TODO: Could validate parameter ranges...
+        }
+        else {
+            char valbuf[128];
+            oscUnescape(token, valbuf, sizeof(valbuf));
+            if (strlen(valbuf) > 0) {
+                // For config objects, resolve directly to the object
+                // internTarget will log errors
+                MobiusConfig* config = getConfiguration();
+                if (parameter == BindingsParameter) {
+                    target = TargetBindings;
+                    CopyString(valbuf, name, sizeof(name));
+                }
+                else if (parameter == SetupNameParameter) {
+                    target = TargetSetup;
+                    CopyString(valbuf, name, sizeof(name));
+                }
+                else if (parameter == TrackPresetParameter) {
+                    target = TargetPreset;
+                    CopyString(valbuf, name, sizeof(name));
+                }
+                else {
+                    // just leave it as a string argument
+                    argument.setString(valbuf);
+                }
+            }
+        }
+    }
+
+    // finally!
+    if (!error) {
+        // this will trace errors
+        ResolvedTarget* rt = internTarget(target, name, track, group);
+        if (rt != NULL) {
+            // the id must be set by the caller
+            action = new Action(rt);
+            action->trigger = TriggerOsc;
+            action->arg.set(&argument);
+            action->actionOperator = op;
+            action->passOscArg = passArg;
+
+            // Binding contains a TriggerMode but we don't need it, 
+            // though it might be important to convey Toggle.
+            // Mode is implied by the target and options on the path and
+            // you are expected to write paths that match the trigger mode.
+
+            if (target == TargetParameter) {
+                // parameters expect continuous triggers unless they
+                // have an explicit value
+                if (op == NULL && argument.isNull() && !passArg)
+                  action->triggerMode = TriggerModeContinuous;
+                else
+                  action->triggerMode = TriggerModeOnce;
+            }
+            else if (target == TargetFunction) {
+                if (noup || passArg)
+                  action->triggerMode = TriggerModeOnce;
+                else
+                  action->triggerMode = TriggerModeMomentary;
+            }
+            else {
+                // config objects were orignially params with values
+                action->triggerMode = TriggerModeOnce;
+            }
+
+            // A binding can have args for min/max/set etc. 
+            // We could support those if someone bothered to edit
+            // OscConfig XML, but now that we can do it in paths
+            // it isn't necessary and just confuses things.
+        }
+    }
+
+    return action;
+}
+
+/**
+ * Helper for target path parsing.
+ */
+const char* Mobius::getToken(const char* ptr, char* token)
+{
+    // skip over initial / if we're there
+    if (*ptr == '/') ptr++;
+
+    char* dest = token;
+    while (*ptr && *ptr != '/')
+      *dest++ = *ptr++;
+
+    *dest = 0;
+
+    return ptr;
+}
+
+/**
+ * Unescape an OSC name which has + substituted for space.
+ */
+void Mobius::oscUnescape(const char* src, char* dest, int max)
+{
+    int len = strlen(src);
+    if (len > (max - 1))
+      Trace(1, "oscUnescape: Token too long %s\n", src);
+    else {
+        const char* srcptr = src;
+        char* destptr = dest;
+        while (*srcptr) {
+            char ch = *srcptr;
+            if (ch == '+') ch = ' ';
+            *destptr++ = ch;
+            srcptr++;
+        }
+        *destptr = 0;
+    }
+}
+#endif
+
