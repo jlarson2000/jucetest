@@ -313,6 +313,8 @@ SyncTracker::SyncTracker(SyncSource src)
 
 SyncTracker::~SyncTracker()
 {
+    delete mPulseMonitor;
+    delete mDriftMonitor;
 }
 
 SyncSource SyncTracker::getSyncSource()

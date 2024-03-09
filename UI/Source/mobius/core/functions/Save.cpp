@@ -35,7 +35,8 @@ class SaveLoopFunction : public Function {
 	bool save;
 };
 
-Function* SaveLoop = new SaveLoopFunction();
+SaveLoopFunction SaveLoopObj;
+Function* SaveLoop = &SaveLoopObj;
 
 SaveLoopFunction::SaveLoopFunction() :
     Function("SaveLoop", MSG_FUNC_SAVE_LOOP)

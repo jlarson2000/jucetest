@@ -281,9 +281,14 @@ class RecordFunction : public Function {
 	bool mAuto;
 };
 
-Function* Record = new RecordFunction(false, false);
-Function* SUSRecord = new RecordFunction(true, false);
-Function* AutoRecord = new RecordFunction(false, true);
+RecordFunction RecordObj {false, false};
+Function* Record = &RecordObj;
+
+RecordFunction SUSRecordObj {true, false};
+Function* SUSRecord = &SUSRecordObj;
+
+RecordFunction AutoRecordObj {false, true};
+Function* AutoRecord = &AutoRecordObj;
 
 RecordFunction::RecordFunction(bool sus, bool aut)
 {
@@ -780,8 +785,11 @@ RehearseModeType::RehearseModeType(bool record)
 	recording = true;
 }
 
-MobiusMode* RehearseMode = new RehearseModeType(false);
-MobiusMode* RehearseRecordMode = new RehearseModeType(true);
+RehearseModeType RehearseModeObj {false};
+MobiusMode* RehearseMode = &RehearseModeObj;
+
+RehearseModeType RehearseRecordModeObj {true};
+MobiusMode* RehearseRecordMode = &RehearseRecordModeObj;
 
 /*
  * A function that will end a recording and go into Rehearse mode. 
@@ -799,7 +807,8 @@ RehearseFunction::RehearseFunction() : RecordFunction(false, false)
     maySustain = false;
 }
 
-Function* Rehearse = new RehearseFunction();
+RehearseFunction RehearseObj;
+Function* Rehearse = &RehearseObj;
 
 
 /****************************************************************************/

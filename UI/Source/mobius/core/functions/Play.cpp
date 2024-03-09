@@ -74,7 +74,8 @@ class PlayFunction : public Function {
 	void undoEvent(Loop* loop, Event* event);
 };
 
-Function* Play = new PlayFunction();
+PlayFunction PlayObj;
+Function* Play = &PlayObj;
 
 PlayFunction::PlayFunction() :
     Function("Play", MSG_FUNC_PLAY)

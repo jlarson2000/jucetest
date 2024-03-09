@@ -36,7 +36,8 @@ class TrackGroupFunction : public Function {
 	void invokeLong(Action* action, Loop* l);
 };
 
-Function* TrackGroup = new TrackGroupFunction();
+TrackGroupFunction TrackGroupObj;
+Function* TrackGroup = &TrackGroupObj;
 
 TrackGroupFunction::TrackGroupFunction() :
     Function("TrackGroup", MSG_FUNC_TRACK_GROUP)

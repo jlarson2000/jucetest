@@ -36,7 +36,8 @@ class FocusLockFunction : public Function {
 	Event* invoke(Action* action, Loop* l);
 };
 
-Function* FocusLock = new FocusLockFunction();
+FocusLockFunction FocusLockFunctionObj;
+Function* FocusLock = &FocusLockFunctionObj;
 
 FocusLockFunction::FocusLockFunction() :
     Function("FocusLock", MSG_FUNC_FOCUS_LOCK)

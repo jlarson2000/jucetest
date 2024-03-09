@@ -68,9 +68,14 @@ class DivideFunction : public Function {
 	int mMultiple;
 };
 
-Function* Divide = new DivideFunction(0);
-Function* Divide3 = new DivideFunction(3);
-Function* Divide4 = new DivideFunction(4);
+DivideFunction DivideObj {0};
+Function* Divide = &DivideObj;
+
+DivideFunction Divide3Obj {3};
+Function* Divide3 = &Divide3Obj;
+
+DivideFunction Divide4Obj {4};
+Function* Divide4 = &Divide3Obj;
 
 DivideFunction::DivideFunction(int n)
 {

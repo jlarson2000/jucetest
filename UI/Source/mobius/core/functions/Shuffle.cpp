@@ -94,7 +94,8 @@ class ShuffleFunction : public Function {
     int resolveSegment(ExValue* v, int granules, int granule);
 };
 
-Function* Shuffle = new ShuffleFunction();
+ShuffleFunction ShuffleObj;
+Function* Shuffle = &ShuffleObj;
 
 ShuffleFunction::ShuffleFunction() :
     Function("Shuffle", MSG_FUNC_SHUFFLE)

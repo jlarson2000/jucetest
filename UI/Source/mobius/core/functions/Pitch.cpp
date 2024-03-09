@@ -220,15 +220,32 @@ class PitchFunction : public Function {
 // TODO: Think about some interesting SUS functions
 // Speed has SUSHalfSpeed.
 
-Function* PitchCancel = new PitchFunction(PITCH_CANCEL);
-Function* PitchOctave = new PitchFunction(PITCH_OCTAVE);
-Function* PitchStep = new PitchFunction(PITCH_STEP);
-Function* PitchBend = new PitchFunction(PITCH_BEND);
-Function* PitchUp = new PitchFunction(PITCH_UP);
-Function* PitchDown = new PitchFunction(PITCH_DOWN);
-Function* PitchNext = new PitchFunction(PITCH_NEXT);
-Function* PitchPrev = new PitchFunction(PITCH_PREV);
-Function* PitchRestore = new PitchFunction(PITCH_RESTORE);
+PitchFunction PitchCancelObj {PITCH_CANCEL};
+Function* PitchCancel = &PitchCancelObj;
+
+PitchFunction PitchOctaveObj {PITCH_OCTAVE};
+Function* PitchOctave = &PitchOctaveObj;
+
+PitchFunction PitchStepObj {PITCH_STEP};
+Function* PitchStep = &PitchStepObj;
+
+PitchFunction PitchBendObj {PITCH_BEND};
+Function* PitchBend = &PitchBendObj;
+
+PitchFunction PitchUpObj {PITCH_UP};
+Function* PitchUp = &PitchUpObj;
+
+PitchFunction PitchDownObj {PITCH_DOWN};
+Function* PitchDown = &PitchDownObj;
+
+PitchFunction PitchNextObj {PITCH_NEXT};
+Function* PitchNext = &PitchNextObj;
+
+PitchFunction PitchPrevObj {PITCH_PREV};
+Function* PitchPrev = &PitchPrevObj;
+
+PitchFunction PitchRestoreObj {PITCH_RESTORE};
+Function* PitchRestore = &PitchRestoreObj;
 
 PitchFunction::PitchFunction(PitchFunctionType type)
 {

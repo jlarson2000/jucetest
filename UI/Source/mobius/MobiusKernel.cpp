@@ -33,6 +33,7 @@ MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
 {
     shell = argShell;
     communicator = comm;
+    Mobius::initStaticObjects();
 }
 
 /**
@@ -48,7 +49,8 @@ MobiusKernel::~MobiusKernel()
         mCore->shutdown();
         delete mCore;
     }
-    
+    Mobius::freeStaticObjects();
+
     // we do not own shell, communicator, or container
     delete configuration;
     
@@ -141,8 +143,8 @@ void MobiusKernel::reconfigure(KernelMessage* msg)
     // this would be the place where make changes for
     // the new configuration, nothing right now
     // this is NOT where track configuration comes in
-
-    mCore->reconfigure(configuration);
+    if (mCore != nullptr)
+      mCore->reconfigure(configuration);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -259,7 +261,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 void MobiusKernel::interruptStart()
 {
     consumeCommunications();
-    //mCore->beginAudioInterrupt();
+//    if (mCore != nullptr) mCore->beginAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -270,7 +272,7 @@ void MobiusKernel::interruptStart()
 
 void MobiusKernel::interruptEnd()
 {
-    //mCore->endAudioInterrupt();
+//    if (mCore != nullptr) mCore->endAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////

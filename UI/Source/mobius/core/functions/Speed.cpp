@@ -301,19 +301,44 @@ class SpeedFunction : public Function {
     bool mCanRestart;
 };
 
-Function* SpeedCancel = new SpeedFunction(SPEED_CANCEL);
-Function* SpeedOctave = new SpeedFunction(SPEED_OCTAVE);
-Function* SpeedStep = new SpeedFunction(SPEED_STEP);
-Function* SpeedBend = new SpeedFunction(SPEED_BEND);
-Function* SpeedUp = new SpeedFunction(SPEED_UP);
-Function* SpeedDown = new SpeedFunction(SPEED_DOWN);
-Function* SpeedNext = new SpeedFunction(SPEED_NEXT);
-Function* SpeedPrev = new SpeedFunction(SPEED_PREV);
-Function* SpeedToggle = new SpeedFunction(SPEED_TOGGLE);
-Function* SUSSpeedToggle = new SpeedFunction(SPEED_SUS_TOGGLE);
-Function* Halfspeed = new SpeedFunction(SPEED_HALF);
-Function* SpeedRestore = new SpeedFunction(SPEED_RESTORE);
-Function* TimeStretch = new SpeedFunction(SPEED_STRETCH);
+SpeedFunction SpeedCancelObj {SPEED_CANCEL};
+Function* SpeedCancel = &SpeedCancelObj;
+
+SpeedFunction SpeedOctaveObj {SPEED_OCTAVE};
+Function* SpeedOctave = &SpeedOctaveObj;
+
+SpeedFunction SpeedStepObj {SPEED_STEP};
+Function* SpeedStep = &SpeedStepObj;
+
+SpeedFunction SpeedBendObj {SPEED_BEND};
+Function* SpeedBend = &SpeedBendObj;
+
+SpeedFunction SpeedUpObj {SPEED_UP};
+Function* SpeedUp = &SpeedUpObj;
+
+SpeedFunction SpeedDownObj {SPEED_DOWN};
+Function* SpeedDown = &SpeedDownObj;
+
+SpeedFunction SpeedNextObj {SPEED_NEXT};
+Function* SpeedNext = &SpeedNextObj;
+
+SpeedFunction SpeedPrevObj {SPEED_PREV};
+Function* SpeedPrev = &SpeedPrevObj;
+
+SpeedFunction SpeedToggleObj {SPEED_TOGGLE};
+Function* SpeedToggle = &SpeedToggleObj;
+
+SpeedFunction SUSSpeedToggleObj {SPEED_SUS_TOGGLE};
+Function* SUSSpeedToggle = &SUSSpeedToggleObj;
+
+SpeedFunction HalfspeedObj {SPEED_HALF};
+Function* Halfspeed = &HalfspeedObj;
+
+SpeedFunction SpeedRestoreObj {SPEED_RESTORE};
+Function* SpeedRestore = &SpeedRestoreObj;
+
+SpeedFunction TimeStretchObj {SPEED_STRETCH};
+Function* TimeStretch = &TimeStretchObj;
 
 SpeedFunction::SpeedFunction(SpeedFunctionType type)
 {

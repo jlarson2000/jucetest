@@ -55,9 +55,14 @@ class ResetFunction : public Function {
   private:
 };
 
-Function* Reset = new ResetFunction(false, false);
-Function* TrackReset = new ResetFunction(true, false);
-Function* GlobalReset = new ResetFunction(false, true);
+ResetFunction ResetObj {false, false};
+Function* Reset = &ResetObj;
+
+ResetFunction TrackResetObj {true, false};
+Function* TrackReset = &TrackResetObj;
+
+ResetFunction GlobalResetObj {false, true};
+Function* GlobalReset = &GlobalResetObj;
 
 ResetFunction::ResetFunction(bool gen, bool glob)
 {

@@ -877,9 +877,6 @@
     <ClCompile Include="..\..\Source\mobius\core\functions\RunScript.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\functions\SampleTrigger.cpp">
-      <Filter>UI\Source\mobius\core\functions</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\Save.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>

@@ -57,9 +57,14 @@ class CaptureFunction : public Function {
 	bool mSave;
 };
 
-Function* StartCapture = new CaptureFunction(false, false);
-Function* StopCapture = new CaptureFunction(true, false);
-Function* SaveCapture = new CaptureFunction(false, true);
+CaptureFunction StartCaptureObj {false, false};
+Function* StartCapture = &StartCaptureObj;
+
+CaptureFunction StopCaptureObj {true, false};
+Function* StopCapture = &StopCaptureObj;
+
+CaptureFunction SaveCaptureObj {false, true};
+Function* SaveCapture = &SaveCaptureObj;
 
 CaptureFunction::CaptureFunction(bool stop, bool save)
 {

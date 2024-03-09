@@ -118,11 +118,18 @@ class OverdubFunction : public Function {
 };
 
 // have to define sus first for longFunction
-Function* SUSOverdub = new OverdubFunction(true, true, false);
-Function* Overdub = new OverdubFunction(false, true, false);
 
-Function* OverdubOff = new OverdubFunction(false, false, true);
-Function* OverdubOn = new OverdubFunction(false, false, false);
+OverdubFunction SUSOverdubObj {true, true, false};
+Function* SUSOverdub = &SUSOverdubObj;
+
+OverdubFunction OverdubObj {false, true, false};
+Function* Overdub = &OverdubObj;
+
+OverdubFunction OverdubOffObj {false, false, true};
+Function* OverdubOff = &OverdubOffObj;
+
+OverdubFunction OverdubOnObj {false, false, false};
+Function* OverdubOn = &OverdubOnObj;
 
 OverdubFunction::OverdubFunction(bool sus, bool tog, bool turnOff)
 {

@@ -67,9 +67,14 @@ class InstantMultiplyFunction : public Function {
 	int mMultiple;
 };
 
-Function* InstantMultiply = new InstantMultiplyFunction(0);
-Function* InstantMultiply3 = new InstantMultiplyFunction(3);
-Function* InstantMultiply4 = new InstantMultiplyFunction(4);
+InstantMultiplyFunction InstantMultiplyObj {0};
+Function* InstantMultiply = &InstantMultiplyObj;
+
+InstantMultiplyFunction InstantMultiply3Obj {3};
+Function* InstantMultiply3 = &InstantMultiply3Obj;
+
+InstantMultiplyFunction InstantMultiply4Obj {4};
+Function* InstantMultiply4 = &InstantMultiply4Obj;
 
 InstantMultiplyFunction::InstantMultiplyFunction(int n)
 {

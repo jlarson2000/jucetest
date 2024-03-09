@@ -127,9 +127,15 @@ class InsertFunction : public Function {
 };
 
 // should we have an UnroundedInsert?
-Function* Insert = new InsertFunction(false, false);
-Function* SUSInsert = new InsertFunction(true, false);
-Function* SUSUnroundedInsert = new InsertFunction(true, true);
+
+InsertFunction InsertFunctionObj {false, false};
+Function* Insert = &InsertFunctionObj;
+
+InsertFunction SUSInsertObj {true, false};
+Function* SUSInsert = &SUSInsertObj;
+
+InsertFunction SUSUnroundedInsertObj {true, true};
+Function* SUSUnroundedInsert = &SUSUnroundedInsertObj;
 
 InsertFunction::InsertFunction(bool sus, bool unrounded)
 {

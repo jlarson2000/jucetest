@@ -158,11 +158,13 @@ Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
 	mMobius = mob;
 	mMidi = midi;
     mTransport = new MidiTransport(midi, mob->getSampleRate());
+
     // MidiQueue self initializes
     mHostTracker = new SyncTracker(SYNC_HOST);
     mMidiTracker = new SyncTracker(SYNC_MIDI);
     mOutTracker = new SyncTracker(SYNC_OUT);
-	mOutSyncMaster = NULL;
+
+    mOutSyncMaster = NULL;
 	mTrackSyncMaster = NULL;
 
 	mMaxSyncDrift = DEFAULT_MAX_SYNC_DRIFT;
@@ -173,8 +175,13 @@ Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
     EventPool* epool = mMobius->getEventPool();
 
     mInterruptEvents = new EventList();
-    mReturnEvent = epool->newEvent();
+    
+    // formerly got this out of the pool which leaked on shutdown
+    // for some reason, just create an autonomous one and remember to delet eit
+    mReturnEvent = new Event(nullptr);
+    // doesn't really do anything but makes the intent clearer I guess
     mReturnEvent->setOwned(true);
+    
 	mHostTempo = 0.0f;
 	mHostBeat = 0;
     mHostBeatsPerBar = 0;
@@ -198,12 +205,10 @@ Synchronizer::~Synchronizer()
     delete mHostTracker;
     delete mMidiTracker;
     delete mOutTracker;
-
+    delete mReturnEvent;
+    
     flushEvents();
     delete mInterruptEvents;
-    
-    mReturnEvent->setOwned(false);
-    mReturnEvent->free();
 }
 
 /**
@@ -211,12 +216,14 @@ Synchronizer::~Synchronizer()
  */
 void Synchronizer::flushEvents()
 {
-    // have to mark them not owned so they can be freed
-    for (Event* event = mInterruptEvents->getEvents() ; event != NULL ; 
-         event = event->getNext())
-      event->setOwned(false);
+    if (mInterruptEvents != nullptr) {
+        // have to mark them not owned so they can be freed
+        for (Event* event = mInterruptEvents->getEvents() ; event != NULL ; 
+             event = event->getNext())
+          event->setOwned(false);
 
-    mInterruptEvents->flush(true, false);
+        mInterruptEvents->flush(true, false);
+    }
 }
 
 /**

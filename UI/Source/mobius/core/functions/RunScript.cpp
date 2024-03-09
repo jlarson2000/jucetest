@@ -102,7 +102,8 @@ void ScriptEventType::invoke(Loop* l, Event* e)
 	  si->scriptEvent(l, e);
 }
 
-EventType* ScriptEvent = new ScriptEventType();
+ScriptEventType ScriptEventObj;
+EventType* ScriptEvent = &ScriptEventObj;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -211,7 +212,8 @@ class ResumeScriptFunction : public Function {
 	Event* invoke(Action* action, Loop* l);
 };
 
-Function* ResumeScript = new ResumeScriptFunction();
+ResumeScriptFunction ResumeScriptObj;
+Function* ResumeScript = &ResumeScriptObj;
 
 ResumeScriptFunction::ResumeScriptFunction() :
     Function("ResumeScript", MSG_FUNC_RESUME_SCRIPT)
@@ -245,7 +247,8 @@ class ReloadScriptsFunction : public Function {
 	void invoke(Action* action, Mobius* m);
 };
 
-Function* ReloadScripts = new ReloadScriptsFunction();
+ReloadScriptsFunction ReloadScriptsObj;
+Function* ReloadScripts = &ReloadScriptsObj;
 
 ReloadScriptsFunction::ReloadScriptsFunction() :
     Function("reloadScripts", MSG_FUNC_RELOAD_SCRIPTS)

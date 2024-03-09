@@ -39,7 +39,8 @@ class CheckpointFunction : public Function {
   private:
 };
 
-Function* Checkpoint = new CheckpointFunction();
+CheckpointFunction CheckpointFunctionObj;
+Function* Checkpoint = &CheckpointFunctionObj;
 
 CheckpointFunction::CheckpointFunction() :
     Function("Checkpoint", MSG_FUNC_CHECKPOINT)

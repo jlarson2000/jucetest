@@ -209,24 +209,53 @@ class LoopTriggerFunction : public ReplicatedFunction {
     bool mOnce;
 };
 
-Function* NextLoop = new LoopTriggerFunction(1, false, true);
-Function* PrevLoop = new LoopTriggerFunction(-1, false, true);
-Function* SUSNextLoop = new LoopTriggerFunction(1, true, true);
-Function* SUSPrevLoop = new LoopTriggerFunction(-1, true, true);
-Function* Restart = new LoopTriggerFunction(false);
-Function* RestartOnce = new LoopTriggerFunction(true);
+LoopTriggerFunction NextLoopObj {1, false, true};
+Function* NextLoop = &NextLoopObj;
+
+LoopTriggerFunction PrevLoopObj {-1, false, true};
+Function* PrevLoop = &PrevLoopObj;
+
+LoopTriggerFunction SUSNextLoopObj {1, true, true};
+Function* SUSNextLoop = &SUSNextLoopObj;
+
+LoopTriggerFunction SUSPrevLoopObj {-1, true, true};
+Function* SUSPrevLoop = &SUSPrevLoopObj;
+
+LoopTriggerFunction RestartObj {false};
+Function* Restart = &RestartObj;
+
+LoopTriggerFunction RestartOnceObj {true};
+Function* RestartOnce = &RestartOnceObj;
+
 
 // TODO: need a way to define these on the fly
 
-Function* LoopN = new LoopTriggerFunction(-1, false, false);
-Function* Loop1 = new LoopTriggerFunction(0, false, false);
-Function* Loop2 = new LoopTriggerFunction(1, false, false);
-Function* Loop3 = new LoopTriggerFunction(2, false, false);
-Function* Loop4 = new LoopTriggerFunction(3, false, false);
-Function* Loop5 = new LoopTriggerFunction(4, false, false);
-Function* Loop6 = new LoopTriggerFunction(5, false, false);
-Function* Loop7 = new LoopTriggerFunction(6, false, false);
-Function* Loop8 = new LoopTriggerFunction(7, false, false);
+LoopTriggerFunction LoopNObj {-1, false, false};
+Function* LoopN = &LoopNObj;
+
+LoopTriggerFunction Loop1Obj {0, false, false};
+Function* Loop1 = &Loop1Obj;
+
+LoopTriggerFunction Loop2Obj {1, false, false};
+Function* Loop2 = &Loop2Obj;
+
+LoopTriggerFunction Loop3Obj {2, false, false};
+Function* Loop3 = &Loop3Obj;
+
+LoopTriggerFunction Loop4Obj {3, false, false};
+Function* Loop4 = &Loop4Obj;
+
+LoopTriggerFunction Loop5Obj {4, false, false};
+Function* Loop5 = &Loop5Obj;
+
+LoopTriggerFunction Loop6Obj {5, false, false};
+Function* Loop6 = &Loop6Obj;
+
+LoopTriggerFunction Loop7Obj {6, false, false};
+Function* Loop7 = &Loop7Obj;
+
+LoopTriggerFunction Loop8Obj {7, false, false};
+Function* Loop8 = &Loop8Obj;
 
 /**
  * Constructor for absolute and relative triggers.

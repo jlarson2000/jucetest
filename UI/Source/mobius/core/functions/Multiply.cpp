@@ -99,7 +99,8 @@ MultiplyEndEventType::MultiplyEndEventType()
 	reschedules = true;
 }
 
-EventType* MultiplyEndEvent = new MultiplyEndEventType();
+MultiplyEndEventType MultiplyEndEventObj;
+EventType* MultiplyEndEvent = &MultiplyEndEventObj;
 
 /****************************************************************************
  *                                                                          *
@@ -122,9 +123,14 @@ class MultiplyFunction : public Function {
 };
 
 // should we have an UnroundedMultiply?
-Function* Multiply = new MultiplyFunction(false, false);
-Function* SUSMultiply = new MultiplyFunction(true, false);
-Function* SUSUnroundedMultiply = new MultiplyFunction(true, true);
+MultiplyFunction MultiplyObj {false, false};
+Function* Multiply = &MultiplyObj;
+
+MultiplyFunction SUSMultiplyObj {true, false};
+Function* SUSMultiply = &SUSMultiplyObj;
+
+MultiplyFunction SUSUnroundedMultiplyObj {true, true};
+Function* SUSUnroundedMultiply = &SUSUnroundedMultiplyObj;
 
 MultiplyFunction::MultiplyFunction(bool sus, bool unr)
 {

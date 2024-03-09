@@ -90,10 +90,17 @@ class UndoFunction : public Function {
 	bool mOnly;
 };
 
-Function* Undo = new UndoFunction(true, false, false);
-Function* UndoOnly = new UndoFunction(true, false, true);
-Function* ShortUndo = new UndoFunction(false, true, false);
-Function* LongUndo = new UndoFunction(false, false, false);
+UndoFunction UndoObj {true, false, false};
+Function* Undo = &UndoObj;
+
+UndoFunction UndoOnlyObj {true, false, true};
+Function* UndoOnly = &UndoOnlyObj;
+
+UndoFunction ShortUndoObj {false, true, false};
+Function* ShortUndo = &ShortUndoObj;
+
+UndoFunction LongUndoObj {false, false, false};
+Function* LongUndo = &LongUndoObj;
 
 UndoFunction::UndoFunction(bool dynamic, bool shortpress, bool only)
 {
@@ -257,7 +264,8 @@ class RedoFunction : public Function {
   private:
 };
 
-Function* Redo = new RedoFunction();
+RedoFunction RedoObj;
+Function* Redo = &RedoObj;
 
 RedoFunction::RedoFunction() :
     Function("Redo", MSG_FUNC_REDO)

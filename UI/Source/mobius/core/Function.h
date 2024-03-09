@@ -12,6 +12,7 @@
 #ifndef MOBIUS_FUNCTION_H
 #define MOBIUS_FUNCTION_H
 
+#include <vector>
 #include "../../model/SystemConstant.h"
 
 /****************************************************************************
@@ -28,6 +29,9 @@ class Function : public SystemConstant {
 
   public:
     
+    static std::vector<Function*> Instances;
+    static void dumpFunctions();
+
     //////////////////////////////////////////////////////////////////////
     // Fields
     //////////////////////////////////////////////////////////////////////
@@ -242,7 +246,6 @@ class Function : public SystemConstant {
 
     static void initStaticFunctions();
     static Function* getStaticFunction(const char * name);
-    static void deleteFunctions();
 
 	//static void localizeAll(class MessageCatalog* cat);
 
@@ -385,15 +388,6 @@ extern Function* Restart;
 extern Function* RestartOnce;
 extern Function* ResumeScript;
 extern Function* Reverse;
-extern Function* SampleN;
-extern Function* Sample1;
-extern Function* Sample2;
-extern Function* Sample3;
-extern Function* Sample4;
-extern Function* Sample5;
-extern Function* Sample6;
-extern Function* Sample7;
-extern Function* Sample8;
 extern Function* SaveCapture;
 extern Function* SaveLoop;
 extern Function* Shuffle;

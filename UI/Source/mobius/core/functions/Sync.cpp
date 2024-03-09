@@ -137,9 +137,14 @@ class SyncMasterFunction : public Function {
 	bool mMidi;
 };
 
-Function* SyncMaster = new SyncMasterFunction(true, true);
-Function* SyncMasterTrack = new SyncMasterFunction(true, false);
-Function* SyncMasterMidi = new SyncMasterFunction(false, true);
+SyncMasterFunction SyncMasterObj {true, true};
+Function* SyncMaster = &SyncMasterObj;
+
+SyncMasterFunction SyncMasterTrackObj {true, false};
+Function* SyncMasterTrack = &SyncMasterTrackObj;
+
+SyncMasterFunction SyncMasterMidiObj {false, true};
+Function* SyncMasterMidi = &SyncMasterMidiObj;
 
 SyncMasterFunction::SyncMasterFunction(bool track, bool midi)
 {

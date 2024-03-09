@@ -73,8 +73,11 @@ class MidiStartFunction : public Function {
 	bool mute;
 };
 
-Function* MidiStart = new MidiStartFunction(false);
-Function* MuteMidiStart = new MidiStartFunction(true);
+MidiStartFunction MidiStartObj {false};
+Function* MidiStart = &MidiStartObj;
+
+MidiStartFunction MuteMidiStartObj {true};
+Function* MuteMidiStart = &MuteMidiStartObj;
 
 MidiStartFunction::MidiStartFunction(bool b)
 {
@@ -254,7 +257,8 @@ class MidiStopFunction : public Function {
     void doEvent(Loop* l, Event* e);
 };
 
-Function* MidiStop = new MidiStopFunction();
+MidiStopFunction MidiStopObj;
+Function* MidiStop = &MidiStopObj;
 
 MidiStopFunction::MidiStopFunction() :
     Function("MidiStop", MSG_FUNC_MIDI_STOP)
@@ -310,7 +314,8 @@ class MidiOutFunction : public Function {
 	void invoke(Action* action, Mobius* m);
 };
 
-Function* MidiOut = new MidiOutFunction();
+MidiOutFunction MidiOutObj;
+Function* MidiOut = &MidiOutObj;
 
 MidiOutFunction::MidiOutFunction() :
     Function("MidiOut", MSG_FUNC_MIDI_OUT)

@@ -1132,8 +1132,8 @@ ScriptStatement* ScriptPromptStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
-ScriptEndStatement* ScriptEndStatement::Pseudo = 
-new ScriptEndStatement(NULL, NULL);
+ScriptEndStatement ScriptEndStatementObj {NULL, NULL};
+ScriptEndStatement* ScriptEndStatement::Pseudo = &ScriptEndStatementObj;
 
 ScriptEndStatement::ScriptEndStatement(ScriptCompiler* comp,
 											  char* args)

@@ -186,16 +186,29 @@ class WindowFunction : public Function {
     bool mIgnore;
 };
 
-Function* WindowBackward = new WindowFunction(false, false, -1);
-Function* WindowForward = new WindowFunction(false, false, 1);
-Function* WindowMove = new WindowFunction(false, false, 0);
+WindowFunction WindowBackwardObj {false, false, -1};
+Function* WindowBackward = &WindowBackwardObj;
 
-Function* WindowStartBackward = new WindowFunction(true, true, -1);
-Function* WindowStartForward = new WindowFunction(true, true, 1);
-Function* WindowEndBackward = new WindowFunction(true, false, -1);
-Function* WindowEndForward = new WindowFunction(true, false, 1);
+WindowFunction WindowForwardObj {false, false, 1};
+Function* WindowForward = &WindowForwardObj;
 
-Function* WindowResize = new WindowFunction(true, false, 0);
+WindowFunction WindowMoveObj {false, false, 0};
+Function* WindowMove = &WindowMoveObj;
+
+WindowFunction WindowStartBackwardObj {true, true, -1};
+Function* WindowStartBackward = &WindowStartBackwardObj;
+
+WindowFunction WindowStartForwardObj {true, true, 1};
+Function* WindowStartForward = &WindowStartForwardObj;
+
+WindowFunction WindowEndBackwardObj {true, false, -1};
+Function* WindowEndBackward = &WindowEndBackwardObj;
+
+WindowFunction WindowEndForwardObj {true, false, 1};
+Function* WindowEndForward = &WindowEndForwardObj;
+
+WindowFunction WindowResizeObj {true, false, 0};
+Function* WindowResize = &WindowResizeObj;
 
 WindowFunction::WindowFunction(bool edge, bool start, int direction)
 {

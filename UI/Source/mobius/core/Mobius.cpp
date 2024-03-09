@@ -259,6 +259,7 @@ Mobius::~Mobius()
     //delete mResolvedTargets;
 
     // sweet jesus this is aweful, redesign
+    // I don't think these were actually used?
 	//flushObjectPools();
     
     mActionPool->dump();
@@ -273,9 +274,28 @@ Mobius::~Mobius()
     // these are now stubs, but we own them
     // do them last since the things above may have listened on them
     delete mMidi;
+    delete mAudioInterface;
     delete mAudioStream;
 
-    Function::deleteFunctions();
+    Parameter::deleteParameters();
+}
+
+/**
+ * Sign, for freeStaticObjects to work,
+ * have to stick them in an array to begin with.
+ */
+void Mobius::initStaticObjects()
+{
+    MobiusMode::initModes();
+    Function::initStaticFunctions();
+    Parameter::initParameters();
+}
+
+/**
+ * For debugging a memory leak in static alloations
+ */
+void Mobius::freeStaticObjects()
+{
     Parameter::deleteParameters();
 }
 
@@ -1102,6 +1122,9 @@ void Mobius::buildTracks(int count)
     else {
         // must have at least one, should have fixed this by now
         if (count <= 0) count = 1;
+
+        // limit this while testing leaks
+        count = 1;
 
         Track** tracks = new Track*[count];
 

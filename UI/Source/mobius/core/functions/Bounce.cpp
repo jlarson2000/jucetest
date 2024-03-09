@@ -56,7 +56,8 @@ class BounceFunction : public Function {
   private:
 };
 
-Function* Bounce = new BounceFunction();
+BounceFunction BounceFunctionObj;
+Function* Bounce = &BounceFunctionObj;
 
 BounceFunction::BounceFunction() :
     Function("Bounce", MSG_FUNC_BOUNCE)

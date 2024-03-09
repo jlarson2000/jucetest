@@ -16,10 +16,13 @@
  *  
  */
 
+#include <vector>
+
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
 
+#include "../../util/Trace.h"
 #include "../../util/List.h"
 #include "../../util/Util.h"
 #include "../../model/SystemConstant.h"
@@ -129,7 +132,7 @@ void InvokeEventType::invoke(Loop* l, Event* e)
 	if (f != NULL)
 	  f->invokeEvent(l, e);
 	else
-	  Trace(l, 1, "InvokeEvent called with no function!");
+	  Trace(1, "InvokeEvent called with no function!");
 }
 
 InvokeEventType InvokeEventObj;
@@ -304,14 +307,28 @@ EventType* ValidateEvent = &ValidateEventObj;
  *                                                                          *
  ****************************************************************************/
 
+std::vector<Function*> Function::Instances;
+
+void Function::dumpFunctions()
+{
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        Function* f = Instances[i];
+        Trace(1, "Function %s\n", f->getName());
+    }
+}
+
+
 Function::Function()
 {
+    // having weird crashes with this
+    //Instances.push_back(this);
     init();
 }
 
 Function::Function(const char* name, int key) :
     SystemConstant(name, key)
 {
+    //Instances.push_back(this);
     init();
 }
 
@@ -1393,15 +1410,6 @@ void Function::initStaticFunctions()
         add(StaticFunctions, SUSReverse);
         add(StaticFunctions, SUSSpeedToggle);
         add(StaticFunctions, SUSMuteRestart);
-        add(StaticFunctions, SampleN);
-        add(StaticFunctions, Sample1);
-        add(StaticFunctions, Sample2);
-        add(StaticFunctions, Sample3);
-        add(StaticFunctions, Sample4);
-        add(StaticFunctions, Sample5);
-        add(StaticFunctions, Sample6);
-        add(StaticFunctions, Sample7);
-        add(StaticFunctions, Sample8);
         add(StaticFunctions, Realign);
         add(StaticFunctions, MuteRealign);
         add(StaticFunctions, MidiStart);
@@ -1440,32 +1448,6 @@ void Function::initStaticFunctions()
         add(HiddenFunctions, Debug);
         add(HiddenFunctions, InitCoverage);
     }
-}
-
-/**
- * Delete all the dynamically allocated Functions created
- * during static initialization to clean up memory.
- * Mostly to avoid VisualStudio barking about memory leaks.
- *
- * This may not work with plugins if the plugin object can be
- * deleted and recreated several times but the Function
- * objects are only created once during static initialization of
- * the plugin DLL.  Will have to revisit this
- * and start using static objects or smart containers.
- *
- * Such a mess, only doing static functions right now, hopefully
- * be using a vector by the time scripts roll in.
- * 
- */
-void Function::deleteFunctions()
-{
-    for (int i = 0 ; StaticFunctions[i] != NULL ; i++) {
-        Function* f = StaticFunctions[i];
-        delete f;
-    }
-    
-    StaticFunctions[0] = nullptr;
-    FunctionIndex = 0;
 }
 
 /**

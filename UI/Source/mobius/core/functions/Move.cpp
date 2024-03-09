@@ -66,8 +66,12 @@ class MoveFunction : public Function {
 
 // NOTE: Originally used Move but that conflicts with something
 // in the QD.framework on OSX
-Function* MyMove = new MoveFunction(false);
-Function* Drift = new MoveFunction(true);
+
+MoveFunction MyMoveObj {false};
+Function* MyMove = &MyMoveObj;
+
+MoveFunction DriftObj {true};
+Function* Drift = &DriftObj;
 
 MoveFunction::MoveFunction(bool drift)
 {

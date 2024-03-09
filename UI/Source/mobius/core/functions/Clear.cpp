@@ -57,7 +57,8 @@ class ClearFunction : public Function {
 	bool start;
 };
 
-Function* Clear = new ClearFunction();
+ClearFunction ClearFunctionObj;
+Function* Clear = &ClearFunctionObj;
 
 ClearFunction::ClearFunction() :
     Function("Clear", MSG_FUNC_CLEAR)

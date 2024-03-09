@@ -76,8 +76,11 @@ class StartPointFunction : public Function {
     bool mMidi;
 };
 
-Function* StartPoint = new StartPointFunction(false);
-Function* SyncStartPoint = new StartPointFunction(true);
+StartPointFunction StartPointObj {false};
+Function* StartPoint = &StartPointObj;
+
+StartPointFunction SyncStartPointObj {true};
+Function* SyncStartPoint = &SyncStartPointObj;
 
 StartPointFunction::StartPointFunction(bool midiop)
 {

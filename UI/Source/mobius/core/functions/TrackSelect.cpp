@@ -64,20 +64,40 @@ class TrackSelectFunction : public ReplicatedFunction {
     Track* getNextTrack(Action* action, Track* t);
 };
 
-Function* NextTrack = new TrackSelectFunction(1, true);
-Function* PrevTrack = new TrackSelectFunction(-1, true);
+TrackSelectFunction NextTrackObj {1, true};
+Function* NextTrack = &NextTrackObj;
+
+TrackSelectFunction PrevTrackObj {-1, true};
+Function* PrevTrack = &PrevTrackObj;
 
 // TODO: need a way to define these on the fly
 
-Function* TrackN = new TrackSelectFunction(-1, false);
-Function* Track1 = new TrackSelectFunction(0, false);
-Function* Track2 = new TrackSelectFunction(1, false);
-Function* Track3 = new TrackSelectFunction(2, false);
-Function* Track4 = new TrackSelectFunction(3, false);
-Function* Track5 = new TrackSelectFunction(4, false);
-Function* Track6 = new TrackSelectFunction(5, false);
-Function* Track7 = new TrackSelectFunction(6, false);
-Function* Track8 = new TrackSelectFunction(7, false);
+TrackSelectFunction TrackNObj {-1, false};
+Function* TrackN = &TrackNObj;
+
+TrackSelectFunction Track1Obj {0, false};
+Function* Track1 = &Track1Obj;
+
+TrackSelectFunction Track2Obj {1, false};
+Function* Track2 = &Track2Obj;
+
+TrackSelectFunction Track3Obj {2, false};
+Function* Track3 = &Track3Obj;
+
+TrackSelectFunction Track4Obj {3, false};
+Function* Track4 = &Track4Obj;
+
+TrackSelectFunction Track5Obj {4, false};
+Function* Track5 = &Track5Obj;
+
+TrackSelectFunction Track6Obj {5, false};
+Function* Track6 = &Track6Obj;
+
+TrackSelectFunction Track7Obj {6, false};
+Function* Track7 = &Track7Obj;
+
+TrackSelectFunction Track8Obj {7, false};
+Function* Track8 = &Track8Obj;
 
 
 TrackSelectFunction::TrackSelectFunction(int i, bool relative)

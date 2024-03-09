@@ -153,16 +153,33 @@ class MuteFunction : public Function {
 };
 
 // SUS first for longFunction
-Function* SUSMute = new MuteFunction(false, true, false, false, false);
-Function* SUSPause = new MuteFunction(true, true, false, false, false);
 
-Function* Mute = new MuteFunction(false, false, false, false, false);
-Function* MuteOn = new MuteFunction(false, true, false, false, true);
-Function* MuteOff = new MuteFunction(false, false, false, false, true);
-Function* Pause = new MuteFunction(true, false, false, false, false);
-Function* SUSMuteRestart = new MuteFunction(false, true, true, false, false);
-Function* GlobalMute = new MuteFunction(false, false, false, true, false);
-Function* GlobalPause = new MuteFunction(true, false, false, true, false);
+MuteFunction SUSMuteObj {false, true, false, false, false};
+Function* SUSMute = &SUSMuteObj;
+
+MuteFunction SUSPauseObj {true, true, false, false, false};
+Function* SUSPause = &SUSPauseObj;
+
+MuteFunction MuteObj {false, false, false, false, false};
+Function* Mute = &MuteObj;
+
+MuteFunction MuteOnObj {false, true, false, false, true};
+Function* MuteOn = &MuteOnObj;
+
+MuteFunction MuteOffObj {false, false, false, false, true};
+Function* MuteOff = &MuteOffObj;
+
+MuteFunction PauseObj {true, false, false, false, false};
+Function* Pause = &PauseObj;
+
+MuteFunction SUSMuteRestartObj {false, true, true, false, false};
+Function* SUSMuteRestart = &SUSMuteRestartObj;
+
+MuteFunction GlobalMuteObj {false, false, false, true, false};
+Function* GlobalMute = &GlobalMuteObj;
+
+MuteFunction GlobalPauseObj {true, false, false, true, false};
+Function* GlobalPause = &GlobalPauseObj;
 
 // TODO: SUSGlobalMute and SUSGlobalPause seem useful
 

@@ -104,6 +104,9 @@ class Mobius :
      */
     void doAction(class UIAction* action);
 
+    static void initStaticObjects();
+    static void freeStaticObjects();
+
     //////////////////////////////////////////////////////////////////////
     // 
     // Legacy Interface

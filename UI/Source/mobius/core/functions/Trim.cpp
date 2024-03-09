@@ -84,8 +84,11 @@ class TrimFunction : public Function {
 	bool start;
 };
 
-Function* TrimStart = new TrimFunction(true);
-Function* TrimEnd = new TrimFunction(false);
+TrimFunction TrimStartObj {true};
+Function* TrimStart = &TrimStartObj;
+
+TrimFunction TrimEndObj {false};
+Function* TrimEnd = &TrimEndObj;
 
 TrimFunction::TrimFunction(bool startop)
 {

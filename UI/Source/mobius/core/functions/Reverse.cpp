@@ -171,10 +171,17 @@ class ReverseFunction : public Function {
 	bool forward;
 };
 
-Function* SUSReverse = new ReverseFunction(true, true, false);
-Function* Reverse = new ReverseFunction(false, true, false);
-Function* Forward = new ReverseFunction(false, false, true);
-Function* Backward = new ReverseFunction(false, false, false);
+ReverseFunction SUSReverseObj {true, true, false};
+Function* SUSReverse = &SUSReverseObj;
+
+ReverseFunction ReverseObj {false, true, false};
+Function* Reverse = &ReverseObj;
+
+ReverseFunction ForwardObj {false, false, true};
+Function* Forward = &ForwardObj;
+
+ReverseFunction BackwardObj {false, false, false};
+Function* Backward = &BackwardObj;
 
 ReverseFunction::ReverseFunction(bool sus, bool tog, bool fwd)
 {

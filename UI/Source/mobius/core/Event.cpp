@@ -1,10 +1,4 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
+/* 
  * A model for track events and an event list.
  * Most events should be allocated and freed through EventManager.
  * A very few places (Synchronizer, MidiQueue, MidiTransport) may allocate
@@ -12,6 +6,15 @@
  *
  * See EventManager for more on the relationship between events.
  *
+ * A single EventPool is created by Mobius on startup and deleted
+ * on shutdown.
+ *
+ * I really dislike the subtlety around processed/unprocessed children
+ * and what free() actually does.  It is EXTREMELY confusing.
+ *
+ * WTF Moment:  Why the hell are we saving an entire Preset in here
+ * and what happens if the configuration changes.  Do better.
+ * 
  */
 
 #include <stdio.h>
@@ -134,6 +137,7 @@ EventPool::EventPool()
 
 EventPool::~EventPool()
 {
+    delete mEvents;
 }
 
 /**
@@ -239,6 +243,7 @@ void EventPool::freeEvent(Event* e, bool freeAll)
  * This was added for Synchronizer and sync events, be careful because
  * this isn't always applicable to other event lists.
  */
+#if 0
 void EventPool::freeEventList(Event* event)
 {
     while (event != NULL) {
@@ -250,16 +255,7 @@ void EventPool::freeEventList(Event* event)
         event = next;
     }
 }
-
-/**
- * Presumably called during application shutdown to reclaim the event
- * pool.  It has never been implemented.  I guess this means it leaks
- * of you bring VST plugins up and down.
- */
-void EventPool::flush()
-{
-	// do we really need this?
-}
+#endif
 
 void EventPool::dump()
 {
@@ -541,6 +537,7 @@ Function* Event::getInvokingFunction()
  * the pool.
  *
  * !! This should be an inline object!
+ * WTF is this for?
  */
 void Event::savePreset(Preset* p)
 {

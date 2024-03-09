@@ -66,9 +66,14 @@ class SlipFunction : public Function {
     bool forward;
 };
 
-Function* Slip = new SlipFunction(0);
-Function* SlipForward = new SlipFunction(1);
-Function* SlipBackward = new SlipFunction(-1);
+SlipFunction SlipObj {0};
+Function* Slip = &SlipObj;
+
+SlipFunction SlipForwardObj {1};
+Function* SlipForward = &SlipForwardObj;
+
+SlipFunction SlipBackwardObj {-1};
+Function* SlipBackward = &SlipBackwardObj;
 
 // TODO: Some possible SUS functions
 // Slip forward/backward, then resume where we were OR where

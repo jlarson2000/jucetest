@@ -47,7 +47,8 @@ class ConfirmFunction : public Function {
     Event* invoke(Action* action, Loop* l);
 };
 
-Function* Confirm = new ConfirmFunction();
+ConfirmFunction ConfirmFunctionObj;
+Function* Confirm = &ConfirmFunctionObj;
 
 ConfirmFunction::ConfirmFunction() :
     Function("Confirm", MSG_FUNC_CONFIRM)

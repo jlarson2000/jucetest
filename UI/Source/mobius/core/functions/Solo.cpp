@@ -73,7 +73,8 @@ class SoloFunction : public Function {
     void invoke(Action* action, Mobius* m);
 };
 
-Function* Solo = new SoloFunction();
+SoloFunction SoloObj;
+Function* Solo = &SoloObj;
 
 SoloFunction::SoloFunction() :
     Function("Solo", MSG_FUNC_SOLO)

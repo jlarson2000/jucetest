@@ -44,7 +44,8 @@ class DebugFunction : public Function {
   private:
 };
 
-Function* Debug = new DebugFunction();
+DebugFunction DebugFunctionObj;
+Function* Debug = &DebugFunctionObj;
 
 DebugFunction::DebugFunction() :
     Function("Debug", 0)
@@ -99,7 +100,8 @@ class BreakpointFunction : public Function {
   private:
 };
 
-Function* Breakpoint = new BreakpointFunction();
+BreakpointFunction BreakpointObj;
+Function* Breakpoint = &BreakpointObj;
 
 BreakpointFunction::BreakpointFunction() :
     Function("Breakpoint", 0)
@@ -145,7 +147,8 @@ class DebugStatusFunction : public Function {
   private:
 };
 
-Function* DebugStatus = new DebugStatusFunction();
+DebugStatusFunction DebugStatusObj;
+Function* DebugStatus = &DebugStatusObj;
 
 DebugStatusFunction::DebugStatusFunction() :
     Function("Status", 0)

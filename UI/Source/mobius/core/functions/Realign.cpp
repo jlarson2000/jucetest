@@ -94,8 +94,11 @@ class RealignFunction : public Function {
 	bool mute;
 };
 
-Function* Realign = new RealignFunction(false);
-Function* MuteRealign = new RealignFunction(true);
+RealignFunction RealignObj {false};
+Function* Realign = &RealignObj;
+
+RealignFunction MuteRealignObj {true};
+Function* MuteRealign = &MuteRealignObj;
 
 RealignFunction::RealignFunction(bool b)
 {
@@ -244,7 +247,8 @@ class DriftCorrectFunction : public Function {
   private:
 };
 
-Function* DriftCorrect = new DriftCorrectFunction();
+DriftCorrectFunction DriftCorrectObj;
+Function* DriftCorrect = &DriftCorrectObj;
 
 DriftCorrectFunction::DriftCorrectFunction() :
     Function("DriftCorrect", 0)

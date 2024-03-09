@@ -77,8 +77,11 @@ class SubstituteFunction : public Function {
 };
 
 // SUS first for longFunction
-Function* SUSSubstitute = new SubstituteFunction(true);
-Function* Substitute = new SubstituteFunction(false);
+SubstituteFunction SUSSubstituteObj {true};
+Function* SUSSubstitute = &SUSSubstituteObj;
+
+SubstituteFunction SubstituteObj {false};
+Function* Substitute = &SubstituteObj;
 
 SubstituteFunction::SubstituteFunction(bool sus)
 {

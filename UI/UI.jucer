@@ -206,8 +206,6 @@
             <FILE id="E6iHan" name="Reset.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reset.cpp"/>
             <FILE id="fmL5aI" name="Reverse.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reverse.cpp"/>
             <FILE id="EKTDgU" name="RunScript.cpp" compile="1" resource="0" file="Source/mobius/core/functions/RunScript.cpp"/>
-            <FILE id="ABbQMc" name="SampleTrigger.cpp" compile="1" resource="0"
-                  file="Source/mobius/core/functions/SampleTrigger.cpp"/>
             <FILE id="yL28ee" name="Save.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Save.cpp"/>
             <FILE id="dshLuO" name="Shuffle.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Shuffle.cpp"/>
             <FILE id="KPWyA3" name="Slip.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Slip.cpp"/>

@@ -33,7 +33,8 @@ class CoverageFunction : public Function {
   private:
 };
 
-Function* Coverage = new CoverageFunction();
+CoverageFunction CoverageFunctionObj;
+Function* Coverage = &CoverageFunctionObj;
 
 CoverageFunction::CoverageFunction() :
     Function("Coverage", 0)
@@ -65,7 +66,8 @@ class InitCoverageFunction : public Function {
   private:
 };
 
-Function* InitCoverage = new InitCoverageFunction();
+InitCoverageFunction InitCoverageObj;
+Function* InitCoverage = &InitCoverageObj;
 
 InitCoverageFunction::InitCoverageFunction() :
     Function("InitCoverage", 0)

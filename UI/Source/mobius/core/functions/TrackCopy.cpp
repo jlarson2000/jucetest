@@ -38,8 +38,11 @@ class TrackCopyFunction : public Function {
 	bool timing;
 };
 
-Function* TrackCopy = new TrackCopyFunction(false);
-Function* TrackCopyTiming = new TrackCopyFunction(true);
+TrackCopyFunction TrackCopyObj {false};
+Function* TrackCopy = &TrackCopyObj;
+
+TrackCopyFunction TrackCopyTimingObj {true};
+Function* TrackCopyTiming = &TrackCopyTimingObj;
 
 TrackCopyFunction::TrackCopyFunction(bool b)
 {

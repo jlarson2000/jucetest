@@ -110,8 +110,12 @@ class ReplaceFunction : public Function {
 };
 
 // have to define SUS first for longFunction
-Function* SUSReplace = new ReplaceFunction(true);
-Function* Replace = new ReplaceFunction(false);
+
+ReplaceFunction SUSReplaceObj {true};
+Function* SUSReplace = &SUSReplaceObj;
+
+ReplaceFunction ReplaceObj {false};
+Function* Replace = &ReplaceObj;
 
 ReplaceFunction::ReplaceFunction(bool sus)
 {

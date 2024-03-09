@@ -90,8 +90,11 @@ class StutterFunction : public Function {
 };
 
 // SUS first for longFunction
-Function* SUSStutter = new StutterFunction(true);
-Function* Stutter = new StutterFunction(false);
+StutterFunction SUSStutterObj {true};
+Function* SUSStutter = &SUSStutterObj;
+
+StutterFunction StutterObj {false};
+Function* Stutter = &StutterObj;
 
 StutterFunction::StutterFunction(bool sus)
 {
