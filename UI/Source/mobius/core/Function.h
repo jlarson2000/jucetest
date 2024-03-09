@@ -242,8 +242,6 @@ class Function : public SystemConstant {
     // Static Function Table Management
     //////////////////////////////////////////////////////////////////////
 
-  protected:
-
     static void initStaticFunctions();
     static Function* getStaticFunction(const char * name);
 

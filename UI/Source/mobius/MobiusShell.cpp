@@ -41,6 +41,8 @@ MobiusShell::MobiusShell(MobiusContainer* cont)
     // see notes below on destructor subtleties
     // keep this on the stack rather than the heap
     // audioPool = new AudioPool();
+
+    doSimulation = false;
 }
 
 /**
@@ -206,7 +208,14 @@ void MobiusShell::performMaintenance()
 
 MobiusState* MobiusShell::getState()
 {
-    return &state;
+    MobiusState* s = &state;
+    if (!doSimulation)
+      s = kernel.getState();
+
+    if (s == nullptr)
+      s = &state;
+
+    return s;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -304,13 +313,17 @@ void MobiusShell::doAction(UIAction* action)
         }
         else {
             // send it to the simulator if configured
-            //simulator.doAction(action);
-            doKernelAction(action);
+            if (doSimulation)
+              simulator.doAction(action);
+            else
+              doKernelAction(action);
         }
     }
     else {
-        //simulator.doAction(action);
-        doKernelAction(action);
+        if (doSimulation)
+          simulator.doAction(action);
+        else
+          doKernelAction(action);
     }
 }
 

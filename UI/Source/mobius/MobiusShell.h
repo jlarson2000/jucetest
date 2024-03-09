@@ -70,6 +70,7 @@ class MobiusShell : public MobiusInterface
     MobiusKernel kernel {this, &communicator};
     
     // temporary simulator
+    bool doSimulation = false;
     Simulator simulator {this};
 
     //

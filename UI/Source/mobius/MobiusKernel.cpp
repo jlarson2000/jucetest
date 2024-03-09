@@ -2,6 +2,9 @@
  * An evolving object that wraps "kernel" state and functions.
  */
 
+// for juce::Array
+#include <JuceHeader.h>
+
 #include "../util/Trace.h"
 #include "../model/MobiusConfig.h"
 #include "../model/FunctionDefinition.h"
@@ -16,6 +19,8 @@
 
 // drag this bitch in
 #include "core/Mobius.h"
+#include "core/Function.h"
+#include "core/Action.h"
 
 #include "MobiusKernel.h"
 
@@ -91,6 +96,17 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
     // then need to defer this until the first audio interrupt
     mCore = new Mobius(this);
     mCore->initialize(configuration);
+
+    initFunctionMap();
+}
+
+/**
+ * Retuen a pointer to the live MobiusState managed by the core
+ * up to the shell.
+ */
+MobiusState* MobiusKernel::getState()
+{
+    return (mCore != nullptr) ? mCore->getState(0) : nullptr;
 }
 
 /**
@@ -354,9 +370,7 @@ void MobiusKernel::doAction(KernelMessage* msg)
         }
         else {
             // not handled above core, pass it down
-            if (mCore != nullptr)
-              mCore->doAction(action);
-
+            doCoreAction(action);
             // todo: fish any results out and do something with them
         }
     }
@@ -366,6 +380,51 @@ void MobiusKernel::doAction(KernelMessage* msg)
 
     // return it to the shell for deletion
     communicator->pushShell(msg);
+}
+
+/**
+ * Initialize the table for mapping UI tier FunctionDefinition
+ * objects to their core Function counterparts.
+ * This can only be done during initialization in the UI thread.
+ *
+ * Handling only static functions right now, will need to do something
+ * extra for scripts.
+ *
+ * Jesus vector is a fucking fight, use juce::Array, it just works.
+ */
+void MobiusKernel::initFunctionMap()
+{
+    functionMap.clear();
+    for (int i = 0 ; i < FunctionDefinition::Functions.size() ; i++) {
+        FunctionDefinition* f = FunctionDefinition::Functions[i];
+        Function* coreFunction = Function::getStaticFunction(f->getName());
+        if (coreFunction != nullptr)
+          functionMap.add(coreFunction);
+        else {
+            functionMap.add(nullptr);
+            trace("Function %s not found\n", f->getName());
+        }
+    }
+}
+
+void MobiusKernel::doCoreAction(UIAction* action)
+{
+    if (action->type == ActionFunction) {
+        FunctionDefinition* f = action->implementation.function;
+        if (f != nullptr) {
+            Function* cf = functionMap[f->ordinal];
+            if (cf == nullptr) {
+                trace("Unable to send action, function not found %s\n",
+                      f->getName());
+            }
+            else {
+                Action* coreAction = mCore->newAction();
+                coreAction->assimilate(action);
+                coreAction->implementation.function = cf;
+                mCore->doActionNow(coreAction);
+            }
+        }
+    }
 }
 
 /****************************************************************************/

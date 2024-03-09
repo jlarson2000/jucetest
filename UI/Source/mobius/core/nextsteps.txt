@@ -1,4 +1,22 @@
 
+Not seeing frame advance during Record
+After Reset, getting NPE in setup->isResetable(MapParameter...
+  MapParameter is a stub but it might not work anyway
+  if isResetable just does a substring search on the parameter name
+  can just pass the name without mapping
+  faster to have this flag set on Parameter during config propagation
+
+setup::resetables has the StringList problem.  If we convet to StringList
+at runtime, then the conversion has to be done in Shell
+since this flag is only releant to core, set it on Parameter not UIParameter
+
+Need a default set of resetables if not defined in Setup
+  - should this be global and overridden in Setup?
+
+
+
+
+
 Since we no longer use Parameter for the UI, and have moved bindings up
 is there any need for the old getHigh, getOrdinalLabel, etc?  Weed them.
 Unless scripts need them.

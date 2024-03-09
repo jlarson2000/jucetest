@@ -22,6 +22,8 @@
 
 #pragma once
 
+// #include <vector>
+#include <JuceHeader.h>
 #include "MobiusContainer.h"
 
 class MobiusKernel : public MobiusContainer::AudioListener
@@ -61,6 +63,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
     class MobiusContainer* getContainer() {
         return container;
     }
+
+    class MobiusState* getState();
     
   private:
 
@@ -82,6 +86,11 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // the big guy
     // make this a stack object at some point
     class Mobius* mCore = nullptr;
+
+    // UI to core Function mapping
+    // std::vector<class Function*> functionMap;
+    juce::Array<class Function*> functionMap;
+    void initFunctionMap();
     
     // AudioListener activities
     void interruptStart();
@@ -94,6 +103,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
     //void installSamples(class SamplePack* pack);
 
     void doAction(KernelMessage* msg);
+    void doCoreAction(class UIAction* action);
     
 };
 
