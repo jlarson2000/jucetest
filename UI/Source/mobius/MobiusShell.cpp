@@ -303,12 +303,14 @@ void MobiusShell::doAction(UIAction* action)
             doKernelAction(action);
         }
         else {
-            // send it to the simulator
-            simulator.doAction(action);
+            // send it to the simulator if configured
+            //simulator.doAction(action);
+            doKernelAction(action);
         }
     }
     else {
-        simulator.doAction(action);
+        //simulator.doAction(action);
+        doKernelAction(action);
     }
 }
 

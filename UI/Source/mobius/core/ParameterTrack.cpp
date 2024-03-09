@@ -31,8 +31,10 @@
 #include "../../model/Setup.h"
 #include "../../model/Trigger.h"
 
-#include "Action.h"
+#include "../MobiusContainer.h"
 #include "../Audio.h"
+
+#include "Action.h"
 #include "Export.h"
 #include "Function.h"
 #include "Messages.h"
@@ -1689,8 +1691,12 @@ AudioInputPortParameterType::AudioInputPortParameterType() :
 
 int AudioInputPortParameterType::getHigh(Mobius* m)
 {
-    AudioStream* stream = m->getAudioStream();
-    return stream->getInputPorts();
+    // used to be defined on AudioStream, now it's the Container
+    // do we still need this?  the core Parmaters aren't used for Setup
+    // editing any more, in fact almost all getHigh functions should
+    // be removed
+    MobiusContainer* cont = m->getContainer();
+    return cont->getInputPorts();
 }
 
 void AudioInputPortParameterType::getValue(SetupTrack* t, ExValue* value)
@@ -1772,8 +1778,8 @@ AudioOutputPortParameterType::AudioOutputPortParameterType() :
 
 int AudioOutputPortParameterType::getHigh(Mobius* m)
 {
-    AudioStream* stream = m->getAudioStream();
-    return stream->getOutputPorts();
+    MobiusContainer* cont = m->getContainer();
+    return cont->getOutputPorts();
 }
 
 void AudioOutputPortParameterType::getValue(SetupTrack* t, ExValue* value)
@@ -2025,14 +2031,13 @@ int InputPortParameterType::getHigh(Mobius* m)
 {
     int ports = 0;
 
-    // MobiusContext* con = m->getContext();
     if (IsPlugin(m)) {
         MobiusConfig* config = m->getConfiguration();
         ports = config->getPluginPorts();
     }
     else {
-        AudioStream* stream = m->getAudioStream();
-        ports = stream->getInputPorts();
+        MobiusContainer* cont = m->getContainer();
+        ports = cont->getInputPorts();
     }
     return ports;
 }
@@ -2126,14 +2131,15 @@ int OutputPortParameterType::getHigh(Mobius* m)
 {
     int ports = 0;
 
-    //MobiusContext* con = m->getContext();
+    // why would this need to be different now, the
+    // container can provide it in both contexts
     if (IsPlugin(m)) {
         MobiusConfig* config = m->getConfiguration();
         ports = config->getPluginPorts();
     }
     else {
-        AudioStream* stream = m->getAudioStream();
-        ports = stream->getOutputPorts();
+        MobiusContainer* cont = m->getContainer();
+        ports = cont->getOutputPorts();
     }
     return ports;
 }

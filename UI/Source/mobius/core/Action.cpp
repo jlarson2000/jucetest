@@ -29,6 +29,82 @@
  *                                                                          *
  ****************************************************************************/
 
+/**
+ * Convert a UIAction into an Action
+ * Action normally came from the pool.
+ *
+ * Really starting to want these to be subclasses
+ * rather than nearly identitical structures.
+ */
+void Action::assimilate(UIAction* src)
+{
+    // Trigger
+    id = src->id;
+    trigger = src->trigger;
+    triggerMode = src->triggerMode;
+    triggerValue = src->triggerValue;
+    triggerOffset = src->triggerOffset;
+    down = src->down;
+    longPress = src->longPress;
+    repeat = src->repeat;
+    
+    // Target, Scope
+    type = src->type;
+    strcpy(actionName, src->actionName);
+    scopeTrack = src->scopeTrack;
+    scopeGroup = src->scopeGroup;
+
+    // implementation we do NOT assimilate since our resolved model is different
+
+    // Time
+    // How many of these special flags can even be set in the UIModel?
+    // weed this
+    escapeQuantization = src->escapeQuantization;
+    noLatency = src->noLatency;
+    noSynchronization = src->noSynchronization;
+
+    // Arguments
+    strcpy(bindingArgs, src->bindingArgs);
+
+    // !! what about this, copy the list?  or can this not come from the UI?
+    scriptArgs = NULL;
+    
+    actionOperator = src->actionOperator;
+    arg.set(&(src->arg));
+
+    // from here on down should be extensions to the UI model
+    // we have these in UIAction but unless it is possible
+    // for the UI to set them they need to be removed
+    
+    // Status
+    rescheduling = NULL;
+    reschedulingReason = NULL;
+    mobius = NULL;
+    inInterrupt = false;
+    noGroup = false;
+    noTrace = false;
+    millisecond = 0;
+    streamTime = 0.0f;
+
+    // private
+
+    mNext = NULL;
+    mPooled = false;
+    mRegistered = false;
+    mPool = nullptr;
+    
+    mEvent = NULL;
+    mThreadEvent = NULL;
+    mResolvedTrack = NULL;
+    mLongFunction = NULL;
+
+    mName = NULL;
+}
+
+/**
+ * Initialize action after construction.
+ * Do we need to do this when pulling it out of the pool too?
+ */
 void Action::init()
 {
     // Trigger
@@ -95,11 +171,6 @@ Action::Action(Action* src)
     init();
     if (src != NULL)
       clone(src);
-}
-
-Action::Action(UIAction * src)
-{
-    init();
 }
 
 /**

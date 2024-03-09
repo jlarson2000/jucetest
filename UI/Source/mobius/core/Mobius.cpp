@@ -23,7 +23,6 @@
 #include "MidiByte.h"
 #include "MidiEvent.h"
 #include "MidiInterface.h"
-#include "HostMidiInterface.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -149,10 +148,6 @@ Mobius::Mobius(MobiusKernel* kernel)
     // are always in the interrupt now
 	//mCsect = new CriticalSection("Mobius");
 
-    // whatever the fuck this was it was leaking
-    // see initObjectPools, flushObjectPools
-	//mPools = NULL;
-    
     mLayerPool = new LayerPool(mAudioPool);
     mEventPool = new EventPool();
     mActionPool = new ActionPool();
@@ -258,10 +253,6 @@ Mobius::~Mobius()
     //t->setInterned(false);
     //delete mResolvedTargets;
 
-    // sweet jesus this is aweful, redesign
-    // I don't think these were actually used?
-	//flushObjectPools();
-    
     mActionPool->dump();
     delete mActionPool;
 
@@ -362,9 +353,8 @@ void Mobius::shutdown()
     // Track owns an EventManager which for some reason deals only with events
     // for that Track rather than using a common Event timeline
     // EventManager has an Event list, and when you free them they go
-    // into the EventPool, created obscurely by initObjectPools in MobiusPools
-    // Recorder considers itself the owner of the Tracks and will delete them
-    // but since Recorder moved up a level it will be deleted AFTER Mobius
+    // into the EventPool.  Recorder considers itself the owner of the Tracks and will
+    // delete them but since Recorder moved up a level it will be deleted AFTER Mobius
     // or at an undefined time
     // since deleting a Track needs touch the EventPool, and deleting Mobius
     // deletes the EventPool, this has undefined behavior
@@ -437,8 +427,6 @@ void Mobius::reconfigure(class MobiusConfig* config)
  */
 void Mobius::start()
 {
-    //initObjectPools();
-
     // will need a way for this to get MIDI
     mSynchronizer = new Synchronizer(this, mMidi);
 
@@ -480,6 +468,26 @@ void Mobius::start()
     //mOsc = new OscRuntime(this);
 }
 
+/**
+ * Used by internal components that need something from the container.
+ * This takes the place of what used to be AudioStream
+ */
+MobiusContainer* Mobius::getContainer()
+{
+    return mKernel->getContainer();
+}
+
+/**
+ * New interface for actions.
+ */
+void Mobius::doAction(UIAction* src)
+{
+    Action* internal = newAction();
+    internal->assimilate(src);
+
+    doActionNow(internal);
+}
+
 /****************************************************************************
  *                                                                          *
  *                              MOBIUS INTERFACE                            *
@@ -490,12 +498,6 @@ void Mobius::start()
 MidiInterface* Mobius::getMidiInterface()
 {
     return mMidi;
-}
-
-// used by MidiExporter
-HostMidiInterface* Mobius::getHostMidiInterface()
-{
-    return NULL;
 }
 
 AudioStream* Mobius::getAudioStream()
@@ -1859,9 +1861,6 @@ void Mobius::logStatus()
     mLayerPool->dump();
     mAudioPool->dump();
 
-    // this has never been used and looks confusing
-    //dumpObjectPools();
-
     TraceBuffer* b = new TraceBuffer();
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
@@ -1906,15 +1905,6 @@ void Mobius::finishPrompt(Prompt* p)
 	else
 	  delete p;
 }
-
-/****************************************************************************
- *                                                                          *
- *                             ACTION RESOLUTION                            *
- *                                                                          *
- ****************************************************************************/
-
-
-
 
 /****************************************************************************
  *                                                                          *
@@ -4498,19 +4488,6 @@ Export* Mobius::resolveExport(ResolvedTarget* resolved)
     return exp;
 }
 #endif
-
-//////////////////////////////////////////////////////////////////////
-//
-// New Actions
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * A lot more work here, but have something for the initial compile
- */
-void Mobius::doAction(UIAction* action)
-{
-}
 
 /****************************************************************************/
 /****************************************************************************/

@@ -75,14 +75,17 @@ class MobiusContainer
     // General non-real time informaton about the connected audio stream
     // these can be called at any time from any thread
     
-    // we have organized audio data into one or more "ports" containing
-    // two stereo audio channels, unclear whether the enging needs to ask
-    // for this, or whether the port configuration is simply pushed down
-    // to it through the MobiusInterface once
-    // a holdover from AudioStream
+    // We have organized audio data into one or more "ports" containing
+    // two stereo audio channels.  The number of ports available is used
+    // by ParameterTrack to get the high values when this used to be connected
+    // to the UI to configure the selection of input/output ports in the Setup.
+    // We no longer to Setup editing from the Parameter model so these can
+    // probably be removed.
     virtual int getInputPorts() = 0;
     virtual int getOutputPorts() = 0;
 
+
+    
     virtual int getSampleRate() = 0;
     virtual int getInputLatency() = 0;
     virtual int getOutputLatency() = 0;

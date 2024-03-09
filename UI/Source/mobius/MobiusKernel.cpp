@@ -352,6 +352,13 @@ void MobiusKernel::doAction(KernelMessage* msg)
                 sampleTrack->trigger(index, action->down);
             }
         }
+        else {
+            // not handled above core, pass it down
+            if (mCore != nullptr)
+              mCore->doAction(action);
+
+            // todo: fish any results out and do something with them
+        }
     }
     
     // if not handled above this is where we send it

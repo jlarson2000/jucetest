@@ -242,3 +242,16 @@ void Mobius::resolveTrigger(OldBinding* binding, Action* action)
         action->setMidiKey(binding->getValue());
     }
 }
+
+/**
+ * Create an Export for a Binding.
+ */
+Export* Mobius::resolveExport(OldBinding* b)
+{
+    Export* exp = NULL;
+    ResolvedTarget* target = resolveTarget(b);
+    if (target != NULL)
+      exp = resolveExport(target);
+    return exp;
+}
+

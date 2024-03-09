@@ -1,3 +1,15 @@
+Shit, Action is way to subtle to mess with first
+  leave it the way it is but may factor out like ActionDispatcher
+  doAction(UIAction)
+    allocate an Action from the pool, initializes it, and sends it through
+    the existing process
+  handle groups above, will never see group set in an Action, can remove
+    group handling
+  take out focus logic
+
+BindingResolver
+
+
 
 
 Action

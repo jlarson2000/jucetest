@@ -106,7 +106,6 @@ class Action {
   public:
 
 	Action();
-    Action(class UIAction* src);
 
     // clone the action, who uses this?
 	Action(Action* src);
@@ -119,6 +118,10 @@ class Action {
 
     // application code normally frees it which returns it to the pool
     void free();
+
+    // clone external UIAction state into the internal model
+    // can't be in the constructor since we're dealing with pooled objects
+    void assimilate(class UIAction* src);
 
     // pool state
     Action* getNext();

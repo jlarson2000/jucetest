@@ -1,0 +1,6 @@
+
+There was a special function UIRedraw that would
+presumably be done in a script to force a UI refresh.
+
+Iffy concept, and if we need something like that then implement
+it a different way.

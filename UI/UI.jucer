@@ -244,8 +244,6 @@
           <FILE id="GBOHKf" name="FadeWindow.h" compile="0" resource="0" file="Source/mobius/core/FadeWindow.h"/>
           <FILE id="OP6PC2" name="Function.cpp" compile="1" resource="0" file="Source/mobius/core/Function.cpp"/>
           <FILE id="yk0tvL" name="Function.h" compile="0" resource="0" file="Source/mobius/core/Function.h"/>
-          <FILE id="kS8oJb" name="HostMidiInterface.h" compile="0" resource="0"
-                file="Source/mobius/core/HostMidiInterface.h"/>
           <FILE id="GOMBhW" name="Layer.cpp" compile="1" resource="0" file="Source/mobius/core/Layer.cpp"/>
           <FILE id="QooRmj" name="Layer.h" compile="0" resource="0" file="Source/mobius/core/Layer.h"/>
           <FILE id="MjJST1" name="Loop.cpp" compile="1" resource="0" file="Source/mobius/core/Loop.cpp"/>
@@ -265,7 +263,6 @@
           <FILE id="DkLhzz" name="MidiTransport.h" compile="0" resource="0" file="Source/mobius/core/MidiTransport.h"/>
           <FILE id="lHBt2R" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/core/Mobius.cpp"/>
           <FILE id="LMQl5U" name="Mobius.h" compile="0" resource="0" file="Source/mobius/core/Mobius.h"/>
-          <FILE id="Pa4qyU" name="MobiusPools.cpp" compile="1" resource="0" file="Source/mobius/core/MobiusPools.cpp"/>
           <FILE id="R4QzT1" name="MobiusThread.cpp" compile="1" resource="0"
                 file="Source/mobius/core/MobiusThread.cpp"/>
           <FILE id="BiGiSh" name="MobiusThread.h" compile="0" resource="0" file="Source/mobius/core/MobiusThread.h"/>

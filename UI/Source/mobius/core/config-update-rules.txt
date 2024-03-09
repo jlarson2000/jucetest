@@ -1,0 +1,18 @@
+
+There is WAY too much complexity around incremental updates to MobiusConfig
+while the engine is running
+
+need to only do certain things like installing scripts in a state of Global Reset
+because of the ResolvedTargets
+
+scripts are hard anyway because there can be live Actions/Events/ScriptInterpreters
+using the current model
+
+this whole history nonsense is related to that
+
+Make installScripts be a function that must be invoked by the UI, like installSamples?
+  nice to allow this to be done without interaction, can at least limit it to global reset
+
+Global Reset needs to
+  put everything into a quiet initialized state
+  remove all the fucking ResolvedTargets and make it start over

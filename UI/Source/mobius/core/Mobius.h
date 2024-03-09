@@ -108,6 +108,15 @@ class Mobius :
     static void freeStaticObjects();
 
     //////////////////////////////////////////////////////////////////////
+    // New environment accessors for internal components
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * This now serves the same purposes as AudioStream
+     */
+    class MobiusContainer* getContainer();
+
+    //////////////////////////////////////////////////////////////////////
     // 
     // Legacy Interface
     //
@@ -145,8 +154,6 @@ class Mobius :
 
     // formerly a combo of getContxt and getMidiInterface
     class MidiInterface* getMidiInterface();
-
-    class HostMidiInterface* getHostMidiInterface();
 
     // formerly on MobiusContext
     bool isPlugin() {

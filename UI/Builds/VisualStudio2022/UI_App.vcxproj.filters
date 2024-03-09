@@ -970,9 +970,6 @@
     <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\MobiusPools.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MobiusThread.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -3832,9 +3829,6 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Function.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\HostMidiInterface.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Layer.h">

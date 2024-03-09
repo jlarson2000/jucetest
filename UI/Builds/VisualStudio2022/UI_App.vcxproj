@@ -259,7 +259,6 @@
     <ClCompile Include="..\..\Source\mobius\core\MidiQueue.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiTransport.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\core\MobiusPools.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MobiusThread.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mode.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\ObjectPool.cpp"/>
@@ -2667,7 +2666,6 @@
     <ClInclude Include="..\..\Source\mobius\core\Expr.h"/>
     <ClInclude Include="..\..\Source\mobius\core\FadeWindow.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Function.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\HostMidiInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Layer.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Loop.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mapper.h"/>
