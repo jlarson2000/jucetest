@@ -160,7 +160,7 @@ EventManager::EventManager(Track* track)
     mSwitch = NULL;
 
     // special event we can inject at sync boundaries
-	mSyncEvent = newEvent();
+	mSyncEvent = new Event(nullptr);
 	mSyncEvent->type = SyncEvent;
 	// this keeps it from being returned to the free pool
 	mSyncEvent->setOwned(true);
@@ -171,8 +171,7 @@ EventManager::~EventManager()
 {
     flushAllEvents();
     delete mEvents;
-    mSyncEvent->setOwned(false); 
-    mSyncEvent->free();
+    delete mSyncEvent;
 }
 
 void EventManager::reset()

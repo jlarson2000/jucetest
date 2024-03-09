@@ -1124,7 +1124,7 @@ void Mobius::buildTracks(int count)
         if (count <= 0) count = 1;
 
         // limit this while testing leaks
-        count = 1;
+        //count = 1;
 
         Track** tracks = new Track*[count];
 

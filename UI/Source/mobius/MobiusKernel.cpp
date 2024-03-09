@@ -261,7 +261,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 void MobiusKernel::interruptStart()
 {
     consumeCommunications();
-//    if (mCore != nullptr) mCore->beginAudioInterrupt();
+    if (mCore != nullptr) mCore->beginAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -272,7 +272,7 @@ void MobiusKernel::interruptStart()
 
 void MobiusKernel::interruptEnd()
 {
-//    if (mCore != nullptr) mCore->endAudioInterrupt();
+    if (mCore != nullptr) mCore->endAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////
