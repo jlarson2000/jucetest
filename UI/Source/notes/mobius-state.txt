@@ -1,0 +1,91 @@
+
+Old code:
+
+  UI::updateUI
+    confusing when this was called, but it was the regular interval refresh handler
+    Called mobius->getState
+      this is what refreshed the state, it is not maintained as the engine runs
+    refreshed the display components
+
+
+New code:
+
+  MainThread is our periodic timer now, unless we move to juce::Timer
+  calls Supervisor::advance every 1/10 second
+     calls Mobius::performMaintenance
+     calls Mobius::simulateInterrupt
+     calls mobius->getState (on MobiusShell)
+     calls DisplayManager->update on the MobiusState
+
+MobiusShell::getState
+  if not simulation
+     Kernel::getState
+       mCore->getState(0);
+
+Mobius::getState had this confusing bit
+
+        mState.track = mTracks[track]->getState();
+
+This called this method:
+
+MobiusTrackState* Track::getState()
+{
+	MobiusTrackState* s = &mState;
+
+this refreshed a bunchh of stuff and then returned &mState
+
+Up in Mobius::getState that pointer was left in mState(MobiusState).track
+
+The track has it's own private copy of MobiusTrackState
+
+And MobusState just pointed to it
+
+	TrackState* track;
+
+It is different now
+
+    // state for each track
+    MobiusTrackState tracks[MaxTracks];
+
+MobiusState has it's own MobiusTrackState for all tracks, we want it to managed
+that, so the Tracks shouldn't get their own, they should pull it down from Mobius.
+
+So we could do a structure copy each time from the private MobiusTrackState in the
+track out to the "public" MobiusTrackState inside MobiusState.
+
+Or we could give the Track a MobiusTrackState to fill in.
+
+So rather than:
+
+   you do your thing, we'll ask you to refresh into your internal object,
+   then return that internal object
+
+It is
+
+   i'll give you a thing at initialization time
+   I'll ask you to refresh your thing, and you return it
+
+Why, Track doesn't need to keep an internal MobiusTrackState at all, we just give
+it one when necessary.  What does this mean
+
+Old lifespan of MobiusTrackState
+
+Track::Track(Mobius* m, Synchronizer* sync, int number)
+	init(m, sync, number);
+
+void Track::init(Mobius* m, Synchronizer* sync, int number) 
+	mState.init();
+
+MobiusTrackState* Track::getState()
+{
+	MobiusTrackState* s = &mState;
+    ...
+    return s;
+
+And Track::init() was private so it could only be called at construction.
+
+Good, Track stops keeping a MobiusTrackState
+
+Track::getState is passed the one to use
+
+

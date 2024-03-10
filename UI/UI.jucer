@@ -83,6 +83,10 @@
           <FILE id="fDm6Vs" name="ActionButtons.cpp" compile="1" resource="0"
                 file="Source/ui/display/ActionButtons.cpp"/>
           <FILE id="JEpK4O" name="ActionButtons.h" compile="0" resource="0" file="Source/ui/display/ActionButtons.h"/>
+          <FILE id="sCNRwz" name="AudioMeterElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/AudioMeterElement.cpp"/>
+          <FILE id="FpvABV" name="AudioMeterElement.h" compile="0" resource="0"
+                file="Source/ui/display/AudioMeterElement.h"/>
           <FILE id="kTPpfK" name="BeatersElement.cpp" compile="1" resource="0"
                 file="Source/ui/display/BeatersElement.cpp"/>
           <FILE id="WnT2mO" name="BeatersElement.h" compile="0" resource="0"

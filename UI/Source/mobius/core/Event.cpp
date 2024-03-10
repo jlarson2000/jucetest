@@ -131,12 +131,32 @@ void EventType::move(Loop* l, Event* e, long newFrame)
 
 EventPool::EventPool()
 {
-    mEvents = NULL;
+    mEvents = new EventList();
     mAllocated = 0;
 }
 
+/**
+ * This is subtle because we use an EventList to maintain the pooled list
+ * but ~EventList wants to return the Events it contains to the pool.
+ * So to prevent leaks and an infinte loop we "steal" the list from
+ * the EventList and do a cascade delete on the next pointer.
+ * See notes/event-list.txt
+ */
 EventPool::~EventPool()
 {
+    Event* list = mEvents->steal();
+    Event* next = nullptr;
+    
+    while (list != nullptr) {
+        next = list->getNext();
+        // actually don't have to do this since ~Event doesn't cascade
+        // but follow the usual pattern
+        list->setNext(nullptr);
+        delete list;
+        list = next;
+    }
+
+    // now it is empty and won't try to flush() back to the pool
     delete mEvents;
 }
 
@@ -159,9 +179,10 @@ Event* EventPool::newEvent()
     if (e == NULL) {
         e = new Event(this);
         mAllocated++;
+        // Trace(2, "Allocated event at %10x\n", (int)e);
     }
 
-	return e;
+    return e;
 }
 
 /**
@@ -231,8 +252,10 @@ void EventPool::freeEvent(Event* e, bool freeAll)
                 e->setAction(NULL);
             }
 
-            if (mEvents == NULL)
-              mEvents = new EventList();
+            if (e->getPool() == nullptr) {
+                Trace(1, "Return unpooled event to a pool!\n");
+            }
+
 			mEvents->add(e);
 		}
 	}
@@ -266,9 +289,8 @@ void EventPool::dump()
           pooled++;
     }
 
-    printf("EventPool: %d allocated, %d in the pool, %d in use\n",
-           mAllocated, pooled, mAllocated - pooled);
-    fflush(stdout);
+    Trace(1, "EventPool: %d allocated, %d in the pool, %d in use\n",
+          mAllocated, pooled, mAllocated - pooled);
 }
 
 /****************************************************************************
@@ -288,7 +310,8 @@ Event::Event(EventPool* pool)
 	mOwned = false;
 
 	// this will be allocated as needed, but not reinitialized  every time
-	mPreset = NULL;
+    // to make memory more predictable, just go ahead and allocate it now
+	mPreset = new Preset();
 }
 
 void Event::init()
@@ -343,7 +366,7 @@ void Event::init(EventType* etype, long eframe)
  */
 Event::~Event()
 {
-	//printf("deleted %p\n", this);
+    delete mPreset;
 }
 
 /**
@@ -352,10 +375,28 @@ Event::~Event()
  */
 void Event::free()
 {
-    if (mPool != NULL)
-      mPool->freeEvent(this, false);
-    else
-      Trace(1, "Event::free no pool!\n");
+    if (mPool != NULL) {
+        // I want to know if an event can be marked own yet still be from a pool
+        // if this never happens then we don't need both states, lack of pool
+        // implies ownership.  This won't actually pool it since
+        // EventPool::freeEvent(bool, bool) also tests ownership
+        if (mOwned)
+          Trace(1, "Event::free Owned event being returned to the pool\n");
+        mPool->freeEvent(this, false);
+    }
+    else if (!mOwned) {
+        // this happens in new code for the two cases I could find that want
+        // to make an owned event outside of a pool Synchronizer::mReturnEvent
+        // and EventManager::mSyncEvent
+        // they now won't have a pool, but they should be marked owned
+        // made it less confusing than getting them from a pool only to suppress
+        // returning them to it with the ownership flag.
+        // should just have lack of pool imply ownership and not mess with
+        // even attempting it above
+        // if owned is not set, then we have something that is both not owned
+        // and not in a pool which shouldn't happen
+        Trace(1, "Event::free no pool and not owned!\n");
+    }
 }
 
 /**
@@ -363,10 +404,12 @@ void Event::free()
  */
 void Event::freeAll()
 {
-    if (mPool != NULL)
-      mPool->freeEvent(this, true);
-    else
-      Trace(1, "Event::freeAll no pool!\n");
+    if (mPool != NULL) {
+        mPool->freeEvent(this, true);
+    }
+    else if (!mOwned) {
+        Trace(1, "Event::freeAll no pool!\n");
+    }
 }
 
 void Event::setPooled(bool b)
@@ -544,13 +587,11 @@ void Event::savePreset(Preset* p)
 	if (p == NULL)
 	  mPresetValid = false;
 	else {
-        // NEW: no longer have a copy() method
-        // clone a new one each time
-		//if (mPreset == NULL)
-        //mPreset = new Preset();
-		//mPreset->copy(p);
-        delete mPreset;
-        mPreset = new Preset(p);
+        // should stop doing this and allocate it when
+        // the pool is refreshed
+        if (mPreset == nullptr)
+          mPreset = new Preset();
+        mPreset->copyNoAlloc(p);
 		mPresetValid = true;
 	}
 }
@@ -1041,6 +1082,25 @@ Event* EventList::find(EventType* type, long frame)
 		}
 	}
 	return event;	
+}
+
+/**
+ * Reutrn the chain of events in this list and forget about them.
+ * This ONLY for use by EventPool when it wants to delete the events
+ * in the pool during shutdown.
+ *
+ * Since ~EventList returns the events it contains to the pool we get
+ * into an infinite loop when EventPool tries to delete the EventList
+ * that it is using to maintain the pooled list.
+ *
+ * See notes/event-list.txt for gory details on this awkward situation.
+ * It is assumed that the events returned are chained with the getNext pointer.
+ */
+Event* EventList::steal()
+{
+    Event* stolen = mEvents;
+    mEvents = nullptr;
+    return stolen;
 }
 
 /****************************************************************************/

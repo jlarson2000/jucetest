@@ -39,6 +39,7 @@ StatusArea::StatusArea(MobiusDisplay* parent)
     addElement(&counter);
     addElement(&floater);
     addElement(&parameters);
+    addElement(&audioMeter);
 }
 
 void StatusArea::addElement(StatusElement* el)

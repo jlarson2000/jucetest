@@ -294,9 +294,14 @@ void MobiusThread::setCheckInterrupt(bool b)
 
 /**
  * Control whether the thread is registered as the trace listener.
+ *
+ * Since we're not a thread any more, bypass this shit and let
+ * Trace just emit directly to the debug stream.  Will need to revisit
+ * this when we get threads sorted out
  */
 void MobiusThread::setTraceListener(bool b)
 {
+#if 0
 	// ugh, don't really like the interface here, but not really worth
 	// a more complicated encapsulation
 	if (b) {
@@ -312,6 +317,7 @@ void MobiusThread::setTraceListener(bool b)
 	else {
 		Trace(1, "MobiusThread was not the trace listener!\n");
 	}
+#endif    
 }
 		
 

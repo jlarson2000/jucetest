@@ -32,12 +32,21 @@
 
 /**
  * We're constructed with the shell and the communicator which
- * are esseential
+ * are esseential.
+ *
+ * Well it's not that simple, we must also have a MobiusContainer
+ * and an AudioPool which given the current ordering of static initialization
+ * should exist, but let's wait till initialize().
+ *
+ * Note that nothing we may statically initialize may depend on any of this
+ * this is especially true of Mobius which reaches back up for conatiner
+ * and pool.  It works now because we dynamically allocate that later.
  */
 MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
 {
     shell = argShell;
     communicator = comm;
+    // something we did for leak debugging
     Mobius::initStaticObjects();
 }
 
@@ -79,7 +88,9 @@ MobiusKernel::~MobiusKernel()
  */
 void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
 {
+    // stuff we need before building Mobius
     container = cont;
+    audioPool = shell->getAudioPool();
     configuration = config;
 
     // set up the initial Recorder configuration
@@ -259,7 +270,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
     interruptStart();
 
     // this isn't a listener, but we make the interface use the same signature
-    //mRecorder->containerAudioAvailable(cont);
+    mRecorder->containerAudioAvailable(cont);
 
     interruptEnd();
 }
@@ -278,6 +289,8 @@ void MobiusKernel::interruptStart()
 {
     consumeCommunications();
     if (mCore != nullptr) mCore->beginAudioInterrupt();
+
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -407,6 +420,21 @@ void MobiusKernel::initFunctionMap()
     }
 }
 
+/**
+ * We're bypassing some of the old logic with Mobius::doAction
+ * that validated various things, and decided whether or not
+ * to handle it in UI thread or defer it to the interrupt.
+ * Instead we call doActionNow which is what the audio interrupt
+ * handler did.  This loses the call to completeAction()
+ * which we have to do out here to return the action allocated
+ * with Mobius::newAction to the pool or else it will leak.
+ *
+ * Once this gets retooled to avoid the above/below interrupt
+ * distinction, should just call the one doAction and let it
+ * handle the pooling nuance.  In particular you can't just
+ * call Mobius::freeAction because ownership may have transferreed
+ * to an Event.
+ */
 void MobiusKernel::doCoreAction(UIAction* action)
 {
     if (action->type == ActionFunction) {
@@ -422,6 +450,7 @@ void MobiusKernel::doCoreAction(UIAction* action)
                 coreAction->assimilate(action);
                 coreAction->implementation.function = cf;
                 mCore->doActionNow(coreAction);
+                mCore->completeAction(coreAction);
             }
         }
     }

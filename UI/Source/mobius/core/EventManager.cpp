@@ -162,8 +162,10 @@ EventManager::EventManager(Track* track)
     // special event we can inject at sync boundaries
 	mSyncEvent = new Event(nullptr);
 	mSyncEvent->type = SyncEvent;
-	// this keeps it from being returned to the free pool
-	mSyncEvent->setOwned(true);
+	// this keeps it from being returned to the free pool and
+    // suppresses warnings
+    // do we need this?  doesn't the lack of a pool imply ownership?
+ 	mSyncEvent->setOwned(true);
 	mLastSyncEventFrame = -1;
 }
 
@@ -1968,7 +1970,7 @@ void EventManager::getEventSummary(MobiusLoopState* s)
         mTrack->enterCriticalSection("getEventSummary");
         events = mEvents->getEvents();
         if (events != NULL) {
-            for (Event* e = events ; e != NULL && s->eventCount < MaxEvents ; 
+            for (Event* e = events ; e != NULL && s->eventCount < MobiusStateMaxEvents ; 
                  e = e->getNext()) {
 
                 getEventSummary(s, e, false);
@@ -1981,7 +1983,7 @@ void EventManager::getEventSummary(MobiusLoopState* s)
                     s->nextLoop = nextLoop->getNumber();
                     // and the events stacked after the switch
                     for (Event* se = e->getChildren() ; 
-                         se != NULL && s->eventCount < MaxEvents ;
+                         se != NULL && s->eventCount < MobiusStateMaxEvents ;
                          se = se->getSibling())
                       getEventSummary(s, se, true);
                 }

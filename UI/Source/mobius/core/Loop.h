@@ -149,7 +149,8 @@ class Loop : public TraceContext {
     // Status
     //
 
-    class MobiusLoopState* getState();
+	void refreshState(class MobiusLoopState* s);
+
     class StreamState* getRestoreState();
 	void getSummary(class MobiusLoopState* s, bool active);
 	class MobiusMode* getMode();
@@ -296,6 +297,7 @@ class Loop : public TraceContext {
 
   protected:
 
+
     void setPlayFrame(long f);
     void cancelFadeIn();
 	void playLocal();
@@ -306,10 +308,12 @@ class Loop : public TraceContext {
 
   private:
 
+    // need to remove this
+    class MobiusLoopState* getState();
+
     void init(class Mobius* mob, class Track* track, 
 			  class InputStream* input, class OutputStream* output);
 
-	void refreshState(class MobiusLoopState* s);
 	void clear();
     bool checkThreshold();
 	void notifyBeatListeners(class Layer* layer, long frames);

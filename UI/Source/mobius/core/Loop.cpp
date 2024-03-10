@@ -186,6 +186,8 @@ void Loop::init(Mobius* m, Track* track,
     mBeatSubCycle = false;
 	mBreak = false;
 
+    // don't need this any more, we'll only call refreshState
+    // rather than getState, remove eventually
 	mState.init();
 
 	// since we're in Reset, this has to start here
@@ -898,6 +900,9 @@ long Loop::wrapFrame(long frame, long loopFrames)
  *                                                                          *
  ****************************************************************************/
 
+/**
+ * No longer used, Track will only call refreshState
+ */
 MobiusLoopState* Loop::getState()
 {
 	refreshState(&mState);
@@ -1011,14 +1016,14 @@ void Loop::refreshState(MobiusLoopState* s)
 	int added = 0;
 	int lost = 0;
 	if (mRecord != NULL)
-	  getLayerState(mRecord->getPrev(), s->layers, MaxLayers,
+	  getLayerState(mRecord->getPrev(), s->layers, MobiusStateMaxLayers,
 					&added, &lost);
 
 	s->layerCount = added;
 	s->lostLayers = lost;
 
 	// same for redo layers
-	getLayerState(mRedo, s->redoLayers, MaxRedoLayers, &added, &lost);
+	getLayerState(mRedo, s->redoLayers, MobiusStateMaxRedoLayers, &added, &lost);
 	s->redoCount = added;
 	s->lostRedo = lost;
 }

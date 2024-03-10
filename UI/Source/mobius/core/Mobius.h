@@ -441,7 +441,7 @@ class Mobius :
     class AudioStream* mAudioStream;
     
     //MobiusContext* mContext;
-	class ObjectPoolManager* mPools;
+	//class ObjectPoolManager* mPools;
     class LayerPool* mLayerPool;
     class EventPool* mEventPool;
     class ActionPool* mActionPool;
@@ -450,8 +450,8 @@ class Mobius :
 	OldMobiusListener* mListener;
     Watchers* mWatchers;
     class List* mNewWatchers;
-    class UIControl** mUIControls;
-    class UIParameter** mUIParameters;
+    //class UIControl** mUIControls;
+    //class UIParameter** mUIParameters;
 	//char* mConfigFile;
 	class MobiusConfig *mConfig;
 	class MobiusConfig *mInterruptConfig;

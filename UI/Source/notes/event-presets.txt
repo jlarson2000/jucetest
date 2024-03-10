@@ -1,0 +1,60 @@
+
+Every fucking Event in every track's EventManager has a Preset object
+that will receive a copy of the current track's Preset contents when the
+event is scheduled.
+
+	// save a copy of the current parameter values so we can override
+	// them in scripts then restore them before the function actually
+	// runs, do we always want this?
+	event->savePreset(preset);
+
+		// do we really need to do this?  
+		// should the preset affect all stacked events
+		event->savePreset(mTrack->getPreset());
+
+This happens seemingly every time an event is allocated.  Which
+is error prone if it weren't sucking so hard anyway.
+
+/**
+ * Make a copy of the current preset parameter values. 
+ * Leave the copy around so we gradually have one for all events in 
+ * the pool.
+ *
+ * !! This should be an inline object!
+ */
+void Event::savePreset(Preset* p)
+{
+	if (p == NULL)
+	  mPresetValid = false;
+	else {
+		if (mPreset == NULL)
+		  mPreset = new Preset();
+		mPreset->copy(p);
+		mPresetValid = true;
+	}
+}
+
+So we tried to "warm" the pooled events at least and not do an allocation
+every time, but we still did a relatively large structure copy.  Around 2700 bytes
+plus probably a CopyString or two.
+
+It tried to defer this until savePreset was called, so it's unclear if there
+was any savings for events that didn't actually need the preset, but since there
+aren't ever large numbers of these just go ahread and pre-allocate the fucking thing
+so we can do the allocation at a more predictable time.
+
+So we'll have at minimu 8 copies times the average number of active events per
+track.  Maybe not child events but the main ones.
+
+Sort out what the hell this was for and get rid of it.  Feels like it must have
+been for test scripts that want to play fast and loose with parameter values
+while events are already scheduled.
+
+The override/restore problem.
+
+This got worse after I removed the copy() method and we started allocating it every
+damn time, restored that but sweet jesus this sucks.
+
+
+
+

@@ -160,9 +160,9 @@ class Setup : public Structure {
 	void setActiveTrack(int i);
 	int getActiveTrack();
 
-	void setResetables(class StringList* list);
-	class StringList* getResetables();
-	bool isResetable(class UIParameter* p);
+	void setResetRetains(const char* csv);
+	const char* getResetRetains();
+	bool isResetRetain(const char* parameterName);
 
 	class SetupTrack* getTracks();
 	class SetupTrack* stealTracks();
@@ -225,10 +225,10 @@ class Setup : public Structure {
 	//StringList* mGroupNames;
 
 	/**
-	 * List of track parameter names that will be restored from the
+	 * List of track parameter names that will NOT be restored from the
 	 * setup after an individual (non-global) reset.
 	 */
-	class StringList* mResetables;
+	char* mResetRetains;
 
 	/**
 	 * A list of track configurations.

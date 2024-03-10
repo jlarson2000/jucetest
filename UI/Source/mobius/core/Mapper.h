@@ -9,8 +9,10 @@ extern bool IsPlugin(class Mobius* m);
 
 extern class UIEventType* MapEventType(class EventType* src);
 extern class FunctionDefinition* MapFunction(class Function* src);
-extern class UIParameter* MapParameter(class Parameter* src);
 extern class ModeDefinition* MapMode(class MobiusMode* mode);
+
+// need eliminated
+//extern class UIParameter* MapParameter(class Parameter* src);
 
 extern void WriteAudio(class Audio* a, const char* path);
 extern void WriteFile(const char* path, const char* content);

@@ -6,6 +6,7 @@
     <Location name='CounterElement' x='234' y='244' disabled='0'/>
     <Location name='FloatingStripElement' x='0' y='0' disabled='0'/>
     <Location name='ParametersElement' x='788' y='39' disabled='0'/>
+    <Location name='AudioMeterElement' x='343' y='347' disabled='0'/>
   </Locations>
   <InstantParameters>
     <String>preset</String>

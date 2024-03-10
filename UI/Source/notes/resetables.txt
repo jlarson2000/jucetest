@@ -1,0 +1,197 @@
+
+The "resetables" list is a way to define which parameters will return
+to their initial value  after the execution of the Reset (or Global Reset) function.
+
+It only applies to parameters in track scope, not to global or preset scope.
+
+Global parameters are unaffected by looping functions, they normally retain the values that
+were set when read in from the mobius.xml file.  Scripts may modify a limited set of
+global parameters (what are they?) but these last only for the duration of the runtime,
+they are not stored permanently.
+
+Preset parameters have their initial values from the mobius.xml file.  Each track makes
+a private copy of the Preset for use at runtime.  While running scripts may change the values
+of preset parameters in this private copy.  On Reset, all of the parameters are restored
+to their initial values.
+
+Track parameters are similar to preset parameters in that they have initial values from
+a Setup and SetupTrack objects in mobius.xml.  These are also copied into each track
+for use at runtime.  While running scripts may modify track parameters.  On reset parameters
+return to their initial values.
+
+The "resetables" list provides a way to retain the last used track parameter values
+after Reset.  The parameters available for this treatment are:
+
+  The "controls"
+    Input Level, Output Level, Feedback, AltFeedback, Pan
+
+  The "effects":
+    Pitch Octave, Pitch Bend, Pitch Step
+    Speed Octave, Speed Bend, Speed Step
+    Time Stretch
+
+  Focus
+  Group
+  Active Preset
+
+The parameter name is misleading, in the UI this is presented as "Retain After Reset".
+When a parameter is on the list it means it will KEEP it's current value.
+
+A better name would be "resetRetains"
+
+The allowed parameters was somewhat arbitrary, it could be applied to any parameter,
+but that makes the UI cluttered and the things that are most interesting get lost.
+
+It has not applied to preset parameters though that could be interesting.
+
+The reason for the the concept is that when you are building a loop you might need
+to make several attempts to get it right, doing a Reset to cancel and start over.
+Basic performance parameters like Input/output level you might adjust based
+on the instrument you are using, or the overall mix of tracks, but then you don't want that
+to change for the duration of  the session.
+
+For each "take" of the loop, you keep the same input level.
+
+  Concept digression: Session
+    Start using this consistently.  The time from when the application or plugin starts
+    to when it is shut down.  Parameters may change during the session but will not
+    be stored permanently and will revert to the values stored in the mobius.xml file
+    when it is restarted.
+    
+    May want the concept of Session Reset that is different from Global Reset.  I think
+    Global Reset is effectively Session Reset, but you could want a "reset all the tracks"
+    but keep some things that were changed at runtime.
+
+    Actually, "session" might be better applied to the state of the tracks but not everything
+    that could be changed at runtime.  Think more, for now Global Reset is Session Reset.
+
+Digression: Fundamental vs. Performance Parameters
+
+Input Level is typically something you set once based on the instrument you are using
+and never change.  Only when you use multiple ports connected to different instruments
+would you need different input levels.  It's really more of a "port parameter" than
+a track parameter.  When you make a track follow a different input port, the level
+you want to apply to to the audio stream could be different.  I guess since both the
+input port and the level are in the Setup these can be kept in sync.  But in the usual
+case where you have multiple tracks using the same input port, they would all need to
+duplicate the desired input level.
+
+Output Level is similar in that it could apply to any track that uses that port.  But
+it can also serve as a mix control to balance levels relative to other tracks.
+
+It's basically like what you have in a DAW or mixing application.  "Trim" effects
+the input levels for anything comming in on that port.  "Main" is the overall output level
+and "cue" or "submixes" balance the tracks.  Explore this...
+
+Back to resetables...
+
+The "effect" parameters are kind of in between.  You might want to do several loop takes
+using the same rate adjustment, or you might want to start over with a different rate if
+you set that wrong during the take.
+
+Current Implementation
+
+What happens now is that the Reset function first resets the Loop to clear any content,
+then it resets the Track.  The track cancels scripts, resets the speed/pitch sequences,
+and resets track parameters.
+
+For a hard coded set of track parameters it calls Setup::isResetable(UIParameter)
+to decide whether to reset.
+
+Discovery: the resetable parameters is hard coded and actually does not contain
+  any of the effects parameters so those should be removed from the UI
+  TODO: add a "retain" flag to the UIParameter definition to control this list
+
+The retain list is stored in the XML as a CSV and is converted to a StringList
+in the memory model.  The test is made with a linear string comparison over
+the list elements:
+
+bool Setup::isResetable(UIParameter* p)
+{
+	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
+}
+
+StringList is awkward to deal with generically because it can't be copied
+without memory allocation.  Making it a CSV string doesn't really help either because
+the list can be long and prone to overflowing fixed char buffers.
+
+We could come up with a more concise representing using UIParameter ordinals but that
+makes it hard to read in XML.
+
+The immediate problem is that since Setup is implemented in the shared model it
+doesn't know about the core Parameter classes.  So the object passed to isResetable
+must be a UIParameter which is not what the core has when it processes the Reset function.
+
+It's possible to do a Parameter->UIParameter map here but we don't need to since
+it's easier just to pass the name.
+
+ACTION: change isResetable to take a name
+TODO: change the parameter to resetRetains
+
+That gets us past the immediate problem but we've still got StringList issues.
+If we leave this as a CSV as I'm leaning toward everything can still work the same,
+it just does a substring match within the long CSV.  That works provided that
+any parameter name won't be a substring of another parameter name.  This is true
+at the moment but fragile.
+
+QUESTION: Can these be flags on the Parameter objects to avoid the string search?
+
+Parameters are static and anything in them lives for the duration of the application.
+
+The retains list is in the Setup.  There can be several Setups but only one
+can be active and changing setups is uncommon.
+
+So yes, part of the "activation" of a Setup could be to consule the retains list and
+set flags on Parameter.
+
+Like anything set on Function or Parameter this would be visible to multiple instances
+of a plugin running under the same host application.  Since each instance could in theory
+want to use different Setups, this would be a conflict but the likelyhood of that is so
+rare that it can be discounted.  Still we need to be clear about the side effects
+of running multiple plugin instances.
+
+Most plugins allow that, you can have the same effect plugin on different DAW tracks.
+
+Since this retains are unusual and not performance critical, keep it as a string
+search within the Setup for now.
+
+ACTION: What the hell is the polarity of isResetable?
+  Track thinks the return value if isResetable means that it CAN be reset
+  The UI makes it look like things on this list WONT be reset
+  This can't possibly be working
+
+The old UI did this to decide what to show for selection:
+
+	for (i = 0 ; Parameters[i] != NULL ; i++) {
+        Parameter* p = Parameters[i];
+        // !! not everything in setup scope needs to be resettable
+        if (p->resettable)
+          paramNames->add(p->getDisplayName());
+    }
+
+Note that "resettable" doesn't match the C++ name getResetsbles with one 't'
+
+There is no Parameter defined for this list, the SetupDialog accessed the
+Setup->getResetables method directly.
+
+This has to have been broken, but no one noticed because it was obscure.
+
+The new UI doesn't even implement this yet so we can change it easily.
+
+ACTION: Change the method names to reflect what this really does, change
+the UIParameter flag to resetRetain.
+
+For isResetable we can keep that name but you need to flip the polarity
+of the the indexOf on the list.  If the name is NOT on the list it is resetable.
+
+On Focus, Group, preset...
+
+Focus lock and group selection seem reasonable for reset retains.  Again you're
+making multipe "takes" of a loop, you don't want to lose focus every time.
+
+The active Preset is more obscure.  It could only be changed from a script
+or with a UI instant parameter, I suppose it would make sense to keep it.
+This touches on the larger issues of the retain granularity, would it apply
+more broadly to other Preset parameters?
+
+

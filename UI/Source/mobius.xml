@@ -1,133 +1,129 @@
-<MobiusConfig midiInput='Arturia MiniLab mkII' midiOutput='3- Black Box MIDI Out' audioInput='ASIO:M-Audio USB ASIO' audioOutput='ASIO:M-Audio USB ASIO' quickSave='mobiusloop' noiseFloor='13' suggestedLatencyMsec='5' inputLatency='0' outputLatency='0' maxSyncDrift='2048' tracks='8' trackGroups='2' maxLoops='4' longPress='500' monitorAudio='false' pluginPins='16' autoFeedbackReduction='false' 16BitWaveFile='false' spreadRange='48' tracePrintLevel='1' traceDebugLevel='2' saveLayers='false' driftCheckPoint='loop' midiRecordMode='average' dualPluginWindow='true' midiExport='false' hostMidiExport='false' groupFocusLock='false' oscInputPort='0' oscOutputPort='0' oscTrace='false' oscEnable='false' sampleRate='44100' setup='Default'>
+<MobiusConfig midiInput='Arturia MiniLab mkII' midiOutput='3- Black Box MIDI Out' audioInput='ADAT (3+4) (RME Fireface UC)' audioOutput='Speakers (RME Fireface UC)' quickSave='mobiusloop' noiseFloor='13' suggestedLatencyMsec='5' inputLatency='0' outputLatency='0' maxSyncDrift='2048' trackCount='8' groupCount='0' maxLoops='4' longPress='500' monitorAudio='false' pluginPins='16' autoFeedbackReduction='false' integerWaveFile='false' spreadRange='48' traceLevel='0' saveLayers='false' driftCheckPoint='0' midiRecordMode='0' groupFocusLock='false' setup='Default'>
   <Preset name='Default'
     altFeedbackEnable='false'
     autoRecordBars='1'
     autoRecordTempo='0'
-    bounceQuantize='loop'
-    emptyLoopAction='none'
-    emptyTrackAction='none'
+    bounceQuantize='0'
+    emptyLoopAction='0'
+    emptyTrackAction='0'
     loopCount='4'
     maxRedo='1'
     maxUndo='0'
-    multiplyMode='normal'
-    muteCancel='edit'
-    muteMode='continue'
+    multiplyMode='0'
+    muteCancel='0'
+    muteMode='0'
     noFeedbackUndo='false'
     noLayerFlattening='false'
     overdubQuantized='false'
-    overdubTransfer='follow'
+    overdubTransfer='0'
     pitchBendRange='12'
-    pitchSequence='true'
     pitchShiftRestart='false'
     pitchStepRange='24'
-    pitchTransfer='follow'
-    quantize='cycle'
+    pitchTransfer='0'
+    quantize='0'
     speedBendRange='12'
     speedRecord='false'
-    speedSequence='true'
     speedShiftRestart='false'
     speedStepRange='24'
-    speedTransfer='off'
+    speedTransfer='0'
     timeStretchRange='12'
     recordResetsFeedback='false'
     recordThreshold='0'
-    recordTransfer='follow'
-    returnLocation='restore'
-    reverseTransfer='follow'
+    recordTransfer='0'
+    returnLocation='0'
+    reverseTransfer='0'
     roundingOverdub='true'
-    shuffleMode='reverse'
-    slipMode='subCycle'
+    shuffleMode='0'
+    slipMode='0'
     slipTime='0'
-    soundCopyMode='multiply'
+    soundCopyMode='0'
     subcycles='4'
-    switchDuration='permanent'
-    switchLocation='restore'
-    switchQuantize='loop'
+    switchDuration='0'
+    switchLocation='0'
+    switchQuantize='0'
     switchVelocity='false'
-    timeCopyMode='insert'
-    trackLeaveAction='none'
+    timeCopyMode='0'
+    trackLeaveAction='0'
     windowEdgeAmount='1'
-    windowEdgeUnit='loop'
+    windowEdgeUnit='0'
     windowSlideAmount='1'
-    windowSlideUnit='loop'/>
+    windowSlideUnit='0'/>
   <Preset name='Another'
     altFeedbackEnable='false'
     autoRecordBars='1'
     autoRecordTempo='0'
-    bounceQuantize='off'
-    emptyLoopAction='none'
-    emptyTrackAction='none'
+    bounceQuantize='0'
+    emptyLoopAction='0'
+    emptyTrackAction='0'
     loopCount='4'
     maxRedo='0'
     maxUndo='0'
-    multiplyMode='normal'
-    muteCancel='never'
-    muteMode='continue'
+    multiplyMode='0'
+    muteCancel='0'
+    muteMode='0'
     noFeedbackUndo='false'
     noLayerFlattening='false'
     overdubQuantized='false'
-    overdubTransfer='off'
+    overdubTransfer='0'
     pitchBendRange='12'
-    pitchSequence='true'
     pitchShiftRestart='false'
     pitchStepRange='24'
-    pitchTransfer='off'
-    quantize='off'
+    pitchTransfer='0'
+    quantize='0'
     speedBendRange='12'
     speedRecord='false'
-    speedSequence='true'
     speedShiftRestart='false'
     speedStepRange='24'
-    speedTransfer='off'
+    speedTransfer='0'
     timeStretchRange='12'
     recordResetsFeedback='false'
     recordThreshold='0'
-    recordTransfer='off'
-    returnLocation='follow'
-    reverseTransfer='off'
+    recordTransfer='0'
+    returnLocation='0'
+    reverseTransfer='0'
     roundingOverdub='false'
-    shuffleMode='reverse'
-    slipMode='subCycle'
+    shuffleMode='0'
+    slipMode='0'
     slipTime='0'
-    soundCopyMode='play'
+    soundCopyMode='0'
     subcycles='4'
-    switchDuration='permanent'
-    switchLocation='follow'
-    switchQuantize='off'
+    switchDuration='0'
+    switchLocation='0'
+    switchQuantize='0'
     switchVelocity='false'
-    timeCopyMode='play'
-    trackLeaveAction='none'
+    timeCopyMode='0'
+    trackLeaveAction='0'
     windowEdgeAmount='0'
-    windowEdgeUnit='loop'
+    windowEdgeUnit='0'
     windowSlideAmount='0'
-    windowSlideUnit='loop'/>
-  <Setup name='Default' active='0' reset='focus,feedback' beatsPerBar='0' defaultSyncSource='track' defaultTrackSyncUnit='cycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='1' audioOutputPort='1' pluginInputPort='1' pluginOutputPort='1' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='default' trackSyncUnit='default'/>
+    windowSlideUnit='0'/>
+  <Setup name='Default' active='0' beatsPerBar='0' defaultSyncSource='0' defaultTrackSyncUnit='0' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='0' outRealign='0' realignTime='0' resizeSyncAdjust='0' slaveSyncUnit='0' speedSyncAdjust='0'>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='1' audioOutputPort='1' pluginInputPort='1' pluginOutputPort='1' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
   </Setup>
-  <Setup name='Another' active='0' beatsPerBar='0' defaultSyncSource='none' defaultTrackSyncUnit='subcycle' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='transport' outRealign='midiStart' realignTime='start' resizeSyncAdjust='none' slaveSyncUnit='beat' speedSyncAdjust='none'>
+  <Setup name='Another' active='0' beatsPerBar='0' defaultSyncSource='0' defaultTrackSyncUnit='0' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='0' outRealign='0' realignTime='0' resizeSyncAdjust='0' slaveSyncUnit='0' speedSyncAdjust='0'>
   </Setup>
   <BindingSet ordinal='0'>
-    <Binding op='function' name='Record' trigger='key' value='82'/>
-    <Binding op='function' name='Reset' trigger='key' value='27'/>
-    <Binding op='function' name='NextLoop' trigger='key' value='65576'/>
-    <Binding op='function' name='PrevLoop' trigger='key' value='65574'/>
-    <Binding op='function' name='PrevTrack' trigger='key' value='65573'/>
-    <Binding op='function' name='NextTrack' trigger='key' value='65575'/>
-    <Binding op='function' name='Record' trigger='note' value='48' channel='0'/>
-    <Binding op='function' name='Record' trigger='ui' value='0'/>
-    <Binding op='function' name='Reset' trigger='ui' value='0'/>
-    <Binding op='function' name='NextLoop' trigger='ui' value='0'/>
-    <Binding op='function' name='PrevLoop' trigger='ui' value='0'/>
-    <Binding op='function' name='NextTrack' trigger='ui' value='0'/>
-    <Binding op='function' name='PrevTrack' trigger='ui' value='0'/>
-    <Binding op='function' name='SamplePlay' trigger='ui' value='0' args='1'/>
+    <Binding action='function' name='Record' trigger='key' value='82'/>
+    <Binding action='function' name='Reset' trigger='key' value='27'/>
+    <Binding action='function' name='NextLoop' trigger='key' value='65576'/>
+    <Binding action='function' name='PrevLoop' trigger='key' value='65574'/>
+    <Binding action='function' name='PrevTrack' trigger='key' value='65573'/>
+    <Binding action='function' name='NextTrack' trigger='key' value='65575'/>
+    <Binding action='function' name='Record' trigger='note' value='48' channel='0'/>
+    <Binding action='function' name='Record' trigger='ui' value='0'/>
+    <Binding action='function' name='Reset' trigger='ui' value='0'/>
+    <Binding action='function' name='NextLoop' trigger='ui' value='0'/>
+    <Binding action='function' name='PrevLoop' trigger='ui' value='0'/>
+    <Binding action='function' name='NextTrack' trigger='ui' value='0'/>
+    <Binding action='function' name='PrevTrack' trigger='ui' value='0'/>
+    <Binding action='function' name='SamplePlay' trigger='ui' value='0' args='1'/>
   </BindingSet>
   <ScriptConfig>
   </ScriptConfig>

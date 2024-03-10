@@ -438,16 +438,16 @@
     <Parameter name='trackName' codeName='Name' type='string' options='noBinding'/>
 
     <Parameter name='preset' type='structure' structureClass='Preset'
-               options='resettable'/>
+               options='resetRetain'/>
     
-    <Parameter name='focus' codeName='FocusLock' type='bool' options='resettable,noBinding'/>
-    <Parameter name='group' options='dynamic,resettable'/>
+    <Parameter name='focus' codeName='FocusLock' type='bool' options='resetRetain,noBinding'/>
+    <Parameter name='group' options='dynamic,resetRetain'/>
     <Parameter name='mono' type='bool' options='noBinding'/>
-    <Parameter name='feedback' high='127' options='control,resettable'/>
-    <Parameter name='altFeedback' high='127' options='control,resettable'/>
-    <Parameter name='input' codeName='InputLevel'high='127' options='control,resettable'/>
-    <Parameter name='output' codeName='OutputLevel' high='127' options='control,resettable'/>
-    <Parameter name='pan' high='127' options='control,resettable'/>
+    <Parameter name='feedback' high='127' options='control,resetRetain'/>
+    <Parameter name='altFeedback' high='127' options='control,resetRetain'/>
+    <Parameter name='input' codeName='InputLevel'high='127' options='control,resetRetain'/>
+    <Parameter name='output' codeName='OutputLevel' high='127' options='control,resetRetain'/>
+    <Parameter name='pan' high='127' options='control,resetRetain'/>
 
     <Parameter name='syncSource' values='default,none,track,out,host,midi' />
     <Parameter name='trackSyncUnit' codeName='SyncTrackUnit' enumName='SyncTrackUnit'
@@ -461,19 +461,19 @@
          not in the configuration files, no get/set code will be generated
     -->
     <Parameter name='speedOctave' high='4'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='speedStep' high='48'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='speedBend' high='8191'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='pitchOctave' high='4'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='pitchStep' high='48'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='pitchBend' high='8191'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
     <Parameter name='timeStretch' high='8191'
-               options='noConfig,control,zeroCenter,resettable,scheduled'/>
+               options='noConfig,control,zeroCenter,scheduled'/>
 
   </ParameterScope>
   

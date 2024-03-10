@@ -700,6 +700,9 @@
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\AudioMeterElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\BeatersElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -3697,6 +3700,9 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\AudioMeterElement.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\BeatersElement.h">

@@ -154,9 +154,10 @@ class UIParameter : public SystemConstant
     bool noBinding;
 
     /**
-     * Old option I'm not sure we need to carry forward.
+     * Indiciates that the value of current value of this parameter is to be retained
+     * after a track is Reset.
      */
-    bool resettable;
+    bool resetRetain;
 
     /**
      * Old option I'm not sure we need to carry forward.

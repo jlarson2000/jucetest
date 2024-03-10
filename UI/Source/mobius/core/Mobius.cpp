@@ -401,7 +401,9 @@ void Mobius::initialize(class MobiusConfig* config)
 	// set these early so we can trace errors during initialization
 	TracePrintLevel = mConfig->getTracePrintLevel();
 	TraceDebugLevel = mConfig->getTraceDebugLevel();
-
+    // doesn't seem to be maintaining this right, force it on
+    TraceDebugLevel = 4;
+    
     // is this the equivalent of the old start() ?
     start();
 }
@@ -1058,8 +1060,10 @@ void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
     // These are safe to set from anywhere don't have to wait for an interrupt
     // UPDATE: no longer have a difference between "trace" and "print"
 	TracePrintLevel = config->getTracePrintLevel();
-	TraceDebugLevel = config->getTraceDebugLevel();
-
+	//TraceDebugLevel = config->getTraceDebugLevel();
+    // force this on until we get configuration right
+    TraceDebugLevel = 2;
+    
     // !! this could cause problems if we're in the middle of saving
     // a project?  Would need to coordinate this with MobiusThread
     // TODO: shouldn't be dealing with this at this level, and
@@ -1776,15 +1780,22 @@ MobiusState* Mobius::getState(int track)
 
 	mState.globalRecording = mCapturing;
 
-    // state.track used to be a pointer to one of the TrackState objects
-    // for the active track, now its just the index
+    // this is different from OG MobiusTrackState management
+    // see notes/mobius-state.txt
     if (track >= 0 && track < mTrackCount) {
-        // mState.track = mTracks[track]->getState();
+        // should be within range but since the max's can come from different
+        // sources be safe
+        if (track >= MobiusStateMaxTracks) {
+            Trace(1, "Mobius::getState track %d out of range!\n", track);
+        }
+        else {
+            MobiusTrackState* tstate = &(mState.tracks[track]);
+            mTracks[track]->getState(tstate);
+        }
         mState.activeTrack = track;
     }
 	else {
-		// else, fake something up so the UI doesn't get a NULL pointer?
-		//mState.track = NULL;
+        Trace(1, "Mobius::getState track %d out of range!\n", track);
         mState.activeTrack = 0;
 	}
 
@@ -4135,7 +4146,7 @@ void Mobius::beginAudioInterrupt()
     // default flag...
     // UPDATE: no longer necessary, Kernel won't calls us until we're ready
     if (mInterruptConfig->isDefault()) {
-        Trace(2, "Mobius: Igoring audio interrupt before config loaded\n");
+        Trace(2, "Mobius: Ignoring audio interrupt before config loaded\n");
         return;
     }
 

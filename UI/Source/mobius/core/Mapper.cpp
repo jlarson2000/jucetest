@@ -91,6 +91,9 @@ class FunctionDefinition* MapFunction(class Function* src)
  *
  * Could use ordinals here, but it is only done on Reset and the list is not typically
  * long.  Still, use ordinal mapping when the arrays are ready.
+ *
+ * This was only used for a few thigns related to Setup::isResetRetains,
+ * don't need it now.
  */
 class UIParameter* MapParameter(class Parameter* src)
 {

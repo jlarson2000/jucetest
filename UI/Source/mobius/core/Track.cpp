@@ -128,7 +128,8 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
 	mInterruptBreakpoint = false;
     mMidi = false;
 
-	mState.init();
+    // no longer have a private copy, it will be given to us in getState
+	//mState.init();
     
     // Each track has it's own private Preset that can be dynamically
     // changed with scripts or bound parameters without effecting the
@@ -686,11 +687,12 @@ void Track::doFunction(Action* action)
  * Return an object holding the current state of this track.
  * This may be used directly by the UI and as such must be changed
  * carefully since more than one thread may be accessing it at once.
+ *
+ * Formerly owned the MobiusTrackState, filled it in and returned it.
+ * Now we're given one from above.
  */
-MobiusTrackState* Track::getState()
+void Track::getState(MobiusTrackState* s)
 {
-	MobiusTrackState* s = &mState;
-
     // model no longer has this, can get it from the Setup if the UI wants it
     //s->name = mName;
 
@@ -741,35 +743,57 @@ MobiusTrackState* Track::getState()
     // could be deleted
 
     // formerly set this to a pointer to the LoopState for the active loop
-    // now it is just an index?
-    // okay this is weird, I guess Loop had a pointer to a struct within
-    // the same MobiusState because we're going to treat this like a pointer
-    // this needs to die
-	s->activeLoop = mLoop->getNumber();
-#if 0    
-    // KLUDGE: If we're switching, override the percieved mode
-    Event* switche = mEventManager->getSwitchEvent();
-	if (switche != NULL) {
-		if (switche->pending)
-		  s->loop->mode = ConfirmMode;
-		else
-		  s->loop->mode = SwitchMode;	
-	}
+    // see notes/mobius-state.txt for the changes
+    // we now have a full MobiusLoopState for every loop but we only
+    // need summaries for the ones that aren't active
 
-    // this really belongs in TrackState...
-    mEventManager->getEventSummary(s->loop);
-#endif
+    // this is 1 based!
+    int loopIndex = mLoop->getNumber() - 1;
+    if (loopIndex < 0 || loopIndex >= MobiusStateMaxLoops) {
+        Trace(1, "Track::getState loop index %d out of range!\n", loopIndex);
+        // give it something within range, state will be garbage
+        s->activeLoop = 0;
+    }
+    else {
+        MobiusLoopState* lstate = &(s->loops[loopIndex]);
+        // thankfully we already had a refresh external state in the old code
+        // called refreshState rather than getState
+        mLoop->refreshState(lstate);
+
+        // KLUDGE: If we're switching, override the percieved mode
+        Event* switche = mEventManager->getSwitchEvent();
+        if (switche != NULL) {
+            if (switche->pending)
+              lstate->mode = MapMode(ConfirmMode);
+            else
+              lstate->mode = MapMode(SwitchMode);	
+        }
+
+        // this really belongs in TrackState...
+        mEventManager->getEventSummary(lstate);
+        // in the new model activeLoop is zero based
+        // do not like the inconsistency but I want all zero based for new code
+        s->activeLoop = loopIndex;
+    }
     
-    // !! not seeing where the non-summarized active loop state is built
-
-    // brief summaries for the other loops
-    // changed from MAX_INFO_LOOPS to MaxLoops which upon seeing it
-    // is way to generic to know where it came from
-    // no longer have LoopSummary, there is just one array of LoopState for all loops
-	int max = (mLoopCount < MaxLoops) ? mLoopCount : MaxLoops;
+    // for non-active loops build a summary
+    // old model had a smaller LoopSummary object, now we've got the full LoopState
+    // model so have to clear out the stuff we don't set
+    // since we're touching everything we should just have Loop reworked
+    // to set everything
+    
+	int max = (mLoopCount < MobiusStateMaxLoops) ? mLoopCount : MobiusStateMaxLoops;
 	for (int i = 0 ; i < max ; i++) {
 		Loop* l = mLoops[i];
-		l->getSummary(&(s->loops[i]), (l == mLoop));
+        MobiusLoopState* lstate = &(s->loops[i]);
+        bool active = (l == mLoop);
+        // need to clear out stale fields?
+        if (!active)
+          lstate->init();
+        // this is weird, we're going to put the summary in the same
+        // MobiusLoopState we passed to refreshState above if this is the active
+        // loop, and the old code did it that way too, guess thay can't conflict
+		l->getSummary(lstate, active);
 	}
 
 	// getting the pending status is odd because we have to work from the
@@ -781,8 +805,6 @@ MobiusTrackState* Track::getState()
 	}
 
 	s->loopCount = max;
-
-	return s;
 }
 
 /****************************************************************************
@@ -1717,49 +1739,49 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
     // an unfortunate kludge because Setup was changed to use the new UIParameter
     // objects, but here we have the old ones
 
-	if (global || setup->isResetable(MapParameter(InputLevelParameter))) {
+	if (global || !setup->isResetRetain(InputLevelParameter->getName())) {
 		if (st == NULL)
 		  mInputLevel = 127;
 		else
 		  mInputLevel = st->getInputLevel();
 	}
 
-	if (global || setup->isResetable(MapParameter(OutputLevelParameter))) {
+	if (global || !setup->isResetRetain(OutputLevelParameter->getName())) {
 		if (st == NULL) 
 		  mOutputLevel = 127;
 		else
 		  mOutputLevel = st->getOutputLevel();
 	}
 
-	if (global || setup->isResetable(MapParameter(FeedbackLevelParameter))) {
+	if (global || !setup->isResetRetain(FeedbackLevelParameter->getName())) {
 		if (st == NULL) 
 		  mFeedbackLevel = 127;
 		else
 		  mFeedbackLevel = st->getFeedback();
 	}
 
-	if (global || setup->isResetable(MapParameter(AltFeedbackLevelParameter))) {
+	if (global || !setup->isResetRetain(AltFeedbackLevelParameter->getName())) {
 		if (st == NULL) 
 		  mAltFeedbackLevel = 127;
 		else
 		  mAltFeedbackLevel = st->getAltFeedback();
 	}
 
-	if (global || setup->isResetable(MapParameter(PanParameter))) {
+	if (global || !setup->isResetRetain(PanParameter->getName())) {
 		if (st == NULL) 
 		  mPan = 64;
 		else
 		  mPan = st->getPan();
 	}
 
-	if (global || setup->isResetable(MapParameter(FocusParameter))) {
+	if (global || !setup->isResetRetain(FocusParameter->getName())) {
 		if (st == NULL) 
 		  mFocusLock = false;
 		else
 		  mFocusLock = st->isFocusLock();
 	}
 
-	if (global || setup->isResetable(MapParameter(GroupParameter))) {
+	if (global || !setup->isResetRetain(GroupParameter->getName())) {
 		if (st == NULL) 
 		  mGroup = 0;
 		else
@@ -1769,7 +1791,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
     // setting the preset can be disabled in some code paths since it
     // already have been refreshed
     if (doPreset && 
-        (global || setup->isResetable(MapParameter(TrackPresetParameter)))) {
+        (global || !setup->isResetRetain(TrackPresetParameter->getName()))) {
 
 		if (st == NULL) {
 			// ?? should we auto-select the first preset

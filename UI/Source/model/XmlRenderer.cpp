@@ -850,7 +850,7 @@ void XmlRenderer::parse(XmlElement* e, Preset* p)
 #define ATT_NAME "name"
 #define ATT_ACTIVE "active"
 #define ATT_TRACK_GROUPS "trackGroups"
-#define ATT_RESETABLES "reset"
+#define ATT_RESET_RETAINS "resetRetains"
 #define ATT_ACTIVE "active"
 
 #define EL_SETUP_TRACK "SetupTrack"
@@ -869,12 +869,7 @@ void XmlRenderer::render(XmlBuffer* b, Setup* setup)
     
     // these are a csv while the function lists in MobiusConfig
     // are String lists, should be consistent, I'm liking csv for brevity
-    StringList* resetables = setup->getResetables();
-	if (resetables != nullptr) {
-		char* csv = resetables->toCsv();
-		b->addAttribute(ATT_RESETABLES, csv);
-		delete csv;
-	}
+    b->addAttribute(ATT_RESET_RETAINS, setup->getResetRetains());
 
     render(b, UIParameterBeatsPerBar, setup->getBeatsPerBar());
     // why is the name pattern not followed here?
@@ -906,10 +901,7 @@ void XmlRenderer::parse(XmlElement* e, Setup* setup)
 
 	setup->setActiveTrack(e->getIntAttribute(ATT_ACTIVE));
 	setup->setBindings(e->getAttribute(ATT_BINDINGS));
-
-	const char* csv = e->getAttribute(ATT_RESETABLES);
-	if (csv != nullptr)
-	  setup->setResetables(new StringList(csv));
+    setup->setResetRetains(e->getAttribute(ATT_RESET_RETAINS));
 
     setup->setBeatsPerBar(parse(e, UIParameterBeatsPerBar));
     setup->setSyncSource((SyncSource)parse(e, UIParameterDefaultSyncSource));

@@ -116,7 +116,7 @@
  *     MobiusConfig::focusLockFunctions
  *     MoibusConfig::muteCancelFunctions
  *     MobiusConfig::confirmationFunctions
- *     Setup::resetables
+ *     Setup::resetRetains
  *
  * The accessor methods use the old StringList model.  
  * They cannot appear in bindings.
@@ -133,7 +133,8 @@
  * The "resettable" flag was only found in a subset of SetupTrack parameters.
  * Unclear if this flag was ever turned off if you edited the Setup and changed
  * the resetables list.  Need to rethink this concept.
- *
+ * UPDATE: See notes/resetables.txt for more recent thoughts on this
+ * 
  * The XML representation was inconsistent.  Some converted it to a CSV but
  * at least one used an explded list of <String> elements.  In the New World, we will
  * always use a csv in XML.  Old code converted this to a CSV seting for getValue/setValue.
@@ -393,9 +394,9 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     addOption(el, "transient");
     addOption(el, "juceValues");
     addOption(el, "noBinding");
-    // resettable means the parameter will reset it's value when the loop is reset
-    // used in core, won't be used out here for awhile
-    addOption(el, "resettable");
+    // resetRetain means the parameter will retain it's value when the track is reset
+    // used in the UI to build a parameter name list
+    addOption(el, "resetRetain");
     // used for a set of pitch/speed parameters, that are also all noConfig
     // needs more thought
     addOption(el, "scheduled");

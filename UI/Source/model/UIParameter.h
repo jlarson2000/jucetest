@@ -149,14 +149,15 @@ class UIParameter : public SystemConstant
 
     /**
      * Indicates that this parameter cannot be bound to MIDI or host parameters
-     * so keep it out of the action selection UI.
+     * so keep it out of the operation selection UI.
      */
     bool noBinding;
 
     /**
-     * Old option I'm not sure we need to carry forward.
+     * Indiciates that the value of current value of this parameter is to be retained
+     * after a track is Reset.
      */
-    bool resettable;
+    bool resetRetain;
 
     /**
      * Old option I'm not sure we need to carry forward.

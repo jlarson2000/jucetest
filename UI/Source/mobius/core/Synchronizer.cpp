@@ -179,7 +179,7 @@ Synchronizer::Synchronizer(Mobius* mob, MidiInterface* midi)
     // formerly got this out of the pool which leaked on shutdown
     // for some reason, just create an autonomous one and remember to delet eit
     mReturnEvent = new Event(nullptr);
-    // doesn't really do anything but makes the intent clearer I guess
+    // suppresses a warning
     mReturnEvent->setOwned(true);
     
 	mHostTempo = 0.0f;

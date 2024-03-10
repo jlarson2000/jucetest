@@ -143,7 +143,7 @@ class Track : public RecorderTrack, public TraceContext
 	int getOutputLatency();
 	MobiusMode* getMode();
 	long getFrame();
-    class MobiusTrackState* getState();
+    void getState(class MobiusTrackState* s);
 	int getCurrentLevel();
 	bool isTrackSyncMaster();
 
@@ -336,7 +336,9 @@ class Track : public RecorderTrack, public TraceContext
     bool mInterruptBreakpoint;
 
 	// state exposed to the outside world
-	MobiusTrackState mState;
+    // we no longer maintain an internal copy, we will be given
+    // the one to fill in in the getState() call
+	//MobiusTrackState mState;
 
     // true if this is a MIDI track
     bool mMidi;

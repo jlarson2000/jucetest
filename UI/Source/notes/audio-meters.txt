@@ -1,0 +1,44 @@
+
+Had a very basic output level meter before
+
+    this was in the track strip and displayed output level of the track
+    if (mLevel != NULL)
+      mLevel->setValue(tstate->outputMonitorLevel);
+
+This was a display component that measured input level
+
+	mMeter = new AudioMeter();
+    mMeter->setEnabled(false);
+	mSpace->add(mMeter);
+    
+            mMeter->update(tstate->inputMonitorLevel);
+
+So we need two things from MobiusState
+
+
+These are both in MobiusTrackState
+
+I think since tracks can receive from any port, so you only
+want to monitor what the active track is receiving
+
+These were set here:
+
+	s->outputMonitorLevel = mOutput->getMonitorLevel();
+    if (isSelected())
+      s->inputMonitorLevel = mInput->getMonitorLevel();
+	else
+	  s->inputMonitorLevel = 0;
+
+those were streams
+
+	mInput = new InputStream(sync, m->getSampleRate());
+	mOutput = new OutputStream(mInput, m->getAudioPool());
+
+seems to still be working:
+
+int OutputStream::getMonitorLevel()
+{
+	// convert to 16 bit integer
+	return (int)(mMaxSample * 32767.0f);
+}
+

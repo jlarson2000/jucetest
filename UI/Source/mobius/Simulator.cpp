@@ -522,7 +522,7 @@ void Simulator::simulateEvents()
 MobiusEventState* Simulator::simulateEvent(MobiusLoopState* loop, UIEventType* type, int q)
 {
     MobiusEventState* ev = nullptr;
-    if (loop->eventCount < MaxEvents) {
+    if (loop->eventCount < MobiusStateMaxEvents) {
         ev = &(loop->events[loop->eventCount]);
         loop->eventCount++;
 

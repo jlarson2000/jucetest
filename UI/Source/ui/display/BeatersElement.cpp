@@ -128,13 +128,6 @@ void BeatersElement::paint(juce::Graphics& g)
     // borders, labels, etc.
     StatusElement::paint(g);
 
-    if (loopBeater.decayCounter > 0) {
-        if (cycleBeater.decayCounter == 0)
-          trace("not painting cycle");
-        if (subcycleBeater.decayCounter == 0)
-          trace("not painting subcycle");
-    }
-    
     bool subcycleOn = (subcycleBeater.decayCounter > 0);
     bool cycleOn = (cycleBeater.decayCounter > 0);
     bool loopOn = (loopBeater.decayCounter > 0);

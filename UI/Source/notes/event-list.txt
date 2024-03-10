@@ -1,0 +1,227 @@
+
+Event/EventList/EventPool
+
+This is WAY too complicated but extremely sensitive and leak-prone
+
+EventPool
+  manages a list of Event objects that are not related
+  uses EventList for this
+    don't seem to need this since Event has a next chain pointer already
+    but it doesn't cascade to that on delete which EventList takes care of
+
+EventList
+  manages a list of Events chained with the next pointer
+  events placed in the EventList are normally obtained from a pool, in
+  rare cases they can be "owned" events that are not in a pool
+
+Event
+  an object that has complex parent/child relationships with other events
+  in an EventList while it is being used
+  in an EventPool while not used
+
+  - confusing, since EventPool uses EventList, an Event can be both logically
+    in the pool and also in an EventList, the "pooled" flag I think
+    is supposed to convey the difference
+
+~Event
+  does nothing
+
+~EventList
+
+
+Places that keep an EventList
+  Synchronizer
+    mInterruptEvents = new EventList();
+    passed to SyncTracker which can put things on it
+    SyncTracker gets them from EventPool
+
+Loop uses an EventList
+    EventManager* em = mTrack->getEventManager();
+	EventList* current = em->stealEvents();
+
+		if (transfer) {
+			current->remove(e);
+            em->addEvent(e);
+		}
+
+    // this is used to transfer events from one loop to the next
+    // I don't think loops logically contain events, the track has an EventManager
+
+	// this will return the contained events to the free list
+	delete current;
+
+    Loop asked track for it's EventList
+    some were put back for the next loop
+    the ones that were remaining were deleted
+
+Each Track has an EventManager that
+  EventManager has an EventList
+
+/**
+ * Remove all of the events and return them in a private event list.
+ * This is used during loop switch to filter the events we want to 
+ * carry over to the new loop.
+ * 
+ * !! Try to move loop switch event transfer in here since we're
+ * just going to put them back on the same list.
+ */
+EventList* EventManager::stealEvents()
+{
+    EventList* copy = NULL;
+
+	mTrack->enterCriticalSection("stealEvents");
+
+    copy = mEvents->transfer();
+
+    mTrack->leaveCriticalSection();
+
+    return copy;
+}
+
+EventList* EventList::transfer()
+{
+	EventList* list = new EventList();
+
+	for (Event* e = mEvents ; e != NULL ; e = e->getNext())
+	  e->setList(list);
+
+	list->mEvents = mEvents;
+	mEvents = NULL;
+
+	return list;
+}
+
+HOLY FUCKING SHIT
+
+This is doing memory allocation of an EventList on every loop switch
+
+So normally an Event is owned by the event list and also came from a pool
+
+When you delete an EventList it does this:
+
+EventList::~EventList()
+{
+    flush(true, false);
+}
+
+So it isn't just a simple delete, it "flushes"
+
+flush has some logic around what will actually be flushed or not
+but ~EventList always sets a flag to force it to free
+
+"free" is
+
+				remove(e);
+				// remove doesn't free but free can remove children
+				// which may be the next on the list, so we have to 
+				// start over from the beginning after any free
+				// if we're resetting turn on the freeAll flag
+                if (reset)
+                  e->freeAll();
+                else
+                  e->free();
+				next = mEvents;
+
+remove() removes the Event from the list and clears the List and Next pointers
+
+Event::free does this:
+
+    if (mPool != NULL)
+      mPool->freeEvent(this, false);
+    else
+      Trace(1, "Event::free no pool!\n");
+
+which does not delete it, it simply returns it to the pool
+second flag is freeAll which means to free or retain child events that
+have not been processed
+
+					if (freeAll || child->processed) {
+						child->setParent(NULL);
+						freeEvent(child, freeAll);
+					}
+
+and we eventually put the event back our our EventList
+
+			mEvents->add(e);
+
+So in normal use, deleting an EventList just puts the events back on the pool
+
+The special case is that EventPool also uses an EventList so when
+the events are flushed they go back in the pool and we get into an infinite loop.
+
+We didn't have this in old code because the event pool never deleted it's EventList
+it leaked.
+
+old:
+EventPool::~EventPool()
+{
+}
+
+new:
+EventPool::~EventPool()
+{
+    delete mEvents;
+}
+
+We also had this:
+
+/**
+ * Presumably called during application shutdown to reclaim the event
+ * pool.  It has never been implemented.  I guess this means it leaks
+ * of you bring VST plugins up and down.
+ */
+void EventPool::flush()
+{
+	// do we really need this?
+}
+
+
+which I deleted in new code favoring just deleting it but since
+I added "deleteEvents" to ~EventPool we're in a loop
+
+~EventList returning to the pool is too sensitive to change,
+Loop requires it with the stealEvents shit
+
+Synchronizer does it for mInterruptEvents which would noramlly be empty.
+
+Deleting the EventPool MUST be done after every object in core has been deleted
+at the very end of ~Mobius which it does
+
+So the options are:
+
+  EventPool just stops using an EventList and just keeps Events on a chain with mNext
+    has to do the usual cascading delete like we do for other object lists
+
+  give EventList a flush option that does NOT return thigns to the pool
+    it has never done this where are no "delete Event" calls in Event.cpp
+
+
+Making EventList know the context in which is being deleted is awkward, well not really
+we need to do the chain deletion somewhere and EventList is the one that is supposed
+to own the concept of the linkage so it should do it.  This:
+
+   ~EventPool
+     Event* eventList = mEventList->stealEvents();
+     while (eventList != nullptr) {
+        next = eventList->getNext()
+
+assumes that EventPool knows that getNext is the chain pointer, which it always will
+be buf violates encapsulation
+
+Altnerately
+
+  EventList::delete
+    does the chain deletion
+
+is called only by EventPool
+
+It's kind of the same, we need a new interface to either steal the list
+or make EventList delete the list and null it so that ~EventList won't
+go through flush.
+
+EventList never had to deal with delete vs. return to pool before so
+I'm leaning toward steal.
+
+
+
+

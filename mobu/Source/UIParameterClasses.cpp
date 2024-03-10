@@ -2643,7 +2643,7 @@ UIParameterPresetClass::UIParameterPresetClass()
     displayName = "Preset";
     scope = ScopeTrack;
     type = TypeString;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterPresetClass::getValue(void* obj, ExValue* value)
 {
@@ -2672,7 +2672,7 @@ UIParameterFocusClass::UIParameterFocusClass()
     scope = ScopeTrack;
     type = TypeBool;
     noBinding = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterFocusClass::getValue(void* obj, ExValue* value)
 {
@@ -2701,7 +2701,7 @@ UIParameterGroupClass::UIParameterGroupClass()
     scope = ScopeTrack;
     type = TypeInt;
     dynamic = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterGroupClass::getValue(void* obj, ExValue* value)
 {
@@ -2759,7 +2759,7 @@ UIParameterFeedbackClass::UIParameterFeedbackClass()
     type = TypeInt;
     high = 127;
     control = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterFeedbackClass::getValue(void* obj, ExValue* value)
 {
@@ -2789,7 +2789,7 @@ UIParameterAltFeedbackClass::UIParameterAltFeedbackClass()
     type = TypeInt;
     high = 127;
     control = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterAltFeedbackClass::getValue(void* obj, ExValue* value)
 {
@@ -2819,7 +2819,7 @@ UIParameterInputClass::UIParameterInputClass()
     type = TypeInt;
     high = 127;
     control = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterInputClass::getValue(void* obj, ExValue* value)
 {
@@ -2849,7 +2849,7 @@ UIParameterOutputClass::UIParameterOutputClass()
     type = TypeInt;
     high = 127;
     control = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterOutputClass::getValue(void* obj, ExValue* value)
 {
@@ -2879,7 +2879,7 @@ UIParameterPanClass::UIParameterPanClass()
     type = TypeInt;
     high = 127;
     control = true;
-    resettable = true;
+    resetRetain = true;
 }
 void UIParameterPanClass::getValue(void* obj, ExValue* value)
 {
@@ -3084,7 +3084,6 @@ UIParameterSpeedOctaveClass::UIParameterSpeedOctaveClass()
     high = 4;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3116,7 +3115,6 @@ UIParameterSpeedStepClass::UIParameterSpeedStepClass()
     high = 48;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3148,7 +3146,6 @@ UIParameterSpeedBendClass::UIParameterSpeedBendClass()
     high = 8191;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3180,7 +3177,6 @@ UIParameterPitchOctaveClass::UIParameterPitchOctaveClass()
     high = 4;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3212,7 +3208,6 @@ UIParameterPitchStepClass::UIParameterPitchStepClass()
     high = 48;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3244,7 +3239,6 @@ UIParameterPitchBendClass::UIParameterPitchBendClass()
     high = 8191;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }
@@ -3276,7 +3270,6 @@ UIParameterTimeStretchClass::UIParameterTimeStretchClass()
     high = 8191;
     zeroCenter = true;
     control = true;
-    resettable = true;
     scheduled = true;
     noConfig = true;
 }

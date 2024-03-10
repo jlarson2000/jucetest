@@ -49,17 +49,17 @@ void MobiusLoopState::init()
     summary = false;
     
      eventCount = 0;
-    for (int i = 0 ; i < MaxEvents ; i++)
+    for (int i = 0 ; i < MobiusStateMaxEvents ; i++)
       events[i].init();
     
     layerCount = 0;
     lostLayers = 0;
-    for (int i = 0 ; i < MaxLayers ; i++)
+    for (int i = 0 ; i < MobiusStateMaxLayers ; i++)
       layers[i].init();
     
     redoCount = 0;
     lostRedo = 0;
-    for (int i = 0 ; i < MaxRedoLayers ; i++)
+    for (int i = 0 ; i < MobiusStateMaxRedoLayers ; i++)
       redoLayers[i].init();
 };
 
@@ -106,7 +106,7 @@ void  MobiusTrackState::init()
 	trackSyncMaster = false;
 
     activeLoop = 0;
-    for (int i = 0 ; i < MaxLoops ; i++)
+    for (int i = 0 ; i < MobiusStateMaxLoops ; i++)
       loops[i].init();
 };
 
@@ -115,7 +115,7 @@ void MobiusState::init()
     globalRecording = false;
     activeTrack = 0;
     trackCount = 0;
-    for (int i = 0 ; i < MaxTracks ; i++)
+    for (int i = 0 ; i < MobiusStateMaxTracks ; i++)
       tracks[i].init();
 };
 
@@ -136,6 +136,8 @@ void MobiusState::simulate(MobiusState* state)
 
     for (int t = 0 ; t < state->trackCount ; t++) {
         MobiusTrackState& track = state->tracks[t];
+        // !! internally track/loop numbers are 1 based
+        // don't like the inconsistency
         track.number = t;
         track.preset = 0;
         track.loopCount = 4;

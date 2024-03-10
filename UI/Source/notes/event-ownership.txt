@@ -1,0 +1,17 @@
+
+As typical with Events, there is the confusing notion of "owned" that
+is set in a few cases to prevent it from being returned to a pool.
+
+This happens only for special synchronization related events that are
+generated automatically and reused.  Two that I can find
+
+Synchronizer::mReturnEvent
+EventManager::mSyncEvent
+
+These are both created outside a pool so the mPool pointer will be null
+They also both set the owned flag
+
+It seems like we don't need both, ownership is implied by not having a pool
+
+added some trace messages to detect when they are not in sync so to speak
+

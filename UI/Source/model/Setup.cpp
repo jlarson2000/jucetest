@@ -93,7 +93,7 @@ Setup::Setup()
 {
 	mTracks = nullptr;
 	mActiveTrack = 0;
-	mResetables = nullptr;
+	mResetRetains = nullptr;
 	mBindings = nullptr;
 
     initParameters();
@@ -103,7 +103,7 @@ Setup::~Setup()
 {
 	delete mTracks;
 	delete mBindings;
-    delete mResetables;
+    delete mResetRetains;
 }
 
 Structure* Setup::clone()
@@ -135,17 +135,10 @@ Setup::Setup(Setup* src)
 {
 	mTracks = nullptr;
 	mBindings = nullptr;
-	mResetables = nullptr;
+   	mResetRetains = nullptr;
 
     setName(src->getName());
-
-    // note well! historcally set(StringList)
-    // functions don't copy the list, they take ownership
-    // this is unlike const char*
-    // need to fix this!
-    StringList* sl = src->getResetables();
-    if (sl != nullptr)
-      setResetables(new StringList(sl));
+    setResetRetains(src->getResetRetains());
 
     mActiveTrack = src->getActiveTrack();
     setBindings(src->getBindings());
@@ -184,7 +177,7 @@ void Setup::reset(Preset* p)
 	mActiveTrack = 0;
 
     // need a default list of these?
-    setResetables(nullptr);
+    setResetRetains(nullptr);
 
     // don't really care what the binding configs are
 	setBindings(nullptr);
@@ -272,22 +265,30 @@ void Setup::setActiveTrack(int i)
 	mActiveTrack = i;
 }
 
-void Setup::setResetables(StringList* l)
+void Setup::setResetRetains(const char* csv)
 {
-	if (mResetables != l) {
-		delete mResetables;
-		mResetables = l;
-	}
+    delete mResetRetains;
+    mResetRetains = CopyString(csv);
 }
 
-StringList* Setup::getResetables()
+const char* Setup::getResetRetains()
 {
-	return mResetables;
+	return mResetRetains;
 }
 
-bool Setup::isResetable(UIParameter* p)
+/**
+ * This used to be a StringList, now it's just a CSV.
+ * Speed of comparision is about the same doing a substring match
+ * vs. a StringList iteration, however it does mean that the name
+ * of any one parameter can't be a substring of another.  This is the
+ * case now, but it's fragile.  The only edge case is "feedback" and
+ * "altFeedback" which won't conflict as long as we're doing case insensntive
+ * comparison.
+ */
+bool Setup::isResetRetain(const char* parameterName)
 {
-	return (mResetables != nullptr && mResetables->indexOf((void*)p->getName()) >= 0);
+	return (mResetRetains != nullptr &&
+            IndexOf(mResetRetains, parameterName) >= 0);
 }
 
 SyncSource Setup::getSyncSource()

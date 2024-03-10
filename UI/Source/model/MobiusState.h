@@ -83,19 +83,19 @@
  * The maximum number of tracks we support.
  * Limit defined so we don't have to dynamically allocate.
  */
-const int MaxTracks = 32;
+const int MobiusStateMaxTracks = 32;
 
 /**
  * The maximum number of loops per track.
   */
-const int MaxLoops = 32;
+const int MobiusStateMaxLoops = 32;
 
 /**
  * The maximum number of layers in a loop for which we'll keep state.
  * This is one case where we can in theory overflow, if so
  * the lostLayers value will be set.
  */
-const int MaxLayers = 32;
+const int MobiusStateMaxLayers = 32;
 
 
 /**
@@ -103,12 +103,12 @@ const int MaxLayers = 32;
  * Think about this, can't we just have a single layer state array
  * with a redo index into it?
  */
-const int MaxRedoLayers = 10;
+const int MobiusStateMaxRedoLayers = 10;
 
 /**
  * The maximum number of schedule events we'll maintain.
  */
-const int MaxEvents = 10;
+const int MobiusStateMaxEvents = 10;
 
 /**
  * Layer state
@@ -214,18 +214,18 @@ class MobiusLoopState
     // in theory we could overflow this but I don't think
     // it can happen in practice to be worth bothering with
     // an overflow indiciator
-    MobiusEventState events[MaxEvents];
+    MobiusEventState events[MobiusStateMaxEvents];
 	int		eventCount;
 
     // this is more likely to overflow so keep track
     // of the number of layers we can't show
-    MobiusLayerState layers[MaxLayers];
+    MobiusLayerState layers[MobiusStateMaxLayers];
 	int		layerCount;
 	int 	lostLayers;
 
     // would be nice if we could keep arrays the same
     // and just have the redo point an index within it
-    MobiusLayerState redoLayers[MaxRedoLayers];
+    MobiusLayerState redoLayers[MobiusStateMaxRedoLayers];
 	int		redoCount;
 	int 	lostRedo;
 };
@@ -243,6 +243,7 @@ class MobiusTrackState
     
     void init();
 
+    // this is 1 based!
     int number;
 
     // name?  old model had a char* that was a direct reference
@@ -295,7 +296,7 @@ class MobiusTrackState
     int activeLoop;
 
     // array of loop state, upper bound is defined by "loops" above
-    MobiusLoopState loops[MaxLoops];
+    MobiusLoopState loops[MobiusStateMaxLoops];
 };
 
 /**
@@ -330,7 +331,7 @@ class MobiusState
     int activeTrack;
 
     // state for each track
-    MobiusTrackState tracks[MaxTracks];
+    MobiusTrackState tracks[MobiusStateMaxTracks];
 
     // testing
     void simulate(MobiusState* state);

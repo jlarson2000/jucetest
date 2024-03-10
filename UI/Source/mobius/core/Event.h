@@ -231,8 +231,17 @@ extern const char* GetSyncPulseTypeName(SyncPulseType type);
  * with than pools of 85 different event classes.
  * 
  * !! Hmm, a good old fashioned union might be better here.
+ *
+ * new: this has been a PooledObject subclass but we didn't use that
+ * and it's confusing in the debugger to see PooledObject and mPool
+ * at the top but they're not actually used.  So took the superclass
+ * out till we're ready to resurrect this.  I think it also conflicted
+ * in some cases because both Event and PooledObject have mPool and was
+ * getting warnings about mPool not being set.
  */
-class Event : public PooledObject {
+// class Event : public PooledObject {
+
+class Event {
 
     friend class EventPool;
     friend class EventObjectPool;
@@ -571,6 +580,7 @@ class Event : public PooledObject {
 	Event(class EventPool* p);
 	~Event();
 
+    EventPool* getPool() {return mPool;}
     void setPooled(bool b);
     bool isPooled();
 
@@ -718,6 +728,7 @@ class EventList {
 	Event* find(EventType* type, long frame);
 
     void flush(bool reset, bool keepScriptEvents);
+    Event* steal();
 
   private:
 
