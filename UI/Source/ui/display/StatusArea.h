@@ -16,6 +16,7 @@
 #include "FloatingStripElement.h"
 #include "ParametersElement.h"
 #include "AudioMeterElement.h"
+#include "LayerElement.h"
 
 class StatusArea : public juce::Component
 {
@@ -51,6 +52,7 @@ class StatusArea : public juce::Component
     FloatingStripElement floater {this};
     ParametersElement parameters {this};
     AudioMeterElement audioMeter {this};
+    LayerElement layers {this};
     
     void addElement(StatusElement* el);
     void addMissing(StatusElement* el);
