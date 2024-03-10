@@ -414,8 +414,11 @@ void Mobius::initialize(class MobiusConfig* config)
  */
 void Mobius::reconfigure(class MobiusConfig* config)
 {
-    // need to work through the propagation logic
-    // defer for now
+    // at the very least update our pointers
+    // subcomponents were not allowed to keep old values of these
+    // todo: propagate interesting content
+    mConfig = config;
+    mInterruptConfig = mConfig;
 }
 
 /**
