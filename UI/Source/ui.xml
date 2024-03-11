@@ -7,7 +7,7 @@
     <Location name='FloatingStripElement' x='0' y='0' disabled='0'/>
     <Location name='ParametersElement' x='788' y='39' disabled='0'/>
     <Location name='AudioMeterElement' x='343' y='347' disabled='0'/>
-    <Location name='LayerElement' x='760' y='352' disabled='0'/>
+    <Location name='LayerElement' x='691' y='353' disabled='0'/>
   </Locations>
   <InstantParameters>
     <String>preset</String>

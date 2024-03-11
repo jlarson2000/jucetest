@@ -129,9 +129,14 @@ void LayerElement::update(MobiusState* state)
         if (active > 0) {
             bool newCheckpoint = loop->layers[active].checkpoint;
             if (lastCheckpoint != newCheckpoint) {
-                lastCheckpoint = newCheckpoint;
 
-                // remember the full state
+                lastCheckpoint = newCheckpoint;
+                lastTrack = state->activeTrack;
+                lastLoop = track->activeLoop;
+                lastLayerCount = loop->layerCount;
+                lastLostCount = loop->lostLayers;
+
+                // remember the full state for paint
                 sourceLoop = loop;
                 needsRepaint = true;
             }
@@ -264,8 +269,13 @@ void LayerCursor::orient()
         viewBase = activeIndex - center;
     }
 
-    undoLoss = viewBase - undoStart;
-    redoLoss = voidStart - viewLast;
+    undoLoss = 0;
+    if (viewBase > ghostStart)
+      undoLoss = viewBase - ghostStart;
+    
+    redoLoss = 0;
+    if (voidStart > viewLast)
+      redoLoss = voidStart - viewLast;
 }
 
 int LayerCursor::getUndoLoss()
@@ -291,11 +301,17 @@ MobiusLayerState* LayerCursor::getState(int bar)
     if (virtualIndex >= undoStart) {
         if (virtualIndex < redoStart) {
             int structureIndex = virtualIndex - undoStart;
-            layer = &(loop->layers[structureIndex]);
+            if (structureIndex < 0 || structureIndex >= loop->layerCount)
+              Trace(1, "LayerCursor says Jeff is bad at math\n");
+            else 
+              layer = &(loop->layers[structureIndex]);
         }
         else if (virtualIndex < redoGhostStart) {
             int structureIndex = virtualIndex - redoStart;
-            layer = &(loop->redoLayers[structureIndex]);
+            if (structureIndex < 0 || structureIndex >= loop->redoCount)
+              Trace(1, "LayerCursor says Jeff is bad at math\n");
+            else
+              layer = &(loop->redoLayers[structureIndex]);
         }
     }
     return layer;
@@ -378,45 +394,65 @@ bool LayerElement::doAction(UIAction* action)
 
     // override MobiusStateMaxLayers and MaxRedo to simulate
     // constraints
-    int maxLayers = 10;
-    int maxRedo = 10;
+    int maxLayers = 5;
+    int maxRedo = 5;
+
+    // the number of physical layers the starting state thinks we have
+    // this may not make sense if loss would have actually fit witin
+    // the available slots, will be adjusted later
+    int actualLayers = testLoop.layerCount + testLoop.lostLayers;
+    int actualRedos = testLoop.redoCount + testLoop.lostRedo;
 
     if (strcmp(action->actionName, "Undo") == 0) {
         Trace(1, "LayerElement: Undo\n");
-        if (testLoop.layerCount > 1) {
-            if (testLoop.redoCount < maxRedo)
-              testLoop.redoCount++;
-            else
-              testLoop.lostRedo++;
-            testLoop.layerCount--;
+        if (actualLayers > 1) {
+            actualLayers--;
+            actualRedos++;
         }
         handled = true;
     }
     else if (strcmp(action->actionName, "Redo") == 0) {
         Trace(1, "LayerElement: Redo\n");
-        if (testLoop.redoCount > 0) {
-            if (testLoop.layerCount < maxLayers)
-              testLoop.layerCount++;
-            else
-              testLoop.lostLayers++;
-            testLoop.redoCount--;
+        if (actualRedos > 0) {
+            actualLayers++;
+            actualRedos--;
         }
         handled = true;
     }
     else if (strcmp(action->actionName, "Coverage") == 0) {
         Trace(1, "LayerElement: Init\n");
         initTestLoop();
+        actualLayers = testLoop.layerCount + testLoop.lostLayers;
+        actualRedos = testLoop.redoCount + testLoop.lostRedo;
         handled = true;
     }
 
     else if (strcmp(action->actionName, "Debug") == 0) {
         Trace(1, "LayerElement: Add layer\n");
         // pretend we have a new layer
-        if (testLoop.layerCount < maxLayers)
-          testLoop.layerCount++;
-        else
-          testLoop.lostLayers++;
+        actualLayers++;
         handled = true;
+    }
+
+    // whatever the beginning values initTestLoop left there,
+    // recalculate loss based on the actual size and the state constraints
+
+    if (actualLayers > maxLayers) {
+        testLoop.layerCount = maxLayers;
+        testLoop.lostLayers = actualLayers - maxLayers;
+    }
+    else {
+        testLoop.layerCount = actualLayers;
+        testLoop.lostLayers = 0;
+    }
+
+    if (actualRedos > maxRedo) {
+        testLoop.redoCount = maxRedo;
+        testLoop.lostRedo = actualRedos - maxRedo;
+    }
+    else {
+        testLoop.redoCount = actualRedos;
+        testLoop.lostRedo = 0;
     }
 
     return handled;
@@ -429,8 +465,6 @@ void LayerElement::initTestLoop()
     // mock up some layer state
     testLoop.layerCount = 3;
     testLoop.redoCount = 3;
-    testLoop.lostLayers = 2;
-    testLoop.lostRedo = 1;
 
     // sigh, expected to be non-null which it would ordinally
     // be in the period before the first call to update()
