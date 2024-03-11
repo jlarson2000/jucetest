@@ -124,6 +124,10 @@
     <Binding action='function' name='NextTrack' trigger='ui' value='0'/>
     <Binding action='function' name='PrevTrack' trigger='ui' value='0'/>
     <Binding action='function' name='SamplePlay' trigger='ui' value='0' args='1'/>
+    <Binding action='function' name='Undo' trigger='ui' value='0'/>
+    <Binding action='function' name='Redo' trigger='ui' value='0'/>
+    <Binding action='function' name='Coverage' trigger='ui' value='0'/>
+    <Binding action='function' name='Debug' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
   </ScriptConfig>

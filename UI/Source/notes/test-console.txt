@@ -1,0 +1,14 @@
+
+Thoughts on an external command line console or test application that
+can send actions to the engine or make the UI do things
+
+Digression: Test Console
+  the UI is driven entirely from MobiusState except for the action buttons
+  the test console can activte an alternative MobiusState used instead of the real one
+  test console takes commands to change the alternate MobiusState
+    set track 4 frame 1000
+
+  interesting but too much work, still, think about how many automated test
+  scripts could be done ABOVE the core
+
+

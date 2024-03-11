@@ -1,0 +1,57 @@
+
+Rathering than having a complex command line or UI to simulate
+MobiusState can use an XML file with a sparse representation of the
+state and import it.  Once imported it redirects the dsisplay to get
+state from there:
+
+<state>
+  <track>  // defaults to active track
+    <loop>  // defauls to active loop
+      <layer>
+
+
+most flexible, gives you complete model control
+
+but what you really want is more command-ish
+
+<LayerInfo undo='16' redo='5' checkpoint='2,4'/>
+
+Conceptually I want to say:
+
+    track 2, loop 2, undo 16, redo 5
+
+means
+
+   make track 2 active, loop 2 active, and build the layer model
+
+could make this really concise
+
+  2/1/16/5
+
+or
+
+  2/1/...C...X...
+
+that's all you need for layer testing, it's a "loop spec"
+
+Yeah, don't need a blown out XML model for MobiusState, come up
+with the most concise shorthand
+
+loops are more complicated becasuse they have a lot of state
+how about making this more like a linear script
+
+track 1    // target track 1
+
+// set things about the selected track
+preset XYX
+inputMonitorLevel 200
+feedback 64
+...
+
+loop 2  // target loop 2 in track 1
+
+layers ...C...X...
+
+
+
+

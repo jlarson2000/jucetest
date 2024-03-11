@@ -1,0 +1,75 @@
+
+Long press has been done by measuring the time a key has been held down and
+submitting a new Action to represent the activation of long press behavior.
+
+Tracking long-press does not have to be done in core, it could be done at any level
+all the way up to Binderator, provided that it receives regular Timer events.
+
+If done above, Core receives a UIAction as lormal with the "long" flag set.
+
+This is in effect a "trigger argument".  Does it make sense to generalize trigger
+arguments like we do for arguments.
+
+   Function SelectLoop 2
+
+2 is an action argument.  The Action is Function, the name is Select Loop and
+the argument is 2
+
+   Function Record long
+
+It's kind of the same, it adjusts the interpretation of the Record function.
+
+If the UI tracks this, it needs to know which actions support long behavior
+so that it doesn't bother sending long Actions for things that don't need them.
+
+This can be a flag on the Function:  isLongable, isLongPress
+
+The UI probably can't know what the side effects of a long press are:
+
+    Record long = Reset
+
+Or can it?
+
+Long Record becoming Reset is easy
+
+Long Something becomming SUS Something should be easy for most.
+
+This would actually be a great way to do SUS, in most cases anything can be SUSsable
+without needing different Functions for it.
+
+The weird ones are SUSUnroundedMultiply.
+
+Yes, this deserves thought.  In a binding definition a trigger can have
+these configurations.
+
+     OnPress:  Record
+     OnLong:   Reset
+     OnRelease: nothing
+
+     OnPress: Overdub
+     OnRelese: Overdub
+       - effectively SUSOverdub
+
+It's the ones that change fundamental behavior after long that are strange.  The engine is
+going to need to be informed when this happens beyond just sending an alternate action
+without context.  So still need the "long" flag which may or may not be ignored.
+
+   OnPress: Record
+   OnLong: notify  (means to send Record again with long flag)
+     - let's the engine implement what long Record means, what we have now
+
+Interesting and flexible.  Gets the engine out of the business of hard coding what long and sus
+mean.
+
+  Reminder: The engine should not need to know what triggers are, only what Actions they
+  wanted.  Exception may be for Script triggers, but that's internal and can be included
+  in the Action.  Same for Event, or internally generated actions.
+
+  The "action context".  When does the source of an action matter?
+
+First step is to get the tracking of long press out of the engine.  The side effects
+of long can still be in there, but gradually work those up.
+
+Start thinkig about "marker" actions.  Initiation simply defines a frame offset to start
+something, similar to a Mode.  Ending performs a function from the start marker forward.
+

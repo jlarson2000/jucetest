@@ -438,6 +438,17 @@ void Supervisor::installSamples()
 //
 //////////////////////////////////////////////////////////////////////
 
+void Supervisor::addActionListener(ActionListener* l)
+{
+    if (!actionListeners.contains(l))
+      actionListeners.add(l);
+}
+
+void Supervisor::removeActionListener(ActionListener* l)
+{
+    actionListeners.removeFirstMatchingValue(l);
+}
+
 /**
  * Propagate an action sent up from one of the display elements that
  * was not handled at a lower level.
@@ -452,7 +463,20 @@ void Supervisor::doAction(UIAction* action)
     // dealing with scripts it will be harder
     action->resolve();
 
-    mobius->doAction(action);
+    // Test hack, if we have any action listeners, let them intercept
+    // control over the action.  Passing all of them right now,
+    // need to be smarter about an ActionType of ActionUI to only
+    // redirect the relevant ones
+    bool handled = false;
+    for (int i = 0 ; i < actionListeners.size() ; i++) {
+        ActionListener* l = actionListeners[i];
+        handled = l->doAction(action);
+        if (handled)
+          break;
+    }
+
+    if (!handled)
+      mobius->doAction(action);
 }
 
 //////////////////////////////////////////////////////////////////////

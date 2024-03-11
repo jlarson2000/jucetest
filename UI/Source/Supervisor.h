@@ -24,6 +24,17 @@ class Supervisor
     static Supervisor* Instance;
 
     /**
+     * Temporary hack for internal display components to register interest
+     * in Actions.  Saves having to have all the component levels on the
+     * way down pass them through.
+     */
+    class ActionListener {
+      public:
+        virtual ~ActionListener() {};
+        virtual bool doAction(UIAction* action) = 0;
+    };
+
+    /**
      * Constructed by MainComponent
      * Unclear how much we need to know about this.  Will find out
      * if we need the full AudioAppComponent interface here.
@@ -52,6 +63,10 @@ class Supervisor
     
     // propagate an action to either MobiusInterface or DisplayManager
     void doAction(class UIAction*);
+
+    // register UI component action handlers
+    void addActionListener(ActionListener* l);
+    void removeActionListener(ActionListener* l);
 
     // only to be called by MainThread
     void advance();
@@ -88,6 +103,8 @@ class Supervisor
     JuceMobiusContainer mobiusContainer {this};
     
     MainThread uiThread {this};
+
+    juce::Array<ActionListener*> actionListeners;
 
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;

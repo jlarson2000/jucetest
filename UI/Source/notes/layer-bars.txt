@@ -1,0 +1,308 @@
+
+Fundamental display is a row of boxes representing layers.  Initially empty.
+
+When a layer s generated a box is colored from left to right.
+Since these are "layers" a vertical stack may also make sense.
+
+The active layer is colored in a highlighted color.
+Old layers typically color the same but dimmer.
+
+If the layer bars fill need an indicator that there are more layers
+than are currently displayed:
+
+   this applies both to the MobiusSate model that can't keep history for
+   all physical layers
+
+   and the UI which can only show a subset of the layers in MobiusState
+
+MaxStateLayers
+   the maximum number of layers that can be in MobiusState
+
+AvailableStateLayers
+   the number of layers available in MobiusState
+   will always be less than or equal to MaxStateLayers
+
+LostStateLayers
+   the number of layers that could not be in MobiusState
+   only non-zero when AvailableStateLayers == MaxStateLayers
+   does it ever make sense to have a loss count when available < max ?
+     can't think of one
+
+MaxUILayers
+  maximum number of layers that can be displayed
+
+LostUILayers
+  number of layers that could not be displayed
+  LostStateLayers + (AvailableStateLayers - MaxUILayers)
+
+REDO
+
+MobiusState has the same LayerInfo structure for Redo layers
+It has a "lost" count and an available count of redo layers
+
+Redo layers are layers that were once active, but have been reverted.
+You are currently playing a layer but there are more recent layers
+that youc can return to with the Redo function.
+
+Traditionally these are displayed to the right of the active layer.
+
+In normal use the active layer is always the "highest" or "right most"
+highlighted layer. So this:
+
+      ...X..
+
+means there are 3 undo layers, 1 active layer, and 2 redo layers
+Undo/Redo functions simply move cursor around within that list.
+
+Within MaxUILayers we have a choice about whether to favor undo or redo layers.
+
+With a UIMax of 10, 5 undo layers and 5 redo layers, we have 11 layers to display
+Always 1 active, 5 + 5.
+There can always be loss on either side but we can shift where the active layer is
+within the available 10
+
+    5 undo, 1 active, 4 redo, 1 redo loss
+
+It is generally nice to be able to see at least a few available redo layers
+before showing loss.
+
+This could be hard coded:
+
+  MinRedoLayers
+    the minimum number of redo layers we show before showing loss
+    this favors undo layers, active will tend to shift right
+
+  MinUndoLayers
+    the other direction, active will shift left
+
+Could also try to keep active centered when there is overflow on both sides.
+
+In normal use there will be more undo than redo and they are added more often.
+Redo is relateively static.
+
+With enough engine work, this could become very flexible but we're starting
+to overlap with loop switch.  You wouldn't be using undo/redo for "song parts"
+though in theory it could get that powerful.  Needs more thought independent of
+how we display layers.
+
+Undo and redo are fundamentally same things for display, things you can move
+to in either direction.  What those mean doesn't matter.  It's just a "cursor"
+or a logically large set of things.
+
+The engine will need to support things like "throw away the oldest 10 layers"
+or "throw away all redo layers" but this doesn't matter for display.
+
+What is "Checkpoint"?
+
+I think Checkpoint is a destination layer you will skip to when doing Undo
+rather than iterating toward the desired layer one at a time.  In theory
+this could go entier direction.
+
+Set checkpoint, build 10 layers, then UndoToCheckpoint.  The UI doesn't need
+to care what that means only that some layers need to be displayed in a
+distinct way.  In theory there could be any number of checkpoints in either direction
+
+
+    ...C....C.....C....A.....C..........C
+
+User can choose to move in either direction one at a time, or jump to the
+next checkpoint in either direction.  This would be controlled with functions
+that the UI doesn't need to care about.
+
+Think about separating the logical from the physical models.
+Physical model has undo/redo layers, one layer is active, some
+layers are checkpoints,
+
+Display could get quite fancy by "compressing" the layers
+
+    ...C....C.....C....A.....C..........C
+
+becomes
+
+    xCxCxxCxxAxCxxxC
+
+There is a visual indiciation when there are more layers than will fit in a given area
+'x' means there are layers there you could Undo to if you wanted to, we're just not
+showing all of them.  Skip that for now.
+
+Going back to the physical model
+
+  layers[]
+     represents the undo layers and the active layer, the active ia always the highest
+
+  redo[]
+     represents the redo layers
+
+You generally only refresh the display when the undo/active or redo counts change
+but you could refresh just to reformat the display in a different way.  Nah, don't
+need to do that, it's a configuration change.
+
+So the only problem we need to solve is really where to start in the logical model
+and then to display 10 things, some of which will be highlighted differently.
+
+Call this LogicalStartLayer.  The LogicalStart is always witin the layers list to include
+the active layer, as you advance the display you can "fall off" the layers list and
+move to the redo list.  You can then fall off the redo list and have nothing to display.
+
+The state we need is:
+
+    layerList: which buffer we're looking at
+    layerNumber: which layer within that buffer we're "on"
+
+
+logically it's an iterator
+
+  Iterator it = ...initialize iteration state...
+  for (int i = 0 ; i < max ; i++)
+    LayerState st = it.next();
+    if (st.isCheckpoint
+    else if st.isActive
+    else
+
+Yeah, I like that think in terms of a LayerCursor that starts
+at an offset within the logical layer list, advances through it, and
+can tell you things about the layer at that position.
+
+Digression: import XML file containing a representation of the MobiusState
+  to test displays, see xml-state
+
+
+----------------------------------------------------------------------
+
+The goal is to have a "cursor" over the entire logical layer list with enough
+room on either side to give the user some indiciation that the sides exist.
+
+With both undo and redo the display should balance with active in the center.
+Each side must have a minimum of 1, can add balance bias by assing a maximum
+to one side.
+
+By enforcing balance, we can reach a state where undo/redo doesn't move the
+active bar, it just changes the loss numbers on either side.  This is the
+default state.
+
+Can give more indication of movement by moving the bar left or right of center
+but need to know where the center was the last time it was dsplayed so
+
+In the diagrams _ is a lost layer . is a visible layer X is the active layer O is
+a bar with no underlying layer.  Normally O can appear only in redo, it could only
+be in undo if we're centering active in an area larger than needed.
+
+A typical loop:
+
+       ....A
+
+Loop with loss and no redo
+
+       123.........A
+      1234........A.
+     12345.......A..
+
+It's nice to see active moving when you do undo, but when you get here
+
+    123456.......A...
+
+you might want to stop including redos and instead start consuming loss
+
+     12345.......A..1
+
+but now youre at a state where the active bar doesn't move but the numbers change
+
+      1234.......A..2
+     
+These are the same
+
+      4.......A..2
+      3.......A..3
+      2.......A..4
+
+Anything with fixed min/max results in this.
+
+not bad but to give the perception of movement
+we can allow A to move to the left by increasing loss on the left
+
+      2.......A..4
+      3......A...3
+      2.....A....2
+
+to do that we need to remember the previous start index
+
+at some point we either have to stop moving on the left and just
+shifting numbers or we jump to the right and start over with
+a range of movement.
+
+Work from the display outward.  What we want is to show movement
+in the active bar.  Remember the position it was last in and determine
+where visually it wants to go.  If it can move there with minimums on
+the left and right, let it.
+
+If it can't move there it jumps to the center, or to the opposite edge.
+
+Yeah, stop thinking from the bottom up, and start thinking about
+what you want to SEE, then calculating from there down.
+
+When you have no prior state, center it.
+
+Think about a text editor, you cursor around within it, the text doesn't move around you.
+When you get to an edge, it jumps to keep the cursor centered, or far enough away
+from an edge that you can see the context around it.
+
+It's a viewport.
+
+When starting with no prior display state:
+
+sourceSpace, sourceSize
+  - the total amount of stuff we would display if we could
+  value: layerLoss + layerCount + redoCount + redoLoss
+  
+viewSpace, viewSize
+  - the total number of things we CAN display
+  - starts out larger than source size, frequently smaller over time
+  value: 10
+  
+virtualSpace, virtualSize
+  - the larger of sourceSize and viewSize
+
+voidSpace
+  - bars we can display but have no counterpart in virtual space
+  when viewSize - virtualSize is greater than zero
+  often when there are few layers
+  could be on the left if we wanted to support right justification
+  or centering of virtual space within viewSize
+
+voidOffset
+  the amount of void space to add to the left of sourceSpace
+  for centering or justification of the source within the view
+  when the view is larger
+  assume zero for now
+
+sourceFocus
+  the location within sourceSpace of the item that needs prominence
+  e.g. the caret in a text editor
+  here it is the active layer
+  value: layerLoss + layerCount
+
+viewBase
+  the offset within sourceSpace that we are displaying
+  must display the sourceFocus
+  will adjusted to bring the focus into view
+  value: zero initially
+
+viewLossPre
+  the number of items in sourceSpace that we cannot display before viewOffset
+  value: viewOffset
+  
+viewLossPost
+  the number of items in sourceSpace that we cannot display after viewOffset + viewSize
+  value: sourceSize - viewOffset - viewSize
+    
+On initial display
+   viewOffset is zero
+   sourceOffset is layerLoss + layerCount (the active layer)
+   if sourceOffset 
+
+
+viewOffset = location within virtualSpace where we start the view
+  may be   
+viewCaret (layer, caret)
+  location within virtualSpace 
+
