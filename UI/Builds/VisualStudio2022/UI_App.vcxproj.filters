@@ -715,6 +715,9 @@
     <ClCompile Include="..\..\Source\ui\display\LayerElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\LayerModel.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\LoopMeterElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -3721,6 +3724,9 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\LayerElement.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\LayerModel.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\LoopMeterElement.h">

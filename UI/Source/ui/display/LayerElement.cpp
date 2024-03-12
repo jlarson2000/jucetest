@@ -1,5 +1,18 @@
 /**
  * Simple layer list.
+ * Most of the mind numbing math is in LayerView and LayerModel.
+ *
+ * For testing, this has tempoorary hacks to intercept UIActions sent
+ * by the ActionButtons and make them simulate layer state which is
+ * much easier than trying to build complex layers live.
+ * This can all be ripped out eventually.
+ *
+ * We're hijacking the following function actions:
+ *
+ *   Coverage - activate test mode with an empty loop
+ *   Debug - add a layer to the test loop
+ *   Undo - pretend undo
+ *   Redo - pretend redo
  * 
  */
 
@@ -8,12 +21,15 @@
 #include "../../util/Trace.h"
 #include "../../model/UIConfig.h"
 #include "../../model/MobiusState.h"
-#include "../../model/ModeDefinition.h"
 #include "../../model/UIAction.h"
+
+// temporary
 #include "../../Supervisor.h"
 
 #include "Colors.h"
 #include "StatusArea.h"
+#include "LayerModel.h"
+
 #include "LayerElement.h"
 
 const int LayerBarHeight = 40;
@@ -27,10 +43,8 @@ LayerElement::LayerElement(StatusArea* area) :
     StatusElement(area, "LayerElement")
 {
     testLoop.init();
-    // sigh, expected to be non-null which it would ordinally
-    // be in the period before the first call to update()
-    sourceLoop = &testLoop;
 
+    // intercept our test actions
     Supervisor* s = Supervisor::Instance;
     s->addActionListener(this);
 }
@@ -43,7 +57,7 @@ LayerElement::~LayerElement()
 
 void LayerElement::configure(UIConfig* config)
 {
-    // todo: could adjust the diameter
+    // not sensntive to any size options
 }
 
 int LayerElement::getPreferredHeight()
@@ -60,6 +74,7 @@ int LayerElement::getPreferredWidth()
 
 void LayerElement::resized()
 {
+    // no Component substructure
 }
 
 /**
@@ -111,10 +126,9 @@ void LayerElement::update(MobiusState* state)
     MobiusTrackState* track = &(state->tracks[state->activeTrack]);
     MobiusLoopState* loop = &(track->loops[track->activeLoop]);
 
-    if (doTest) {
-        // substitute our test loop
-        loop = &testLoop;
-    }
+    // if we're in test mode, redirect to the test loop state
+    if (doTest)
+      loop = &testLoop;
 
     // don't need to save lastTrack and lastLoop if we just
     // saved the last MobiusLoopState pointer
@@ -139,10 +153,12 @@ void LayerElement::update(MobiusState* state)
         lastLostCount = loop->lostLayers;
         lastCheckpoint = newCheckpoint;
         
-        // remember the full state for paint
-        sourceLoop = loop;
         repaint();
     }
+
+    // remember the full state for paint
+    // if we decided not to repaint() should we be updating this?
+    sourceLoop = loop;
 }
 
 /**
@@ -154,11 +170,15 @@ void LayerElement::paint(juce::Graphics& g)
     // borders, labels, etc.
     StatusElement::paint(g);
 
-    // figure out where to start and how much loss
-    LayerCursor lc(sourceLoop);
-    lc.orient();
+    // if we're initializing before update() has been called on
+    // the refresh thread, just leave it blank
+    if (sourceLoop == nullptr)
+      return;
 
-    int preLoss = lc.getUndoLoss();
+    // this does all the hard work
+    view.initialize(sourceLoop, LayerBarMax, lastViewBase);
+
+    int preLoss = view.getPreLoss();
     if (preLoss > 0) {
         g.setFont(juce::Font(LayerLossHeight));
         g.setColour(juce::Colours::white);
@@ -168,7 +188,7 @@ void LayerElement::paint(juce::Graphics& g)
                    juce::Justification::left);
     }
 
-    int postLoss = lc.getRedoLoss();
+    int postLoss = view.getPostLoss();
     if (postLoss) {
         g.setFont(juce::Font(LayerLossHeight));
         g.setColour(juce::Colours::white);
@@ -183,18 +203,20 @@ void LayerElement::paint(juce::Graphics& g)
 
     for (int i = 0 ; i < LayerBarMax ; i++) {
 
-        if (lc.isCheckpoint(i))
+        if (view.isCheckpoint(i))
           g.setColour(juce::Colours::red);
         else 
           g.setColour(juce::Colours::grey);
 
         g.drawRect(barLeft, barTop, LayerBarWidth, LayerBarHeight);
 
-        if (!lc.isVoid(i)) {
-            if (lc.isGhost(i)) {
+        if (!view.isVoid(i)) {
+            // don't really need to highlight ghost layers, but I like to see
+            // them during testing
+            if (view.isGhost(i)) {
                 g.setColour(juce::Colours::lightblue);
             }
-            else if (lc.isActive(i))
+            else if (view.isActive(i))
               g.setColour(juce::Colours::yellow);
             else
               g.setColour(juce::Colours::yellow.darker());
@@ -203,280 +225,100 @@ void LayerElement::paint(juce::Graphics& g)
         }
         barLeft += LayerBarWidth + LayerBarGap;
     }
-}
 
-//////////////////////////////////////////////////////////////////////
-// LayerCursor
-//////////////////////////////////////////////////////////////////////
-
-/**
- * The hard part.  Calculate various regions of the virtual layer list
- * and determine the ideal starting point for the visible bars.
- *
- * A loop at runtime will have a number of layers.  These are divided into
- * three categories:
- *
- *     active - the layer being played
- *     undo   - layers created before the active layer
- *     redo   - layers created after the active layer
- *
- * Within the full set of undo and redo layers, the active layer can move
- * back and forth among them.
- *
- * For display purposes we have these conceptual areas:
- * 
- *   void - an area that has no layers
- *   ghost - an area that has layers, but were not included in MobiusState
- *   physical - an area that has layers, that were included in MobiusState
- *
- * Think of physical layers being in the center divided between undo and redo.
- * They have a corresponding MobiusLayerState.
- *
- * Physical layers are surrounded on both sides by ghost or lost layers.  These
- * are real layers in the Loop/Layer model but could not be included in the
- * MobiusState due to space constraints.
- *
- * Void is the area outside of ghost layers that have no correspondence
- * to the Loop/Layer model.  Void is encountered if the display is larger than
- * what is needed to display all of the physical and ghost layers.
- *
- * The math here could be compressed and optimized to a degree, but you lose
- * clarity over what the numbers mean.
- */ 
-void LayerCursor::orient()
-{
-    // offsets into the regions of the logical layer list
-    ghostStart = 0;
-    undoStart = loop->lostLayers;
-    activeIndex = undoStart + loop->layerCount - 1;
-    redoStart = activeIndex + 1;
-    redoGhostStart = redoStart + loop->redoCount;
-    voidStart = redoGhostStart + loop->lostRedo;
-
-    // viewBase has the base index of the visible view into
-    // the logical layer list, it is initialized to zero
-    // but may have changed if we had to scroll to keep active visible
-    // retain the last view base if possible so the user sees
-    // movemeent in the active layer rather than recentering and
-    // seeing the layers shift aroundd the active layer.
-    //viewBase = 0;
-
-    // adjust viewBase to make activeIndex visible
-    int viewLast = viewBase + LayerBarMax - 1;
-    if (activeIndex <= viewLast) {
-        // active fits, leave the base
-    }
-    else {
-        // "scroll" to put activeIndex within the view
-        int center = floor((float)LayerBarMax / 2.0f);
-        viewBase = activeIndex - center;
-        viewLast = viewBase + LayerBarMax - 1;
-    }
-
-    undoLoss = 0;
-    if (viewBase > ghostStart)
-      undoLoss = viewBase - ghostStart;
-
-    redoLoss = 0;
-    if (loop->redoCount > 0) {
-        int redoLast = redoStart + loop->redoCount - 1;
-        if (redoLast > viewLast)
-          redoLoss = redoLast - viewLast;
-    }
-}
-
-int LayerCursor::getUndoLoss()
-{
-    return undoLoss;
-}
-
-int LayerCursor::getRedoLoss()
-{
-    return redoLoss;
-}
-
-/**
- * Return the LayerState for the layer corresponding to this bar.
- * If the index points to a void or ghosted layer, nullptr is returned.
- */
-MobiusLayerState* LayerCursor::getState(int bar)
-{
-    MobiusLayerState* layer = nullptr;
-
-    int virtualIndex = viewBase + bar;
-
-    if (virtualIndex >= undoStart) {
-        if (virtualIndex < redoStart) {
-            int structureIndex = virtualIndex - undoStart;
-            if (structureIndex < 0 || structureIndex >= loop->layerCount)
-              Trace(1, "LayerCursor says Jeff is bad at math\n");
-            else 
-              layer = &(loop->layers[structureIndex]);
-        }
-        else if (virtualIndex < redoGhostStart) {
-            int structureIndex = virtualIndex - redoStart;
-            if (structureIndex < 0 || structureIndex >= loop->redoCount)
-              Trace(1, "LayerCursor says Jeff is bad at math\n");
-            else
-              layer = &(loop->redoLayers[structureIndex]);
-        }
-    }
-    return layer;
-}
-
-/**
- * Return true if the bar at this position is over a layer that
- * does not exist.
- */
-bool LayerCursor::isVoid(int bar)
-{
-    bool voided = false;
-    
-    int virtualIndex = viewBase + bar;
-
-    // void on the left would only be true if we allowed the display to
-    // slide past the left edge to center or right justify the active layer
-    if (virtualIndex < 0) {
-        // base index too far into left space
-        voided = true;
-    }
-    else if (virtualIndex >= voidStart) {
-        // ran off the end on the right
-        voided = true;
-    }
-
-    return voided;
-}
-    
-/**
- * Return true if the bar at this position is over a layer that
- * exists, but could not be included in the MobiusState model.
- * i.e. it is a "lost" layer for either undo or redo.
- */
-bool LayerCursor::isGhost(int bar)
-{
-    bool ghost = false;
-    
-    int virtualIndex = viewBase + bar;
-    
-    if (virtualIndex >= ghostStart) {
-        if (virtualIndex < undoStart) {
-            // undo ghost on the left
-            ghost = true;
-        }
-        else if (virtualIndex >= redoGhostStart && virtualIndex < voidStart) {
-            // redo ghost on the right
-            ghost = true;
-        }
-    }
-    
-    return ghost;
-}
-
-/**
- * Return true if the bar at this position is over the active layer
- */
-bool LayerCursor::isActive(int bar)
-{
-    int virtualIndex = viewBase + bar;
-    return (virtualIndex == activeIndex);
-}
-
-bool LayerCursor::isCheckpoint(int bar)
-{
-    bool checkpoint = false;
-    MobiusLayerState* layer = getState(bar);
-    if (layer != nullptr)
-      checkpoint = layer->checkpoint;
-    return checkpoint;
+    // remember the possibly adjusted viewBase for next time
+    lastViewBase = view.getViewBase();
 }
 
 //////////////////////////////////////////////////////////////////////
 // Test Actions
 //////////////////////////////////////////////////////////////////////
 
+/**
+ * Intercept an ActionButton function action.
+ * We're in the UI message loop and not part of the update() thread
+ * or the paint() thread.
+ */
 bool LayerElement::doAction(UIAction* action)
 {
     bool handled = false;
 
-    // override MobiusStateMaxLayers and MaxRedo to simulate
-    // constraints
-    int maxLayers = 5;
-    int maxRedo = 5;
-
-    // the number of physical layers the starting state thinks we have
-    // this may not make sense if loss would have actually fit witin
-    // the available slots, will be adjusted later
-    int actualLayers = testLoop.layerCount + testLoop.lostLayers;
-    int actualRedos = testLoop.redoCount + testLoop.lostRedo;
-
-    if (strcmp(action->actionName, "Undo") == 0) {
-        Trace(1, "LayerElement: Undo\n");
-        if (actualLayers > 1) {
-            actualLayers--;
-            actualRedos++;
+    // turn coverage on and off
+    
+    if (strcmp(action->actionName, "Coverage") == 0) {
+        if (doTest) {
+            Trace(2, "LayerElement: Disabling layer tests\n");
+            doTest = false;
+        }
+        else {
+            Trace(2, "LayerElement: Enabling layer tests\n");
+            doTest = true;
+            // make testLoop empty
+            testLoop.layerCount = 0;
+            testLoop.lostLayers = 0;
+            testLoop.redoCount = 0;
+            testLoop.lostRedo = 0;
         }
         handled = true;
     }
-    else if (strcmp(action->actionName, "Redo") == 0) {
-        Trace(1, "LayerElement: Redo\n");
-        if (actualRedos > 0) {
+
+    if (doTest) {
+        // combine the state counts into logical counts
+        int actualLayers = testLoop.layerCount + testLoop.lostLayers;
+        int actualRedos = testLoop.redoCount + testLoop.lostRedo;
+
+        if (strcmp(action->actionName, "Undo") == 0) {
+            Trace(1, "LayerElement: Undo\n");
+            if (actualLayers > 1) {
+                actualLayers--;
+                actualRedos++;
+            }
+            handled = true;
+        }
+        else if (strcmp(action->actionName, "Redo") == 0) {
+            Trace(1, "LayerElement: Redo\n");
+            if (actualRedos > 0) {
+                actualLayers++;
+                actualRedos--;
+            }
+            handled = true;
+        }
+        else if (strcmp(action->actionName, "Debug") == 0) {
+            Trace(1, "LayerElement: Add layer\n");
+            // pretend we have a new layer
             actualLayers++;
-            actualRedos--;
+            handled = true;
         }
-        handled = true;
-    }
-    else if (strcmp(action->actionName, "Coverage") == 0) {
-        Trace(1, "LayerElement: Init\n");
-        initTestLoop();
-        actualLayers = testLoop.layerCount + testLoop.lostLayers;
-        actualRedos = testLoop.redoCount + testLoop.lostRedo;
-        handled = true;
-    }
 
-    else if (strcmp(action->actionName, "Debug") == 0) {
-        Trace(1, "LayerElement: Add layer\n");
-        // pretend we have a new layer
-        actualLayers++;
-        handled = true;
-    }
+        if (handled) {
+            // recalculate loss based on the desired undo/redo sizes
+            // and the constraints in the state arrays
 
-    // whatever the beginning values initTestLoop left there,
-    // recalculate loss based on the actual size and the state constraints
+            // override MobiusStateMaxLayers and MaxRedo to see loss more easily
+            int maxLayers = 5;
+            int maxRedo = 5;
 
-    if (actualLayers > maxLayers) {
-        testLoop.layerCount = maxLayers;
-        testLoop.lostLayers = actualLayers - maxLayers;
-    }
-    else {
-        testLoop.layerCount = actualLayers;
-        testLoop.lostLayers = 0;
-    }
+            if (actualLayers > maxLayers) {
+                testLoop.layerCount = maxLayers;
+                testLoop.lostLayers = actualLayers - maxLayers;
+            }
+            else {
+                testLoop.layerCount = actualLayers;
+                testLoop.lostLayers = 0;
+            }
 
-    if (actualRedos > maxRedo) {
-        testLoop.redoCount = maxRedo;
-        testLoop.lostRedo = actualRedos - maxRedo;
+            if (actualRedos > maxRedo) {
+                testLoop.redoCount = maxRedo;
+                testLoop.lostRedo = actualRedos - maxRedo;
+            }
+            else {
+                testLoop.redoCount = actualRedos;
+                testLoop.lostRedo = 0;
+            }
+        }
     }
-    else {
-        testLoop.redoCount = actualRedos;
-        testLoop.lostRedo = 0;
-    }
-
+    
     return handled;
-}
-
-void LayerElement::initTestLoop()
-{
-    testLoop.init();
-
-    // mock up some layer state
-    testLoop.layerCount = 3;
-    testLoop.redoCount = 3;
-
-    // sigh, expected to be non-null which it would ordinally
-    // be in the period before the first call to update()
-    sourceLoop = &testLoop;
-    doTest = true;
 }
 
 /****************************************************************************/

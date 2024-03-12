@@ -1,5 +1,6 @@
 /**
- * Basic level meter
+ * A display for the layers in a loop.
+ *
  */
 
 #pragma once
@@ -7,8 +8,11 @@
 #include <JuceHeader.h>
 
 #include "../../model/MobiusState.h"
+
+// temporary test hack
 #include "../../Supervisor.h"
 
+#include "LayerModel.h"
 #include "StatusElement.h"
 
 class LayerElement : public StatusElement, public Supervisor::ActionListener
@@ -26,74 +30,34 @@ class LayerElement : public StatusElement, public Supervisor::ActionListener
     void resized() override;
     void paint(juce::Graphics& g) override;
 
+    // intercept some of the ActionButtons to simulate layer state
     bool doAction(class UIAction* a);
     
   private:
 
-    void orientShit();
-    void initTestLoop();
-
+    // change detection state
     int lastTrack = 0;
     int lastLoop = 0;
     int lastLayerCount = 0;
     int lastLostCount = 0;
     bool lastCheckpoint = false;
-    int viewBase = 0;
-    
-    // the loop to display on the next paint()
-    MobiusLoopState* sourceLoop = nullptr;
 
+    // model/view helper
+    LayerView view;
+
+    // view base the last time we were displayed
+    int lastViewBase = 0;
+    
     // redirected loop state for testing
     MobiusLoopState testLoop;
     bool doTest = false;
+
+    // the last loop state used by update()
+    MobiusLoopState* sourceLoop = nullptr;
+    
 };
 
-/**
- * Helper class to iterate over a logical layer list
- * pulling state from the physical MobiusState model
- *
- * You know, if we made this an inner class we could
- * dispense with the state passing.
- */
-class LayerCursor
-{
-  public:
-
-    LayerCursor(MobiusLoopState* source) {
-        loop = source;
-    }
-    ~LayerCursor() {}
-
-    // set the position within the logical model
-    void orient();
-
-    // what we can't display
-    int getUndoLoss();
-    int getRedoLoss();
-
-    // characteristics of the layer associated with a visible bar
-    bool isVoid(int bar);
-    bool isGhost(int bar);
-    bool isActive(int bar);
-    bool isCheckpoint(int bar);
-    MobiusLayerState* getState(int bar);
-
-  private:
-
-    int ghostStart = 0;
-    int undoStart = 0;
-    int activeIndex = 0;
-    int redoStart = 0;
-    int redoGhostStart = 0;
-    int voidStart = 0;
-    
-    // position within the logical layer list of the first bar in the display
-    int viewBase = 0;
-
-    int undoLoss = 0;
-    int redoLoss = 0;
-    
-    // source model
-    MobiusLoopState* loop;
-};
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
     
