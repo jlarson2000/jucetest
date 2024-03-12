@@ -1,0 +1,58 @@
+
+The Recorder class is weird and doesn't really serve the right purpose in the future.
+
+Move this back down into the core code so Tracks can live in there but new code
+can design something better.
+
+Conceptually what Kernel does is:
+
+   initializes core to do magic stuff
+   passes commands and requests from shell to core
+     - could also move UIAction mapping from kernel to core and reduce
+       core awareness to just the simplest Mobius methods
+   
+   receives interrupt buffers
+     passes them to Mobius for processing
+        mobius can direct Recorder to do stuff like Kernel does now
+
+     passes them to other Audio Operators for new processing
+
+An Audio Operator is a concept for something that can consume input buffers,
+leave things in output buffers, AND inject things into input buffers
+
+That last one is special and used only for what is now SampleTrack
+
+SampleTrack can mutate into something outside Recorder that just deals with
+sample playback like it does now
+
+  - the tricky bit is audio injection
+
+We can now add new AudioOperators whenever, splice them in and out
+There is no "track" concept in Kernel, only Mobius
+
+UIActions and UIQuery/getParameter now need to be able to target AudioOperator
+that aren't Mobius
+
+  SamplePlay is the only Function right now and it has no parameters
+
+Oooh, each AudioOperator could have it's own display panel
+  something like a sound board that just triggers samples for SamplePlayer
+
+That could also be how you phase in a new looping engine
+
+The UIFunction and UIParameter lists now become more dynamic, they
+are assembled from the functions and parameters exported by each operator.
+
+We're really becomming like a plugin host.
+
+Actions now need more context, the plugin they are targeting.
+  - this could be implied by the UIFunction definition though provided that
+    they have unique names in the function namespace
+
+  - so only Mobius can have Record and Play
+  - SamplePlayer would have to have SamplePlay
+
+The old "capture" stuff could be moved up here.  We have a way to capture or resample
+whatever is going out of a plugin or combination of plugins.  The results
+of that can be sent back into a plugin for storage and use.
+
