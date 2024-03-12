@@ -28,9 +28,9 @@ void BindingTargetPanel::configure(MobiusConfig* config)
 {
     initBox(&functions);
     addTab(juce::String("Functions"), &functions);
-    for (int i = 0 ; i < FunctionDefinition::Functions.size() ; i++) {
+    for (int i = 0 ; i < FunctionDefinition::Instances.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        FunctionDefinition* f = FunctionDefinition::Functions[i];
+        FunctionDefinition* f = FunctionDefinition::Instances[i];
         // no display name for these yet
         functions.add(f->getName());
     }
@@ -41,18 +41,18 @@ void BindingTargetPanel::configure(MobiusConfig* config)
     
     initBox(&controls);
     addTab(juce::String("Controls"), &controls);
-    for (int i = 0 ; i < UIParameter::Parameters.size() ; i++) {
+    for (int i = 0 ; i < UIParameter::Instances.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        UIParameter* p = UIParameter::Parameters[i];
+        UIParameter* p = UIParameter::Instances[i];
         if (p->control)
           controls.add(p->getDisplayableName());
     }
     
     initBox(&parameters);
     addTab(juce::String("Parameters"), &parameters);
-    for (int i = 0 ; i < UIParameter::Parameters.size() ; i++) {
+    for (int i = 0 ; i < UIParameter::Instances.size() ; i++) {
         // todo, may want a deprecation or bindable flag
-        UIParameter* p = UIParameter::Parameters[i];
+        UIParameter* p = UIParameter::Instances[i];
         if (!p->control)
           parameters.add(p->getDisplayableName());
     }

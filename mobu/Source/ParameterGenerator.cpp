@@ -230,7 +230,7 @@ bool ParameterGenerator::generate(juce::String fileName, bool testMode)
         // skip having an intermediate model 
         success = parseParameters(el.get());
         if (success) {
-            juce::String basePath = rootPath + "/UIParameter";
+            juce::String basePath = rootPath + "/UIParameterClasses";
             success = code.generate(basePath, testMode);
             if (!success)
               cout << "Failed to generate files" << endl;
@@ -308,7 +308,7 @@ bool ParameterGenerator::parseParameter(juce::XmlElement* el)
             cout << "Parameter " + name << endl;
             juce::String codeName = formatCodeName(name);
             code.targetHeader();
-            code.indent("extern UIParameter* UIParameter");
+            code.indent("extern class UIParameter* UIParameter");
             code.add(codeName);
             code.add(";\n");
             generateOldCode(el);
@@ -630,5 +630,6 @@ juce::String ParameterGenerator::formatTypeCode(juce::String xmlName)
     return juce::String(typeName);
 }
 
-      
-             
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

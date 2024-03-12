@@ -437,6 +437,8 @@
         <FILE id="xcuW9G" name="UIParameter.h" compile="0" resource="0" file="Source/model/UIParameter.h"/>
         <FILE id="MwPgTN" name="UIParameterClasses.cpp" compile="1" resource="0"
               file="Source/model/UIParameterClasses.cpp"/>
+        <FILE id="sf9iOw" name="UIParameterClasses.h" compile="0" resource="0"
+              file="Source/model/UIParameterClasses.h"/>
         <FILE id="wa9W4M" name="UserVariable.cpp" compile="1" resource="0"
               file="Source/model/UserVariable.cpp"/>
         <FILE id="JU2prp" name="UserVariable.h" compile="0" resource="0" file="Source/model/UserVariable.h"/>

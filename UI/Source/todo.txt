@@ -1,0 +1,38 @@
+
+
+Control Parameter Throttling
+
+UI control knobs are sending great gobs of actions as they sweep
+Results in KernelMessage pool extensions because the shell can't
+keep up with deletions accululated during the 1/10th maintenance cycle.
+
+It works, but consider throttling these and send them out at a more
+granular level.  Evern 1/10th should be enough, users are usually
+doing this with MIDI.  Then again since they don't use the UI it matters less.
+
+Startup Messages
+
+ERROR: 0 0: Mobius::getSampleRate() called!
+ERROR: 0 0: Mobius::getSampleRate() called!
+ERROR: 0 0: Mobius::getSampleRate() called!
+
+ERROR: 0 0: MobiusKernel::initFunctionMap Function DebugStatus not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function Divide4 not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function Ignore not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function SelectLoop not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function SpeedShift not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function SUSRehearse not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function SelectTrack not found
+ERROR: 0 0: MobiusKernel::initFunctionMap Function UIRedraw not found
+ERROR: 0 0: MobiusKernel::initParameterMap Parameter activeTrack not found
+
+LoopStack: maxLoops not configured!
+LoopStack: maxLoops not configured!
+LoopStack: maxLoops not configured!
+LoopStack: maxLoops not configured!
+
+
+
+Got a crash in Trace FlushOrNotify after sending a large number of records to the
+trace buffer. Might be a buffering error.
+

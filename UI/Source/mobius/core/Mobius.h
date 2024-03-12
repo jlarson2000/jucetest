@@ -104,6 +104,11 @@ class Mobius :
      */
     void doAction(class UIAction* action);
 
+    /**
+     * Temporary until we get UIQuery to Export fleshed out.
+     */
+    int getParameter(Parameter* p, int trackNumber);
+
     static void initStaticObjects();
     static void freeStaticObjects();
 

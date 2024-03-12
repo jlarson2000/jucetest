@@ -56,9 +56,9 @@ class FunctionDefinition : public SystemConstant {
     // Global Function Registry
     //////////////////////////////////////////////////////////////////////
 
-    static std::vector<FunctionDefinition*> Functions;
+    static std::vector<FunctionDefinition*> Instances;
+    static void trace();
 	static FunctionDefinition* find(const char* name);
-    static void dumpFunctions();
 
   private:
 

@@ -103,6 +103,17 @@ ActionType* Export::getTargetType()
     return mType;
 }
 
+// new for Mobius::getParameter
+void Export::setTarget(Parameter* p, Track* t)
+{
+    mType = ActionParameter;
+    // need the name?
+    mObject.object = p;
+    // assuming it only needs the resolved Track and
+    // not the scopeTrack number
+    mTrack = t;
+}
+
 //void Export::setTarget(ResolvedTarget* t)
 //{
 //	// target is never owned

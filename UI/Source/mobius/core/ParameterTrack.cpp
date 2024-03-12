@@ -655,8 +655,9 @@ void OutputLevelParameterType::getValue(Track* t, ExValue* value)
 void OutputLevelParameterType::setValue(Track* t, ExValue* value)
 {
     int v = value->getInt();
-    if (v >= low && v <= high)
-      t->setOutputLevel(v);
+    if (v >= low && v <= high) {
+        t->setOutputLevel(v);
+    }
 }
 
 int OutputLevelParameterType::getOrdinalValue(Track* t)

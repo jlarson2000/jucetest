@@ -1,0 +1,124 @@
+
+Old Mobius used the Export class to pull things out of the engine.
+
+ * An export is created by calling one of the Mobius::resolveExport functions.
+ * An export may be resolved by passing one of these things:
+ * 
+ *      Binding
+ *      ResolvedTarget
+ *      Action
+
+
+Ugh, not fucking ResolvedTarget again
+
+ * Null is returned if the target is invalid, or this is not an exportable
+ * target.  The Export returned is owned by the caller and must be freed by
+ * the caller.
+
+ * Mobius::getExport(Export) is called to get the current value of the export.
+
+I see this in Mobius::doParameter to handle an Action
+
+            ActionOperator* op = a->actionOperator;
+            if (op != NULL) {
+                // apply relative commands
+                Export exp(a);
+                int current = p->getOrdinalValue(&exp);
+                int neu = a->arg.getInt();
+
+So for Parameter at least this should be enough, don't need to worry
+about the other "exportables" yet.
+
+Yeah, all the Mobius::resolveExport methods are commented out right now.
+
+ * Mobius::getExport(Export) is called to get the current value of the export.
+
+getExport was removed during the great purge.  Original code didn't have that
+either so the comment is stale.  Most obvious use was in MidiExporter
+
+        if (trigger == TriggerControl) {
+            
+            exp = mobius->resolveExport(b);
+            if (exp != NULL) {
+
+Here it created an Export by resolving a Binding
+
+Then it did this:
+
+        for (Export* exp = mExports ; exp != NULL ; exp = exp->getNext()) {
+
+            int newValue = exp->getOrdinalValue();
+
+Which matches what Mobius::doParameter did when handling ActionOperator
+
+Export::getOrdinalValue does this:
+
+int Export::getOrdinalValue()
+{
+    int value = -1;
+
+    // resolve track so Parameter doesn't have to
+    // wtf was this done?  it isn't needed for this method
+    // but it does have the side effect of resolving the Track
+    mTrack = getTargetTrack();
+
+    if (mType == ActionParameter) {
+        Parameter* p = mObject.parameter;
+        if (p != nullptr) 
+          value = p->getOrdinalValue(this);
+    }
+
+    return value;
+}
+
+
+
+So at the end of the day, all this does is call Parameter::getOrdinalValue
+passing the Export which contains the scope.  For "subcycles" this is
+implemented by the common PresetParameter class.
+
+int PresetParameter::getOrdinalValue(Export* exp)
+{
+    int value = -1;
+
+    Track* track = exp->getTrack();
+    if (track != NULL)
+      value = getOrdinalValue(track->getPreset());
+    else 
+      Trace(1, "PresetParameter:getOrdinalValue track not resolved!\n");
+
+    return value;
+}
+
+All that does is get the Track from the Export which was expected to be resolved
+and call down to getOrdinalValue on the Tracks' Preset.
+
+For track controls this happens:
+
+int TrackParameter::getOrdinalValue(Export* exp)
+{
+    int value = -1;
+    Track* track = exp->getTrack();
+    if (track != NULL)
+	  value = getOrdinalValue(track);
+    return value;
+}
+int OutputLevelParameterType::getOrdinalValue(Track* t)
+{
+    return t->getOutputLevel();
+}
+
+In that case it isn't getting it from the Preset but directly from the Track.
+
+So still need to go through Export/Preset to get the value from the right place.
+In retrospect, we could avoid the whole Parameter indirection just by having
+a Track::getParameter though that would have to dispatch on parameter type.
+
+I think most Exports are that way, they almost always get values from a Preset
+or Setup except for a few that are cached somewhere else for runtime modifications
+and then restored on Reset from the Preset/Setup.
+
+So...
+
+In the new getParameter conversion
+just need to make an Export on the stack, set the Track in it, and call Export::getOrdialValue

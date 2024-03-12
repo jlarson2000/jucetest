@@ -111,6 +111,45 @@ class KernelMessage
  * Rogue scripts would be the only possible example.
  *
  * Statistics are maintained and may be traced for leak diagnostics.
+ *
+ * To help detect leaks, the following pattern must be followed.
+ *
+ * Shell
+ *
+ *    shellAlloc
+ *      allocate a message from the pool and bump the shellUsing counter
+ *      this must be followed by either shellAbandon or shellSend
+ *      normally this would be at most 1, but under the right conditions
+ *      the UI thread and our MainThread could be touching the shell at
+ *      the same time, this should go away if we switch to using juce::Timer
+ *
+ *    shellAbandon
+ *      shell decided not to use the message returned by shellAlloc
+ *      can't think of a reason for this, but might have one
+ *      decrements shellUsing
+ *   
+ *    shellSend
+ *      shell sends the message from shellAlloc to the kernel
+ *      decrements shellUsing
+ *
+ *    shellReceive
+ *      shell retrieves a message sent by the kernel, increment shellUsing
+ *      this must be followed by shellAbandon or pushKernel
+ *      usually this would be shellAbandon because there are few if any
+ *      cases where the shell wants to reuse a message it just popped to
+ *      send back to the kernel
+ *
+ * Kernel
+ *    same pattern going the other direction
+ *
+ *    kernelAlloc
+ *      must be followed by kernelAbandon or kernelSend
+ *
+ *    kernelReceive
+ *      must be followed by kernelAbandon or kernelSend
+ *      kernel usually calls kernelSend rather than kernelAbandon
+ *      because it reuses the message sent by the shell to send a response
+ *    
  */
 class KernelCommunicator
 {
@@ -119,35 +158,53 @@ class KernelCommunicator
     KernelCommunicator();
     ~KernelCommunicator();
 
-    KernelMessage* alloc();
-    void free(KernelMessage* msg);
-    
-    void pushShell(KernelMessage* msg);
-    KernelMessage* popShell();
-    
-    void pushKernel(KernelMessage* msg);
-    KernelMessage* popKernel();
+    // shell methods
+    KernelMessage* shellAlloc();
+    void shellAbandon(KernelMessage* msg);
+    void shellSend(KernelMessage* msg);
+    KernelMessage* shellReceive();  
 
+    // kernel methods
+    KernelMessage* kernelAlloc();
+    void kernelAbandon(KernelMessage* msg);
+    void kernelSend(KernelMessage* msg);
+    KernelMessage* kernelReceive();  
+
+    // only for shell maintenance
     void checkCapacity();
     void traceStatistics();
     
   private:
 
+    KernelMessage* alloc();
+    void free(KernelMessage* msg);
+
+    void pushKernel(KernelMessage* msg);
+    KernelMessage* popKernel();
+
+    void pushShell(KernelMessage* msg);
+    KernelMessage* popShell();
+    
     juce::CriticalSection criticalSection;
 
     // the total number of message allocations created with new
     // normally also maxPool
-    int totalCreated;
+    int totalCreated = 0;
 
+    // shared free pool
     KernelMessage* pool = nullptr;
     int poolSize = 0;
 
+    // shell message queue
     KernelMessage* toShell = nullptr;
     int shellSize = 0;
+    int shellUsing = 0;
     
+    // kernel queue
     KernelMessage* toKernel = nullptr;
     int kernelSize = 0;
-
+    int kernelUsing = 0;
+    
     int minPool = 0;
     int maxShell = 0;
     int maxKernel = 0;

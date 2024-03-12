@@ -4068,6 +4068,9 @@
     <ClInclude Include="..\..\Source\model\UIParameter.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\model\UIParameterClasses.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\model\UserVariable.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>

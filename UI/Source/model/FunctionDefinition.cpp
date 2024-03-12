@@ -26,12 +26,12 @@
  * The vector will be built out by the Function constructor.
  * Normally all Function objects will be static objects.
  */
-std::vector<FunctionDefinition*> FunctionDefinition::Functions;
+std::vector<FunctionDefinition*> FunctionDefinition::Instances;
 
-void FunctionDefinition::dumpFunctions()
+void FunctionDefinition::trace()
 {
-    for (int i = 0 ; i < Functions.size() ; i++) {
-        FunctionDefinition* f = Functions[i];
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        FunctionDefinition* f = Instances[i];
         Trace(1, "Function %s\n", f->getName());
     }
 }
@@ -44,8 +44,8 @@ FunctionDefinition* FunctionDefinition::find(const char* name)
 {
 	FunctionDefinition* found = nullptr;
 	
-	for (int i = 0 ; i < Functions.size() ; i++) {
-		FunctionDefinition* f = Functions[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		FunctionDefinition* f = Instances[i];
 		if (StringEqualNoCase(f->getName(), name)) {
             found = f;
             break;
@@ -64,8 +64,8 @@ FunctionDefinition::FunctionDefinition(const char* name) :
     SystemConstant(name, nullptr)
 {
     // add to the global registry
-    ordinal = Functions.size();
-    Functions.push_back(this);
+    ordinal = Instances.size();
+    Instances.push_back(this);
 
     // todo, will want to flag deprecated functions
     // or better yet, just leave them out

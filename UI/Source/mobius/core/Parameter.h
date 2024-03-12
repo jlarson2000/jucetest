@@ -181,6 +181,9 @@ class Parameter : public SystemConstant {
 	void toXml(class XmlBuffer* b, void* obj);
 	void parseXml(class XmlElement* e, void* obj);
 
+    // formerly protected, made public for MobiusKernel
+	static Parameter* getParameter(const char* name);
+
   protected:
 
     static void initParameters();
@@ -189,7 +192,6 @@ class Parameter : public SystemConstant {
     static void deleteParameters();
     
 	static Parameter* getParameter(Parameter** group, const char* name);
-	static Parameter* getParameter(const char* name);
 
 	static Parameter* getParameterWithDisplayName(Parameter** group, const char* name);
 	static Parameter* getParameterWithDisplayName(const char* name);

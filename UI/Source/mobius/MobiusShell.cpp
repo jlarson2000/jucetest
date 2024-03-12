@@ -99,7 +99,9 @@ void MobiusShell::setListener(MobiusListener* l)
 {
     // we don't actually use this, give it to the simulator
     listener = l;
-    simulator.setListener(l);
+
+    if (doSimulation)
+      simulator.setListener(l);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -156,6 +158,9 @@ void MobiusShell::configure(MobiusConfig* config)
     }
 
     // temporarily simulation to track configuration changes
+    // do this even if doSimulation is off so we can
+    // get some things fleshed out so Supervisor can still call
+    // simulateInterrupt
     simulator.initialize(configuration);
 }
 
@@ -175,10 +180,12 @@ void MobiusShell::installSamples(SampleConfig* samples)
     // it didn't actually steal the float buffers
     delete samples;
 
-    KernelMessage* msg = communicator.alloc();
-    msg->type = MsgSampleTrack;
-    msg->object.sampleTrack = track;
-    communicator.pushKernel(msg);
+    KernelMessage* msg = communicator.shellAlloc();
+    if (msg != nullptr) {
+        msg->type = MsgSampleTrack;
+        msg->object.sampleTrack = track;
+        communicator.shellSend(msg);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -198,6 +205,9 @@ void MobiusShell::installSamples(SampleConfig* samples)
 void MobiusShell::performMaintenance()
 {
     consumeCommunications();
+    communicator.checkCapacity();
+
+    // todo: fluff all the other pools too
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -241,11 +251,11 @@ AudioPool* MobiusShell::getAudioPool()
  */
 void MobiusShell::sendKernelConfigure(MobiusConfig* config)
 {
-    KernelMessage* msg = communicator.alloc();
+    KernelMessage* msg = communicator.shellAlloc();
     if (msg != nullptr) {
         msg->type = MsgConfigure;
         msg->object.configuration = config;
-        communicator.pushKernel(msg);
+        communicator.shellSend(msg);
     }
     // else, pool exhaustion, already traced
 }
@@ -255,7 +265,7 @@ void MobiusShell::sendKernelConfigure(MobiusConfig* config)
  */
 void MobiusShell::consumeCommunications()
 {
-    KernelMessage* msg = communicator.popShell();
+    KernelMessage* msg = communicator.shellReceive();
     while (msg != nullptr) {
         switch (msg->type) {
 
@@ -275,8 +285,8 @@ void MobiusShell::consumeCommunications()
                 break;
         }
         
-        communicator.free(msg);
-        msg = communicator.popShell();
+        communicator.shellAbandon(msg);
+        msg = communicator.shellReceive();
     }
 }
 
@@ -329,7 +339,16 @@ void MobiusShell::doAction(UIAction* action)
 
 int MobiusShell::getParameter(UIParameter* p, int trackNumber)
 {
-    return simulator.getParameter(p, trackNumber);
+    if (doSimulation)
+      return simulator.getParameter(p, trackNumber);
+
+    // getParameter is expected to be shell safe so we don't
+    // have to mess with KernelMessage, and the caller is expecting
+    // this to be a synchronous call
+    // todo: need to think about this, some things might
+    // not be stable but as long as the readers don't have
+    // any side effects it should be okay
+    return kernel.getParameter(p, trackNumber);
 }
 
 /**
@@ -351,12 +370,14 @@ int MobiusShell::getParameter(UIParameter* p, int trackNumber)
 
 void MobiusShell::doKernelAction(UIAction* action)
 {
-    KernelMessage* msg = communicator.alloc();
-    msg->type = MsgAction;
+    KernelMessage* msg = communicator.shellAlloc();
+    if (msg != nullptr) {
+        msg->type = MsgAction;
 
-    // REALLY need a copy operator on these
-    msg->object.action = new UIAction(action);
-    communicator.pushKernel(msg);
+        // REALLY need a copy operator on these
+        msg->object.action = new UIAction(action);
+        communicator.shellSend(msg);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -27,12 +27,12 @@ class ModeDefinition : public SystemConstant
     int ordinal;				// internal number for indexing
 
     //////////////////////////////////////////////////////////////////////
-    // Global Function Registry
+    // Global Registry
     //////////////////////////////////////////////////////////////////////
 
-    static std::vector<ModeDefinition*> Modes;
+    static std::vector<ModeDefinition*> Instances;
 	static ModeDefinition* find(const char* name);
-    static void dumpModes();
+    static void trace();
 
 };
 

@@ -38,13 +38,13 @@
  * we don't need to look them up by name.  This does also provide
  * the assignment of ordinals however.
  */
-std::vector<ModeDefinition*> ModeDefinition::Modes;
+std::vector<ModeDefinition*> ModeDefinition::Instances;
 
-void ModeDefinition::dumpModes()
+void ModeDefinition::trace()
 {
-    for (int i = 0 ; i < Modes.size() ; i++) {
-        ModeDefinition* m = Modes[i];
-        trace("Mode %s\n", m->getName());
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        ModeDefinition* m = Instances[i];
+        Trace(2, "Mode %s\n", m->getName());
     }
 }
 
@@ -56,8 +56,8 @@ ModeDefinition* ModeDefinition::find(const char* name)
 {
 	ModeDefinition* found = nullptr;
 	
-	for (int i = 0 ; i < Modes.size() ; i++) {
-		ModeDefinition* m = Modes[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		ModeDefinition* m = Instances[i];
 		if (StringEqualNoCase(m->getName(), name)) {
             found = m;
             break;
@@ -76,8 +76,8 @@ ModeDefinition::ModeDefinition(const char* name) :
     SystemConstant(name, nullptr)
 {
     // add to the global registry
-    ordinal = Modes.size();
-    Modes.push_back(this);
+    ordinal = Instances.size();
+    Instances.push_back(this);
 
     // todo, will want to flag deprecated functions
     // or better yet, just leave them out

@@ -79,7 +79,7 @@ UIAction::UIAction(UIAction* src)
     // Arguments
     strcpy(bindingArgs, src->bindingArgs);
     actionOperator = src->actionOperator;
-    arg.setNull();
+    arg.set(&(src->arg));
 
     // todo: I don't think this is used in the UI
     // if so hide it under functions

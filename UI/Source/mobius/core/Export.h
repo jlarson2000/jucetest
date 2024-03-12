@@ -92,6 +92,9 @@ class Export {
     // Target properties
     //
 
+    // new for Mobius::getParameter
+    void setTarget(Parameter* p, Track* t);
+
     ExportType getType();
     int getMinimum();
     int getMaximum();

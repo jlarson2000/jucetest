@@ -2745,6 +2745,7 @@
     <ClInclude Include="..\..\Source\model\UIConfig.h"/>
     <ClInclude Include="..\..\Source\model\UIEventType.h"/>
     <ClInclude Include="..\..\Source\model\UIParameter.h"/>
+    <ClInclude Include="..\..\Source\model\UIParameterClasses.h"/>
     <ClInclude Include="..\..\Source\model\UserVariable.h"/>
     <ClInclude Include="..\..\Source\model\XmlRenderer.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>

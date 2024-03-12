@@ -8,6 +8,7 @@
 #include "../util/Trace.h"
 #include "../model/MobiusConfig.h"
 #include "../model/FunctionDefinition.h"
+#include "../model/UIParameter.h"
 #include "../model/UIAction.h"
 
 #include "MobiusContainer.h"
@@ -21,6 +22,7 @@
 #include "core/Mobius.h"
 #include "core/Function.h"
 #include "core/Action.h"
+#include "core/Parameter.h"
 
 #include "MobiusKernel.h"
 
@@ -108,7 +110,10 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
     mCore = new Mobius(this);
     mCore->initialize(configuration);
 
+    // needs to be done after core initialization because
+    // some of the tables aren't set up until after
     initFunctionMap();
+    initParameterMap();
 }
 
 /**
@@ -129,7 +134,9 @@ MobiusState* MobiusKernel::getState()
  */
 void MobiusKernel::consumeCommunications()
 {
-    KernelMessage* msg = communicator->popKernel();
+    // specific handler methods decide whether to abandon or return this message
+    KernelMessage* msg = communicator->kernelReceive();
+    
     while (msg != nullptr) {
         switch (msg->type) {
 
@@ -138,7 +145,7 @@ void MobiusKernel::consumeCommunications()
             case MsgAction: doAction(msg); break;
         }
         
-        msg = communicator->popKernel();
+        msg = communicator->kernelReceive();
     }
 }
 
@@ -165,7 +172,7 @@ void MobiusKernel::reconfigure(KernelMessage* msg)
     msg->object.configuration = old;
 
     // send the old one back
-    communicator->pushShell(msg);
+    communicator->kernelSend(msg);
 
     // this would be the place where make changes for
     // the new configuration, nothing right now
@@ -324,14 +331,14 @@ void MobiusKernel::installSampleTrack(KernelMessage* msg)
         // first time, just add it
         mRecorder->add(sampleTrack);
         // nothing to return
-        communicator->free(msg);
+        communicator->kernelAbandon(msg);
     }
     else {
         bool replaced = mRecorder->replace(old, sampleTrack);
         if (replaced) {
             // return the old one
             msg->object.sampleTrack = old;
-            communicator->pushShell(msg);
+            communicator->kernelSend(msg);
         }
         else {
             // wasn't isntalled, should not happen
@@ -343,7 +350,7 @@ void MobiusKernel::installSampleTrack(KernelMessage* msg)
             // return the old as usual, but could also not add it
             // and return the new one too since we're in a weird state
             msg->object.sampleTrack = old;
-            communicator->pushShell(msg);
+            communicator->kernelSend(msg);
         }
     }
 }
@@ -354,6 +361,13 @@ void MobiusKernel::installSampleTrack(KernelMessage* msg)
 //
 //////////////////////////////////////////////////////////////////////
 
+/**
+ * Perform a UIAction sent by the shell.
+ * First we check for actions that can be perormed by the
+ * new kernel-level code.  If not, then we pass it down to the old core.
+ *
+ * There isn't much we do up here, currently just managing the SampleTrack
+ */
 void MobiusKernel::doAction(KernelMessage* msg)
 {
     UIAction* action = msg->object.action;
@@ -387,12 +401,13 @@ void MobiusKernel::doAction(KernelMessage* msg)
             // todo: fish any results out and do something with them
         }
     }
+    else {
+        // Parameter, Activation, Script action
+        doCoreAction(action);
+    }
     
-    // if not handled above this is where we send it
-    // to the CoreConverter
-
     // return it to the shell for deletion
-    communicator->pushShell(msg);
+    communicator->kernelSend(msg);
 }
 
 /**
@@ -403,19 +418,44 @@ void MobiusKernel::doAction(KernelMessage* msg)
  * Handling only static functions right now, will need to do something
  * extra for scripts.
  *
- * Jesus vector is a fucking fight, use juce::Array, it just works.
+ * Jesus vector is a fucking fight, use juce::Array, it's obvious.
  */
 void MobiusKernel::initFunctionMap()
 {
     functionMap.clear();
-    for (int i = 0 ; i < FunctionDefinition::Functions.size() ; i++) {
-        FunctionDefinition* f = FunctionDefinition::Functions[i];
+    for (int i = 0 ; i < FunctionDefinition::Instances.size() ; i++) {
+        FunctionDefinition* f = FunctionDefinition::Instances[i];
         Function* coreFunction = Function::getStaticFunction(f->getName());
         if (coreFunction != nullptr)
           functionMap.add(coreFunction);
         else {
             functionMap.add(nullptr);
-            trace("Function %s not found\n", f->getName());
+            Trace(1, "MobiusKernel::initFunctionMap Function %s not found\n", f->getName());
+        }
+    }
+}
+
+/**
+ * Initialize the table for mapping UIParameters to core Parameter
+ */
+void MobiusKernel::initParameterMap()
+{
+    parameterMap.clear();
+    for (int i = 0 ; i < UIParameter::Instances.size() ; i++) {
+        UIParameter* p = UIParameter::Instances[i];
+
+        // in a few cases I wanted to use a different name
+        const char* pname = p->coreName;
+        if (pname == nullptr)
+          pname = p->getName();
+        
+        Parameter* coreParameter = Parameter::getParameter(pname);
+        if (coreParameter != nullptr) {
+            parameterMap.add(coreParameter);
+        }
+        else {
+            parameterMap.add(nullptr);
+            Trace(1, "MobiusKernel::initParameterMap Parameter %s not found\n", pname);
         }
     }
 }
@@ -437,23 +477,108 @@ void MobiusKernel::initFunctionMap()
  */
 void MobiusKernel::doCoreAction(UIAction* action)
 {
+    Action* coreAction = nullptr;
+    
     if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f != nullptr) {
             Function* cf = functionMap[f->ordinal];
             if (cf == nullptr) {
-                trace("Unable to send action, function not found %s\n",
+                Trace(1, "MobiusKernel::doCoreAction Unable to send action, function not found %s\n",
                       f->getName());
             }
             else {
-                Action* coreAction = mCore->newAction();
+                coreAction = mCore->newAction();
                 coreAction->assimilate(action);
                 coreAction->implementation.function = cf;
-                mCore->doActionNow(coreAction);
-                mCore->completeAction(coreAction);
             }
         }
     }
+    else if (action->type == ActionParameter) {
+        UIParameter* p = action->implementation.parameter;
+        Parameter* cp = mapParameter(p);
+        if (cp != nullptr) {
+            coreAction = mCore->newAction();
+            coreAction->assimilate(action);
+            coreAction->implementation.parameter = cp;
+        }
+    }
+    else if (action->type == ActionActivation) {
+        // select a setup or preset
+        // should have ordinals now...
+        Trace(1, "MobiusKernel::doCoreAction Activation action not implemented\n");
+    }
+    else if (action->type == ActionScript) {
+        // I think these are only internal core actions, should not
+        // get these from the UI
+        Trace(1, "MobiusKernel::doCoreAction Script action not implemented\n");
+    }
+    else {
+        Trace(1, "MobiusKernel::doCoreAction Unknown action type %s\n", action->type->getName());
+    }
+
+    if (coreAction != nullptr) {
+        mCore->doActionNow(coreAction);
+        mCore->completeAction(coreAction);
+    }
+
+}
+
+/**
+ * Map a UI to Core parameter, and trace a warning if we can't find one.
+ */
+Parameter* MobiusKernel::mapParameter(UIParameter* uip)
+{
+    Parameter* cp = nullptr;
+
+    if (uip != nullptr) {
+        cp = parameterMap[uip->ordinal];
+        if (cp == nullptr) {
+            Trace(1, "MobiusKernel: Unable to map Parameter %s\n",
+                  uip->getName());
+        }
+    }
+    return cp;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Parameters
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * The interface for this is evolving to use UIQuery but for now
+ * the getParameter method will be called by the UI on MobiusShell
+ * and shell will pass it directly to us without going through KernelMessages.
+ *
+ * It is expected to be UI thread safe and synchronous.
+ *
+ * This isn't used very often, only for the "control" parameters like output
+ * level and feedback.  And for the "instant parameter" UI component that allows
+ * ad-hoc parameter changes without activating an entire Preset.
+ *
+ * trackNumber follows the convention of UIAction with a value of zero
+ * meaning the active track, and specific track numbers starting from 1.
+ *
+ * The values returned are expected to be "ordinals" in the new model.
+ * 
+ */
+int MobiusKernel::getParameter(UIParameter* p, int trackNumber)
+{
+    int value = 0;
+    
+    if (mCore != nullptr) {
+        Parameter* cp = mapParameter(p);
+        if (cp != nullptr) {
+            value = mCore->getParameter(cp, trackNumber);
+            if (strcmp(p->getName(), "output")) {
+                //Trace(1, "Output track %d %d\n", trackNumber, value);
+            }
+        }
+    }
+
+    return value;
 }
 
 /****************************************************************************/

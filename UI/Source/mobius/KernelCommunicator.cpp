@@ -30,26 +30,19 @@
  */
 KernelCommunicator::KernelCommunicator()
 {
+    // initialize default pool
     checkCapacity();
 }
 
 KernelCommunicator::~KernelCommunicator()
 {
+    // full stats when debugging, could simplify to
+    // just tracing anomolies when things stabalize
+    traceStatistics();
+    
     deleteList(pool);
     deleteList(toShell);
     deleteList(toKernel);
-
-    // not really necessary but why not
-    pool = nullptr;
-    poolSize = 0;
-    toShell = nullptr;
-    shellSize = 0;
-    toKernel = nullptr;
-    kernelSize = 0;
-    minPool = 0;
-    maxShell = 0;
-    maxKernel = 0;
-    poolExtensions = 0;
 }
 
 /**
@@ -95,13 +88,15 @@ void KernelCommunicator::checkCapacity()
             free(msg);
         }
         minPool = KernelPoolInitialSize;
+        totalCreated = KernelPoolInitialSize;
     }
     else if (poolSize < KernelPoolSizeConcern) {
         Trace(1, "KernelCommunicator: pool extension by %d\n", KernelPoolReliefSize);
         Trace(1, "  poolSize %d toKernel %d toShell %d\n",
               poolSize, shellSize, kernelSize);
 
-        int available = poolSize + shellSize + kernelSize;
+        // technically should have a csect around this
+        int available = poolSize + shellSize + shellUsing + kernelSize + kernelUsing;
         if (available != totalCreated) {
             Trace(1, "KernelCommunicator: leak!  %d Created with %d available\n",
                   totalCreated, available);
@@ -112,124 +107,8 @@ void KernelCommunicator::checkCapacity()
             free(msg);
         }
         poolExtensions++;
+        totalCreated += KernelPoolReliefSize;
     }
-}
-
-/**
- * Return a message from the pool.
- * Returns nullptr if the pool is exhausted.
- */
-KernelMessage* KernelCommunicator::alloc()
-{
-    juce::ScopedLock lock (criticalSection);
-    KernelMessage* msg = nullptr;
-
-    if (pool == nullptr) {
-        Trace(1, "KernelCommunicator: pool has no fucks left to give\n");
-    }
-    else {
-        msg = pool;
-        pool = msg->next;
-        msg->next = nullptr;
-        poolSize--;
-        if (poolSize < minPool)
-          minPool = poolSize;
-    }
-    return msg;
-}
-
-/**
- * Return a message to the pool.
- */
-void KernelCommunicator::free(KernelMessage* msg)
-{
-    if (msg->next != nullptr) {
-        Trace(1, "KernelCommunicator: attempt to free message that thinks it is on a list!\n");
-    }
-
-    // keep pooled message clean for the next use, could also
-    // do this in alloc but it prevents debugger confusion if it
-    // is clean while in the pool
-    msg->init();
-
-    juce::ScopedLock lock (criticalSection);
-    {
-        msg->next = pool;
-        pool = msg;
-        poolSize++;
-    }
-}
-
-/**
- * Return a message from the shell's list
- * Note that the way this is implemented it's a LIFO rather than FIFO
- * which really shouldn't matter.  If we find a case that does,
- * handle that during insertion.
- */
-KernelMessage* KernelCommunicator::popShell()
-{
-    juce::ScopedLock lock (criticalSection);
-
-    KernelMessage* msg = toShell;
-    if (msg != nullptr) {
-        toShell = msg->next;
-        msg->next = nullptr;
-        shellSize--;
-    }
-    return msg;
-}
-
-/**
- * Add a message to the shell's list
- * See comments in popShell for potential issues with ordering.
- */
-void KernelCommunicator::pushShell(KernelMessage* msg)
-{
-    juce::ScopedLock lock (criticalSection);
-
-    if (msg->next != nullptr) {
-        Trace(1, "KernelCommunicator: attempt to push message that thinks it is on a list!\n");
-    }
-
-    msg->next = toShell;
-    toShell = msg;
-    shellSize++;
-    if (shellSize > maxShell)
-      maxShell = shellSize;
-}
-
-/**
- * Return a message from the kernel's list
- */
-KernelMessage* KernelCommunicator::popKernel()
-{
-    juce::ScopedLock lock (criticalSection);
-
-    KernelMessage* msg = toKernel;
-    if (msg != nullptr) {
-        toKernel = msg->next;
-        msg->next = nullptr;
-        kernelSize--;
-    }
-    return msg;
-}
-
-/**
- * Add a message to the kernel's list
- */
-void KernelCommunicator::pushKernel(KernelMessage* msg)
-{
-    juce::ScopedLock lock (criticalSection);
-
-    if (msg->next != nullptr) {
-        Trace(1, "KernelCommunicator: attempt to push message that thinks it is on a list!\n");
-    }
-
-    msg->next = toKernel;
-    toKernel = msg;
-    kernelSize++;
-    if (kernelSize > maxKernel)
-      maxKernel = kernelSize;
 }
 
 /**
@@ -273,6 +152,187 @@ void KernelMessage::init()
     next = nullptr;
     type = MsgNone;
     object.pointer = nullptr;
+}
+
+/**
+ * Return a message from the pool.
+ * Returns nullptr if the pool is exhausted.
+ * This is private, shell/kernel must call one of their usage tracking xxxAlloc methods
+ * 
+ */
+KernelMessage* KernelCommunicator::alloc()
+{
+    juce::ScopedLock lock (criticalSection);
+    KernelMessage* msg = nullptr;
+
+    if (pool == nullptr) {
+        Trace(1, "KernelCommunicator: pool has no fucks left to give\n");
+    }
+    else {
+        msg = pool;
+        pool = msg->next;
+        msg->next = nullptr;
+        poolSize--;
+        if (poolSize < minPool)
+          minPool = poolSize;
+    }
+    return msg;
+}
+
+/**
+ * Return a message to the pool.
+ * This is private, shell/kernel must call one of their usage tracking
+ * xxxAbandon or xxxSend methods
+ */
+void KernelCommunicator::free(KernelMessage* msg)
+{
+    if (msg->next != nullptr) {
+        Trace(1, "KernelCommunicator: attempt to free message that thinks it is on a list!\n");
+    }
+
+    // keep pooled message clean for the next use, could also
+    // do this in alloc but it prevents debugger confusion if it
+    // is clean while in the pool
+    msg->init();
+
+    juce::ScopedLock lock (criticalSection);
+    {
+        msg->next = pool;
+        pool = msg;
+        poolSize++;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+// Shell Message Processing
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Allocate a message for the shell.
+ */
+KernelMessage* KernelCommunicator::shellAlloc()
+{
+    KernelMessage* msg = alloc();
+    // probably should csect on this if we can have multiple shell-level threads
+    shellUsing++;
+    return msg;
+}
+
+/**
+ * Return a message from the shell's list
+ * Note that the way this is implemented it's a LIFO rather than FIFO
+ * which really shouldn't matter.  If we find a case that does,
+ * handle that during insertion.
+ */
+KernelMessage* KernelCommunicator::shellReceive()
+{
+    juce::ScopedLock lock (criticalSection);
+
+    KernelMessage* msg = toShell;
+    if (msg != nullptr) {
+        toShell = msg->next;
+        msg->next = nullptr;
+        shellSize--;
+        shellUsing++;
+    }
+    return msg;
+}
+
+/**
+ * Shell decided not to use this, after all the work we did for it.
+ */
+void KernelCommunicator::shellAbandon(KernelMessage* msg)
+{
+    free(msg);
+    shellUsing--;
+}
+
+/**
+ * Add a message to the kernel's list
+ */
+void KernelCommunicator::shellSend(KernelMessage* msg)
+{
+    juce::ScopedLock lock (criticalSection);
+
+    // since we must be in the shell, check capacity every time
+    // to extend the pool if necessary, seeing exhaustion when
+    // twisting control knobs rapidly and a lot of UIAction events come
+    // in during the 1/10 second maintenance interval
+    // could be smarter about merging unprocessed actions, but the Kernel keeps
+    // up pretty well as it is on audio interrupttiming, the shell waits longer
+    checkCapacity();
+    
+    if (msg->next != nullptr) {
+        Trace(1, "KernelCommunicator: attempt to push message that thinks it is on a list!\n");
+    }
+
+    msg->next = toKernel;
+    toKernel = msg;
+    kernelSize++;
+    if (kernelSize > maxKernel)
+      maxKernel = kernelSize;
+    shellUsing--;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Kernel Message Processing
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Allocate a message for the kernel.
+ */
+KernelMessage* KernelCommunicator::kernelAlloc()
+{
+    KernelMessage* msg = alloc();
+    // probably should csect on this if we can have multiple shell-level threads
+    kernelUsing++;
+    return msg;
+}
+
+/**
+ * Return a message from the kernel's list
+ */
+KernelMessage* KernelCommunicator::kernelReceive()
+{
+    juce::ScopedLock lock (criticalSection);
+
+    KernelMessage* msg = toKernel;
+    if (msg != nullptr) {
+        toKernel = msg->next;
+        msg->next = nullptr;
+        kernelSize--;
+        kernelUsing++;
+    }
+    return msg;
+}
+
+/**
+ * Shell decided not to use this, after all the work we did for it.
+ */
+void KernelCommunicator::kernelAbandon(KernelMessage* msg)
+{
+    free(msg);
+    kernelUsing--;
+}
+
+/**
+ * Add a message to the shell's list
+ * See comments in popShell for potential issues with ordering.
+ */
+void KernelCommunicator::kernelSend(KernelMessage* msg)
+{
+    juce::ScopedLock lock (criticalSection);
+
+    if (msg->next != nullptr) {
+        Trace(1, "KernelCommunicator: attempt to push message that thinks it is on a list!\n");
+    }
+
+    msg->next = toShell;
+    toShell = msg;
+    shellSize++;
+    if (shellSize > maxShell)
+      maxShell = shellSize;
+    kernelUsing--;
 }
 
 /****************************************************************************/

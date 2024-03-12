@@ -493,6 +493,47 @@ void Mobius::doAction(UIAction* src)
     doActionNow(internal);
 }
 
+/**
+ * New interface for parameters.
+ *
+ * Old implementation uses Export for this, which is about what
+ * I'd like to evolve UIQuery into.
+ *  
+ */
+int Mobius::getParameter(Parameter* p, int trackNumber)
+{
+    int value = 0;
+    
+    Track* track = nullptr;
+    if (trackNumber == 0) {
+        // active track
+        track = mTrack;
+    }
+    else {
+        track = getTrack(trackNumber - 1);
+        if (track == nullptr) {
+            Trace(1, "Mobius::getParameter track number out of range %d\n", trackNumber);
+        }
+    }
+
+    if (track != nullptr) {
+        
+        Export exp(this);
+        exp.setTarget(p, track);
+        
+        value = exp.getOrdinalValue();
+
+        if (value < 0) {
+            // this convention was followed for invalid Export configuration
+            // not sure the new UI is prepared for this?
+            Trace(1, "Mobius::getParameter Export unable to determine ordinal\n");
+            value = 0;
+        }
+    }
+
+    return value;
+}
+
 /****************************************************************************
  *                                                                          *
  *                              MOBIUS INTERFACE                            *

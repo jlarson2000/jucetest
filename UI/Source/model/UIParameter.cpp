@@ -1,7 +1,8 @@
 /**
- * Base implementation of UIParameter
- * This file is NOT generated
+ * Base implementation of UIParameter.
+ * 
  * Generated subclasses and code are found in UIParameterClasses.cpp
+ * 
  */
 
 #include <JuceHeader.h>
@@ -22,6 +23,9 @@
 
 UIParameter::UIParameter()
 {
+    // add to the global registry
+    ordinal = Instances.size();
+    Instances.push_back(this);
 }
 
 UIParameter::~UIParameter()
@@ -213,12 +217,12 @@ const char* UIParameter::getStructureName(MobiusConfig* container, int ordinal)
 //
 //////////////////////////////////////////////////////////////////////
 
-std::vector<UIParameter*> UIParameter::Parameters;
+std::vector<UIParameter*> UIParameter::Instances;
 
 void UIParameter::trace()
 {
-    for (int i = 0 ; i < Parameters.size() ; i++) {
-        UIParameter* p = Parameters[i];
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        UIParameter* p = Instances[i];
         // printf("Parameter %s %s %s\n", p->getName(), getEnumLabel(p->type), getEnumLabel(p->scope));
         printf("Parameter %s\n", p->getName());
     }
@@ -232,8 +236,8 @@ UIParameter* UIParameter::find(const char* name)
 {
 	UIParameter* found = nullptr;
 	
-	for (int i = 0 ; i < Parameters.size() ; i++) {
-		UIParameter* p = Parameters[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		UIParameter* p = Instances[i];
 		if (StringEqualNoCase(p->getName(), name)) {
             found = p;
             break;
@@ -250,8 +254,8 @@ UIParameter* UIParameter::findDisplay(const char* name)
 {
 	UIParameter* found = nullptr;
 	
-	for (int i = 0 ; i < Parameters.size() ; i++) {
-		UIParameter* p = Parameters[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		UIParameter* p = Instances[i];
 		if (StringEqualNoCase(p->getDisplayName(), name)) {
 			found = p;
 			break;	

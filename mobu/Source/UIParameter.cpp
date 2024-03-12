@@ -1,7 +1,14 @@
 /**
  * Base implementation of UIParameter
  * This file is NOT generated
- * Generated subclasses and code are found in UIParameterClasses.cpp
+ * Generated subclasses and code are found in UIParameterClasses.cpp/h
+ *
+ * The authoritative source for this file is in the main Mobius source tree.
+ * I copied it over to mobu just to make compilation and testing easier.
+ * This may become stale, but it matters less because we don't try to
+ * actually use UIParameter objects over here, we just need to verify that
+ * the classes compile.  But still, with a little more work we could configure
+ * Projucer to get UIParameter.h and UIParameter.obj from the main tree.
  */
 
 #include <JuceHeader.h>
@@ -213,12 +220,12 @@ const char* UIParameter::getStructureName(MobiusConfig* container, int ordinal)
 //
 //////////////////////////////////////////////////////////////////////
 
-std::vector<UIParameter*> UIParameter::Parameters;
+std::vector<UIParameter*> UIParameter::Instances;
 
 void UIParameter::trace()
 {
-    for (int i = 0 ; i < Parameters.size() ; i++) {
-        UIParameter* p = Parameters[i];
+    for (int i = 0 ; i < Instances.size() ; i++) {
+        UIParameter* p = Instances[i];
         // printf("Parameter %s %s %s\n", p->getName(), getEnumLabel(p->type), getEnumLabel(p->scope));
         printf("Parameter %s\n", p->getName());
     }
@@ -232,8 +239,8 @@ UIParameter* UIParameter::find(const char* name)
 {
 	UIParameter* found = nullptr;
 	
-	for (int i = 0 ; i < Parameters.size() ; i++) {
-		UIParameter* p = Parameters[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		UIParameter* p = Instances[i];
 		if (StringEqualNoCase(p->getName(), name)) {
             found = p;
             break;
@@ -250,8 +257,8 @@ UIParameter* UIParameter::findDisplay(const char* name)
 {
 	UIParameter* found = nullptr;
 	
-	for (int i = 0 ; i < Parameters.size() ; i++) {
-		UIParameter* p = Parameters[i];
+	for (int i = 0 ; i < Instances.size() ; i++) {
+		UIParameter* p = Instances[i];
 		if (StringEqualNoCase(p->getDisplayName(), name)) {
 			found = p;
 			break;	

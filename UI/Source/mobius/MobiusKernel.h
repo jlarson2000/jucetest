@@ -41,6 +41,12 @@ class MobiusKernel : public MobiusContainer::AudioListener
      */
     void initialize(class MobiusContainer* cont, class MobiusConfig* config);
 
+    /**
+     * Respond to a shell request for a core parameter.
+     * Temporary interface, to be replaced by UIQuery at some point.
+     */
+    int getParameter(class UIParameter* p, int trackNumber);
+
     // normally this should be private, but leave it open for the shell for testing
     void consumeCommunications();
 
@@ -91,6 +97,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // std::vector<class Function*> functionMap;
     juce::Array<class Function*> functionMap;
     void initFunctionMap();
+    juce::Array<class Parameter*> parameterMap;
+    void initParameterMap();
     
     // AudioListener activities
     void interruptStart();
@@ -104,6 +112,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
 
     void doAction(KernelMessage* msg);
     void doCoreAction(class UIAction* action);
+    Parameter* mapParameter(UIParameter* uip);
+
     
 };
 
