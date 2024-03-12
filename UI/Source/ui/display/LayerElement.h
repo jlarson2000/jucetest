@@ -38,6 +38,7 @@ class LayerElement : public StatusElement, public Supervisor::ActionListener
     int lastLayerCount = 0;
     int lastLostCount = 0;
     bool lastCheckpoint = false;
+    int viewBase = 0;
     
     // the loop to display on the next paint()
     MobiusLoopState* sourceLoop = nullptr;

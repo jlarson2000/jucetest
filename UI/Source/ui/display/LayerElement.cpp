@@ -124,27 +124,25 @@ void LayerElement::update(MobiusState* state)
                          lastLostCount != loop->lostLayers);
 
     // checkpoint is a little harder
-    if (!needsRepaint) {
-        int active = loop->layerCount - 1;
-        if (active > 0) {
-            bool newCheckpoint = loop->layers[active].checkpoint;
-            if (lastCheckpoint != newCheckpoint) {
-
-                lastCheckpoint = newCheckpoint;
-                lastTrack = state->activeTrack;
-                lastLoop = track->activeLoop;
-                lastLayerCount = loop->layerCount;
-                lastLostCount = loop->lostLayers;
-
-                // remember the full state for paint
-                sourceLoop = loop;
-                needsRepaint = true;
-            }
-        }
+    bool newCheckpoint = false;
+    int active = loop->layerCount - 1;
+    if (active > 0) {
+        newCheckpoint = loop->layers[active].checkpoint;
+        if (lastCheckpoint != newCheckpoint)
+          needsRepaint = true;
     }
 
-    if (needsRepaint)
-      repaint();
+    if (needsRepaint) {
+        lastTrack = state->activeTrack;
+        lastLoop = track->activeLoop;
+        lastLayerCount = loop->layerCount;
+        lastLostCount = loop->lostLayers;
+        lastCheckpoint = newCheckpoint;
+        
+        // remember the full state for paint
+        sourceLoop = loop;
+        repaint();
+    }
 }
 
 /**
@@ -255,8 +253,13 @@ void LayerCursor::orient()
     redoGhostStart = redoStart + loop->redoCount;
     voidStart = redoGhostStart + loop->lostRedo;
 
-    // base index of the visible view into the logical layer list
-    viewBase = 0;
+    // viewBase has the base index of the visible view into
+    // the logical layer list, it is initialized to zero
+    // but may have changed if we had to scroll to keep active visible
+    // retain the last view base if possible so the user sees
+    // movemeent in the active layer rather than recentering and
+    // seeing the layers shift aroundd the active layer.
+    //viewBase = 0;
 
     // adjust viewBase to make activeIndex visible
     int viewLast = viewBase + LayerBarMax - 1;
@@ -267,15 +270,19 @@ void LayerCursor::orient()
         // "scroll" to put activeIndex within the view
         int center = floor((float)LayerBarMax / 2.0f);
         viewBase = activeIndex - center;
+        viewLast = viewBase + LayerBarMax - 1;
     }
 
     undoLoss = 0;
     if (viewBase > ghostStart)
       undoLoss = viewBase - ghostStart;
-    
+
     redoLoss = 0;
-    if (voidStart > viewLast)
-      redoLoss = voidStart - viewLast;
+    if (loop->redoCount > 0) {
+        int redoLast = redoStart + loop->redoCount - 1;
+        if (redoLast > viewLast)
+          redoLoss = redoLast - viewLast;
+    }
 }
 
 int LayerCursor::getUndoLoss()
