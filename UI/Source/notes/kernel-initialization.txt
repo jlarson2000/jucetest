@@ -1,0 +1,146 @@
+
+Still unclear when Kernel will start getting interrupts pumped at it.
+Well, it's here
+
+    // register ourselves as the audio listener
+    // unclear when things start pumping in, but do this last
+    // after we've had a chance to make ourselves look pretty
+    cont->setAudioListener(this);
+
+Unclear when Supervisor starts getting audio blocks, but Kernel will
+DEFINITELY receive them only after setting this.  If that is ever
+taken off it can no longer use Communicator.
+
+So that listener needs to be the last thing set during initialization.
+
+Once audio blocks start comming in you must use communicator.
+
+It may be interesting to suspend kernel processing of audio blocks.
+
+This would allow shell/UIthread to rebuild tracks, compile and install
+scripts and do other heavy configuration.  Kernel continues to exist but
+we're ensured it won't do anything until it is told to proceed.
+
+Just setting a "stop" flag isn't enough because the UI thread doesn't
+know if the audio thread is still in progress at the time.  You need some
+form of acknolwedge.  This could be done with communicator but for something
+this simple it could be done with polling.
+
+shell
+  kernel->requestSuspend
+
+  spin loop waiting for kernel acknowledge by testing
+    kernel->isSuspended
+
+   rebuild kernel memory
+
+   kernel->resume
+
+kernel audio thread
+  if isSuspendRequest
+     set suspended
+     bypass all other logic
+  else if suspended
+     do nothing, maybe gather some stats
+  else
+      normal processing
+
+Alternatvely implement suspension by removing the audio listener
+  might not be enough though if the audio device can have several blocks queued
+  and will still call the listener
+  probably not but safer if we handle the suspension
+
+suspend/resume offers an alternative to using communicator to phase
+ in complex structures
+
+  SamplePlayer
+  Setups that reconfigure track counts
+  Script reload
+
+It's nice to not have to shut everything down to change samples though.
+If we ever do want to support "live" sample reconfguration though we have
+to deal with orderly cutoff of playing samples.
+
+Scripts are less necessary, we can't reload a ScriptEnv while scripts are
+running, must phase that in during global reset
+
+Track reallocation would take a lot of work to allow it live, must wait
+for global reset
+
+"Global Reset" in this case means more than just all tracks being in reset
+it also means no samples are playing and no scripts are running, waiting
+on a timout.
+
+Yeah, because restructuring can be complicated, maybe it is best to
+request a suspend and have the kernel respond only when all is quiet
+by posting a message through communicator.  shell has to keep anything
+it wanted to send down in a pending area waiting for the suspend acknowledge.
+
+So shell gets something complicated to do
+  install scripts, restructure tracks, load a project
+  shell validates and prepares what is needed and leaves it in a holding area
+  if shell receives another request and there is already something in the
+  holding area it replaces it
+    ! now we've got thread issues between the UI thread and the
+    maintenance thread over the holding area
+
+  shell asks kernel to suspend
+    kernel suspends sometime later
+
+  during the maintenance interval shell checks to see if Kernel suspended
+    if suspended, restructure kernel and turn it back on
+
+This keeps the UI thread from entering a wait loop
+  for most things the delayed response shouldn't matter and it should be quick
+
+----------------------------
+
+Okay, in the first phase there is no kernel suspend and things behave like this
+
+   construction phase
+     static initialization is performed, memory allocation is allowed
+     but discouraged, no complex configuration is done, audio is not active
+     maintenance thread is DISABLED
+     
+   initialization phase
+     shell initialize() is called
+     happens soon after construction
+     operates entirely within the UI thread, maintenance thread MUST BE DISABLED
+
+     Kernel::initialize
+       Mobius::initialize
+         build tracks, install scripts, other complex stuff
+         propagateConfiguration
+           - anything under "propagation" must behave well in either the
+              UI or audio thread
+
+        Kernel:addAudioListener
+           starts receiving blocks
+           no more structure changes are allowed
+
+     reconfigure phase
+        happens after the Kernel/Core is up and running
+        does not include track rebuilding or script reloading
+        propagateConfiguration
+          - same implemenetation used in initialization
+
+        no complex changes to tracks are allowed till restart
+
+Phase 2: incremental reconfigure
+
+   this is the same except we allow limited reconfiguration of scripts
+   track rebuilding still now allowed
+   could do this with communicator, shell builds a ScriptEnv and phases it in
+   Kernel has to deal with currently running scripts
+
+
+Phase 3: suspend/resume
+
+  may not need this, but it adds the suspend/resume concept for kernel
+  issues with overlapping changes still exist but moves up from kernel
+  to shell
+
+  shell has much more control over Kernel structure
+
+  kind of an encapsulation violation but no worse than initialization
+

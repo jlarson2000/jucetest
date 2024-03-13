@@ -143,6 +143,17 @@ class Mobius :
      */
     class MobiusState* getState(int track);
 
+    // emerging initialization/reconfigure sequence
+    
+    void Mobius::newInitialize(class MobiusConfig* config);
+    // these can be private
+    void initializeTracks(int count);
+    void initializeScripts(class ScriptConfig* config);
+    void initializeFunctions();
+    void propagateConfiguration();
+    void updateGlobalFunctionPreferences();
+    void setTrack(int index);
+    
     //////////////////////////////////////////////////////////////////////
     //
     // New environment accessors for internal components
@@ -322,7 +333,6 @@ class Mobius :
 
     Function** getFunctions();
     Function* getFunction(const char* name);
-    void updateGlobalFunctionPreferences();
 
     MobiusMode** getModes();
     MobiusMode* getMode(const char* name);
@@ -363,7 +373,6 @@ class Mobius :
 
     void setOutputLatency(int l);
 	class Track* getSourceTrack();
-    void setTrack(int i);
 	void stopRecorder();
 
 	// user defined variables
