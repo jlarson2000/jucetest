@@ -247,7 +247,6 @@
     <ClCompile Include="..\..\Source\mobius\core\functions\UndoRedo.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Window.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Action.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\core\AudioInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Event.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\EventManager.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Export.cpp"/>
@@ -2665,7 +2664,6 @@
     <ClInclude Include="..\..\Source\mobius\core\functions\FunctionUtil.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Action.h"/>
     <ClInclude Include="..\..\Source\mobius\core\AudioConstants.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\AudioInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Event.h"/>
     <ClInclude Include="..\..\Source\mobius\core\EventManager.h"/>

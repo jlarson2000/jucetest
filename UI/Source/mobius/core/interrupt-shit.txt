@@ -2,18 +2,152 @@
 doAction vs doActionNow
 
 
-mAudioInterface
-  used to make a StubAudioStream
-
-class AudioStream {
-	virtual class AudioInterface* getInterface() = 0;
-
-class AudioInterface {
-	virtual AudioStream* getStream() = 0;
+    // UPDATE: The mPendingInterruptConfig concept is no longer necessary
+    // but it resulted in a subtle order of execution I'm preserving until
+    // we can think harder about how this needs to work.  We'll set the
+    // "pending" config as before, and propagateInterruptConfig will
+    // apply those changes later when beginAudioInterrupt is called.
 
 
+MobiusConfig propagation
+
+initialize(MobiusConfig)
+  called by Kernel in the UI thread to allocate memory and set things up
+  start()
+    installConfiguration()
+    
+      buildTracks()
+        allocate Tracks array
+        put them in Recorder
+      
+      set mPendingInterruptConfig
+
+      installScripts()
+        use ScriptCompiler to compile them
+        set mScriptEnv to the result
+        initFunctions() to rebuild the functions table to inclucde scripts
+        initScriptParameters()
+          this seems to have never been implemented
+          
+      updateGlobalFunctionPreferences()
+        focusLock, muteCancel, confirmation functions
+        
+      set TracePrintLevel
+
+      if all tracks are in reset
+         set the active track to what is in the Setup
+
+Later in beginAudioInterrupt
+
+  if mPendingInterruptConfig
+    propagateInterruptConfig()
+      mRecorder->setEcho(mConfig->isMonitorAudio())
+        no side effects
+        
+      mSynchronizer->updsateConfiguration
+        pull MaxSyncDrift and others from the config, no side effects
+
+      MobiusMode::updateConfiguration
+        set altFeedbackDisable flag on the modes, no other side effects
+        
+      AudioFade::setRange(mConfig->getFadeFrames())
+        defined in Audio.h, saves the fade frames, no side effects
+        
+      for each track
+        Track->updateConfiguration
+          this is complicated
+
+      propagateSetupGlobals(mConfig->getCurrentSetup)
+        set the active track
+        formerly did stuff with overlay bindings
+        
+
+Other than maybe Track::updateConfiguration, none of this is order sensitive
+with initialize() so we could merge them.  Some of this will need to be duplicated
+in reconfigure()
+
+Track::updateConfiguration
+  // propagate some of the global parameters to the Loops
+  updateGlobalParameters
+    set latency in input and output streams
+    for each loop
+      loop->updateConfiguration
+        capture AutoFeedbackReduction
+        if in reset
+           cancel mOverdub
+           set frame to -inputLatency
+           
+  set the Preset to use
+
+  setSetup()
+    gets the SetupTrack for this track
+    if current loop is empty
+      resetParameters()
+    else
+      resetPorts
+        in/out ports, mono mode
+      set trackname
+      set group name
+
+    setPreset()
+      copy it to the private Track Preset
+      setupLoops
+        expand/contract the loop list based on desired loop count
+        doesn't allocate anything just adjusts loop count    
+    
+This was designed for both initialization and for later config updates
+Mostly just captures things from the config.  Adjusting the loop count
+is the only slightly complex thing.
+
+So if we merge this with initialize() it just pushes propagateInterruptConfig above
+
+installScripts and updateGlobalFunctionPreferences
+
+should not be a problem
+
+
+reconfigure() should work almost exactly the same way except
+allocating the track array
+  until this settles down, just require a restart if you want to change track counts
+
+installScripts is similar, it does lots of memory allocation so can only
+be done in initialize()
+
+--
+
+break this up like this
+
+initialize()
+  allocate tracks
+  install scripts
+  
+  allOtherStuff
+
+reconfigure
+  skip track reallocation until we work out a way to have shell build them
+    and pass them down
+  script script loading also until we have shell/kernel passing
+
+  allOtherstuff
+
+allOtherStuff
+  needs to be carefully documented that this can be called during both initialization
+  and at runtime and is limited about what it can do
+
+
+Might have some subtle ordering dependencies on Track allocation for scripts
+since they probably need to resolve direct Track pointers.  If propagating a new
+MobiusConfig results in reallocating the Tracks then all scripts would have to be recompiled
+or at least go through resolution again.  needs to be done after any track changes
+
+same with Track::updateConfiguration, will have to call that again
+
+It might be handy for shell to be able to disable the audio block processing, verify that
+the Kernel is quiet, then play with memory without having to pass things through Communicator.
+This should only be done after GlobalReset when we've had a chance to quiet the audio stream.
+May need to allow lingering fade tails to play though, or just let them cut off.
 
 
 
 
-mInterruptStream
+

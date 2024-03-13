@@ -235,10 +235,6 @@
           <FILE id="KEOJ4i" name="Action.h" compile="0" resource="0" file="Source/mobius/core/Action.h"/>
           <FILE id="SJ01Nd" name="AudioConstants.h" compile="0" resource="0"
                 file="Source/mobius/core/AudioConstants.h"/>
-          <FILE id="FlcGxI" name="AudioInterface.cpp" compile="1" resource="0"
-                file="Source/mobius/core/AudioInterface.cpp"/>
-          <FILE id="TGNbG4" name="AudioInterface.h" compile="0" resource="0"
-                file="Source/mobius/core/AudioInterface.h"/>
           <FILE id="ESvyKr" name="CriticalSection.h" compile="0" resource="0"
                 file="Source/mobius/core/CriticalSection.h"/>
           <FILE id="fBI64E" name="Event.cpp" compile="1" resource="0" file="Source/mobius/core/Event.cpp"/>

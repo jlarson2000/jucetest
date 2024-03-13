@@ -153,7 +153,7 @@ class Mobius :
     //////////////////////////////////////////////////////////////////////
 
     /**
-     * This now serves the same purposes as AudioStream
+     * This now serves the same purposes as the old AudioStream
      */
     class MobiusContainer* getContainer();
 
@@ -163,13 +163,11 @@ class Mobius :
     //
     // Everything from here below are part of the old interface between
     // Mobius and it's internal components.  Need to start weeding this out.
-    // In particular the AudioStream and MidiInterface accessorrs need
-    // to be replaced with MobiusContainer
+    // In particular MidiInterface needs to be replaced with MobiusContainer
     //
     //////////////////////////////////////////////////////////////////////
 
-
-// TODO: I don't think this needs to be public any more, Kernel won't
+    // TODO: I don't think this needs to be public any more, Kernel won't
     // call it 
     void start();
     
@@ -191,9 +189,9 @@ class Mobius :
 
     /**
      * Return an object that implements the old MidiInterface interface.
-     * Like AudioStream this is a bridge into MobiusContainer.
-     * It probably has to live longer though because there is more to it
-     * than just a method interface, it also defines the MidiEvent model
+     * This is currently stubbed and will become a bridge into MobiusContainer.
+     * It probably can't be replaced by MobiusContainer because there is
+     * more to it than just a method interface, it also defines the MidiEvent model
      * which is used extensively.
      */
     class MidiInterface* getMidiInterface();
