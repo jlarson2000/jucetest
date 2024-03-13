@@ -14,10 +14,10 @@
 #include <stdio.h>
 #include <memory.h>
 
-// for some constants like AUDIO_MAX_FRAMES_PER_BUFFER
-#include "AudioInterface.h"
-
 #include "../../util/Util.h"
+
+// for some constants like AUDIO_MAX_FRAMES_PER_BUFFER
+#include "AudioConstants.h"
 
 #include "Layer.h"
 #include "Mobius.h"

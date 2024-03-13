@@ -215,7 +215,7 @@
 #include "../../util/Util.h"
 
 // for AUDIO_MAX_CHANNELS, etc
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 // for LayerContext, etc.
 #include "Layer.h"

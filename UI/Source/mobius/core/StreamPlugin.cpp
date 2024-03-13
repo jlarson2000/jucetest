@@ -24,7 +24,7 @@
 #include "../Audio.h"
 
 // probably the usual constants
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 // !! this is for FadeWindow and FadeTail, try to factor this out so we don't have
 // so many dependencies

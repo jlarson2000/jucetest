@@ -189,40 +189,6 @@ class CalibrationResult {
 	int latency;
 };
 
-/****************************************************************************
- *                                                                          *
- *                                   ALERTS                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * An object containing various problems that have happened during
- * Mobius execution that should be presented to the user.
- * Originally a bunch of discrete methods on Mobius, think more about
- * using this for other severe occurrences, the kind of things we would
- * trace with level 1.
- */
-class MobiusAlerts {
-  public:
-
-    MobiusAlerts();
-
-    /**
-     * True if we could not open the configured audio input device.
-     */
-    bool audioInputInvalid;
-    
-    /**
-     * True if we would not open the configured audio output device.
-     */
-    bool audioOutputInvalid;
-
-    const char* midiInputError;
-    const char* midiOutputError;
-    const char* midiThroughError;
-
-};
-
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

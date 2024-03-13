@@ -1,0 +1,19 @@
+
+doAction vs doActionNow
+
+
+mAudioInterface
+  used to make a StubAudioStream
+
+class AudioStream {
+	virtual class AudioInterface* getInterface() = 0;
+
+class AudioInterface {
+	virtual AudioStream* getStream() = 0;
+
+
+
+
+
+
+mInterruptStream

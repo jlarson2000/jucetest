@@ -881,7 +881,7 @@ bool Track::isPriority()
 }
 
 /**
- * AudioInterface interrupt buffer handler.
+ * MobiusContainer interrupt buffer handler.
  * 
  * This is designed to allow rapid scheduling of events, though
  * in practice we don't usually get more than one event on different

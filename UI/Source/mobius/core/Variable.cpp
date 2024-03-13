@@ -29,7 +29,7 @@
 #include "../../model/Trigger.h"
 
 // for AUDIO_FRAMES_PER_BUFFER
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 #include "Event.h"
 #include "EventManager.h"
@@ -492,7 +492,7 @@ BlockFramesVariableType::BlockFramesVariableType()
 
 void BlockFramesVariableType::getTrackValue(Track* t, ExValue* value)
 {
-    // !! need to be checking the AudioInterface
+    // !! need to be checking the MobiusContainer
 	value->setLong(AUDIO_FRAMES_PER_BUFFER);
 }
 

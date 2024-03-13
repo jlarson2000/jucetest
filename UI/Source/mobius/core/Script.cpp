@@ -50,8 +50,8 @@
 
 #include "Mapper.h"
 
-// for CD_SAMPLE_RATE, MSEC_TO_FRAMES, move these to Mapper
-#include "AudioInterface.h"
+// for CD_SAMPLE_RATE, MSEC_TO_FRAMES
+#include "AudioConstants.h"
 
 #include "Expr.h"
 #include "../../util/List.h"

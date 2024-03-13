@@ -1692,7 +1692,6 @@ AudioInputPortParameterType::AudioInputPortParameterType() :
 
 int AudioInputPortParameterType::getHigh(Mobius* m)
 {
-    // used to be defined on AudioStream, now it's the Container
     // do we still need this?  the core Parmaters aren't used for Setup
     // editing any more, in fact almost all getHigh functions should
     // be removed

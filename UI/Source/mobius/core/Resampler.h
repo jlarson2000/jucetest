@@ -20,7 +20,7 @@
 #define RESAMPLER_H
 
 #include "../Audio.h"
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 //////////////////////////////////////////////////////////////////////
 // 

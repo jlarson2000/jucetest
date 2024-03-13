@@ -16,7 +16,7 @@
 #include "../../util/Util.h"
 
 // for AUDIO_MAX_CHANNELS, etc.
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 #include "Stream.h"
 

@@ -38,9 +38,7 @@
 #include "../Track.h"
 
 // only for CD_SAMPLE_RATE which is used by MSEC_TO_FRAMES
-#include "../AudioInterface.h"
-
-
+#include "../AudioConstants.h"
 
 //////////////////////////////////////////////////////////////////////
 //

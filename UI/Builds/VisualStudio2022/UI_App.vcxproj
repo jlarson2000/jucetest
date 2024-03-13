@@ -2664,6 +2664,7 @@
     <ClInclude Include="..\..\Source\ui\TestPanel.h"/>
     <ClInclude Include="..\..\Source\mobius\core\functions\FunctionUtil.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Action.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\AudioConstants.h"/>
     <ClInclude Include="..\..\Source\mobius\core\AudioInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Event.h"/>

@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <memory.h>
 
-// for CD_SAMPLE_RATE, sweet jesus, put these somewhere conveneint
-#include "../AudioInterface.h"
+// for CD_SAMPLE_RATE
+#include "../AudioConstants.h"
 
 #include "../../../util/Util.h"
 

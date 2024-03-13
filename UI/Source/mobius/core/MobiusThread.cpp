@@ -193,6 +193,8 @@ int ThreadEvent::getReturnCode()
  *                                                                          *
  ****************************************************************************/
 
+// defined in OldMobiusInterface
+
 Prompt::Prompt()
 {
 	mNext = NULL;
@@ -452,7 +454,7 @@ void MobiusThread::eventTimeout()
     
     // formerly exported status to parameters/controls to MIDI control surfaces
     //mMobius->exportStatus(true);
-
+#if 0
 	if (mCheckInterrupt) {
 		long interrupts = mMobius->getInterrupts();
 		if (mInterrupts > 0 && mInterrupts == interrupts) {
@@ -465,6 +467,8 @@ void MobiusThread::eventTimeout()
 		}
 		mInterrupts = interrupts;
 	}
+#endif
+    
 }
 
 void MobiusThread::processEvent()

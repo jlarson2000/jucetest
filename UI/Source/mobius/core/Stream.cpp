@@ -36,7 +36,6 @@
 #include "../../util/Trace.h"
 #include "../Audio.h"
 
-// formerly AudioStream
 #include "../MobiusContainer.h"
 
 #include "Event.h"

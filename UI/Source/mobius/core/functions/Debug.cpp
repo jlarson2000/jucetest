@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "../AudioInterface.h"
+#include "../AudioConstants.h"
 #include "../MidiInterface.h"
 
 #include "../Action.h"

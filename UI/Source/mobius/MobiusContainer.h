@@ -83,8 +83,6 @@ class MobiusContainer
     // probably be removed.
     virtual int getInputPorts() = 0;
     virtual int getOutputPorts() = 0;
-
-
     
     virtual int getSampleRate() = 0;
     virtual int getInputLatency() = 0;

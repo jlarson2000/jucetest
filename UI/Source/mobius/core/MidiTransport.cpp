@@ -64,7 +64,7 @@
 #include "MidiByte.h"
 #include "MidiEvent.h"
 #include "MidiInterface.h"
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 #include "Event.h"
 #include "MidiQueue.h"

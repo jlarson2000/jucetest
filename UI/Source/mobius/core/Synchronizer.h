@@ -168,7 +168,7 @@ class Synchronizer {
 
 	bool event(MidiEvent* e);
 
-	void interruptStart(class AudioStream* stream);
+	void interruptStart(class MobiusContainer* container);
     void prepare(class Track* t);
     void finish(class Track* t);
 	void interruptEnd();

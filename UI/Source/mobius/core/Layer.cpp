@@ -315,7 +315,7 @@
 #include <memory.h>
 
 // for some constants like AUDIO_MAX_FRAMES_PER_BUFFER
-#include "AudioInterface.h"
+#include "AudioConstants.h"
 
 #include "../../util/Util.h"
 

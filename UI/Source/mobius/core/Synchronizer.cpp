@@ -28,7 +28,7 @@
  * tracking internal clock drift works much the same as tracking an
  * external MIDI clock.
  * 
- * During an audio interrupt, we will be passed an AudioStream
+ * During an audio interrupt, we will be passed an AudioStream (now MobiusContainer)
  * containing information about VST/AU host sync events such as beats or 
  * bars that will happen within the next audio buffer.  The VST/AU
  * sync events, and events from the internal and external MIDI queues
@@ -114,6 +114,8 @@
 // TriggerScript
 #include "../../model/Trigger.h"
 
+#include "../MobiusContainer.h"
+
 //#include "Thread.h"
 
 #include "MidiByte.h"
@@ -135,9 +137,6 @@
 #include "SyncState.h"
 #include "SyncTracker.h"
 #include "Track.h"
-
-// AudioStream
-#include "AudioInterface.h"
 
 #include "Synchronizer.h"
 
@@ -2080,7 +2079,7 @@ void Synchronizer::adjustBarUnit(Loop* l, SyncState* state,
  * the interrupt block size.  See looptime.txt for a more thorough explanation.
  *
  */
-void Synchronizer::interruptStart(AudioStream* stream)
+void Synchronizer::interruptStart(MobiusContainer* container)
 {
     Event* events = NULL;
     Event* event = NULL;
@@ -2089,7 +2088,7 @@ void Synchronizer::interruptStart(AudioStream* stream)
     // capture some statistics
 	mLastInterruptMsec = mInterruptMsec;
 	mInterruptMsec = mMidi->getMilliseconds();
-	mInterruptFrames = stream->getInterruptFrames();
+	mInterruptFrames = container->getInterruptFrames();
 
     // should be empty but make sure
     flushEvents();
@@ -2163,7 +2162,7 @@ void Synchronizer::interruptStart(AudioStream* stream)
     // be maintained in order and interleaved with the loop events.
 
     // refresh host sync state for the status display in the UI thread
-	AudioTime* hostTime = stream->getTime();
+	AudioTime* hostTime = container->getAudioTime();
     if (hostTime == NULL) {
         // can this happen, reset everyting or leave it where it was?
         /*
