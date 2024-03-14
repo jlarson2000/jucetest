@@ -93,13 +93,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // make this a stack object at some point
     class Mobius* mCore = nullptr;
 
-    // UI to core Function mapping
-    // std::vector<class Function*> functionMap;
-    juce::Array<class Function*> functionMap;
-    void initFunctionMap();
-    juce::Array<class Parameter*> parameterMap;
-    void initParameterMap();
-    
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
     void installSampleTrack(class KernelMessage* msg);
@@ -107,9 +100,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
     //void installSamples(class SamplePack* pack);
 
     void doAction(KernelMessage* msg);
-    void doCoreAction(class UIAction* action);
-    Parameter* mapParameter(UIParameter* uip);
-
     
 };
 

@@ -109,11 +109,6 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
     // then need to defer this until the first audio interrupt
     mCore = new Mobius(this);
     mCore->initialize(configuration);
-
-    // needs to be done after core initialization because
-    // some of the tables aren't set up until after
-    initFunctionMap();
-    initParameterMap();
 }
 
 /**
@@ -378,148 +373,17 @@ void MobiusKernel::doAction(KernelMessage* msg)
         }
         else {
             // not handled above core, pass it down
-            doCoreAction(action);
+            mCore->doCoreAction(action);
             // todo: fish any results out and do something with them
         }
     }
     else {
         // Parameter, Activation, Script action
-        doCoreAction(action);
+        mCore->doCoreAction(action);
     }
     
     // return it to the shell for deletion
     communicator->kernelSend(msg);
-}
-
-/**
- * Initialize the table for mapping UI tier FunctionDefinition
- * objects to their core Function counterparts.
- * This can only be done during initialization in the UI thread.
- *
- * Handling only static functions right now, will need to do something
- * extra for scripts.
- *
- * Jesus vector is a fucking fight, use juce::Array, it's obvious.
- */
-void MobiusKernel::initFunctionMap()
-{
-    functionMap.clear();
-    for (int i = 0 ; i < FunctionDefinition::Instances.size() ; i++) {
-        FunctionDefinition* f = FunctionDefinition::Instances[i];
-        Function* coreFunction = Function::getStaticFunction(f->getName());
-        if (coreFunction != nullptr)
-          functionMap.add(coreFunction);
-        else {
-            functionMap.add(nullptr);
-            Trace(1, "MobiusKernel::initFunctionMap Function %s not found\n", f->getName());
-        }
-    }
-}
-
-/**
- * Initialize the table for mapping UIParameters to core Parameter
- */
-void MobiusKernel::initParameterMap()
-{
-    parameterMap.clear();
-    for (int i = 0 ; i < UIParameter::Instances.size() ; i++) {
-        UIParameter* p = UIParameter::Instances[i];
-
-        // in a few cases I wanted to use a different name
-        const char* pname = p->coreName;
-        if (pname == nullptr)
-          pname = p->getName();
-        
-        Parameter* coreParameter = Parameter::getParameter(pname);
-        if (coreParameter != nullptr) {
-            parameterMap.add(coreParameter);
-        }
-        else {
-            parameterMap.add(nullptr);
-            Trace(1, "MobiusKernel::initParameterMap Parameter %s not found\n", pname);
-        }
-    }
-}
-
-/**
- * We're bypassing some of the old logic with Mobius::doAction
- * that validated various things, and decided whether or not
- * to handle it in UI thread or defer it to the interrupt.
- * Instead we call doActionNow which is what the audio interrupt
- * handler did.  This loses the call to completeAction()
- * which we have to do out here to return the action allocated
- * with Mobius::newAction to the pool or else it will leak.
- *
- * Once this gets retooled to avoid the above/below interrupt
- * distinction, should just call the one doAction and let it
- * handle the pooling nuance.  In particular you can't just
- * call Mobius::freeAction because ownership may have transferreed
- * to an Event.
- */
-void MobiusKernel::doCoreAction(UIAction* action)
-{
-    Action* coreAction = nullptr;
-    
-    if (action->type == ActionFunction) {
-        FunctionDefinition* f = action->implementation.function;
-        if (f != nullptr) {
-            Function* cf = functionMap[f->ordinal];
-            if (cf == nullptr) {
-                Trace(1, "MobiusKernel::doCoreAction Unable to send action, function not found %s\n",
-                      f->getName());
-            }
-            else {
-                coreAction = mCore->newAction();
-                coreAction->assimilate(action);
-                coreAction->implementation.function = cf;
-            }
-        }
-    }
-    else if (action->type == ActionParameter) {
-        UIParameter* p = action->implementation.parameter;
-        Parameter* cp = mapParameter(p);
-        if (cp != nullptr) {
-            coreAction = mCore->newAction();
-            coreAction->assimilate(action);
-            coreAction->implementation.parameter = cp;
-        }
-    }
-    else if (action->type == ActionActivation) {
-        // select a setup or preset
-        // should have ordinals now...
-        Trace(1, "MobiusKernel::doCoreAction Activation action not implemented\n");
-    }
-    else if (action->type == ActionScript) {
-        // I think these are only internal core actions, should not
-        // get these from the UI
-        Trace(1, "MobiusKernel::doCoreAction Script action not implemented\n");
-    }
-    else {
-        Trace(1, "MobiusKernel::doCoreAction Unknown action type %s\n", action->type->getName());
-    }
-
-    if (coreAction != nullptr) {
-        mCore->doActionNow(coreAction);
-        mCore->completeAction(coreAction);
-    }
-
-}
-
-/**
- * Map a UI to Core parameter, and trace a warning if we can't find one.
- */
-Parameter* MobiusKernel::mapParameter(UIParameter* uip)
-{
-    Parameter* cp = nullptr;
-
-    if (uip != nullptr) {
-        cp = parameterMap[uip->ordinal];
-        if (cp == nullptr) {
-            Trace(1, "MobiusKernel: Unable to map Parameter %s\n",
-                  uip->getName());
-        }
-    }
-    return cp;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -548,16 +412,9 @@ Parameter* MobiusKernel::mapParameter(UIParameter* uip)
 int MobiusKernel::getParameter(UIParameter* p, int trackNumber)
 {
     int value = 0;
-    
-    if (mCore != nullptr) {
-        Parameter* cp = mapParameter(p);
-        if (cp != nullptr) {
-            value = mCore->getParameter(cp, trackNumber);
-            if (strcmp(p->getName(), "output")) {
-                //Trace(1, "Output track %d %d\n", trackNumber, value);
-            }
-        }
-    }
+
+    if (mCore != nullptr)
+      value = mCore->getParameter(p, trackNumber);
 
     return value;
 }

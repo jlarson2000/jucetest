@@ -18,6 +18,7 @@
 #include "../../model/Trigger.h"
 
 #include "Action.h"
+#include "Actionator.h"
 #include "Function.h"
 #include "Mobius.h"
 
@@ -260,7 +261,7 @@ TriggerWatcher* TriggerState::remove(Action* action)
  * to Mobius::doAction, with action->down = true and 
  * action->longPress = true it means to do the long press behvaior.
  */
-void TriggerState::advance(Mobius* mobius, int frames)
+void TriggerState::advance(Actionator* actionator, int frames)
 {
     for (TriggerWatcher* t = mWatchers ; t != NULL ; t = t->next) {
 
@@ -278,7 +279,7 @@ void TriggerState::advance(Mobius* mobius, int frames)
                 Trace(2, "TriggerState: Long-press %s\n", 
                       t->function->getDisplayName());
 
-                Action* a = mobius->newAction();
+                Action* a = actionator->newAction();
                 a->inInterrupt = true;
 
                 // trigger
@@ -301,7 +302,7 @@ void TriggerState::advance(Mobius* mobius, int frames)
                 a->down = true;
                 a->longPress = true;
 
-                mobius->doAction(a);
+                actionator->doAction(a);
             }
         }
     }

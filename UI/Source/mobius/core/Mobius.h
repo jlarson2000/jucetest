@@ -124,12 +124,15 @@ class Mobius :
      */
     void doAction(class UIAction* action);
 
+    // temporary until we can refactor the Kernel handoff
+    void doCoreAction(class UIAction* action);
+    
     /**
      * Temporary until we get UIQuery to Export fleshed out.
      * TODO: Like doAction need to move Parameter mapping down here.
      */
     int getParameter(Parameter* p, int trackNumber);
-
+    int getParameter(class UIParameter* p, int trackNumber);
 
     /**
      * Force initialization of some static object arrays for leak detection.
@@ -221,16 +224,6 @@ class Mobius :
 	void setListener(OldMobiusListener* mon);
 	OldMobiusListener* getListener();
     
-    // Triggers and Actions
-    // A few of these are used by Kernel but those are being
-    // brought down, still used in scripts
-    Action* newAction();
-    Action* cloneAction(Action* a);
-    void freeAction(Action* a);
-    void doAction(Action* a);
-    // for ScriptInterpreter, some Parameters
-    void doActionNow(Action* a);
-    void completeAction(Action* a);
     
     // scripts could prompt through the MobiusThread, the UI
     // was supposed to handle that, then call back to this
@@ -316,8 +309,6 @@ class Mobius :
 	// Global functions
 	// Only need to be public for the Function handlers
 
-    class Track* resolveTrack(Action* a);
-
 	void globalReset(class Action* action);
 	void globalMute(class Action* action);
 	void cancelGlobalMute(class Action* action);
@@ -374,6 +365,15 @@ class Mobius :
     // ActionDispatcher, ScriptRuntime
     bool isFocused(class Track* t);
     
+    // actions moved to Actionator, but Script and others
+    // still want to go through Mobius
+    class Action* newAction();
+    class Action* cloneAction(class Action* src);
+    void completeAction(class Action* a);
+    void doAction(Action* a);
+    void doActionNow(Action* a);
+    class Track* resolveTrack(Action* a);
+
   protected:
 
 	// for MobiusThread and others
@@ -403,6 +403,7 @@ class Mobius :
     void propagateFunctionPreferences();
     
     // legacy
+
     
     void installWatchers();
     bool unitTestSetup(MobiusConfig* config);
@@ -420,6 +421,7 @@ class Mobius :
     void doScriptMaintenance();
 	void freeScripts();
 
+    /*
     void doInterruptActions();
     void doPreset(Action* a);
     void doSetup(Action* a);
@@ -430,6 +432,7 @@ class Mobius :
     void doParameter(Action* a);
     void doParameter(Action* a, Parameter*p, class Track* t);
     void doControl(Action* a);
+    */
     void invoke(Action* a, class Track* t);
 
     //
@@ -445,15 +448,13 @@ class Mobius :
 	//class ObjectPoolManager* mPools;
     class LayerPool* mLayerPool;
     class EventPool* mEventPool;
-    class ActionPool* mActionPool;
 	OldMobiusListener* mListener;
     Watchers* mWatchers;
     class List* mNewWatchers;
 	class MobiusConfig *mConfig;
     class Setup* mSetup;
 	class MidiInterface* mMidi;
-
-    class TriggerState* mTriggerState;
+    class Actionator* mActionator;
 
 	Recorder* mRecorder;
     class MobiusThread* mThread;
@@ -465,9 +466,6 @@ class Mobius :
 	class ScriptEnv* mScriptEnv;
     class Function** mFunctions;
 	class ScriptInterpreter* mScripts;
-    class Action* mRegisteredActions;
-    class Action *mActions;
-    class Action *mLastAction;
 	bool mHalting;
 	bool mNoExternalInput;
 	long mInterrupts;

@@ -112,7 +112,7 @@ class TriggerState {
     void setLongPressTime(int msecs, int sampleRate);
 
     void assimilate(class Action* action);
-    void advance(class Mobius* mobius, int frames);
+    void advance(class Actionator* actionator, int frames);
 
   private:
     
