@@ -1,7 +1,63 @@
 
-Mobius::getInterruptSetup
-  used by Synchronizer at runtime
-  set mSetup during initialization and reconfigure and use that forever
+Go over Actionator and simplify the pending action list
+
+Revisit setSetupInternal tail end of propagateConfiguration is a mess
+
+Move Recorder back down
+  - try to get rid of it entirely if possible
+  - will need to factor out SampleTrack, latency calibraton
+  - the thing about isPriority for "brother sync" may keep it alive for awhile
+
+  ! yes, get rid of this, it won't be that hard
+
+For each of the major subcomponents
+  ScriptInterpreter, Synchronizer, Actionator, Track
+  organize the top part of the files according to
+     initialize
+     reconfigure
+     audio buffers
+     other stuff
+
+StateExporter
+  move top-level logic in here, consider pulling the component
+  specific exporters: Track, Loop, Layer, EventManager
+  into one place
+
+WTF did WatchPoints ever do?  Reconsider
+
+Capture/Bounce
+  move to a subcomponent?
+
+Scriptarian
+  still enough in Mobius to warrant a subcomponent
+
+TrackManager
+  is there enough to have a subcomponent?
+
+
+MobiusThread
+  still a big mess and it's all over Scripts
+
+
+Parametizer
+  Handle getParameter, UIParameter mapping
+
+Functionator
+  handle the combined function/script map
+  not much more here, Actionator does almost everything
+  same with Parametizer, there's not much more to add, just
+  keep everything in Actionator
+  UIQuery can evolve there too
+
+Variables
+  hating these, at least condider generating but the logic
+  isn't as regular as Parameter
+
+
+
+
+
+  
 
 
 

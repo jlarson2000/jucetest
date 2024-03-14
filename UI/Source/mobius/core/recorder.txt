@@ -1,0 +1,262 @@
+MobiusKernel usage:
+
+Created in MobiusKernel::initialize
+  		mRecorder = new Recorder();
+        mRecorder->initialize(container, shell->getAudioPool());
+        mRecorder->start();
+
+Called on each interrupt
+
+       mRecorder->containerAudioAvailable(cont);
+
+Asked to manage the SampleTrack
+
+        bool replaced = mRecorder->replace(old, sampleTrack);
+
+Deleted
+  MobiusKernel::~MobiusKernel()
+    delete mRecorder;
+
+----------------------------------------------------------------------
+
+RecorderTrack virtuals
+
+	virtual void inputBufferModified(float* f);
+    virtual bool isMute() {
+    virtual bool isPriority();
+
+	virtual void processBuffers(class MobiusContainer* stream, 
+								float* input, float* output, 
+								long bufferFrames, long frameOffset);
+
+	// expected to be overloaded
+    // not overloaded by SampleTrack or Track
+	virtual void addAudio(float* src, long newFrames, long startFrame);
+	virtual void getAudio(float* out, long frames, long frameOffset);
+
+----------------------------------------------------------------------
+
+SampleTrack
+
+   RecorderTrack overrides
+
+	bool isPriority();
+	void processBuffers(class MobiusContainer* stream,
+						float* inbuf, float *outbuf, long frames, 
+						long frameOffset);
+
+
+/**
+ * Must overload this so we're processed first and can insert audio
+ * into the input buffer.
+ */
+bool SampleTrack::isPriority()
+{
+    return true;
+}
+
+void SampleTrack::processBuffers(MobiusContainer* stream, 
+								 float* inbuf, float *outbuf, long frames, 
+								 long frameOffset)
+{
+	for (int i = 0 ; i < mSampleCount ; i++)
+	  mPlayers[i]->play(inbuf, outbuf, frames);
+
+	mTrackProcessed = true;
+}
+
+
+So SampleTrack is very simple, the only thing it needs is to be done first
+
+----------------------------------------------------------------------
+
+Track overrides
+
+/**
+ * Called by Recorder during an audio interrupt if another Track modifies
+ * the interrupt input buffer.  Here used by SampleTrack to insert
+ * prerecorded content into the input stream.
+ */
+void Track::inputBufferModified(float* buffer)
+{
+	// hmm, we may not have gotten our processBuffers call yet, just assume
+	// that if the buffer pointers won't match?
+	mInput->bufferModified(buffer);
+}
+
+/**
+ * Recorder defines one of these too and manages a mMute flag for
+ * the default RecorderTrack.  We don't use any of that, mute is defined
+ * by the current loop.
+ */
+bool Track::isMute()
+{
+	return mLoop->isMuteMode();
+}
+
+/**
+ * Overload this so that Recorder knows to process the track sync master
+ * before any potential slave tracks.  This is important because
+ * Synchronizer may need to set up state that the remaining tracks 
+ * will see.
+ * 
+ * If there is no track sync master set (unusual) guess that
+ * any track that is not empty and is not waiting for a synchronized
+ * recording has the potential to become the master and should be done
+ * first.  Note that, checking the frame count isn't enough since the
+ * loop may already have content, we're just waiting to start a new
+ * recording and throw that away.  
+ */
+bool Track::isPriority()
+{
+	bool priority = false;
+	
+    if (mSynchronizer->getTrackSyncMaster() == this) {
+		// once the master is set we only pay attention to that one
+		priority = true;
+	}
+	else if (!mLoop->isEmpty() && mLoop->isSyncWaiting() == NULL) {
+		// this is probably an error, but if it happens we spew on every
+		// interrupt, it is relatively harmless so  be slient
+		//Trace(this, 1, "WARNING: Raising priority of potential track sync master!\n");
+		priority = true;
+	}
+
+	return priority;
+}
+
+void Track::processBuffers(MobiusContainer* stream, 
+						   float* inbuf, float *outbuf, long frames, 
+						   long frameOffset)
+
+Track is more complicated than SampleTrack because of isMute and isPriority
+
+Oh, actually isMute is only used within processBuffers and Track overrides
+this so nothing uses isMute
+
+----------------------------------------------------------------------
+
+TODO:
+
+SampleTrack will be very easy to extract, just keep it in Kernel
+and maybe someday have a list of AudioProcessor objects
+
+Calibration needs a complete redesign so don't worry about losing that,
+factor everything out
+
+----------------------------------------------------------------------
+
+Mobius Recorder usage
+
+    class Recorder* getRecorder();
+	void stopRecorder();
+	Recorder* mRecorder;
+
+	mRecorder = kernel->getRecorder();
+
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        mRecorder->remove(t);
+	}
+
+        Recorder* rec = mKernel->getRecorder();
+        for (int i = 0 ; i < count ; i++) {
+            Track* t = new Track(this, mSynchronizer, i);
+            tracks[i] = t;
+            rec->add(t);
+        }
+
+In propagateConfiguration
+
+    Recorder* rec = mKernel->getRecorder();
+    rec->setEcho(mConfig->isMonitorAudio());
+
+void Mobius::setTrack(int index)
+{
+    if (index >= 0 && index < mTrackCount) {
+        mTrack = mTracks[index];
+		if (mRecorder != NULL)
+		  mRecorder->select(mTrack);
+    }
+}
+
+Recorder* Mobius::getRecorder()
+{
+    return mKernel->getRecorder();
+}
+
+// unused stuff related to calibration
+CalibrationResult* Mobius::calibrateLatency()
+{
+	CalibrationResult* result = NULL;
+
+	if (mRecorder != NULL) {
+		// disable this since we won't be receiving interrupts
+
+
+// this is more interesting, we've got a parameter
+// to turn monitoring onand off, Recorder implements
+// this as "echo"
+
+void MonitorAudioParameterType::setValue(Action* action)
+{
+    bool monitor = action->arg.getBool();
+
+    Mobius* m = (Mobius*)action->mobius;
+    MobiusConfig* config = m->getConfiguration();
+	config->setMonitorAudio(monitor);
+
+    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    if (iconfig != NULL)
+      iconfig->setMonitorAudio(monitor);
+
+    Recorder* rec = m->getRecorder();
+    if (rec != NULL)
+      rec->setEcho(monitor);
+}
+
+
+Interesting comment in Stream.cpp
+
+    // The "loop buffer" needs to be as large as the maximum audio buffer 
+    // since we can never return more than that, but add a little extra
+    // for rounding errors.
+    // !! This is 4096 which multipled by the shift adjustment is 64K
+    // times 2 for each track times 8 tracks.  We shouldn't need this much,
+    // make Recorder call Track with smaller buffer sizes so we can consistently
+    // design for 256.
+
+
+/**
+ * Called indirectly by Recorder when another Track (in this case SampleTrack)
+ * has modified an input buffer.  If this is the one we've been processing
+ * need to recapture the modified content.
+ *
+ * !! This really complicates smoothing since we will already have
+ * advanced it and in theory now have to reset it to its original location.
+ * Since this is required only for audio insertion in 
+ * the unit tests assume for now that we don't have to deal with it.
+ */
+void InputStream::bufferModified(float* buffer)
+
+ugh, here's where the shit hits the fan
+
+/**
+ * Called by Recorder during an audio interrupt if another Track modifies
+ * the interrupt input buffer.  Here used by SampleTrack to insert
+ * prerecorded content into the input stream.
+ */
+void Track::inputBufferModified(float* buffer)
+{
+	// hmm, we may not have gotten our processBuffers call yet, just assume
+	// that if the buffer pointers won't match?
+	mInput->bufferModified(buffer);
+}
+
+
+Maybe we can dispense with the inputBufferModified shit by having SamplePlayer
+always do it's thing above Mobius.  we shoudlnt' need this complex handoff
+
+MonitorAudioParameter and Recorder::echo was never that useful due to
+latency, can implement this in Kernel if we still need it
+
