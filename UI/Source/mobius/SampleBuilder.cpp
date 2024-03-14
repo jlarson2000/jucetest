@@ -1,6 +1,6 @@
 /**
- * Code related to the construction of a SampleTrack and related classes.
- * Code related to the runtime execution are in SampleTrack.cpp
+ * Code related to the construction of a SampleManager and related classes.
+ * Code related to the runtime execution are in SampleManger.cpp
  *
  * Since the execution contexts are so different, I like keeping the
  * files separate to reinforce the difference.
@@ -10,15 +10,15 @@
  *
  * All of the runtime code must not touch anything in the construction code.
  *
- * A SampleTrack is built by MobiusShell when it is sent a ScriptConfig
+ * A SampleManager is built by MobiusShell when it is sent a ScriptConfig
  * object from the UI, or one is loaded during the inital startup process.
  *
- * The way these are built in different under MobiusShell to avoid file
+ * The way these are built is different under MobiusShell to avoid file
  * management from within the engine.  The UI is expected to take the
  * SampleConfig out of the MobiusConfig (or wherever it is stored) and
  * cause all of the sample files to be loaded and left as float* arrays
  * in the Sample objects.  This "loaded" config is then given to MobiusShell
- * and converted to a SampleTrack.
+ * and converted to a SampleManager.
  */
 
 #include "../util/Trace.h"
@@ -32,11 +32,11 @@
 #include "AudioPool.h"
 #include "Recorder.h"
 
-#include "SampleTrack.h"
+#include "SampleManager.h"
 
 //////////////////////////////////////////////////////////////////////
 //
-// SampleTrack
+// SampleManager
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -49,12 +49,11 @@
  * still contain a list of Sample objects, but the internal float* arrays
  * will have been taken.
  */
-SampleTrack::SampleTrack(AudioPool* pool, SampleConfig* samples) 
+SampleManager::SampleManager(AudioPool* pool, SampleConfig* samples) 
 {
 	mPlayerList = nullptr;
 	mSampleCount = 0;
 	mLastSample = -1;
-	mTrackProcessed = false;
 
     // the player list is represented both as a linked list and as an array
     // the list is authoritative, and the array is build as a cache
@@ -89,7 +88,7 @@ SampleTrack::SampleTrack(AudioPool* pool, SampleConfig* samples)
     // could have caught this earlier, just leave them
     // there but you won't be able to trigger them
     if (player != nullptr) {
-        Trace(1, "SampleTrack: Too many samples!\n");
+        Trace(1, "SampleManager: Too many samples!\n");
     }
 }
 
@@ -98,7 +97,7 @@ SampleTrack::SampleTrack(AudioPool* pool, SampleConfig* samples)
  * Destruction of the SamplePlayer will return the Audio to the pool
  * it came from.
  */
-SampleTrack::~SampleTrack()
+SampleManager::~SampleManager()
 {
 	delete mPlayerList;
 }
@@ -115,7 +114,7 @@ SampleTrack::~SampleTrack()
  *
  * jsl - this is kept around for reference but not currently used
  * If difference detection is done by MobiusShell, then it is relatively
- * safe for it to obtain to a handle to the live SampleTrack for comparison
+ * safe for it to obtain to a handle to the live SampleManager for comparison
  * but it's an ugly violation of encapsulation.
  *
  * If the differenceing is done by the kernel, then we have to pass the whole
@@ -129,7 +128,7 @@ SampleTrack::~SampleTrack()
  * than the new Sample list.
  *
  */
-bool SampleTrack::isDifference(SampleConfig* samples)
+bool SampleManager::isDifference(SampleConfig* samples)
 {
     bool difference = false;
     

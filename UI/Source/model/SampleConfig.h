@@ -81,7 +81,7 @@ class SampleConfig
  * A list of these will be found in a Samples object which in turn
  * will be in the MobiusConfig.
  *
- * We convert these to SamplePlayers managed by one SampleTrack.
+ * We convert these to SamplePlayers managed by one SampleManager.
  */
 class Sample
 {
@@ -96,6 +96,11 @@ class Sample
 
 	void setFilename(const char* file);
 	const char* getFilename();
+
+    // playback characteristics
+    // these were never used, and shouldn't be at this level anyway
+    // how the sample is played should be under the control
+    // by something higher, possibly under ad-hoc user control
 
 	void setSustain(bool b);
 	bool isSustain();

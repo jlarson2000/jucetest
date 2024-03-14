@@ -61,7 +61,7 @@
 
 #include "AudioPool.h"
 #include "Audio.h"
-#include "SampleTrack.h"
+//#include "SampleTrack.h"
 
 #include "Recorder.h"
 

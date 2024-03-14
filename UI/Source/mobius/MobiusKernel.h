@@ -87,7 +87,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // use static members eventually
     
     class Recorder* mRecorder = nullptr;
-    class SampleTrack* sampleTrack = nullptr;
+    class SampleManager* samples = nullptr;
 
     // the big guy
     // make this a stack object at some point
@@ -95,9 +95,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
 
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
-    void installSampleTrack(class KernelMessage* msg);
+    void installSamples(class KernelMessage* msg);
     void initRecorder();
-    //void installSamples(class SamplePack* pack);
 
     void doAction(KernelMessage* msg);
     

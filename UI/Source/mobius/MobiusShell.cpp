@@ -20,7 +20,7 @@
 
 #include "MobiusContainer.h"
 #include "MobiusKernel.h"
-#include "SampleTrack.h"
+#include "SampleManager.h"
 #include "Simulator.h"
 #include "AudioPool.h"
 
@@ -166,7 +166,7 @@ void MobiusShell::configure(MobiusConfig* config)
 
 /**
  * Install loaded samples.
- * This builds a new SampleTrack and sends it to the kernel.
+ * This builds a new SampleManager and sends it to the kernel.
  * We could do difference detection here, but that should have been
  * doen earlier before we bothered loading it.
  *
@@ -174,16 +174,16 @@ void MobiusShell::configure(MobiusConfig* config)
  */
 void MobiusShell::installSamples(SampleConfig* samples)
 {
-    SampleTrack* track = new SampleTrack(&audioPool, samples);
+    SampleManager* manager = new SampleManager(&audioPool, samples);
 
-    // SampleTrack took what it needed and left this behind
+    // SampleManager took what it needed and left this behind
     // it didn't actually steal the float buffers
     delete samples;
 
     KernelMessage* msg = communicator.shellAlloc();
     if (msg != nullptr) {
-        msg->type = MsgSampleTrack;
-        msg->object.sampleTrack = track;
+        msg->type = MsgSamples;
+        msg->object.samples = manager;
         communicator.shellSend(msg);
     }
 }
@@ -274,9 +274,9 @@ void MobiusShell::consumeCommunications()
                 delete msg->object.configuration;
             }
                 break;
-            case MsgSampleTrack: {
-                // kernel is giving us back the old SampleTrack
-                delete msg->object.sampleTrack;
+            case MsgSamples: {
+                // kernel is giving us back the old SampleManager
+                delete msg->object.samples;
             }
             case MsgAction: {
                 // kernel returns a processed action

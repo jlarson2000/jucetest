@@ -1,11 +1,34 @@
 /**
- * outstanding issues:
- *   SampleTrack::updateConfiguration
- * 
- * This file contains the implementation of SampleTrack methods
- * related to runtime execution.
+ * Manages a collection of audio fragments that may be injected into
+ * the real-time audio stream.  This was developed for Mobius testing.
  *
- * Code for building a SampleTrack is in SampleTrackBuilder
+ * In old code this was wound up in the Recorder model which has been removed.
+ * It is now a relatlvey standalone component managed directly by
+ * MobiusKernel.
+ * 
+ * Outstanding issues:
+ * 
+ * SamplePlayer wants to receive notifications when the input/output
+ * latencies change
+ *
+ * The notion of SampleTrigger might not be necessary any more,
+ * comments inticate it was at least partially replaced by Actions
+ *
+ * SampleManager::updateConfiguration
+ *       void updateConfiguration(class MobiusConfig* config);
+ *   what does it do?
+ *
+ * Some lingering ambiguity over how "record" cursors are supposed to
+ * work.  Since behavior is expected by the unit tests, don't redesign
+ * anything right now, but need to revisit this if this evolves into
+ * a more flexible sample player.
+ * 
+ * ---
+ * 
+ * To make a cleaner separation between real-time and "UI" code,
+ * the samples are read from files and the SampleManager is constructed
+ * by SampleLoader outside of the audio thread.  Any code within
+ * SampleManager can be assumed to be running in the audio thread.
  *
  */
 
@@ -17,9 +40,8 @@
 #include "MobiusContainer.h"
 
 #include "Audio.h"
-#include "Recorder.h"
 
-#include "SampleTrack.h"
+#include "SampleManager.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -93,11 +115,9 @@ long SamplePlayer::getFrames()
 /**
  * Incorporate changes made to the global configuration.
  * Trying to avoid a Mobius dependency here so pass in what we need.
- * Keep this out of SampleCursor so we don't have to mess with
- * synchronization between the UI and audio threads.
  *
- * UPDATE: Sample triggers are handled by Actions now so we will
- * always be in the audio thread.
+ * TODO: Latency can't vary on a per-Sample basis so this needs
+ * to be held in SampleManager.
  */
 void SamplePlayer::updateConfiguration(int inputLatency, int outputLatency)
 {
@@ -106,6 +126,10 @@ void SamplePlayer::updateConfiguration(int inputLatency, int outputLatency)
 }
 
 /**
+ * Old code tried to deal with keyboard audo-repeat.  This is done
+ * at a higher level now so some of this isn't relevant.
+ *
+ * Old comments:
  * If this is bound to the keyboard, auto-repeat will keep
  * feeding us triggers rapidly.  If this isn't a sustain sample,
  * then assume this means we're supposed to restart.  If it is a
@@ -248,7 +272,11 @@ void SamplePlayer::play(float* inbuf, float* outbuf, long frames)
  * Allocate a cursor.
  * Keep these pooled since there are several things in them.
  * Ideally there should be only one pool, but we would have
- * to root it in SampleTrack and pass it down.
+ * to root it in SampleManager and pass it down.
+ *
+ * TODO: Dynamic memory allocation
+ * Keep for now since this is mostly a testing tool, but
+ * should be using a proper pool with allocations managed in the shell.
  */
 SampleCursor* SamplePlayer::newCursor()
 {
@@ -329,7 +357,7 @@ void SampleCursor::setSample(SamplePlayer* s)
 		// buffer immediately, at least after a Wait has been executed
 		// and we're out of latency compensation mode.  We probably need to 
 		// be more careful about passing the latency context down
-		// from SampleTrack::trigger, until then assume we're not
+		// from SampleManager::trigger, until then assume we're not
 		// compensating for latency
 
         //mFrame = -(mSample->mInputLatency);
@@ -508,15 +536,15 @@ void SampleCursor::play(float* outbuf, long frames)
 
 //////////////////////////////////////////////////////////////////////
 //
-// SampleTrack
+// SampleManager
 //
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Don't need this.  mSampleCount was calculated at constructed and you
+ * Don't need this.  mSampleCount was calculated at construction and you
  * can't change the list after that.
  */
-int SampleTrack::getSampleCount()
+int SampleManager::getSampleCount()
 {
     int count = 0;
     for (SamplePlayer* p = mPlayerList ; p != nullptr ; p = p->getNext())
@@ -525,40 +553,29 @@ int SampleTrack::getSampleCount()
 }
 
 /**
- * Must overload this so we're processed first and can insert audio
- * into the input buffer.
+ * Called whenever a new MobiusConfig is installed.  Check for changes
+ * in latency for compensation.
+ *
+ * TOOD: formerly got this from MobiusConfig which tried to force the
+ * buffer size, and allowed percieved latency to be overridden from what
+ * the hardware things for testing and performance tuning.
+ *
+ * Probably still want an override but now these should default to
+ * comming from the MobiusContainer.
  */
-bool SampleTrack::isPriority()
+void SampleManager::updateConfiguration(MobiusConfig* config)
 {
-    return true;
-}
-
-/**
- * Called whenever a new MobiusConfig is installed in the interrupt
- * handler.  Check for changes in latency overrides.
- * Note that we have to go to Mobius rather than look in the MobiusConfig
- * since the config is often zero so we default to what the device tells us.
- * !! This will end up using the "master" MobiusConfig rather than
- * mInterruptConfig.  For this it shouldn't matter but it still feels
- * unclean.  
- */
-void SampleTrack::updateConfiguration(MobiusConfig* config)
-{
-    // jsl - commenting this out because I want to understand where
-    // it is called, we don't have a mMobius pointer any more
-    // and if we're going to get latencies should be getting them
-    // from the MobiusContainer
-/*    
+    // commented out till we can work through the new MobiusContainer
+#if 0
     // config is ignored since we're only interested in latencies right now
 	for (int i = 0 ; i < mSampleCount ; i++)
 	  mPlayers[i]->updateConfiguration(mMobius->getEffectiveInputLatency(),
 									   mMobius->getEffectiveOutputLatency());
-*/
+#endif
 }
 
 /**
- * Trigger a sample to begin playing.
- * Called by the SamplePlay action in the interrupt.
+ * Trigger a sample to begin playing. Called by the SamplePlay action.
  *
  * There used to be some extremely contorted logic in here to do processing
  * of the AudioStream buffers early, which would possibly (always) modify the
@@ -595,10 +612,10 @@ void SampleTrack::updateConfiguration(MobiusConfig* config)
  * to recapture the test files, follow the old behavior.  But note that we have
  * to be careful *not* to do this twice in one interupt.  Now that scripts
  * are called before any tracks are processed, we may not need to begin playing, 
- * but wait for SampleTrack::processBuffers below.
+ * but wait for SampleManager::processBuffers below.
  */
 
-void SampleTrack::trigger(int index, bool down)
+void SampleManager::trigger(int index, bool down)
 {
 	if (index < mSampleCount) {
 		mPlayers[index]->trigger(down);
@@ -615,7 +632,7 @@ void SampleTrack::trigger(int index, bool down)
 
 }
 
-long SampleTrack::getLastSampleFrames()
+long SampleManager::getLastSampleFrames()
 {
 	long frames = 0;
 	if (mLastSample >= 0)
@@ -629,21 +646,24 @@ long SampleTrack::getLastSampleFrames()
 //
 //////////////////////////////////////////////////////////////////////
 
-void SampleTrack::prepareForInterrupt()
+/**
+ * Called by MobiusKernel when buffers are received from the container.
+ * 
+ * In the old Recorder model, each track could be configured to receive/send
+ * on a "port" which was a set of stereo channels.  Samples were always processed
+ * on port zero, which was fine for testing but would need to be more flexible
+ * if this ever evolves.
+ */
+void SampleManager::containerAudioAvailable(class MobiusContainer* container)
 {
-	// kludge see comments in trigger()
-	mTrackProcessed = false;
-}
+    long frames = container->getInterruptFrames();
+    float* input = nullptr;
+    float* output = nullptr;
 
+    container->getInterruptBuffers(0, &input, 0, &output);
 
-void SampleTrack::processBuffers(MobiusContainer* stream, 
-								 float* inbuf, float *outbuf, long frames, 
-								 long frameOffset)
-{
 	for (int i = 0 ; i < mSampleCount ; i++)
-	  mPlayers[i]->play(inbuf, outbuf, frames);
-
-	mTrackProcessed = true;
+	  mPlayers[i]->play(input, output, frames);
 }
 
 /****************************************************************************/

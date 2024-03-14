@@ -345,13 +345,14 @@
         <FILE id="TK5FKu" name="MobiusShell.h" compile="0" resource="0" file="Source/mobius/MobiusShell.h"/>
         <FILE id="w8ViL0" name="Recorder.cpp" compile="1" resource="0" file="Source/mobius/Recorder.cpp"/>
         <FILE id="wmtmEF" name="Recorder.h" compile="0" resource="0" file="Source/mobius/Recorder.h"/>
+        <FILE id="p07BSI" name="SampleBuilder.cpp" compile="1" resource="0"
+              file="Source/mobius/SampleBuilder.cpp"/>
+        <FILE id="wwdEks" name="SampleManager.cpp" compile="1" resource="0"
+              file="Source/mobius/SampleManager.cpp"/>
+        <FILE id="k4TZKG" name="SampleManager.h" compile="0" resource="0" file="Source/mobius/SampleManager.h"/>
         <FILE id="JOsfQX" name="SampleReader.cpp" compile="1" resource="0"
               file="Source/mobius/SampleReader.cpp"/>
         <FILE id="RDP88j" name="SampleReader.h" compile="0" resource="0" file="Source/mobius/SampleReader.h"/>
-        <FILE id="JDq469" name="SampleTrack.cpp" compile="1" resource="0" file="Source/mobius/SampleTrack.cpp"/>
-        <FILE id="g30EuW" name="SampleTrack.h" compile="0" resource="0" file="Source/mobius/SampleTrack.h"/>
-        <FILE id="Ww1hcO" name="SampleTrackBuilder.cpp" compile="1" resource="0"
-              file="Source/mobius/SampleTrackBuilder.cpp"/>
         <FILE id="YMzqJ9" name="Simulator.cpp" compile="1" resource="0" file="Source/mobius/Simulator.cpp"/>
         <FILE id="UuGokK" name="Simulator.h" compile="0" resource="0" file="Source/mobius/Simulator.h"/>
         <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>

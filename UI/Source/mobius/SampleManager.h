@@ -1,42 +1,21 @@
 /**
- * outstanding issues:
- * 
- * SamplePlayer wants to receive notifications when the input/output
- * latencies change
+ * manages a collection of audio fragments that may be injected into
+ * the real-time audio stream.  This was developed for Mobius testing
+ * but could provide the foundatation for a more flexible sample playback
+ * plugin.
  *
- * The notion of SampleTrigger might not be necessary any more,
- * comments inticate it was at least partially replaced by Actions
+ * One unusual feature is that samples can not only be played but they
+ * can be injected into the INPUT buffers of the audio stream for processing
+ * by other things.  This is how we feed audio data into Mobius without
+ * having to actually be playing an instrument.
  *
- * SampleTrack::updateConfiguration
- *       void updateConfiguration(class MobiusConfig* config);
- *   what does it do?
- *     
+ * The samples to manage are defined in a SampleConfig object edited by the UI
+ * and stored in files.  These are read by the SampleLoader to construct
+ * the SampleManager, SamplePlayer, and SampleCursors.
  *
- * ---
- * 
- * A RecorderTrack extension that allows the playback of
- * read-only fragments of audio.
+ * Samples are triggered from the UI with a UIAction with the UIFunction
+ * SampleTrigger
  *
- * This is built from a set of sample files defined in
- * the SampleConfig object.
- *
- * There are two execution contexts for the code in these
- * classes and I don't like it, but just get it working and
- * refine it later.
- *
- * The construction of the objects is always done in the UI
- * thread by the MobiusShell where memory allocation is allowed.
- * Once constructed the entire SampleTrack is passed to kernel
- * through a KernelMessage.
- *
- * The Kernel then installs the track and starts using it.
- * Most of the code in these classes is related to actually
- * using it, not building it.
- *
- * Loading the sample data from .wav files has been moved to
- * SampleReader and is expected to be done by the UI.  When
- * SampleConfig is passed to MobiusInterface it is expected to
- * contain loaded buffers of sample data.
  */
 
 #pragma once
@@ -44,12 +23,10 @@
 //#include <stdio.h>
 
 #include "../model/SampleConfig.h"
-#include "Recorder.h"
 
 //////////////////////////////////////////////////////////////////////
 //
 // SampleTrigger
-// part of the SamplePlayer model
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -91,7 +68,7 @@ typedef struct {
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Represents one loaded sample that can be played by SampleTrack.
+ * Represents one loaded sample that can be played by SampleManager.
  *
  * old comment:
  * Might be interesting to give this capabilities like Segemnt
@@ -117,8 +94,8 @@ class SamplePlayer
     // filename saved only for different detection
     const char* getFilename();
 
-	void setAudio(Audio* a);
-	Audio* getAudio();
+	void setAudio(class Audio* a);
+	class Audio* getAudio();
 	long getFrames();
 
 	void setSustain(bool b);
@@ -141,6 +118,8 @@ class SamplePlayer
     // introduce a dependency on MobiusConfig or MobiusContainer at this level.
     // Although these are only used by SampleCursor, they're maintained here to 
     // make them easier to update.
+    // Since they apply to anything within the MobiusContainer they should
+    // be on the SampleManager, not each SamplePlayer
     //
     
 	/**
@@ -151,7 +130,7 @@ class SamplePlayer
 	long mFadeFrames;
 
     /**
-     * Number of frames of input latency, taken from the audio stream (MobiusContainer)
+     * Number of frames of input latency, taken from the audio stream container
      */
     long mInputLatency;
 
@@ -167,7 +146,7 @@ class SamplePlayer
     void freeCursor(class SampleCursor* c);
 
 	SamplePlayer* mNext;
-	Audio* mAudio;
+	class Audio* mAudio;
 
 	// flags copied from the Sample
     char* mFilename;
@@ -191,11 +170,20 @@ class SamplePlayer
      */
     class SampleCursor* mCursors;
 
+    /**
+     * A pool of unused cursors.
+     * These are still allocated dynamically which is bad, and needs
+     * to be redesigned into a propery pool with allocations managed
+     * by the shell.
+     */
     class SampleCursor* mCursorPool;
 
     /**
      * Transient runtime trigger state to detect keyboard autorepeat.
-     * This may conflict with MIDI triggering!
+     * This may conflict with MIDI triggering!?
+     *
+     * UPDATE: Key repeat is now suppressed at a much higher level, may
+     * be able to get rid of this.
      */
     bool mDown;
 
@@ -211,7 +199,7 @@ class SamplePlayer
  * Encapsulates the state of one trigger of a SamplePlayer.
  * A SamplePlayer may activate more than one of these if the sample
  * is triggered again before the last one, and I assume if concurrency
- * is alloed.
+ * is allowed.
  */
 class SampleCursor
 {
@@ -244,9 +232,11 @@ class SampleCursor
 	void stop(long maxFrames);
 
     SampleCursor* mNext;
+    // this cursor is used when injecting audio into the input buffers??
+    // forget how this worked
     SampleCursor* mRecord;
     SamplePlayer* mSample;
-	AudioCursor* mAudioCursor;
+	class AudioCursor* mAudioCursor;
 
     bool mStop;
     bool mStopped;
@@ -267,27 +257,24 @@ class SampleCursor
 
 //////////////////////////////////////////////////////////////////////
 //
-// SampleTrack
+// SampleManager
 //
 //////////////////////////////////////////////////////////////////////
 
 /**
- * The maximum number of samples that SampleTrack can manage.
+ * The maximum number of samples that SampleManager can manage.
  */
 #define MAX_SAMPLES 8
 
 /**
- * Makes a collection of SamplePlayers available for realtime playback
- * through the Recorder.
+ * Makes a collection of SamplePlayers available for realtime playback.
  */
-class SampleTrack : public RecorderTrack {
-
+class SampleManager
+{
   public:
 
-    // These are constructed in the UI thread from a SampleConfig
-    // and can pull information from the MobiusConfig and the container
-	SampleTrack(class AudioPool* pool, class SampleConfig* samples);
-	~SampleTrack();
+	SampleManager(class AudioPool* pool, class SampleConfig* samples);
+	~SampleManager();
 
     // return true if the contents of this track are different
     // than what is defined in the SampleConfig
@@ -296,10 +283,10 @@ class SampleTrack : public RecorderTrack {
     // no longer be necessary and could have been done by the UI
     bool isDifference(class SampleConfig* samples);
 
-	bool isPriority();
     int getSampleCount();
 
-    // todo: unclear what this does
+    // todo: supposed to respond to audio devlce changes
+    // and adjust latency compensation
     void updateConfiguration(class MobiusConfig* config);
 
 	/**
@@ -315,22 +302,17 @@ class SampleTrack : public RecorderTrack {
 	 */
     void trigger(MobiusContainer* stream, int index, bool down);
 
-
-    void prepareForInterrupt();
-	void processBuffers(class MobiusContainer* stream,
-						float* inbuf, float *outbuf, long frames, 
-						long frameOffset);
+    // called when buffers are available
+    void containerAudioAvailable(class MobiusContainer* cont);
 
   private:
 	
 	void init();
 
-	// class MobiusShell* mMobius;
 	SamplePlayer* mPlayerList;
 	SamplePlayer* mPlayers[MAX_SAMPLES];
 	int mSampleCount;
 	int mLastSample;
-	bool mTrackProcessed;
 
 };
 

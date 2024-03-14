@@ -1072,13 +1072,13 @@
     <ClCompile Include="..\..\Source\mobius\Recorder.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\SampleBuilder.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\SampleManager.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\SampleTrack.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\SampleTrackBuilder.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Simulator.cpp">
@@ -3963,10 +3963,10 @@
     <ClInclude Include="..\..\Source\mobius\Recorder.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\SampleReader.h">
+    <ClInclude Include="..\..\Source\mobius\SampleManager.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\SampleTrack.h">
+    <ClInclude Include="..\..\Source\mobius\SampleReader.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Simulator.h">

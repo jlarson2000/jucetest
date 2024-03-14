@@ -16,7 +16,7 @@
 
 #include "Recorder.h"
 #include "Audio.h"
-#include "SampleTrack.h"
+#include "SampleManager.h"
 
 // drag this bitch in
 #include "core/Mobius.h"
@@ -59,6 +59,8 @@ MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
  */
 MobiusKernel::~MobiusKernel()
 {
+    delete samples;
+    
     // old interface wanted a shutdown method not in the destructor
     // revisit this
     if (mCore != nullptr) {
@@ -136,7 +138,7 @@ void MobiusKernel::consumeCommunications()
         switch (msg->type) {
 
             case MsgConfigure: reconfigure(msg); break;
-            case MsgSampleTrack: installSampleTrack(msg); break;
+            case MsgSamples: installSamples(msg); break;
             case MsgAction: doAction(msg); break;
         }
         
@@ -273,6 +275,12 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
     // call Mobius::reconfigure
     consumeCommunications();
 
+    // let SampleManager do it's thing
+    if (samples != nullptr)
+      samples->containerAudioAvailable(cont);
+
+    // Mobius has three phases because Recorder is welded in between, temporary
+
     // let the core prepare for buffers
     if (mCore != nullptr)
       mCore->beginAudioInterrupt();
@@ -294,40 +302,25 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 //////////////////////////////////////////////////////////////////////
 
 /**
- * We've just consumed the pending SampleTrack from the shell.
- * Spray it into the Recorder
+ * We've just consumed the pending SampleManager from the shell.
+ *
+ * TODO: If samples are currently playing need to stop them gracefully
+ * or we'll get clicks.  Not important right now.
+ * 
  */
-void MobiusKernel::installSampleTrack(KernelMessage* msg)
+void MobiusKernel::installSamples(KernelMessage* msg)
 {
-    SampleTrack* old = sampleTrack;
-    sampleTrack = msg->object.sampleTrack;
+    SampleManager* old = samples;
+    samples = msg->object.samples;
 
-    // have to replace it within the Recorder too
     if (old == nullptr) {
-        // first time, just add it
-        mRecorder->add(sampleTrack);
         // nothing to return
         communicator->kernelAbandon(msg);
     }
     else {
-        bool replaced = mRecorder->replace(old, sampleTrack);
-        if (replaced) {
-            // return the old one
-            msg->object.sampleTrack = old;
-            communicator->kernelSend(msg);
-        }
-        else {
-            // wasn't isntalled, should not happen
-            // we can add it, but since sampleTrack was set we've
-            // been using something that the recorder didn't have
-            // which is a problem
-            Trace(1, "MobiusKernel: SampleTrack replacement failed!\n");
-            mRecorder->add(sampleTrack);
-            // return the old as usual, but could also not add it
-            // and return the new one too since we're in a weird state
-            msg->object.sampleTrack = old;
-            communicator->kernelSend(msg);
-        }
+        // return the old one
+        msg->object.samples = old;
+        communicator->kernelSend(msg);
     }
 }
 
@@ -342,7 +335,7 @@ void MobiusKernel::installSampleTrack(KernelMessage* msg)
  * First we check for actions that can be perormed by the
  * new kernel-level code.  If not, then we pass it down to the old core.
  *
- * There isn't much we do up here, currently just managing the SampleTrack
+ * There isn't much we do up here, currently just the SampleManager
  */
 void MobiusKernel::doAction(KernelMessage* msg)
 {
@@ -354,7 +347,7 @@ void MobiusKernel::doAction(KernelMessage* msg)
     if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == SamplePlay) {
-            if (sampleTrack != nullptr) {
+            if (samples != nullptr) {
                 // start one of the samples playing
                 // when we had replicated Sample1, Sample2 functions the
                 // sample index was embedded in the Function object, now
@@ -368,7 +361,7 @@ void MobiusKernel::doAction(KernelMessage* msg)
                 // if they didn't set an arg, then just play the first one
                 int index = (number > 0) ? number - 1 : 0;
                 // mSampleTrack->trigger(mInterruptStream, index, action->down);
-                sampleTrack->trigger(index, action->down);
+                samples->trigger(index, action->down);
             }
         }
         else {
