@@ -233,6 +233,8 @@
           </GROUP>
           <FILE id="bzTZ6i" name="Action.cpp" compile="1" resource="0" file="Source/mobius/core/Action.cpp"/>
           <FILE id="KEOJ4i" name="Action.h" compile="0" resource="0" file="Source/mobius/core/Action.h"/>
+          <FILE id="a0lb08" name="Actionator.cpp" compile="1" resource="0" file="Source/mobius/core/Actionator.cpp"/>
+          <FILE id="nn36LQ" name="Actionator.h" compile="0" resource="0" file="Source/mobius/core/Actionator.h"/>
           <FILE id="SJ01Nd" name="AudioConstants.h" compile="0" resource="0"
                 file="Source/mobius/core/AudioConstants.h"/>
           <FILE id="ESvyKr" name="CriticalSection.h" compile="0" resource="0"

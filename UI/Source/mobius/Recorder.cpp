@@ -1,14 +1,34 @@
-//
-// issues
-// 
-// The hacky inputBufferModified call that SampleTrack was awful
-// and removed, revisit when we get to unit test sample injection
-//
-// calibrate wants to write a .wav file and Audio no longer supports write()
-// either add it back or do calibration a different way
-//
-
 /**
+ * This is a very old and very simple attempt at a multi-track recorder.
+ * It soon evolved as a container for Tracks containing the guts of the looping
+ * engine and was never used for recording.
+ *
+ * It also housed the SampleTrack for playing samples and had options
+ * for latency calibration, emitting a square wave "signal track" and
+ * an "echo" mode for duplicating the the audio from an input port
+ * to an output port.
+ *
+ * It also did a lot of the audio device management, sitting on top of
+ * PortAudio.
+ *
+ * This was always a rather awkward layer between Mobius and the Tracks
+ * and with the Juce migration it doesn't serve much purpose, and what little
+ * it does should be redesigned to be more flexible.
+ *
+ * It unfortunately has some necessary sensitive code related to track
+ * synchronization so I'm keeping it around for awhile, but this will
+ * eventually go away with Mobius in direct control over Tracks.
+ *
+ * Old comments:
+ * 
+ * issues
+ * 
+ * The hacky inputBufferModified call that SampleTrack was awful
+ * and removed, revisit when we get to unit test sample injection
+ * 
+ * calibrate wants to write a .wav file and Audio no longer supports write()
+ * either add it back or do calibration a different way
+ * 
  * A basic multi-track audio recorder and player.
  *
  * This is mostly the same as it used to be with significant retooling
@@ -22,10 +42,6 @@
  * It is given a MobiusContainer during initialization where it will
  * register itself as a listener for audio events.
  * 
- * This is then the primary entry point between Juce and the engine.
- * The kernel itself doesn't do much beyond managing configuration and
- * communication with the shell.
- *
  * This could use some redesign but it's still a relatively simple and
  * useful layer between the container and the looping tracks where
  * all the complexity lies.  It is more general than I ever used it for
@@ -39,9 +55,6 @@
  * much within the engine and doesn't need to be redesigned right now.
  *
  */
-
-//#include <stdio.h>
-//#include <memory.h>
 
 #include "../util/Util.h"
 #include "../util/Trace.h"

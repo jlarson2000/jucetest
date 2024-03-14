@@ -100,10 +100,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
     juce::Array<class Parameter*> parameterMap;
     void initParameterMap();
     
-    // AudioListener activities
-    void interruptStart();
-    void interruptEnd();
-
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
     void installSampleTrack(class KernelMessage* msg);

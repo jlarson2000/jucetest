@@ -1,4 +1,14 @@
 
+Mobius::getInterruptSetup
+  used by Synchronizer at runtime
+  set mSetup during initialization and reconfigure and use that forever
+
+
+
+
+----------------------------------------------------------------------
+
+
 Got a single 32k block leaking from somewhere
 
 Flesh out LayerElement, fix AudioMeter for input add smaller

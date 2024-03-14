@@ -49,7 +49,9 @@ void SaveLoopFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
-		m->saveLoop(action);
+
+        // code removed pending redesign
+		//m->saveLoop(action);
 	}
 }
 

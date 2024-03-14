@@ -70,7 +70,7 @@ typedef enum {
 
 class Export {
 
-    friend class ActionDispatcher;
+    friend class Actionator;
     friend class Mobius;
     friend class ScriptInterpreter;
     friend class ScriptResolver;

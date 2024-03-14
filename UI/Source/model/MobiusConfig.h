@@ -300,6 +300,7 @@ class MobiusConfig {
 	void addSetup(class Setup* p);
     const char* getActiveSetup();
     void setActiveSetup(const char* name);
+	class Setup* getSetup(const char* name);
 
 	class BindingSet* getBindingSets();
 	void addBindingSet(class BindingSet* bs);

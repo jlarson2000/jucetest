@@ -1,0 +1,269 @@
+This file contains inactive blobs of old code related to Projects
+
+and Loop loading.  Will still want this at some point but it needs
+to be redesigned and I wanted to get it out of Mobius so we can
+see the necessary thigns without all the clutter.
+
+Formerly in recorderMonitorEnter
+
+    // Shift in a new project
+
+	Project* p = mPendingProject;
+	mPendingProject = NULL;
+	if (p != NULL)
+      loadProjectInternal(p);
+
+/**
+ * May be called by the UI to save the current loop to a file.
+ * This is part of MobiusInterface.
+ *
+ * The name is optional and will default to the "quick save" file
+ * global parameter.
+ */
+void Mobius::saveLoop(const char* name)
+{
+	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
+    if (name != NULL)
+      te->setArg(0, name);
+	mThread->addEvent(te);
+}
+
+/**
+ * Called by the invocation of the SaveLoop global function.
+ * 
+ * SaveLoop is one of the few that could be declared with 
+ * outsideInterrupt since all we do is schedule a MobiusThread event.
+ */
+void Mobius::saveLoop(Action* action)
+{
+	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
+
+    // optional file name
+    if (action->arg.getType() == EX_STRING)
+      te->setArg(0, action->arg.getString());
+    action->setThreadEvent(te);
+
+	mThread->addEvent(te);
+}
+
+/****************************************************************************
+ *                                                                          *
+ *   							  SAVE/LOAD                                 *
+ *                                                                          *
+ ****************************************************************************/
+
+/**
+ * Load a new project, this must be processed in the interrupt handler
+ * to avoid contention.  See loadProjectInternal below.
+ */
+void Mobius::loadProject(Project* p)
+{
+	// not bothering with a csect since you really can't laod these that fast
+	if (mPendingProject == NULL)
+	  mPendingProject = p;
+	else {
+        // Need to send an alert back to the UI !!
+		Trace(1, "Mobius: A project is already being loaded.\n");
+		delete p;
+	}
+}
+
+/**
+ * Convenience method to load a project containing a single layer
+ * into the active loop.
+ */
+void Mobius::loadLoop(Audio* a)
+{
+    if (mTrack != NULL) {
+        Loop* loop = mTrack->getLoop();
+        // sigh, Track number is zero based, Loop number is one based
+        Project* p = new Project(a, mTrack->getRawNumber(), loop->getNumber() - 1);
+        // this causes it to merge rather than reset
+        p->setIncremental(true);
+
+        loadProject(p);
+    }
+}
+
+/**
+ * Eventually called by the interrupt handler after we set mPendingProject.
+ *
+ * This must be done inside the interrupt handler.
+ *
+ * Layer references in segments are complicated because there is
+ * no assurance that layer ids are in order or that layers appear
+ * int the same loop or track.  Have to first traverse the project
+ * instantiating Layer objects.  Then make another pass to instantiate
+ * Segments with resolved Layer references.  Then a final pass to 
+ * stitch them to the Track/Loop hierarchy.
+ *
+ * !! This looks like a LOT of work, can we pre-compile any of this before
+ * we pass it into the interrupt handler?  setSetup() and 
+ * setOverlayBindingConfig() come to mind.  But if we're in generalreset
+ * I guess it doesn't matter if we miss a few interrupts.
+ */
+void Mobius::loadProjectInternal(Project* p)
+{
+	p->resolveLayers(mLayerPool);
+
+	List* tracks = p->getTracks();
+
+    if (tracks == NULL) {
+        Trace(2, "Mobius::loadProjectInternal empty project\n");
+    }
+    else if (!p->isIncremental()) {
+		// globalReset to start from a clean slate
+		globalReset(NULL);
+
+		const char* name = p->getSetup();
+		if (name != NULL) {
+            // remember to locate the Setup from the interrupt config
+            Setup* s = GetSetup(mConfig, name);
+            if (s != NULL)
+              setSetupInternal(s);
+        }
+
+		// Global reset again to get the tracks adjusted to the 
+		// state in the Setup.
+		globalReset(NULL);
+
+        // change the selected binding overlay
+        // this is an unusual case where we're in an interrupt but we
+        // must set the master MobiusConfig object to change the
+        // binding overlay since that is not used inside the interrupt
+        // !! this will override what was in the Setup which I guess
+        // is okay if you changed it before saving the project, but most
+        // of the time this will already have been set during setSetupInternal
+        //
+        // TODO: Not sure what this means, commenting out since binding overlays
+        // are rare and shouldn't be down here.  There may be things in the Project
+        // that only the UI is sensitive to, so it can handle those before passing
+        // the reset of the Project down here
+        #if 0
+		name = p->getBindings();
+		if (name != NULL) {
+			BindingConfig* bindings = mConfig->getBindingConfig(name);
+			if (bindings != NULL)
+			  setOverlayBindings(bindings);
+		}
+        
+        // should we let the project determine the track count
+        // or force the project to fit the configured tracks?g
+		for (int i = 0 ; i < mTrackCount ; i++) {
+			if (i < tracks->size()) {
+				ProjectTrack* pt = (ProjectTrack*)tracks->get(i);
+				mTracks[i]->loadProject(pt);
+				if (pt->isActive())
+				  setTrack(i);
+			}
+		}
+        #endif
+        
+        // may now have master tracks
+        mSynchronizer->loadProject(p);
+	}
+	else {
+        // Replace only the loops in the project identified by number.
+        // Currently used only when loading individual loops.  Could beef
+        // this up so we can set more of the track.
+
+		for (int i = 0 ; i < tracks->size() ; i++) {
+			ProjectTrack* pt = (ProjectTrack*)tracks->get(i);
+            int tnum = pt->getNumber();
+            if (tnum < 0 || tnum >= mTrackCount)
+              Trace(1, "Incremental project load: track %ld is out of range\n",
+                    (long)tnum);
+            else {
+                Track* track = mTracks[tnum];
+
+                List* loops = pt->getLoops();
+                if (loops == NULL) 
+                  Trace(2, "Mobius::loadProjectInternal empty track\n");
+                else {
+                    for (int j = 0 ; j < loops->size() ; j++) {
+                        ProjectLoop* pl = (ProjectLoop*)loops->get(j);
+                        int lnum = pl->getNumber();
+                        // don't allow extending LoopCount
+                        if (lnum < 0 || lnum >= track->getLoopCount())
+                          Trace(1, "Incremental project load: loop %ld is out of range\n",
+                                (long)lnum);
+                        else {
+                            Loop* loop = track->getLoop(lnum);
+                            if (pl->isActive())
+                              track->setLoop(loop);
+                            else {
+                                // this is important for Loop::loadProject
+                                // to start it in Pause mode
+                                if (loop == track->getLoop())
+                                  pl->setActive(true);
+                            }
+
+                            loop->reset(NULL);
+                            loop->loadProject(pl);
+
+                            // Kludge: Synchronizer wants to be notified when
+                            // we load individual loops, but we're using
+                            // incremental projects to do that. Rather than
+                            // calling loadProject() call loadLoop() for
+                            // each track.
+                            // !! Revisit this, it would be nice to handle
+                            // these the same way
+                            if (loop == track->getLoop())
+                                mSynchronizer->loadLoop(loop);
+                        }
+                    }
+                }
+            }
+		}
+	}
+
+	delete p;
+}
+
+/**
+ * Capture the state of the Mobius in a Project.
+ * Tried to do this in the interupt handler, but if we have to flatten
+ * layers it's too time consuming.  In theory we could have contention
+ * with functions being applied while the save is in progress, but 
+ * that would be rare.  
+ * !! At least ensure that we won't crash.
+ * 
+ * Note that we're getting copies of Audio objects that are still
+ * technically owned by the Layers.  As long as you save the project
+ * before any radical change, like a Reset, it will be ok.  But if
+ * you Reset or TrackReset and start recording a new loop before
+ * the Project is saved, the Audio's that end up being saved may
+ * not be what you started with.  
+ *
+ * The most important thing is that they remain valid heap objects, which
+ * will be true since we always pool Layer objects.  So, while you
+ * may get the wrong audio, you at least won't crash.  
+ *
+ * Providing an absolutely accurate snapshot requires that we make a copy
+ * of all the Audio objects when building the Project, this may be
+ * a very expensive operation which would cause us to miss interrupts.
+ * 
+ * So, we compromise and give you pointers to "live" objects that will
+ * usuallly remain valid until the project is saved.  The only time
+ * the objects would be modified is if you were running a script that
+ * didn't wait for the save, or if you were using MIDI control at the
+ * same time you were saving the project.  Both are unlikely and avoidable.
+ */
+Project* Mobius::saveProject()
+{
+    Project* p = new Project();
+
+    //BindingConfig* overlay = mConfig->getOverlayBindingConfig();
+    //if (overlay != NULL)
+    //p->setBindings(overlay->getName());
+
+	Setup* s = GetCurrentSetup(mConfig);
+	if (s != NULL)
+	  p->setSetup(s->getName());
+
+	p->setTracks(this);
+	p->setFinished(true);
+
+    return p;
+}
+

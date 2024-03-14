@@ -240,6 +240,9 @@ Event* ResumeScriptFunction::invoke(Action* action, Loop* l)
 
 /**
  * Reload all script files.
+ *
+ * Disabled because this needs to be redesigned in the
+ * new shell/kernel architecture.
  */
 class ReloadScriptsFunction : public Function {
   public:
@@ -263,7 +266,8 @@ void ReloadScriptsFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
-		m->reloadScripts();
+        Trace(1, "ReloadScriptsFunction: Attempted Mobius::reloadScripts!\n");
+		//m->reloadScripts();
 	}
 }
 

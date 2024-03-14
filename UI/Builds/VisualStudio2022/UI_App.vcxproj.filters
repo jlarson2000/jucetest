@@ -934,6 +934,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Action.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Actionator.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\Event.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -3820,6 +3823,9 @@
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Action.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Actionator.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\AudioConstants.h">

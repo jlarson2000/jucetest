@@ -878,6 +878,16 @@ void MobiusConfig::setActiveSetup(const char* name)
     mActiveSetup = CopyString(name);
 }
 
+/**
+ * Search for a Setup by name.
+ * This does a linear name search and is not cached so callers
+ * should do their own caching.
+ */
+Setup* MobiusConfig::getSetup(const char* name)
+{
+    return (Setup*)Structure::find(mSetups, name);
+}
+
 /****************************************************************************
  *                                                                          *
  *   						 BINDINGS MANAGEMENT                            *

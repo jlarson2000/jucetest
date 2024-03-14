@@ -13,6 +13,7 @@
 
 #include "../../util/Trace.h"
 #include "../../model/MobiusState.h"
+
 #include "../Recorder.h"
 #include "../Audio.h"
 #include "../AudioPool.h"
@@ -146,12 +147,9 @@ class Mobius :
     // emerging initialization/reconfigure sequence
     
     void Mobius::newInitialize(class MobiusConfig* config);
-    // these can be private
-    void initializeTracks(int count);
-    void initializeScripts(class ScriptConfig* config);
-    void initializeFunctions();
-    void propagateConfiguration();
-    void updateGlobalFunctionPreferences();
+
+    // !! ugly, this is part of the reconfigure() sequence
+    // but is also called by Loop, why would it do that?
     void setTrack(int index);
     
     //////////////////////////////////////////////////////////////////////
@@ -223,26 +221,6 @@ class Mobius :
 	void setListener(OldMobiusListener* mon);
 	OldMobiusListener* getListener();
     
-    /**
-     * Used to support an interface for assimilating an edited config
-     * but only updating internal state for a portion of it.
-     * That could still be relevant but we'll assume full reconfigure for now.
-     */
-	//void setFullConfiguration(class MobiusConfig* config);
-	//void setGeneralConfiguration(class MobiusConfig* config);
-	//void setPresetConfiguration(class MobiusConfig* config);
-	//void setSetupConfiguration(class MobiusConfig* config);
-	//void setBindingConfiguration(class MobiusConfig* config);
-
-    /**
-     * This I think was an action handler to make it reload script files
-     * after the files were modified outside the application.
-     * Still want that but it needs to be done in Supervisor where
-     * all the other file handling lives.  Make it similar to the way
-     * SampleConfig is loaded and passed in.
-     */
-    void reloadScripts();
-
     // Triggers and Actions
     // A few of these are used by Kernel but those are being
     // brought down, still used in scripts
@@ -274,21 +252,15 @@ class Mobius :
 
     // Tracks
     // used internally only
+    // now used by Actionator
     
     int getTrackCount();
     int getActiveTrack();
     class Track* getTrack(int index);
 
-    // Load/Save
-    // all this needs a complete redesign and moved up
-    
-	void loadLoop(class Audio* a);
-	void loadProject(class Project* a);
-	class Project* saveProject();
-	void saveLoop(const char* name);
-    void saveLoop(class Action* action);
-
-    // External bindings
+    // Actionator
+    class ScriptInterpreter* getScripts();
+    long getInterrupts();
 
     // scripts may still use this?
     class Export* resolveExport(class Action* a);
@@ -393,7 +365,6 @@ class Mobius :
 
     class Track* getTrack();
 	class Synchronizer* getSynchronizer();
-	long getInterrupts();
 	void setInterrupts(long i);
 	long getClock();
 
@@ -409,7 +380,7 @@ class Mobius :
 
 	Audio* getCapture();
 	Audio* getPlaybackAudio();
-	void loadProjectInternal(class Project* p);
+	//void loadProjectInternal(class Project* p);
     class MobiusThread* getThread();
 	void notifyGlobalReset();
 
@@ -421,24 +392,25 @@ class Mobius :
 
   private:
 
-	void stop();
-    bool installScripts(class ScriptConfig* config, bool force);
+    // initialization
+    void locateRuntimeSetup();
+    void initializeTracks();
+    void initializeScripts();
+    void initializeFunctions();
+
+    // reconfigure
+    void propagateConfiguration();
+    void propagateFunctionPreferences();
+    
+    // legacy
+    
     void installWatchers();
-	void updateBindings();
-    void propagateInterruptConfig();
-    void propagateSetupGlobals(class Setup* setup);
     bool unitTestSetup(MobiusConfig* config);
 
 	void setConfiguration(class MobiusConfig* config, bool doBindings);
-	void installConfiguration(class MobiusConfig* config, bool doBindings);
-	class MobiusConfig* loadConfiguration();
-    void initFunctions();
-    void initScriptParameters();
-    void addScriptParameter(class ScriptParamStatement* s);
 	void initObjectPools();
 	void dumpObjectPools();
 	void flushObjectPools();
-	void buildTracks(int count);
 	void tracePrefix();
 	bool isInUse(class Script* s);
 	void startScript(class Action* action, Script* s);
@@ -458,7 +430,6 @@ class Mobius :
     void doParameter(Action* a);
     void doParameter(Action* a, Parameter*p, class Track* t);
     void doControl(Action* a);
-    void doUIControl(Action* a);
     void invoke(Action* a, class Track* t);
 
     //
@@ -479,8 +450,7 @@ class Mobius :
     Watchers* mWatchers;
     class List* mNewWatchers;
 	class MobiusConfig *mConfig;
-    class Setup* mInterruptSetup;
-	class MobiusConfig *mPendingInterruptConfig;
+    class Setup* mSetup;
 	class MidiInterface* mMidi;
 
     class TriggerState* mTriggerState;
@@ -505,17 +475,14 @@ class Mobius :
 	class Synchronizer* mSynchronizer;
 
 	// pending project to be loaded
-	class Project* mPendingProject;
+	//class Project* mPendingProject;
 
     // pending samples to install
 	//class SamplePack* mPendingSamples;
 
 	// pending project to be saved
-	class Project* mSaveProject;
+	//class Project* mSaveProject;
 	
-    // pending setup to switch to
-    int mPendingSetup;
-
     // number of script threads launched
     int mScriptThreadCounter;
 

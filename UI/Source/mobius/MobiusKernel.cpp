@@ -274,41 +274,22 @@ void MobiusKernel::initRecorder()
  */
 void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 {
-    interruptStart();
+    // this may receive an updated MobiusConfig and will
+    // call Mobius::reconfigure
+    consumeCommunications();
 
-    // this isn't a listener, but we make the interface use the same signature
+    // let the core prepare for buffers
+    if (mCore != nullptr)
+      mCore->beginAudioInterrupt();
+
+    // unfortunately have to pass audio through the Recorder
+    // will eventually send this directly to Mobius
+    // Recorder isn't an AudioListener, but it uses the same method signature
     mRecorder->containerAudioAvailable(cont);
 
-    interruptEnd();
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Interrupt Start
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Do various tasks at the start of each audio interface.
- * This is what old mobius called recorderMonitorEnter
- */
-void MobiusKernel::interruptStart()
-{
-    consumeCommunications();
-    if (mCore != nullptr) mCore->beginAudioInterrupt();
-
-
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Interrupt End
-//
-//////////////////////////////////////////////////////////////////////
-
-void MobiusKernel::interruptEnd()
-{
-    if (mCore != nullptr) mCore->endAudioInterrupt();
+    // let the core do any post-audio cleanup
+    if (mCore != nullptr)
+      mCore->endAudioInterrupt();
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -1,5 +1,23 @@
 /**
  * Heavily reduced version of the original primary class.
+ *
+ * There is a mixture of UI and audio thread code in here so be careful.
+ * 
+ * Anything from initialize() on down is called by the UI thread during
+ * the initial build of the runtime model before we are receiving audio blocks.
+ * This code is allowed to allocate memory and is not especially time constrained.
+ *
+ * All other code should be assumed to be in the audio thread and is constrained
+ * by time and system resources.  Some code is shared between initialize() and
+ * reconfigure(), notably propagateConfiguration() that takes a new or modified
+ * MobiusConfig and gives it to the internal components that want to cache
+ * things from it or do limited adjustments to their runtime structures.
+ *
+ * So while it may see like "propagate" code is part of initialization, it is both
+ * and it must not do anything beyond simple config parameter copying.  This is
+ * different than it was before where we allowed recompiling the script environment
+ * and reallocation of the Tracks array in the audio thread.
+ *
  */
 
 #include <stdio.h>
@@ -33,7 +51,7 @@
 #include "MobiusThread.h"
 #include "Mode.h"
 #include "Parameter.h"
-#include "Project.h"
+//#include "Project.h"
 #include "Script.h"
 #include "Synchronizer.h"
 #include "Track.h"
@@ -67,20 +85,14 @@ Mobius::Mobius(MobiusKernel* kernel)
     mAudioPool = kernel->getAudioPool();
 	mRecorder = kernel->getRecorder();
 
-    // temporary adapters for old interfaces
-    mMidi = new StubMidiInterface();
-
     // Kernel may not have a MobiusConfig yet so have to wait
     // to do anything until initialize() is called
     mConfig = nullptr;
-    
-    // this used to be a copy but now we share it
-    // a lot of code still references this so keep the illusion for now
-    mInterruptSetup = nullptr;
-    
-    // don't need the "pending" concept any more
-    mPendingSetup = -1;
+    mSetup = nullptr;
 
+    // temporary adapters for old interfaces
+    mMidi = new StubMidiInterface();
+    
     //
     // Legacy Initialization
     //
@@ -103,9 +115,10 @@ Mobius::Mobius(MobiusKernel* kernel)
     mActions = NULL;
     mLastAction = NULL;
 	mInterrupts = 0;
+
 	mCustomMode[0] = 0;
-	mPendingProject = NULL;
-	mSaveProject = NULL;
+	//mPendingProject = NULL;
+	//mSaveProject = NULL;
 	mAudio = NULL;
 	mCapturing = false;
 	mCaptureOffset = 0;
@@ -119,14 +132,20 @@ Mobius::Mobius(MobiusKernel* kernel)
     
     // initialize the object tables
     // some of these use "new" and must be deleted on shutdown
+    // move this to initialize() !!
     MobiusMode::initModes();
     Function::initStaticFunctions();
     Parameter::initParameters();
 }
 
 /**
- * Quite different now since we don't own everything.
- * It is currently required that you call shutdown first.
+ * Release any lingering resources.
+ *
+ * Currently requiring that shutdown() be called first to
+ * handle the awkward interconnection between Recorder and Track.
+ * Need to detach the Tracks from the Recorder so it won't delete
+ * them and we can delete them here.  Temporary until we can
+ * get rid of Recorder.
  */
 Mobius::~Mobius()
 {
@@ -136,6 +155,9 @@ Mobius::~Mobius()
 	else {
 		Trace(1, "Mobius::~Mobius mHalting was set!\n");
 	}
+
+    // things owned by Kernel that can't be deleted
+    // mContainer, mAudioPool, mRecorder, mConfig, mSetup
 
     delete mWatchers;
     delete mNewWatchers;
@@ -181,11 +203,12 @@ Mobius::~Mobius()
 }
 
 /**
- * Sigh, for freeStaticObjects to work,
- * have to stick them in an array to begin with.
+ * Temporary hack for memory leak debugging.
+ * Called by Kernel when it is constructed and before Mobius is constructed.
+ * Note that we call these again in the Mobius constructor so they need to
+ * be prepared for redundant calls.
  *
- * This is currently called by Kernel in it's constructor.
- * Should be possible to move this to the Mobius constructor.
+ * Can remove this eventually.
  */
 void Mobius::initStaticObjects()
 {
@@ -195,7 +218,13 @@ void Mobius::initStaticObjects()
 }
 
 /**
- * For debugging a memory leak in static alloations
+ * Partner to the initStaticObjects memory leak test.
+ * Called by Kernel when it is destructed AFTER Mobius is destructed.
+ * deleteParameters is also called by ~Mobius so it needs to deal with
+ * redundant calls.
+ *
+ * This was used to test leaks in the static object arrays without
+ * instantiating Mobius.  Can be removed eventually.
  */
 void Mobius::freeStaticObjects()
 {
@@ -214,6 +243,9 @@ void Mobius::freeStaticObjects()
  * I don't think we need to retain that, the current assumption is that you
  * won't call shutdown until you're ready to delete it, and if that holds
  * this could all just be done in the destructore.
+ *
+ * It is currently required that this be called before destructor to unwind
+ * the ugly ownership dependency that Recorder has on Track.  
  */
 void Mobius::shutdown()
 {
@@ -260,21 +292,6 @@ void Mobius::shutdown()
     // !! clear the Layer pool?  Not if we're in a VST and will
 	// resume again later...
 	// this could cause large leaks
-}
-
-/**
- * Called by Kernel after initialization and we've been running and
- * the user has edited the configuration.
- */
-void Mobius::reconfigure(class MobiusConfig* config)
-{
-    // at the very least update our pointers
-    // subcomponents were not allowed to keep old values of these
-    // todo: propagate interesting content
-    mConfig = config;
-
-    // this is what I'd like to start doing consistently
-    // propagateConfiguration();
 }
 
 /**
@@ -342,9 +359,8 @@ int Mobius::getParameter(Parameter* p, int trackNumber)
 // Initialization
 //
 // Code in this area is called by Kernel during the initialization phase
-// before the audio stream is active.
-//
-// We are in the UI thread and it is acceptable to allocate memory.
+// before the audio stream is active.  It will only be called once
+// during the Mobius lifetime.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -357,8 +373,10 @@ int Mobius::getParameter(Parameter* p, int trackNumber)
  * supervisor initialization which Juce controls.  Unclear the thread
  * but we're allowed to do anything at this point. 
  *
+ * We are allowed to allocate memory.
+ * 
  */
-void Mobius::newInitialize(MobiusConfig* config)
+void Mobius::initialize(MobiusConfig* config)
 {
     // can save this until the next call to reconfigure()
     mConfig = config;
@@ -369,6 +387,19 @@ void Mobius::newInitialize(MobiusConfig* config)
     // doesn't seem to be maintaining this right, force it on
     TraceDebugLevel = 4;
 
+    // Sanity check on some important parameters
+    // TODO: Need more of these...
+    if (mConfig->getTracks() <= 0) {
+        // don't see a need to be more flexible here
+        int newCount = 1;
+        Trace(1, "Mobius::initialize Missing track count, adjusting to %d\n", newCount);
+        mConfig->setTracks(newCount);
+    }
+
+    // determine the Setup to use, bootstrap if necessary
+    // sets mSetup
+    locateRuntimeSetup();
+    
     // will need a way for this to get MIDI
     mSynchronizer = new Synchronizer(this, mMidi);
 
@@ -381,69 +412,100 @@ void Mobius::newInitialize(MobiusConfig* config)
     //if (!mContext->isDebugging())
     mThread->setTraceListener(true);
 
-    // here on down was once installConfiguration()
-    
-    // Sanity check on some important parameters
-    // TODO: Need more of these...
-    if (config->getTracks() <= 0) {
-        Trace(1, "Fixing track count\n");
-        config->setTracks(1);
-    }
-    
 	// Build the track list
-    initializeTracks(config->getTracks());
+    initializeTracks();
 
     // compile and install scripts, builds the ScriptEnv
-    initializeScripts(config->getScriptConfig());
+    initializeScripts();
     
     // common, thread safe configuration propagation
     propagateConfiguration();
 }
 
 /**
+ * Utility to determine the Setup to use, with warnings about misconfiguration
+ * and Bootstrapping if necessary.
+ *
+ * Using the unusual "locate" name here to distinguish this from getSetup() which
+ * just returns the cached pointer.  This is intended for use only by
+ * initialize() and reconfigure().
+ *
+ * This just sets mSetup, it does not propagate any parameters it contains.
+ */
+void Mobius::locateRuntimeSetup()
+{
+    const char* name = mConfig->getActiveSetup();
+    mSetup = mConfig->getSetup(name);
+    if (mSetup == nullptr) {
+        // not normal, might be in test environments using a minimal config
+        // or the name may be stale
+        if (name != nullptr) {
+            Trace(1, "Mobius::initialize Invalid Setup name %s\n", name);
+        }
+        // fall back to the first Setup
+        mSetup = mConfig->getSetups();
+        if (mSetup == nullptr) {
+            // REALLY minimal config, fake one up and put it on the config so
+            // it doesn't leak, should not happen normally
+            Trace(1, "Mobius::initialize Bootstrapping initial Setup %s\n", name);
+            mSetup = new Setup();
+            mSetup->setName("Bootstrap");
+            mConfig->setSetups(mSetup);
+        }
+    }
+}
+
+/**
  * Called by initialize() to set up the tracks for the first time.
- * We do not yet support incremental track restructuring so Setup
+ * We do not yet support incremental track restructuring so MobiusConfig
  * changes that alter the track count will have no effect until after restart.
  */
-void Mobius::initializeTracks(int count)
+void Mobius::initializeTracks()
 {
-    // must have at least one, should have fixed this by now
-    if (count <= 0) count = 1;
+    int count = mConfig->getTracks();
 
-    // limit this while testing leaks
-    //count = 1;
+    // should have caught misconfigured count earlier
+    if (count > 0) {
 
-    Track** tracks = new Track*[count];
+        // limit this while testing leaks
+        //count = 1;
 
-    // IMPORTANT: This is the key connection point between Recorder and core
-    Recorder* rec = mKernel->getRecorder();
+        Track** tracks = new Track*[count];
+
+        // IMPORTANT: This is the key connection point between Recorder and core
+        Recorder* rec = mKernel->getRecorder();
         
-    for (int i = 0 ; i < count ; i++) {
-        Track* t = new Track(this, mSynchronizer, i);
-        tracks[i] = t;
-        rec->add(t);
-    }
-    mTracks = tracks;
-    mTrack = tracks[0];
-    mTrackCount = count;
+        for (int i = 0 ; i < count ; i++) {
+            Track* t = new Track(this, mSynchronizer, i);
+            tracks[i] = t;
+            rec->add(t);
+        }
+        mTracks = tracks;
+        mTrack = tracks[0];
+        mTrackCount = count;
 
-    // todo: we don't have to wait for propagateConfiguration
-    // to set the active track from the Setup but since we need
-    // to share that with post-reconfigure do it there
+        // todo: we don't have to wait for propagateConfiguration
+        // to set the active track from the Setup but since we need
+        // to share that with reconfigure() do it there
+    }
 }
 
 /**
  * Called by initialize() to set up the initial ScriptEnv
  * This can only be done during initialization right now.
  * ScriptConfig changes will not take effect until after restart.
+ *
+ * This also calls initializeFunctions to build the merged
+ * static/script Function table.
  */
-void Mobius::initializeScripts(ScriptConfig* config)
+void Mobius::initializeScripts()
 {
+    ScriptConfig* scriptConfig = mConfig->getScriptConfig();
+
     ScriptCompiler* sc = new ScriptCompiler();
-    ScriptEnv* env = sc->compile(this, config);
+    ScriptEnv* env = sc->compile(this, scriptConfig);
     delete sc;
 
-    // formerly maintained a history list
     mScriptEnv = env;
 
     // rebuild the global Function table to include top-level scripts
@@ -455,17 +517,15 @@ void Mobius::initializeScripts(ScriptConfig* config)
 
 /**
  * Called during the initialize() sequence after loading scripts
- * to build out the global Function table.
+ * to build out the Function table.
  *
  * This was formerly a static array but this caused problems when the
  * plugin was instantiated more than once because the Script objects
  * would be deleted when one Mobius plugin was shut down but they were
  * still referenced by the other plugin.
  *
- * !! Wait, isn't that still true?  Functions is an array with global
- * scope, and we're going to put RunScriptFunction objects in it.
- * If so, need to stop doing this or have the array inside Mobius.
- * No, we do keep it in mFunctions
+ * Old code should never look at the static Functions array, they
+ * must always call Mobius::getFunction to include scripts.
  */
 void Mobius::initializeFunctions()
 {
@@ -506,29 +566,54 @@ void Mobius::initializeFunctions()
 
     // remember it
     mFunctions = functions;
+}
 
-    // this is also called by propagateConfiguration, just
-    // wait for that?
-	//updateGlobalFunctionPreferences();
+//////////////////////////////////////////////////////////////////////
+//
+// Reconfiguration
+//
+// This is called by Kernel after we have been running to assimilate
+// limited changes to a modified MobiusConfig.
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Assimilate selective changes to a MobiusConfig after we've been running.
+ * Called by Kernel in the audio thread before sending buffers so we can
+ * set up a stable state before beginAudioInterrupt and containerAudioAvailable
+ * are called.
+ * 
+ * We formerly allowed a lot in here, like recompiling scrdipts and rebuilding
+ * the Track array for changes in the Setup's track count. Now this is only allowed
+ * to propagate parameter changes without doing anything expensive or dangerous.
+ *
+ * mConfig and mSetup will be changed.  Internal components are not allowed
+ * to maintain pointers into those two objects.
+ *
+ * There is some ambiguity between what should be done here and what should
+ * be done soon after in beginAudioInterrupt.  Old code deferred a lot of
+ * configuration propagation to the equivalent of beginAudioInterrupt. Anything
+ * related to MobiusConfig changes should be done here, and beginAudioInterrupt
+ * only needs to concern itself with audio consumption.
+ *
+ */
+void Mobius::reconfigure(class MobiusConfig* config)
+{
+    mConfig = config;
+    
+    locateRuntimeSetup();
+
+    propagateConfiguration();
 }
 
 /**
  * Propagate non-structural configuration to internal components that
- * cache things from MobiusConfig.  This is done both by initialize()
- * and reconfigure() so nothing in here can allocate memory or do anything
- * that would distrupt in-progress audio or scripts.
- *
- * Includes things formerly done in recorderMonitorEnter to phase
- * in things in the mInterruptConfig
+ * cache things from MobiusConfig.
+ * 
+ * mConfig and mSetup will be set.
  */
 void Mobius::propagateConfiguration()
 {
-    // update focus lock/mute cancel limits
-    // update: focus lock has moved up, still need mute cancel
-    // but it doesn't have to be done down here
-    // this is also called in initializeFunctions
-    updateGlobalFunctionPreferences();
-
     // trace settings
     // this was also done in initialize() so we could start trace
     // as early as posible, maybe factor out into configureTrace()
@@ -538,10 +623,39 @@ void Mobius::propagateConfiguration()
     // doesn't seem to be maintaining this right, force it on
     TraceDebugLevel = 2;
     
+    // cache various parameters directly on the Function objects
+    propagateFunctionPreferences();
+
+    // turn monitoring on or off
+    // forget what this was, but if we still need it, it
+    // could have been handled by Kernel?
+    Recorder* rec = mKernel->getRecorder();
+    rec->setEcho(mConfig->isMonitorAudio());
+
+    // Synchronizer needs maxSyncDrift, driftCheckPoint
+    if (mSynchronizer != NULL)
+      mSynchronizer->updateConfiguration(mConfig);
+
+    // Modes track altFeedbackDisables
+    MobiusMode::updateConfiguration(mConfig);
+
+    // used to allow configuration of fade length
+    // should be hidden now and can't be changed randomly
+    // this is defined by Audio and should be done in Kernel since
+    // it owns Audio now
+	AudioFade::setRange(mConfig->getFadeFrames());
+
+    // Tracks are messy AF
+    // old code did a combination of these in unclear order
+    //
+    // Track::updateConfiguration
+    // setTrack(setup->getActiveTrack)
+    // Track::setSetup
+
 	// If we were editing the Setups, then it is expected that we
 	// change the selected track if nothing else is going on
     // !! seems like there should be more here, for every track in reset
-    // the setup changes should be immediately propagated?
+    // the setup changes could be immediately propagated?
     bool allReset = true;
     for (int i = 0 ; i < mTrackCount ; i++) {
         Track* t = mTracks[i];
@@ -555,113 +669,70 @@ void Mobius::propagateConfiguration()
     }
     
     if (allReset) {
-        int initialTrack = 0;
-        Setup* setup = GetCurrentSetup(mConfig);
-        if (setup != NULL)
-          initialTrack = setup->getActiveTrack();
+        int initialTrack = mSetup->getActiveTrack();
         setTrack(initialTrack);
     }
 
-    // from here on down are things that used to be in beginAudioInterrupt
-    // and propagateInterruptConfig
-    
-    // forget what this was, but if we still need it, it
-    // could have been handled by Kernel?
-    //
-    // turn monitoring on or off
-    Recorder* rec = mKernel->getRecorder();
-    rec->setEcho(mConfig->isMonitorAudio());
-
-    // Synchronizer needs maxSyncDrift, driftCheckPoint
-    if (mSynchronizer != NULL)
-      mSynchronizer->updateConfiguration(mConfig);
-
-    // Modes track altFeedbackDisables
-    MobiusMode::updateConfiguration(mConfig);
-
-    // thankfully it is hidden now and can't be changed
-	AudioFade::setRange(mConfig->getFadeFrames());
-
-    // tracks are sensitive to lots of things including prests and setups
+    // tracks are sensitive to lots of things in the Setup
+    // they will look at Setup::loopCount and adjust the number of loops
+    // in each track, but this is done within a fixed array and won't
+    // allocate memory.  It also won't adjust tracks that are still doing
+    // something with audio
+    // !! not sure if this is correctly allowing tracks to process fade tails
+    // An track can be in Reset, but still "playing" a fade out, if we
+    // take that loop away it would click
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
 		t->updateConfiguration(mConfig);
 	}
 
-    // formerly part of propagateSetupGlobals
-    // after removing binding stuff, the only thing this did
-    // was set the active track
-    // !! shold probably not do this if we're not in global reset
-    
-    Setup* setup = GetCurrentSetup(mConfig);
-    // changes the active track without TrackCopy semantics
-    setTrack(setup->getActiveTrack());
-
-    // end propagateInterruptConfig
-
-    // from here down are things done by the audio interrupt block start
-    
-    // install new watchers
-    // !! needs thought, is this simple config propagation or more severe?
-    // should this still be done every time in the interrupt handler?
-    installWatchers();
-
-    // change setups
-    // formerly setSetupInternal
-
-    // need to track the selection here so Reset processing
-    // can go back to the last setup
-    // !! this looks dangerous, what does it do?
-    // and how is it different from Track::updateConfiguration above?
-    // what this does...
-    //   gets the SetupTrack for this track
-    //   if loop is reset
-    //      resetParameters
-    //   else
-    //      reset ports, name, group
-    //   setPreset(getStartingPreset)
-    //      copies the Preset into the private track Preset
-    //      setupLoops
-    //        resets active loops and sets the loop count within
-    //        the fixed maximum range
-    //
-    // yes, Track::updateConfiguration will also set the Preset
-    //
-    for (int i = 0 ; i < mTrackCount ; i++) {
-        Track* t = mTracks[i];
-        t->setSetup(setup);
-    }
+    // this is old and still used so I'm keeping what it
+    // does encapsulated there until we figure out how the
+    // hell Setup propagation should work
+    // this will call setTrack() again to set the active track
+    setSetupInternal(mSetup);
 }
 
 /**
- * Check the global configuration for functions that are
- * designated as obeying focus lock and track groups.
- * Update the Function objects for later reference.
+ * Cache some function sensitivity flags from the MobiusConfig
+ * directly on the Function objects for faster testing.
+ *
+ * Note that for the static Functions, this can have conflicts
+ * with multiple instances of the Mobius plugin, but the conflicts
+ * aren't significant and that never happens in practice.
+ *
+ * Would like to move focusLock/group behavor up to the UI.
  */
-void Mobius::updateGlobalFunctionPreferences()
+void Mobius::propagateFunctionPreferences()
 {
-	StringList* names = mConfig->getFocusLockFunctions();
-	
-	if (names == NULL) {
-		// shouldn't happen, but if so return to the defaults
-		for (int i = 0 ; mFunctions[i] != NULL ; i++) {
-			Function* f = mFunctions[i];
-			f->focusLockDisabled = false;
-		}
-	}
-	else {
-		for (int i = 0 ; mFunctions[i] != NULL ; i++) {
-			Function* f = mFunctions[i];
-			f->focusLockDisabled = false;
-			// remember to only pay attention to functions that were
-			// displayed for selection in the UI, in particular
-			// RunScript must be allowed!
-			if (!f->noFocusLock && f->eventType != RunScriptEvent)
-			  f->focusLockDisabled = !(names->containsNoCase(f->getName()));
-		}
-	}
 
-	// and also those selected for customized mute cancel
+    // Function sensitivity to focus lock
+    StringList* names = mConfig->getFocusLockFunctions();
+    for (int i = 0 ; mFunctions[i] != NULL ; i++) {
+        Function* f = mFunctions[i];
+        // always clear this if not in the config
+        f->focusLockDisabled = false;
+        
+        // ugh, so many awkward double negatives
+        // 
+        // noFocusLock means the fuction will never respond to focus lock
+        // so we don't have to consider it, but then it shouldn't have been
+        // on the name list in the first place right?
+        //
+        // eventType != RunScriptEvent means to always allow script
+        // functions to have focus lock and ignore the config
+        // this seems wrong, why wouldn't you want to selectively
+        // allow scripts to disable focus lock?
+        if (names != nullptr &&
+            !f->noFocusLock &&
+            f->eventType != RunScriptEvent) {
+            
+            // disable focus lock if the function is not in the name list
+            f->focusLockDisabled = !(names->containsNoCase(f->getName()));
+        }
+    }
+
+    // Functions that can cancel Mute mode
 	names = mConfig->getMuteCancelFunctions();
 	for (int i = 0 ; mFunctions[i] != NULL ; i++) {
 		Function* f = mFunctions[i];
@@ -673,7 +744,7 @@ void Mobius::updateGlobalFunctionPreferences()
 		}
 	}
 
-	// and also those selected for switch confirmation
+    // Functions that can be used for Switch confirmation
 	names = mConfig->getConfirmationFunctions();
 	for (int i = 0 ; mFunctions[i] != NULL ; i++) {
 		Function* f = mFunctions[i];
@@ -686,6 +757,15 @@ void Mobius::updateGlobalFunctionPreferences()
 	}
 }
 
+//
+// Setup Propagation
+// This is a mess but we need the following set of functions
+// to be called by internal components that want to change setups
+// This is almost always done by edited the MobiusConfig but
+// there is still support for this by setting a Parameter
+// or in Scripts, need to clean this up!
+//
+
 /**
  * Unconditionally changes the active track.  
  *
@@ -693,6 +773,11 @@ void Mobius::updateGlobalFunctionPreferences()
  * tracks with EmptyTrackAction behavior create an Action.
  *
  * Used by propagateConfiguration and also by Loop.
+ *
+ * Unfortunately both Mobius and Recorder have independent
+ * concepts of what the selected track is.
+ *
+ * !!! rename this
  */
 void Mobius::setTrack(int index)
 {
@@ -703,296 +788,255 @@ void Mobius::setTrack(int index)
     }
 }
 
-//////////////////////////////////////////////////////////////////////
-// New-ish initialization, soon to be replaced
-//////////////////////////////////////////////////////////////////////
+/**
+ * Formerly called from recorderMonitorEnter to change
+ * to a "pending" setup.
+ */
+void Mobius::setSetupInternal(int index)
+{
+    Setup* setup = GetSetup(mConfig, index);
+    if (setup == NULL)
+      Trace(1, "ERROR: Invalid setup number %ld\n", (long)index);
+    else
+      setSetupInternal(setup);
+}
 
 /**
- * Original implementation, soon to be replaced by newInitialize
+ * Old code called from severl places.
+ * Pulled this up to be near reconfigure() which needed it but can also
+ * be called randomly to change the selected setup.
+ *
+ * Activate a new setup.
+ *
+ * Old comments about phasing mInterruptConfig:
+ * This MUST be called within the interrupt and the passed Setup
+ * object must be within mInterruptConfig.
+ * This can be called from these places:
+ *
+ *     - loadProjectInternal to select the setup stored in the project
+ *     - ScriptSetupStatement to select a setup in a script
+ *     - recorderMonitorEnter to process mPendingSetup
+ *     - unitTestSetup to select the unit test setup
+ *
+ * Newer comments:
+ // need to track the selection here so Reset processing
+ // can go back to the last setup
+ // !! this looks dangerous, what does it do?
+ // and how is it different from Track::updateConfiguration above?
+ // what this does...
+ //   gets the SetupTrack for this track
+ //   if loop is reset
+ //      resetParameters
+ //   else
+ //      reset ports, name, group
+ //   setPreset(getStartingPreset)
+ //      copies the Preset into the private track Preset
+ //      setupLoops
+ //        resets active loops and sets the loop count within
+ //        the fixed maximum range
+ //
+ // yes, Track::updateConfiguration will also set the Preset
  * 
- * Called by Kernel at a suitable time after construction to flesh out the
- * internal components.  We now have a MobiusConfig to pull things from.
- *
- * This is called ONLY during initial structure setup and the audio stream
- * will not be active.  We are in the UI thread so it is okay to allocate memory.
- *
- * This is where we would do "light" initialization necessary for the
- * plugin host to probe the plugin for it's interface without actually
- * making it do anything.
- *
- * When the plugin is actually going to be used start() was called.
- * Until we get to plugins, do start() immediately, which in retrospect
- * probably isn't that bad now that we don't do heavyweight stuff like
- * managing audio/midi devices and read/writing files.
  */
-void Mobius::initialize(class MobiusConfig* config)
+void Mobius::setSetupInternal(Setup* setup)
 {
-    mConfig = config;
-    
-    // don't need the "pending" concept any more
-    mPendingSetup = -1;
+	if (setup != NULL) {
+        // need to track the selection here so Reset processing
+        // can go back to the last setup
 
-	// set these early so we can trace errors during initialization
-	TracePrintLevel = mConfig->getTracePrintLevel();
-	TraceDebugLevel = mConfig->getTraceDebugLevel();
-    // doesn't seem to be maintaining this right, force it on
-    TraceDebugLevel = 4;
-    
-    // is this the equivalent of the old start() ?
-    start();
-}
+        // !! not necessary, we're all sharing the same MobiusConfig object
+        // mInterruptConfig->setCurrentSetup(setup);
 
-/**
- * Do remaining configuration necessary to actually process the
- * audio stream.  Left over from the probe/activate phases
- * plugins go through which we still likely need.
- *
- * Currently called directly from initialize() but may
- * want to separate them.
- *
- */
-void Mobius::start()
-{
-    // will need a way for this to get MIDI
-    mSynchronizer = new Synchronizer(this, mMidi);
-
-    // not a true thread any more, but packages some necessary
-    // stuff that needs to be redesigned
-    mThread = new MobiusThread(this);
-    //mThread->start();
-
-    // once the thread starts we can start queueing trace messages
-    //if (!mContext->isDebugging())
-    mThread->setTraceListener(true);
-
-    // this will trigger track initialization
-    // formerly opened devices and loaded scripts
-    installConfiguration(mConfig, true);
-
-    // Formerly looked for an init.mos script and ran it.
-    // Never used this and it didn't fit well in the new ScriptEnv world.
-    // If we want an init script then it should be a registered event
-    // script instead.
-}
-
-/**
- * Install the configuration. This was called in two contexts.
- * First by initialize()/start() after we've read the config file and now want
- * to process it.
- *
- * Second by the UI after it has edited an external copy of the config object.
- * In this case we need to splice it in carefully since the
- * interrupt handler, MobiusThread, and the trigger threads can still be using
- * the old one.
- *
- * UPDATE: none of that is relevant any more, the config can't be in use
- * by the UI and the KLUDGE warning isn't accurate.
- *
- * !! KLUDGE
- * Since we don't have a reliable way to to know whether the current
- * config object is in use by the UI, MobiusThread, or trigger threads
- * we can't safely delete the old config object immediately.  Insteaed
- * maintain a history of them.  Eventually the old ones can be removed
- * though it's still a guess as to when nothing will be referencing it.
- * Since setConfiguration is only called when you interact with the
- * UI dialogs in practice there shouldn't be very many of these and
- * comapred to the audio buffers they don't take up much space
- *
- * TODO: to be completely safe we need a csect around this to prevent
- * concurrent mods to the history list. In practice that's almost impossible
- * because all dialogs are modal.
- *
- */
-void Mobius::installConfiguration(MobiusConfig* config, bool doBindings)
-{
-    // Sanity check on some important parameters
-    // TODO: Need more of these...
-    if (config->getTracks() <= 0) {
-        Trace(1, "Fixing track count\n");
-        config->setTracks(1);
-    }
-
-	// Build the track list if this is the first time
-	buildTracks(config->getTracks());
-
-    // UPDATE: The mPendingInterruptConfig concept is no longer necessary
-    // but it resulted in a subtle order of execution I'm preserving until
-    // we can think harder about how this needs to work.  We'll set the
-    // "pending" config as before, and propagateInterruptConfig will
-    // apply those changes later when beginAudioInterrupt is called.
-    // 
-    // old comments:
-    // !! I'm sure there are some small race conditions below where
-    // we're making structural changes to tracks and such that may
-    // not match what is in the active mInterruptConfig.
-    // Find out what those are and move them into the interrupt.
-    // mInterruptConfig will have been set
-    Trace(2, "Mobius: phasing in MobiusConfig changes\n");
-    if (mPendingInterruptConfig != NULL) {
-        // this shouldn't happen any more unless Kernel isn't
-        // calling us properly
-        if (mInterrupts > 0) 
-          Trace(1, "Mobius: Overflow installing interrupt configuration!\n");
-        else {
-            // this isn't a copy now
-            //delete mPendingInterruptConfig;
-        }
-    }
-    // no longer a copy
-    mPendingInterruptConfig = config;
-    
-    // TODO: needs to be done differently, at least remove file handling
-	// load the scripts and setup function tables
-    if (installScripts(config->getScriptConfig(), false)) {
-        // if scripts changed, then force the bindings to be rebuilt too
-        // !! should also force the MobiusPluginParameters to be rebuilt
-        // since they can be referencing the old RunScriptFunction objects,
-        // as it is they will continue to ref the old scripts
-
-        // UPDATE: we're not managing bindings down here any more, though
-        // the old Action stuff might need this?
-        //doBindings = true;
-    }
-
-    // update focus lock/mute cancel limits
-    // update: focus lock has moved up, still need mute cancel
-    // but it doesn't have to be done down here
-    updateGlobalFunctionPreferences();
-
-	// global settings
-    // These are safe to set from anywhere don't have to wait for an interrupt
-    // UPDATE: no longer have a difference between "trace" and "print"
-	TracePrintLevel = config->getTracePrintLevel();
-	//TraceDebugLevel = config->getTraceDebugLevel();
-    // force this on until we get configuration right
-    TraceDebugLevel = 2;
-    
-    // !! this could cause problems if we're in the middle of saving
-    // a project?  Would need to coordinate this with MobiusThread
-    // TODO: shouldn't be dealing with this at this level, and
-    // Audio doesn't write any more anyway
-	//Audio::setWriteFormatPCM(config->isIntegerWaveFile());
-
-    // removed device opening and Recorder init
-    
-	// If we were editing the Setups, then it is expected that we
-	// change the selected track if nothing else is going on
-    // !! seems like there should be more here, for every track in reset
-    // the setup changes should be immediately propagated?
-    if (!config->isNoSetupChanges()) {
-        bool allReset = true;
         for (int i = 0 ; i < mTrackCount ; i++) {
             Track* t = mTracks[i];
-            Loop* l = t->getLoop();
-            if (l != nullptr) {
-                if (!l->isReset()) {
-                    allReset = false;
-                    break;
-                }
-            }
+            t->setSetup(setup);
         }
-        if (allReset) {
-            int initialTrack = 0;
-            Setup* setup = GetCurrentSetup(mConfig);
-            if (setup != NULL)
-              initialTrack = setup->getActiveTrack();
-            setTrack(initialTrack);
-        }
+
+        // formerly in a function called propagateSetupGlobals
+        // things that aren't track specific
+        // propagateSetupGlobals(setup);   
+        setTrack(setup->getActiveTrack());
     }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Audio Interrupt
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by Kernel at the start of each audio block processing notification.
+ *
+ * This is approximately equal to what old code called recorderMonitorEnter
+ *
+ * Things related to "phasing" configuration from the UI thread to the audio
+ * thread are gone and now done in reconfigure()
+ *
+ * We can assume internal components are in a stable state regarding configuration
+ * options and only need to concern ourselves with preparing for audio
+ * block housekeeping.
+ *
+ * Old comments:
+ *
+ * !! Script Recording Inconsistency
+ *
+ * This is implemented assuming that we only record functions for the
+ * active track.  In theory, if a burst of functions came in within
+ * the same interrupt, something like this could happen:
+ *
+ *      NextTrack
+ *      Record
+ *      NextTrack
+ *      Record
+ *
+ * The effect would be that there are now pending functions
+ * on two tracks, but the script recorder doesn't know how
+ * to interleave them with the NextTrack function handled
+ * by Mobius.  The script would end up with:
+ *
+ *      NextTrack
+ *      NextTrack
+ *      Record
+ *      Record
+ *
+ * We could address this by always posting functions to a list
+ * in the order they come in and wait for the interrupt
+ * handler to consume them.  But it's complicated because we have
+ * to synchronize access to the list.    In practice, it is very
+ * hard to get functions to come in this rapidly so there
+ * are more important things to do right now.  Also, Track
+ * only allows one function at a time.
+ */
+void Mobius::beginAudioInterrupt()
+{
+    // old flag to disable audio processing when a halt was requested
+    // don't know if we still need this but it seems like a good idea
+	if (mHalting) return;
+
+    // formerly maintained an mInterrupts counter
+    // and traced what we determined was the effective input and output
+    // latencies.  Should be doing this in Kernel if we still want that
+    // used by some action handling so still need it
+	mInterrupts++;
+	if (mInterrupts == 1)
+	  Trace(2, "Mobius: Receiving interrupts, input latency %ld output %ld\n",
+			(long)getEffectiveInputLatency(), (long)getEffectiveOutputLatency());
+
+    // install new watchers
+    // Watcher are not defined in MobiusConfig so they were not
+    // handled by reconfigure()
+    // still using the awkward mNewWatchers from the days when we had
+    // to phase things into the audio interrupt, revisit this
+    installWatchers();
+
+	// Hack for testing, when this flag is set remove all external input
+	// and only pass through sample content.  Necessary for repeatable
+	// tests so we don't get random noise in the input.
+    // wtf did this do??
+	if (mNoExternalInput) {
+		long frames = mContainer->getInterruptFrames();
+        // !! assuming 2 channel ports
+		long samples = frames * 2;
+		float* input;
+		mContainer->getInterruptBuffers(0, &input, 0, NULL);
+		memset(input, 0, sizeof(float) * samples);
+	}
+
+	mSynchronizer->interruptStart(mContainer);
+
+    // do the queued actions
+    doInterruptActions();
+
+    // Advance the long-press tracker too, this may cause other 
+    // actions to fire.
+    mTriggerState->advance(this, mContainer->getInterruptFrames());
+
+	// process scripts
+    doScriptMaintenance();
 }
 
 /**
- * Called by installConfiguration whenever the configuration changes.
- * Originally we tried to follow the track count from the configuration
- * at runtime.  Unfortunately this has race conditions with the 
- * interrupt thread that may be using those tracks at the same time.
- * 
- * We could probably work through those but it's safest just to require
- * a restart after changing the track count.  Until the restart we'll
- * continue using the original track count.
- * as they may have changed.
+ * Called by Kernel at the end of the audio interrupt for each buffer.
+ * All tracks have been processed.
  *
- * UPDATE: Can't have race conditions any more since we're always at the
- * start of an interrupt.  Remove the paranioa and just reconfigure the tracks.
+ * Formerly known as recorderMonitorExit
  */
-void Mobius::buildTracks(int count)
+void Mobius::endAudioInterrupt()
 {
-	int i;
+    // don't need this any more?
+	if (mHalting) return;
 
-    if (mTracks != NULL) {
-        // Another way to make this safer is to just preallocate mTracks at
-        // the maximum size and don't ever reallocate it, then just
-        // change mTrackCount?
-        if (mTrackCount != count) {
-            Trace(2, "Mobius: Ignoring track count change to %ld until after restart\n",
-                  (long)count);
-        }
-    }
-    else {
-        // must have at least one, should have fixed this by now
-        if (count <= 0) count = 1;
+    long frames = mContainer->getInterruptFrames();
+	mSynchronizer->interruptEnd();
+	
+	// if we're recording, capture whatever was left in the output buffer
+	// !! need to support merging of all of the output buffers for
+	// each port selected in each track
+	if (mCapturing && mAudio != NULL) {
+		float* output = NULL;
+		mContainer->getInterruptBuffers(0, NULL, 0, &output);
+		if (output != NULL) {
 
-        // limit this while testing leaks
-        //count = 1;
-
-        Track** tracks = new Track*[count];
-
-        // IMPORTANT: This is the key connection point between Recorder and core
-        Recorder* rec = mKernel->getRecorder();
-        
-        for (i = 0 ; i < count ; i++) {
-            Track* t = new Track(this, mSynchronizer, i);
-            tracks[i] = t;
-            rec->add(t);
-        }
-        mTracks = tracks;
-        mTrack = tracks[0];
-        mTrackCount = count;
-    }
-}
-
-/**
- * Assimilate changes made to an external copy of the configuration object.
- * This is intended for use by the UI after it has created a clone
- * of the system config object and modified it.  
- *
- * !! Consider passing in the parts that were modified so we can avoid
- * unnecessary work?
- *
- * UPDATE: Yeah, we're not going to pass parts, but could be smarter
- * about doing differencing at a higher level, or receiving UI hints
- * and responding to those.
- *
- * Not used currently, need to redesign under reconfigure()
- *
- */
-#if 0
-void Mobius::setConfiguration(MobiusConfig* config, bool doBindings)
-{
-    installConfiguration(config, doBindings);
-
-    // If the track count changed, send the UI an alert so the user
-    // knows they have to restart.  This can only be done from the UI thread
-    // which is the only thing that should be calling setConfiguration.
-
-    if (config->getTracks() != mTrackCount) {
-
-        // Alert handler must either process the message immediately or
-        // copy it so we can use a stack buffer
-        // UPDATE: should be handled higher
-        char message[1024];
-        sprintf(message, "You must restart Mobius to change the track count to %d", config->getTracks());
-        if (mListener != NULL)
-          mListener->MobiusAlert(message);
-    }
-}
+			// debugging capture
+            // this was convenient at the time, and I'd like to support it now
+            // but need to give MobiusContainer an interface for file handling
+#if 0            
+			static int bufcount = 1;
+			if (false && bufcount < 5) {
+				char file[128];
+				sprintf(file, "record%d-%ld.wav", bufcount++, mAudio->getFrames());
+                Audio* temp = mAudioPool->newAudio();
+                temp->append(output, frames);
+                temp->write(file);
+                temp->free();
+			}
 #endif
+            
+			// the first block in the recording may be a partial block
+			if (mCaptureOffset > 0) {
+                // !! assuming 2 channel ports
+                int channels = 2;
+				output += (mCaptureOffset * channels);
+				frames -= mCaptureOffset;
+				if (frames < 0) {
+					Trace(this, 1, "Mobius: Recording offset calculation error!\n");
+					frames = 0;
+				}
+				mCaptureOffset = 0;
+			}
+
+			mAudio->append(output, frames);
+		}
+	}
+
+	// if any of the tracks have requested a UI update, post a message
+	// since we're only displaying the beat counter for one track, we don't
+	// need to do this for all of them?
+	bool uiSignal = false;
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		if (mTracks[i]->isUISignal())
+		  uiSignal = true;
+	}
+	if (uiSignal)
+	  mThread->addEvent(TE_TIME_BOUNDARY);
+}
 
 //////////////////////////////////////////////////////////////////////
 //
 // Legacy Interface for internal components
 //
 //////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by a few function handlers (originally Mute and Insert, now
+ * just Insert to change the preset.  This is an old EDPism that I
+ * don't really like.
+ */
+void Mobius::setPresetInternal(int number)
+{
+    mTrack->setPreset(number);
+}
 
 // used by Midi, MidiExporter
 MidiInterface* Mobius::getMidiInterface()
@@ -1065,6 +1109,9 @@ class MobiusThread* Mobius::getThread()
     return mThread;
 }
 
+/**
+ * Called by: Actionator::doSet when OperatorPermanent
+ */
 void Mobius::addEvent(ThreadEvent* te)
 {
 	if (mThread != NULL)
@@ -1117,40 +1164,12 @@ bool Mobius::isFocused(Track* t)
 /**
  * Return the Setup from the interrupt configuration.
  * Used by Synchronizer when it needs to get setup parameters.
- *
- * UPDATE: getCurrentSetup no longer exists, we only have the name
- * and have to look up the Setup object at runtime.  Cache this
- * 
+ * Also used by SyncState.
  */
 Setup* Mobius::getInterruptSetup()
 {
-    //return mInterruptConfig->getCurrentSetup();
-    
-    if (mInterruptSetup == nullptr) {
-        const char* name = mConfig->getActiveSetup();
-        if (name == nullptr) {
-            // not supposed to happen
-            mInterruptSetup = mConfig->getSetups();
-        }
-        else {
-            // ugly, make a better interface for this
-            mInterruptSetup = (Setup*)Structure::find(mConfig->getSetups(), name);
-        }
-
-        if (mInterruptSetup == nullptr) {
-            Trace(1, "Mobius::getInterruptSetup no setup!\n");
-            // this will leak, but we're not supposed to get here
-            mInterruptSetup = new Setup();
-        }
-    }
-    return mInterruptSetup;
+    return mSetup;
 }
-
-/****************************************************************************
- *                                                                          *
- *                               CONFIGURATION                              *
- *                                                                          *
- ****************************************************************************/
 
 /**
  * Return the read-only configuration for internal components to use.
@@ -1179,149 +1198,6 @@ MobiusConfig* Mobius::getInterruptConfiguration()
 Recorder* Mobius::getRecorder()
 {
     return mKernel->getRecorder();
-}
-
-
-/****************************************************************************
- *                                                                          *
- *                            SCRIPT CONFIGURATION                          *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Force a reload of all scripts, useful for debugging when
- * you forgot !autoload.
- *
- * UPDATE: Must not be down here any more
- */
-void Mobius::reloadScripts()
-{
-    installScripts(mConfig->getScriptConfig(), true);
-}
-
-/**
- * Load the scripts and initialize the global function tables.
- * This is called every time the configuration changes so try to be smart
- * about detecting differences to avoid excessive script loading.
- * 
- * We have a host of dependency issues on the old environment so deleting
- * the old one is very difficult to do reliably.  In particular, 
- * the current BindingResolver will be referencing Script objects and
- * the plugins may have some MobiusPluginParameter proxies that reference
- * Scripts too.  And of course there may also be active script threads.
- * 
- * Until we can refine the interfaces to the point where we have a single
- * place to reliably phase in parts of the config and update the 
- * dependencies, we'll have to maintain these on a history list.
- *
- * TODO: Obviously a lot of work to do here.  I think we can factor
- * out all of the race conditions and avoid the history list, but
- * file handling needs to be moved up.
- *
- * update: BindingResolver is gone for whatever good that does
- * force flag will be unused
- */
-bool Mobius::installScripts(ScriptConfig* config, bool force)
-{
-    bool changed = false;
-
-    if (mScriptEnv == NULL || force || mScriptEnv->isDifference(config)) {
-        changed = true;
-
-        if (mScriptEnv == NULL)
-          Trace(2, "Mobius: Loading scripts and function tables\n");
-        else
-          Trace(2, "Mobius: Reloading scripts and function tables\n");
-
-        // !! memory management on the ScriptCompiler
-        // at the very least this could be a member object on the stack
-        ScriptCompiler* sc = new ScriptCompiler();
-        ScriptEnv* env = sc->compile(this, config);
-        delete sc;
-
-        // add it to the history, should use a csect but script configs
-        // can't come in that fast
-        env->setNext(mScriptEnv);
-        mScriptEnv = env;
-
-        // rebuild the global Function table
-        // in theory we could have an outstanding reference to mFunctions
-        // at the moment, but that would only be for the UI dialogs and script
-        // compilation which in practice we won't be doing right now
-        // ugh, please don't make me have another history list...
-        initFunctions();
-
-        // rebuild the global parameter table
-        initScriptParameters();
-
-        // at this point, old comments mention updating ResolvedTargets
-        // to point to new Script objects, I think that was done
-        // in BindingResolver which is gone.  Cross that bridge later
-        // yes, see save/binding-resolver-use, it replaces Script pointers
-        // in ResolvedTargets i hate ResolvedTargets soo much
-        // we can remove references to config Structures easily
-        // but scripts are hard, really should only be updating ScriptConfig
-        // in a state of global reset
-    }
-
-    return changed;
-}
-
-/**
- * Initialize script parameters after installing a ScriptEnv.
- *
- * TODO: I forget what this does, can a script define Parameters that
- * behave like static Parameters?
- */
-void Mobius::initScriptParameters()
-{
-    if (mScriptEnv != NULL) {
-        for (Script* script = mScriptEnv->getScripts() ; script != NULL ; 
-             script = script->getNext()) {
-
-            if (script->isParameter()) {
-
-                ScriptBlock* b = script->getBlock();
-                if (b != NULL) {
-                    for (ScriptStatement* st = b->getStatements() ; st != NULL ; 
-                         st = st->getNext()) {
-
-                        if (st->isParam()) {
-                            // where should this logic go?
-                            addScriptParameter((ScriptParamStatement*)st);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Promote one script parameter we found in a script.
- * Currently this is only being done with the entire ScriptConfig
- * is reloaded.  Due to the awkward cross reference between
- * Parameter and ScriptParamStatement !autoload is disabled for 
- * any file that contains a Param.  Need to work this out...
- */
-void Mobius::addScriptParameter(ScriptParamStatement* s)
-{
-    const char* name = s->getName();
-
-    if (name != NULL) {
-        Trace(1, "Promoting user defined parameter: %s\n", s->getName());
-
-        ScriptBlock* block = s->getChildBlock();
-        if (block != NULL) {
-            ScriptDeclaration* decls = block->getDeclarations();
-            for (ScriptDeclaration* d = decls ; d != NULL ; d = d->getNext()) {
-                Trace(1, "   %s %s\n", d->getName(), d->getArgs());
-            }
-        }
-    }
-    else {
-        Trace(1, "Ignoring Param statement without name\n");
-    }
 }
 
 /****************************************************************************
@@ -1402,293 +1278,6 @@ Function* Mobius::getFunction(const char * name)
       found = Function::getFunction(HiddenFunctions, name);
 
     return found;
-}
-
-/**
- * Build out the function list by combining the static function definitions
- * with the scripts.  Called during initialization and whenever the
- * script config changes.
- *
- * NOTE: In theory we could be doing a UI dialog, or compiling a script or
- * something else that is searching the global Functions list at this
- * exact moment but in practice it won't happen and I don't want to mess
- * with another csect for this.
- *
- * This was formerly a static array but this caused problems when the
- * plugin was instantiated more than once because the Script objects
- * would be deleted when one Mobius plugin was shut down but they were
- * still referenced by the other plugin.   We've got similar issues
- * for any system constant that keeps localized names, but those can be
- * copied to private arrays.
- */
-void Mobius::initFunctions()
-{
-    Function** functions = NULL;
-	int i;
-
-    // should already be initialized but make sure
-    Function::initStaticFunctions();
-
-	// first count the static functions
-	// eventually make loop and track triggers dynamnic too
-	int staticCount = 0;
-	for ( ; StaticFunctions[staticCount] != NULL ; staticCount++);
-
-	// add script triggers
-	int scriptCount = 0;
-	List* scripts = NULL;
-	if (mScriptEnv != NULL) {
-		scripts = mScriptEnv->getScriptFunctions();
-		if (scripts != NULL)
-		  scriptCount = scripts->size();
-	}
-
-    // allocate a new array
-	functions = new Function*[staticCount + scriptCount + 1];
-
-    // add statics
-    int psn = 0;
-    for (i = 0 ; i < staticCount ; i++)
-	  functions[psn++] = StaticFunctions[i];
-
-    // add scripts
-    for (i = 0 ; i < scriptCount ; i++)
-      functions[psn++] = (RunScriptFunction*)scripts->get(i);
-
-    // and terminate it
-    functions[psn] = NULL;
-
-    // now splice in the new array
-    Function** old = mFunctions;
-    mFunctions = functions;
-
-    // pause for a moment?
-	delete old;
-
-	updateGlobalFunctionPreferences();
-
-    // TODO: this is bad on a number of levels besides memory allocation in the interrupt
-}
-
-/****************************************************************************
- *                                                                          *
- *   							  SAVE/LOAD                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Load a new project, this must be processed in the interrupt handler
- * to avoid contention.  See loadProjectInternal below.
- */
-void Mobius::loadProject(Project* p)
-{
-	// not bothering with a csect since you really can't laod these that fast
-	if (mPendingProject == NULL)
-	  mPendingProject = p;
-	else {
-        // Need to send an alert back to the UI !!
-		Trace(1, "Mobius: A project is already being loaded.\n");
-		delete p;
-	}
-}
-
-/**
- * Convenience method to load a project containing a single layer
- * into the active loop.
- */
-void Mobius::loadLoop(Audio* a)
-{
-    if (mTrack != NULL) {
-        Loop* loop = mTrack->getLoop();
-        // sigh, Track number is zero based, Loop number is one based
-        Project* p = new Project(a, mTrack->getRawNumber(), loop->getNumber() - 1);
-        // this causes it to merge rather than reset
-        p->setIncremental(true);
-
-        loadProject(p);
-    }
-}
-
-/**
- * Eventually called by the interrupt handler after we set mPendingProject.
- *
- * This must be done inside the interrupt handler.
- *
- * Layer references in segments are complicated because there is
- * no assurance that layer ids are in order or that layers appear
- * int the same loop or track.  Have to first traverse the project
- * instantiating Layer objects.  Then make another pass to instantiate
- * Segments with resolved Layer references.  Then a final pass to 
- * stitch them to the Track/Loop hierarchy.
- *
- * !! This looks like a LOT of work, can we pre-compile any of this before
- * we pass it into the interrupt handler?  setSetup() and 
- * setOverlayBindingConfig() come to mind.  But if we're in generalreset
- * I guess it doesn't matter if we miss a few interrupts.
- */
-void Mobius::loadProjectInternal(Project* p)
-{
-	p->resolveLayers(mLayerPool);
-
-	List* tracks = p->getTracks();
-
-    if (tracks == NULL) {
-        Trace(2, "Mobius::loadProjectInternal empty project\n");
-    }
-    else if (!p->isIncremental()) {
-		// globalReset to start from a clean slate
-		globalReset(NULL);
-
-		const char* name = p->getSetup();
-		if (name != NULL) {
-            // remember to locate the Setup from the interrupt config
-            Setup* s = GetSetup(mConfig, name);
-            if (s != NULL)
-              setSetupInternal(s);
-        }
-
-		// Global reset again to get the tracks adjusted to the 
-		// state in the Setup.
-		globalReset(NULL);
-
-        // change the selected binding overlay
-        // this is an unusual case where we're in an interrupt but we
-        // must set the master MobiusConfig object to change the
-        // binding overlay since that is not used inside the interrupt
-        // !! this will override what was in the Setup which I guess
-        // is okay if you changed it before saving the project, but most
-        // of the time this will already have been set during setSetupInternal
-        //
-        // TODO: Not sure what this means, commenting out since binding overlays
-        // are rare and shouldn't be down here.  There may be things in the Project
-        // that only the UI is sensitive to, so it can handle those before passing
-        // the reset of the Project down here
-        #if 0
-		name = p->getBindings();
-		if (name != NULL) {
-			BindingConfig* bindings = mConfig->getBindingConfig(name);
-			if (bindings != NULL)
-			  setOverlayBindings(bindings);
-		}
-        
-        // should we let the project determine the track count
-        // or force the project to fit the configured tracks?g
-		for (int i = 0 ; i < mTrackCount ; i++) {
-			if (i < tracks->size()) {
-				ProjectTrack* pt = (ProjectTrack*)tracks->get(i);
-				mTracks[i]->loadProject(pt);
-				if (pt->isActive())
-				  setTrack(i);
-			}
-		}
-        #endif
-        
-        // may now have master tracks
-        mSynchronizer->loadProject(p);
-	}
-	else {
-        // Replace only the loops in the project identified by number.
-        // Currently used only when loading individual loops.  Could beef
-        // this up so we can set more of the track.
-
-		for (int i = 0 ; i < tracks->size() ; i++) {
-			ProjectTrack* pt = (ProjectTrack*)tracks->get(i);
-            int tnum = pt->getNumber();
-            if (tnum < 0 || tnum >= mTrackCount)
-              Trace(1, "Incremental project load: track %ld is out of range\n",
-                    (long)tnum);
-            else {
-                Track* track = mTracks[tnum];
-
-                List* loops = pt->getLoops();
-                if (loops == NULL) 
-                  Trace(2, "Mobius::loadProjectInternal empty track\n");
-                else {
-                    for (int j = 0 ; j < loops->size() ; j++) {
-                        ProjectLoop* pl = (ProjectLoop*)loops->get(j);
-                        int lnum = pl->getNumber();
-                        // don't allow extending LoopCount
-                        if (lnum < 0 || lnum >= track->getLoopCount())
-                          Trace(1, "Incremental project load: loop %ld is out of range\n",
-                                (long)lnum);
-                        else {
-                            Loop* loop = track->getLoop(lnum);
-                            if (pl->isActive())
-                              track->setLoop(loop);
-                            else {
-                                // this is important for Loop::loadProject
-                                // to start it in Pause mode
-                                if (loop == track->getLoop())
-                                  pl->setActive(true);
-                            }
-
-                            loop->reset(NULL);
-                            loop->loadProject(pl);
-
-                            // Kludge: Synchronizer wants to be notified when
-                            // we load individual loops, but we're using
-                            // incremental projects to do that. Rather than
-                            // calling loadProject() call loadLoop() for
-                            // each track.
-                            // !! Revisit this, it would be nice to handle
-                            // these the same way
-                            if (loop == track->getLoop())
-                                mSynchronizer->loadLoop(loop);
-                        }
-                    }
-                }
-            }
-		}
-	}
-
-	delete p;
-}
-
-/**
- * Capture the state of the Mobius in a Project.
- * Tried to do this in the interupt handler, but if we have to flatten
- * layers it's too time consuming.  In theory we could have contention
- * with functions being applied while the save is in progress, but 
- * that would be rare.  
- * !! At least ensure that we won't crash.
- * 
- * Note that we're getting copies of Audio objects that are still
- * technically owned by the Layers.  As long as you save the project
- * before any radical change, like a Reset, it will be ok.  But if
- * you Reset or TrackReset and start recording a new loop before
- * the Project is saved, the Audio's that end up being saved may
- * not be what you started with.  
- *
- * The most important thing is that they remain valid heap objects, which
- * will be true since we always pool Layer objects.  So, while you
- * may get the wrong audio, you at least won't crash.  
- *
- * Providing an absolutely accurate snapshot requires that we make a copy
- * of all the Audio objects when building the Project, this may be
- * a very expensive operation which would cause us to miss interrupts.
- * 
- * So, we compromise and give you pointers to "live" objects that will
- * usuallly remain valid until the project is saved.  The only time
- * the objects would be modified is if you were running a script that
- * didn't wait for the save, or if you were using MIDI control at the
- * same time you were saving the project.  Both are unlikely and avoidable.
- */
-Project* Mobius::saveProject()
-{
-    Project* p = new Project();
-
-    //BindingConfig* overlay = mConfig->getOverlayBindingConfig();
-    //if (overlay != NULL)
-    //p->setBindings(overlay->getName());
-
-	Setup* s = GetCurrentSetup(mConfig);
-	if (s != NULL)
-	  p->setSetup(s->getName());
-
-	p->setTracks(this);
-	p->setFinished(true);
-
-    return p;
 }
 
 /****************************************************************************
@@ -3401,39 +2990,6 @@ void Mobius::setNoExternalInput(bool b)
  ****************************************************************************/
 
 /**
- * May be called by the UI to save the current loop to a file.
- * This is part of MobiusInterface.
- *
- * The name is optional and will default to the "quick save" file
- * global parameter.
- */
-void Mobius::saveLoop(const char* name)
-{
-	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
-    if (name != NULL)
-      te->setArg(0, name);
-	mThread->addEvent(te);
-}
-
-/**
- * Called by the invocation of the SaveLoop global function.
- * 
- * SaveLoop is one of the few that could be declared with 
- * outsideInterrupt since all we do is schedule a MobiusThread event.
- */
-void Mobius::saveLoop(Action* action)
-{
-	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
-
-    // optional file name
-    if (action->arg.getType() == EX_STRING)
-      te->setArg(0, action->arg.getString());
-    action->setThreadEvent(te);
-
-	mThread->addEvent(te);
-}
-
-/**
  * Eventually called by MobiusThread to implement SaveLoop.
  *
  * Obvsiously serious race conditions here, but relatively safe
@@ -3926,350 +3482,6 @@ Track* Mobius::getSourceTrack()
 	return src;
 }
 
-/****************************************************************************
- *                                                                          *
- *   						   INTERUPT HANDLER                             *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * In old code, Mobius installed itself as a RecorderMonitor in the Recorder.
- * This method wsa be called once in each audio interrupt before
- * any of the tracks are processed.
- *
- * The old name was recorderMonitorEnter
- *
- * In new code, this will just be called directly by Kernel at the begining
- * of every interrupt, and before it lets Recorder advance the tracks.
- *
- * !! Script Recording Inconsistency
- *
- * This is implemented assuming that we only record functions for the
- * active track.  In theory, if a burst of functions came in within
- * the same interrupt, something like this could happen:
- *
- *      NextTrack
- *      Record
- *      NextTrack
- *      Record
- *
- * The effect would be that there are now pending functions
- * on two tracks, but the script recorder doesn't know how
- * to interleave them with the NextTrack function handled
- * by Mobius.  The script would end up with:
- *
- *      NextTrack
- *      NextTrack
- *      Record
- *      Record
- *
- * We could address this by always posting functions to a list
- * in the order they come in and wait for the interrupt
- * handler to consume them.  But it's complicated because we have
- * to synchronize access to the list.    In practice, it is very
- * hard to get functions to come in this rapidly so there
- * are more important things to do right now.  Also, Track
- * only allows one function at a time.
- */
-void Mobius::beginAudioInterrupt()
-{
-	if (mHalting) return;
-
-	// trace effective latency the first time we're here
-    // todo: should move this up to Kernel
-	mInterrupts++;
-	if (mInterrupts == 1)
-	  Trace(2, "Mobius: Receiving interrupts, input latency %ld output %ld\n",
-			(long)getEffectiveInputLatency(), (long)getEffectiveOutputLatency());
-
-    // Previously used mPendingInterruptConfig to shift an edited
-    // MobiusConfig from above to below.  We don't need this any more
-    // but it caused subtle order of evaluation in installMobiusConfig
-    // where what propagateInterruptConfig does in the middle was done after
-    // some script management and other things.  Need to redesign this
-    // and make an obvious linear order.
-    if (mPendingInterruptConfig != nullptr) {
-        Trace(2, "Mobius: Installing interrupt MobiusConfig\n");
-        // propagate changes to interested parts
-        propagateInterruptConfig();
-        mPendingInterruptConfig = nullptr;
-    }
-    
-    // interrupts may come in during initialization before we've had
-    // a chance to install the configuration, ignore these interrupts
-    // KLUDGE: Need a better way of detecting this than the stupid
-    // default flag...
-    // UPDATE: no longer necessary, Kernel won't calls us until we're ready
-    if (mConfig->isDefault()) {
-        Trace(2, "Mobius: Ignoring audio interrupt before config loaded\n");
-        return;
-    }
-
-    // install new watchers
-    installWatchers();
-
-    // change setups
-    if (mPendingSetup >= 0) {
-        setSetupInternal(mPendingSetup);
-        mPendingSetup = -1;
-    }
-
-    // Shift in a new pack of samples
-    // Samples are now in Kernel
-#if 0
-	SamplePack* samples = mPendingSamples;
-	mPendingSamples = NULL;
-	if (samples != NULL) 
-	  mSampleTrack->setSamples(samples);
-#endif
-    
-    // Shift in a new project
-
-	Project* p = mPendingProject;
-	mPendingProject = NULL;
-	if (p != NULL)
-      loadProjectInternal(p);
-
-	// Hack for testing, when this flag is set remove all external input
-	// and only pass through sample content.  Necessary for repeatable
-	// tests so we don't get random noise in the input.
-	if (mNoExternalInput) {
-		long frames = mContainer->getInterruptFrames();
-        // !! assuming 2 channel ports
-		long samples = frames * 2;
-		float* input;
-		mContainer->getInterruptBuffers(0, &input, 0, NULL);
-		memset(input, 0, sizeof(float) * samples);
-	}
-
-	mSynchronizer->interruptStart(mContainer);
-
-	// prepare the tracks before running scripts
-    // this unbelievably ugly noise was redesigned for Kernel
-#if 0
-	mSampleTrack->prepareForInterrupt();
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-		t->prepareForInterrupt();
-	}
-#endif
-    
-    // do the queued actions
-    doInterruptActions();
-
-    // Advance the long-press tracker too, this may cause other 
-    // actions to fire.
-    mTriggerState->advance(this, mContainer->getInterruptFrames());
-
-	// process scripts
-    doScriptMaintenance();
-}
-
-/**
- * Propagate pieces of a new MobiusConfig that has being installed
- * in the interrupt handler.  This should go down here rather than
- * in Mobius::installCofiguration if they can effect the operation of
- * code in the interrupt handler and this could cause inconsistencies
- * or other problems if changed in the middle of an interrupt.
- */
-void Mobius::propagateInterruptConfig() 
-{
-    // forget what this was, but if we still need it, it
-    // could have been handled by Kernel
-    //
-    // turn monitoring on or off
-    Recorder* rec = mKernel->getRecorder();
-    rec->setEcho(mConfig->isMonitorAudio());
-
-    // Synchronizer needs maxSyncDrift, driftCheckPoint
-    if (mSynchronizer != NULL)
-      mSynchronizer->updateConfiguration(mConfig);
-
-    // Modes track altFeedbackDisables
-    MobiusMode::updateConfiguration(mConfig);
-
-    // thankfully it is hidden now and can't be changed
-	AudioFade::setRange(mConfig->getFadeFrames());
-
-    // tracks are sensitive to lots of things including prests and setups
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-		t->updateConfiguration(mConfig);
-	}
-
-    // Update some things in the Setup that are done by
-    // setSetupInternal but aren't handled by Track::updateConfiguration
-    if (!mConfig->isNoSetupChanges()) {
-        Setup* setup = GetCurrentSetup(mConfig);
-        propagateSetupGlobals(setup);
-    }
-}
-
-/**
- * Called from within the interrupt to change setups.
- */
-void Mobius::setSetupInternal(int index)
-{
-    Setup* setup = GetSetup(mConfig, index);
-    if (setup == NULL)
-      Trace(1, "ERROR: Invalid setup number %ld\n", (long)index);
-    else
-      setSetupInternal(setup);
-}
-
-/**
- * Activate a new setup.
- *
- * Old comments about phasing mInterruptConfig:
- * This MUST be called within the interrupt and the passed Setup
- * object must be within mInterruptConfig.
- * This can be called from these places:
- *
- *     - loadProjectInternal to select the setup stored in the project
- *     - ScriptSetupStatement to select a setup in a script
- *     - recorderMonitorEnter to process mPendingSetup
- *     - unitTestSetup to select the unit test setup
- * 
- */
-void Mobius::setSetupInternal(Setup* setup)
-{
-	if (setup != NULL) {
-        // need to track the selection here so Reset processing
-        // can go back to the last setup
-
-        // !! not necessary, we're all sharing the same MobiusConfig object
-        // mInterruptConfig->setCurrentSetup(setup);
-
-        for (int i = 0 ; i < mTrackCount ; i++) {
-            Track* t = mTracks[i];
-            t->setSetup(setup);
-        }
-
-        // things that aren't track specific
-        propagateSetupGlobals(setup);   
-    }
-}
-
-/**
- * Called from a few locations within the interrupt to install
- * Things in the setup that are not track specific.
- * Mostly this is the the overlay bindings.
- * 
- * This is new in 2.0.  We also have a binding overlay value in the
- * Project, which will capture whatever the overlay was at the time the
- * project was saved.  This may be different than what is in the Setup but
- * not usually.
- * THINK: It may be confusing not to have loading a project put everything
- * back into the Setup state?
- *
- * This is an unusual case where we're in an interrupt but we
- * must set the master MobiusConfig object to change the
- * binding overlay since that is not used inside the interrupt.
- */
-void Mobius::propagateSetupGlobals(Setup* setup)
-{
-    // changes the active track without TrackCopy semantics
-    setTrack(setup->getActiveTrack());
-
-    // A NULL binding value means "keep the current one", if you
-    // always want the setup to remove the current binding overlay you
-    // need to set it to a special value.
-#if 0
-    const char* name = setup->getBindings();
-    if (name != NULL) {
-        BindingConfig* bindings = mConfig->getBindingConfig(name);
-        if (bindings != NULL) {
-            setOverlayBindings(bindings);
-        }
-        else if (StringEqual(name, SETUP_OVERLAY_CANCEL)) {
-            // special value that means to always cancel the current bindings
-            setOverlayBindings(NULL);
-        }
-        else {
-            // could just let any invalid name cancel the bindings?
-        }
-    }
-#endif    
-}
-
-/**
- * Called by Kernel at the end of the audio interrupt for each buffer.
- * All tracks have been processed.
- *
- * Formerly known as recorderMonitorExit
- * Formerly passed an AudioStream which is now replaced by MobiusContainer
- * We can keep the same one from contruction
- * but would be cleaner in some ways if it was passed in every time.
- */
-void Mobius::endAudioInterrupt()
-{
-    // don't need this any more
-	if (mHalting) return;
-
-    long frames = mContainer->getInterruptFrames();
-	mSynchronizer->interruptEnd();
-	
-	// if we're recording, capture whatever was left in the output buffer
-	// !! need to support merging of all of the output buffers for
-	// each port selected in each track
-	if (mCapturing && mAudio != NULL) {
-		float* output = NULL;
-		mContainer->getInterruptBuffers(0, NULL, 0, &output);
-		if (output != NULL) {
-
-			// debugging capture
-            // this was convenient at the time, and I'd like to support it now
-            // but need to give MobiusContainer an interface for file handling
-#if 0            
-			static int bufcount = 1;
-			if (false && bufcount < 5) {
-				char file[128];
-				sprintf(file, "record%d-%ld.wav", bufcount++, mAudio->getFrames());
-                Audio* temp = mAudioPool->newAudio();
-                temp->append(output, frames);
-                temp->write(file);
-                temp->free();
-			}
-#endif
-            
-			// the first block in the recording may be a partial block
-			if (mCaptureOffset > 0) {
-                // !! assuming 2 channel ports
-                int channels = 2;
-				output += (mCaptureOffset * channels);
-				frames -= mCaptureOffset;
-				if (frames < 0) {
-					Trace(this, 1, "Mobius: Recording offset calculation error!\n");
-					frames = 0;
-				}
-				mCaptureOffset = 0;
-			}
-
-			mAudio->append(output, frames);
-		}
-	}
-
-	// if any of the tracks have requested a UI update, post a message
-	// since we're only displaying the beat counter for one track, we don't
-	// need to do this for all of them?
-	bool uiSignal = false;
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		if (mTracks[i]->isUISignal())
-		  uiSignal = true;
-	}
-	if (uiSignal)
-	  mThread->addEvent(TE_TIME_BOUNDARY);
-}
-
-/**
- * Called by a few function handlers (originally Mute and Insert, now
- * just Insert to change the preset.  This is an old EDPism that I
- * don't really like.  We are inside the interrupt.
- */
-void Mobius::setPresetInternal(int number)
-{
-    mTrack->setPreset(number);
-}
 
 /****************************************************************************
  *                                                                          *
@@ -4280,19 +3492,44 @@ void Mobius::setPresetInternal(int number)
  * Originally just for the unit tests, but not used by Project too.
  */
 
+/**
+ * Called by Actionator
+ */
 Track* Mobius::getTrack()
 {
     return mTrack;
 }
 
+/**
+ * Called by Actionator
+ */
 int Mobius::getTrackCount()
 {
 	return mTrackCount;
 }
 
+/**
+ * Called by Actionator
+ */
 Track* Mobius::getTrack(int index)
 {
 	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
+}
+
+/**
+ * Called  by Actionator
+ */
+ScriptInterpreter* Mobius::getScripts()
+{
+    return mScripts;
+}
+
+/**
+ * Called by Actionator
+ */
+long Mobius::getInterrupts()
+{
+    return mInterrupts;
 }
 
 /****************************************************************************/

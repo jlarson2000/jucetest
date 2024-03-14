@@ -255,7 +255,9 @@ class SignalTrack : public RecorderTrack {
  * to process the audio buffers.  It will be called exactly once within the
  * interrupt handler before the RecorderTracks are processed.
  *
- * jsl - what was this for?
+ * UPDATE: This was how OG mobius inserted prepare/finalize code around the
+ * processing of audio blocks by the Tracks.  It was obscure and not used
+ * any more.
  * 
  */
 class RecorderMonitor {

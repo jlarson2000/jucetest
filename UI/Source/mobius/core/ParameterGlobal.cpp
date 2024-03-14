@@ -1645,6 +1645,9 @@ void MuteCancelFunctionsParameterType::setValue(MobiusConfig* c, ExValue* value)
  * Binding this is impossible but we might set it in a test script.
  * For this to have any meaning we have to propagate it to the
  * Funtion class.
+ *
+ * Changing this in an action was removed see also
+ * ConfirmationFunctionsParameterType
  */
 void MuteCancelFunctionsParameterType::setValue(Action* action)
 {
@@ -1658,7 +1661,8 @@ void MuteCancelFunctionsParameterType::setValue(Action* action)
 
     // this is normally called by installConfig when the
     // scripts are compiled, here we track dynamic changes
-    m->updateGlobalFunctionPreferences();
+    Trace(1, "MuteCancelFunctionsParameter: Action handler wants to updateGlobalFunctionPreferences!\n");
+    //m->updateGlobalFunctionPreferences();
 }
 
 Parameter* MuteCancelFunctionsParameter = 
@@ -1710,6 +1714,13 @@ void ConfirmationFunctionsParameterType::setValue(MobiusConfig* c, ExValue* valu
  * Binding this is impossible but we might set it in a test script.
  * For this to have any meaning we have to propagate it to the
  * Funtion class.
+ *
+ * UPDATE: removed Mobius::updateGlobalFunctionPreferences
+ * during the initialization redesign.  Could add something
+ * similar back, but scripts should not be needing to do this.
+ * What this did is done by initialize() and reconfigure() working
+ * from the MobiusConfig.
+ * 
  */
 void ConfirmationFunctionsParameterType::setValue(Action* action)
 {
@@ -1723,7 +1734,8 @@ void ConfirmationFunctionsParameterType::setValue(Action* action)
 
     // this is normally called by installConfig when the
     // scripts are compiled, here we track dynamic changes
-    m->updateGlobalFunctionPreferences();
+    Trace(1, "ConfirmationFunctionsParameter: Action handler wants to updateGlobalFunctionPreferences!\n");
+    //m->updateGlobalFunctionPreferences();
 }
 
 Parameter* ConfirmationFunctionsParameter = 

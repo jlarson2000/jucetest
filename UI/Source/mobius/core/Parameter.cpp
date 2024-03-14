@@ -782,6 +782,8 @@ void Parameter::deleteParameters()
         Parameter* p = Parameters[i];
         delete p;
     }
+    // important to "clear" the array since this can be called
+    // more than once during shutdown
     Parameters[0] = nullptr;
 }
 
