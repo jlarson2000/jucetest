@@ -371,6 +371,8 @@ class Action {
 
     /**
      * The pool we came from.
+     * !! I'm hating the notion that we have to keep a pool pointer
+     * around.  Caller should just return it to any pool or delete it.
      */
     class ActionPool* mPool;
 

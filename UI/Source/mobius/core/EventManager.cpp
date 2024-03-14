@@ -176,6 +176,9 @@ EventManager::~EventManager()
     delete mSyncEvent;
 }
 
+/**
+ * Call buried down in Loop::reset
+ */
 void EventManager::reset()
 {
 	flushAllEvents();

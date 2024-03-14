@@ -341,7 +341,6 @@ class InputStream : public Stream {
     void setPlugin(class StreamPlugin* plugin);
 	void setInputBuffer(class MobiusContainer* stream, float* input, long frames, 
 						float* echo);
-	void bufferModified(float* buffer);
 
     void rescaleInput();
     long getScaledRemainingFrames();

@@ -1,3 +1,12 @@
+Action::assimilate
+  - clearing mPool which was just set by newAction
+  
+
+
+SampleManager plays into the input buffer, which causes input monitoring
+to bounce, not innacurate really, but should we do monitoring at a higher
+level and ignore what SampleManager does?
+  - yes to higher level
 
 Go over Actionator and simplify the pending action list
 

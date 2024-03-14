@@ -108,6 +108,9 @@ class Mobius :
      */
     void containerAudioAvailable(class MobiusContainer* cont);
 
+    // temporary
+    void processBuffers(MobiusContainer* container);
+
     /**
      * Process actions using the new UIAction model.
      * This will be internally converted into the old Action model in all

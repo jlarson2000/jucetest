@@ -901,8 +901,7 @@ bool Track::isPriority()
  * to maintain another pointer.
  */
 void Track::processBuffers(MobiusContainer* stream, 
-						   float* inbuf, float *outbuf, long frames, 
-						   long frameOffset)
+						   float* inbuf, float *outbuf, long frames)
 {
 	int eventsProcessed = 0;
     long startFrame = mLoop->getFrame();
@@ -1054,6 +1053,30 @@ void Track::processBuffers(MobiusContainer* stream,
     }
 }
 
+// temporary signature that RecorderTrack uses
+void Track::processBuffers(class MobiusContainer* stream, 
+                           float* in, float *out, long frames,
+                           long frameOffset)
+{
+    processBuffers(stream, in, out, frames);
+}
+
+/**
+ * New MobiusKernel style of buffer processing.
+ * Can merge with the other one when ready.
+ */
+void Track::processBuffers(MobiusContainer* container)
+{
+    long frames = container->getInterruptFrames();
+    float* input = nullptr;
+    float* output = nullptr;
+    
+    container->getInterruptBuffers(getInputPort(), &input,
+                                   getOutputPort(), &output);
+    
+    processBuffers(container, input, output, frames);
+}
+ 
 /**
  * Formerly did smoothing out here but now that has been pushed
  * into the stream.  Just keep the stream levels current.
@@ -1075,18 +1098,6 @@ void Track::advanceControllers()
 int Track::getProcessedOutputFrames()
 {
 	return mOutput->getProcessedFrames();
-}
-
-/**
- * Called by Recorder during an audio interrupt if another Track modifies
- * the interrupt input buffer.  Here used by SampleTrack to insert
- * prerecorded content into the input stream.
- */
-void Track::inputBufferModified(float* buffer)
-{
-	// hmm, we may not have gotten our processBuffers call yet, just assume
-	// that if the buffer pointers won't match?
-	mInput->bufferModified(buffer);
 }
 
 /**

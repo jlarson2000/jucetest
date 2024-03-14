@@ -201,7 +201,7 @@ class Track : public RecorderTrack, public TraceContext
 	void setPitchSequenceIndex(int s);
 
 	//
-	// Recorder interrupt handler
+	// Audio interrupt handler
 	//
 
     bool isPriority();
@@ -209,10 +209,16 @@ class Track : public RecorderTrack, public TraceContext
 	void prepareForInterrupt();
 
 	void processBuffers(class MobiusContainer* stream, 
-						float* in, float *out, long frames, 
-						long frameOffset);
+						float* in, float *out, long frames);
 
-	void inputBufferModified(float* buffer);
+    // ugh, have to have this signature with the unused frameOffset
+    // to get Recorder to call us, temporary
+    
+	void processBuffers(class MobiusContainer* stream, 
+						float* in, float *out, long frames,
+                        long frameOffset) override;
+
+    void processBuffers(class MobiusContainer* cont);
 
 	//
     // Unit test interface

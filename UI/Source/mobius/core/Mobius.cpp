@@ -159,7 +159,6 @@ Mobius::~Mobius()
 
     delete mWatchers;
     delete mNewWatchers;
-    delete mActionator;
 	delete mThread;
 
     // functions are a mess, this is an array that combined
@@ -179,7 +178,22 @@ Mobius::~Mobius()
 	}
     delete mTracks;
     
-	delete mSynchronizer;
+    // subtle delete dependency!
+    // Actionator maintains an ActionPool
+    // Events can point to the Action that scheduled them
+    // EventManager contains Events, and Tracks each have an EventManager
+    // When you delete a Track it deletes EventManager which "flushes" any Events
+    // that are still active back to the event pool.  If the event is attached
+    // to an Action it calls Mobius::completeAction/Actionator::completeAction
+    // which normally returns the Action to the pool.  We don't need to be doing
+    // pooling when we're destructing everything, but that's old sensitive code I
+    // don't want to mess with.  What this means is that Actionator/ActionPool has
+    // to be alive at the time Tracks are deleted, so here we have to do this
+    // after the track loop above.  This only happens if you have an unprocessed Event
+    // and then kill the app/plugin.
+    delete mActionator;
+
+    delete mSynchronizer;
     delete mVariables;
 
     mEventPool->dump();
@@ -906,6 +920,12 @@ void Mobius::beginAudioInterrupt()
 
 	mSynchronizer->interruptStart(mContainer);
 
+	// prepare the tracks before running scripts
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->prepareForInterrupt();
+	}
+
     // do the queued actions
     mActionator->doInterruptActions();
     
@@ -915,6 +935,40 @@ void Mobius::beginAudioInterrupt()
 
 	// process scripts
     doScriptMaintenance();
+}
+
+/**
+ * Temporary interface as we phase out recorder.
+ */
+void Mobius::processBuffers(MobiusContainer* container)
+{
+    // if we have a TrackSync master, process it first
+    // in the old Recorder model this used RecorderTrack::isPriority
+    // to process those tracks first, it supported more than one for
+    // SampleTrack, but I don't think more than one Track can have priority
+    
+    Track* master = nullptr;
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        if (t->isPriority()) {
+            if (master != nullptr) {
+                Trace(1, "Mobius: More than one priority track!\n");
+            }
+            else {
+                master = t;
+            }
+        }
+    }
+
+    if (master != nullptr)
+      master->processBuffers(container);
+
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        if (t != master) {
+            t->processBuffers(container);
+        }
+    }
 }
 
 /**

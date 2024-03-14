@@ -35,6 +35,9 @@
  *
  * Really starting to want these to be subclasses
  * rather than nearly identitical structures.
+ *
+ * Don't mess with any fields that have been already initialized.
+ * In particular those related to the pool.
  */
 void Action::assimilate(UIAction* src)
 {
@@ -71,34 +74,6 @@ void Action::assimilate(UIAction* src)
     
     actionOperator = src->actionOperator;
     arg.set(&(src->arg));
-
-    // from here on down should be extensions to the UI model
-    // we have these in UIAction but unless it is possible
-    // for the UI to set them they need to be removed
-    
-    // Status
-    rescheduling = NULL;
-    reschedulingReason = NULL;
-    mobius = NULL;
-    inInterrupt = false;
-    noGroup = false;
-    noTrace = false;
-    millisecond = 0;
-    streamTime = 0.0f;
-
-    // private
-
-    mNext = NULL;
-    mPooled = false;
-    mRegistered = false;
-    mPool = nullptr;
-    
-    mEvent = NULL;
-    mThreadEvent = NULL;
-    mResolvedTrack = NULL;
-    mLongFunction = NULL;
-
-    mName = NULL;
 }
 
 /**

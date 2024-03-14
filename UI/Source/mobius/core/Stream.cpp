@@ -2081,39 +2081,6 @@ void InputStream::setInputBuffer(MobiusContainer* aus, float* input,
 }
 
 /**
- * Called indirectly by Recorder when another Track (in this case SampleTrack)
- * has modified an input buffer.  If this is the one we've been processing
- * need to recapture the modified content.
- *
- * !! This really complicates smoothing since we will already have
- * advanced it and in theory now have to reset it to its original location.
- * Since this is required only for audio insertion in 
- * the unit tests assume for now that we don't have to deal with it.
- */
-void InputStream::bufferModified(float* buffer)
-{
-	if (buffer == mAudioBuffer) {
-
-		// capture the potentially new audio and level adjust
-		float inLevel = mSmoother->getValue();
-		long sample = mOriginalFramesConsumed * channels;
-		float* src = &mAudioBuffer[sample];
-		float* dest = &mLevelBuffer[sample];
-		long remaining = mAudioBufferFrames - mOriginalFramesConsumed;
-		long samples = remaining * channels;
-
-		for (int i = 0 ; i < samples ; i++)
-		  dest[i] = src[i] * inLevel;
-
-		// then rate scale
-		// !! the threshold is all wrong now, need to rewind it to the
-		// value at the start of the buffer
-		scaleInput();
-	}
-}
-
-
-/**
  * Apply input buffer rate adjustments if the rate changed on 
  * the last event.
  */
