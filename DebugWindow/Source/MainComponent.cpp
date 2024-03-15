@@ -5,15 +5,18 @@ MainComponent::MainComponent()
 {
     addAndMakeVisible(log);
     log.add("Hello world!\n");
-    
     setSize (1024, 768);
+
+    server.start();
 }
 
 MainComponent::~MainComponent()
 {
+    server.stop();
 }
 
 //==============================================================================
+
 void MainComponent::paint (juce::Graphics& g)
 {
 }

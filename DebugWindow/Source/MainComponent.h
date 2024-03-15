@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "LogPanel.h"
+#include "ServerThread.h"
 
 //==============================================================================
 /*
@@ -24,6 +25,7 @@ private:
     //==============================================================================
     // Your private member variables go here...
     LogPanel log;
-
+    ServerThread server {&log};
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
