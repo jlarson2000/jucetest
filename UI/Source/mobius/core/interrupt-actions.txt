@@ -1,0 +1,362 @@
+ * It may also be used by code "inside" the audio interrupt in which
+ * case action->inInterrupt or TriggerEvent will be set.  
+ *
+ * If we're not in the interrupt, we usually defer all actions to the
+ * beginning of the next interrupt.  The exceptions are small number
+ * of global functions that have the "outsideInterrupt" option on.
+
+ *
+ * UI targets are always done synchronously since they don't effect 
+ * the Mobius engine.
+ * 
+ * Originally we let TriggerHost run synchronously but that was wrong,
+ * PluginParameter will track the last set value.
+ *
+ * Note that long press tracking is only done inside the interrupt
+ * which means that the few functions that set outsideInterrupt and
+ * the UI controls can't respond to long presses.  Seems fine.
+
+    ActionType* target = a->getTarget();
+
+    if (a->repeat && a->triggerMode != TriggerModeContinuous) {
+
+Won't get repeat down here, take it out
+
+
+Debug.cpp:    //outsideInterrupt = true;
+Realign.cpp:    outsideInterrupt = true;
+RunScript.cpp:    outsideInterrupt = true;
+
+This short formerly bypassed interupt action queueing and called this
+in the UI thread:
+
+        else if (f->global && f->outsideInterrupt) {
+            // can do these immediately
+            f->invoke(a, mMobius);
+        }
+
+this is a different path than doActionNow which does a lot more shit
+before it gets to invoke()
+
+What is special about Realign and RunScript that need this?
+
+Oh, it isn't Realign, it is this:
+
+DriftCorrectFunction::DriftCorrectFunction() :
+    Function("DriftCorrect", 0)
+{
+    global = true;
+    // This is one of the few functions we allow outside the interrupt
+    // it is safe because Synchronizer::forceDriftCorrect just sets a flag
+    // to do correction on the next interrupt.  But now that we do most
+    // global functions in the interrupt we don't need this level of
+    // indirection.
+    outsideInterrupt = true;
+	noFocusLock = true;
+    scriptOnly = true;
+}
+
+And it isn't RunScript, it's this
+
+ReloadScriptsFunction::ReloadScriptsFunction() :
+    Function("reloadScripts", MSG_FUNC_RELOAD_SCRIPTS)
+{
+    global = true;
+	noFocusLock = true;
+    runsWithoutAudio = true;
+    outsideInterrupt = true;
+}
+
+Can't reload scripts from within the kernel anyway, and when we get there
+shell can process it and filter it.
+
+        else if (mMobius->getInterrupts() == 0) {
+            // audio stream isn't running, suppress most functions
+            // !! this is really dangerous, revisit this
+            if (f->runsWithoutAudio) {
+
+Ah, yes this thing...
+
+FocusLockFunction::FocusLockFunction() :
+    Function("FocusLock", MSG_FUNC_FOCUS_LOCK)
+{
+    // one of the few that can do this
+	runsWithoutAudio = true;
+}
+
+ReloadScriptsFunction::ReloadScriptsFunction() :
+    Function("reloadScripts", MSG_FUNC_RELOAD_SCRIPTS)
+{
+    global = true;
+	noFocusLock = true;
+    runsWithoutAudio = true;
+    outsideInterrupt = true;
+}
+
+TrackSelectFunction::TrackSelectFunction(int i, bool relative)
+{
+	eventType = TrackEvent;
+	index = i;
+	replicated = !relative;
+	noFocusLock = true;
+	activeTrack = true;
+	// set this so we can respond visually to track select even
+	// when there is no audio device pumping interrupts
+	runsWithoutAudio = true;
+
+That's because FocusLock is really more of a UI action.
+As is ReloadScripts.
+
+TrackSelect isn't really when there are TrackCopy semantics enabled.
+
+In any case, the whole runsWithoutAudio is meaningless at this point because
+Actionator won't be running without it.  It would be interseting to MobiusShell,
+but even then being able to change focus or load scripts won't accomplish much.
+
+Keep the flag but don't bother with it in Actionator.
+
+    else if (target == ActionParameter) {
+        // TODO: Many parameters are safe to set outside
+        // defrering may cause UI flicker if the change
+        // doesn't happen right away and we immediately do a refresh
+        // that puts it back to the previous value
+        defer = true;
+    }
+
+all other actions are deferred
+
+So if we combine this with doActionNow what is missing from doActionNow is just:
+
+    if (a->isSustainable() && !a->down && 
+             target != ActionFunction) {
+        // Currently functions and UIControls are the only things that support 
+        // up transitions.  UIControls are messy, generalize this to 
+        // be more like a parameter with trigger properties.
+        Trace(2, "Ignoring up transition action\n");
+        ignore = true;
+    }
+
+        // this is odd
+        // there are only two outsideInterrupt functions DriftCorrect and ReloadScripts
+        // the first doesn't need to be and the second needs redesign
+        else if (f->global && f->outsideInterrupt) {
+            // can do these immediately
+            f->invoke(a, mMobius);
+        }
+
+The first one is an easy test to add but probably not necessary and should have
+been done higher.  For the second, if we did doActionNow rather than f->invoke
+what is different:
+
+  doActionNow
+    doFunction
+    
+
+    // Client's won't set down in some trigger modes, but there is a lot
+    // of code from here on down that looks at it
+    if (a->triggerMode != TriggerModeMomentary)
+      a->down = true;
+
+oh, that looks conflicting
+
+    mTriggerState->assimilate(a);
+this is only relevant when coming in from the outside
+
+    else if (f->global) {
+        // These are normally not track-specific and don't schedule events.
+        // The one exception is RunScriptFunction which can be both
+        // global and track-specififc.  If this is a script we'll
+        // end up in runScript()
+        if (!a->longPress)
+          f->invoke(a, mMobius);
+        else {
+            // Most global functions don't handle long presses but
+            // TrackGroup does.  Since we'll get longpress actions regardless
+            // have to be sure not to call the normal invoke() method
+            // ?? what about scripts
+            f->invokeLong(a, mMobius);
+        }
+
+so it gets to f->invoke pretty quickly  but it messes with down and long
+
+ugh, TriggerState really shouldn't be down here, it's probably quickly after onset, but
+we've got the shell/kernel divide going.
+
+The only thing that would have outsideInterrupt behavior was TrackSelect
+and there is no long trackselect or sustainability
+
+Disliking having ->down here, should be ->up since that's the only special case
+and none of the internal action generators are sustainable.
+
+yeah, the hold trigger sensitivity thing is a mess.
+
+Need to back way up and think about the Action lifecycle, what if anything
+core code needs to understand about triggers.
+
+The way Action becomes owned by Event sucks too.  It is probably wrapped around
+script Waits, but if could also work by havin the Action return an Event and having
+the script wait on the Event instead.
+
+New goal:  Action lives only long enough to invoke the function or schedule an event,
+then it is over.  If the UI wants to poll for status an id of some sort is returned
+in the UIAction.  If scripts want to wait on something, wait on that id or the Event directly.
+
+The only thing that cares about longness should be Actionator.
+
+Will need to look at every usage of Function::invoke to see what it does with the Action.
+
+sucks
+
+for the purpose of initial Actionator simplificiation, keep the Event/Action ownership as it is
+
+
+TriggerState
+
+
+Who calls Mobius::doAction() rathar than doActionNow?
+
+/**
+ * When we're done processing an event, send it back to Mobius
+ * so it can notify any ScriptInterpreters that might be waiting on it.
+ *
+ * This creates an action with a special trigger and target so it can
+ * be deferred until the next interrupt.
+ */
+void MobiusThread::finishEvent(ThreadEvent* e)
+{
+    Action* a = mMobius->newAction();
+    a->trigger = TriggerThread;
+    a->setTarget(ActionScript);
+
+    // this is a little unusual because we use this
+    // for an input to the action and it's usually a return
+    a->setThreadEvent(e);
+
+    mMobius->doAction(a);
+}
+
+void TriggerState::advance(Actionator* actionator, int frames)
+{
+                a->down = true;
+                a->longPress = true;
+
+                actionator->doAction(a);
+
+
+void RecordFunction::invokeLong(Action* action, Loop* l)
+{
+	if (longPressable) {
+        Track* track = l->getTrack();
+
+		Trace(l, 2, "RecordFunction: long-press converts to Reset\n");
+
+		// The action here will be a partial capture of the original 
+		// Record down action.  It will have the function and the
+		// trigger.  I don't think we should trash that by changing
+		// the function, there is an "id" field in here that may need 
+		// to be used with the function for tracking?
+
+        // !! think about how all long press handlers should be
+        // invoking other functions
+        Mobius* m = l->getMobius();
+        Action* a = m->newAction();
+
+		// It might be nice to have a TriggerLong but the function
+		// handlers may stil need to know script vs midi.  Another
+		// "longPress" flag in TriggerEvent could be used.
+        // !! No, if we go through Mobius::doAction we can't use the 
+        // original trigger.  think about this...
+
+        a->trigger = TriggerEvent;
+        a->inInterrupt = true;
+        a->down = true;
+        a->setFunction(Reset);
+        a->setResolvedTrack(l->getTrack());
+
+        m->doAction(a);
+	}
+}
+
+void RunScriptEventType::invoke(Loop* l, Event* e)
+{
+    // Original Action must be left on the event, steal it
+    Action* action = e->getAction();
+    e->setAction(NULL);
+
+    if (action == NULL)
+      Trace(l, 1, "RunScriptEventType: event with no action!\n");
+    else {
+        action->detachEvent(e);
+
+        // Set the trigger to this so Mobius::runScript knows to run
+        // synchronously without quantizing again.
+        action->trigger = TriggerEvent;
+        action->inInterrupt = true;
+
+        Mobius* m = l->getMobius();
+        m->doAction(action);
+	}
+}
+
+void StartPointFunction::invokeLong(Action* action, Loop* l)
+{
+    EventManager* em = l->getTrack()->getEventManager();
+
+    if (!mMidi) {
+		// Performs SyncStartPoint
+		Event* event = em->findEvent(StartPointEvent);
+		if (event != NULL) {
+			// we haven't processed the simple StartPoint yet
+			event->pending = true;
+			event->function = SyncStartPoint;
+		}
+		else {
+			// must have already processed it, make another one
+            Mobius* m = l->getMobius();
+            Action* a = m->newAction();
+            // hmm, may want a new trigger type like TriggerLong?
+            // use TriggerEvent since this is indirect
+            a->trigger = TriggerEvent;
+            a->inInterrupt = true;
+            a->down = true;
+            a->setFunction(SyncStartPoint);
+            a->setResolvedTrack(l->getTrack());
+            
+            m->doAction(a);
+		}
+	}
+}
+
+For Record and StartPoint  along press in effect just invokes a different function
+normally.  RunScript is the weird one.
+
+Bottom line, I think we can safely remove the difference between doAction
+and doActionNow.  Most old code called doActionNow which is where the complications were.
+
+Old doAction just had some really obscure handling for outsideInterrupt
+and runsWithoutAudio
+
+        else if (f->global && f->outsideInterrupt) {
+            // can do these immediately
+            f->invoke(a, mMobius);
+        }
+
+StartPoint/Record aren't outsideInterrupt so that doesn't matter
+
+The outsideInterrupt cases were
+
+ReloadScriptsFunction::ReloadScriptsFunction() :
+DriftCorrectFunction::DriftCorrectFunction() :
+
+
+TriggerState should only apply to things from the outside, not internal actions
+
+Nothing uses the DriftCorrect function internally and it probably never came from outside
+so don't need to lose sleep on this.
+
+doAction == doActionNow
+
+doActionNow probably has too much logic in it but can clean that out after getting
+rid of doAction, which means we don't have to mess with that original deferred
+action list.
+

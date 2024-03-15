@@ -13,7 +13,6 @@
 #define TRACK_H
 
 #include "../../util/Trace.h"
-#include "../Recorder.h"
 
 // needed for TrackState
 #include "../../model/MobiusState.h"
@@ -46,7 +45,7 @@
 #define MAX_TRACK_NAME 128
 
 
-class Track : public RecorderTrack, public TraceContext
+class Track : public TraceContext
 {
 
     friend class Mobius;
@@ -63,6 +62,23 @@ class Track : public RecorderTrack, public TraceContext
 
 	Track(class Mobius* mob, class Synchronizer* sync, int number);
 	~Track();
+
+    int getInputPort() {
+        return mInputPort;
+    }
+    
+    void setInputPort(int p) {
+        mInputPort = p;
+    }
+
+    int getOutputPort() {
+        return mOutputPort;
+    }
+
+    void setOutputPort(int p) {
+        mOutputPort = p;
+    }
+    
 	void setHalting(bool b);
 
 	void getTraceContext(int* context, long* time);
@@ -204,22 +220,17 @@ class Track : public RecorderTrack, public TraceContext
 	// Audio interrupt handler
 	//
 
+    // true if this is the Track Sync Master track
+    // which will then be processed first
     bool isPriority();
 
+    // !! if all this does is prepare for containerAudioAvailable
+    // then we could merge them unless there are some subtle
+    // order dependences with Action scheduling
 	void prepareForInterrupt();
 
-	void processBuffers(class MobiusContainer* stream, 
-						float* in, float *out, long frames);
-
-    // ugh, have to have this signature with the unused frameOffset
-    // to get Recorder to call us, temporary
+    void containerAudioAvailable(class MobiusContainer* cont);
     
-	void processBuffers(class MobiusContainer* stream, 
-						float* in, float *out, long frames,
-                        long frameOffset) override;
-
-    void processBuffers(class MobiusContainer* cont);
-
 	//
     // Unit test interface
 	//
@@ -277,6 +288,9 @@ class Track : public RecorderTrack, public TraceContext
 	void playTail(float* outbuf, long frames);
 	float* playTailRegion(float* outbuf, long frames);
 
+    void processBuffers(MobiusContainer* stream, 
+                        float* inbuf, float *outbuf, long frames);
+
 	void advanceControllers();
 
     //
@@ -301,6 +315,8 @@ class Track : public RecorderTrack, public TraceContext
     class Loop* mLoop;
 	int			mLoopCount;
 
+    int         mInputPort;
+    int         mOutputPort;
     int         mGroup;
 	bool 		mFocusLock;
 	bool		mHalting;

@@ -322,8 +322,6 @@
           <FILE id="sLafRe" name="TriggerState.h" compile="0" resource="0" file="Source/mobius/core/TriggerState.h"/>
           <FILE id="e5tfsC" name="Variable.cpp" compile="1" resource="0" file="Source/mobius/core/Variable.cpp"/>
           <FILE id="knqe8D" name="Variable.h" compile="0" resource="0" file="Source/mobius/core/Variable.h"/>
-          <FILE id="zygAvH" name="WatchPoint.cpp" compile="1" resource="0" file="Source/mobius/core/WatchPoint.cpp"/>
-          <FILE id="lKKJtr" name="WatchPoint.h" compile="0" resource="0" file="Source/mobius/core/WatchPoint.h"/>
         </GROUP>
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
@@ -343,8 +341,6 @@
         <FILE id="jXxZsV" name="MobiusKernel.h" compile="0" resource="0" file="Source/mobius/MobiusKernel.h"/>
         <FILE id="RZNLnz" name="MobiusShell.cpp" compile="1" resource="0" file="Source/mobius/MobiusShell.cpp"/>
         <FILE id="TK5FKu" name="MobiusShell.h" compile="0" resource="0" file="Source/mobius/MobiusShell.h"/>
-        <FILE id="w8ViL0" name="Recorder.cpp" compile="1" resource="0" file="Source/mobius/Recorder.cpp"/>
-        <FILE id="wmtmEF" name="Recorder.h" compile="0" resource="0" file="Source/mobius/Recorder.h"/>
         <FILE id="p07BSI" name="SampleBuilder.cpp" compile="1" resource="0"
               file="Source/mobius/SampleBuilder.cpp"/>
         <FILE id="wwdEks" name="SampleManager.cpp" compile="1" resource="0"

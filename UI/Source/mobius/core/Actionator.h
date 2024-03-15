@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 
-
 class Actionator
 {
   public:
@@ -21,15 +20,14 @@ class Actionator
     void dump();
     int getParameter(UIParameter* p, int trackNumber);
 
-    void doAction(UIAction* src);
-    void doCoreAction(UIAction* action);
+//    void doAction(UIAction* src);
 
     // still necessary?
     void doAction(class Action* a);
     
     // not necessary any more
     void doActionNow(class Action* a);
-    void doInterruptActions();
+    void doInterruptActions(class UIAction* actions);
 
     class Action* newAction();
     void freeAction(class Action* a);
@@ -42,6 +40,8 @@ class Actionator
 
   private:
 
+    void doCoreAction(UIAction* action);
+
     class Mobius* mMobius;
     class ActionPool* mActionPool;
     class TriggerState* mTriggerState;
@@ -50,8 +50,11 @@ class Actionator
 
     // UI to core Function mapping
     // std::vector<class Function*> functionMap;
-    juce::Array<class Function*> mFunctionMap;
-    juce::Array<class Parameter*> mParameterMap;
+    // !! has the dynamic growth problem, not so bad
+    // since this doesn't change after initialization
+    // but need to be clearer about when that happens
+    class juce::Array<class Function*> mFunctionMap;
+    class juce::Array<class Parameter*> mParameterMap;
     
     // needs to be done after core initialization because
     // some of the tables aren't set up until after

@@ -1,3 +1,12 @@
+// this was a late-stage feature that appears to have only been used by OSC
+
+    // forget what these were, similar to MidiExports I think
+    // might have been used for plugin parameter export
+    // revisit the need for this
+    class WatchPoint* addWatcher(class WatchPointListener* l);
+    void notifyWatchers(class WatchPoint* wp, int value);
+
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.

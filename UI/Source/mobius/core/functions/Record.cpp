@@ -112,6 +112,8 @@
 #include <memory.h>
 
 #include "../Mapper.h"
+// IndexOf
+#include "../../../util/Util.h"
 #include "../../../model/Trigger.h"
 #include "../../../model/Setup.h"
 #include "../../Audio.h"

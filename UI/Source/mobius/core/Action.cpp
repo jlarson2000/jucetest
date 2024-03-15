@@ -49,7 +49,6 @@ void Action::assimilate(UIAction* src)
     triggerOffset = src->triggerOffset;
     down = src->down;
     longPress = src->longPress;
-    repeat = src->repeat;
     
     // Target, Scope
     type = src->type;
@@ -90,7 +89,6 @@ void Action::init()
     triggerOffset = 0;
     down = false;
     longPress = false;
-    repeat = false;
     
     // Target, Scope
     type = nullptr;
@@ -115,7 +113,6 @@ void Action::init()
     rescheduling = NULL;
     reschedulingReason = NULL;
     mobius = NULL;
-    inInterrupt = false;
     noGroup = false;
     noTrace = false;
     millisecond = 0;
@@ -125,7 +122,6 @@ void Action::init()
 
     mNext = NULL;
     mPooled = false;
-    mRegistered = false;
     mPool = nullptr;
     
     mEvent = NULL;
@@ -157,9 +153,6 @@ Action::Action(Action* src)
  */
 Action::~Action()
 {
-    if (mRegistered)
-      Trace(1, "Atttempt to delete registered action!\n");
-
     delete scriptArgs;
     delete mName;
 
@@ -224,7 +217,6 @@ void Action::clone(Action* src)
     triggerOffset = src->triggerOffset;
     down = src->down;
     longPress = src->longPress;
-    repeat = src->repeat;
     
     // Target, Scope
     // take the private target if we have one
@@ -262,7 +254,6 @@ void Action::clone(Action* src)
     
     mobius = src->mobius;
 
-    inInterrupt = src->inInterrupt;
     noGroup = src->noGroup;
     noTrace = src->noTrace;
 
@@ -270,11 +261,6 @@ void Action::clone(Action* src)
     millisecond = src->millisecond;
     streamTime = src->streamTime;
 
-    // did not copy pool status mNext and mPooled
-    // I think just let them be what init() set them
-    // why not clear them then?
-    mRegistered = false;
-    
     // absolutely not these
     mEvent = NULL;
     mThreadEvent = NULL;
@@ -318,16 +304,6 @@ Action* Action::getNext()
 void Action::setNext(Action* a)
 {
     mNext = a;
-}
-
-bool Action::isRegistered() 
-{
-    return mRegistered;
-}
-
-void Action::setRegistered(bool b)
-{
-    mRegistered = b;
 }
 
 bool Action::isResolved()

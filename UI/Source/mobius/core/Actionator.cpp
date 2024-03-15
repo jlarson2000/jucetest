@@ -10,6 +10,9 @@
  *
  */
 
+// for juce::Array
+#include <JuceHeader.h>
+
 #include "../../util/Trace.h"
 #include "../../model/UIAction.h"
 #include "../../model/UIParameter.h"
@@ -40,7 +43,9 @@ Actionator::Actionator(Mobius* m)
     mFunctionMap = nullptr;
     mParameterMap = nullptr;
 
-    // save to do this in the constructor?
+    // safe to do this in the constructor?
+    // we need to do it during structure initialization because
+    // it isn't supposed to grow in the audio thread
     initFunctionMap();
     initParameterMap();
 }
@@ -121,6 +126,7 @@ void Actionator::advanceTriggerState(int frames)
  * Convert the UIAction model into an internal Action
  * which may have an indefinite lifeespan.
  */
+/*
 void Actionator::doAction(UIAction* src)
 {
     Action* internal = newAction();
@@ -128,6 +134,7 @@ void Actionator::doAction(UIAction* src)
 
     doActionNow(internal);
 }
+*/
 
 /**
  * We're bypassing some of the old logic with Mobius::doAction
@@ -239,10 +246,6 @@ Action* Actionator::newAction()
 
 void Actionator::freeAction(Action* a)
 {
-    // you normally don't do this, just delete them
-    if (a->isRegistered())
-      Trace(1, "Freeing a registered action!\n");
-
     //mCsect->enter("newAction");
     mActionPool->freeAction(a);
     //mCsect->leave("newAction");
@@ -259,9 +262,6 @@ Action* Actionator::cloneAction(Action* src)
     // not always set if allocated outside
     action->mobius = mMobius;
 
-    // make sure this is off
-    action->setRegistered(false);
-
     return action;
 }
 
@@ -272,14 +272,8 @@ Action* Actionator::cloneAction(Action* src)
  ****************************************************************************/
 
 /**
- * Perform an action, either synchronously or scheduled for the next 
- * interrupt.  We assume ownership of the Action object and will free
- * it (or return it to the pool) when we're finished.
- *
- * This is the interface that must be called from anything "outside"
- * Mobius, which is any trigger that isn't the script interpreter.
- * Besides performing the Action, this is where we track down/up 
- * transitions and long presses.
+ * Old interface that handled queueing actions "outside the interrupt"
+ * which is a concept that doesn't exist any more.
  *
  * It may also be used by code "inside" the audio interrupt in which
  * case action->inInterrupt or TriggerEvent will be set.  
@@ -309,16 +303,10 @@ void Actionator::doAction(Action* a)
 
     ActionType* target = a->getTarget();
 
-    if (a->isRegistered()) {
-        // have to clone these to do them...error in the UI
-        Trace(1, "Attempt to execute a registered action!\n");
-        ignore = true;
-    }
-    else if (a->repeat && a->triggerMode != TriggerModeContinuous) {
-        Trace(3, "Ignoring auto-repeat action\n");
-        ignore = true;
-    }
-    else if (a->isSustainable() && !a->down && 
+    // new: this is one of the few things we used to support that still
+    // may make sense, core code won't generate these but outside actions
+    // might, but we could have filtered those in the UI tier
+    if (a->isSustainable() && !a->down && 
              target != ActionFunction) {
         // Currently functions and UIControls are the only things that support 
         // up transitions.  UIControls are messy, generalize this to 
@@ -335,12 +323,13 @@ void Actionator::doAction(Action* a)
         // original trigger type which might be interesting in scripts.
         // !! if we just use action->inInterrupt consistently we wouldn't
         // need to test this
+        // new: inInterrupt is gone
         doActionNow(a);
     }
     else if (a->trigger == TriggerScript ||
-             a->trigger == TriggerEvent ||
-             // !! can't we use this reliably and not worry about trigger?
-             a->inInterrupt) {
+             a->trigger == TriggerEvent) {
+        // could avoid testing Trigger types if we had an "external" vs "internal"
+        // doAction
         // Script and Event triggers are in the interrupt
         // The UI targets don't have restrictions on when they can change.
         // Bindings are used outside the interrupt.
@@ -353,6 +342,10 @@ void Actionator::doAction(Action* a)
         if (f == NULL) {
             Trace(1, "Missing action Function\n");
         }
+
+        // this is odd
+        // there are only two outsideInterrupt functions DriftCorrect and ReloadScripts
+        // the first doesn't need to be and the second needs redesign
         else if (f->global && f->outsideInterrupt) {
             // can do these immediately
             f->invoke(a, mMobius);
@@ -403,7 +396,7 @@ void Actionator::doAction(Action* a)
         mLastAction = a;
         //mCsect->leave("doAction");
     }
-    else if (!a->isRegistered()) {
+    else {
         completeAction(a);
     }
 
@@ -411,23 +404,40 @@ void Actionator::doAction(Action* a)
 
 /**
  * Process the action list when we're inside the interrupt.
+ *
+ * This is a horrible mess with interleaved new/old code.
+ * The array passed is the new action list given to Mobius by
+ * Kernel.  Process them in the order given.  This is the only way
+ * we shold be consuming queued actions now, the old mActions list
+ * and the "defer" logic in doAction should no longer be used.
  */
-void Actionator::doInterruptActions()
+void Actionator::doInterruptActions(UIAction* actions)
 {
-    Action* actions = NULL;
+    // we do not delete these, they are converted to Action
+    // and may have results in them, but the caller owns them
+    UIAction* action = actions;
+    while (action != nullptr) {
+        doCoreAction(action);
+        action = action->next;
+    }
+
+    if (mActions != nullptr) {
+        Trace(1, "Actionator: have old-style queued actions!\n");
+    }
+    
+    Action* oldActions = NULL;
     Action* next = NULL;
 
     //mCsect->enter("doAction");
-    actions = mActions;
+    oldActions = mActions;
     mActions = NULL;
     mLastAction = NULL;
     //mCsect->leave("doAction");
 
-    for (Action* action = actions ; action != NULL ; action = next) {
+    for (Action* action = oldActions ; action != NULL ; action = next) {
         next = action->getNext();
 
         action->setNext(NULL);
-        action->inInterrupt = true;
 
         doActionNow(action);
 
@@ -445,7 +455,7 @@ void Actionator::completeAction(Action* a)
 
     // if an event is still set we're owned by the event
     // threadEvents don't imply ownership
-    if (!a->isRegistered() && a->getEvent() == NULL)
+    if (a->getEvent() == NULL)
       freeAction(a);
 }
 

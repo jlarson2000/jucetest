@@ -126,8 +126,6 @@ class Action {
     // pool state
     Action* getNext();
     void setNext(Action* a);
-    bool isRegistered();
-    void setRegistered(bool b);
 
     // called by Mobius::doParameter to convert an argument string
     // from a binding model into the actionOperator and numeric argument
@@ -180,12 +178,6 @@ class Action {
 	int triggerOffset;
 	bool down;
 	bool longPress;
-
-    // still used by Mobius but shouldn't be necessary
-    bool repeat;
-
-    // UIAction has this but it should have been filtered out long ago
-    // bool repeat;
 
     // UIAction had this but it shouldn't be necessary in core
     //bool passOscArg;
@@ -270,12 +262,6 @@ class Action {
 
     // can we get by without this?
     class Mobius* mobius;
-
-    /**
-     * Trasnsient flag set true if this action is being evaluated inside
-     * the interrupt.    
-     */ 
-    bool inInterrupt;
 
     /**
      * Transient flag to disable focus lock and groups.  Used only
@@ -367,7 +353,6 @@ class Action {
 
     Action* mNext;
     bool mPooled;
-    bool mRegistered;
 
     /**
      * The pool we came from.

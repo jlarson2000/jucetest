@@ -73,7 +73,6 @@
 #include "MobiusThread.h"
 #include "Mode.h"
 #include "Project.h"
-//#include "Recorder.h"
 #include "Script.h"
 #include "Synchronizer.h"
 #include "Track.h"
@@ -2996,10 +2995,6 @@ ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
         Mobius* m = si->getMobius();
         Action* a = m->newAction();
 
-        // this is redundant because we also check for Target types, but
-        // it would be simpler if we could just look at this...
-        a->inInterrupt = true;
-
         // target
 
         a->setFunction(func);
@@ -5596,10 +5591,6 @@ Action* ScriptInterpreter::getAction()
         mAction = mMobius->newAction();
         mAction->trigger = TriggerScript;
         
-        // this is redundant because we also check for Target types, but
-        // it would be simpler if we could just look at this...
-        mAction->inInterrupt = true;
-
         // function action needs this for GlobalReset handling
         // I don't think Parameter actions do
         mAction->id = (long)this;

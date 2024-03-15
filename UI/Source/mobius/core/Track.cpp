@@ -1,18 +1,17 @@
-// Track keeps a private Preset object to hold runtime changes that
-// are transient and won't persist after Reset.  At various points
-// a different preset needs to be "activated" in this track, we copy
-// from the master preset into the local one.  This uses Preset::copyNoAlloc
-// to do a field by field copy.
-//
-
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
+/**
+ * The primary start of the looping engine.
+ * The code is mostly old, with a few adjustments for the new MobiusKernel
+ * archecture and the way it passes buffers.
+ *
+ * Issues to explore:
+ *  
+ *  Track keeps a private Preset object to hold runtime changes that
+ * are transient and won't persist after Reset.  At various points
+ * a different preset needs to be "activated" in this track, we copy
+ * from the master preset into the local one.  This uses Preset::copyNoAlloc
+ * to do a field by field copy.
  * 
- * ---------------------------------------------------------------------
- * 
- * An extension of RecorderTrack that adds Mobius functionality.
+ * Old comments:
  *
  * Due to latency, an audio interrupt input buffer will contain frames
  * that were recorded in the past, the output buffer will contain
@@ -45,7 +44,8 @@
 
 #include "../../util/Util.h"
 #include "../../util/List.h"
-//#include "Thread.h"
+#include "../../model/UserVariable.h"
+#include "../../model/Setup.h"
 
 #include "Action.h"
 #include "Event.h"
@@ -57,13 +57,10 @@
 #include "Mode.h"
 #include "Parameter.h"
 #include "Project.h"
-#include "../Recorder.h"
-#include "../../model/Setup.h"
 #include "Script.h"
 #include "Stream.h"
 #include "StreamPlugin.h"
 #include "Synchronizer.h"
-#include "../../model/UserVariable.h"
 
 #include "Track.h"
 
@@ -83,8 +80,6 @@ Track::Track(Mobius* m, Synchronizer* sync, int number)
 void Track::init(Mobius* m, Synchronizer* sync, int number) 
 {
 	int i;
-
-	initRecorderTrack();
 
 	mRawNumber = number;
     strcpy(mName, "");
@@ -282,11 +277,6 @@ bool Track::isGlobalMute()
 	return mGlobalMute;
 }
 
-/**
- * Recorder defines one of these too and manages a mMute flag for
- * the default RecorderTrack.  We don't use any of that, mute is defined
- * by the current loop.
- */
 bool Track::isMute()
 {
 	return mLoop->isMuteMode();
@@ -710,7 +700,9 @@ void Track::getState(MobiusTrackState* s)
 	s->loopCount = mLoopCount;
 
 	s->outputMonitorLevel = mOutput->getMonitorLevel();
-    if (isSelected())
+
+    // only monitor the input level if we're the selected track
+    if (mMobius->getTrack() == this)
       s->inputMonitorLevel = mInput->getMonitorLevel();
 	else
 	  s->inputMonitorLevel = 0;
@@ -836,6 +828,29 @@ Audio* Track::getPlaybackAudio()
  * of frames processed so far to use as the offset to begin recording for this
  * interrupt.  But before the streams are initialized, this will normally be 256 
  * left over from the last call.
+ *
+ * TODO: The timing on when this is called vs containerAudioAvailable is
+ * way to subtle.  Try to merge these if order isn't significant, but the way
+ * it used to work was:
+ *
+ *     Mobius::recorderMonitorEnter
+ *       phase in pending configuration
+ *       Synchronizer::interruptStart
+ *       Track::prepareForInterrupt
+ *       doInterruptActions
+ *       doScriptMaintenance
+ *
+ *    Recorder::processBuffers
+ *       Track::processBuffers
+ *
+ *    Mobius::recorderMonitorExit
+ *
+ * The main difference is that actions are now processed first above
+ * all this when the Kernel consumes KernelMessages from the shell.
+ * This means that any Action processing and Event scheduling will be performed
+ * before prepareForInterrupt is called on each track.   Probably safe, but
+ * it makes me unconfortable.
+ * 
  */
 void Track::prepareForInterrupt()
 {
@@ -850,10 +865,8 @@ void Track::prepareForInterrupt()
 }
 
 /**
- * Overload this so that Recorder knows to process the track sync master
- * before any potential slave tracks.  This is important because
- * Synchronizer may need to set up state that the remaining tracks 
- * will see.
+ * Returning true causes Mobius to process buffers for this track
+ * before the others.  Important for the track sync master.
  * 
  * If there is no track sync master set (unusual) guess that
  * any track that is not empty and is not waiting for a synchronized
@@ -878,6 +891,22 @@ bool Track::isPriority()
 	}
 
 	return priority;
+}
+
+/**
+ * The new primary interface for buffer processing without Recorder.
+ * Forwards to the old method after locating the right port buffers.
+ */
+void Track::containerAudioAvailable(MobiusContainer* container)
+{
+    long frames = container->getInterruptFrames();
+    float* input = nullptr;
+    float* output = nullptr;
+    
+    container->getInterruptBuffers(mInputPort, &input,
+                                   mOutputPort, &output);
+    
+    processBuffers(container, input, output, frames);
 }
 
 /**
@@ -936,7 +965,7 @@ void Track::processBuffers(MobiusContainer* stream,
 	// if this is the selected track and we're monitoring, immediately
 	// copy the level adjusted input to the output
 	float* echo = NULL;
-    if (isSelected()) {
+    if (mMobius->getTrack() == this) {
         MobiusConfig* config = mMobius->getInterruptConfiguration();
         if (config->isMonitorAudio())
           echo = outbuf;
@@ -1053,30 +1082,6 @@ void Track::processBuffers(MobiusContainer* stream,
     }
 }
 
-// temporary signature that RecorderTrack uses
-void Track::processBuffers(class MobiusContainer* stream, 
-                           float* in, float *out, long frames,
-                           long frameOffset)
-{
-    processBuffers(stream, in, out, frames);
-}
-
-/**
- * New MobiusKernel style of buffer processing.
- * Can merge with the other one when ready.
- */
-void Track::processBuffers(MobiusContainer* container)
-{
-    long frames = container->getInterruptFrames();
-    float* input = nullptr;
-    float* output = nullptr;
-    
-    container->getInterruptBuffers(getInputPort(), &input,
-                                   getOutputPort(), &output);
-    
-    processBuffers(container, input, output, frames);
-}
- 
 /**
  * Formerly did smoothing out here but now that has been pushed
  * into the stream.  Just keep the stream levels current.

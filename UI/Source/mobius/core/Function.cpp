@@ -725,8 +725,6 @@ void Function::invokeEvent(Loop* l, Event* e)
     else {
         action->detachEvent(e);
 
-        action->inInterrupt = true;
-
         // never a latency adjust at this point
         action->noLatency = true;
 

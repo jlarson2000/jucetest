@@ -14,6 +14,8 @@
 #include <memory.h>
 #include <string.h>
 
+// StringEqualNoCase
+#include "../../../util/Util.h"
 #include "../../../model/Trigger.h"
 
 #include "../Action.h"

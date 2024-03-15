@@ -280,7 +280,6 @@ void TriggerState::advance(Actionator* actionator, int frames)
                       t->function->getDisplayName());
 
                 Action* a = actionator->newAction();
-                a->inInterrupt = true;
 
                 // trigger
                 // what about triggerValue and triggerOffset?

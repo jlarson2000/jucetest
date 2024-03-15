@@ -1045,9 +1045,6 @@
     <ClCompile Include="..\..\Source\mobius\core\Variable.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\core\WatchPoint.cpp">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -1067,9 +1064,6 @@
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\MobiusShell.cpp">
-      <Filter>UI\Source\mobius</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\mobius\Recorder.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\SampleBuilder.cpp">
@@ -3939,9 +3933,6 @@
     <ClInclude Include="..\..\Source\mobius\core\Variable.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\WatchPoint.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Audio.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
@@ -3958,9 +3949,6 @@
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\MobiusShell.h">
-      <Filter>UI\Source\mobius</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\Recorder.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\SampleManager.h">

@@ -109,6 +109,16 @@ class UIAction {
     void init(class Binding* b);
     void reset();
     void resolve();
+
+    // in a few (one?) places actions need to be queued
+    // in particular MobiusKernel needs to do this but juce::Array
+    // and std::vector are problematic because they can dynamically grow
+    // without annoying preparation and checking their capacity before use
+    // since we're not supposed to be allocating memory in the audio thread
+    // use a good old fashioned linked list
+    // note that unlike other older objects with a chain pointer we do not
+    // cascade delete these
+    UIAction* next;
     
     //////////////////////////////////////////////////////////////////////
     // Trigger
@@ -197,8 +207,12 @@ class UIAction {
     /**
      * true if the trigger is in "auto repeat" mode.
      * This is relevant only for TriggerKey
+     * !! there is no need for this complexity, and it will never be set
+     * now that the key tracker suppresses auto-repeat.  If it becomes interesting
+     * handle it entirely in the UI with multiple actions, it does not need to
+     * be sent down.
      */
-    bool repeat;
+    //bool repeat;
 
 	/**
 	 * True if this is the up transition after a long press.

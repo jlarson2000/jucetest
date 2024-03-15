@@ -298,7 +298,7 @@ void MobiusShell::consumeCommunications()
 
 /**
  * Actions may be perfomed at several levels: 
- *   shell, kernel, RecorderTrack, Core
+ *   shell, kernel, Core
  *
  * If an action makes it to Core it will be converted
  * from a UIAction to the old Action.

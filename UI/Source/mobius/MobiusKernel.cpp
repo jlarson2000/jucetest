@@ -2,9 +2,6 @@
  * An evolving object that wraps "kernel" state and functions.
  */
 
-// for juce::Array
-#include <JuceHeader.h>
-
 #include "../util/Trace.h"
 #include "../model/MobiusConfig.h"
 #include "../model/FunctionDefinition.h"
@@ -14,7 +11,6 @@
 #include "MobiusContainer.h"
 #include "MobiusShell.h"
 
-#include "Recorder.h"
 #include "Audio.h"
 #include "SampleManager.h"
 
@@ -50,6 +46,7 @@ MobiusKernel::MobiusKernel(MobiusShell* argShell, KernelCommunicator* comm)
     communicator = comm;
     // something we did for leak debugging
     Mobius::initStaticObjects();
+    coreActions = nullptr;
 }
 
 /**
@@ -71,14 +68,17 @@ MobiusKernel::~MobiusKernel()
 
     // we do not own shell, communicator, or container
     delete configuration;
-    
-    delete mRecorder;
-
-    // sampleTrack will be deleted by mRecorder destructor
 
     // stop listening
     if (container != nullptr)
       container->setAudioListener(this);
+
+    // in theory we could have a lingering action queue from the
+    // audio thread, but how would that happen, you can't delete
+    // the Kernel out from under an active audio stream with good results
+    if (coreActions != nullptr) {
+        Trace(1, "MobiusKernel: Destruction with a lingering coreAction list!\n");
+    }
 }
 
 /**
@@ -96,9 +96,6 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
     container = cont;
     audioPool = shell->getAudioPool();
     configuration = config;
-
-    // set up the initial Recorder configuration
-    initRecorder();
 
     // register ourselves as the audio listener
     // unclear when things start pumping in, but do this last
@@ -180,74 +177,6 @@ void MobiusKernel::reconfigure(KernelMessage* msg)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Recorder
-// Start slowly dragging stuff over
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Build out the inital Recorder structure based on the MobiusConfig.
- * We're in the initialization sequence in the UI thread so this
- * is one of the few places we're allowed to allocate memory.
- *
- * hmm, it would be clearer to enforce use of the communicator
- * even though we don't need to.  
- * 
- * This is approxomatley what the old Mobius::start did
- * We could be statically allocating Recorder now.
- */
-void MobiusKernel::initRecorder()
-{
-    if (mRecorder == nullptr) {
-
-        // formerly setup a listener for Midi events and started a timer
-
-		mRecorder = new Recorder();
-
-        // broke construction and initialization out in case we want
-        // to static construct
-        // note that we get the shared AudioPool from the shell
-        // Recorder needs information about the audio stream from the container
-        // but it is NOT the AudioListener, we do that and call Recorder
-        // think more about that, Recorder could just use the container
-        // passed in the interrupt rather than saving one
-        mRecorder->initialize(container, shell->getAudioPool());
-
-        // setup Synchronizer
-        // setup MobiusThread
-
-        // put the sample track first so it may put things into the
-		// input buffer for the loop tracks
-        
-		//mSampleTrack = new SampleTrack(this);
-		//mRecorder->add(mSampleTrack);
-
-		// this will trigger track initialization, open devices,
-		// load scripts, etc.
-		//installConfiguration(mConfig, true);
-        //installSamples();
-
-        // "shfit" a copy of the MobiusConfig into the interrupt handler
-        // install scripts
-
-        // update focus lock/mute cancel limits
-        // updateGlobalFunctionPreferences
-
-        // set TraceDebugLevel and TracePrintLevel from MobiusConfig
-
-        // Audio::setWriteFormatPCM(config->isIntegerWaveFile());
-
-        // open MIDI devices depending on whether we're in plugin mode
-        // ask Recorder to open audio devices
-        
-		// start the recorder (opens streams) and begins interrupt
-        // does nothing now
-        mRecorder->start();
-    }
-}
-
-//////////////////////////////////////////////////////////////////////
-//
 // MobiusContainer::AudioListener aka "the interrupt"
 //
 //////////////////////////////////////////////////////////////////////
@@ -257,42 +186,66 @@ void MobiusKernel::initRecorder()
  * to receive notifications of audio blocks.
  * What we used to call the "interrupt".
  *
- * There are three phases:
+ * Consume any pending shell messages, which may schedule UIActions on the core.
+ * Then advance the sample player which may inject audio into the stream.
+ * Finally let the core advance.
  *
- *     start of interrupt housekeeping like phasing in communications from the shell,
- *      and scheduling events
- *
- *     tell the Recorder to process the new buffers and advance the state
- *       of the tracks
- *
- *     end of interrupt housekeeping like passing information back to the shell
- *     and updating MobiusState
- *
+ * I'm having paranoia about the order of the queued UIAction processing.
+ * Before this was done in recorderMonitorEnter after some very sensntive
+ * initialization in Synchronizer and Track.  With KernelCommunicator we
+ * process those message first, before Mobius gets involved.  This may not mattern
+ * but it is worrysome and I don't want to change it until we've reached a stable
+ * point.  Even then, it's probably a good idea to let Mobius have some time to wake
+ * up before we start slamming actions at it.  UIActions destined for the core
+ * will therefore be put in another list and passed to Mobius at the same time
+ * as it is notified about audio buffers so it can decide whan to do them.
  */
 void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 {
+    // make sure this is clear
+    coreActions = nullptr;
+    
     // this may receive an updated MobiusConfig and will
-    // call Mobius::reconfigure
+    // call Mobius::reconfigure, UIActions that aren't handled at
+    // this level are placed in coreActions
     consumeCommunications();
+
+    // todo: it was around this point that we used to ask the Recorder
+    // to echo the input to the output for monitoring
+    //    rec->setEcho(mConfig->isMonitorAudio());
+    // Recorder is gone now, and the option was mostly useless due to
+    // latency, but if you need to resurrect it will have to do the
+    // equivalent here
 
     // let SampleManager do it's thing
     if (samples != nullptr)
       samples->containerAudioAvailable(cont);
 
-    // Mobius has three phases because Recorder is welded in between, temporary
+    // TODO: We now have UIActions to send to core in poorly defined order
+    // this usually does not matter but for for sweep controls like OutputLevel
+    // it can.  From the UI perspective the knob went from 100 to 101 to 102 but
+    // when we pull process the actions we could do them in reverse order leaving it at 100.
+    // They aren't timestamped so we don't know for sure what order Shell received them.
+    // If we're careful we could make assumptions about how the lists are managed,
+    // but that's too subtle, timestamps would be better.  As it stands at the moment,
+    // KernelCommunicator message queues are a LIFO.  With the introduction of the coreActions
+    // list, the order will be reversed again which is what we want, but if the implementation
+    // of either collection changes this could break.
+    
+    // tell core it has audio and some actions to do
+    mCore->containerAudioAvailable(cont, coreActions);
 
-    // let the core prepare for buffers
-    if (mCore != nullptr)
-      mCore->beginAudioInterrupt();
-
-    // unfortunately have to pass audio through the Recorder
-    // will eventually send this directly to Mobius
-    // Recorder isn't an AudioListener, but it uses the same method signature
-    mRecorder->containerAudioAvailable(cont);
-
-    // let the core do any post-audio cleanup
-    if (mCore != nullptr)
-      mCore->endAudioInterrupt();
+    // we now need to return the queued core actions back to the
+    // shell for deletion
+    UIAction* next = nullptr;
+    while (coreActions != nullptr) {
+        next = coreActions->next;
+        KernelMessage* msg = communicator->kernelAlloc();
+        msg->type = MsgAction;
+        msg->object.action = coreActions;
+        communicator->kernelSend(msg);
+        coreActions = next;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -336,6 +289,7 @@ void MobiusKernel::installSamples(KernelMessage* msg)
  * new kernel-level code.  If not, then we pass it down to the old core.
  *
  * There isn't much we do up here, currently just the SampleManager
+ * See comments in containerAudioAvailable for subtlety around queueing core actions.
  */
 void MobiusKernel::doAction(KernelMessage* msg)
 {
@@ -344,6 +298,7 @@ void MobiusKernel::doAction(KernelMessage* msg)
     // todo: more flexitility in targeting tracks
     // upper tracks vs. core tracks etc.
 
+    bool processed = false;
     if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == SamplePlay) {
@@ -362,21 +317,26 @@ void MobiusKernel::doAction(KernelMessage* msg)
                 int index = (number > 0) ? number - 1 : 0;
                 // mSampleTrack->trigger(mInterruptStream, index, action->down);
                 samples->trigger(index, action->down);
+                processed = true;
             }
         }
         else {
             // not handled above core, pass it down
-            mCore->doCoreAction(action);
-            // todo: fish any results out and do something with them
+            action->next = coreActions;
+            coreActions = action;
         }
     }
     else {
         // Parameter, Activation, Script action
-        mCore->doCoreAction(action);
+        action->next = coreActions;
+        coreActions = action;
     }
     
-    // return it to the shell for deletion
-    communicator->kernelSend(msg);
+    // if we handled it immediately, return it to the shell for deletion
+    if (processed)
+      communicator->kernelSend(msg);
+    else
+      communicator->kernelAbandon(msg);
 }
 
 //////////////////////////////////////////////////////////////////////

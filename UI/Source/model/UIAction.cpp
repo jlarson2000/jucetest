@@ -46,6 +46,9 @@ UIAction::~UIAction()
  */
 UIAction::UIAction(UIAction* src)
 {
+    // this never conveys
+    next = nullptr;
+    
     // Trigger
     id = src->id;
     trigger = src->trigger;
@@ -54,7 +57,7 @@ UIAction::UIAction(UIAction* src)
     triggerValue = src->triggerValue;
     triggerOffset = src->triggerOffset;
     down = src->down;
-    repeat = src->repeat;
+    //repeat = src->repeat;
     longPress = src->longPress;
 
     // Action
@@ -90,6 +93,7 @@ UIAction::UIAction(UIAction* src)
 
 void UIAction::init()
 {
+    next = nullptr;
     // Trigger
     id = 0;
     trigger = nullptr;
@@ -98,7 +102,7 @@ void UIAction::init()
     triggerValue = 0;
     triggerOffset = 0;
     down = false;
-    repeat = false;
+    //repeat = false;
     longPress = false;
 
     // Operation

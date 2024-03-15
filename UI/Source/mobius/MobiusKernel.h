@@ -22,8 +22,6 @@
 
 #pragma once
 
-// #include <vector>
-#include <JuceHeader.h>
 #include "MobiusContainer.h"
 
 class MobiusKernel : public MobiusContainer::AudioListener
@@ -62,10 +60,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
         return configuration;
     }
 
-    class Recorder* getRecorder() {
-        return mRecorder;
-    }
-
     class MobiusContainer* getContainer() {
         return container;
     }
@@ -86,17 +80,16 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // slowly start dragging stuff over
     // use static members eventually
     
-    class Recorder* mRecorder = nullptr;
     class SampleManager* samples = nullptr;
 
     // the big guy
     // make this a stack object at some point
     class Mobius* mCore = nullptr;
+    class UIAction* coreActions = nullptr;
 
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
     void installSamples(class KernelMessage* msg);
-    void initRecorder();
 
     void doAction(KernelMessage* msg);
     

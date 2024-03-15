@@ -32,21 +32,17 @@
 
 #include "../../util/Util.h"
 #include "../../util/List.h"
-//#include "MessageCatalog.h"
-//#include "XmlModel.h"
-//#include "XmlBuffer.h"
+#include "../../model/MobiusConfig.h"
+#include "../../model/Setup.h"
+#include "../Audio.h"
 
 #include "Action.h"
-#include "../Audio.h"
 #include "Export.h"
 #include "Function.h"
 #include "Messages.h"
 #include "Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "Mode.h"
 #include "Project.h"
-//#include "Recorder.h"
-#include "../../model/Setup.h"
 #include "Track.h"
 #include "Script.h"
 #include "Synchronizer.h"
@@ -1304,6 +1300,9 @@ void MonitorAudioParameterType::setValue(MobiusConfig* c, ExValue* value)
  * For this to have any meaning we need to propagate it to the
  * interrupt config where Track will look at it, and also 
  * to the Recorder.
+ *
+ * UPDATE: Recorder is gone and we lost the abillity to do this.
+ * Redesign if we think it is still useful.
  */
 void MonitorAudioParameterType::setValue(Action* action)
 {
@@ -1312,14 +1311,11 @@ void MonitorAudioParameterType::setValue(Action* action)
     Mobius* m = (Mobius*)action->mobius;
     MobiusConfig* config = m->getConfiguration();
 	config->setMonitorAudio(monitor);
-
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
-    if (iconfig != NULL)
-      iconfig->setMonitorAudio(monitor);
-
+#if 0
     Recorder* rec = m->getRecorder();
     if (rec != NULL)
       rec->setEcho(monitor);
+#endif
 }
 
 Parameter* MonitorAudioParameter = new MonitorAudioParameterType();

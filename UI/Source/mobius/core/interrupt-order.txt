@@ -1,0 +1,59 @@
+
+There were some subtle differences in the order of operations
+during an audio interrupt that I'm concerned about.  Now that UIActions
+are processed immediately when KernelMessages are processed.
+
+The old order was this
+
+   shell queued configuration and actions
+
+   audio interrupt happened
+     Mobius::recorderMonitorEnter
+       phase in MobiusConfig and propagate changes
+       install Watchers
+       phase in pending Setup
+         Track::setSetup
+         propagateSetupGlobals
+       phase in new samples
+       load project
+       that weird mNoExternalInput thing
+
+       Synchronizer::interruptStart
+         midi/host/outTracker::interruptStart
+           remember something about a pulse
+         gather MIDI events and add them to mInterruptEvents list
+         tell Trackers to advance
+           injects SyncEvents onto the interrupt event list
+
+        Track::prepareForInterrupt "before running scripts"
+
+        doInterruptActions
+          iterate through the action queue and call doActionNow
+
+        TriggerState::advance
+           watches for long presses, may cause other Actions
+
+        doScriptMaintenance
+           
+     Recorder::processTracks
+        Track::processBuffers
+          Synchronizer::prepare
+             resets the mInterruptEvent list built by interruptStart
+             
+     Mobius::recorderMonitorExit
+     
+
+The key difference is that now, queued actions are done BEFORE any of the other
+things and may even be interleaved with configuration changes, though rare
+
+Phasing of the configurations always happened first so that should still be safe.
+But Actions are far more subtle since they can have a dramatic impact
+on the track and doing that before Synchronizer:;interruptStart and
+Track::prepareFormInterrupt is thought provoking.
+
+To be safe, we really should pull the UIActions from the KernelCommunicator queue
+and pass them to Mobius so it can do them in the old sequence
+
+I think it's okay to assume that interrupt preparation can't be dependent on the PREVIOUS
+state of the configuration so we can install that immediately.
+

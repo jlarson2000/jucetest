@@ -56,7 +56,6 @@
 #include "Script.h"
 #include "Synchronizer.h"
 #include "Track.h"
-#include "WatchPoint.h"
 
 // for ScriptInternalVariable, encapsulation sucks
 #include "Variable.h"
@@ -83,7 +82,6 @@ Mobius::Mobius(MobiusKernel* kernel)
     // or force it to be passed in rather than doing a reach-around
     mContainer = kernel->getContainer();
     mAudioPool = kernel->getAudioPool();
-	mRecorder = kernel->getRecorder();
 
     // Kernel may not have a MobiusConfig yet so have to wait
     // to do anything until initialize() is called
@@ -123,8 +121,6 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mSynchronizer = NULL;
 	mHalting = false;
 	mNoExternalInput = false;
-    mWatchers = new Watchers();
-    mNewWatchers = new List();
 
     TraceToDebug = true;
     
@@ -139,11 +135,9 @@ Mobius::Mobius(MobiusKernel* kernel)
 /**
  * Release any lingering resources.
  *
- * Currently requiring that shutdown() be called first to
- * handle the awkward interconnection between Recorder and Track.
- * Need to detach the Tracks from the Recorder so it won't delete
- * them and we can delete them here.  Temporary until we can
- * get rid of Recorder.
+ * Formerly required shutdown() to be called first to unwind
+ * an awkward interconnection between Recorrder and Track.
+ * Don't have that now, so we may not need a separate shutdown()
  */
 Mobius::~Mobius()
 {
@@ -155,10 +149,8 @@ Mobius::~Mobius()
 	}
 
     // things owned by Kernel that can't be deleted
-    // mContainer, mAudioPool, mRecorder, mConfig, mSetup
+    // mContainer, mAudioPool, mConfig, mSetup
 
-    delete mWatchers;
-    delete mNewWatchers;
 	delete mThread;
 
     // functions are a mess, this is an array that combined
@@ -168,10 +160,6 @@ Mobius::~Mobius()
     
 	delete mScriptEnv;
 
-    // tracks are a mess too, we created them and put them in this
-    // array but they were owned by Recorder which deleted them
-    // since Recorder is outside our control now, shutdown() must have
-    // detached them and here we delete them
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
         delete t;
@@ -252,9 +240,6 @@ void Mobius::freeStaticObjects()
  * I don't think we need to retain that, the current assumption is that you
  * won't call shutdown until you're ready to delete it, and if that holds
  * this could all just be done in the destructore.
- *
- * It is currently required that this be called before destructor to unwind
- * the ugly ownership dependency that Recorder has on Track.  
  */
 void Mobius::shutdown()
 {
@@ -281,22 +266,6 @@ void Mobius::shutdown()
 		t->setHalting(true);
 	}
 
-    // new, awkward control flow
-    // Track owns an EventManager.
-    // EventManager has an Event list, and when you free them they go
-    // into the EventPool.  Recorder considers itself the owner of the Tracks and will
-    // delete them but since Recorder moved up a level it will be deleted AFTER Mobius
-    // or at an undefined time.
-    // Since deleting a Track needs touch the EventPool, and deleting Mobius
-    // deletes the EventPool, this has undefined behavior
-    // Since Mobius really should be in control over Track deletion
-    // let's take the approach that it must remove the Tracks from recorder during
-    // destruction which is correct encapsulation, but this is still WAY too messy
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-        mRecorder->remove(t);
-	}
-
     // old comments:
     // !! clear the Layer pool?  Not if we're in a VST and will
 	// resume again later...
@@ -309,19 +278,6 @@ void Mobius::shutdown()
 MobiusContainer* Mobius::getContainer()
 {
     return mContainer;
-}
-
-/**
- * New interface for actions.
- */
-void Mobius::doAction(UIAction* src)
-{
-    mActionator->doAction(src);
-}
-
-void Mobius::doCoreAction(UIAction* src)
-{
-    mActionator->doCoreAction(src);
 }
 
 int Mobius::getParameter(UIParameter* p, int trackNumber)
@@ -447,13 +403,9 @@ void Mobius::initializeTracks()
 
         Track** tracks = new Track*[count];
 
-        // IMPORTANT: This is the key connection point between Recorder and core
-        Recorder* rec = mKernel->getRecorder();
-        
         for (int i = 0 ; i < count ; i++) {
             Track* t = new Track(this, mSynchronizer, i);
             tracks[i] = t;
-            rec->add(t);
         }
         mTracks = tracks;
         mTrack = tracks[0];
@@ -601,12 +553,6 @@ void Mobius::propagateConfiguration()
     // cache various parameters directly on the Function objects
     propagateFunctionPreferences();
 
-    // turn monitoring on or off
-    // forget what this was, but if we still need it, it
-    // could have been handled by Kernel?
-    Recorder* rec = mKernel->getRecorder();
-    rec->setEcho(mConfig->isMonitorAudio());
-
     // Synchronizer needs maxSyncDrift, driftCheckPoint
     if (mSynchronizer != NULL)
       mSynchronizer->updateConfiguration(mConfig);
@@ -749,17 +695,12 @@ void Mobius::propagateFunctionPreferences()
  *
  * Used by propagateConfiguration and also by Loop.
  *
- * Unfortunately both Mobius and Recorder have independent
- * concepts of what the selected track is.
- *
  * !!! rename this
  */
 void Mobius::setTrack(int index)
 {
     if (index >= 0 && index < mTrackCount) {
         mTrack = mTracks[index];
-		if (mRecorder != NULL)
-		  mRecorder->select(mTrack);
     }
 }
 
@@ -843,8 +784,9 @@ void Mobius::setSetupInternal(Setup* setup)
 /**
  * Called by Kernel at the start of each audio block processing notification.
  *
- * This is approximately equal to what old code called recorderMonitorEnter
- *
+ * This is vastly simplified now that we don't have Recorder sitting in the
+ * middle of everything.
+ * 
  * Things related to "phasing" configuration from the UI thread to the audio
  * thread are gone and now done in reconfigure()
  *
@@ -883,65 +825,13 @@ void Mobius::setSetupInternal(Setup* setup)
  * are more important things to do right now.  Also, Track
  * only allows one function at a time.
  */
-void Mobius::beginAudioInterrupt()
+void Mobius::containerAudioAvailable(MobiusContainer* cont, UIAction* actions)
 {
-    // old flag to disable audio processing when a halt was requested
-    // don't know if we still need this but it seems like a good idea
-	if (mHalting) return;
+    // pre-processing
+    beginAudioInterrupt(actions);
 
-    // formerly maintained an mInterrupts counter
-    // and traced what we determined was the effective input and output
-    // latencies.  Should be doing this in Kernel if we still want that
-    // used by some action handling so still need it
-	mInterrupts++;
-	if (mInterrupts == 1)
-	  Trace(2, "Mobius: Receiving interrupts, input latency %ld output %ld\n",
-			(long)getEffectiveInputLatency(), (long)getEffectiveOutputLatency());
-
-    // install new watchers
-    // Watcher are not defined in MobiusConfig so they were not
-    // handled by reconfigure()
-    // still using the awkward mNewWatchers from the days when we had
-    // to phase things into the audio interrupt, revisit this
-    installWatchers();
-
-	// Hack for testing, when this flag is set remove all external input
-	// and only pass through sample content.  Necessary for repeatable
-	// tests so we don't get random noise in the input.
-    // wtf did this do??
-	if (mNoExternalInput) {
-		long frames = mContainer->getInterruptFrames();
-        // !! assuming 2 channel ports
-		long samples = frames * 2;
-		float* input;
-		mContainer->getInterruptBuffers(0, &input, 0, NULL);
-		memset(input, 0, sizeof(float) * samples);
-	}
-
-	mSynchronizer->interruptStart(mContainer);
-
-	// prepare the tracks before running scripts
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-		t->prepareForInterrupt();
-	}
-
-    // do the queued actions
-    mActionator->doInterruptActions();
-    
-    // Advance the long-press tracker too, this may cause other
-    // actions to fire.
-    mActionator->advanceTriggerState(mContainer->getInterruptFrames());
-
-	// process scripts
-    doScriptMaintenance();
-}
-
-/**
- * Temporary interface as we phase out recorder.
- */
-void Mobius::processBuffers(MobiusContainer* container)
-{
+    // advance the tracks
+    //
     // if we have a TrackSync master, process it first
     // in the old Recorder model this used RecorderTrack::isPriority
     // to process those tracks first, it supported more than one for
@@ -961,14 +851,79 @@ void Mobius::processBuffers(MobiusContainer* container)
     }
 
     if (master != nullptr)
-      master->processBuffers(container);
+      master->containerAudioAvailable(cont);
 
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
         if (t != master) {
-            t->processBuffers(container);
+            t->containerAudioAvailable(cont);
         }
     }
+
+    // post-processing
+    endAudioInterrupt();
+}
+
+/**
+ * Get things ready for the tracks to process the audio stream.
+ * Approximately what the old code called recorderMonitorEnter.
+ *
+ * We have a lot less to do now.  Configuration phasing, and action
+ * scheduling has already been done by Kernel.
+ *
+ * The UIActions received through the KernelCommunicator were queued
+ * and passed down so we can process them in the same location as the
+ * old code.
+ */
+void Mobius::beginAudioInterrupt(UIAction* actions)
+{
+    // old flag to disable audio processing when a halt was requested
+    // don't know if we still need this but it seems like a good idea
+	if (mHalting) return;
+
+    // formerly maintained an mInterrupts counter
+    // and traced what we determined was the effective input and output
+    // latencies.  Should be doing this in Kernel if we still want that
+    // used by some action handling so still need it
+	mInterrupts++;
+	if (mInterrupts == 1)
+	  Trace(2, "Mobius: Receiving interrupts, input latency %ld output %ld\n",
+			(long)getEffectiveInputLatency(), (long)getEffectiveOutputLatency());
+
+	// Hack for testing, when this flag is set remove all external input
+	// and only pass through sample content.  Necessary for repeatable
+	// tests so we don't get random noise in the input.
+    // wtf did this do??
+	if (mNoExternalInput) {
+		long frames = mContainer->getInterruptFrames();
+        // !! assuming 2 channel ports
+		long samples = frames * 2;
+		float* input;
+		mContainer->getInterruptBuffers(0, &input, 0, NULL);
+		memset(input, 0, sizeof(float) * samples);
+	}
+
+	mSynchronizer->interruptStart(mContainer);
+
+	// prepare the tracks before running scripts
+    // this is a holdover from the old days, do we still need
+    // this or can we just do it in Track::containerAudioAvailable?
+    // how would this be order sensitive for actions?
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->prepareForInterrupt();
+	}
+
+    // do the queued actions
+    mActionator->doInterruptActions(actions);
+    
+    // Advance the long-press tracker too, this may cause other
+    // actions to fire.
+    // since we just called it, merge these two
+    mActionator->advanceTriggerState(mContainer->getInterruptFrames());
+
+	// process scripts
+    doScriptMaintenance();
 }
 
 /**
@@ -1108,14 +1063,6 @@ OldMobiusListener* Mobius::getListener()
 }
 
 /**
- * Internal use only.
- */
-Watchers* Mobius::getWatchers()
-{
-    return mWatchers;
-}
-
-/**
  * Thread access for internal components.
  * Script currently needs this.
  */
@@ -1202,17 +1149,6 @@ MobiusConfig* Mobius::getConfiguration()
 MobiusConfig* Mobius::getInterruptConfiguration()
 {
     return mConfig;
-}
-
-/**
- * Get the inner Recorder.  This is exposed only for MonitorAudioParameter.
- * Think about adding a special method to propagate this?
- *
- * TODO: This needs to be moved up a level
- */
-Recorder* Mobius::getRecorder()
-{
-    return mKernel->getRecorder();
 }
 
 /****************************************************************************
@@ -1397,11 +1333,6 @@ void Mobius::logStatus()
 
     printf("*** Mobius engine status:\n");
 
-	//if (mRecorder != NULL) {
-    //AudioStream* s = mRecorder->getStream();
-    //s->printStatistics();
-    //}
-
     mActionator->dump();
     
     mEventPool->dump();
@@ -1452,86 +1383,6 @@ void Mobius::finishPrompt(Prompt* p)
 	else
 	  delete p;
 }
-
-/****************************************************************************
- *                                                                          *
- *                                WATCH POINTS                              *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Register a watch point listener.
- * The listener object becomes owned by Mobius and must not be deleted
- * by the caller.  If the caller no longer wants the listener it
- * must call the remove() method on the listener.
- */
-WatchPoint* Mobius::addWatcher(WatchPointListener* l)
-{
-    const char* name = l->getWatchPointName();
-    WatchPoint* wp = WatchPoint::getWatchPoint(name);
-    if (wp == NULL)
-      Trace(1, "Invalid watch point name: %s\n", name);
-    else {
-        //mCsect->enter("addWatchPoint");
-        mNewWatchers->add(l);
-        //mCsect->leave();
-    }
-    return wp;
-}
-
-/**
- * Called inside the interrupt to transition in new watch point listeners.
- */
-void Mobius::installWatchers()
-{
-    if (mNewWatchers->size() > 0) {
-        // UPDATE: no more csect
-        //mCsect->enter("installWatcher");
-        // need to check the size again once we're in the csect
-        int max = mNewWatchers->size();
-        for (int i = 0 ; i < max ; i++) {
-            WatchPointListener* l = (WatchPointListener*)mNewWatchers->get(i);
-            // it won't have made it to the list if the name was bad
-            const char* name = l->getWatchPointName();
-            WatchPoint* wp = WatchPoint::getWatchPoint(name);
-            if (wp != NULL) {
-                List* list = wp->getListeners(mWatchers);
-                if (list != NULL) {
-                    Trace(2, "Adding watch point listener for %s\n",
-                          l->getWatchPointName());
-                    list->add(l);
-                }
-            }
-        }
-        mNewWatchers->reset();
-        //mCsect->leave();
-    }
-}
-
-/**
- * Called internally to notify the watch point listeners.
- * This is IN THE INTERRUPT.
- */
-void Mobius::notifyWatchers(WatchPoint* wp, int value)
-{
-    List* listeners = wp->getListeners(mWatchers);
-    if (listeners != NULL) {
-        int max = listeners->size();
-        for (int i = 0 ; i < max ; i++) {
-            WatchPointListener* l = (WatchPointListener*)listeners->get(i);
-            // gc listeners marked removable
-            if (!l->isRemoving())
-              l->watchPointEvent(value);
-            else {
-                Trace(2, "Removing watch point listener for %s\n",
-                      l->getWatchPointName());
-                listeners->remove(i);
-                max--;
-            }
-        }
-    }
-}
-
 
 /****************************************************************************
  *                                                                          *
@@ -2135,8 +1986,6 @@ void Mobius::setNoExternalInput(bool b)
 		mContainer->getInterruptBuffers(0, &inbuf, 0, &outbuf);
 
 		memset(inbuf, 0, sizeof(float) * samples);
-		// Recorder may need to inform the others?
-		//mRecorder->inputBufferModified(inbuf);
 	}
 }
 

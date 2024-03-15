@@ -41,7 +41,7 @@
  * the master track must be advanced first before we know if it
  * crosses any interesting sync boundaries.  This is handled by 
  * giving the TrackSyncMaster track a higher priority than the others,
- * Recorder will process it first in each interrupt.
+ * Mobius will process it first in each interrupt.
  *
  * So, the Synchronizer is the funnel into which three types of sync
  * events go to be converted into the appropriate Event objects for
@@ -109,6 +109,8 @@
 #include <memory.h>
 #include <math.h>
 
+// StringEqualNoCase
+#include "../../util/Util.h"
 #include "../../model/MobiusConfig.h"
 #include "../../model/MobiusState.h"
 // TriggerScript

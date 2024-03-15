@@ -14,7 +14,6 @@
 #include "../../util/Trace.h"
 #include "../../model/MobiusState.h"
 
-#include "../Recorder.h"
 #include "../Audio.h"
 #include "../AudioPool.h"
 #include "../MobiusKernel.h"
@@ -37,7 +36,6 @@
 class Mobius : 
     public TraceContext
     //public MidiEventListener, 
-    //public RecorderMonitor 
 {
 	friend class ScriptInterpreter;
 	friend class ScriptSetupStatement;
@@ -88,47 +86,10 @@ class Mobius :
     void reconfigure(class MobiusConfig* config);
 
     /**
-     * Called by Kernel at the beginning of each audio block "interrupt".
-     * The MobiusKernel and anything we extracted from it in the constructor
-     * will still be valid.
+     * Called by Kernel at the begging of each audio block.
+     * What we once called "the interrupt".
      */
-    void beginAudioInterrupt();
-
-    /**
-     * Called by Kernel at the end of each audio block.
-     */
-    void endAudioInterrupt();
-
-    /**
-     * Called by Kernel to process audio buffers in the current audio block.
-     * PENDING: will be used once we get Recorder back down in core.
-     *
-     * Once we start doing this we no longer need to expose
-     * beginAudioInterrupt/endAudioInterrupt
-     */
-    void containerAudioAvailable(class MobiusContainer* cont);
-
-    // temporary
-    void processBuffers(MobiusContainer* container);
-
-    /**
-     * Process actions using the new UIAction model.
-     * This will be internally converted into the old Action model in all
-     * it's gory detail.
-     *
-     * The UIAction has been copied from what was passed by the  UI so
-     * it is safe to use, but it is owned by the Kernel and must not
-     * be deleted.
-     *
-     * PENDING: MobiusKernel now does the Action conversion and Function mapping
-     * and calls the old doActionNow.
-     * 
-     * Need to move this down here.
-     */
-    void doAction(class UIAction* action);
-
-    // temporary until we can refactor the Kernel handoff
-    void doCoreAction(class UIAction* action);
+    void containerAudioAvailable(class MobiusContainer* cont, UIAction* actions);
     
     /**
      * Temporary until we get UIQuery to Export fleshed out.
@@ -232,12 +193,6 @@ class Mobius :
     // was supposed to handle that, then call back to this
 	void finishPrompt(Prompt* p);
 
-    // forget what these were, similar to MidiExports I think
-    // might have been used for plugin parameter export
-    // revisit the need for this
-    class WatchPoint* addWatcher(class WatchPointListener* l);
-    void notifyWatchers(class WatchPoint* wp, int value);
-
     // Status
 
     // these should all come from MobiusContainer now
@@ -280,15 +235,12 @@ class Mobius :
     //////////////////////////////////////////////////////////////////////
     
     class MobiusConfig* getInterruptConfiguration();
-    class Recorder* getRecorder();
 
 	class MobiusMode* getMode();
 	long getFrame();
 
 	void setCustomMode(const char* s);
 	const char* getCustomMode();
-
-    class Watchers* getWatchers();
 
 	// MidiHandler interface
 	void midiEvent(class MidiEvent* e);
@@ -339,7 +291,6 @@ class Mobius :
 
     void setOutputLatency(int l);
 	class Track* getSourceTrack();
-	void stopRecorder();
 
 	// user defined variables
     class UserVariables* getVariables();
@@ -405,10 +356,12 @@ class Mobius :
     void propagateConfiguration();
     void propagateFunctionPreferences();
     
-    // legacy
+    // audio buffers
+    void beginAudioInterrupt(class UIAction* actions);
+    void endAudioInterrupt();
 
+    // legacy
     
-    void installWatchers();
     bool unitTestSetup(MobiusConfig* config);
 
 	void setConfiguration(class MobiusConfig* config, bool doBindings);
@@ -452,14 +405,11 @@ class Mobius :
     class LayerPool* mLayerPool;
     class EventPool* mEventPool;
 	OldMobiusListener* mListener;
-    Watchers* mWatchers;
-    class List* mNewWatchers;
 	class MobiusConfig *mConfig;
     class Setup* mSetup;
 	class MidiInterface* mMidi;
     class Actionator* mActionator;
 
-	Recorder* mRecorder;
     class MobiusThread* mThread;
     class Track** mTracks;
 	class Track* mTrack;

@@ -1,0 +1,80 @@
+/****************************************************************************
+ *                                                                          *
+ *                                WATCH POINTS                              *
+ *                                                                          *
+ ****************************************************************************/
+
+/**
+ * Register a watch point listener.
+ * The listener object becomes owned by Mobius and must not be deleted
+ * by the caller.  If the caller no longer wants the listener it
+ * must call the remove() method on the listener.
+ */
+WatchPoint* Mobius::addWatcher(WatchPointListener* l)
+{
+    const char* name = l->getWatchPointName();
+    WatchPoint* wp = WatchPoint::getWatchPoint(name);
+    if (wp == NULL)
+      Trace(1, "Invalid watch point name: %s\n", name);
+    else {
+        //mCsect->enter("addWatchPoint");
+        mNewWatchers->add(l);
+        //mCsect->leave();
+    }
+    return wp;
+}
+
+/**
+ * Called inside the interrupt to transition in new watch point listeners.
+ */
+void Mobius::installWatchers()
+{
+    if (mNewWatchers->size() > 0) {
+        // UPDATE: no more csect
+        //mCsect->enter("installWatcher");
+        // need to check the size again once we're in the csect
+        int max = mNewWatchers->size();
+        for (int i = 0 ; i < max ; i++) {
+            WatchPointListener* l = (WatchPointListener*)mNewWatchers->get(i);
+            // it won't have made it to the list if the name was bad
+            const char* name = l->getWatchPointName();
+            WatchPoint* wp = WatchPoint::getWatchPoint(name);
+            if (wp != NULL) {
+                List* list = wp->getListeners(mWatchers);
+                if (list != NULL) {
+                    Trace(2, "Adding watch point listener for %s\n",
+                          l->getWatchPointName());
+                    list->add(l);
+                }
+            }
+        }
+        mNewWatchers->reset();
+        //mCsect->leave();
+    }
+}
+
+/**
+ * Called internally to notify the watch point listeners.
+ * This is IN THE INTERRUPT.
+ */
+void Mobius::notifyWatchers(WatchPoint* wp, int value)
+{
+    List* listeners = wp->getListeners(mWatchers);
+    if (listeners != NULL) {
+        int max = listeners->size();
+        for (int i = 0 ; i < max ; i++) {
+            WatchPointListener* l = (WatchPointListener*)listeners->get(i);
+            // gc listeners marked removable
+            if (!l->isRemoving())
+              l->watchPointEvent(value);
+            else {
+                Trace(2, "Removing watch point listener for %s\n",
+                      l->getWatchPointName());
+                listeners->remove(i);
+                max--;
+            }
+        }
+    }
+}
+
+

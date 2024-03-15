@@ -1,3 +1,6 @@
+// ripped out some WatchPoint notifications in here, that
+// we may want to put back
+
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
  * All rights reserved.
@@ -64,7 +67,6 @@
 #include "Synchronizer.h"
 #include "SyncState.h"
 #include "Track.h"
-#include "WatchPoint.h"
 
 #include "Loop.h"
 
@@ -1553,7 +1555,8 @@ void Loop::notifyBeatListeners(Layer* layer, long frames)
 
         if (delta < frames) {
             mBeatLoop = true;
-            LoopStartPoint->notify(mMobius, this);
+            // don't have WatchPoints any more
+            //LoopStartPoint->notify(mMobius, this);
         }
 
 		long lastBufferFrame = playFrame + frames - 1;
@@ -1567,7 +1570,7 @@ void Loop::notifyBeatListeners(Layer* layer, long frames)
 			// then this block of frames surrounded a cycle boundary
 			if (delta - frames <= 0) {
                 mBeatCycle = true;
-                LoopCyclePoint->notify(mMobius, this);
+                //LoopCyclePoint->notify(mMobius, this);
             }
 		}
 
@@ -1581,7 +1584,7 @@ void Loop::notifyBeatListeners(Layer* layer, long frames)
 		delta = lastBufferFrame % tickFrames;
 		if (delta - frames <= 0) {
             mBeatSubCycle = true;
-            LoopSubcyclePoint->notify(mMobius, this);
+            //LoopSubcyclePoint->notify(mMobius, this);
         }
 
 		if (mBeatLoop || mBeatCycle || mBeatSubCycle) {
@@ -5759,7 +5762,6 @@ void Loop::trackEvent(Event* e)
             // it subject to synchronization which we may or may not
             // want.  This is different than EmptyLoopAction.
             Action* a = mMobius->newAction();
-            a->inInterrupt = true;
             a->setFunction(Record);
             a->setResolvedTrack(next);
             a->trigger = TriggerEvent;
