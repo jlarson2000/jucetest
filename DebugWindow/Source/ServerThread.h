@@ -15,6 +15,8 @@ class ServerThread : public juce::Thread
 
     void run() override;
 
+    bool addLog(juce::String msg);
+
   private:
 
     class LogPanel* log;
