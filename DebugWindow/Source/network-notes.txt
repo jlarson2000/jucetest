@@ -1,0 +1,10 @@
+
+JFC, waitForConnection seems to have no timeout...
+
+https://forum.juce.com/t/streamingsocket-waitfornextconnection/16124/4
+
+Looks like there is no timeout, but you can stop it by
+closing the connection it is waiting on.  Would have to do that
+in a different thread.
+
+
