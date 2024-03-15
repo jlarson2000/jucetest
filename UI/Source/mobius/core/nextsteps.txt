@@ -1,6 +1,20 @@
-Action::assimilate
-  - clearing mPool which was just set by newAction
-  
+next big mess: MobiusThread
+
+merge Actionator::doInterruptActions
+  and that TriggerState tracker
+
+Long press record broke along the way
+  need to completely rethink trigger handling and move as much
+  as possible out of core
+
+Bad leak after attempting long-press Record a few times
+  doesn't have to be long, just do
+    Record, Record
+    let it play a little
+    Record, Record
+    Reset
+
+So starting Record while a loop exists leaks
 
 
 SampleManager plays into the input buffer, which causes input monitoring
@@ -8,16 +22,7 @@ to bounce, not innacurate really, but should we do monitoring at a higher
 level and ignore what SampleManager does?
   - yes to higher level
 
-Go over Actionator and simplify the pending action list
-
 Revisit setSetupInternal tail end of propagateConfiguration is a mess
-
-Move Recorder back down
-  - try to get rid of it entirely if possible
-  - will need to factor out SampleTrack, latency calibraton
-  - the thing about isPriority for "brother sync" may keep it alive for awhile
-
-  ! yes, get rid of this, it won't be that hard
 
 For each of the major subcomponents
   ScriptInterpreter, Synchronizer, Actionator, Track
@@ -32,8 +37,6 @@ StateExporter
   specific exporters: Track, Loop, Layer, EventManager
   into one place
 
-WTF did WatchPoints ever do?  Reconsider
-
 Capture/Bounce
   move to a subcomponent?
 
@@ -43,14 +46,13 @@ Scriptarian
 TrackManager
   is there enough to have a subcomponent?
 
-
 MobiusThread
   still a big mess and it's all over Scripts
 
-
 Parametizer
   Handle getParameter, UIParameter mapping
-
+  - leave in Actionator for now, there isn't much there
+  
 Functionator
   handle the combined function/script map
   not much more here, Actionator does almost everything

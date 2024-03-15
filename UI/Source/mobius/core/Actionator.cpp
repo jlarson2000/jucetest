@@ -28,7 +28,6 @@
 #include "Track.h"
 #include "Loop.h"
 #include "Script.h"
-
 #include "Mobius.h"
 
 #include "Actionator.h"
@@ -38,8 +37,6 @@ Actionator::Actionator(Mobius* m)
     mMobius = m;
     mActionPool = new ActionPool();
     mTriggerState = new TriggerState();
-    mActions = NULL;
-    mLastAction = NULL;
     mFunctionMap = nullptr;
     mParameterMap = nullptr;
 
@@ -114,6 +111,23 @@ void Actionator::initParameterMap()
 }
 
 /**
+ * Map a UI to Core parameter, and trace a warning if we can't find one.
+ */
+Parameter* Actionator::mapParameter(UIParameter* uip)
+{
+    Parameter* cp = nullptr;
+
+    if (uip != nullptr) {
+        cp = mParameterMap[uip->ordinal];
+        if (cp == nullptr) {
+            Trace(1, "Actionator: Unable to map Parameter %s\n",
+                  uip->getName());
+        }
+    }
+    return cp;
+}
+
+/**
  * Called by Mobius at the beginning of each audio interrupt.
  */
 void Actionator::advanceTriggerState(int frames)
@@ -122,19 +136,146 @@ void Actionator::advanceTriggerState(int frames)
 }
 
 /**
- * New interface for actions.
- * Convert the UIAction model into an internal Action
- * which may have an indefinite lifeespan.
+ * THINK: This was brought down from Mobius with the rest of the
+ * action related code because it needed it, but so do lots of other
+ * things in Mobius.  Where should this live?
+ *
+ * Determine the destination Track for an Action.
+ * Return NULL if the action does not specify a destination track.
+ * This can be called by a few function handlers that declare
+ * themselves global but may want to target the current track.
  */
-/*
-void Actionator::doAction(UIAction* src)
+Track* Actionator::resolveTrack(Action* action)
 {
-    Action* internal = newAction();
-    internal->assimilate(src);
+    Track* track = NULL;
 
-    doActionNow(internal);
+    if (action != NULL) {
+
+        // This trumps all, it should only be set after the
+        // action has been partially processed and replicated
+        // for focus lock or groups.
+        track = action->getResolvedTrack();
+        
+        if (track == NULL) {
+
+            // note that the track number in an action is 1 based
+            // zero means "current"
+            int tnum = action->getTargetTrack();
+            if (tnum > 0) {
+                track = mMobius->getTrack(tnum - 1);
+                if (track == NULL) {
+                    Trace(1, "Track index out of range");
+                    // could either return NULL or force it to the lowest
+                    // or higest
+                    track = mMobius->getTrack();
+                }
+            }
+
+            // Force a track change if this function says it must run in the 
+            // active track.  This will usually be the same, but when calling
+            // some of the track management functions from scripts, they may
+            // be different.
+            Function* f = action->getFunction();
+            if (f != NULL && f->activeTrack) {
+                Track* active = mMobius->getTrack();
+                if (track != active) {
+                    if (track != NULL)
+                      Trace(mMobius, 2, "Mobius: Adjusting target track for activeTrack function %s\n", f->getName());
+                    track = active;
+                }
+            }
+        }
+    }
+
+    return track;
 }
-*/
+
+//////////////////////////////////////////////////////////////////////
+//
+// Action Lifecycle
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Allocate an action. 
+ * The caller is expected to fill this out and execute it with doAction.
+ * If the caller doesn't want it they must call freeAction.
+ * These are maintained in a pool that both the application threads
+ * and the interrupt threads can access so have to use a Csect.
+ */
+Action* Actionator::newAction()
+{
+    Action* action = NULL;
+
+    //mCsect->enter("newAction");
+    action = mActionPool->newAction();
+    //mCsect->leave("newAction");
+
+    // always need this
+    action->mobius = mMobius;
+
+    return action;
+}
+
+void Actionator::freeAction(Action* a)
+{
+    //mCsect->enter("newAction");
+    mActionPool->freeAction(a);
+    //mCsect->leave("newAction");
+}
+
+Action* Actionator::cloneAction(Action* src)
+{
+    Action* action = NULL;
+
+    //mCsect->enter("cloneAction");
+    action = mActionPool->newAction(src);
+    //mCsect->leave("cloneAction");
+
+    // not always set if allocated outside
+    action->mobius = mMobius;
+
+    return action;
+}
+
+/**
+ * Called when the action has finished processing.
+ * Notify the listener if there is one.
+ */
+void Actionator::completeAction(Action* a)
+{
+    // TODO: listener
+
+    // if an event is still set we're owned by the event
+    // threadEvents don't imply ownership
+    if (a->getEvent() == NULL)
+      freeAction(a);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Action Execution
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Processes the action list queued for the next audio block.
+ * This is the way most actions are performed.
+ *
+ * The doAction() method below is called by a small number of internal
+ * components that manufacture actions as a side effect of something other
+ * than a trigger.
+ */
+void Actionator::doInterruptActions(UIAction* actions)
+{
+    // we do not delete these, they are converted to Action
+    // and may have results in them, but the caller owns them
+    UIAction* action = actions;
+    while (action != nullptr) {
+        doCoreAction(action);
+        action = action->next;
+    }
+}
 
 /**
  * We're bypassing some of the old logic with Mobius::doAction
@@ -201,268 +342,12 @@ void Actionator::doCoreAction(UIAction* action)
 }
 
 /**
- * Map a UI to Core parameter, and trace a warning if we can't find one.
- */
-Parameter* Actionator::mapParameter(UIParameter* uip)
-{
-    Parameter* cp = nullptr;
-
-    if (uip != nullptr) {
-        cp = mParameterMap[uip->ordinal];
-        if (cp == nullptr) {
-            Trace(1, "Actionator: Unable to map Parameter %s\n",
-                  uip->getName());
-        }
-    }
-    return cp;
-}
-
-/****************************************************************************
- *                                                                          *
- *                                  ACTIONS                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Allocate an action. 
- * The caller is expected to fill this out and execute it with doAction.
- * If the caller doesn't want it they must call freeAction.
- * These are maintained in a pool that both the application threads
- * and the interrupt threads can access so have to use a Csect.
- */
-Action* Actionator::newAction()
-{
-    Action* action = NULL;
-
-    //mCsect->enter("newAction");
-    action = mActionPool->newAction();
-    //mCsect->leave("newAction");
-
-    // always need this
-    action->mobius = mMobius;
-
-    return action;
-}
-
-void Actionator::freeAction(Action* a)
-{
-    //mCsect->enter("newAction");
-    mActionPool->freeAction(a);
-    //mCsect->leave("newAction");
-}
-
-Action* Actionator::cloneAction(Action* src)
-{
-    Action* action = NULL;
-
-    //mCsect->enter("cloneAction");
-    action = mActionPool->newAction(src);
-    //mCsect->leave("cloneAction");
-
-    // not always set if allocated outside
-    action->mobius = mMobius;
-
-    return action;
-}
-
-/****************************************************************************
- *                                                                          *
- *                              ACTION EXECUTION                            *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * Old interface that handled queueing actions "outside the interrupt"
- * which is a concept that doesn't exist any more.
- *
- * It may also be used by code "inside" the audio interrupt in which
- * case action->inInterrupt or TriggerEvent will be set.  
- *
- * If we're not in the interrupt, we usually defer all actions to the
- * beginning of the next interrupt.  The exceptions are small number
- * of global functions that have the "outsideInterrupt" option on.
- *
- * UI targets are always done synchronously since they don't effect 
- * the Mobius engine.
- * 
- * Originally we let TriggerHost run synchronously but that was wrong,
- * PluginParameter will track the last set value.
- *
- * Note that long press tracking is only done inside the interrupt
- * which means that the few functions that set outsideInterrupt and
- * the UI controls can't respond to long presses.  Seems fine.
- */
-void Actionator::doAction(Action* a)
-{
-    bool ignore = false;
-    bool defer = false;
-
-    // catch auto-repeat on key triggers early
-    // we can let these set controls and maybe parameters
-    // but
-
-    ActionType* target = a->getTarget();
-
-    // new: this is one of the few things we used to support that still
-    // may make sense, core code won't generate these but outside actions
-    // might, but we could have filtered those in the UI tier
-    if (a->isSustainable() && !a->down && 
-             target != ActionFunction) {
-        // Currently functions and UIControls are the only things that support 
-        // up transitions.  UIControls are messy, generalize this to 
-        // be more like a parameter with trigger properties.
-        Trace(2, "Ignoring up transition action\n");
-        ignore = true;
-    }
-    else if (a->down && a->longPress) {
-        // this is the convention used by TriggerState to tell
-        // us when a long-press has been reached on a previous trigger
-        // we are in the interrupt and must immediately forward to the tracks
-        // ?? would be better to do this as a new trigger type, 
-        // like TriggerLong?  Not as easy to screw up but then we lose the 
-        // original trigger type which might be interesting in scripts.
-        // !! if we just use action->inInterrupt consistently we wouldn't
-        // need to test this
-        // new: inInterrupt is gone
-        doActionNow(a);
-    }
-    else if (a->trigger == TriggerScript ||
-             a->trigger == TriggerEvent) {
-        // could avoid testing Trigger types if we had an "external" vs "internal"
-        // doAction
-        // Script and Event triggers are in the interrupt
-        // The UI targets don't have restrictions on when they can change.
-        // Bindings are used outside the interrupt.
-
-        doActionNow(a);
-    }
-    else if (target == ActionFunction) {
-
-        Function* f = (Function*)a->getTargetObject();
-        if (f == NULL) {
-            Trace(1, "Missing action Function\n");
-        }
-
-        // this is odd
-        // there are only two outsideInterrupt functions DriftCorrect and ReloadScripts
-        // the first doesn't need to be and the second needs redesign
-        else if (f->global && f->outsideInterrupt) {
-            // can do these immediately
-            f->invoke(a, mMobius);
-        }
-        else if (mMobius->getInterrupts() == 0) {
-            // audio stream isn't running, suppress most functions
-            // !! this is really dangerous, revisit this
-            if (f->runsWithoutAudio) {
-                // Have to be very careful here, current functions are:
-                // FocusLock, TrackGroup, TrackSelect.
-                // Maybe it would be better to ignore these and popup
-                // a message? If these are sustainable or long-pressable
-                // the time won't advance
-                Trace(2, "Audio stream not running, executing %s\n", 
-                      f->getName());
-                doActionNow(a);
-            }
-            else {
-                Trace(2, "Audio stream not running, ignoring %s",
-                      f->getName());
-            }
-        }
-        else
-          defer = true;
-    }
-    else if (target == ActionParameter) {
-        // TODO: Many parameters are safe to set outside
-        // defrering may cause UI flicker if the change
-        // doesn't happen right away and we immediately do a refresh
-        // that puts it back to the previous value
-        defer = true;
-    }
-    else {
-        // controls are going away, Setup has to be inside, 
-        // not sure about Preset
-        defer = true;
-    }
-    
-    if (!ignore && defer) {
-        // pre 2.0 we used a ring buffer in Track for this that
-        // didn't require a csect, consider resurecting that?
-        // !! should have a maximum on this list?
-        //mCsect->enter("doAction");
-        if (mLastAction == NULL)
-          mActions = a;
-        else 
-          mLastAction->setNext(a);
-        mLastAction = a;
-        //mCsect->leave("doAction");
-    }
-    else {
-        completeAction(a);
-    }
-
-}
-
-/**
- * Process the action list when we're inside the interrupt.
- *
- * This is a horrible mess with interleaved new/old code.
- * The array passed is the new action list given to Mobius by
- * Kernel.  Process them in the order given.  This is the only way
- * we shold be consuming queued actions now, the old mActions list
- * and the "defer" logic in doAction should no longer be used.
- */
-void Actionator::doInterruptActions(UIAction* actions)
-{
-    // we do not delete these, they are converted to Action
-    // and may have results in them, but the caller owns them
-    UIAction* action = actions;
-    while (action != nullptr) {
-        doCoreAction(action);
-        action = action->next;
-    }
-
-    if (mActions != nullptr) {
-        Trace(1, "Actionator: have old-style queued actions!\n");
-    }
-    
-    Action* oldActions = NULL;
-    Action* next = NULL;
-
-    //mCsect->enter("doAction");
-    oldActions = mActions;
-    mActions = NULL;
-    mLastAction = NULL;
-    //mCsect->leave("doAction");
-
-    for (Action* action = oldActions ; action != NULL ; action = next) {
-        next = action->getNext();
-
-        action->setNext(NULL);
-
-        doActionNow(action);
-
-        completeAction(action);
-    }
-}
-
-/**
- * Called when the action has finished processing.
- * Notify the listener if there is one.
- */
-void Actionator::completeAction(Action* a)
-{
-    // TODO: listener
-
-    // if an event is still set we're owned by the event
-    // threadEvents don't imply ownership
-    if (a->getEvent() == NULL)
-      freeAction(a);
-}
-
-/**
  * Process one action within the interrupt.  
- * This is also called directly by ScriptInterpreter.
+ * This is also called directly by ScriptInterpreter and a few other
+ * places.
  *
+ * Old comments:
+ * 
  * The Action is both an input and an output to this function.
  * It will not be freed but it may be returned with either the
  * mEvent or mThreadEvent fields set.  This is used by the 
@@ -499,6 +384,15 @@ void Actionator::doActionNow(Action* a)
     if (t == NULL) {
         Trace(1, "Action with no target!\n");
     }
+    // brought over from the original doAction when we
+    // merged that and doActionNow, hate the need to be testing
+    // trigger state down here
+    else if (a->isSustainable() && !a->down && t != ActionFunction) {
+        // Currently functions and UIControls are the only things that support 
+        // up transitions.  UIControls are messy, generalize this to 
+        // be more like a parameter with trigger properties.
+        Trace(2, "Ignoring up transition action\n");
+    }
     else if (t == ActionFunction) {
         doFunction(a);
     }
@@ -514,15 +408,8 @@ void Actionator::doActionNow(Action* a)
     else if (t == ActionSetup) {
         doSetup(a);
     }
-    else if (t == ActionBindings) {
-        doBindings(a);
-    }
-    //else if (t == ActionUIConfig) {
-    //// not supported yet, there is only one UIConfig
-    //Trace(1, "UIConfig action not supported\n");
-    //}
     else {
-        Trace(1, "Invalid action target\n");
+        Trace(1, "Actionator: Invalid action target %s\n", t->getName());
     }
 }
 
@@ -640,40 +527,6 @@ void Actionator::doSetup(Action* a)
             mMobius->addEvent(te);
         }
     }
-}
-
-/**
- * Process a TargetBindings action.
- * We can be outside the interrupt here.  All this does is
- * set the current overlay binding in mConfig which, we don't have
- * to phase it in, it will just be used on the next trigger.
- */
-void Actionator::doBindings(Action* a)
-{
-#if 0    
-    // If we're here from a Binding should have resolved
-    BindingConfig* bc = (BindingConfig*)a->getTargetObject();
-    if (bc == NULL) {
-        // may be a dynamic action
-        int number = a->arg.getInt();
-        if (number < 0)
-          Trace(1, "Missing action BindingConfig\n");
-        else {
-            bc = mConfig->getBindingConfig(number);
-            if (bc == NULL) 
-              Trace(1, "Invalid binding overlay number: %ld\n", (long)number);
-        }
-    }
-
-    if (bc != NULL) {
-        int number = bc->getNumber();
-        Trace(2, "Bindings action: %ld\n", (long)number);
-        mConfig->setOverlayBindingConfig(bc);
-
-        // sigh, since getState doesn't export 
-
-    }
-#endif    
 }
 
 /**
@@ -798,57 +651,6 @@ void Actionator::doFunction(Action* a)
 }
 
 /**
- * Determine the destination Track for an Action.
- * Return NULL if the action does not specify a destination track.
- * This can be called by a few function handlers that declare
- * themselves global but may want to target the current track.
- */
-Track* Actionator::resolveTrack(Action* action)
-{
-    Track* track = NULL;
-
-    if (action != NULL) {
-
-        // This trumps all, it should only be set after the
-        // action has been partially processed and replicated
-        // for focus lock or groups.
-        track = action->getResolvedTrack();
-        
-        if (track == NULL) {
-
-            // note that the track number in an action is 1 based
-            // zero means "current"
-            int tnum = action->getTargetTrack();
-            if (tnum > 0) {
-                track = mMobius->getTrack(tnum - 1);
-                if (track == NULL) {
-                    Trace(1, "Track index out of range");
-                    // could either return NULL or force it to the lowest
-                    // or higest
-                    track = mMobius->getTrack();
-                }
-            }
-
-            // Force a track change if this function says it must run in the 
-            // active track.  This will usually be the same, but when calling
-            // some of the track management functions from scripts, they may
-            // be different.
-            Function* f = action->getFunction();
-            if (f != NULL && f->activeTrack) {
-                Track* active = mMobius->getTrack();
-                if (track != active) {
-                    if (track != NULL)
-                      Trace(mMobius, 2, "Mobius: Adjusting target track for activeTrack function %s\n", f->getName());
-                    track = active;
-                }
-            }
-        }
-    }
-
-    return track;
-}
-
-/**
  * Do a function action within a resolved track.
  *
  * We've got this weird legacy EDP feature where the behavior of the up
@@ -856,7 +658,6 @@ Track* Actionator::resolveTrack(Action* action)
  * used to convret non-sustained functions into sustained functions, 
  * for example Long-Overdub becomes SUSOverdub and stops as soon as the
  * trigger is released.  I don't really like this 
- *
  */
 void Actionator::doFunction(Action* action, Function* f, Track* t)
 {
@@ -1088,10 +889,11 @@ void Actionator::doParameter(Action* a, Parameter* p, Track* t)
 
 //////////////////////////////////////////////////////////////////////
 //
-// getParameter
+// Paramaeters Access
 //
-// Doesn't really belong here, but we've got the functionMap down here
-// so parameterMap is similar.
+// This doesn't really belong here since retrieving a value isn't
+// an Action, but we're doing UI/Core function mapping here and
+// this seems as good a place as any to have that for parameters.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -1127,15 +929,8 @@ int Actionator::getParameter(UIParameter* p, int trackNumber)
     return value;
 }
 
-
 /**
- * New interface for parameters.
- *
- * Old implementation uses Export for this, which is about what
- * I'd like to evolve UIQuery into.
- *
- * Pass this through Actionator?  It has the Parameter map.
- *  
+ * Parameter accessor after the UIParameter conversion.
  */
 int Actionator::getParameter(Parameter* p, int trackNumber)
 {

@@ -153,7 +153,6 @@ void StartPointFunction::invokeLong(Action* action, Loop* l)
             // hmm, may want a new trigger type like TriggerLong?
             // use TriggerEvent since this is indirect
             a->trigger = TriggerEvent;
-            a->inInterrupt = true;
             a->down = true;
             a->setFunction(SyncStartPoint);
             a->setResolvedTrack(l->getTrack());

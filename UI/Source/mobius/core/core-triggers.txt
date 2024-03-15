@@ -1,0 +1,108 @@
+
+Need to simplify core log around action triggers.
+
+----------------------------------------------------------------------
+Key Repeat
+
+I took this out, UI should suppress it and if we decide it is interesting
+bring it back as a UI feature, not something in core.
+
+----------------------------------------------------------------------
+Long Press
+
+Currently handled in Actionator with TriggerState which
+watches for up transitions of donwn triggers and generates
+another action with either the longPress flag or an alternate
+Function applied.
+
+This only applies to Functions that have certain flags indicating
+long pressability.
+
+It might make sense to do this in the UI but the logic is
+somewhat obscure,reqires a press tracker, and having it built in
+makes sense due to the different ways it can be handled.
+
+Could have a strictly UI implementation above that that does
+not use the Function model where a long press of anything
+could cause something unrelated.  It would be an option in the binding
+model so a MIDI note could have one action and a held note a different action.
+
+----------------------------------------------------------------------
+Susstain
+
+Currently you have to bind to a special "SUS" variant of the function.
+
+It would be nice to have this just be a binding option "is sustain" so
+anything could be a SUS function.
+
+But you would have  to take the time to set up bindings for the common ones
+people expect from the EDP.
+
+----------------------------------------------------------------------
+Up/Down
+
+It's  a mess.  Since sustainability is rare "down" should be the default
+for any action rather than having to remember to set down=true
+
+----------------------------------------------------------------------
+
+Action->trigger usage in Core
+
+FunctionUtil.cpp:    if (action->trigger == TriggerMidi) {
+FunctionUtil.cpp:                int original = action->triggerValue;
+FunctionUtil.cpp:    else if (action->trigger == TriggerHost ||
+FunctionUtil.cpp:             action->trigger == TriggerOsc) {
+LoopSwitch.cpp:                    action->trigger == TriggerMidi &&
+LoopSwitch.cpp:                    t->setOutputLevel(action->triggerValue);
+Record.cpp:        a->trigger = TriggerEvent;
+RunScript.cpp:        action->trigger = TriggerEvent;
+StartPoint.cpp:            a->trigger = TriggerEvent;
+
+Action.cpp:    trigger = src->trigger;
+Action.cpp:    triggerMode = src->triggerMode;
+Action.cpp:    triggerValue = src->triggerValue;
+Action.cpp:    triggerOffset = src->triggerOffset;
+Action.cpp:    trigger = src->trigger;
+Action.cpp:    triggerMode = src->triggerMode;
+Action.cpp:    triggerValue = src->triggerValue;
+Action.cpp:    triggerOffset = src->triggerOffset;
+Actionator.cpp:    if (a->trigger != TriggerThread)
+Actionator.cpp:    if (a->triggerMode != TriggerModeMomentary)
+
+EventManager.cpp:				if (action->trigger != TriggerScript)
+Function.cpp:			if (prev != NULL && !sus && action->trigger != TriggerScript) {
+
+Loop.cpp:            a->trigger = TriggerEvent;
+Loop.cpp:            a->triggerMode = TriggerModeOnce;
+Mobius.cpp:            action->trigger != TriggerEvent) {
+Mobius.cpp: *   	if (action != NULL && action->trigger != TriggerScript)
+Mobius.cpp:		// && action->trigger == TriggerScript
+MobiusThread.cpp:    a->trigger = TriggerThread;
+ParameterTrack.cpp:        if (action->trigger != TriggerScript) {
+ParameterTrack.cpp:        if (action->trigger != TriggerScript) {
+Script.cpp:        a->trigger = TriggerScript;
+Script.cpp:          a->triggerMode = TriggerModeMomentary;
+Script.cpp:          a->triggerMode = TriggerModeOnce;
+Script.cpp:        mAction->trigger = TriggerScript;
+Script.cpp:        mTrigger = action->trigger;
+Script.cpp:        mTriggerValue = action->triggerValue;
+Script.cpp:        mTriggerOffset = action->triggerOffset;
+Script.cpp:    return (action->trigger == mTrigger && action->id == mTriggerId);
+Scriptarian.cpp:            action->trigger != TriggerEvent) {
+Scriptarian.cpp:		//(long)(action->triggerValue));
+Scriptarian.cpp: *   	if (action != NULL && action->trigger != TriggerScript)
+ScriptRuntime.cpp:            action->trigger != TriggerEvent) {
+ScriptRuntime.cpp:		//(long)(action->triggerValue));
+ScriptRuntime.cpp: *   	if (action != NULL && action->trigger != TriggerScript)
+ScriptRuntime.cpp:    if (a->trigger != TriggerThread)
+Synchronizer.cpp:		if (action->trigger == TriggerScript) {
+TriggerState.cpp:    trigger = a->trigger;
+TriggerState.cpp:        Trigger* trigger = action->trigger;
+TriggerState.cpp:        if (t->trigger == action->trigger && t->triggerId == action->id) {
+TriggerState.cpp:                a->trigger = t->trigger;
+TriggerState.cpp:                a->id = t->triggerId;
+
+Almost all of these are just testing for TriggerEvent or TriggerScript,
+and a few for TriggerThread.  So code mostly doesn't care what the trigger is
+they just want to know if it's internal or external.
+

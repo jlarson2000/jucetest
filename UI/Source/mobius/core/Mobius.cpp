@@ -2561,9 +2561,13 @@ void Mobius::completeAction(Action* a)
     mActionator->completeAction(a);
 }
 
+/**
+ * Merging the old doAction and doActionNow styles
+ * to just be doActionNow.  Keep both till we transition everything.
+ */
 void Mobius::doAction(Action* a)
 {
-    mActionator->doAction(a);
+    mActionator->doActionNow(a);
 }
 
 void Mobius::doActionNow(Action* a)

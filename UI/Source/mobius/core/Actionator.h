@@ -16,37 +16,36 @@ class Actionator
 
     Actionator(class Mobius* m);
     ~Actionator();
-    
     void dump();
+    
+    // Parameter value access is in here too since
+    // it has to do similar UI/core mapping and is small
     int getParameter(UIParameter* p, int trackNumber);
 
-//    void doAction(UIAction* src);
+    // this used to be in Mobius but it was moved down
+    // here with the rest of the action code, where should this live?
+    Track* resolveTrack(class Action* action);
 
-    // still necessary?
-    void doAction(class Action* a);
-    
-    // not necessary any more
-    void doActionNow(class Action* a);
-    void doInterruptActions(class UIAction* actions);
-
+    // action object management
     class Action* newAction();
     void freeAction(class Action* a);
     class Action* cloneAction(class Action* src);
     void completeAction(class Action* a);
-    Track* resolveTrack(class Action* action);
 
     // called by Mobius in beginAudioInterrupt
     void advanceTriggerState(int frames);
 
-  private:
+    // perform actions queued for the next interrupt
+    void doInterruptActions(class UIAction* actions);
 
-    void doCoreAction(UIAction* action);
+    // do an internally generated action
+    void doActionNow(class Action* a);
+
+  private:
 
     class Mobius* mMobius;
     class ActionPool* mActionPool;
     class TriggerState* mTriggerState;
-    class Action *mActions;
-    class Action *mLastAction;
 
     // UI to core Function mapping
     // std::vector<class Function*> functionMap;
@@ -60,18 +59,19 @@ class Actionator
     // some of the tables aren't set up until after
     void initFunctionMap();
     void initParameterMap();
-    Parameter* mapParameter(UIParameter* uip);
     
-    int getParameter(Parameter* p, int trackNumber);
+    void doCoreAction(UIAction* action);
 
     void doPreset(class Action* a);
     void doSetup(class Action* a);
-    void doBindings(class Action* a);
     void doScriptNotification(class Action* a);
     void doFunction(class Action* a);
     void doFunction(class Action* action, class Function* f, class Track* t);
     void doParameter(class Action* a);
     void doParameter(class Action* a, class Parameter* p, class Track* t);
+
+    Parameter* mapParameter(UIParameter* uip);
+    int getParameter(Parameter* p, int trackNumber);
 
 };
 

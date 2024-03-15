@@ -382,7 +382,6 @@ void RecordFunction::invokeLong(Action* action, Loop* l)
         // original trigger.  think about this...
 
         a->trigger = TriggerEvent;
-        a->inInterrupt = true;
         a->down = true;
         a->setFunction(Reset);
         a->setResolvedTrack(l->getTrack());

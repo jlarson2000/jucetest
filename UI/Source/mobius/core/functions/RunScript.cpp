@@ -64,7 +64,6 @@ void RunScriptEventType::invoke(Loop* l, Event* e)
         // Set the trigger to this so Mobius::runScript knows to run
         // synchronously without quantizing again.
         action->trigger = TriggerEvent;
-        action->inInterrupt = true;
 
         Mobius* m = l->getMobius();
         m->doAction(action);

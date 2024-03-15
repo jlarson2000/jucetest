@@ -324,8 +324,12 @@ class Mobius :
     class Action* newAction();
     class Action* cloneAction(class Action* src);
     void completeAction(class Action* a);
+
+    // these are now the same but keep both until we
+    // can visit all the callers
     void doAction(Action* a);
     void doActionNow(Action* a);
+    
     class Track* resolveTrack(Action* a);
 
   protected:

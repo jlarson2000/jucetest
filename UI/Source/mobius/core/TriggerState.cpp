@@ -301,7 +301,7 @@ void TriggerState::advance(Actionator* actionator, int frames)
                 a->down = true;
                 a->longPress = true;
 
-                actionator->doAction(a);
+                actionator->doActionNow(a);
             }
         }
     }

@@ -1,0 +1,233 @@
+MobiusThread was the way for what was the equivalent of the
+shell and kernel to communicate.
+
+ThreadEvent is used by
+  Mobius
+  Action
+  Actionator
+  Projector (inactive, save/load stuff)
+
+  and the big one: Script and ScriptRuntime
+
+typedef enum {
+
+	TE_NONE,
+	TE_WAIT,
+    TE_SAVE_LOOP,
+    TE_SAVE_AUDIO,
+    TE_SAVE_PROJECT,
+    TE_SAVE_CONFIG,
+    TE_LOAD,
+    TE_DIFF,
+    TE_DIFF_AUDIO,
+	TE_TIME_BOUNDARY,
+	TE_ECHO,
+	TE_PROMPT,
+	TE_GLOBAL_RESET
+
+} ThreadEventType;
+
+Script.cpp:			ThreadEvent* te = new ThreadEvent(TE_WAIT);
+
+Actionator.cpp:            ThreadEvent* te = new ThreadEvent(TE_SAVE_CONFIG);
+Mobius.cpp:	ThreadEvent* te = new ThreadEvent(TE_SAVE_AUDIO, file);
+Projector.txt:	ThreadEvent* te = new ThreadEvent(TE_SAVE_LOOP);
+Script.cpp:		ThreadEvent* e = new ThreadEvent(TE_SAVE_PROJECT, file);
+
+Script.cpp:	ThreadEvent* te = new ThreadEvent(TE_LOAD, file);
+Script.cpp:	ThreadEventType event = (mAudio) ? TE_DIFF_AUDIO : TE_DIFF;
+
+Mobius.cpp:	  mThread->addEvent(TE_TIME_BOUNDARY);
+Script.cpp:	ThreadEvent* te = new ThreadEvent(TE_ECHO, msg);
+Script.cpp:	ThreadEvent* te = new ThreadEvent(TE_PROMPT, msg);
+
+TE_GLOBAL_RESET
+seems to have gotten lost along the way
+
+So these are almost all for Script and mostly for the unit tests
+
+TE_TIME_BOUNDARY scheduled at interrupt end if we crossed one
+
+TE_SAVE_CONFIG in Actionator is 
+if (a->actionOperator == OperatorPermanent) {
+
+
+The thread opened it's own OS thread and entered a wait loop that
+timed out every 1/10 second.  On wakeup it popped all events in the
+queue and processed them.
+
+The handlers would usually call Mobius for the file handling.
+so the handlers were all in an non-audio thread
+
+Oh here is TE_GLOBAL_RESET
+
+			case TE_GLOBAL_RESET: {
+				// Let the UI know so it can clear any lingering messages.
+				// This is kludgey, once we have a better state objet for
+				// conveying state we may not need this.  Still events
+				// like this are closer to the OSC model so we might
+				// want to expand these too.
+				mMobius->notifyGlobalReset();
+
+
+For the TimeBoundary event only we would call the listener
+
+	if (mOneShot == TE_TIME_BOUNDARY) {
+		// we crossed a beat/cycle/loop boundary, tell the  UI
+		// so it can refresn immediately
+		OldMobiusListener* ml = mMobius->getListener();
+		if (ml != NULL)
+		  ml->MobiusTimeBoundary();
+		mOneShot = TE_NONE;
+
+The periodic UI refresh was done here, don't need this now
+
+    // this is typically the UI
+	OldMobiusListener* ml = mMobius->getListener();
+	if (ml != NULL)
+	  ml->MobiusRefresh();
+
+
+At least Alert while handling another event
+
+							Trace(1, "%s\n", mMessage);
+							OldMobiusListener* ml = mMobius->getListener();
+							if (ml != NULL)
+							  ml->MobiusAlert(mMessage);
+							delete p;
+
+prompts notified the Listener
+/**
+ * Called by Mobius when it gets a prompt back from the listener.
+ */
+void MobiusThread::finishPrompt(Prompt* p)
+{
+	if (mPrompts == 0)
+	  Trace(1, "Unbalanced call to finishPrompt!\n");
+	else
+	  mPrompts--;
+
+	// we saved the event in the prompt, complete it now
+	ThreadEvent* e = p->getEvent();
+	if (e != NULL) {
+        ThreadEventType type = e->getType();
+		if (type != TE_NONE) {
+
+			// This is one of the few (only) events with a return code
+			// it is used to convey the prompt button selection into
+			// the ScriptInterpter that is waiting for this event.
+			// Since a single "Ok" button is the simplest case, we'll
+			// use 0 to mean normal completion, 1 to mean cancel
+			int code = (p->isOk()) ? 0 : 1;
+			e->setReturnCode(code);
+
+            finishEvent(e);
+		}
+	}
+
+	// event will be deleted by the Prompt
+	delete p;
+}
+
+So on TE_PROMPT, call the listener and wait for a response
+something eventually calls finishPrompt and then finishEvent
+
+/**
+ * When we're done processing an event, send it back to Mobius
+ * so it can notify any ScriptInterpreters that might be waiting on it.
+ *
+ * This creates an action with a special trigger and target so it can
+ * be deferred until the next interrupt.
+ */
+void MobiusThread::finishEvent(ThreadEvent* e)
+{
+    Action* a = mMobius->newAction();
+    a->trigger = TriggerThread;
+    a->setTarget(ActionScript);
+
+    // this is a little unusual because we use this
+    // for an input to the action and it's usually a return
+    a->setThreadEvent(e);
+
+    mMobius->doAction(a);
+}
+
+
+The response ThreadEvent is then put in an action and processed.
+
+So...
+
+Internal component creates a ThreadEvent and calls addEvent
+Later in the UI thread the event is consumed and something happens
+finishEvent is called inernally and generates (and probably queues)
+an Action
+
+ThreadEvents seem to always be initiaited by the ending.
+
+Responses are usually done internally by calling Mobius.
+
+The few that escape to the UI are: Prompt
+
+Only the engine creates and adds ThreadEvents
+The "shell" processes most of them
+A few escape to the UI through the Listener
+
+finishPrompt was the only that needed the UI to respond:
+
+    /**
+     * Called by the UI when it is done processing a prompt.
+     * Ownership of the Prompt passes to Mobius.
+     */
+	virtual void finishPrompt(Prompt* p) = 0;
+
+
+KernelCommunicator can be used for all of this now
+
+Since almost all are handled internally make a KernelEvent handler.
+
+Rename ThreadEvent KernelEvent or KernelRequest
+
+what KernelMessage doesn't have is the notion of reponse carrying?
+
+Phase one would be a KernelMessage of type MsgRequest
+whose argument is a KernelRequest aka ThreadEvent.
+
+Need an event pool since kernel is the one allocating these
+
+The flow is contorted and Function based:
+
+  UI create a Function Action for SaveCapture
+  CaptureFunction calls Mobius::saveCapture and passes along the Action
+  Mobius::saveCapture
+     expects the file name in the Action
+     schedules a TE_SAVE_AUDIO event
+     and also points the Action to it
+
+	ThreadEvent* te = new ThreadEvent(TE_SAVE_AUDIO, file);
+    if (action != NULL)
+      action->setThreadEvent(te);
+
+	mThread->addEvent(te);
+
+
+    MobiusThread finds the ThreadEvent
+
+			case TE_SAVE_AUDIO: {
+				// unlike captured scripts we do NOT own this
+				Audio* a = mMobius->getCapture();
+				if (a != NULL) {
+					const char* path = getFullPath(e, NULL, ".wav");
+					if (path == NULL)
+					   path = getRecordingPath();
+
+					a->write(path);
+					Trace(2, "Saved recording to %s\n", path);
+and saves the file
+
+A mroe direct way to do this would be to have SaveCapture intercepted
+by MobiusShell and have it process it directly without going down toa Function
+then bac k up through a ThreadEvent.  This would
+work for a lot of them.
+
+but not for scripts, the MobiusThread is the only way to get
+Mobius to do something.
