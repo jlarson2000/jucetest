@@ -14,10 +14,12 @@
 
 #include <stdio.h>
 
+#include "../../model/Preset.h"
+#include "../KernelEvent.h"
+
 #include "Expr.h"
 #include "Function.h"
 #include "Parameter.h"
-#include "../../model/Preset.h"
 
 /**
  * For debugging, will become true when the Break statement is
@@ -136,12 +138,15 @@ typedef enum {
 	WAIT_RETURN,
 
 	/**
-	 * Wait for the last MobiusThread event to finish.
+	 * Wait for the last KernelEvent to finish.
 	 * These are mostly related to file handling, but "echo" also
 	 * schedules a thread event.  "Wait last" ignores these because
 	 * it is common to have an echo between a function and the wait
 	 * for that function, and we don't want the echo to override
 	 * the function event.
+     *
+     * TODO: The name originated from MobiusThread which we now
+     * call KernelEvents.  Should be WAIT_EVENT
 	 */
 	WAIT_THREAD
 
@@ -1530,8 +1535,8 @@ class ScriptStack {
 	class Event* getWaitEvent();
 	void setWaitEvent(class Event* e);
 
-	class ThreadEvent* getWaitThreadEvent();
-	void setWaitThreadEvent(class ThreadEvent* e);
+	class KernelEvent* getWaitKernelEvent();
+	void setWaitKernelEvent(class KernelEvent* e);
 
 	Function* getWaitFunction();
 	void setWaitFunction(Function* f);
@@ -1551,7 +1556,7 @@ class ScriptStack {
 
 	bool finishWait(class Event* e);
 	bool changeWait(class Event* orig, Event* neu);
-	bool finishWait(class ThreadEvent* e);
+	bool finishWait(class KernelEvent* e);
 	bool finishWait(class Function* f);
 	void finishWaitBlock();
 	void cancelWaits();
@@ -1657,7 +1662,7 @@ class ScriptStack {
 	/**
 	 * For WaitStatement frames, the thread event we're waiting on.
 	 */
-	ThreadEvent* mWaitThreadEvent;
+	KernelEvent* mWaitKernelEvent;
 
 	/**
 	 * For WaitStatement frames, the function event we're waiting on.
@@ -1765,7 +1770,7 @@ class ScriptInterpreter : public ExContext {
 	// control methods called by Track
 
 	void finishEvent(class Event* event);
-	void finishEvent(class ThreadEvent* event);
+	void finishEvent(class KernelEvent* event);
 	bool cancelEvent(class Event* event);
 	void rescheduleEvent(class Event* src, class Event* neu);
 	void scriptEvent(class Loop* l, class Event* event);
@@ -1785,7 +1790,7 @@ class ScriptInterpreter : public ExContext {
 	bool isWaiting();
 	bool isPostLatency();
 	void setPostLatency(bool b);
-	void scheduleThreadEvent(ThreadEvent* te);
+	void scheduleKernelEvent(KernelEvent* te);
     void setLastEvents(Action* a);
     Track* nextTrack();
 	void setupWaitLast(ScriptStatement* wait);
@@ -1807,6 +1812,12 @@ class ScriptInterpreter : public ExContext {
 	ExResolver* getExResolver(ExSymbol* symbol);
 	ExResolver* getExResolver(ExFunction* symbol);
 	
+    // new KernelEvent
+    KernelEvent* newKernelEvent();
+    void sendKernelEvent(KernelEvent* e);
+    void sendKernelEvent(KernelEventType type, const char* arg);
+
+
   private:
 
 	void init();
@@ -1836,7 +1847,7 @@ class ScriptInterpreter : public ExContext {
 	bool mSustaining;
 	bool mClicking;
 	Event* mLastEvent;
-	ThreadEvent* mLastThreadEvent;
+	KernelEvent* mLastKernelEvent;
 	int mReturnCode;
 	bool mPostLatency;
 	int mSustainedMsecs;

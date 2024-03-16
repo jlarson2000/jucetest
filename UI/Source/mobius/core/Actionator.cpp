@@ -354,7 +354,7 @@ void Actionator::doCoreAction(UIAction* action)
  * It will be freed when the event is handled.  If mEvent is null
  * then the caller of doActionNow must return it to the pool.
  *
- * If the action is returned with mThreadEvent set it is NOT
+ * If the action is returned with mKernelEvent set it is NOT
  * owned and must be returned to the pool.  A ScriptInterpreter
  * may still wait on the event, but it will be notified in a different way.
  * 

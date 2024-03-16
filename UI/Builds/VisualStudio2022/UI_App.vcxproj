@@ -262,7 +262,6 @@
     <ClCompile Include="..\..\Source\mobius\core\MidiQueue.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiTransport.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mobius.cpp"/>
-    <ClCompile Include="..\..\Source\mobius\core\MobiusThread.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mode.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\ObjectPool.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Parameter.cpp"/>
@@ -289,6 +288,7 @@
     <ClCompile Include="..\..\Source\mobius\AudioPool.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelEvent.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\KernelEventHandler.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusShell.cpp"/>
@@ -2683,7 +2683,6 @@
     <ClInclude Include="..\..\Source\mobius\core\MidiQueue.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiTransport.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mobius.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\MobiusThread.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mode.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h"/>
     <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h"/>
@@ -2705,6 +2704,7 @@
     <ClInclude Include="..\..\Source\mobius\AudioPool.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelEvent.h"/>
+    <ClInclude Include="..\..\Source\mobius\KernelEventHandler.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusKernel.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusShell.h"/>

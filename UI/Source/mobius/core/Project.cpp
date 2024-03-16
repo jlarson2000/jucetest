@@ -681,7 +681,7 @@ ProjectLoop::ProjectLoop(MobiusConfig* config, Project* p, Loop* l)
 	init();
 
     // hmm, capturing the current frame is bad for unit tests since 
-    // MobiusThread will process the save event at a random time,
+    // KernelEvents will process the save event at a random time,
     // if it is ever useful to save this, will need a Project option
     // to prevent saving it in some cases
 	//setFrame(l->getFrame());

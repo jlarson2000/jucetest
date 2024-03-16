@@ -1959,8 +1959,8 @@ void EventManager::cleanReturnEvents()
 /**
  * Describe the scheduled events in a way convenient for display.
  *
- * This is called OUTSIDE the interrupt, usually from MobiusThread,
- * so we have to be careful about csects.
+ * This is called OUTSIDE the audio thread, usually by
+ * MobiusShell::performMaintenance so we have to be careful about csects.
  * 
  * TODO: We're leaving this in a LoopState but really this belongs
  * in TrackState.

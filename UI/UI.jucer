@@ -272,9 +272,6 @@
           <FILE id="DkLhzz" name="MidiTransport.h" compile="0" resource="0" file="Source/mobius/core/MidiTransport.h"/>
           <FILE id="lHBt2R" name="Mobius.cpp" compile="1" resource="0" file="Source/mobius/core/Mobius.cpp"/>
           <FILE id="LMQl5U" name="Mobius.h" compile="0" resource="0" file="Source/mobius/core/Mobius.h"/>
-          <FILE id="R4QzT1" name="MobiusThread.cpp" compile="1" resource="0"
-                file="Source/mobius/core/MobiusThread.cpp"/>
-          <FILE id="BiGiSh" name="MobiusThread.h" compile="0" resource="0" file="Source/mobius/core/MobiusThread.h"/>
           <FILE id="UE7nUh" name="Mode.cpp" compile="1" resource="0" file="Source/mobius/core/Mode.cpp"/>
           <FILE id="yTJ6C3" name="Mode.h" compile="0" resource="0" file="Source/mobius/core/Mode.h"/>
           <FILE id="Fcr1VD" name="ObjectPool.cpp" compile="1" resource="0" file="Source/mobius/core/ObjectPool.cpp"/>
@@ -334,6 +331,10 @@
               file="Source/mobius/KernelCommunicator.h"/>
         <FILE id="laEZjP" name="KernelEvent.cpp" compile="1" resource="0" file="Source/mobius/KernelEvent.cpp"/>
         <FILE id="Xlas8b" name="KernelEvent.h" compile="0" resource="0" file="Source/mobius/KernelEvent.h"/>
+        <FILE id="pV9Guj" name="KernelEventHandler.cpp" compile="1" resource="0"
+              file="Source/mobius/KernelEventHandler.cpp"/>
+        <FILE id="dn8vXz" name="KernelEventHandler.h" compile="0" resource="0"
+              file="Source/mobius/KernelEventHandler.h"/>
         <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusInterface.cpp"/>
         <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"

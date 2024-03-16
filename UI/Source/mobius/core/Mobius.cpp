@@ -49,7 +49,6 @@
 #include "Function.h"
 #include "Layer.h"
 #include "Loop.h"
-#include "MobiusThread.h"
 #include "Mode.h"
 #include "Parameter.h"
 //#include "Project.h"
@@ -102,7 +101,6 @@ Mobius::Mobius(MobiusKernel* kernel)
         
     mListener = NULL;
     mScriptThreadCounter = 0;
-	mThread = NULL;
 	mTracks = NULL;
 	mTrack = NULL;
 	mTrackCount = 0;
@@ -150,8 +148,6 @@ Mobius::~Mobius()
 
     // things owned by Kernel that can't be deleted
     // mContainer, mAudioPool, mConfig, mSetup
-
-	delete mThread;
 
     // functions are a mess, this is an array that combined
     // StaticFunctions with generated Script functions
@@ -334,15 +330,10 @@ void Mobius::initialize(MobiusConfig* config)
     // will need a way for this to get MIDI
     mSynchronizer = new Synchronizer(this, mMidi);
     
-    // not a true thread any more, but packages some necessary
-    // stuff that needs to be redesigned
-    mThread = new MobiusThread(this);
-    //mThread->start();
-
     // once the thread starts we can start queueing trace messages
     //if (!mContext->isDebugging())
-    mThread->setTraceListener(true);
-
+    // mThread->setTraceListener(true);
+    
 	// Build the track list
     initializeTracks();
 
@@ -988,8 +979,11 @@ void Mobius::endAudioInterrupt()
 		if (mTracks[i]->isUISignal())
 		  uiSignal = true;
 	}
-	if (uiSignal)
-	  mThread->addEvent(TE_TIME_BOUNDARY);
+	if (uiSignal) {
+        KernelEvent* e = newKernelEvent();
+        e->type = EventTimeBoundary;
+        sendKernelEvent(e);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1048,27 +1042,17 @@ void Mobius::getTraceContext(int* context, long* time)
 
 /**
  * Wrapped up with MobiusThread
+ * Might still be relevant with the new KernelEvent but
+ * need to rethink this
  */
 void Mobius::setListener(OldMobiusListener* l)
 {
 	mListener = l;
 }
 
-/**
- * For MobiusThread only.
- */
 OldMobiusListener* Mobius::getListener()
 {
 	return mListener;
-}
-
-/**
- * Thread access for internal components.
- * Script currently needs this.
- */
-class MobiusThread* Mobius::getThread() 
-{
-    return mThread;
 }
 
 /**
@@ -1324,9 +1308,10 @@ MobiusMode* Mobius::getMode()
 }
 
 /**
- * Called by MobiusThread to do periodic status logging.
- * Not necessarily a bad thing but need to revisit what this
- * can and should log.
+ * Formerly called by MobiusThread to do periodic status logging.
+ * can do it in performMaintenance now, but the maintenance thread
+ * is not supposed to have direct access to Mobius and it's internal
+ * components.  Needs thought...
  */
 void Mobius::logStatus()
 {
@@ -1379,13 +1364,18 @@ const char* Mobius::getCustomMode()
 
 /**
  * Called by the MobiusListener after it finishes processing a Prompt.
+ *
+ * !! commenting this out, need to revisit this under the new
+ * KernelEvent framework when I'm less tired
  */
 void Mobius::finishPrompt(Prompt* p)
 {
+#if 0    
 	if (mThread != NULL) 
 	  mThread->finishPrompt(p);
 	else
 	  delete p;
+#endif    
 }
 
 /****************************************************************************
@@ -1395,13 +1385,15 @@ void Mobius::finishPrompt(Prompt* p)
  ****************************************************************************/
 
 /**
- * Convey a message to the UI.
+ * Convey a message to the UI from a Script.
  * This isn't necessarily just for scripts, think about other uses
  * for this now that we have it
+ *
+ * !! How did this ever work, we can't just call listeners from within
+ * the audio thread.
  */
 void Mobius::addMessage(const char* msg)
 {
-	// farm this out to MobiusThread?
 	if (mListener != NULL)
 	  mListener->MobiusMessage(msg);
 }
@@ -2000,7 +1992,7 @@ void Mobius::setNoExternalInput(bool b)
  ****************************************************************************/
 
 /**
- * Eventually called by MobiusThread to implement SaveLoop.
+ * Eventually called by KernelEvent handling to implement SaveLoop.
  *
  * Obvsiously serious race conditions here, but relatively safe
  * as long as you don't do a Reset while it is being saved.  Even then
@@ -2061,26 +2053,16 @@ void Mobius::globalReset(Action* action)
 		mCapturing = false;
 
 		// post a thread event to notify the UI
-		ThreadEvent* te = new ThreadEvent(TE_GLOBAL_RESET);
-		mThread->addEvent(te);
+        // UPDATE: can't imagine this is necessary, UI thread will
+        // refresh every 1/10th, why was this so important?
+        // this caused a special callback notifyGlobalReset
+        // and that went nowhere, so this was never used
+		//ThreadEvent* te = new ThreadEvent(TE_GLOBAL_RESET);
+		//mThread->addEvent(te);
 
         // Should we reset all sync pulses too?
         mSynchronizer->globalReset();
 	}
-}
-
-/**
- * Called by MobiusThread when it processes a TE_GLOBAL_RESET event.
- * This is kludgey and used to notify the UI in case it is keeping
- * it's own global state.  Can't do this directly from globalReset() 
- * because we can't touch the UI from within the audio interrupt.
- */
-void Mobius::notifyGlobalReset()
-{
-	Trace(mTrack, 2, "Mobius::notifyGlobalReset\n");
-
-	if (mListener != NULL)
-	  mListener->MobiusGlobalReset();
 }
 
 /**
@@ -2136,7 +2118,7 @@ void Mobius::unitTestSetup()
     // first bootstrap the master config
     // !! ordinarilly we try not to do things like write files 
     // in the interrupt handler but since this is just for testing don't
-    // bother bifurcating this into a MobiusThread part and an interrupt part
+    // bother bifurcating this into a KernelEvent part and an interrupt part
     if (unitTestSetup(mConfig)) {
         // the part we can't do in the new world
         //writeConfiguration(mConfig);
@@ -2155,7 +2137,7 @@ void Mobius::unitTestSetup()
 
     // !! not supposed to do anything in the UI thread from within
     // the interrupt handler, again for unit tests this is probably
-    // okay but really should be routing this through MobiusThread 
+    // okay but really should be routing this through KernelEvent
     if (mListener)
       mListener->MobiusConfigChanged();
 }
@@ -2282,24 +2264,31 @@ void Mobius::stopCapture(Action* action)
 
 /**
  * SaveCapture global function handler.
- * 
- * Since this involves file IO, have to pass it to the thread.
+ *
+ * This expects the file to be passed, or maybe just allows it
+ * when called from a script.  Pass control to the shell to do the
+ * file IO.
  */
 void Mobius::saveCapture(Action* action)
 {
+    // action won't be non-null any more, if it ever was
     const char* file = NULL;
     if (action != NULL && action->arg.getType() == EX_STRING)
       file = action->arg.getString();
 
-	ThreadEvent* te = new ThreadEvent(TE_SAVE_AUDIO, file);
-    if (action != NULL)
-      action->setThreadEvent(te);
+    KernelEvent* e = newKernelEvent();
+    e->type = EventSaveAudio;
+    e->setArg(0, file);
 
-	mThread->addEvent(te);
+    // pass the event back up so the script can wait on it
+    if (action != NULL)
+      action->setKernelEvent(e);
+
+	sendKernelEvent(e);
 }
 
 /**
- * Eventually called by MobiusThread to implement the SaveCapture function.
+ * Eventually called by KernelEvent to implement the SaveCapture function.
  * 
  * !! We have a race condition with the interrupt handler.  
  * Tell it to stop recording and pause for at least one interupt.
@@ -2610,8 +2599,10 @@ Track* Mobius::resolveTrack(Action* a)
  */
 void Mobius::kernelEventCompleted(KernelEvent* e)
 {
-    // I know TimeBoundary can't be waited on, what about GlobalReset?
-    if (e->type != EventGlobalReset && e->type != EventTimeBoundary) {
+    // TimeBoundary can't be waited on
+    // !! this should be moved down to ScriptRuntime when that
+    // gets finished
+    if (e->type != EventTimeBoundary) {
 
         for (ScriptInterpreter* si = mScripts ; si != NULL ; 
              si = si->getNext()) {
@@ -2621,7 +2612,7 @@ void Mobius::kernelEventCompleted(KernelEvent* e)
 
             // this is where the new interface ends, can't call this
             // until we retool, the core to use KernelEvenets
-            // si->finishEvent(e);
+            si->finishEvent(e);
         }
     }
 }

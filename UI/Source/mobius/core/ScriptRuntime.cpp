@@ -11,10 +11,10 @@
 
 // for TriggerEvent
 #include "../../model/Trigger.h"
+#include "../KernelEvent.h"
 
 #include "Action.h"
 #include "Mobius.h"
-#include "MobiusThread.h"
 #include "Script.h"
 #include "Track.h"
 
@@ -594,11 +594,14 @@ void ScriptRuntime::freeScripts()
 }
 
 /**
+ * UPDATE: this isn't used but we need to forward the new
+ * KernelEvent handler down here
+ *
  * Special internal target used to notify running scripts when
  * something interesting happens on the outside.
  * 
  * Currently there is only one of these, from MobiusTread when
- * it finishes processing a ThreadEvent that a script might be waiting on.
+ * it finishes processing a KernelEvent that a script might be waiting on.
  *
  * Note that this has to be done by probing the active scripts rather than
  * remembering the invoking ScriptInterpreter in the event, because
@@ -611,9 +614,9 @@ void ScriptRuntime::doScriptNotification(Action* a)
 
     // unusual way of passing this in, but target object didn't seem
     // to make sense
-    ThreadEvent* te = a->getThreadEvent();
+    KernelEvent* te = a->getKernelEvent();
     if (te == NULL)
-      Trace(1, "Script notification action without ThreadEvent!\n");
+      Trace(1, "Script notification action without KernelEvent!\n");
     else {
         for (ScriptInterpreter* si = mScripts ; si != NULL ; 
              si = si->getNext()) {
@@ -622,8 +625,8 @@ void ScriptRuntime::doScriptNotification(Action* a)
             si->finishEvent(te);
         }
 
-        // The ThreadEvent is officially over, we get to reclaim it
-        a->setThreadEvent(NULL);
+        // The KernelEvent is officially over, we get to reclaim it
+        a->setKernelEvent(NULL);
         delete te;
     }
 }

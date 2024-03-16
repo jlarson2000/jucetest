@@ -2885,9 +2885,9 @@ void Layer::getNoReflect(LayerContext* con, long startFrame,
  * by the audio interrupt, the fade code in Segment::get depends
  * on this so it can allocate a stack buffer.
  *
- * This is usually being run from the MobiusThread, in theory
- * there can be concurrency issues with the interrupt handler but the
- * play layer shouldn't be modified.  
+ * This is usually being run from a KernelEvent handler in the maintenance
+ * thread, in theory there can be concurrency issues with the audio thread
+ * but the play layer shouldn't be modified.  
  * !! Hmm, we really can't assume that, several functions could
  * cause the play layer to be modified including Reset.  You have
  * to be careful to wait a bit after using the Save Loop function

@@ -849,7 +849,8 @@ void Loop::setRedoLayer(Layer* l)
  *
  * The returned object is owned by the caller and must be freed.
  * 
- * This is normally called from the MobiusThread.
+ * This is normally called from a KernelEvent handler in the maintenance
+ * thread.
  * 
  * !! There can be race conditions here that cause AudioCursor
  * play frame overflow.  In Rehearse mode at the exact end of the loop,

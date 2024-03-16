@@ -29,7 +29,11 @@ typedef enum {
     // down to a Kernel Function handler, then back up.
     // Would only need events if you can ask for this from scripts.
     EventSaveLoop,
+
+    // scheduled by Mobius::saveCapture which is called by
+    // SaveCapture->invoke
     EventSaveAudio,
+    
     EventSaveProject,
     // this was a weird one, it was in response to the UI setting OperatorPermanent
     // on a Setup action to cause it to be saved permanently in mobius.xml
@@ -53,7 +57,8 @@ typedef enum {
     // not sure what this was for, I guess to inform the UI that we entered
     // global reset, so it can do a big repait, why not just have a more
     // generic EventRefresh?
-    EventGlobalReset,
+    // never used
+    //EventGlobalReset,
 
     // this was how we asked the UI to refresh closer to a subcycle/cycle/loop
     // boundary being crossed rather than waiting for the next 1/10th refresh cycle

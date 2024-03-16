@@ -64,7 +64,6 @@ class Actionator
 
     void doPreset(class Action* a);
     void doSetup(class Action* a);
-    void doScriptNotification(class Action* a);
     void doFunction(class Action* a);
     void doFunction(class Action* action, class Function* f, class Track* t);
     void doParameter(class Action* a);

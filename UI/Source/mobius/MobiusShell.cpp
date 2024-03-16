@@ -267,6 +267,7 @@ void MobiusShell::consumeCommunications()
 {
     KernelMessage* msg = communicator.shellReceive();
     while (msg != nullptr) {
+        bool abandon = true;
         switch (msg->type) {
 
             case MsgConfigure: {
@@ -283,9 +284,21 @@ void MobiusShell::consumeCommunications()
                 delete msg->object.action;
             }
                 break;
+
+            case MsgEvent: {
+                kernelEventHandler.doEvent(msg->object.event);
+                // this one is unusual in that we send it back so
+                // the KernelEvent can be returned to the pool
+                communicator.shellSend(msg);
+                abandon = false;
+                
+            }
+                break;
         }
+
+        if (abandon) communicator.shellAbandon(msg);
         
-        communicator.shellAbandon(msg);
+        // get the next one
         msg = communicator.shellReceive();
     }
 }

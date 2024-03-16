@@ -38,7 +38,6 @@ class Mobius :
 	friend class ScriptSetupStatement;
 	friend class ScriptPresetStatement;
 	friend class ScriptFunctionStatement;
-	//friend class MobiusThread;
 	friend class Loop;
 	friend class Track;
 	friend class Synchronizer;
@@ -184,15 +183,18 @@ class Mobius :
     }
     
     /**
-     * Keep listener support for awhile until we clean up the MobiusThread
-     * control handling.  Should be able to get rid of this.
+     * Keep listener support for awhile until we finish KernelEvent
+     * processing.  Should be able to get rid of most if not all this.
      */
 	void setListener(OldMobiusListener* mon);
 	OldMobiusListener* getListener();
     
     
-    // scripts could prompt through the MobiusThread, the UI
-    // was supposed to handle that, then call back to this
+    /**
+     * Scripts could send a prompt through a KernelEvent, the
+     * Shell would send that out to the UI, the UI sends the Prompt
+     * back to the Shell, and we finish it here.
+     */
 	void finishPrompt(Prompt* p);
 
     // Status
@@ -335,13 +337,11 @@ class Mobius :
 
   protected:
 
-	// for MobiusThread and others
+	// used by KernelEvent handlers
 
 	Audio* getCapture();
 	Audio* getPlaybackAudio();
 	//void loadProjectInternal(class Project* p);
-    class MobiusThread* getThread();
-	void notifyGlobalReset();
 
     // Need these for the Setup and Preset script statements
     void setSetupInternal(class Setup* setup);
@@ -415,7 +415,6 @@ class Mobius :
 	class MidiInterface* mMidi;
     class Actionator* mActionator;
 
-    class MobiusThread* mThread;
     class Track** mTracks;
 	class Track* mTrack;
 	int mTrackCount;

@@ -12,7 +12,7 @@
 #ifndef MOBIUS_EVENT_H
 #define MOBIUS_EVENT_H
 
-#include "ObjectPool.h"
+//#include "ObjectPool.h"
 
 // for SyncSource
 #include "../../model/Setup.h"

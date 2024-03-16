@@ -70,7 +70,6 @@
 #include "Layer.h"
 #include "Loop.h"
 #include "Mobius.h"
-#include "MobiusThread.h"
 #include "Mode.h"
 #include "Project.h"
 #include "Script.h"
@@ -1025,8 +1024,6 @@ ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
-    // could send this to MobiusThread, but it's rare
-    // and shouldn't be that expensive
     si->expand(mArgs[0], &v);
 
 	char* msg = v.getBuffer();
@@ -1039,16 +1036,9 @@ ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
 		msg[len+1] = 0;
 	}
 
-	// since we're sending to the debug stream don't need to trace it too
-    //Trace(3, "Script: echo %s\n", msg);
-
-	// pass this off to the MobiusThread to keep it out of the interrupt
-	//OutputDebugString(msg);
-	//printf("%s", msg);
-	//fflush(stdout);
-
-	ThreadEvent* te = new ThreadEvent(TE_ECHO, msg);
-	si->scheduleThreadEvent(te);
+    // old comments indicate that we once just sent this to the
+    // OutputDebugString and printf, which was probably enough
+    si->sendKernelEvent(EventEcho, msg);
 
     return NULL;
 }
@@ -1075,8 +1065,8 @@ ScriptStatement* ScriptMessageStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
-    // could send this to MobiusThread, but it's rare
-    // and shouldn't be that expensive
+    // !! should be using KernelEvent if we need this at all,
+    // can't just be calling a UI listener in the audio thread
     si->expand(mArgs[0], &v);
 	char* msg = v.getBuffer();
 
@@ -1111,13 +1101,10 @@ ScriptStatement* ScriptPromptStatement::eval(ScriptInterpreter* si)
 {
 	ExValue v;
 
-    // could send this to MobiusThread, but it's rare
-    // and shouldn't be that expensive
     si->expand(mArgs[0], &v);
 	char* msg = v.getBuffer();
 
-	ThreadEvent* te = new ThreadEvent(TE_PROMPT, msg);
-	si->scheduleThreadEvent(te);
+    si->sendKernelEvent(EventPrompt, msg);
 
 	// we always automatically wait for this
 	si->setupWaitThread(this);
@@ -2403,8 +2390,7 @@ ScriptStatement* ScriptLoadStatement::eval(ScriptInterpreter* si)
 	const char* file = v.getString();
 
 	Trace(2, "Script %s: load %s\n", si->getTraceName(), file);
-	ThreadEvent* te = new ThreadEvent(TE_LOAD, file);
-	si->scheduleThreadEvent(te);
+    si->sendKernelEvent(EventLoad, file);
 
     return NULL;
 }
@@ -2436,8 +2422,7 @@ ScriptStatement* ScriptSaveStatement::eval(ScriptInterpreter* si)
     Trace(2, "Script %s: save %s\n", si->getTraceName(), file);
 
     if (strlen(file) > 0) {
-		ThreadEvent* e = new ThreadEvent(TE_SAVE_PROJECT, file);
-		si->scheduleThreadEvent(e);
+        si->sendKernelEvent(EventSaveProject, file);
     }
 
     return NULL;
@@ -2480,13 +2465,15 @@ ScriptStatement* ScriptDiffStatement::eval(ScriptInterpreter* si)
     Trace(2, "Script %s: diff %s %s\n", si->getTraceName(), 
           file1.getString(), file2.getString());
 
-	ThreadEventType event = (mAudio) ? TE_DIFF_AUDIO : TE_DIFF;
-    ThreadEvent* e = new ThreadEvent(event, file1.getString());
+	KernelEventType type = (mAudio) ? EventDiffAudio : EventDiff;
+    KernelEvent* e = si->newKernelEvent();
+    e->type = type;
+    e->setArg(0, file1.getString());
     e->setArg(1, file2.getString());
 	if (mReverse)
 	  e->setArg(2, "reverse");
 
-    si->scheduleThreadEvent(e);
+    si->sendKernelEvent(e);
 
     return NULL;
 }
@@ -3379,12 +3366,13 @@ ScriptStatement* ScriptWaitStatement::eval(ScriptInterpreter* si)
         }
         break;
         case WAIT_SCRIPT: {
-            // wait for any events we've sent to MobiusThread to complete
+            // wait for any KernelEvents we've sent to complete
             // !! we don't need this any more now that we have "Wait thread"
-			ThreadEvent* te = new ThreadEvent(TE_WAIT);
+            KernelEvent* e = si->newKernelEvent();
+            e->type = EventWait;
 			ScriptStack* frame = si->pushStackWait(this);
-			frame->setWaitThreadEvent(te);
-			si->scheduleThreadEvent(te);
+			frame->setWaitKernelEvent(e);
+			si->sendKernelEvent(e);
 			Trace(3, "Script %s: wait script event\n", si->getTraceName());
 		}
         break;
@@ -5069,7 +5057,7 @@ void ScriptStack::init()
     mSaveStatement = NULL;
 	mWait = NULL;
 	mWaitEvent = NULL;
-	mWaitThreadEvent = NULL;
+	mWaitKernelEvent = NULL;
 	mWaitFunction = NULL;
 	mWaitBlock = false;
 	mMax = 0;
@@ -5190,14 +5178,14 @@ void ScriptStack::setWaitEvent(Event* e)
 	mWaitEvent = e;
 }
 
-ThreadEvent* ScriptStack::getWaitThreadEvent()
+KernelEvent* ScriptStack::getWaitKernelEvent()
 {
-	return mWaitThreadEvent;
+	return mWaitKernelEvent;
 }
 
-void ScriptStack::setWaitThreadEvent(ThreadEvent* e)
+void ScriptStack::setWaitKernelEvent(KernelEvent* e)
 {
-	mWaitThreadEvent = e;
+	mWaitKernelEvent = e;
 }
 
 Function* ScriptStack::getWaitFunction()
@@ -5380,12 +5368,12 @@ bool ScriptStack::changeWait(Event* orig, Event* neu)
 /**
  * Notify wait frames on the stack of the completion of a thread event.
  */
-bool ScriptStack::finishWait(ThreadEvent* e)
+bool ScriptStack::finishWait(KernelEvent* e)
 {
 	bool finished = false;
  
-	if (mWaitThreadEvent == e) {
-		mWaitThreadEvent = NULL;
+	if (mWaitKernelEvent == e) {
+		mWaitKernelEvent = NULL;
 		finished = true;
 	}
 
@@ -5430,8 +5418,8 @@ void ScriptStack::cancelWaits()
         }
     }
 
-	if (mWaitThreadEvent != NULL)
-	  mWaitThreadEvent = NULL;
+	if (mWaitKernelEvent != NULL)
+	  mWaitKernelEvent = NULL;
 
 	mWaitFunction = NULL;
 	mWaitBlock = false;
@@ -5522,7 +5510,7 @@ void ScriptInterpreter::init()
 	mSustaining = false;
 	mClicking = false;
 	mLastEvent = NULL;
-	mLastThreadEvent = NULL;
+	mLastKernelEvent = NULL;
 	mReturnCode = 0;
 	mPostLatency = false;
 	mSustainedMsecs = 0;
@@ -5979,31 +5967,31 @@ void ScriptInterpreter::resume(Function* func)
 }
 
 /**
- * Called by MobiusThread when it finishes processing events we scheduled.
+ * Called by KernelEvent handling when an event we scheduled is finished.
  * Note we don't run here since we're not in the audio interrupt thread.
  * Just remove the reference, the script will advance on the next interrupt.
  */
-void ScriptInterpreter::finishEvent(ThreadEvent* te)
+void ScriptInterpreter::finishEvent(KernelEvent* e)
 {
 	bool ours = false;
 
 	if (mStack != NULL)
-	  ours = mStack->finishWait(te);
+	  ours = mStack->finishWait(e);
 
 	// Since we're dealing with another thread, it is possible
 	// that the thread could notify us before the interpreter gets
 	// to a "Wait thread", it is important that we NULL out the last
 	// thread event so the Wait does't try to wait for an invalid event.
 
-	if (mLastThreadEvent == te) {
-		mLastThreadEvent = NULL;
+	if (mLastKernelEvent == e) {
+		mLastKernelEvent = NULL;
 		ours = true;
 	}
 
 	// If we know this was our event, capture the return code for
-	// later use in scripts.  
+	// later use in scripts
 	if (ours)
-	  mReturnCode = te->getReturnCode();
+      mReturnCode = e->returnCode;
 }
 
 /**
@@ -6169,7 +6157,7 @@ void ScriptInterpreter::checkWait()
 	if (isWaiting()) {
 		if (mStack->getWaitFunction() == NULL &&
 			mStack->getWaitEvent() == NULL &&
-			mStack->getWaitThreadEvent() == NULL &&
+			mStack->getWaitKernelEvent() == NULL &&
 			!mStack->isWaitBlock()) {
 
 			// nothing left to live for...
@@ -6262,22 +6250,6 @@ UserVariables* ScriptInterpreter::getVariables()
 }
 
 /**
- * Schedule a Mobius ThreadEvent.
- * Add ourselves as the interested script interpreter so that we
- * may be notified when the event has been processed.
- *
- */
-void ScriptInterpreter::scheduleThreadEvent(ThreadEvent* e)
-{
-	// this is now the "last" thing we can wait for
-	// do this before passing to the thread so we can get notified
-	mLastThreadEvent = e;
-    
-    MobiusThread* t = mMobius->getThread();
-    t->addEvent(e);
-}
-
-/**
  * Called after we've processed a function and it scheduled an event.
  * Since events may not be scheduled, be careful not to trash state
  * left behind by earlier functions.
@@ -6289,9 +6261,9 @@ void ScriptInterpreter::setLastEvents(Action* a)
 		mLastEvent->setScript(this);
 	}
 
-	if (a->getThreadEvent() != NULL) {
-		mLastThreadEvent = a->getThreadEvent();
-		// Note that ThreadEvents don't point back to the ScriptInterpreter
+	if (a->getKernelEvent() != NULL) {
+		mLastKernelEvent = a->getKernelEvent();
+		// Note that KernelEvents don't point back to the ScriptInterpreter
 		// because the interpreter may be gone by the time the thread
 		// event finishes.  Mobius will forward thread event completion
 		// to all active interpreters.
@@ -6301,7 +6273,7 @@ void ScriptInterpreter::setLastEvents(Action* a)
 /**
  * Initialize a wait for the last function to complete.
  * Completion is determined by waiting for either the Event or
- * ThreadEvent that was scheduled by the last function.
+ * KernelEvent that was scheduled by the last function.
  */
 void ScriptInterpreter::setupWaitLast(ScriptStatement* src)
 {
@@ -6320,9 +6292,9 @@ void ScriptInterpreter::setupWaitLast(ScriptStatement* src)
 
 void ScriptInterpreter::setupWaitThread(ScriptStatement* src)
 {
-	if (mLastThreadEvent != NULL) {
+	if (mLastKernelEvent != NULL) {
 		ScriptStack* frame = pushStackWait(src);
-		frame->setWaitThreadEvent(mLastThreadEvent);
+		frame->setWaitKernelEvent(mLastKernelEvent);
 		// should we be setting this now?? what if the wait is canceled?
 		mPostLatency = true;
 	}
@@ -6766,6 +6738,35 @@ ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
 ExResolver* ScriptInterpreter::getExResolver(ExFunction* function)
 {
 	return NULL;
+}
+
+KernelEvent* ScriptInterpreter::newKernelEvent()
+{
+    return mMobius->newKernelEvent();
+}
+
+/**
+ * Send a KernelEvent off for processing, and remember it so we
+ * can be notified when it completes.
+ */
+void ScriptInterpreter::sendKernelEvent(KernelEvent* e)
+{
+	// this is now the "last" thing we can wait for
+	// do this before passing to the thread so we can get notified
+	mLastKernelEvent = e;
+
+    mMobius->sendKernelEvent(e);
+}
+
+/**
+ * Shorthand for building and sending a common style of event.
+ */
+void ScriptInterpreter::sendKernelEvent(KernelEventType type, const char* arg)
+{
+    KernelEvent* e = newKernelEvent();
+    e->type = type;
+    e->setArg(0, arg);
+    sendKernelEvent(e);
 }
 
 /****************************************************************************/

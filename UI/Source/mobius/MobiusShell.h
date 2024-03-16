@@ -16,6 +16,7 @@
 #include "MobiusKernel.h"
 #include "MobiusInterface.h"
 #include "Simulator.h"
+#include "KernelEventHandler.h"
 
 class MobiusShell : public MobiusInterface
 {
@@ -56,6 +57,7 @@ class MobiusShell : public MobiusInterface
     
     // kernel communication and shared state
     KernelCommunicator communicator;
+    KernelEventHandler kernelEventHandler {this};
     MobiusState state;
 
     // note that AudioPool must be declared before

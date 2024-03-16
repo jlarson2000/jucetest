@@ -1,3 +1,8 @@
+//
+// This was an attempt to pull out script related code from Mobius
+// but I now notice that ScriptRuntime seems to be an earlier attempt
+// at doing that.  Use the old one if possible
+//
 
 /**
  * Called by initialize() to set up the initial ScriptEnv
