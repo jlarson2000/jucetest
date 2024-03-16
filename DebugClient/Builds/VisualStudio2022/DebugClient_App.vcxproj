@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ConsolePanel.cpp"/>
     <ClCompile Include="..\..\Source\LogPanel.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
@@ -1370,6 +1371,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ConsolePanel.h"/>
     <ClInclude Include="..\..\Source\LogPanel.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\..\..\Juce\juce-7.0.9-windows\JUCE\modules\juce_core\containers\juce_AbstractFifo.h"/>

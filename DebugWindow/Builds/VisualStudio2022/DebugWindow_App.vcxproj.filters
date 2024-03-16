@@ -217,6 +217,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ClientThread.cpp">
+      <Filter>DebugWindow\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ServerThread.cpp">
       <Filter>DebugWindow\Source</Filter>
     </ClCompile>
@@ -1554,6 +1557,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ClientThread.h">
+      <Filter>DebugWindow\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ServerThread.h">
       <Filter>DebugWindow\Source</Filter>
     </ClInclude>

@@ -17,6 +17,8 @@ public:
     MainComponent();
     ~MainComponent() override;
 
+    void stopThreads();
+    
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;

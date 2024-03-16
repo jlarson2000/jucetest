@@ -2,10 +2,11 @@
 #include <JuceHeader.h>
 
 #include "LogPanel.h"
+#include "ClientThread.h"
 #include "ServerThread.h"
 
 ServerThread::ServerThread(LogPanel* argLog) :
-    Thread(juce::String("Mobius Debug Log"))  // second arg is threadStackSize
+    Thread(juce::String("Debug Log Server"))  // second arg is threadStackSize
 {
     log = argLog;
 }
@@ -32,6 +33,22 @@ void ServerThread::start()
 
 void ServerThread::stop()
 {
+    // supposed to cause waitForNextConnection to stop blocking
+    // unclear who should be calling stop()
+    // added a call in stopThreads, but so does ~MainComponent
+    // which gets an error if you try to close it again
+    if (socket != nullptr) {
+        socket->close();
+        delete socket;
+        socket = nullptr;
+    }
+    
+    for (int i = 0 ; i < clients.size() ; i++) {
+        ClientThread* client = clients[i];
+        client->stop();
+    }
+    clients.clear();
+    
     // example says: allow 2 seconds to stop cleanly - should be plenty of time
     if (!stopThread(2000)) {
         //trace("Unable to stop thread\n");
@@ -63,88 +80,51 @@ bool ServerThread::addLog(juce::String msg)
 }
 
 /**
- * I think in normal multi-client server situations, the server waits
- * for a connection then spawns a new thread to handle that connection
- * until it is broken.
- *
- * Here we'll start expecting just one at a time.
+ * Wait for a connection request, then spawn a ClientThread to
+ * receive messages on it.
  */
 void ServerThread::run()
 {
-    addLog("Hello from the Server thread!");
+    addLog("Server thread starting!");
     
-    juce::StreamingSocket* socket = new juce::StreamingSocket();
+    socket = new juce::StreamingSocket();
+
+    // unclear whether we're supposed to bind or go directly to createListener
+    // bind gets an error so listener it is
     //bool success = socket->bindToPort(9000);
-    bool success = true;
-    
+
+    bool success = socket->createListener(9000);
     if (!success) {
-        addLog("Unable to bind to port");
+        addLog("Server: Unable to create listener");
     }
     else {
-        // unclear whether we're supposed to do both bind
-        // and createListener, I think just one
-        success = socket->createListener(9000);
-        if (!success) {
-            addLog("Unable to create listener");
-        }
-        else {
-            // ordinarlly I think we would be in a loop waiting
-            // for connections, spawning threads to handle them,
-            // and when the connection is broken, waiting for another one
-            addLog("Waiting for connection");
+        bool error = false;
+
+        while (!error && !threadShouldExit()) {
+        
+            // this can hang indefnitely and there is no timeout
+            // not sure if that's a Juce limitation or the underlying API
+            // forum chatter says to break out of this you need to close the
+            // socket we're listening on
+            addLog("Server: Waiting for connection");
             juce::StreamingSocket* connection = socket->waitForNextConnection();
 
             if (connection == nullptr) {
                 // what does this mean?  did it time out and we're
                 // supposed to wait again?
-                addLog("waitForConnection returned null");
+                addLog("Server: waitForConnection returned null");
+                error = true;
             }
             else {
-                // waitUntilReady "waits until the socket is ready for
-                // reading or writing"
-                // unclear if this is necessary
-                addLog("Connection received");
-                // first arg true means "ready for reading"
-                // second arg is timeout in milliseconds
-                int status = connection->waitUntilReady(true, 5000);
-                if (status < 0) {
-                    addLog("waitUntilReady error");
-                }
-                else if (status == 0) {
-                    addLog("waitUntilReady timeout");
-                }
-                else {
-                    addLog("waitUntilReady ready");
-
-                    // unclear whether the loop needs to surround
-                    // waitUntilReady or if that's a one time thing
-
-                    // paranioa, make it a little larger than what we
-                    // ask for
-                    char inbuf[1016];
-
-                    // third arg is blockUntilSpecifiedAmountHasArrived
-                    // the data being sent may be broken up into multiple
-                    // packets so we have to reassemble that
-                    int bytes = connection->read(&inbuf, 1000, false);
-                    if (bytes < 0) {
-                        addLog("Socket read error");
-                    }
-                    else {
-                        addLog(juce::String("Socket read bytes ") +
-                               juce::String(bytes));
-                        
-                        // assume it's text
-                        inbuf[bytes] = 0;
-                        addLog(inbuf);
-                    }
-                }
-
-                addLog("Deleting connection");
-                delete connection;
+                addLog("Server: Connection received");
+                int cnum = clients.size() + 1;
+                ClientThread* ct = new ClientThread(cnum, connection, log);
+                clients.add(ct);
+                ct->run();
             }
         }
     }
-    addLog("Deleting socket");
-    delete socket;
+
+    addLog("Server: Deleting socket");
+    //delete socket;
 }

@@ -2,7 +2,7 @@
 
 #include <JuceHeader.h>
 
-#include "LogPanel.h"
+#include "ConsolePanel.h"
 
 //==============================================================================
 /*
@@ -16,7 +16,7 @@ public:
     MainComponent();
     ~MainComponent() override;
 
-    bool addLog(juce::String msg);
+    void addLog(juce::String msg);
     void doTest();
 
     //==============================================================================
@@ -27,7 +27,7 @@ private:
     //==============================================================================
     // Your private member variables go here...
 
-    LogPanel log;
+    ConsolePanel console;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

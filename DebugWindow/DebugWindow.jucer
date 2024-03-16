@@ -4,6 +4,9 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="wMgaA0" name="DebugWindow">
     <GROUP id="{BD7F3FE0-4A17-DD46-6028-5AA96C273A10}" name="Source">
+      <FILE id="kc4mfy" name="ClientThread.cpp" compile="1" resource="0"
+            file="Source/ClientThread.cpp"/>
+      <FILE id="GXeTJJ" name="ClientThread.h" compile="0" resource="0" file="Source/ClientThread.h"/>
       <FILE id="fw7JW6" name="ServerThread.cpp" compile="1" resource="0"
             file="Source/ServerThread.cpp"/>
       <FILE id="rxNXDQ" name="ServerThread.h" compile="0" resource="0" file="Source/ServerThread.h"/>

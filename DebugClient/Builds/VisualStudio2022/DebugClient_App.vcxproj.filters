@@ -217,6 +217,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ConsolePanel.cpp">
+      <Filter>DebugClient\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\LogPanel.cpp">
       <Filter>DebugClient\Source</Filter>
     </ClCompile>
@@ -1551,6 +1554,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ConsolePanel.h">
+      <Filter>DebugClient\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\LogPanel.h">
       <Filter>DebugClient\Source</Filter>
     </ClInclude>

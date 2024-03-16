@@ -7,38 +7,18 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
-    addAndMakeVisible(log);
-    log.add("Client says hello!\n");
+    addAndMakeVisible(console);
+    console.add("Starting console");
+    console.prompt(">");
     setSize (1024, 768);
-
-    doTest();
 }
 
 MainComponent::~MainComponent()
 {
 }
 
-/**
- * Code from an example said if lockWasGained returns false:
- * 
- * "if something is trying to kill this job the lock will fail
- *  in which case we better return".
- * 
- * In the original Mobius MainThread, this did a return; which
- * would exit the run() loop and presumably end the thread.
- * So this seems to be not a normal situation that we're not
- * expected to recover.  End the thread so the app can shut down.
- */
-bool MainComponent::addLog(juce::String msg)
+void MainComponent::addLog(juce::String msg)
 {
-    int success = false;
-    
-    const juce::MessageManagerLock mml (juce::Thread::getCurrentThread());
-    success = mml.lockWasGained();
-    if (success)
-      log.add(msg);
-
-    return success;
 }
 
 void MainComponent::doTest()
@@ -93,5 +73,5 @@ void MainComponent::paint (juce::Graphics& g)
 
 void MainComponent::resized()
 {
-    log.setBounds(getLocalBounds());
+    console.setBounds(getLocalBounds());
 }

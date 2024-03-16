@@ -15,6 +15,11 @@ MainComponent::~MainComponent()
     server.stop();
 }
 
+void MainComponent::stopThreads()
+{
+    server.stop();
+}
+
 //==============================================================================
 
 void MainComponent::paint (juce::Graphics& g)

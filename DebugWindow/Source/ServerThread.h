@@ -15,13 +15,14 @@ class ServerThread : public juce::Thread
 
     void run() override;
 
-    bool addLog(juce::String msg);
 
   private:
 
-    class LogPanel* log;
+    bool addLog(juce::String msg);
 
-    int counter = 0;
+    class LogPanel* log = nullptr;
+    juce::StreamingSocket* socket = nullptr;
+    juce::Array<class ClientThread*> clients;
     
 };
 
