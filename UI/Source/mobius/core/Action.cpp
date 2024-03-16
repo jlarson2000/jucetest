@@ -125,7 +125,7 @@ void Action::init()
     mPool = nullptr;
     
     mEvent = NULL;
-    mThreadEvent = NULL;
+    mKernelEvent = NULL;
     mResolvedTrack = NULL;
     mLongFunction = NULL;
 
@@ -263,7 +263,7 @@ void Action::clone(Action* src)
 
     // absolutely not these
     mEvent = NULL;
-    mThreadEvent = NULL;
+    mKernelEvent = NULL;
     
     // Should we clone these?  They're supposed to be transient!
     mResolvedTrack = src->mResolvedTrack;
@@ -478,14 +478,14 @@ Event* Action::getEvent()
     return mEvent;
 }
 
-ThreadEvent* Action::getThreadEvent()
+KernelEvent* Action::getKernelEvent()
 {
-    return mThreadEvent;
+    return mKernelEvent;
 }
 
-void Action::setThreadEvent(ThreadEvent* te)
+void Action::setKernelEvent(KernelEvent* te)
 {
-    mThreadEvent = te;
+    mKernelEvent = te;
 }
 
 /****************************************************************************

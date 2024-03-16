@@ -21,9 +21,6 @@
 // for Prompt, OldMobiusListener
 #include "OldMobiusInterface.h"
 
-// for ThreadEventType
-#include "MobiusThread.h"
-
 // got lost somewhere
 #define MAX_CUSTOM_MODE 256
 
@@ -41,7 +38,7 @@ class Mobius :
 	friend class ScriptSetupStatement;
 	friend class ScriptPresetStatement;
 	friend class ScriptFunctionStatement;
-	friend class MobiusThread;
+	//friend class MobiusThread;
 	friend class Loop;
 	friend class Track;
 	friend class Synchronizer;
@@ -97,6 +94,11 @@ class Mobius :
      */
     int getParameter(Parameter* p, int trackNumber);
     int getParameter(class UIParameter* p, int trackNumber);
+
+    /**
+     * Process a completed KernelEvent core scheduled earlier.
+     */
+    void kernelEventCompleted(class KernelEvent* e);
 
     /**
      * Force initialization of some static object arrays for leak detection.
@@ -223,10 +225,9 @@ class Mobius :
     class LayerPool* getLayerPool();
     class EventPool* getEventPool();
 
-    // Thread
-    // threads will be redesigned
-    void addEvent(class ThreadEvent* te);
-    void addEvent(ThreadEventType type);
+    // KernelEvents, passes through to MobiusKernel
+    class KernelEvent* newKernelEvent();
+    void sendKernelEvent(class KernelEvent* e);
     
     //////////////////////////////////////////////////////////////////////
     //

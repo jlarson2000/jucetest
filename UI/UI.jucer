@@ -332,6 +332,8 @@
               file="Source/mobius/KernelCommunicator.cpp"/>
         <FILE id="a4sBIH" name="KernelCommunicator.h" compile="0" resource="0"
               file="Source/mobius/KernelCommunicator.h"/>
+        <FILE id="laEZjP" name="KernelEvent.cpp" compile="1" resource="0" file="Source/mobius/KernelEvent.cpp"/>
+        <FILE id="Xlas8b" name="KernelEvent.h" compile="0" resource="0" file="Source/mobius/KernelEvent.h"/>
         <FILE id="VZvPAV" name="MobiusInterface.cpp" compile="1" resource="0"
               file="Source/mobius/MobiusInterface.cpp"/>
         <FILE id="M2HKN2" name="MobiusInterface.h" compile="0" resource="0"

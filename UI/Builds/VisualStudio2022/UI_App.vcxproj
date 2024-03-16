@@ -288,6 +288,7 @@
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioPool.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\KernelEvent.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusKernel.cpp"/>
     <ClCompile Include="..\..\Source\mobius\MobiusShell.cpp"/>
@@ -2703,6 +2704,7 @@
     <ClInclude Include="..\..\Source\mobius\Audio.h"/>
     <ClInclude Include="..\..\Source\mobius\AudioPool.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
+    <ClInclude Include="..\..\Source\mobius\KernelEvent.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusKernel.h"/>
     <ClInclude Include="..\..\Source\mobius\MobiusShell.h"/>

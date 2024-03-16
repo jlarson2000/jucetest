@@ -28,6 +28,15 @@
 
 /**
  * The types of messages
+ *
+ * Configure and Samples message are sent by the shell to the kernel
+ * to update configuration objects.
+ *
+ * Action messages are sent from shell to kernel to perform an action.
+ *
+ * Event messages are sent from kernel to shell to do something
+ * that can't be done in the kernel like file access or user interaction.
+ * 
  */
 typedef enum {
 
@@ -38,7 +47,8 @@ typedef enum {
     MsgNone = 0,
     MsgConfigure,
     MsgAction,
-    MsgSamples
+    MsgSamples,
+    MsgEvent
 
 } MessageType;
 
@@ -53,6 +63,7 @@ typedef union {
     class MobiusConfig* configuration;
     class SampleManager* samples;
     class UIAction* action;
+    class KernelEvent* event;
     
 } MessageObject;
 

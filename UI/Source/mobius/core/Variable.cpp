@@ -1,4 +1,8 @@
 // stubbed out various file oriented variables
+// I'm really HATING these, why was this necessary?  just to give
+// test scripts something to ponder about?  It is extremely
+// tedious maintaining all this, it should be generated at the
+// very least
 
 /*
  * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
@@ -433,7 +437,7 @@ ScriptInternalVariable* MidiValueVariable = &MidiValueVariableObj;
 //
 // returnCode
 //
-// The return code of the last ThreadEvent.
+// The return code of the last KernelEvent.
 // Currently used only by Prompt statements to convey the 
 // selected button.  0 means Ok, 1 means cancel.
 //

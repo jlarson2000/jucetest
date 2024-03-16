@@ -1057,6 +1057,9 @@
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\KernelEvent.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\MobiusInterface.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -3940,6 +3943,9 @@
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\KernelEvent.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\MobiusInterface.h">

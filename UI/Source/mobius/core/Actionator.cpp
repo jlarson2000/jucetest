@@ -325,11 +325,6 @@ void Actionator::doCoreAction(UIAction* action)
         // should have ordinals now...
         Trace(1, "Actionator::doCoreAction Activation action not implemented\n");
     }
-    else if (action->type == ActionScript) {
-        // I think these are only internal core actions, should not
-        // get these from the UI
-        Trace(1, "Actionator::doCoreAction Script action not implemented\n");
-    }
     else {
         Trace(1, "Actionator::doCoreAction Unknown action type %s\n", action->type->getName());
     }
@@ -350,7 +345,7 @@ void Actionator::doCoreAction(UIAction* action)
  * 
  * The Action is both an input and an output to this function.
  * It will not be freed but it may be returned with either the
- * mEvent or mThreadEvent fields set.  This is used by the 
+ * mEvent or mKernelEvent fields set.  This is used by the 
  * script interpreter to schedule "Wait last" and "Wait thread" 
  * events.
  *
@@ -360,7 +355,8 @@ void Actionator::doCoreAction(UIAction* action)
  * then the caller of doActionNow must return it to the pool.
  *
  * If the action is returned with mThreadEvent set it is NOT
- * owned and must be returned to the pool.
+ * owned and must be returned to the pool.  A ScriptInterpreter
+ * may still wait on the event, but it will be notified in a different way.
  * 
  * This will replicate actions that use group scope or 
  * must obey focus lock.  If the action is replicated only the first
@@ -398,9 +394,6 @@ void Actionator::doActionNow(Action* a)
     }
     else if (t == ActionParameter) {
         doParameter(a);
-    }
-    else if (t == ActionScript) {
-        doScriptNotification(a);
     }
     else if (t == ActionPreset) {
         doPreset(a);
@@ -519,48 +512,21 @@ void Actionator::doSetup(Action* a)
         mMobius->setSetupInternal(number);
 
         // special operator just for setups to cause it to be saved
+        // UPDATE: This is old and questionable, it isn't used
+        // anywhere in core code or scripts.  It was used in UI.cpp in response
+        // to selecting a Setup from the main menu.  I don't think this should
+        // necessarily mean to make a permanent change, though that would be convenient
+        // rather than editing the full MobiusConfig.  But if you want that, just
+        // have the UI do that it's own damn self rather than sending it all the way
+        // down here, only to have a KernelEvent back
+        // can remove this EventType
+#if 0        
         if (a->actionOperator == OperatorPermanent) {
-            // save it too, control flow is convoluted,
-            // we could have done this when the Action
-            // was recevied outside the interrupt
             ThreadEvent* te = new ThreadEvent(TE_SAVE_CONFIG);
             mMobius->addEvent(te);
         }
-    }
-}
-
-/**
- * Special internal target used to notify running scripts when
- * something interesting happens on the outside.
- * 
- * Currently there is only one of these, from MobiusTread when
- * it finishes processing a ThreadEvent that a script might be waiting on.
- *
- * Note that this has to be done by probing the active scripts rather than
- * remembering the invoking ScriptInterpreter in the event, because
- * ScriptInterpreters can die before the events they launch are finished.
- */
-void Actionator::doScriptNotification(Action* a)
-{
-    if (a->trigger != TriggerThread)
-      Trace(1, "Unexpected script notification trigger!\n");
-
-    // unusual way of passing this in, but target object didn't seem
-    // to make sense
-    ThreadEvent* te = a->getThreadEvent();
-    if (te == NULL)
-      Trace(1, "Script notification action without ThreadEvent!\n");
-    else {
-        for (ScriptInterpreter* si = mMobius->getScripts() ; si != NULL ; 
-             si = si->getNext()) {
-
-            // this won't advance the script, it just prunes the reference
-            si->finishEvent(te);
-        }
-
-        // The ThreadEvent is officially over, we get to reclaim it
-        a->setThreadEvent(NULL);
-        delete te;
+#endif
+        
     }
 }
 

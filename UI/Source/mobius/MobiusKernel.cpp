@@ -79,6 +79,8 @@ MobiusKernel::~MobiusKernel()
     if (coreActions != nullptr) {
         Trace(1, "MobiusKernel: Destruction with a lingering coreAction list!\n");
     }
+
+    // KernelEventPool will auto-delete
 }
 
 /**
@@ -137,6 +139,7 @@ void MobiusKernel::consumeCommunications()
             case MsgConfigure: reconfigure(msg); break;
             case MsgSamples: installSamples(msg); break;
             case MsgAction: doAction(msg); break;
+            case MsgEvent: doEvent(msg); break;
         }
         
         msg = communicator->kernelReceive();
@@ -370,6 +373,50 @@ int MobiusKernel::getParameter(UIParameter* p, int trackNumber)
       value = mCore->getParameter(p, trackNumber);
 
     return value;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Events
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Pass a kernel event to the shell.
+ *
+ * We're using KernelMessage as the mechanism to pass this up.
+ * Need to think about whether frequent non-response events,
+ * in particular TimeBoundary should just BE KernelMessages rather than
+ * adding the extra layer of KernelEvent.
+ */
+void MobiusKernel::sendEvent(KernelEvent* e)
+{
+    KernelMessage* msg = communicator->kernelAlloc();
+    msg->type = MsgEvent;
+    msg->object.event = e;
+    communicator->kernelSend(msg);
+}
+
+/**
+ * Handle a MsgEvent sent back down from the shell.
+ * For most of these, the ScriptInterpreters need to be informed
+ * so they can cancel their wait states.
+ */
+void MobiusKernel::doEvent(KernelMessage* msg)
+{
+    KernelEvent* e = msg->object.event;
+
+    if (e != nullptr) {
+        
+        if (mCore != nullptr) 
+          mCore->kernelEventCompleted(e);
+
+        // return to our pool
+        eventPool.returnEvent(e);
+    }
+    
+    // nothing to send back
+    communicator->kernelAbandon(msg);
 }
 
 /****************************************************************************/

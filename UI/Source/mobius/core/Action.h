@@ -311,8 +311,8 @@ class Action {
     void setResolvedTrack(class Track* t);
     Track* getResolvedTrack();
 
-    class ThreadEvent* getThreadEvent();
-    void setThreadEvent(class ThreadEvent* te);
+    class KernelEvent* getKernelEvent();
+    void setKernelEvent(class KernelEvent* e);
 
     class Event* getEvent();
 
@@ -362,22 +362,26 @@ class Action {
     class ActionPool* mPool;
 
 	/**
-	 * Set as a side effect of function scheduling to the event
-	 * that represents the end of processing for this function.
+	 * Set as a side effect of Function invocation when a track event
+     * is scheduled that represents the end of processing for this function.
 	 * There may be play jump child events and other similar things
-	 * that happen first.
+	 * that happen first.  This is only used if the Function was invoked
+     * by a ScriptInterpreter and it wants to wait on the event to finish.
 	 */
 	class Event* mEvent;
 
 	/**
-	 * Set as a side effect of function scheduling a Mobius
-	 * thread event scheduled to process this function outside
-	 * the interrupt handler.
-	 * !! have to be careful with this one, it could in theory be
-	 * processed before we have a chance to deal with it in the
-	 * interpreter.
+	 * Set as a side effect of Function invocation when a KernelEvent
+     * is scheduled to perform the function outside the kernel.
+     * This is only used if the Function was invoked by a ScriptInterpreter
+     * and it wants to wait on the event to finish.
+     *
+     * Old code overloaded this for a second purpose, to pass the
+     * completed ThreadEvent down in a new Action and tell the ScriptInterpreters
+     * to stop waiting.  We no longer do that, it is only a transient value
+     * for use by ScriptInterpreter to set up a wait.
 	 */
-	class ThreadEvent* mThreadEvent;
+	class KernelEvent* mKernelEvent;
 
     /**
      * Set during internal processing to the resolved Track

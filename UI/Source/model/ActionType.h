@@ -38,6 +38,12 @@ class ActionType : public SystemConstant {
 extern ActionType* ActionFunction;
 extern ActionType* ActionParameter;
 extern ActionType* ActionActivation;
+
+// this was a weird one, used to send down notification
+// of the completion of a ThreadEvent (now KernelEvent)
+// we don't do this using Actions any more so this can be removed
+// unless you come up with some other reason to be able to send down
+// actions that target running ScriptInterpreters
 extern ActionType* ActionScript;
 
 // until we can refactor all the old uses of TargetPreset

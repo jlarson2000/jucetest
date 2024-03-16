@@ -1072,20 +1072,24 @@ class MobiusThread* Mobius::getThread()
 }
 
 /**
- * Called by: Actionator::doSet when OperatorPermanent
+ * Called by Scripts to ask for a few things from the outside
+ * and a handful of Function actions.
+ *
+ * Allocate a KernelEvent from the pool
+ * There aren't many uses of this, could make it use Kernel directly.
  */
-void Mobius::addEvent(ThreadEvent* te)
+KernelEvent* Mobius::newKernelEvent()
 {
-	if (mThread != NULL)
-	  mThread->addEvent(te);
-	else
-	  delete te;
+    return mKernel->newEvent();
 }
 
-void Mobius::addEvent(ThreadEventType type)
+/**
+ * Called by Scripts to send an event returned by newKernelEvent
+ * back up to the shell.
+ */
+void Mobius::sendKernelEvent(KernelEvent* e)
 {
-	if (mThread != NULL)
-	  mThread->addEvent(type);
+    mKernel->sendEvent(e);
 }
 
 /**
@@ -2578,6 +2582,48 @@ void Mobius::doActionNow(Action* a)
 Track* Mobius::resolveTrack(Action* a)
 {
     return mActionator->resolveTrack(a);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// KernelEvents
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by Kernel when the Shell has finished processing a KernelEvent
+ * For most events we need to inform the ScriptInterpreters so they can
+ * cancel their wait states.
+ *
+ * This takes the place of what the old code did with special Actions.
+ *
+ * We do not take ownership of the event or return it to the pool.
+ * It is not expected to be modified and no complex side effects should be
+ * taking place.
+ *
+ * Timing should be assumed to be early in the audio interrupt before
+ * containerAudioAvailable is called.  Might want to stage these and pass
+ * them to constainerAudioAvailable like we do for UIActions so it has more
+ * control over when they get done, but we're only using these for script
+ * waits right now and it doesn't matter when they happen as long as it is
+ * before doScriptMaintenance.
+ */
+void Mobius::kernelEventCompleted(KernelEvent* e)
+{
+    // I know TimeBoundary can't be waited on, what about GlobalReset?
+    if (e->type != EventGlobalReset && e->type != EventTimeBoundary) {
+
+        for (ScriptInterpreter* si = mScripts ; si != NULL ; 
+             si = si->getNext()) {
+
+            // this won't advance the script, it just prunes the reference
+            // the script advances later in doScriptMaintenance
+
+            // this is where the new interface ends, can't call this
+            // until we retool, the core to use KernelEvenets
+            // si->finishEvent(e);
+        }
+    }
 }
 
 /****************************************************************************/

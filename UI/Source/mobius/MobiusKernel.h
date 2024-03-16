@@ -23,6 +23,7 @@
 #pragma once
 
 #include "MobiusContainer.h"
+#include "KernelEvent.h"
 
 class MobiusKernel : public MobiusContainer::AudioListener
 {
@@ -65,6 +66,21 @@ class MobiusKernel : public MobiusContainer::AudioListener
     }
 
     class MobiusState* getState();
+
+    // event management
+    class KernelEvent* newEvent() {
+        return eventPool.getEvent();
+    }
+
+    // does this need to be public?
+    // what would call newEvent but not sendEvent?
+#if 0    
+    void returnEvent(KernelEvent* e) {
+        eventPool.returnEvent(e);
+    }
+#endif
+    
+    void sendEvent(KernelEvent* e);
     
   private:
 
@@ -74,6 +90,9 @@ class MobiusKernel : public MobiusContainer::AudioListener
     class MobiusContainer* container = nullptr;
     class MobiusConfig* configuration = nullptr;
     class AudioPool* audioPool = nullptr;
+
+    // this we own
+    KernelEventPool eventPool;
     
     // internal state
     //
@@ -90,8 +109,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
     void installSamples(class KernelMessage* msg);
-
     void doAction(KernelMessage* msg);
+    void doEvent(KernelMessage* msg);
     
 };
 

@@ -1,3 +1,250 @@
+
+KernelMessage
+  - bi-directional but are mostly sent from the shell to the kernel
+  - expected to have a limited lifespan
+    - periodic logs will warn about potential leaks if they are out of the
+      pool for long periods of time
+      - will they?
+  - limited payload, only a single object pointer
+
+KernelEvent
+  - uni-directional, sent by kernel to shell, never created by shell
+  - more complex payload
+  - may be a simple notification
+  - may require a response
+  - events that require responses have undefined lifespan out of the pool
+  - uses KernelMessage to pass from kernel to shell and back
+
+Could merge this with KernelMessage but I'm liking keeping the differences
+separate.  Very simple events could just be KernelMessage
+
+   TimeBoundary
+
+Only for events created outside of scripts that can't wait on them.
+
+Note that MobiusThread::addEvent keeps them in order.  If we pass these
+through KernelCommunicator one at a time will need reverse them.
+
+Yeah, TimeBoundary had special treatment:
+
+/**
+ * Added for the one-shot TE_TIME_BOUNDARY event which can happen
+ * a lot so avoid allocating a ThreadEvent.  
+ *
+ * NOTE: Since TE_TIME_BOUNDARY is important to make the UI 
+ * flashers look synchronized we effectively can only use the one shot
+ * event for TE_TIME_BOUNDARY, I suppose if we miss a few it won't matter
+ * but we can't use it for things that must have guaranteed delivery 
+ * like TE_GLOBAL_RESET.
+ */
+void MobiusThread::addEvent(ThreadEventType tet)
+{
+	mOneShot = tet;
+	//signal();
+}
+
+
+ * The listener is considered the owner of the Prompt and must call
+ * Mobius::finishPrompt when it is done.  The Prompt contains a 
+ * ThreadEvent the script interpreter may be waiting on.  The listener
+ * *must not* delete the Prompt which will also delete the ThreadEvent
+ * out from under the interpreter.  It *must* call Mobius::finishPrompt.
+
+Here is the magic bit for waits
+
+/**
+ * When we're done processing an event, send it back to Mobius
+ * so it can notify any ScriptInterpreters that might be waiting on it.
+ *
+ * This creates an action with a special trigger and target so it can
+ * be deferred until the next interrupt.
+ */
+void MobiusThread::finishEvent(ThreadEvent* e)
+{
+    Action* a = mMobius->newAction();
+    a->trigger = TriggerThread;
+    a->setTarget(ActionScript);
+
+    // this is a little unusual because we use this
+    // for an input to the action and it's usually a return
+    a->setThreadEvent(e);
+
+    mMobius->doAction(a);
+}
+
+Kind of convoluted, let's follow!
+
+void Actionator::doActionNow(Action* a)
+{
+    else if (t == ActionScript) {
+        doScriptNotification(a);
+    }
+
+
+void Actionator::doScriptNotification(Action* a)
+{
+    if (a->trigger != TriggerThread)
+      Trace(1, "Unexpected script notification trigger!\n");
+
+    // unusual way of passing this in, but target object didn't seem
+    // to make sense
+    ThreadEvent* te = a->getThreadEvent();
+    if (te == NULL)
+      Trace(1, "Script notification action without ThreadEvent!\n");
+    else {
+        for (ScriptInterpreter* si = mMobius->getScripts() ; si != NULL ; 
+             si = si->getNext()) {
+
+            // this won't advance the script, it just prunes the reference
+            si->finishEvent(te);
+        }
+
+        // The ThreadEvent is officially over, we get to reclaim it
+        a->setThreadEvent(NULL);
+        delete te;
+    }
+}
+
+
+So the Action doesn't really accomplish anything except hide what's going on.
+Don't need to keep that.
+
+It's nice that the ThreadEvent doesn't point at the ScriptInterpreter
+
+Oh hey, ScriptRuntime duplicated this:
+
+void ScriptRuntime::doScriptNotification(Action* a)
+{
+
+Here's the meat:
+
+/**
+ * Called by MobiusThread when it finishes processing events we scheduled.
+ * Note we don't run here since we're not in the audio interrupt thread.
+ * Just remove the reference, the script will advance on the next interrupt.
+ */
+void ScriptInterpreter::finishEvent(ThreadEvent* te)
+{
+	bool ours = false;
+
+	if (mStack != NULL)
+	  ours = mStack->finishWait(te);
+
+	// Since we're dealing with another thread, it is possible
+	// that the thread could notify us before the interpreter gets
+	// to a "Wait thread", it is important that we NULL out the last
+	// thread event so the Wait does't try to wait for an invalid event.
+
+	if (mLastThreadEvent == te) {
+		mLastThreadEvent = NULL;
+		ours = true;
+	}
+
+	// If we know this was our event, capture the return code for
+	// later use in scripts.  
+	if (ours)
+	  mReturnCode = te->getReturnCode();
+}
+
+bool ScriptStack::finishWait(ThreadEvent* e)
+{
+	bool finished = false;
+ 
+	if (mWaitThreadEvent == e) {
+		mWaitThreadEvent = NULL;
+		finished = true;
+	}
+
+	if (mStack != NULL) {
+		if (mStack->finishWait(e))
+		  finished = true;
+	}
+
+	return finished;
+}
+
+What's changed now is that doAction used to be called in the in the
+MobiusThread, so it would be modifying the ScriptInterpreter model outside
+the interrupt!  This seems bad, but rare and mostly limited to the unit tests.
+
+This won't work the same since the consumers of KernelEvent will either be the UI
+thread or our private maintenance thread, and it isn't allowed to make Actions directly.
+Yeah, the whole finishEvent process will be different now.
+
+Before
+   ScriptInterpreter/ScriptStack
+     add ThreadEvent to the queue
+     save the ThreadEvent in ScriptStack::mWaitThreadEvent
+
+   MobiusThread
+     pop the ThreadEvent from the queue
+     do the thing
+     finishEvent
+       newAction, trigger=TriggerThread, target=ActionScript
+       a->setThreadEvent(e)
+       mMobius->doAction()
+          pretty sure the logic would have ended up being deferred to interrupt
+
+    recorderMonitorEnter
+      doInterruptActions
+        doActionNow
+          doScriptNotifications
+            for each ScriptInterpreter
+              si::finishEvent
+                ScriptStack::finishWait
+                  set finished flag
+            return back to doScriptNotifications
+            delete ThreadEvent
+
+So the comments down in SI were wrong, we are in the interrupt and could have continued
+the script, but this will happen anyway because in recorderMonitorEnter we process
+interrupt actions before doScriptMaintenance
+
+New:
+   ScriptInterpreter/ScriptStack
+     add KernelEvent to the queue
+     save the KernelEvent in ScriptStack::mWaitThreadEvent
+
+   MobiusShell::performMaintenance
+     consumeCommunications
+       pop KernelMessage containing the KernelEvent
+       do the thing
+       if not Prompt
+         return KernelMessage/KernelEvent 
+
+   MobiusKernel::consumeCommunciations
+     pop KernelMessage containing the KernelEvent
+     ! magic go get the KernelEvent into the ScriptInterpreters
+     delete KernelEvent
+     abandon KernelMessage
+
+The timing is about the same, except that by using KernelMessage to send
+the event back down rather than doAction, it will be processed BEFORE any
+UIActions that also happen to be ready.  This shouldn't matter.
+
+However if we still want to convert those TO actions, it's a different timing
+of Actionator use which may not be prepped at this point.  Since all this does
+is reach into the ScriptInterpreters and sets a flag it shouldn't matter, but it
+feels weird to be using Action for this.  It was necessary before because Action
+was they only way to pass things from shell to kernel, but now we have KernelMessage.
+
+We can skip using Actions altogether and just have a KernelMessage handler for
+MsgKernelEvent that does the same thing immediately.
+
+Prompt is the only weird one
+
+When MobiusShell gets that KernelEvent it builds a Prompt object, stashes the
+KernelEvent in the Prompt and passes it to the UI.  The UI is expected to do the
+interaction without molesting the Prompt or the ThreadEvent and it could leak which
+is not disruptive.  When the UI is done it calls MobiusInterface::finishPrompt which
+then uses KernelCommunicator to pass the ThreadEvent back down the same way.
+
+We can take TriggerThread and ActionScript out of the Action model now I think.
+
+
+----------------------------------------------------------------------
+
+
 MobiusThread was the way for what was the equivalent of the
 shell and kernel to communicate.
 
