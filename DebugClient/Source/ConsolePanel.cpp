@@ -70,23 +70,99 @@ ConsolePanel::~ConsolePanel()
 {
 }
 
+void ConsolePanel::newline()
+{
+    moveCaretToEnd();
+    insertTextAtCaret ("\n");
+    moveCaretToEnd();
+}
+
+void ConsolePanel::prompt()
+{
+    moveCaretToEnd();
+    insertTextAtCaret ("> ");
+    moveCaretToEnd();
+}
+
 void ConsolePanel::add(const juce::String& m)
 {
     moveCaretToEnd();
     insertTextAtCaret (m + juce::newLine);
-}
-
-void ConsolePanel::prompt(const juce::String& m)
-{
     moveCaretToEnd();
-    insertTextAtCaret (m);
 }
 
+void ConsolePanel::addAndPrompt(const juce::String& m)
+{
+    add(m);
+    prompt();
+}
+
+/**
+ * Can't find a way to make this line oriented so I'll parse backward
+ * from the String contents to find the last line
+ *
+ * Since getText does not return a reference I have idea how
+ * expensive this is, but shouldn't be too bad for modest consoles.
+ * getTextInRange seems promising but it is completely unknwon
+ * what "range" means here.
+ */
 void ConsolePanel::textEditorReturnKeyPressed(TextEditor& ed)
 {
-    add("Width " + juce::String(getTextWidth()));
-    add("Height " + juce::String(getTextHeight()));
-    prompt("> ");
+    juce::String line = getLastLine();
+
+    // intercepting Return does not leave a newline in the text
+    // add one
+    newline();
+    
+    if (line.length() > 0) {
+        if (listener != nullptr)
+          listener->lineReceived(line);
+    }
+    prompt();
+}
+
+/**
+ * Attempt to figure out what the last line typed into the
+ * editor was after the ReturnKeyPressed event.
+ * Assumptions:
+ *    last character in the contents of the editor back
+ *    to the previous newline, then forward over the prompt.
+ */
+juce::String ConsolePanel::getLastLine()
+{
+    juce::String all = getText();
+    juce::String line;
+    
+    int len = all.length();
+    int psn = len - 1;
+    
+    // back up to the last character that is not a newline or space
+    while (psn > 0 && all[psn] == '\n' || all[psn] == ' ')
+      psn--;
+
+    if (psn == 0) {
+        // weird, should at least have had a prompt
+        // leave a message in the buffer?
+    }
+    else {
+        int end = psn;
+        // back up to the previous newline
+        while (psn > 0 && all[psn] != '\n')
+          psn--;
+
+        if (all[psn] == '\n')
+          psn++;
+
+        // expecting a "> " prompt
+        // didn't search backward for that without a preceeding
+        // newline in case you wanted to use that in the line
+        while (psn < len && (all[psn] == '>' || all[psn] == ' '))
+          psn++;
+
+        line = all.substring(psn, end + 1);
+    }
+
+    return line;
 }
 
 /****************************************************************************/

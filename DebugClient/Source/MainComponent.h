@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "ConsolePanel.h"
+#include "DebugClient.h"
 
 //==============================================================================
 /*
@@ -16,9 +17,6 @@ public:
     MainComponent();
     ~MainComponent() override;
 
-    void addLog(juce::String msg);
-    void doTest();
-
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -28,6 +26,7 @@ private:
     // Your private member variables go here...
 
     ConsolePanel console;
-
+    DebugClient client {&console};
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

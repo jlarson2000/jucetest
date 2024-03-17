@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\DebugClient.cpp"/>
     <ClCompile Include="..\..\Source\ConsolePanel.cpp"/>
     <ClCompile Include="..\..\Source\LogPanel.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -1371,6 +1372,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\DebugClient.h"/>
     <ClInclude Include="..\..\Source\ConsolePanel.h"/>
     <ClInclude Include="..\..\Source\LogPanel.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>

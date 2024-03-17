@@ -4,7 +4,6 @@
 MainComponent::MainComponent()
 {
     addAndMakeVisible(log);
-    log.add("Hello world!\n");
     setSize (1024, 768);
 
     server.start();

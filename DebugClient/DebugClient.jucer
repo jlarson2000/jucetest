@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="MqlgRU" name="DebugClient">
     <GROUP id="{E0021E13-D62D-9E95-9354-7610F9EA0321}" name="Source">
+      <FILE id="C9Z9QG" name="DebugClient.cpp" compile="1" resource="0" file="Source/DebugClient.cpp"/>
+      <FILE id="ywfONQ" name="DebugClient.h" compile="0" resource="0" file="Source/DebugClient.h"/>
       <FILE id="ETsePH" name="ConsolePanel.cpp" compile="1" resource="0"
             file="Source/ConsolePanel.cpp"/>
       <FILE id="LNN8Oe" name="ConsolePanel.h" compile="0" resource="0" file="Source/ConsolePanel.h"/>

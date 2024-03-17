@@ -84,14 +84,23 @@ void ClientThread::run()
     
     // first arg true means "ready for reading"
     // second arg is timeout in milliseconds
-    int status = socket->waitUntilReady(true, 5000);
-    if (status < 0) {
-        addLog("waitUntilReady error");
+    // getting timeout on this, skip it?
+    bool ready = true;
+
+    if (!ready) {
+        int status = socket->waitUntilReady(true, 5000);
+        if (status < 0) {
+            addLog("waitUntilReady error");
+        }
+        else if (status == 0) {
+            addLog("waitUntilReady timeout");
+        }
+        else {
+            ready = true;
+        }
     }
-    else if (status == 0) {
-        addLog("waitUntilReady timeout");
-    }
-    else {
+
+    if (ready) {
         bool error = false;
         
         while (!error && !threadShouldExit()) {
@@ -108,9 +117,12 @@ void ClientThread::run()
                 // tolerate this or shut down now?
                 error = true;
             }
+            else if (bytes == 0) {
+                // seem to get a lot of these
+            }
             else {
-                addLog(juce::String("Socket read bytes ") +
-                       juce::String(bytes));
+                //addLog(juce::String("Socket read bytes ") +
+                //juce::String(bytes));
                         
                 // assume it's text
                 inbuf[bytes] = 0;
