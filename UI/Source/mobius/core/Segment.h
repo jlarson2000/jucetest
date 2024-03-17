@@ -82,7 +82,7 @@ class Segment {
 	bool isAtStart(class Layer* parent);
 	bool isAtEnd(class Layer* parent);
 
-	void dump(class TraceBuffer* b);
+	//void dump(class TraceBuffer* b);
 
   private:
 

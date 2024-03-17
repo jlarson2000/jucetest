@@ -101,7 +101,6 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
 	mFocusLock = false;
 	mHalting = false;
 	mRunning = false;
-	mInterrupts = 0;
     mPendingPreset = -1;
     mMonitorLevel = 0;
 	mGlobalMute = false;
@@ -200,20 +199,6 @@ void Track::setName(const char* name)
 char* Track::getName()
 {
     return &mName[0];
-}
-
-/**
- * Formerly exposed this for Synchronizer which wanted to set it to 
- * zero for some kind of trace message.
-void Track::setInterrupts(long l) 
-{
-	mInterrupts = l;
-}
-*/
-
-long Track::getInterrupts()
-{
-	return mInterrupts;
 }
 
 void Track::setInterruptBreakpoint(bool b)
@@ -938,7 +923,6 @@ void Track::processBuffers(MobiusContainer* stream,
 
 	// this stays true as soon as we start receiving interrupts
 	mRunning = true;
-	mInterrupts++;
 
 	if (mHalting) {
 		Trace(this, 1, "Audio interrupt called during shutdown!\n");
@@ -966,7 +950,7 @@ void Track::processBuffers(MobiusContainer* stream,
 	// copy the level adjusted input to the output
 	float* echo = NULL;
     if (mMobius->getTrack() == this) {
-        MobiusConfig* config = mMobius->getInterruptConfiguration();
+        MobiusConfig* config = mMobius->getConfiguration();
         if (config->isMonitorAudio())
           echo = outbuf;
     }
@@ -1291,7 +1275,7 @@ void Track::doPendingConfiguration()
  */
 void Track::setPreset(int number)
 {
-    MobiusConfig* config = mMobius->getInterruptConfiguration();
+    MobiusConfig* config = mMobius->getConfiguration();
     Preset* preset = GetPreset(config, number);
     
     if (preset == NULL) {
@@ -1437,7 +1421,7 @@ void Track::setSetup(Setup* setup, bool doPreset)
     // should we only do this if the loop is in reset?
 
     if (doPreset) {
-        MobiusConfig* config = mMobius->getInterruptConfiguration();
+        MobiusConfig* config = mMobius->getConfiguration();
         Preset* startingPreset = getStartingPreset(config, setup);
         setPreset(startingPreset);
     }
@@ -1567,7 +1551,7 @@ void Track::loadProject(ProjectTrack* pt)
 
 	const char* preset = pt->getPreset();
 	if (preset != NULL) {
-		MobiusConfig* config = mMobius->getInterruptConfiguration();
+		MobiusConfig* config = mMobius->getConfiguration();
 		Preset* p = GetPreset(config, preset);
 		if (p != NULL)
 		  setPreset(p);
@@ -1688,7 +1672,7 @@ void Track::trackReset(Action* action)
     mMobius->cancelScripts(action, this);
 
 	// reset the track parameters
-    MobiusConfig* config = mMobius->getInterruptConfiguration();
+    MobiusConfig* config = mMobius->getConfiguration();
 	Setup* setup = GetCurrentSetup(config);
 
 	// Second arg says whether this is a global reset, in which case we
@@ -1815,7 +1799,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 		else {
 			const char* presetName = st->getPreset();
 			if (presetName != NULL) {
-				MobiusConfig* config = mMobius->getInterruptConfiguration();
+				MobiusConfig* config = mMobius->getConfiguration();
 				Preset* p = GetPreset(config, presetName);
 				if (p != NULL)
 				  setPreset(p);
@@ -1864,8 +1848,8 @@ void Track::resetPorts(SetupTrack* st)
 
         // does it make any sense to defer these till a reset?
         // we could have clicks if we do it immediately
-        // MobiusContext* mc = mMobius->getContext();
-		if (mMobius->isPlugin()) {
+        MobiusContainer* container = mMobius->getContainer();
+		if (container->isPlugin()) {
 			setInputPort(st->getPluginInputPort());
 			setOutputPort(st->getPluginOutputPort());
 		}
@@ -1881,7 +1865,12 @@ void Track::resetPorts(SetupTrack* st)
 /**
  * Indirect handler for the global Status function.
  * Print interesting diagnostics.
+ * !! This used an old TraceBuffer that I thought wasn't used
+ * but here we are.  It just used printf so was useless in real life.
+ * Need to go over periodic status dumps and handle the consistently
+ * with buffered Trace records and the emergine DebugWindow
  */
+#if 0
 void Track::dump(TraceBuffer* b)
 {
     int interesting = 0;
@@ -1901,6 +1890,7 @@ void Track::dump(TraceBuffer* b)
         b->decIndent();
     }
 }
+#endif
 
 /****************************************************************************/
 /****************************************************************************/

@@ -207,7 +207,7 @@ bool MultiplyFunction::isUnroundedEnding(Preset* p, Function* f)
 Event* MultiplyFunction::invoke(Action* action, Loop* l) 
 {
     Event* event = NULL;
-    MobiusConfig* config = l->getMobius()->getInterruptConfiguration();
+    MobiusConfig* config = l->getMobius()->getConfiguration();
 
 	// If we're in Realign mode, cancel the realign.
 	// Not sure if this is supposed to happen but since Mute/Multiply

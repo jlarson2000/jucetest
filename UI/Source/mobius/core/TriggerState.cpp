@@ -1,12 +1,6 @@
-/*
- * Copyright (c) 2010 Jeffrey S. Larson  <jeff@circularlabs.com>
- * All rights reserved.
- * See the LICENSE file for the full copyright and license declaration.
- * 
- * ---------------------------------------------------------------------
- * 
- * A small utility class used to monitor the up/down transitions
- * of a trigger in order to detect "long presses".
+/**
+ * Small utility used by Actionator to detect long-press of
+ * a trigger, which may result in auto-generated Actions.
  *
  */
 

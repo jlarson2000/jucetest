@@ -21,14 +21,14 @@
 // for juce::String
 #include <JuceHeader.h>
 
-extern bool TraceToDebug;
-extern bool TraceToStdout;
-
 /****************************************************************************
  *                                                                          *
  *   							 SIMPLE TRACE                               *
  *                                                                          *
  ****************************************************************************/
+
+extern bool TraceToDebug;
+extern bool TraceToStdout;
 
 void trace(const char *string, ...);
 void vtrace(const char *string, va_list args);
@@ -55,34 +55,7 @@ extern int TraceDebugLevel;
  * When set, trace messages will not be immediately rendnered.
  * Instead the listener is notified, and expected to call FlushTrace.
  */
-extern class TraceListener* NewTraceListener;
-
-/****************************************************************************
- *                                                                          *
- *   							 TRACE BUFFER                               *
- *                                                                          *
- ****************************************************************************/
-
-class TraceBuffer
-{
-  public:
-
-	TraceBuffer();
-	~TraceBuffer();
-	
-	void incIndent();
-	void decIndent();
-
-	void add(const char *string, ...);
-	void addv(const char *string, va_list args);
-
-	void print();
-
-  private:
-
-	int mIndent;
-
-};
+extern class TraceListener* GlobalTraceListener;
 
 /****************************************************************************
  *                                                                          *
@@ -194,6 +167,19 @@ void FlushTrace();
  *   						   TRACE FUNCTIONS                              *
  *                                                                          *
  ****************************************************************************/
+
+// We have a bazillion signatures to avoid va_list overhead though I never
+// measured that to see how bad it actually was.
+// 
+// The main thing to keep in mind here is that Trace calls are scattered
+// all over extremely time senensitive audio thread code so unless the trace level
+// is going to pay attention to the call, it needs to have minimal overhead and
+// avoid memory allocation.
+//
+// So no, I'm not using fucking cout, operator overloading, String classes
+// or anything else that adds overhead where it isn't needed.
+// If we pass the trace level, it would be good to use something more type
+// safe for formatting, but that's for another day.
 
 void Trace(int level, const char* msg);
 void Trace(TraceContext* c, int level, const char* msg);

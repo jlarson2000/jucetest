@@ -58,12 +58,21 @@ void MainThread::stop()
  */
 void MainThread::run()
 {
+    // set this only if you want to start buffering Trace
+    // leave it null during testing period where you don't want
+    // trace buffering for some reason
+    
+    //GlobalTraceListener = this;
+
     // threadShouldExit returns true when the stopThread method is called
     while (!threadShouldExit()) {
 
         // refresh the UI every 10ms
         // Juce example has this, where does it come from?
         wait(100);
+
+        // flush any accumulated trace messages
+        FlushTrace();
 
         // from the Juce example
         // because this is a background thread, we mustn't do any UI work without
@@ -82,8 +91,25 @@ void MainThread::run()
     }
 }
 
+/**
+ * TraceListener callback to be notifieid when a trace record
+ * is added.  The old MobiusThread used this to call signal() to
+ * break the thread out of the wait state so it could call FlushTrace
+ * immediately rather than waiting the full 1/10th second timeout so
+ * that messages would have less lag.
+ *
+ * Unclear what the Juce equivalent of that is, but I'm sure there's something.
+ * This doesn't really matter as long as the thread calls FlushTrace
+ * regularly, it just might have lag.
+ */
+void MainThread::traceEvent()
+{
+    // signal();
+}
 
-
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/
 
 
 

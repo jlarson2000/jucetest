@@ -453,96 +453,6 @@ class Script {
 	class ScriptLabelStatement* mEndClickLabel;
 };
 
-/****************************************************************************
- *                                                                          *
- *                              SCRIPT COMPILER                             *
- *                                                                          *
- ****************************************************************************/
-
-#define SCRIPT_MAX_LINE 1024
-
-/**
- * Parses script files and builds Script objects.
- * 
- * Encapsulates state necessary for script compilation.
- * This is used during both the parse and link phases.  
- *
- * During linking the script, lineNumber, and line fields are invalid.
- * The ExParser is always available.
- *
- * The compiler is normally built once when a ScriptConfig is loaded
- * and converted into a ScriptEnv.  It may also be built to 
- * incrementally compile scripts that use the !autoload option.
- *
- */
-class ScriptCompiler {
-  public:
-
-	ScriptCompiler();
-	~ScriptCompiler();
-
-    /**
-     * Compile a ScriptConfig into a ScriptEnv.
-     */
-    class ScriptEnv* compile(class Mobius* m, class ScriptConfig* config);
-    
-    /**
-     * Incrementally recompile one script.
-     * This is what happens for !autoload.  
-     */
-    void recompile(class Mobius* m, Script* script);
-
-    // Utilities for the ScriptStatement constructors and linkers
-
-    Mobius *getMobius();
-    Script* getScript();
-    char* skipToken(char* args, const char* token);
-    class ExNode* parseExpression(ScriptStatement* stmt, const char* src);
-    Script* resolveScript(const char* name);
-    void syntaxError(ScriptStatement* stmt, const char* msg);
-
-  private:
-
-    void parse(const char* filename);
-    bool parse(FILE* fp, Script* script);
-    void parseArgument(char* line, const char* keyword, char* buffer);
-    ScriptStatement* parseStatement(char* line);
-    char* parseKeyword(char* line, char** retargs);
-    void parseDeclaration(const char* line, const char* keyword);
-    void link(Script* s);
-    Script* resolveScript(Script* scripts, const char* name);
-
-    /**
-     * Supplies resolution for some references.
-     */
-    class Mobius* mMobius;
-
-	/**
-     * A parser for expressions, null if we're disabling expressions.
-     */
-	class ExParser* mParser;
-
-    // Environment we're compiling into
-    ScriptEnv* mEnv;
-
-    // scripts we have parsed
-    Script* mScripts;
-    Script* mLast;
-    
-	// the script we're currently parsing or linking
-	Script* mScript;
-
-    // the script/proc block we're parsing
-    ScriptBlock* mBlock;
-
-	// line number of the file we're currently parsing (0 during linking)
-	int mLineNumber;
-
-	// the unmodified line we're parsing
-	char mLine[SCRIPT_MAX_LINE + 4];
-
-
-};
 
 /****************************************************************************
  *                                                                          *
@@ -736,7 +646,7 @@ class ScriptFunctionStatement : public ScriptStatement {
 
   public:
 
-	ScriptFunctionStatement(ScriptCompiler* pcon, const char* name, 
+	ScriptFunctionStatement(class ScriptCompiler* pcon, const char* name, 
 							char* args);
 	ScriptFunctionStatement(Function* f);
 	~ScriptFunctionStatement();
@@ -814,7 +724,7 @@ class ScriptWaitStatement : public ScriptStatement {
 
   public:
 
-	ScriptWaitStatement(ScriptCompiler* pcon, char* args);
+	ScriptWaitStatement(class ScriptCompiler* pcon, char* args);
 	ScriptWaitStatement(WaitType type, WaitUnit unit, long time);
 	~ScriptWaitStatement();
 
@@ -867,7 +777,7 @@ class ScriptEchoStatement : public ScriptStatement {
 
   public:
 
-	ScriptEchoStatement(ScriptCompiler* con, char* args);
+	ScriptEchoStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -880,7 +790,7 @@ class ScriptMessageStatement : public ScriptStatement {
 
   public:
 
-	ScriptMessageStatement(ScriptCompiler* con, char* args);
+	ScriptMessageStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -897,7 +807,7 @@ class ScriptEndStatement : public ScriptStatement {
     // static initializer, safe for multiple plugins
 	static ScriptEndStatement* Pseudo;
 
-	ScriptEndStatement(ScriptCompiler* con, char* args);
+	ScriptEndStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isEnd();
@@ -911,7 +821,7 @@ class ScriptCancelStatement : public ScriptStatement {
 
   public:
 
-	ScriptCancelStatement(ScriptCompiler* con, char* args);
+	ScriptCancelStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -926,7 +836,7 @@ class ScriptInterruptStatement : public ScriptStatement {
 
   public:
 
-	ScriptInterruptStatement(ScriptCompiler* con, char* args);
+	ScriptInterruptStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -971,7 +881,7 @@ class ScriptForStatement : public ScriptIteratorStatement {
 
   public:
 
-	ScriptForStatement(ScriptCompiler* con, char* args);
+	ScriptForStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isFor();
@@ -987,7 +897,7 @@ class ScriptRepeatStatement : public ScriptIteratorStatement {
 
   public:
 
-	ScriptRepeatStatement(ScriptCompiler* con, char* args);
+	ScriptRepeatStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1001,7 +911,7 @@ class ScriptWhileStatement : public ScriptIteratorStatement {
 
   public:
 
-	ScriptWhileStatement(ScriptCompiler* con, char* args);
+	ScriptWhileStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1015,7 +925,7 @@ class ScriptNextStatement : public ScriptStatement {
 
   public:
 
-	ScriptNextStatement(ScriptCompiler* con, char* args);
+	ScriptNextStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isNext();
@@ -1038,7 +948,7 @@ class ScriptSetStatement : public ScriptStatement {
 
   public:
 
-	ScriptSetStatement(ScriptCompiler* con, char* args);
+	ScriptSetStatement(class ScriptCompiler* con, char* args);
 	virtual ~ScriptSetStatement();
 
     const char* getKeyword();
@@ -1055,7 +965,7 @@ class ScriptUseStatement : public ScriptSetStatement {
 
   public:
 
-	ScriptUseStatement(ScriptCompiler* con, char* args);
+	ScriptUseStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1080,7 +990,7 @@ class ScriptVariableStatement : public ScriptStatement {
 
   public:
 
-	ScriptVariableStatement(ScriptCompiler* con, char* args);
+	ScriptVariableStatement(class ScriptCompiler* con, char* args);
 	~ScriptVariableStatement();
 
     const char* getKeyword();
@@ -1131,7 +1041,7 @@ class ScriptJumpStatement : public ScriptConditionalStatement {
 
   public:
 
-	ScriptJumpStatement(ScriptCompiler* con, char* args);
+	ScriptJumpStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void resolve(Mobius* m);
@@ -1148,7 +1058,7 @@ class ScriptIfStatement : public ScriptConditionalStatement {
 
   public:
 
-	ScriptIfStatement(ScriptCompiler* con, char* args);
+	ScriptIfStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void resolve(Mobius* m);
@@ -1169,7 +1079,7 @@ class ScriptElseStatement : public ScriptIfStatement {
 
   public:
 
-	ScriptElseStatement(ScriptCompiler* con, char* args);
+	ScriptElseStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isElse();
@@ -1180,7 +1090,7 @@ class ScriptEndifStatement : public ScriptStatement {
 
   public:
 
-	ScriptEndifStatement(ScriptCompiler* con, char* args);
+	ScriptEndifStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isEndif();
@@ -1192,7 +1102,7 @@ class ScriptLabelStatement : public ScriptStatement {
 
   public:
 
-	ScriptLabelStatement(ScriptCompiler* con, char* args);
+	ScriptLabelStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isLabel();
@@ -1214,7 +1124,7 @@ class ScriptSetupStatement : public ScriptStatement {
 
   public:
 
-	ScriptSetupStatement(ScriptCompiler* con, char* args);
+	ScriptSetupStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void resolve(Mobius* m);
@@ -1230,7 +1140,7 @@ class ScriptPresetStatement : public ScriptStatement {
 
   public:
 
-	ScriptPresetStatement(ScriptCompiler* con, char* args);
+	ScriptPresetStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void resolve(Mobius* m);
@@ -1246,7 +1156,7 @@ class ScriptUnitTestSetupStatement : public ScriptStatement {
 
   public:
 
-	ScriptUnitTestSetupStatement(ScriptCompiler* con, char* args);
+	ScriptUnitTestSetupStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1259,7 +1169,7 @@ class ScriptInitPresetStatement : public ScriptStatement {
 
   public:
 
-	ScriptInitPresetStatement(ScriptCompiler* con, char* args);
+	ScriptInitPresetStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1278,7 +1188,7 @@ class ScriptCallStatement : public ScriptStatement {
 
   public:
 
-	ScriptCallStatement(ScriptCompiler* con, char* args);
+	ScriptCallStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void resolve(Mobius* m);
@@ -1297,7 +1207,7 @@ class ScriptStartStatement : public ScriptStatement {
 
   public:
 
-	ScriptStartStatement(ScriptCompiler* con, char* args);
+	ScriptStartStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     void link(class ScriptCompiler* comp);
@@ -1327,7 +1237,7 @@ class ScriptBlockingStatement : public ScriptStatement {
 	virtual ~ScriptBlockingStatement();
 
     void resolve(Mobius* m);
-    void link(ScriptCompiler* compiler);
+    void link(class ScriptCompiler* compiler);
 
     ScriptBlock* getChildBlock();
 
@@ -1346,7 +1256,7 @@ class ScriptProcStatement : public ScriptBlockingStatement {
 
   public:
 
-	ScriptProcStatement(ScriptCompiler* con, char* args);
+	ScriptProcStatement(class ScriptCompiler* con, char* args);
 
 	bool isProc();
     const char* getKeyword();
@@ -1360,7 +1270,7 @@ class ScriptEndprocStatement : public ScriptStatement {
 
   public:
 
-	ScriptEndprocStatement(ScriptCompiler* con, char* args);
+	ScriptEndprocStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isEndproc();
@@ -1378,7 +1288,7 @@ class ScriptParamStatement : public ScriptBlockingStatement {
 
   public:
 
-	ScriptParamStatement(ScriptCompiler* con, char* args);
+	ScriptParamStatement(class ScriptCompiler* con, char* args);
 
 	bool isParam();
     const char* getKeyword();
@@ -1392,7 +1302,7 @@ class ScriptEndparamStatement : public ScriptStatement {
 
   public:
 
-	ScriptEndparamStatement(ScriptCompiler* con, char* args);
+	ScriptEndparamStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
 	bool isEndparam();
@@ -1412,7 +1322,7 @@ class ScriptLoadStatement : public ScriptStatement {
 
   public:
 
-	ScriptLoadStatement(ScriptCompiler* con, char* args);
+	ScriptLoadStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1425,7 +1335,7 @@ class ScriptSaveStatement : public ScriptStatement {
 
   public:
 
-	ScriptSaveStatement(ScriptCompiler* con, char* args);
+	ScriptSaveStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1444,7 +1354,7 @@ class ScriptBreakStatement : public ScriptStatement {
 
   public:
 
-	ScriptBreakStatement(ScriptCompiler* con, char* args);
+	ScriptBreakStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1457,7 +1367,7 @@ class ScriptPromptStatement : public ScriptStatement {
 
   public:
 
-	ScriptPromptStatement(ScriptCompiler* pcon, char* args);
+	ScriptPromptStatement(class ScriptCompiler* pcon, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);
@@ -1470,7 +1380,7 @@ class ScriptDiffStatement : public ScriptStatement {
 
   public:
 
-	ScriptDiffStatement(ScriptCompiler* con, char* args);
+	ScriptDiffStatement(class ScriptCompiler* con, char* args);
 
     const char* getKeyword();
     ScriptStatement* eval(ScriptInterpreter* si);

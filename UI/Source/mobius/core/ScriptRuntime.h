@@ -22,12 +22,21 @@ class ScriptRuntime {
     ~ScriptRuntime();
 
     void runScript(Action* action);
+    void doScriptMaintenance();
+
+    // Functions call this to resume script waiting on a Function
     void resumeScript(Track* t, Function* f);
+
+    // Resume scripts waiting on a KernelEvent
+    void finishEvent(class KernelEvent* e);
+
+    // Track calls this when it is Reset
     void cancelScripts(Action* action, Track* t);
-    void doScriptMaintenance(int sampleRate, long frames);
-    void doScriptNotification(Action* a);
 
   private:
+
+    // need to promote this
+    void doScriptNotification(Action* a);
 
     void startScript(Action* action, Script* script);
     void startScript(Action* action, Script* s, Track* t);
@@ -36,8 +45,8 @@ class ScriptRuntime {
     ScriptInterpreter* findScript(Action* action, Script* s, Track* t);
     void freeScripts();
 
+
     class Mobius* mMobius;
-	class ScriptPackage* mPackage;
 	class ScriptInterpreter* mScripts;
 
     // number of script threads launched

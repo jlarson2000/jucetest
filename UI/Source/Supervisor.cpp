@@ -59,6 +59,15 @@ Supervisor::~Supervisor()
  */
 void Supervisor::start()
 {
+    // we've been using the simple non-buffering Trace tools during
+    // early development, the more complicated buffered Trace is now
+    // controlled up here rather than buried in Mobius
+    // force the level to 2 which includes errors and generally useful
+    // progress messages from Mobius
+    // MainThread will later register itself as the TraceListener and
+    // call FlushTrace
+    TraceDebugLevel = 2;
+    
     trace("Supervisor::start\n");
     traceDeviceStatus();
     

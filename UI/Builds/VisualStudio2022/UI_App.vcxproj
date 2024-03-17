@@ -273,6 +273,7 @@
     <ClCompile Include="..\..\Source\mobius\core\Project.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Resampler.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Script.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\ScriptCompiler.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\ScriptRuntime.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Segment.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Stream.cpp"/>
@@ -2685,11 +2686,11 @@
     <ClInclude Include="..\..\Source\mobius\core\Mobius.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mode.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Parameter.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Project.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Resampler.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Script.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\ScriptCompiler.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ScriptRuntime.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Segment.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Stream.h"/>

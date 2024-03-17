@@ -198,7 +198,7 @@ bool InsertFunction::isUnroundedEnding(Preset* p, Function* f)
 Event* InsertFunction::invoke(Action* action, Loop* l) 
 {
     Event* event = NULL;
-    MobiusConfig* config = l->getMobius()->getInterruptConfiguration();
+    MobiusConfig* config = l->getMobius()->getConfiguration();
 
     if (config->isEdpisms() && l->isReset() && action->down) {
         // EDPism

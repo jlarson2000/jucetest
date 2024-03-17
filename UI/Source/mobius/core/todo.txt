@@ -1,10 +1,10 @@
 
-NewTraceListener
-  - interface is a mess, MobiusThread sets it and must remember
-    to unset it before it is deleted because we can still try to
-    trace stuff after the thread is gone.  needs better encapsulation
-    and a more obvious control flow
-
+Mobius::getSampleRate
+  what actually cares about this?
+  a few things wanted this to put into an Audio before saving the file,
+  that can be added much higher
+  a few things need it to do tempo calculations
+  
 SystemConstant
   standardize on using Instances as the vector, find() as the search
   function, and trace() as the dump function
@@ -27,7 +27,8 @@ Mobius::internTarget
 
 Mobius::isNoExternalInput etc.
   seems to be a testing hack when running in a context that has no audio coming in
-
+  see Variable, says it's for the unit tests to suppress audio noise when it is injecting
+  audio from a Sample
 
   
 Stream::capture

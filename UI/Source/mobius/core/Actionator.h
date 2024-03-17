@@ -32,11 +32,9 @@ class Actionator
     class Action* cloneAction(class Action* src);
     void completeAction(class Action* a);
 
-    // called by Mobius in beginAudioInterrupt
-    void advanceTriggerState(int frames);
-
     // perform actions queued for the next interrupt
-    void doInterruptActions(class UIAction* actions);
+    // frames passed to advance the long-press trigger tracker
+    void doInterruptActions(class UIAction* actions, long frames);
 
     // do an internally generated action
     void doActionNow(class Action* a);

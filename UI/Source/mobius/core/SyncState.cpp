@@ -88,7 +88,7 @@ SyncSource SyncState::getDefinedSyncSource()
           mSyncSource = st->getSyncSource();
 
         if (mSyncSource == SYNC_DEFAULT) {
-            Setup* s = mTrack->getMobius()->getInterruptSetup();
+            Setup* s = mTrack->getMobius()->getSetup();
             if (s == NULL)
               mSyncSource = SYNC_NONE;
             else {
@@ -152,7 +152,7 @@ SyncSource SyncState::getEffectiveSyncSource()
 SyncUnit SyncState::getSyncUnit()
 {
     if (!mLocked) {
-        Setup* s = mTrack->getMobius()->getInterruptSetup();
+        Setup* s = mTrack->getMobius()->getSetup();
         if (s != NULL)
           mSyncUnit = s->getSyncUnit();
         else
@@ -172,7 +172,7 @@ SyncTrackUnit SyncState::getSyncTrackUnit()
           mSyncTrackUnit = st->getSyncTrackUnit();
 
         if (mSyncTrackUnit == TRACK_UNIT_DEFAULT) {
-            Setup* s = mTrack->getMobius()->getInterruptSetup();
+            Setup* s = mTrack->getMobius()->getSetup();
             if (s == NULL)
               mSyncTrackUnit = TRACK_UNIT_LOOP;
             else {
@@ -192,7 +192,7 @@ SyncTrackUnit SyncState::getSyncTrackUnit()
 bool SyncState::isManualStart()
 {
     bool isManual = false;
-    Setup* s = mTrack->getMobius()->getInterruptSetup();
+    Setup* s = mTrack->getMobius()->getSetup();
     if (s != NULL)  
       isManual = s->isManualStart();
     return isManual;

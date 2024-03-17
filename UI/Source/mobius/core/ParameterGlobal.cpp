@@ -134,7 +134,7 @@ void GlobalParameter::setValue(Action* action)
         MobiusConfig* config = m->getConfiguration();
         setValue(config, &(action->arg));
 
-        config = m->getInterruptConfiguration();
+        config = m->getConfiguration();
         if (config != NULL)
           setValue(config, &(action->arg));
     }
@@ -330,7 +330,7 @@ void SetupNameParameterType::getOrdinalLabel(Mobius* mobius,
 {
     // use the interrupt config since that's the one we're really using
     Mobius* m = (Mobius*)mobius;
-	MobiusConfig* config = m->getInterruptConfiguration();
+	MobiusConfig* config = m->getConfiguration();
 	Setup* setup = GetSetup(config, i);
 	if (setup != NULL)
 	  value->setString(setup->getName());
@@ -743,7 +743,7 @@ void MaxSyncDriftParameterType::setValue(Action* action)
 	MobiusConfig* config = m->getConfiguration();
 	config->setMaxSyncDrift(drift);
 
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setMaxSyncDrift(drift);
         Synchronizer* sync = m->getSynchronizer();
@@ -808,7 +808,7 @@ void DriftCheckPointParameterType::setValue(Action* action)
 	MobiusConfig* config = m->getConfiguration();
 	config->setDriftCheckPoint(dcp);
 
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setDriftCheckPoint(dcp);
         Synchronizer* sync = m->getSynchronizer();
@@ -1031,6 +1031,12 @@ Parameter* SpreadRangeParameter = new SpreadRangeParameterType();
 //
 //////////////////////////////////////////////////////////////////////
 
+// Unlike TracePrintLevel this was marginally useful to have as a parameter
+// but when would you ever need to set this in a script?
+// left as Parameters for MobiusConfig editing, but these will probably
+// be moved to UIConfig at some point and edited more directly
+// so we won't need these
+
 class TraceDebugLevelParameterType : public GlobalParameter
 {
   public:
@@ -1069,7 +1075,10 @@ void TraceDebugLevelParameterType::setValue(Action* action)
 	MobiusConfig* config = action->mobius->getConfiguration();
 	config->setTraceDebugLevel(level);
 
-    TraceDebugLevel = level;
+    // I'm disabling this while we work out how we want to congiure
+    // trace, it is being forced on by Supervisor which is enough
+    // so don't let old values lingering in MobiusConfig override that
+    //TraceDebugLevel = level;
 }
 
 Parameter* TraceDebugLevelParameter = new TraceDebugLevelParameterType();
@@ -1079,6 +1088,8 @@ Parameter* TraceDebugLevelParameter = new TraceDebugLevelParameterType();
 // TracePrintLevel
 //
 //////////////////////////////////////////////////////////////////////
+
+// this was useless, and adds clutter, take it out
 
 class TracePrintLevelParameterType : public GlobalParameter
 {
@@ -1118,7 +1129,10 @@ void TracePrintLevelParameterType::setValue(Action* action)
 	MobiusConfig* config = action->mobius->getConfiguration();
 	config->setTracePrintLevel(level);
 
-    TracePrintLevel = level;
+    // I'm disabling this while we work out how we want to congiure
+    // trace, it is being forced on by Supervisor which is enough
+    // so don't let old values lingering in MobiusConfig override that
+    //TracePrintLevel = level;
 }
 
 Parameter* TracePrintLevelParameter = new TracePrintLevelParameterType();
@@ -1218,7 +1232,7 @@ void AutoFeedbackReductionParameterType::setValue(Action* action)
     MobiusConfig* config = m->getConfiguration();
     config->setAutoFeedbackReduction(afr);
 
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setAutoFeedbackReduction(afr);
 
@@ -1789,7 +1803,7 @@ void MidiRecordModeParameterType::setValue(Action* action)
     MobiusConfig* config = m->getConfiguration();
 	config->setMidiRecordMode(mode);
 
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setMidiRecordMode(mode);
         Synchronizer* sync = m->getSynchronizer();
@@ -2190,7 +2204,7 @@ void InputLatencyParameterType::setValue(Action* action)
 	MobiusConfig* config = m->getConfiguration();
 	config->setInputLatency(latency);
     
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setInputLatency(latency);
 
@@ -2248,7 +2262,7 @@ void OutputLatencyParameterType::setValue(Action* action)
 	MobiusConfig* config = m->getConfiguration();
 	config->setOutputLatency(latency);
 
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL) {
         iconfig->setOutputLatency(latency);
 

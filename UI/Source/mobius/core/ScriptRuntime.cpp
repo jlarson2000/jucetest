@@ -33,12 +33,18 @@ ScriptRuntime::ScriptRuntime(class Mobius* m)
     mScriptThreadCounter = 0;
 }
 
+/**
+ * Old code did not free the ScriptInterpreter list, I guess assuming
+ * there would have been a more orderly shutdown that happened first.
+ * That may still be necessary to unwind the complex interconnections
+ * before we start cascading a delete.
+ *
+ * Revist this...
+ */
 ScriptRuntime::~ScriptRuntime()
 {
-    // !! we have historically not freed the script interpteter list,   
-    // maybe because we force cancel first?
     if (mScripts != NULL)
-      Trace(1, "Leaking script interpreters!");
+      Trace(1, "ScriptRuntime: Leaking lingering script interpreters!");
 }
 
 /**
@@ -197,7 +203,9 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 		//Trace(mMobius, 2, "Mobius: Controller script %ld\n",
 		//(long)(action->triggerValue));
 
-        // can SI point back to Runtieme?
+        // look at what ScriptInterpreter needs from Mobius
+        // since it is our child it could be interesting to have it point
+        // back to us if all it needs to do is go from Mobius back down to ScriptRuntime
 		ScriptInterpreter* si = new ScriptInterpreter(mMobius, t);
         si->setNumber(++mScriptThreadCounter);
 
@@ -332,7 +340,7 @@ void ScriptRuntime::addScript(ScriptInterpreter* si)
 	else
 	  last->setNext(si);
     
-    Trace(2, "Mobius: Starting script thread %ls",
+    Trace(2, "Mobius: Starting script thread %s",
           si->getTraceName());
 }
 
@@ -478,11 +486,14 @@ void ScriptRuntime::cancelScripts(Action* action, Track* t)
 /**
  * Called at the start of each audio interrupt to process
  * script timeouts and remove finished scripts from the run list.
- * Some of the scripts need to know the millisecond size of the buffer
- * so the sampleRate and frame count is passed.
  */
-void ScriptRuntime::doScriptMaintenance(int sampleRate, long frames)
+void ScriptRuntime::doScriptMaintenance()
 {
+    // Some of the scripts need to know the millisecond size of the buffer
+    // so get sampleRate from the container
+    MobiusContainer* container = mMobius->getContainer();
+	int sampleRate = container->getSampleRate();	
+	long frames = container->getInterruptFrames();
 	int msecsInBuffer = (int)((float)frames / ((float)sampleRate / 1000.0));
 	// just in case we're having rounding errors, make sure this advances
 	if (msecsInBuffer == 0) msecsInBuffer = 1;
@@ -631,7 +642,20 @@ void ScriptRuntime::doScriptNotification(Action* a)
     }
 }
 
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
+/**
+ * Resume any script waiting on a KernelEvent
+ * This won't advance the script, it just prunes the reference
+ * to the event.  The script advances later in doScriptMaintenance
+ */
+void ScriptRuntime::finishEvent(KernelEvent* e)
+{
+    for (ScriptInterpreter* si = mScripts ; si != NULL ; 
+         si = si->getNext()) {
 
+        si->finishEvent(e);
+    }
+}
+
+/****************************************************************************/
+/****************************************************************************/
+/****************************************************************************/

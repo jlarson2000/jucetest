@@ -2902,7 +2902,9 @@ Audio* Layer::flatten()
 
     // in case we decide to save this in a project, set the
     // right sample rate
-    flat->setSampleRate(mLoop->getMobius()->getSampleRate());
+    // UPDATE: this doesn't need to be done this deep, should be set
+    // at a higher level before the file is saved
+    //flat->setSampleRate(mLoop->getMobius()->getSampleRate());
 
 	LayerContext con;
 	con.buffer = buffer;
@@ -4851,7 +4853,7 @@ Layer* LayerPool::newLayer(Loop* loop)
         layer->setLoop(loop);
 
 		Mobius* m = loop->getMobius();
-		MobiusConfig* c = m->getInterruptConfiguration();
+		MobiusConfig* c = m->getConfiguration();
         // NOTE: the Isolated Overdub parameter was experimental and no
         // longer exposed
 		layer->mIsolatedOverdub = c->isIsolateOverdubs();
@@ -4940,6 +4942,8 @@ void LayerPool::dump()
  *                                                                          *
  ****************************************************************************/
 
+// see comments in Track::dump about why this sucked and what we need to do
+#if 0
 void Layer::dump(TraceBuffer* b)
 {
     // started using mNumber but I think mAllocated is more useful
@@ -4956,6 +4960,7 @@ void Layer::dump(TraceBuffer* b)
 
 	b->decIndent();
 }
+#endif
 
 /****************************************************************************/
 /****************************************************************************/

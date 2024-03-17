@@ -108,7 +108,7 @@ void SetupParameter::setObjectValue(void* obj, ExValue* value)
 Setup* SetupParameter::getTargetSetup(Mobius* m)
 {
     Setup* target = NULL;
-    MobiusConfig* iconfig = m->getInterruptConfiguration();
+    MobiusConfig* iconfig = m->getConfiguration();
     if (iconfig != NULL)
       target = GetCurrentSetup(iconfig);
 

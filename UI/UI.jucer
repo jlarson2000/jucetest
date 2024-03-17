@@ -276,8 +276,6 @@
           <FILE id="yTJ6C3" name="Mode.h" compile="0" resource="0" file="Source/mobius/core/Mode.h"/>
           <FILE id="Fcr1VD" name="ObjectPool.cpp" compile="1" resource="0" file="Source/mobius/core/ObjectPool.cpp"/>
           <FILE id="kYFzc1" name="ObjectPool.h" compile="0" resource="0" file="Source/mobius/core/ObjectPool.h"/>
-          <FILE id="Gx8l1C" name="OldMobiusInterface.h" compile="0" resource="0"
-                file="Source/mobius/core/OldMobiusInterface.h"/>
           <FILE id="WMBb80" name="Parameter.cpp" compile="1" resource="0" file="Source/mobius/core/Parameter.cpp"/>
           <FILE id="GWezJ4" name="Parameter.h" compile="0" resource="0" file="Source/mobius/core/Parameter.h"/>
           <FILE id="NolJMo" name="ParameterGlobal.cpp" compile="1" resource="0"
@@ -295,6 +293,10 @@
           <FILE id="ciXgnG" name="Resampler.h" compile="0" resource="0" file="Source/mobius/core/Resampler.h"/>
           <FILE id="T2PYXg" name="Script.cpp" compile="1" resource="0" file="Source/mobius/core/Script.cpp"/>
           <FILE id="iKu9PT" name="Script.h" compile="0" resource="0" file="Source/mobius/core/Script.h"/>
+          <FILE id="Kx9XwY" name="ScriptCompiler.cpp" compile="1" resource="0"
+                file="Source/mobius/core/ScriptCompiler.cpp"/>
+          <FILE id="xmZKKx" name="ScriptCompiler.h" compile="0" resource="0"
+                file="Source/mobius/core/ScriptCompiler.h"/>
           <FILE id="dnsemY" name="ScriptRuntime.cpp" compile="1" resource="0"
                 file="Source/mobius/core/ScriptRuntime.cpp"/>
           <FILE id="fVkEKL" name="ScriptRuntime.h" compile="0" resource="0" file="Source/mobius/core/ScriptRuntime.h"/>

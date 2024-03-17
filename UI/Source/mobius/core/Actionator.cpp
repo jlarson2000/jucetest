@@ -128,14 +128,6 @@ Parameter* Actionator::mapParameter(UIParameter* uip)
 }
 
 /**
- * Called by Mobius at the beginning of each audio interrupt.
- */
-void Actionator::advanceTriggerState(int frames)
-{
-    mTriggerState->advance(this, frames);
-}
-
-/**
  * THINK: This was brought down from Mobius with the rest of the
  * action related code because it needed it, but so do lots of other
  * things in Mobius.  Where should this live?
@@ -266,7 +258,7 @@ void Actionator::completeAction(Action* a)
  * components that manufacture actions as a side effect of something other
  * than a trigger.
  */
-void Actionator::doInterruptActions(UIAction* actions)
+void Actionator::doInterruptActions(UIAction* actions, long frames)
 {
     // we do not delete these, they are converted to Action
     // and may have results in them, but the caller owns them
@@ -275,6 +267,10 @@ void Actionator::doInterruptActions(UIAction* actions)
         doCoreAction(action);
         action = action->next;
     }
+
+    // Advance the long-press tracker too
+    // this may cause other actions to fire.
+    mTriggerState->advance(this, frames);
 }
 
 /**

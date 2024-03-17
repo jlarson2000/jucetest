@@ -284,7 +284,7 @@ MuteFunction::MuteFunction(bool pause, bool sus, bool start, bool glob,
 Event* MuteFunction::invoke(Action* action, Loop* loop)
 {
 	Event* event = NULL;
-    MobiusConfig* config = loop->getMobius()->getInterruptConfiguration();
+    MobiusConfig* config = loop->getMobius()->getConfiguration();
 
 	// !! Note how we use the static function pointer rather than checking
 	// mToggle, this is actually potentially simpler way to do function

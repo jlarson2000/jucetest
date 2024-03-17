@@ -452,7 +452,7 @@ class Audio {
 	// Diagnostics
 
 	void dump();
-	void dump(class TraceBuffer* b);
+	//void dump(class TraceBuffer* b);
 	void diff(Audio* a);
 
 	/**

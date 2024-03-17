@@ -249,10 +249,7 @@ class Track : public TraceContext
 	void setSolo(bool b);
 	bool isSolo();
 
-	long getInterrupts();
-	void setInterrupts(long i);
-
-    void dump(TraceBuffer* b);
+    //void dump(TraceBuffer* b);
 
   protected:
 
@@ -321,7 +318,6 @@ class Track : public TraceContext
 	bool 		mFocusLock;
 	bool		mHalting;
 	bool		mRunning;
-	long		mInterrupts;
     int         mPendingPreset;
     int         mMonitorLevel;
 	bool		mGlobalMute;

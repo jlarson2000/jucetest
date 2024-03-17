@@ -1,0 +1,47 @@
+Random tidbits related to prompts
+
+/**
+ * Called by the MobiusListener after it finishes processing a Prompt.
+ *
+ * !! commenting this out, need to revisit this under the new
+ * KernelEvent framework when I'm less tired
+ */
+void Mobius::finishPrompt(Prompt* p)
+{
+#if 0    
+	if (mThread != NULL) 
+	  mThread->finishPrompt(p);
+	else
+	  delete p;
+#endif    
+}
+
+/**
+ * Convey a message to the UI from a Script.
+ * This isn't necessarily just for scripts, think about other uses
+ * for this now that we have it
+ *
+ * !! How did this ever work, we can't just call listeners from within
+ * the audio thread.
+ */
+void Mobius::addMessage(const char* msg)
+{
+	if (mListener != NULL)
+	  mListener->MobiusMessage(msg);
+}
+
+// formerly in unittestSetup
+
+    // !! not supposed to do anything in the UI thread from within
+    // the interrupt handler, again for unit tests this is probably
+    // okay but really should be routing this through KernelEvent
+    if (mListener)
+      mListener->MobiusConfigChanged();
+
+    /**
+     * Scripts could send a prompt through a KernelEvent, the
+     * Shell would send that out to the UI, the UI sends the Prompt
+     * back to the Shell, and we finish it here.
+     */
+	void finishPrompt(Prompt* p);
+

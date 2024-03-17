@@ -334,6 +334,7 @@ void Segment::trimRight(long frames, bool copy)
     }
 }
 
+#if 0
 void Segment::dump(TraceBuffer* b)
 {
 	b->add("Segment: offset %ld start %ld length %ld feedback %d\n",
@@ -349,6 +350,7 @@ void Segment::dump(TraceBuffer* b)
 
 	b->decIndent();
 }
+#endif
 
 /**
  * Utility to see if this segment is aligned both to the end

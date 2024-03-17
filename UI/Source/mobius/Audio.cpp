@@ -979,6 +979,11 @@ void Audio::dump()
 	fflush(stdout);
 }
 
+/**
+ * An old status dumping tool that needs to be redesigned
+ * TraceBuffer is gone
+ */
+#if 0
 void Audio::dump(TraceBuffer* b) 
 {
 	int allocated = 0;
@@ -992,6 +997,7 @@ void Audio::dump(TraceBuffer* b)
 	b->add("Audio: start %ld length %ld index %d, buffers %d\n",
 		   mStartFrame, mFrames, mBufferCount, allocated);
 }
+#endif
 
 /**
  * Check for differences between two Audios.

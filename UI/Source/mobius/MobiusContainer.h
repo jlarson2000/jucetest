@@ -72,6 +72,14 @@ class MobiusContainer
     // used in rare cases to synchronously delay for a short time
     virtual void sleep(int millis) = 0;
     
+    /**
+     * Return true if the Mobius core is running as a plugin.
+     * Used only by Track to select which audio stream ports
+     * to use from the two sets in MobiusConfig.  The ports to use can be different
+     * between standalone and plugin.
+     */
+    virtual bool isPlugin() = 0;
+
     // General non-real time informaton about the connected audio stream
     // these can be called at any time from any thread
     

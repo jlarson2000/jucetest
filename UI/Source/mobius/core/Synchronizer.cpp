@@ -428,7 +428,7 @@ int Synchronizer::getBeatsPerBar(SyncSource src, Loop* l)
 
         if (beatsPerBar <= 0) {
 
-            Setup* setup = mMobius->getInterruptSetup();
+            Setup* setup = mMobius->getSetup();
             beatsPerBar = setup->getBeatsPerBar();
 
             if (beatsPerBar <= 0) {
@@ -3367,7 +3367,7 @@ void Synchronizer::syncPulsePlaying(Loop* l, Event* e)
             // for SYNC_TRACK we get SUBCYCLE, CYCLE, and LOOP pulses, 
             // for the others we get BEAT and BAR
 
-            Setup* setup = mMobius->getInterruptSetup();
+            Setup* setup = mMobius->getSetup();
             RealignTime rtime = setup->getRealignTime();
             SyncPulseType pulse = e->fields.sync.pulseType;
             bool ready = false;
@@ -3532,7 +3532,7 @@ void Synchronizer::doRealign(Loop* l, Event* pulse, Event* realign)
 {
     Track* t = l->getTrack();
     EventManager* em = t->getEventManager();
-    Setup* setup = mMobius->getInterruptSetup();
+    Setup* setup = mMobius->getSetup();
 
     // sanity checks since we can be called directly by the Realign function
     // really should be safe by now...
@@ -3735,7 +3735,7 @@ void Synchronizer::loopLocalStartPoint(Loop* l)
 
 	if (t == mOutSyncMaster) {
 
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
 		OutRealignMode mode = setup->getOutRealignMode();
 
 		if (mode == REALIGN_MIDI_START) {
@@ -4531,7 +4531,7 @@ void Synchronizer::loopResize(Loop* l, bool restart)
 
         Trace(l, 2, "Sync: loopResize\n");
 
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         SyncAdjust mode = setup->getResizeSyncAdjust();
 
 		if (mode == SYNC_ADJUST_TEMPO)
@@ -4558,7 +4558,7 @@ void Synchronizer::loopSwitch(Loop* l, bool restart)
 
         Trace(l, 2, "Sync: loopSwitch\n");
         
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         SyncAdjust mode = setup->getResizeSyncAdjust();
 
 		if (mode == SYNC_ADJUST_TEMPO) {
@@ -4591,7 +4591,7 @@ void Synchronizer::loopSpeedShift(Loop* l)
 
         Trace(l, 2, "Sync: loopSpeedShift\n");
 
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         SyncAdjust mode = setup->getSpeedSyncAdjust();
 
         if (mode == SYNC_ADJUST_TEMPO)
@@ -4629,7 +4629,7 @@ void Synchronizer::loopResume(Loop* l)
 {
 	if (l->getTrack() == mOutSyncMaster) {
 
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         MuteSyncMode mode = setup->getMuteSyncMode();
 
         if (mode == MUTE_SYNC_TRANSPORT ||
@@ -4670,7 +4670,7 @@ void Synchronizer::loopMute(Loop* l)
  */
 void Synchronizer::muteMidiStop(Loop* l)
 {
-    Setup* setup = mMobius->getInterruptSetup();
+    Setup* setup = mMobius->getSetup();
     MuteSyncMode mode = setup->getMuteSyncMode();
 
     bool transport = (mode == MUTE_SYNC_TRANSPORT ||
@@ -5215,7 +5215,7 @@ float Synchronizer::calcTempo(Loop* l, int beatsPerBar, long frames,
 
 	if (frames > 0) {
 
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         // SyncState should already have figured out the beat count
         Track* t = l->getTrack();
         SyncState* state = t->getSyncState();
@@ -5302,7 +5302,7 @@ void Synchronizer::sendStart(Loop* l, bool checkManual, bool checkNear)
 	bool doStart = true;
 
 	if (checkManual) {
-        Setup* setup = mMobius->getInterruptSetup();
+        Setup* setup = mMobius->getSetup();
         doStart = !(setup->isManualStart());
 	}
 

@@ -3,10 +3,6 @@
  * Mobius now lives entirely in the Kernel and does not have
  * to worry about which thread it is on.
  *
- * MobiusConfig is shared with Kernel
- *
- * Still using some communication classes in MobiusInterface
- * like Prompt and MobiusListener but we are no longer a MobiusInterface implementation.
  */
 
 #pragma once
@@ -17,9 +13,6 @@
 #include "../Audio.h"
 #include "../AudioPool.h"
 #include "../MobiusKernel.h"
-
-// for Prompt, OldMobiusListener
-#include "OldMobiusInterface.h"
 
 // got lost somewhere
 #define MAX_CUSTOM_MODE 256
@@ -91,7 +84,6 @@ class Mobius :
      * Temporary until we get UIQuery to Export fleshed out.
      * TODO: Like doAction need to move Parameter mapping down here.
      */
-    int getParameter(Parameter* p, int trackNumber);
     int getParameter(class UIParameter* p, int trackNumber);
 
     /**
@@ -122,10 +114,13 @@ class Mobius :
     
     //////////////////////////////////////////////////////////////////////
     //
-    // New environment accessors for internal components
+    // Environment accessors for internal components
     //
     // These are not part of the Kernel/Mobius interface, but they are
-    // new concepts that modified internal components need to access.
+    // things internal components need.
+    //
+    // This is a sanitized list of necessary accessors, there are more
+    // legacy accessors we're in the process of weeding out below.
     //
     //////////////////////////////////////////////////////////////////////
 
@@ -134,20 +129,6 @@ class Mobius :
      */
     class MobiusContainer* getContainer();
 
-    //////////////////////////////////////////////////////////////////////
-    // 
-    // Legacy Interface
-    //
-    // Everything from here below are part of the old interface between
-    // Mobius and it's internal components.  Need to start weeding this out.
-    // In particular MidiInterface needs to be replaced with MobiusContainer
-    //
-    //////////////////////////////////////////////////////////////////////
-
-    // TODO: I don't think this needs to be public any more, Kernel won't
-    // call it 
-    void start();
-    
     /**
      * Return the shared MobiusConfig for use by internal components.
      *
@@ -165,6 +146,11 @@ class Mobius :
     class MobiusConfig* getConfiguration();
 
     /**
+     * Return the Setup currently in use.
+     */
+    class Setup* getSetup();
+
+    /**
      * Return an object that implements the old MidiInterface interface.
      * This is currently stubbed and will become a bridge into MobiusContainer.
      * It probably can't be replaced by MobiusContainer because there is
@@ -172,37 +158,14 @@ class Mobius :
      * which is used extensively.
      */
     class MidiInterface* getMidiInterface();
+	class Synchronizer* getSynchronizer();
+    class AudioPool* getAudioPool();
+    class LayerPool* getLayerPool();
+    class EventPool* getEventPool();
 
     /**
-     * Used in a few places to alter behavior if we're in a plugin
-     * vs. running standalone.
-     * Try to eliminate this difference down here.
+     * Used in a few places that need to calculate tempo relative to frames.
      */
-    bool isPlugin() {
-        return false;
-    }
-    
-    /**
-     * Keep listener support for awhile until we finish KernelEvent
-     * processing.  Should be able to get rid of most if not all this.
-     */
-	void setListener(OldMobiusListener* mon);
-	OldMobiusListener* getListener();
-    
-    
-    /**
-     * Scripts could send a prompt through a KernelEvent, the
-     * Shell would send that out to the UI, the UI sends the Prompt
-     * back to the Shell, and we finish it here.
-     */
-	void finishPrompt(Prompt* p);
-
-    // Status
-
-    // these should all come from MobiusContainer now
-    // don't think we need the difference between "reported" and "effectrive"
-	int getEffectiveInputLatency();
-	int getEffectiveOutputLatency();
     int getSampleRate();
 
     // Tracks
@@ -211,33 +174,45 @@ class Mobius :
     
     int getTrackCount();
     int getActiveTrack();
+    class Track* getTrack();
     class Track* getTrack(int index);
-
-    // Actionator
-    class ScriptInterpreter* getScripts();
-    long getInterrupts();
-
-    // scripts may still use this?
-    class Export* resolveExport(class Action* a);
-
-    // Object pools
-    // needed by internal components
-    
-    class AudioPool* getAudioPool();
-    class LayerPool* getLayerPool();
-    class EventPool* getEventPool();
 
     // KernelEvents, passes through to MobiusKernel
     class KernelEvent* newKernelEvent();
     void sendKernelEvent(class KernelEvent* e);
     
+    // Scripts, pass through to ScriptRuntime
+	void addMessage(const char* msg);
+	void runScript(class Action* action);
+    void resumeScript(Track* t, Function* f);
+    void cancelScripts(Action* action, Track* t);
+
+    // may come from MobiusContainer or overridden in MobiusConfig
+	int getEffectiveInputLatency();
+	int getEffectiveOutputLatency();
+
+    // needed for Script compilation
+    Parameter* getParameter(const char* name);
+    Function* getFunction(const char* name);
+
     //////////////////////////////////////////////////////////////////////
+    // 
+    // Legacy Interface
     //
-    // Semi-protected methods for function invocation
+    // Everything from here below are part of the old interface between
+    // Mobius and it's internal components.  Need to start weeding this out.
+    // In particular MidiInterface needs to be replaced with MobiusContainer
     //
     //////////////////////////////////////////////////////////////////////
-    
-    class MobiusConfig* getInterruptConfiguration();
+
+    // TODO: I don't think this needs to be public any more, Kernel won't
+    // call it 
+    void start();
+
+    // scripts may still use this?
+    class Export* resolveExport(class Action* a);
+
+    int getParameter(Parameter* p, int trackNumber);
 
 	class MobiusMode* getMode();
 	long getFrame();
@@ -248,22 +223,6 @@ class Mobius :
 	// MidiHandler interface
 	void midiEvent(class MidiEvent* e);
 
-    // Object constants
-
-    Parameter** getParameters();
-    Parameter* getParameter(const char* name);
-    Parameter* getParameterWithDisplayName(const char* name);
-
-    Function** getFunctions();
-    Function* getFunction(const char* name);
-
-    MobiusMode** getModes();
-    MobiusMode* getMode(const char* name);
-
-	// Function Invocation
-
-    void run(class Script* s);
-
 	// Global functions
 	// Only need to be public for the Function handlers
 
@@ -273,9 +232,7 @@ class Mobius :
 	void globalPause(class Action* action);
 	void sampleTrigger(class Action* action, int index);
 	long getLastSampleFrames();
-	void addMessage(const char* msg);
-	void runScript(class Action* action);
-
+    
 	void startCapture(class Action* action);
 	void stopCapture(class Action* action);
 	void saveCapture(class Action* action);
@@ -284,21 +241,17 @@ class Mobius :
 
     void unitTestSetup();
 
-	void resumeScript(class Track* t, class Function* f);
-	void cancelScripts(class Action* action, class Track* t);
-
     // needed by TrackSetupParameter to change setups within the interrupt
     void setSetupInternal(int index);
 
     // Unit Test Interface
 
-    void setOutputLatency(int l);
-	class Track* getSourceTrack();
+    // this no longer exists, but we will want to allow a MobiusConfig
+    // override for testing
+    //void setOutputLatency(int l);
 
 	// user defined variables
     class UserVariables* getVariables();
-
-	// script control variables
 
 	// has to be public for NoExternalInputVarialbe
 	bool isNoExternalInput();
@@ -309,16 +262,6 @@ class Mobius :
 	void getTraceContext(int* context, long* time);
 	void logStatus();
     
-    // utilities
-
-    class Track* getTrack();
-	class Synchronizer* getSynchronizer();
-	void setInterrupts(long i);
-	long getClock();
-
-    // for Synchronizer and a few Functions
-    Setup* getInterruptSetup();
-
     // ActionDispatcher, ScriptRuntime
     bool isFocused(class Track* t);
     
@@ -327,12 +270,10 @@ class Mobius :
     class Action* newAction();
     class Action* cloneAction(class Action* src);
     void completeAction(class Action* a);
-
     // these are now the same but keep both until we
     // can visit all the callers
     void doAction(Action* a);
     void doActionNow(Action* a);
-    
     class Track* resolveTrack(Action* a);
 
   protected:
@@ -374,26 +315,6 @@ class Mobius :
 	void dumpObjectPools();
 	void flushObjectPools();
 	void tracePrefix();
-	bool isInUse(class Script* s);
-	void startScript(class Action* action, Script* s);
-	void startScript(class Action* action, Script* s, class Track* t);
-	void addScript(class ScriptInterpreter* si);
-	class ScriptInterpreter* findScript(class Action* action, class Script* s, class Track* t);
-    void doScriptMaintenance();
-	void freeScripts();
-
-    /*
-    void doInterruptActions();
-    void doPreset(Action* a);
-    void doSetup(Action* a);
-    void doBindings(Action* a);
-    void doFunction(Action* a);
-    void doFunction(Action* action, Function* f, class Track* t);
-    void doScriptNotification(Action* a);
-    void doParameter(Action* a);
-    void doParameter(Action* a, Parameter*p, class Track* t);
-    void doControl(Action* a);
-    */
     void invoke(Action* a, class Track* t);
 
     //
@@ -403,43 +324,26 @@ class Mobius :
     // Supplied by Kernel
     class MobiusKernel* mKernel;
     class MobiusContainer* mContainer;
+	class MidiInterface* mMidi;
     class AudioPool* mAudioPool;
-    
-    //MobiusContext* mContext;
-	//class ObjectPoolManager* mPools;
     class LayerPool* mLayerPool;
     class EventPool* mEventPool;
-	OldMobiusListener* mListener;
 	class MobiusConfig *mConfig;
     class Setup* mSetup;
-	class MidiInterface* mMidi;
+    
     class Actionator* mActionator;
+	class Synchronizer* mSynchronizer;
 
     class Track** mTracks;
 	class Track* mTrack;
 	int mTrackCount;
-    int mTrackIndex;
 	class UserVariables* mVariables;
+    class ScriptRuntime* mScriptRuntime;
 	class ScriptEnv* mScriptEnv;
     class Function** mFunctions;
-	class ScriptInterpreter* mScripts;
 	bool mHalting;
 	bool mNoExternalInput;
-	long mInterrupts;
 	char mCustomMode[MAX_CUSTOM_MODE];
-	class Synchronizer* mSynchronizer;
-
-	// pending project to be loaded
-	//class Project* mPendingProject;
-
-    // pending samples to install
-	//class SamplePack* mPendingSamples;
-
-	// pending project to be saved
-	//class Project* mSaveProject;
-	
-    // number of script threads launched
-    int mScriptThreadCounter;
 
 	// state related to realtime audio capture
 	Audio* mAudio;

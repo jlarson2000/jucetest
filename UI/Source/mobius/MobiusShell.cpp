@@ -289,6 +289,7 @@ void MobiusShell::consumeCommunications()
                 kernelEventHandler.doEvent(msg->object.event);
                 // this one is unusual in that we send it back so
                 // the KernelEvent can be returned to the pool
+                // also resume scripts that were waiting for the event to complete
                 communicator.shellSend(msg);
                 abandon = false;
                 

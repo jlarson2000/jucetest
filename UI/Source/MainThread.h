@@ -2,8 +2,9 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "util/Trace.h"
 
-class MainThread : public juce::Thread
+class MainThread : public juce::Thread, public TraceListener
 {
   public:
     
@@ -14,6 +15,9 @@ class MainThread : public juce::Thread
     void stop();
 
     void run() override;
+
+    // TraceListener
+    void traceEvent();
 
   private:
 

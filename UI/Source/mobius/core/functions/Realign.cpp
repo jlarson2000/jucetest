@@ -155,7 +155,7 @@ Event* RealignFunction::scheduleEvent(Action* action, Loop* l)
 		realignEvent = NULL;
 	}
 	else {
-        Setup* setup = l->getMobius()->getInterruptSetup();
+        Setup* setup = l->getMobius()->getSetup();
         Track* t = l->getTrack();
         SyncState* state = t->getSyncState();
         SyncSource src = state->getEffectiveSyncSource();

@@ -292,6 +292,9 @@ bool Loop::isInteresting()
     return (mPlay != NULL || mRedo != NULL);
 }
       
+// see comments in Track::dump
+// about why this sucked and what we need to do
+#if 0
 void Loop::dump(TraceBuffer* b)
 {
     b->add("Loop %d\n", mNumber);
@@ -322,6 +325,7 @@ void Loop::dump(TraceBuffer* b)
 
     b->decIndent();
 }
+#endif
 
 /****************************************************************************
  *                                                                          *
@@ -1954,7 +1958,7 @@ bool Loop::isLayerChanged(Layer* layer, bool checkAutoUndo)
 			short max = SampleFloatToInt16(layer->getMaxSample());
 			if (max < 0)
 			  max = -max;
-			MobiusConfig* c = mMobius->getInterruptConfiguration();
+			MobiusConfig* c = mMobius->getConfiguration();
 			changed = (max > c->getNoiseFloor());
 		}
 	}

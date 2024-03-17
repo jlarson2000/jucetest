@@ -143,7 +143,7 @@ class Loop : public TraceContext {
 	void setBreak(bool b);
 
     bool isInteresting();
-    void dump(class TraceBuffer* b);
+    //void dump(class TraceBuffer* b);
 
     //
     // Status

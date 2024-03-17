@@ -224,7 +224,7 @@ class Layer : public TraceContext
 	// Diagnostics
 
 	void getTraceContext(int* context, long* time);
-	void dump(TraceBuffer* b);
+	//void dump(TraceBuffer* b);
 	void save(const char* file);
 	void saveRegion(long startFrame, long frames, const char* name);
 

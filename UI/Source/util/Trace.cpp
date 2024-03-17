@@ -4,6 +4,9 @@
 // Forced it on for now, but when we get to the Mac port this will need
 // to be addressed.  Need something in Juce we can test for selective includes.
 //
+// Soon to be integrated with the DebugWindow utility so we can have an alternative
+// to OutputDebugStream on Mac
+//
 
 /*
  * Copyright (c) 2024 Jeffrey S. Larson  <jeff@circularlabs.com>
@@ -54,9 +57,6 @@
 #include <io.h>
 #include <windows.h>
 #endif
-
-// Formerly for CriticalSection
-//#include "Thread.h"
 
 #include "Util.h"
 #include "Trace.h"
@@ -121,54 +121,6 @@ void trace(juce::String& s)
 
 /****************************************************************************
  *                                                                          *
- *   							 TRACE BUFFER                               *
- *                                                                          *
- ****************************************************************************/
-
-TraceBuffer::TraceBuffer()
-{
-	mIndent = 0;
-}
-
-TraceBuffer::~TraceBuffer()
-{
-}
-
-void TraceBuffer::incIndent()
-{
-	mIndent += 2;
-}
-
-void TraceBuffer::decIndent()
-{
-	mIndent -= 2;
-}
-
-void TraceBuffer::add(const char *string, ...)
-{
-    va_list args;
-    va_start(args, string);
-	addv(string, args);
-    va_end(args);
-}
-
-void TraceBuffer::addv(const char *string, va_list args)
-{
-	char buf[1024];
-	vsprintf(buf, string, args);
-
-	for (int i = 0 ; i < mIndent ; i++)
-	  printf(" ");
-	printf("%s", buf);
-}
-
-void TraceBuffer::print()
-{
-	fflush(stdout);
-}
-
-/****************************************************************************
- *                                                                          *
  *   							TRACE RECORDS                               *
  *                                                                          *
  ****************************************************************************/
@@ -179,8 +131,9 @@ void TraceBuffer::print()
 
 /**
  * Trace records at this level or lower are printed to the console.
+ * Disable this and eventually remove it, printf is useless under VStudio
  */
-int TracePrintLevel = 1;
+int TracePrintLevel = 0;
 
 /**
  * Trace records at this level or lower are sent to the debug output stream.
@@ -192,7 +145,7 @@ int TraceDebugLevel = 1;
  * are queued, and the listener is notified.  The listener is expected
  * to call FlushTrace eventually in another thread.
  */
-TraceListener* NewTraceListener = nullptr;
+TraceListener* GlobalTraceListener = nullptr;
 
 /**
  * Trace records are accumulated in a global array.
@@ -522,8 +475,8 @@ void FlushTrace()
  */
 void FlushOrNotify()
 {
-	if (NewTraceListener != nullptr)
-	  NewTraceListener->traceEvent();
+	if (GlobalTraceListener != nullptr)
+	  GlobalTraceListener->traceEvent();
 	else
 	  FlushTrace();
 }

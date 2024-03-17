@@ -1,50 +1,3 @@
-Mobius::finishPrompt
-  redesign prompting and for that matter all file handling
-  
-TraceListener
-  Mobius used to do this I think to get buffered trace to flush
-  on the MobiusThread cycle, need to move this to performMaintenance
-    // once the thread starts we can start queueing trace messages
-    //if (!mContext->isDebugging())
-    // mThread->setTraceListener(true);
-
-
-Script/WAIT_SCRIPT
-  old comments suggest this isn't necessary any more now that
-  we have "Wait thread"  see if we can delete this
-  
-Script/WaitType/WAIT_THREAD
-  should be WAIT_EVENT now
-
-Mobius::unitTestSetup
-  this is all ugly and could stand some cleanup
-  
-Mobius::logStatus
-  used to be called by MobiusThread at periodic intervals, probably
-  used only briefly during testing. can get rid of this, or redesign it
-  to be more useful
-
-Mobius::addMessage
-  old way to let scripts send messages to the UI
-  did this ever work?
-  needs redesign
-
-ScriptRuntime
-  ! this looks like an attempt to encapsulate Mobius script stuff
-  like Striptarin
-  used to have doScriptNotification, should the new KernelEvent handler
-  forward to RUntime too?  then it wouldn't have to know about the list
-  of ScriptInterpreters
-
-KernelEvent
-  I'm not liking how we keep a pointer to the KernelEvent in thee ScriptInterpreter for waiting, then let it escape to the UI, and the UI assumes that will remain valid indefinitely.  Engine shouldn't delete it out from under it, but the dependency is subtle and fragile.  
-
-SaveCapture is a mess
-  Mobius::getCapture has race conditions with audio thread and shell has
-  to be careful not to delete the Audio
-
-next big mess: MobiusThread
-
 merge Actionator::doInterruptActions
   and that TriggerState tracker
 
@@ -60,6 +13,43 @@ Bad leak after attempting long-press Record a few times
     Reset
 
 So starting Record while a loop exists leaks
+
+
+
+Mobius::finishPrompt
+  redesign prompting and for that matter all file handling
+  
+Script/WAIT_SCRIPT
+  old comments suggest this isn't necessary any more now that
+  we have "Wait thread"  see if we can delete this
+  
+Script/WaitType/WAIT_THREAD
+  should be WAIT_EVENT now
+
+Mobius::unitTestSetup
+  this is all ugly and could stand some cleanup
+  
+Mobius::logStatus
+  used to be called by MobiusThread at periodic intervals, probably
+  used only briefly during testing. can get rid of this, or redesign it
+  to be more useful
+  used TraceBuffer which has been removed, dump() cascaded from Track to
+  Loop, Layer, Segment, and Audio
+
+Mobius::addMessage
+  old way to let scripts send messages to the UI
+  did this ever work?
+  needs redesign, use KernelEvent and think about a more flexible alerting
+  mechanism, related to Prompt
+  
+
+KernelEvent
+  I'm not liking how we keep a pointer to the KernelEvent in thee ScriptInterpreter for waiting, then let it escape to the UI, and the UI assumes that will remain valid indefinitely.  Engine shouldn't delete it out from under it, but the dependency is subtle and fragile.  
+
+SaveCapture is a mess
+  Mobius::getCapture has race conditions with audio thread and shell has
+  to be careful not to delete the Audio
+
 
 
 SampleManager plays into the input buffer, which causes input monitoring
@@ -91,9 +81,6 @@ Scriptarian
 TrackManager
   is there enough to have a subcomponent?
 
-MobiusThread
-  still a big mess and it's all over Scripts
-
 Parametizer
   Handle getParameter, UIParameter mapping
   - leave in Actionator for now, there isn't much there
@@ -109,15 +96,6 @@ Variables
   hating these, at least condider generating but the logic
   isn't as regular as Parameter
 
-
-
-
-
-  
-
-
-
-
 ----------------------------------------------------------------------
 
 
@@ -128,17 +106,10 @@ AudioMeter for track strip output
 
 Explore that other guy's meter
 
-Revisit all the above/below interupt code in MObius and simplify it
-
-Start propagation of MobiusConfig values on reconfigure
- - fix the function lists to use CSV rather than StringList
-   - set flags directly on the Functions
-   
-
-
 Since we no longer use Parameter for the UI, and have moved bindings up
 is there any need for the old getHigh, getOrdinalLabel, etc?  Weed them.
 Unless scripts need them.
+  sigh, yes OperatorHigh needs getHigh
 
 Sure would be nice to  factor Action and Export handling out of them so
 we could share the model.

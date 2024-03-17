@@ -1012,6 +1012,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Script.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\ScriptCompiler.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\ScriptRuntime.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -3888,9 +3891,6 @@
     <ClInclude Include="..\..\Source\mobius\core\ObjectPool.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\OldMobiusInterface.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Parameter.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3901,6 +3901,9 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Script.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\ScriptCompiler.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\ScriptRuntime.h">

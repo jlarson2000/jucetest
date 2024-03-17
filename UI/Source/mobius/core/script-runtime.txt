@@ -1,0 +1,230 @@
+
+Partially complete encapsulation of global script management stuff
+
+What Mobius has now:
+
+    class ScriptInterpreter* getScripts();
+    void run(class Script* s);
+	void runScript(class Action* action);
+	void resumeScript(class Track* t, class Function* f);
+	void cancelScripts(class Action* action, class Track* t);
+
+    void initializeScripts();
+	bool isInUse(class Script* s);
+
+	void startScript(class Action* action, Script* s);
+	void startScript(class Action* action, Script* s, class Track* t);
+	void addScript(class ScriptInterpreter* si);
+	class ScriptInterpreter* findScript(class Action* action, class Script* s, class Track* t);
+    void doScriptMaintenance();
+	void freeScripts();
+    void doScriptNotification(Action* a);
+
+	class ScriptEnv* mScriptEnv;
+	class ScriptInterpreter* mScripts;
+    // number of script threads launched
+    int mScriptThreadCounter;
+
+
+		ScriptInterpreter* si = new ScriptInterpreter(this, t);
+        si->setNumber(++mScriptThreadCounter);
+
+// just used to give script iterpreters a unique number, push
+
+/**
+ * Add a script to the end of the interpretation list.
+ *
+ * Keeping these in invocation order is important for !continuous
+ * scripts where we may be queueing several for the next interrupt but
+ * they must be done in invocation order.
+ */
+void Mobius::addScript(ScriptInterpreter* si)
+{
+	ScriptInterpreter* last = NULL;
+	for (ScriptInterpreter* s = mScripts ; s != NULL ; s = s->getNext())
+	  last = s;
+
+	if (last == NULL)
+	  mScripts = si;
+	else
+	  last->setNext(si);
+    
+    Trace(2, "Mobius: Starting script thread %s",
+          si->getTraceName());
+}
+
+mScripts list is the main one and most methods operate on it
+
+ScriptEnv is an artifact of compilation
+
+void Mobius::initializeScripts()
+{
+    ScriptConfig* scriptConfig = mConfig->getScriptConfig();
+
+    ScriptCompiler* sc = new ScriptCompiler();
+    ScriptEnv* env = sc->compile(this, scriptConfig);
+    delete sc;
+
+    mScriptEnv = env;
+
+    // rebuild the global Function table to include top-level scripts
+    initializeFunctions();
+
+    // removed initScriptParameters since that didn't seem to do anything
+    // initScriptParameters();
+}
+
+
+This seems to be just the payload of Compiled Scripts created from a ScriptEnv
+
+The linkage to Functions is this:
+
+	// add script triggers
+	int scriptCount = 0;
+	List* scripts = NULL;
+	if (mScriptEnv != NULL) {
+		scripts = mScriptEnv->getScriptFunctions();
+		if (scripts != NULL)
+		  scriptCount = scripts->size();
+	}
+
+    // add scripts
+    for (i = 0 ; i < scriptCount ; i++)
+      functions[psn++] = (RunScriptFunction*)scripts->get(i);
+
+Ugh, typically convoluted lifecycle, here it is...
+
+  ScriptConfig
+    defines the list of script files to load, edited by the UI
+
+  ScriptEnv
+    a list of Script objects
+    built by ScriptCompiler from the ScriptEnv
+
+  ScriptCompiler
+    consumes the ScriptConfig, reads files, builds the ScriptEnv
+    can do incremental compilation into an existing ScriptEnv
+
+  ScriptInterpreter
+     encapsulates the runtime state of a Script being executed
+
+
+How we get from a compiled Script to a ScriptInterpreter is the obscure part
+
+The Mobius initialization sequence does this:
+
+    ScriptConfig* scriptConfig = mConfig->getScriptConfig();
+    ScriptCompiler* sc = new ScriptCompiler();
+    ScriptEnv* env = sc->compile(this, scriptConfig);
+
+followed by this:
+
+    // rebuild the global Function table to include top-level scripts
+    initializeFunctions();
+
+initializeFunctions builds a Function array by combining the static Function
+objects with the "top level" scripts from the ScriptEnv
+
+		scripts = mScriptEnv->getScriptFunctions();
+
+This is a List of RunScriptFunction objects
+
+            // may already have a function if we had a cross reference
+            Function* f = s->getFunction();
+            if (f == NULL) {
+                f = new RunScriptFunction(s);
+                s->setFunction(f);
+
+So a side effect of calling ScriptEnv::getScriptFunctions is the bootstrapping
+of RunScriptFunction objects for every callable script and adding them to the ScriptEnv.
+Scripts may not be called with an Action
+
+Actionator will get around to calling Function::invoke
+
+RunScriptFunction::invoke does
+
+void RunScriptFunction::invoke(Action* action, Mobius* m)
+{
+	m->runScript(action);
+}
+
+  UI builds UIAction
+  MobiusShell sends UIAction to MobiusKernel
+  MobiusKernel sends UIAction to Mobius
+  Mobius sends UIAction to Actionator
+  Actionator converts UIAction to Action and calls Function->invoke
+  RunScriptFunction receives the invoke and calls Mobius::runScript
+
+In some cases we could have removed a few levels of this by having Mobius just
+intercept RunScriptFunction early, but Actions can come from other places so just leave
+the control path alone.
+
+Mobius::runScript does one of the following
+  startScript
+  or
+  function->invoke(action, track->getLoop());
+    schedules a quantized Event to start it later
+
+void Mobius::startScript(Action* action, Script* script)
+  this is the missing link
+  if continuous
+  		ScriptInterpreter* si = new ScriptInterpreter(this, t);
+        si->setNumber(++mScriptThreadCounter);
+  else
+  		// can only be here on down transitions
+		ScriptInterpreter* si = findScript(action, s, t);
+
+        if script is already running
+           decide whether to notify the previous interpreter
+           or start a new one
+
+        
+        si = new ScriptInterpreter(this, t);
+        si->setNumber(++mScriptThreadCounter);
+
+So a ScriptInterpreter is created dynamically whenever a RunScriptFunction is invoked.
+These will live for as long as the script is running and then die
+Interpreters may be caneled, suspend or resume
+
+Mobius::mScripts is the list of running scripts
+
+ScriptRuntime was an emerging wrapper on just the runtime state
+    mScripts = NULL;
+    mScriptThreadCounter = 0;
+
+It did not contain the compiled ScriptEnv
+Once the RunScriptFunctions are installed there isn't a need to go back to the ScriptEnv
+
+HOWEVER the dependencies are error prone
+
+RunScriptFunction lives in a global array and respond to Actions
+RunScriptFunction points to a Script inside a ScriptEnv
+
+Any time the ScriptEnv is modified, or deleted all of the RunScriptFunctions
+become invalid and will likely crash if the Script is deleted out from under them.
+
+So any time you incrementally load scripts you have to rebuild the Function table.
+
+Would be nice to have a wrapper that combines ScriptEnv, ScriptRuntime, and the Function
+table since they're all interrelated.
+
+ScriptCompiler can live on it's own, it is transient
+  put it in it's own file
+
+Script/ScriptEnv can go together I guess since Script->ScriptEnv and they
+both persist
+
+ScriptInterpreter is transient in it's own file
+
+ScriptRuntime encapsulates the runtime state only, and there is a fair bit of it
+  start here for refactoring
+
+That leaves that mythical larger wrapper Scriptarian that combines
+ScriptRuntime and ScriptEnv and uses ScriptCompiler and builds the Function table
+
+Mobius then has a handle to Scriptarian and Functions
+
+
+
+
+

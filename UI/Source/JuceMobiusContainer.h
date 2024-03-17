@@ -68,6 +68,10 @@ class JuceMobiusContainer : public MobiusContainer
     int getInputLatency();
     int getOutputLatency();
 
+    bool isPlugin() {
+        return false;
+    }
+
     double getStreamTime();
     double getLastInterruptStreamTime();
     class AudioTime* getAudioTime();

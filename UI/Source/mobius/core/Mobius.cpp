@@ -41,7 +41,6 @@
 #include "MidiInterface.h"
 
 #include "Mapper.h"
-#include "OldMobiusInterface.h"
 #include "Action.h"
 #include "Actionator.h"
 #include "Event.h"
@@ -52,7 +51,9 @@
 #include "Mode.h"
 #include "Parameter.h"
 //#include "Project.h"
+#include "ScriptCompiler.h"
 #include "Script.h"
+#include "ScriptRuntime.h"
 #include "Synchronizer.h"
 #include "Track.h"
 
@@ -91,7 +92,10 @@ Mobius::Mobius(MobiusKernel* kernel)
     mMidi = new StubMidiInterface();
     
     mActionator = new Actionator(this);
-
+    mScriptRuntime = new ScriptRuntime(this);
+    mScriptEnv = nullptr;
+    mFunctions = nullptr;
+    
     //
     // Legacy Initialization
     //
@@ -99,16 +103,10 @@ Mobius::Mobius(MobiusKernel* kernel)
     mLayerPool = new LayerPool(mAudioPool);
     mEventPool = new EventPool();
         
-    mListener = NULL;
-    mScriptThreadCounter = 0;
 	mTracks = NULL;
 	mTrack = NULL;
 	mTrackCount = 0;
 	mVariables = new UserVariables();
-    mFunctions = NULL;
-	mScriptEnv = NULL;
-	mScripts = NULL;
-	mInterrupts = 0;
 
 	mCustomMode[0] = 0;
 	//mPendingProject = NULL;
@@ -120,8 +118,6 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mHalting = false;
 	mNoExternalInput = false;
 
-    TraceToDebug = true;
-    
     // initialize the object tables
     // some of these use "new" and must be deleted on shutdown
     // move this to initialize() !!
@@ -155,6 +151,7 @@ Mobius::~Mobius()
     delete mFunctions;
     
 	delete mScriptEnv;
+    delete mScriptRuntime;
 
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
@@ -248,10 +245,6 @@ void Mobius::shutdown()
 		mMidi->setClockListener(NULL);
 	}
 
-    // the thread registered itself as the TraceListner, need to prune
-    // that and obviously the interface sucks here
-    NewTraceListener = nullptr;
-    
 	// sleep to make sure we're not in a timer or midi interrupt
     // MobiusContainer can do this now
 	SleepMillis(100);
@@ -266,14 +259,6 @@ void Mobius::shutdown()
     // !! clear the Layer pool?  Not if we're in a VST and will
 	// resume again later...
 	// this could cause large leaks
-}
-
-/**
- * Used by internal components that need something from the container.
- */
-MobiusContainer* Mobius::getContainer()
-{
-    return mContainer;
 }
 
 int Mobius::getParameter(UIParameter* p, int trackNumber)
@@ -308,12 +293,6 @@ void Mobius::initialize(MobiusConfig* config)
     // can save this until the next call to reconfigure()
     mConfig = config;
 
-	// set these early so we can trace errors during initialization
-	TracePrintLevel = mConfig->getTracePrintLevel();
-	TraceDebugLevel = mConfig->getTraceDebugLevel();
-    // doesn't seem to be maintaining this right, force it on
-    TraceDebugLevel = 4;
-
     // Sanity check on some important parameters
     // TODO: Need more of these...
     if (mConfig->getTracks() <= 0) {
@@ -329,10 +308,6 @@ void Mobius::initialize(MobiusConfig* config)
     
     // will need a way for this to get MIDI
     mSynchronizer = new Synchronizer(this, mMidi);
-    
-    // once the thread starts we can start queueing trace messages
-    //if (!mContext->isDebugging())
-    // mThread->setTraceListener(true);
     
 	// Build the track list
     initializeTracks();
@@ -532,15 +507,6 @@ void Mobius::reconfigure(class MobiusConfig* config)
  */
 void Mobius::propagateConfiguration()
 {
-    // trace settings
-    // this was also done in initialize() so we could start trace
-    // as early as posible, maybe factor out into configureTrace()
-    // UPDATE: no longer have a difference between "trace" and "print"
-	TracePrintLevel = mConfig->getTracePrintLevel();
-	TraceDebugLevel = mConfig->getTraceDebugLevel();
-    // doesn't seem to be maintaining this right, force it on
-    TraceDebugLevel = 2;
-    
     // cache various parameters directly on the Function objects
     propagateFunctionPreferences();
 
@@ -617,7 +583,6 @@ void Mobius::propagateConfiguration()
  */
 void Mobius::propagateFunctionPreferences()
 {
-
     // Function sensitivity to focus lock
     StringList* names = mConfig->getFocusLockFunctions();
     for (int i = 0 ; mFunctions[i] != NULL ; i++) {
@@ -872,19 +837,10 @@ void Mobius::beginAudioInterrupt(UIAction* actions)
     // don't know if we still need this but it seems like a good idea
 	if (mHalting) return;
 
-    // formerly maintained an mInterrupts counter
-    // and traced what we determined was the effective input and output
-    // latencies.  Should be doing this in Kernel if we still want that
-    // used by some action handling so still need it
-	mInterrupts++;
-	if (mInterrupts == 1)
-	  Trace(2, "Mobius: Receiving interrupts, input latency %ld output %ld\n",
-			(long)getEffectiveInputLatency(), (long)getEffectiveOutputLatency());
-
 	// Hack for testing, when this flag is set remove all external input
 	// and only pass through sample content.  Necessary for repeatable
 	// tests so we don't get random noise in the input.
-    // wtf did this do??
+    // yes, this is necessary for the unit tests
 	if (mNoExternalInput) {
 		long frames = mContainer->getInterruptFrames();
         // !! assuming 2 channel ports
@@ -906,15 +862,10 @@ void Mobius::beginAudioInterrupt(UIAction* actions)
 	}
 
     // do the queued actions
-    mActionator->doInterruptActions(actions);
-    
-    // Advance the long-press tracker too, this may cause other
-    // actions to fire.
-    // since we just called it, merge these two
-    mActionator->advanceTriggerState(mContainer->getInterruptFrames());
+    mActionator->doInterruptActions(actions, mContainer->getInterruptFrames());
 
 	// process scripts
-    doScriptMaintenance();
+    mScriptRuntime->doScriptMaintenance();
 }
 
 /**
@@ -988,6 +939,196 @@ void Mobius::endAudioInterrupt()
 
 //////////////////////////////////////////////////////////////////////
 //
+// Acctionator support and forwarding
+// Provide accessors to the track state Actionator needs
+// and forward some older methods used by Scripts to the Actionator.
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called by Actionator
+ */
+
+Action* Mobius::newAction()
+{
+    return mActionator->newAction();
+}
+
+Action* Mobius::cloneAction(Action* src)
+{
+    return mActionator->cloneAction(src);
+}
+
+void Mobius::completeAction(Action* a)
+{
+    mActionator->completeAction(a);
+}
+
+/**
+ * Merging the old doAction and doActionNow styles
+ * to just be doActionNow.  Keep both till we transition everything.
+ */
+void Mobius::doAction(Action* a)
+{
+    mActionator->doActionNow(a);
+}
+
+void Mobius::doActionNow(Action* a)
+{
+    mActionator->doActionNow(a);
+}
+
+Track* Mobius::resolveTrack(Action* a)
+{
+    return mActionator->resolveTrack(a);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Internal Component Accessors
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Used by internal components that need something from the container.
+ */
+MobiusContainer* Mobius::getContainer()
+{
+    return mContainer;
+}
+
+// used by Midi, MidiExporter
+MidiInterface* Mobius::getMidiInterface()
+{
+    return mMidi;
+}
+
+Synchronizer* Mobius::getSynchronizer()
+{
+	return mSynchronizer;
+}
+
+/**
+ * Return the read-only configuration for internal components to use.
+ */
+MobiusConfig* Mobius::getConfiguration()
+{
+	return mConfig;
+}
+
+/**
+ * Return the read-only Setup currently in use.
+ */
+Setup* Mobius::getSetup()
+{
+	return mSetup;
+}
+
+/**
+ * This is now passed down from Kernel.
+ */
+AudioPool* Mobius::getAudioPool()
+{
+    return mAudioPool;
+}
+
+LayerPool* Mobius::getLayerPool()
+{
+    return mLayerPool;
+}
+
+EventPool* Mobius::getEventPool()
+{
+    return mEventPool;
+}
+
+int Mobius::getTrackCount()
+{
+	return mTrackCount;
+}
+
+Track* Mobius::getTrack()
+{
+    return mTrack;
+}
+
+Track* Mobius::getTrack(int index)
+{
+	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
+}
+
+/**
+ * Return the effective input latency.
+ * The configuration may override what the audio device reports
+ * in order to fine tune actual latency.
+ *
+ * Called by Track, probably for scheduling.
+ * We don't have the "reported" latency concept any more, so always
+ * get it from MobiusConfig then fall back to what MobiusContainer has?
+ * 
+ */
+int Mobius::getEffectiveInputLatency()
+{
+	return  mConfig->getInputLatency();
+}
+
+int Mobius::getEffectiveOutputLatency()
+{
+	return mConfig->getOutputLatency();
+}
+
+/**
+ * Called by Scripts to ask for a few things from the outside
+ * and a handful of Function actions.
+ *
+ * Allocate a KernelEvent from the pool
+ * There aren't many uses of this, could make it use Kernel directly.
+ */
+KernelEvent* Mobius::newKernelEvent()
+{
+    return mKernel->newEvent();
+}
+
+/**
+ * Called by Scripts to send an event returned by newKernelEvent
+ * back up to the shell.
+ */
+void Mobius::sendKernelEvent(KernelEvent* e)
+{
+    mKernel->sendEvent(e);
+}
+
+/**
+ * Called by Kernel when the Shell has finished processing a KernelEvent
+ * For most events we need to inform the ScriptInterpreters so they can
+ * cancel their wait states.
+ *
+ * This takes the place of what the old code did with special Actions.
+ *
+ * We do not take ownership of the event or return it to the pool.
+ * It is not expected to be modified and no complex side effects should be
+ * taking place.
+ *
+ * Timing should be assumed to be early in the audio interrupt before
+ * containerAudioAvailable is called.  Might want to stage these and pass
+ * them to constainerAudioAvailable like we do for UIActions so it has more
+ * control over when they get done, but we're only using these for script
+ * waits right now and it doesn't matter when they happen as long as it is
+ * before doScriptMaintenance.
+ */
+void Mobius::kernelEventCompleted(KernelEvent* e)
+{
+    // TimeBoundary can't be waited on
+    // !! this should be moved down to ScriptRuntime when that
+    // gets finished
+    if (e->type != EventTimeBoundary) {
+
+        mScriptRuntime->finishEvent(e);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // Legacy Interface for internal components
 //
 //////////////////////////////////////////////////////////////////////
@@ -1002,12 +1143,11 @@ void Mobius::setPresetInternal(int number)
     mTrack->setPreset(number);
 }
 
-// used by Midi, MidiExporter
-MidiInterface* Mobius::getMidiInterface()
-{
-    return mMidi;
-}
-
+/**
+ * Get the active track number.
+ * Used by TrackParameter "activeTrack" to get the ordinal of the active track.
+ * Also used by Synchronizer for some reason, it could just use getTrack() ?
+ */
 int Mobius::getActiveTrack()
 {
     return (mTrack != NULL) ? mTrack->getRawNumber() : 0;
@@ -1041,56 +1181,6 @@ void Mobius::getTraceContext(int* context, long* time)
 }
 
 /**
- * Wrapped up with MobiusThread
- * Might still be relevant with the new KernelEvent but
- * need to rethink this
- */
-void Mobius::setListener(OldMobiusListener* l)
-{
-	mListener = l;
-}
-
-OldMobiusListener* Mobius::getListener()
-{
-	return mListener;
-}
-
-/**
- * Called by Scripts to ask for a few things from the outside
- * and a handful of Function actions.
- *
- * Allocate a KernelEvent from the pool
- * There aren't many uses of this, could make it use Kernel directly.
- */
-KernelEvent* Mobius::newKernelEvent()
-{
-    return mKernel->newEvent();
-}
-
-/**
- * Called by Scripts to send an event returned by newKernelEvent
- * back up to the shell.
- */
-void Mobius::sendKernelEvent(KernelEvent* e)
-{
-    mKernel->sendEvent(e);
-}
-
-/**
- * The current value of the millisecond clock.
- * This is now provided by MobiusContainer, who uses this?
- */
-long Mobius::getClock()
-{
-    return mContainer->getMillisecondCounter();
-}
-
-Synchronizer* Mobius::getSynchronizer()
-{
-	return mSynchronizer;
-}
-
-/**
  * Return true if the given track has input focus.
  * Prior to 1.43 track groups had automatic focus
  * beheavior, now you have to ask for that with the
@@ -1112,99 +1202,20 @@ bool Mobius::isFocused(Track* t)
 }
 
 /**
- * Return the Setup from the interrupt configuration.
- * Used by Synchronizer when it needs to get setup parameters.
- * Also used by SyncState.
+ * Used only during Script linkage to find a Parameter
+ * referenced by name.
  */
-Setup* Mobius::getInterruptSetup()
-{
-    return mSetup;
-}
-
-/**
- * Return the read-only configuration for internal components to use.
- */
-MobiusConfig* Mobius::getConfiguration()
-{
-	return mConfig;
-}
-
-/**
- * Get the MobiusConfig object for use by code within the interrupt handler.
- * This is now always the same as mConfig, need to fix all callers to use that
- * instead.
- */
-MobiusConfig* Mobius::getInterruptConfiguration()
-{
-    return mConfig;
-}
-
-/****************************************************************************
- *                                                                          *
- *                              OBJECT CONSTANTS                            *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * This is now passed down from Kernel.
- */
-AudioPool* Mobius::getAudioPool()
-{
-    return mAudioPool;
-}
-
-LayerPool* Mobius::getLayerPool()
-{
-    return mLayerPool;
-}
-
-EventPool* Mobius::getEventPool()
-{
-    return mEventPool;
-}
-
-/**
- * Return the list of all functions.
- * Should only be used by the binding UI.
- */
-Function** Mobius::getFunctions()
-{
-    return mFunctions;
-}
-
-Parameter** Mobius::getParameters()
-{
-    return Parameters;
-}
-
 Parameter* Mobius::getParameter(const char* name)
 {
     return Parameter::getParameter(name);
 }
 
-Parameter* Mobius::getParameterWithDisplayName(const char* name)
-{
-    return Parameter::getParameterWithDisplayName(name);
-}
-
-MobiusMode** Mobius::getModes()
-{
-    return Modes;
-}
-
-MobiusMode* Mobius::getMode(const char* name)
-{
-    return MobiusMode::getMode(name);
-}
-
-/****************************************************************************
- *                                                                          *
- *                                  FUNTIONS                                *
- *                                                                          *
- ****************************************************************************/
-
 /**
  * Search the dynamic function list.
+ * This is only used by Script for an obscure wait state.
+ * Comments indiciate that "Wait function" was never used and may not
+ * work, but there is other code around waiting for a Switch to happen.
+ * Need to sort this out.
  */
 Function* Mobius::getFunction(const char * name)
 {
@@ -1217,6 +1228,20 @@ Function* Mobius::getFunction(const char * name)
       found = Function::getFunction(HiddenFunctions, name);
 
     return found;
+}
+
+/**
+ * The loop frame we're currently "on"
+ */
+  
+long Mobius::getFrame()
+{
+	return mTrack->getFrame();
+}
+
+MobiusMode* Mobius::getMode()
+{
+	return mTrack->getMode();
 }
 
 /****************************************************************************
@@ -1274,47 +1299,18 @@ MobiusState* Mobius::getState(int track)
 }
 
 /**
- * Return the effective input latency.
- * The configuration may override what the audio device reports
- * in order to fine tune actual latency.
- *
- * Called by Track, probably for scheduling.
- * We don't have the "reported" latency concept any more, so always
- * get it from MobiusConfig.
- * 
- */
-int Mobius::getEffectiveInputLatency()
-{
-	return  mConfig->getInputLatency();
-}
-
-int Mobius::getEffectiveOutputLatency()
-{
-	return mConfig->getOutputLatency();
-}
-
-/**
- * The loop frame we're currently "on"
- */
-  
-long Mobius::getFrame()
-{
-	return mTrack->getFrame();
-}
-
-MobiusMode* Mobius::getMode()
-{
-	return mTrack->getMode();
-}
-
-/**
  * Formerly called by MobiusThread to do periodic status logging.
  * can do it in performMaintenance now, but the maintenance thread
  * is not supposed to have direct access to Mobius and it's internal
  * components.  Needs thought...
+ *
+ * This used an old TraceBuffer that was useless since it used printf
+ * Need to revisit this since it is a useful thing but needs to reliably
+ * use buffered Trace records and the emergening DebugWindow.
  */
 void Mobius::logStatus()
 {
+#if 0    
     // !!!!!!!!!!!!!!!!!!!!!!!!
     // we are leaking audio buffers and all kinds of shit
     // if this is a plugin, figure out how we reference count
@@ -1337,6 +1333,7 @@ void Mobius::logStatus()
     delete b;
 
     fflush(stdout);
+#endif    
 }
 
 /**
@@ -1362,27 +1359,31 @@ const char* Mobius::getCustomMode()
 	return mode;
 }
 
-/**
- * Called by the MobiusListener after it finishes processing a Prompt.
- *
- * !! commenting this out, need to revisit this under the new
- * KernelEvent framework when I'm less tired
- */
-void Mobius::finishPrompt(Prompt* p)
-{
-#if 0    
-	if (mThread != NULL) 
-	  mThread->finishPrompt(p);
-	else
-	  delete p;
-#endif    
-}
-
 /****************************************************************************
  *                                                                          *
  *   							   SCRIPTS                                  *
  *                                                                          *
  ****************************************************************************/
+
+/**
+ * RunScriptFunction global function handler.
+ * RunScriptFunction::invoke calls back to to this.
+ */
+void Mobius::runScript(Action* action)
+{
+    // everything is now encapsulated in here
+    mScriptRuntime->runScript(action);
+}
+
+void Mobius::resumeScript(Track* t, Function* f)
+{
+    mScriptRuntime->resumeScript(t, f);
+}
+
+void Mobius::cancelScripts(Action* action, Track* t)
+{
+    mScriptRuntime->cancelScripts(action, t);
+}
 
 /**
  * Convey a message to the UI from a Script.
@@ -1394,559 +1395,8 @@ void Mobius::finishPrompt(Prompt* p)
  */
 void Mobius::addMessage(const char* msg)
 {
-	if (mListener != NULL)
-	  mListener->MobiusMessage(msg);
-}
-
-/**
- * RunScriptFunction global function handler.
- * RunScriptFunction::invoke calls back to to this.
- */
-void Mobius::runScript(Action* action)
-{
-    Function* function = NULL;
-    Script* script = NULL;
-
-	// shoudln't happen but be careful
-	if (action == NULL) {
-        Trace(1, "Mobius::runScript without an Action!\n");
-    }
-    else {
-        function = action->getFunction();
-        if (function != NULL)
-          script = (Script*)function->object;
-    }
-
-    if (script == NULL) {
-        Trace(1, "Mobius::runScript without a script!\n");
-    }
-    else if (script->isContinuous()) {
-        // These are called for every change of a controller.
-        // Assume options like !quantize are not relevant.
-        startScript(action, script);
-    }
-    else if (action->down || script->isSustainAllowed()) {
-			
-        if (action->down)
-          Trace(this, 2, "Mobius: runScript %s\n", 
-                script->getDisplayName());
-        else
-          Trace(this, 2, "Mobius: runScript %s UP\n",
-                script->getDisplayName());
-
-        // If the script is marked for quantize, then we schedule
-        // an event, the event handler will eventually call back
-        // here, but with TriggerEvent so we know not to do it again.
-
-        if ((script->isQuantize() || script->isSwitchQuantize()) &&
-            action->trigger != TriggerEvent) {
-
-            // Schedule it for a quantization boundary and come back later.
-            // This may look like what we do in doFunction() but  there
-            // are subtle differences.  We don't want to go through
-            // doFunction(Action,Function,Track)
-
-            Track* track = resolveTrack(action);
-            if (track != NULL) {
-                action->setResolvedTrack(track);
-                function->invoke(action, track->getLoop());
-            }
-            else if (!script->isFocusLockAllowed()) {
-                // script invocations are normally not propagated
-                // to focus lock tracks
-                action->setResolvedTrack(mTrack);
-                function->invoke(action, mTrack->getLoop());
-            }
-            else {
-                // like doFunction, we have to clone the Action
-                // if there is more than one destination track
-                int nactions = 0;
-                for (int i = 0 ; i < mTrackCount ; i++) {
-                    Track* t = mTracks[i];
-                    if (isFocused(t)) {
-                        if (nactions > 0)
-                          action = cloneAction(action);
-
-                        action->setResolvedTrack(t);
-                        function->invoke(action, t->getLoop());
-
-                        nactions++;
-                    }
-                }
-            }
-        }
-        else {
-            // normal global script, or quantized script after
-            // we receive the RunScriptEvent
-            startScript(action, script);
-        }
-    }
-}
-
-/**
- * Helper to run the script in all interested tracks.
- * Even though we're processed as a global function, scripts can
- * use focus lock and may be run in multiple tracks and the action
- * may target a group.
- */
-void Mobius::startScript(Action* action, Script* script)
-{
-	Track* track = resolveTrack(action);
-
-	if (track != NULL) {
-        // a track specific binding
-		startScript(action, script, track);
-	}
-    else if (action->getTargetGroup() > 0) {
-        // a group specific binding
-        int group = action->getTargetGroup();
-        int nactions = 0;
-        for (int i = 0 ; i < mTrackCount ; i++) {
-            Track* t = getTrack(i);
-            if (t->getGroup() == group) {
-                if (nactions > 0)
-                  action = cloneAction(action);
-                startScript(action, script, t);
-            }
-        }
-    }
-	else if (!script->isFocusLockAllowed()) {
-		// script invocations are normally not propagated
-		// to focus lock tracks
-		startScript(action, script, mTrack);
-	}
-	else {
-        int nactions = 0;
-		for (int i = 0 ; i < mTrackCount ; i++) {
-			Track* t = mTracks[i];
-            if (isFocused(t)) {
-                if (nactions > 0)
-                  action = cloneAction(action);
-                startScript(action, script, t);
-                nactions++;
-            }
-		}
-	}
-}
-
-/**
- * Internal method to launch a new script.
- *
- * !! Think more about how reentrant scripts and sustain scripts interact,
- * feels like we have more work here.
- */
-void Mobius::startScript(Action* action, Script* s, Track* t)
-{
-
-	if (s->isContinuous()) {
-        // ignore up/down, down will be true whenever the CC value is > 0
-
-		// Note that we do not care if there is a script with this
-		// trigger already running.  Controller events come in rapidly,
-		// it is common to have several of them come in before the next
-		// audio interrupt.  Schedule all of them, but must keep them in order
-		// (append to the interpreter list rather than push).  
-		// We could locate existing scripts that have not yet been
-		// processed and change their trigger values, but there are race
-		// conditions with the audio interrupt.
-
-		//Trace(this, 2, "Mobius: Controller script %ld\n",
-		//(long)(action->triggerValue));
-
-		ScriptInterpreter* si = new ScriptInterpreter(this, t);
-        si->setNumber(++mScriptThreadCounter);
-
-		// Setting the script will cause a refresh if !autoload was on.
-		// Pass true for the inUse arg if we're still referencing it.
-		si->setScript(s, isInUse(s));
-
-		// pass trigger info for several built-in variables
-        si->setTrigger(action);
-
-		addScript(si);
-	}
-	else if (!action->down) {
-		// an up transition, should be an existing interpreter
-		ScriptInterpreter* si = findScript(action, s, t);
-		if (si == NULL) {
-            if (s->isSustainAllowed()) {
-                // shouldn't have removed this
-                Trace(this, 1, "Mobius: SUS script not found!\n");
-            }
-            else {
-                // shouldn't have called this method
-                Trace(this, 1, "Mobius: Ignoring up transition of non-sustainable script\n");
-            }
-		}
-		else {
-			ScriptLabelStatement* l = s->getEndSustainLabel();
-			if (l != NULL) {
-                Trace(this, 2, "Mobius: Script thread %s: notify end sustain\n", 
-                      si->getTraceName());
-                si->notify(l);
-            }
-
-			// script can end now
-			si->setSustaining(false);
-		}
-	}
-	else {
-		// can only be here on down transitions
-		ScriptInterpreter* si = findScript(action, s, t);
-
-		if (si != NULL) {
-
-			// Look for a label to handle the additional trigger
-			// !! potential ambiguity between the click and reentry labels
-			// The click label should be used if the script is in an end state
-			// waiting for a click.  The reentry label should be used if
-			// the script is in a wait state?
-
-			ScriptLabelStatement* l = s->getClickLabel();
-			if (l != NULL) {
-				si->setClickCount(si->getClickCount() + 1);
-				si->setClickedMsecs(0);
-                if (l != NULL)
-                  Trace(this, 2, "Mobius: Script thread %s: notify multiclick\n",
-                        si->getTraceName());
-			}
-			else {
-				l = s->getReentryLabel();
-                if (l != NULL)
-                  Trace(this, 2, "Mobius: Script thread %s notify reentry\n",
-                        si->getTraceName());
-			}
-
-			if (l != NULL) {
-				// notify the previous interpreter
-				// TODO: might want some context here to make decisions?
-				si->notify(l);
-			}
-			else {
-				// no interested label, just launch another copy
-				si = NULL;
-			}
-		}
-
-		if (si == NULL) {
-			// !! need to pool these
-			si = new ScriptInterpreter(this, t);
-            si->setNumber(++mScriptThreadCounter);
-
-			// Setting the script will cause a refresh if !autoload was on.
-			// Pass true for the inUse arg if we're still referencing it.
-			si->setScript(s, isInUse(s));
-            si->setTrigger(action);
-
-			// to be elibible for sustaining, we must be in a context
-			// that supports it *and* we have to have a non zero trigger id
-			if (s->isSustainAllowed() &&
-				action != NULL && 
-                action->isSustainable() && 
-				action->id > 0) {
-
-				si->setSustaining(true);
-			}
-
-			// to be elibible for multi-clicking, we don't need anything
-			// special from the action context
-			if (s->isClickAllowed() && 
-				action != NULL && action->id > 0) {
-
-				si->setClicking(true);
-			}
-
-			// !! if we're in TriggerEvent, then we need to 
-			// mark the interpreter as being past latency compensation
-
-			// !! what if we're in the Script function context?  
-			// shouldn't we just evalute this immediately and add it to 
-			// the list only if it suspends? that would make it behave 
-			// like Call and like other normal function calls...
-
-			addScript(si);
-		}
-	}
-}
-
-/**
- * Add a script to the end of the interpretation list.
- *
- * Keeping these in invocation order is important for !continuous
- * scripts where we may be queueing several for the next interrupt but
- * they must be done in invocation order.
- */
-void Mobius::addScript(ScriptInterpreter* si)
-{
-	ScriptInterpreter* last = NULL;
-	for (ScriptInterpreter* s = mScripts ; s != NULL ; s = s->getNext())
-	  last = s;
-
-	if (last == NULL)
-	  mScripts = si;
-	else
-	  last->setNext(si);
-    
-    Trace(2, "Mobius: Starting script thread %s",
-          si->getTraceName());
-}
-
-/**
- * Return true if the script is currently being run.
- *
- * Setting the script will cause a refresh if !autoload was on.
- * We don't want to do that if there are any other interpreters
- * using this script!
- * 
- * !! This is bad, need to think more about how autoload scripts die gracefully.
- */
-bool Mobius::isInUse(Script* s) 
-{
-	bool inuse = false;
-
-	for (ScriptInterpreter* running = mScripts ; running != NULL ; 
-		 running = running->getNext()) {
-		if (running->getScript() == s) {
-			inuse = true;
-			break;
-		}
-	}
-	
-	return inuse;
-}
-
-/**
- * On the up transition of a script trigger, look for an existing script
- * waiting for that transition.
- *
- * NOTE: Some obscure but possible problems if we're using a !focuslock
- * script and the script itself plays with focuslock.  The script may
- * not receive retrancy or sustain callbacks if it turns off focus lock.
- *
- */
-ScriptInterpreter* Mobius::findScript(Action* action, Script* s,
-											  Track* t)
-{
-	ScriptInterpreter* found = NULL;
-
-	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
-
-		// Note that we use getTrack here rather than getTargetTrack since
-		// the script may have changed focus.
-		// Q: Need to distinguish between scripts called from within
-		// scripts and those triggered by MIDI?
-
-		if (si->getScript() == s && 
-			si->getTrack() == t &&
-			si->isTriggerEqual(action)) {
-
-			found = si;
-			break;
-		}
-	}
-
-	return found;
-}
-
-/**
- * Called by Mobius after a Function has completed.  
- * Must be called in the interrupt.
- * 
- * Used in the implementation of Function waits which are broken, need
- * to think more about this.
- *
- * Also called by MultiplyFunction when long-Multiply converts to 
- * a reset?
- * 
- */
-void Mobius::resumeScript(Track* t, Function* f)
-{
-	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
-		if (si->getTargetTrack() == t) {
-
-            // Don't trace this, we see them after every function and this
-            // doesn't work anyway.  If we ever make it work, this should first
-            // check to see if the script is actually waiting on this function
-            // before saying anything.
-            //Trace(2, "Mobius: Script thread %s: resuming\n",
-            //si->getTraceName());
-            si->resume(f);
-        }
-	}
-}
-
-/**
- * Called by Track::trackReset.  This must be called in the interrupt.
- * 
- * Normally when a track is reset, we cancel all scripts running in the track.
- * The exception is when the action is being performed BY a script which
- * is important for the unit tests.  Old logic in trackReset was:
- *
- *   	if (action != NULL && action->trigger != TriggerScript)
- *   	  mMobius->cancelScripts(action, this);
- *
- * I'm not sure under what conditions action can be null, but I'm worried
- * about changing that so we'll leave it as it was and not cancel
- * anything unless we have an Action.
- *
- * The second part is being made more restrictive so now we only keep
- * the script that is DOING the reset alive.  This means that if we have
- * scripts running in other tracks they will be canceled which is usually
- * what you want.  If necessary we can add a !noreset option.
- *
- * Also note that if the script uses "for" statements the track it may actually
- * be "in" is not necessarily the target track.
- *
- *     for 2
- *        Wait foo
- *     next
- *
- * If the script is waiting in track 2 and track 2 is reset the script has
- * to be canceled.  
- *
- */
-void Mobius::cancelScripts(Action* action, Track* t)
-{
-    if (action == NULL) {
-        // we had been ignoring these, when can this happen?
-        Trace(this, 2, "Mobius::cancelScripts NULL action\n");
-    }
-    else {
-        // this will be the interpreter doing the action
-        // hmm, rather than pass this through the Action, we could have
-        // doScriptMaintenance set a local variable for the thread
-        // it is currently running
-        ScriptInterpreter* src = (ScriptInterpreter*)(action->id);
-        bool global = (action->getFunction() == GlobalReset);
-
-        for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
-
-            if (si != src && (global || si->getTargetTrack() == t)) {
-                Trace(this, 2, "Mobius: Script thread %s: canceling\n",
-                      si->getTraceName());
-                si->stop();
-            }
-        }
-    }
-}
-
-/**
- * Called at the start of each audio interrupt to process
- * script timeouts and remove finished scripts from the run list.
- */
-void Mobius::doScriptMaintenance()
-{
-	// some of the scripts need to know the millisecond size of the buffer
-	int rate = mContainer->getSampleRate();	
-	long frames = mContainer->getInterruptFrames();
-	int msecsInBuffer = (int)((float)frames / ((float)rate / 1000.0));
-	// just in case we're having rounding errors, make sure this advances
-	if (msecsInBuffer == 0) msecsInBuffer = 1;
-
-	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
-
-		// run any pending statements
-		si->run();
-
-		if (si->isSustaining()) {
-			// still holding down the trigger, check sustain events
-			Script* script = si->getScript();
-			ScriptLabelStatement* label = script->getSustainLabel();
-			if (label != NULL) {
-			
-				// total we've waited so far
-				int msecs = si->getSustainedMsecs() + msecsInBuffer;
-
-				// number of msecs in a "long press" unit
-				int max = script->getSustainMsecs();
-
-				if (msecs < max) {
-					// not at the boundary yet
-					si->setSustainedMsecs(msecs);
-				}
-				else {
-					// passed a long press boundary
-					int ticks = si->getSustainCount();
-					si->setSustainCount(ticks + 1);
-					// don't have to be real accurate with this
-					si->setSustainedMsecs(0);
-                    Trace(this, 2, "Mobius: Script thread %s: notify sustain\n",
-                          si->getTraceName());
-					si->notify(label);
-				}
-			}
-		}
-
-		if (si->isClicking()) {
-			// still waiting for a double click
-			Script* script = si->getScript();
-			ScriptLabelStatement* label = script->getEndClickLabel();
-			
-            // total we've waited so far
-            int msecs = si->getClickedMsecs() + msecsInBuffer;
-
-            // number of msecs to wait for a double click
-            int max = script->getClickMsecs();
-
-            if (msecs < max) {
-                // not at the boundary yet
-                si->setClickedMsecs(msecs);
-            }
-            else {
-                // waited long enough
-                si->setClicking(false);
-                si->setClickedMsecs(0);
-                // don't have to have one of these
-                if (label != NULL) {
-                    Trace(this, 2, "Mobius: Script thread %s: notify end multiclick\n",
-                          si->getTraceName());
-                    si->notify(label);
-                }
-            }
-		}
-	}
-
-	freeScripts();
-}
-
-/**
- * Remove any scripts that have completed.
- * Because we call track/loop to free references to this interpreter,
- * this may only be called from within the interrupt handler.
- * Further, this should now only be called by doScriptMaintenance,
- * anywhere else we run the risk of freeing a thread that 
- * doScriptMaintenance is still iterating over.
- */
-void Mobius::freeScripts()
-{
-	ScriptInterpreter* next = NULL;
-	ScriptInterpreter* prev = NULL;
-
-	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = next) {
-		next = si->getNext();
-		if (!si->isFinished())
-		  prev = si;
-		else {
-			if (prev == NULL)
-			  mScripts = next;
-			else
-			  prev->setNext(next);
-
-			// sigh, a reference to this got left on Events scheduled
-			// while it was running, even if not Wait'ing, have to clean up
-			for (int i = 0 ; i < mTrackCount ; i++)
-			  mTracks[i]->removeScriptReferences(si);
-
-			// !! need to pool these
-			// !! are we absolutely sure there can't be any ScriptEvents
-			// pointing at this?  These used to live forever, it scares me
-
-            Trace(this, 2, "Mobius: Script thread %s: ending\n",
-                  si->getTraceName());
-
-			delete si;
-		}
-	}
+	//if (mListener != NULL)
+    //mListener->MobiusMessage(msg);
 }
 
 /****************************************************************************
@@ -2135,11 +1585,9 @@ void Mobius::unitTestSetup()
     Setup* setup = GetSetup(mConfig, UNIT_TEST_SETUP_NAME);
     setSetupInternal(setup);
 
-    // !! not supposed to do anything in the UI thread from within
-    // the interrupt handler, again for unit tests this is probably
-    // okay but really should be routing this through KernelEvent
-    if (mListener)
-      mListener->MobiusConfigChanged();
+    // can't do this down here
+    //if (mListener)
+    //mListener->MobiusConfigChanged();}
 }
 
 /**
@@ -2446,175 +1894,6 @@ void Mobius::toggleBounceRecording(Action* action)
 			}
 		}
 	}
-}
-
-/****************************************************************************
- *                                                                          *
- *   						   TRACK CALLBACKS                              *
- *                                                                          *
- ****************************************************************************/
-/*
- * These are methods calledby Track in order to process functions.
- *
- */
-
-/**
- * Called by Track when it processes a TrackCopySound or
- * TrackCopyTiming function.  Return the track that is the source
- * of the copy.  Currently defining this as the adjacent track on the left,
- * could be fancier, but it might require saving some state?
- */
-Track* Mobius::getSourceTrack()
-{
-	Track* src = NULL;
-
-    if (mTrackCount > 1) {
-        int index = mTrack->getRawNumber();
-        if (mTrackIndex > 0)
-          src = mTracks[index - 1];
-        else {
-            // wrap back to the last track or just prevent a copy?
-            src = mTracks[mTrackCount - 1];
-        }
-    }
-
-	return src;
-}
-
-
-/****************************************************************************
- *                                                                          *
- *                            UNIT TEST INTERFACE                           *
- *                                                                          *
- ****************************************************************************/
-/*
- * Originally just for the unit tests, but not used by Project too.
- */
-
-//////////////////////////////////////////////////////////////////////
-//
-// Acctionator support and forwarding
-// Provide accessors to the track state Actionator needs
-// and forward some older methods used by Scripts to the Actionator.
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Called by Actionator
- */
-Track* Mobius::getTrack()
-{
-    return mTrack;
-}
-
-/**
- * Called by Actionator
- */
-int Mobius::getTrackCount()
-{
-	return mTrackCount;
-}
-
-/**
- * Called by Actionator
- */
-Track* Mobius::getTrack(int index)
-{
-	return ((index >= 0 && index < mTrackCount) ? mTracks[index] : NULL);
-}
-
-/**
- * Called  by Actionator
- */
-ScriptInterpreter* Mobius::getScripts()
-{
-    return mScripts;
-}
-
-/**
- * Called by Actionator
- */
-long Mobius::getInterrupts()
-{
-    return mInterrupts;
-}
-
-Action* Mobius::newAction()
-{
-    return mActionator->newAction();
-}
-
-Action* Mobius::cloneAction(Action* src)
-{
-    return mActionator->cloneAction(src);
-}
-
-void Mobius::completeAction(Action* a)
-{
-    mActionator->completeAction(a);
-}
-
-/**
- * Merging the old doAction and doActionNow styles
- * to just be doActionNow.  Keep both till we transition everything.
- */
-void Mobius::doAction(Action* a)
-{
-    mActionator->doActionNow(a);
-}
-
-void Mobius::doActionNow(Action* a)
-{
-    mActionator->doActionNow(a);
-}
-
-Track* Mobius::resolveTrack(Action* a)
-{
-    return mActionator->resolveTrack(a);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// KernelEvents
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Called by Kernel when the Shell has finished processing a KernelEvent
- * For most events we need to inform the ScriptInterpreters so they can
- * cancel their wait states.
- *
- * This takes the place of what the old code did with special Actions.
- *
- * We do not take ownership of the event or return it to the pool.
- * It is not expected to be modified and no complex side effects should be
- * taking place.
- *
- * Timing should be assumed to be early in the audio interrupt before
- * containerAudioAvailable is called.  Might want to stage these and pass
- * them to constainerAudioAvailable like we do for UIActions so it has more
- * control over when they get done, but we're only using these for script
- * waits right now and it doesn't matter when they happen as long as it is
- * before doScriptMaintenance.
- */
-void Mobius::kernelEventCompleted(KernelEvent* e)
-{
-    // TimeBoundary can't be waited on
-    // !! this should be moved down to ScriptRuntime when that
-    // gets finished
-    if (e->type != EventTimeBoundary) {
-
-        for (ScriptInterpreter* si = mScripts ; si != NULL ; 
-             si = si->getNext()) {
-
-            // this won't advance the script, it just prunes the reference
-            // the script advances later in doScriptMaintenance
-
-            // this is where the new interface ends, can't call this
-            // until we retool, the core to use KernelEvenets
-            si->finishEvent(e);
-        }
-    }
 }
 
 /****************************************************************************/
