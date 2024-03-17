@@ -91,8 +91,8 @@ void KernelCommunicator::checkCapacity()
         totalCreated = KernelPoolInitialSize;
     }
     else if (poolSize < KernelPoolSizeConcern) {
-        Trace(1, "KernelCommunicator: pool extension by %d\n", KernelPoolReliefSize);
-        Trace(1, "  poolSize %d toKernel %d toShell %d\n",
+        Trace(2, "KernelCommunicator: pool extension by %d\n", KernelPoolReliefSize);
+        Trace(2, "  poolSize %d toKernel %d toShell %d\n",
               poolSize, shellSize, kernelSize);
 
         // technically should have a csect around this
@@ -119,24 +119,28 @@ void KernelCommunicator::checkCapacity()
  */
 void KernelCommunicator::traceStatistics()
 {
-    Trace(1, "KernelCommunicator: statistics\n");
-    Trace(1, "  Created %d available %d\n", totalCreated);
+    Trace(2, "KernelCommunicator: statistics\n");
+    Trace(2, "  Created %d available %d\n", totalCreated);
 
     int available = poolSize + shellSize + kernelSize;
     if (totalCreated > available)
-      Trace(1, "  Leaked %d\n", totalCreated - available);
+      Trace(2, "  Leaked %d\n", totalCreated - available);
 
-    Trace(1, "  min pool %d\n", minPool);
-    Trace(1, "  max shell %d\n", maxShell);
-    Trace(1, "  max kernel %d\n", maxKernel);
+    Trace(2, "  min pool %d\n", minPool);
+    Trace(2, "  max shell %d\n", maxShell);
+    Trace(2, "  max kernel %d\n", maxKernel);
 
     if (shellSize > 0) {
-        Trace(1, "  shell in use %d\n", shellSize);
+        Trace(2, "  shell in use %d\n", shellSize);
     }
 
     if (kernelSize > 0) {
-        Trace(1, "  kernel in use %d\n", kernelSize);
+        Trace(2, "  kernel in use %d\n", kernelSize);
     }
+
+    Trace(2, "Total shell sends %d\n", totalShellSends);
+    Trace(2, "Total kernel sends %d\n", totalKernelSends);
+    
 }
 
 /**
@@ -272,6 +276,7 @@ void KernelCommunicator::shellSend(KernelMessage* msg)
     if (kernelSize > maxKernel)
       maxKernel = kernelSize;
     shellUsing--;
+    totalShellSends++;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -333,6 +338,7 @@ void KernelCommunicator::kernelSend(KernelMessage* msg)
     if (shellSize > maxShell)
       maxShell = shellSize;
     kernelUsing--;
+    totalKernelSends++;
 }
 
 /****************************************************************************/

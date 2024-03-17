@@ -76,7 +76,6 @@ void Supervisor::start()
 
     // todo: think more about the initialization sequence here
     // see mobius-initialization.txt
-/*
     MobiusInterface::startup();
     mobius = MobiusInterface::getMobius(&mobiusContainer);
     // this is where the bulk of the engine initialization happens
@@ -84,7 +83,6 @@ void Supervisor::start()
     // audio and midi streams, I dislike the difference in side
     // effects between the first time this is called and the second time
     mobius->configure(config);
-*/
     
     // this hasn't been static initialized, don't remember why
     // it may have some dependencies 

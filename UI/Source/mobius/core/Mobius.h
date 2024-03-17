@@ -99,10 +99,9 @@ class Mobius :
     static void freeStaticObjects();
 
     /**
-     * This is still important for the UI but I don't want it to
-     * be on a per-track basis.
+     * Refresh and return state for the engine and the active track.
      */
-    class MobiusState* getState(int track);
+    class MobiusState* getState();
 
     // emerging initialization/reconfigure sequence
     

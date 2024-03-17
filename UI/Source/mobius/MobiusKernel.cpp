@@ -113,12 +113,13 @@ void MobiusKernel::initialize(MobiusContainer* cont, MobiusConfig* config)
 }
 
 /**
- * Retuen a pointer to the live MobiusState managed by the core
- * up to the shell.
+ * Return a pointer to the live MobiusState managed by the core
+ * up to the shell, destined for UI refresh.
+ * Called at regular intervals by the refresh thread.
  */
 MobiusState* MobiusKernel::getState()
 {
-    return (mCore != nullptr) ? mCore->getState(0) : nullptr;
+    return (mCore != nullptr) ? mCore->getState() : nullptr;
 }
 
 /**

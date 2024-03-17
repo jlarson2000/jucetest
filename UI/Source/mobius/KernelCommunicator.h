@@ -221,6 +221,8 @@ class KernelCommunicator
     int maxShell = 0;
     int maxKernel = 0;
     int poolExtensions = 0;
+    int totalShellSends = 0;
+    int totalKernelSends = 0;
     
     void deleteList(KernelMessage* list);
         

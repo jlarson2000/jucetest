@@ -850,11 +850,13 @@ void Mobius::endAudioInterrupt()
 		if (mTracks[i]->isUISignal())
 		  uiSignal = true;
 	}
+/*    
 	if (uiSignal) {
         KernelEvent* e = newKernelEvent();
         e->type = EventTimeBoundary;
         sendKernelEvent(e);
     }
+*/
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1167,24 +1169,15 @@ MobiusMode* Mobius::getMode()
  ****************************************************************************/
 
 /**
- * Returns the full MobiusState object, but the track argument
- * was used to only refresh MobiusTrackState for the desired track.
- * Probably a performance option, though the set of TrackStrip
- * components in the UI is going to want all of them so why
- * not just build it out completely?
- *
- * TODO: this is a mess
- * 
+ * Refresh and return the full MobiusState object.
+ * Called at regular intervals by the UI refresh thread.
+ * We could just let the internal MobiusState object be retained by the
+ * caller but this still serves as the mechanism to refresh it.
  */
 
-MobiusState* Mobius::getState(int track)
+MobiusState* Mobius::getState()
 {
 	MobiusState* s = &mState;
-
-	// don't like returning structures, can we return just the name?
-    // it doesn't look like anyone uses this
-    // no longer have this
-	//mState.bindings = mConfig->getOverlayBindingConfig();
 
 	// why not just keep it here?
     // this got lost, if you want it back just let this be the main location for it
@@ -1192,24 +1185,16 @@ MobiusState* Mobius::getState(int track)
 
 	mState.globalRecording = mCapturing;
 
-    // this is different from OG MobiusTrackState management
-    // see notes/mobius-state.txt
-    if (track >= 0 && track < mTrackCount) {
-        // should be within range but since the max's can come from different
-        // sources be safe
-        if (track >= MobiusStateMaxTracks) {
-            Trace(1, "Mobius::getState track %d out of range!\n", track);
-        }
-        else {
-            MobiusTrackState* tstate = &(mState.tracks[track]);
-            mTracks[track]->getState(tstate);
-        }
-        mState.activeTrack = track;
+    // OG Mobius only refreshed the active track, now we do all of them
+    // since the TrackStrips will want most things
+    
+    for (int i = 0 ; i < mTrackCount ; i++) {
+        Track* t = mTracks[i];
+        MobiusTrackState* tstate = &(mState.tracks[i]);
+        t->getState(tstate);
     }
-	else {
-        Trace(1, "Mobius::getState track %d out of range!\n", track);
-        mState.activeTrack = 0;
-	}
+    
+    mState.activeTrack = getActiveTrack();
 
 	return &mState;
 }

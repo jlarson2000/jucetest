@@ -46,9 +46,9 @@ MainWindow::MainWindow(Supervisor* super)
     // let the config editor pre-load all its panels
     configEditor.init(supervisor);
 
-    addChildComponent(test);
-    addChildComponent(table);
-    addChildComponent(tabs);
+    //addChildComponent(test);
+    //addChildComponent(table);
+    //addChildComponent(tabs);
 }
 
 MainWindow::~MainWindow()
