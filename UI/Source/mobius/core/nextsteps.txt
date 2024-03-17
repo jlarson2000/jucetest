@@ -7,7 +7,6 @@ Scripts
         think about separating the compile and link phases
       tell Kernel to install ScriptLibrary
 
-
    reconfigure
      MobiusShell intercepts MobiusConfig
      diff checking on ScriptConfig

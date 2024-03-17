@@ -48,6 +48,7 @@ typedef enum {
     MsgConfigure,
     MsgAction,
     MsgSamples,
+    MsgScripts,
     MsgEvent
 
 } MessageType;

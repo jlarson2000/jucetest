@@ -321,6 +321,23 @@ void Actionator::doCoreAction(UIAction* action)
         // should have ordinals now...
         Trace(1, "Actionator::doCoreAction Activation action not implemented\n");
     }
+    else if (action->type == ActionScript) {
+        // these behave like Functions in the old model,
+        // but they won't have a FunctionDefinition
+        // until we support script ordinals, have to look them up by name
+        Function* f = mMobius->getFunction(action->actionName);
+        if (f == nullptr) {
+            Trace(1, "Actionator: Unresolved script %s\n", action->actionName);
+        }
+        else {
+            coreAction = newAction();
+            coreAction->assimilate(action);
+            coreAction->implementation.function = f;
+            // core has not used ActionScript for this purpose
+            // change it to Function
+            coreAction->type = ActionFunction;
+        }
+    }
     else {
         Trace(1, "Actionator::doCoreAction Unknown action type %s\n", action->type->getName());
     }

@@ -1015,6 +1015,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Script.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Scriptarian.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\ScriptCompiler.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -1082,6 +1085,9 @@
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\ScriptAnalyzer.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\Simulator.cpp">
@@ -1160,6 +1166,9 @@
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp">
+      <Filter>UI\Source\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\model\ScriptAnalysis.cpp">
       <Filter>UI\Source\model</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp">
@@ -3909,6 +3918,9 @@
     <ClInclude Include="..\..\Source\mobius\core\Script.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Scriptarian.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\ScriptCompiler.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -3970,6 +3982,9 @@
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\SampleReader.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\ScriptAnalyzer.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Simulator.h">
@@ -4051,6 +4066,9 @@
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\SampleConfig.h">
+      <Filter>UI\Source\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\model\ScriptAnalysis.h">
       <Filter>UI\Source\model</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\model\ScriptConfig.h">

@@ -128,6 +128,7 @@
     <Binding action='function' name='Redo' trigger='ui' value='0'/>
     <Binding action='function' name='Coverage' trigger='ui' value='0'/>
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
+    <Binding action='script' name='test' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>

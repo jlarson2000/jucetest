@@ -181,7 +181,7 @@ class Mobius :
     class KernelEvent* newKernelEvent();
     void sendKernelEvent(class KernelEvent* e);
     
-    // Scripts, pass through to ScriptRuntime
+    // Scripts, pass through to Scriptarian/ScriptRuntime
 	void addMessage(const char* msg);
 	void runScript(class Action* action);
     void resumeScript(Track* t, Function* f);
@@ -295,8 +295,6 @@ class Mobius :
     // initialization
     void locateRuntimeSetup();
     void initializeTracks();
-    void initializeScripts();
-    void initializeFunctions();
 
     // reconfigure
     void propagateConfiguration();
@@ -338,9 +336,9 @@ class Mobius :
 	class Track* mTrack;
 	int mTrackCount;
 	class UserVariables* mVariables;
-    class ScriptRuntime* mScriptRuntime;
-	class ScriptEnv* mScriptEnv;
-    class Function** mFunctions;
+
+    class Scriptarian* mScriptarian;
+    
 	bool mHalting;
 	bool mNoExternalInput;
 	char mCustomMode[MAX_CUSTOM_MODE];

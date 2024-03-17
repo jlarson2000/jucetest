@@ -176,7 +176,7 @@ typedef enum {
 
 //////////////////////////////////////////////////////////////////////
 //
-// ScriptEnv
+// ScriptLibrary
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -184,14 +184,14 @@ typedef enum {
  * A collection of compiled scripts.
  * This is created by the ScriptCompiler from a ScriptConfig.
  */
-class ScriptEnv {
+class ScriptLibrary {
   public:
 
-	ScriptEnv();
-	~ScriptEnv();
+	ScriptLibrary();
+	~ScriptLibrary();
 
-    ScriptEnv* getNext();
-    void setNext(ScriptEnv* env);
+    ScriptLibrary* getNext();
+    void setNext(ScriptLibrary* env);
 
     class ScriptConfig* getSource();
     void setSource(ScriptConfig* config);
@@ -210,7 +210,7 @@ class ScriptEnv {
     /**
      * Link for the script environment history.
      */
-    ScriptEnv* mNext;
+    ScriptLibrary* mNext;
 
     /**
      * A copy of the ScriptConfig from which this environmment
@@ -318,11 +318,11 @@ class Script {
   public:
 
 	Script();
-    Script(ScriptEnv* env, const char* filename);
+    Script(ScriptLibrary* env, const char* filename);
 	~Script();
 
-    void setEnv(ScriptEnv* env);
-    ScriptEnv* getEnv();
+    void setLibrary(ScriptLibrary* env);
+    ScriptLibrary* getLibrary();
 
 	void setNext(Script* s);
     Script* getNext();
@@ -380,8 +380,8 @@ class Script {
 	bool isSustainAllowed();
 	bool isClickAllowed();
 
-    void setFunction(Function* f);
-    Function* getFunction();
+    void setFunction(class RunScriptFunction* f);
+    class RunScriptFunction* getFunction();
 
 	// notification labels
     void cacheLabels();
@@ -409,10 +409,10 @@ class Script {
 	 * Environment we're a part of.  
 	 * Necessary to resolve calls when !autoload is enabled.
 	 */
-	ScriptEnv* mEnv;
+	ScriptLibrary* mLibrary;
 
     /**
-     * Chain pointer within the ScriptEnv.
+     * Chain pointer within the ScriptLibrary.
      */
     Script* mNext;
 
@@ -420,7 +420,7 @@ class Script {
      * RunScriptFunction object we create to wrap this Script when 
      * it needs to be installed in the global function table.
      */
-    Function* mFunction;
+    class RunScriptFunction* mFunction;
 
     char* mName;
     char* mDisplayName;
@@ -519,7 +519,7 @@ class ScriptResolver : public ExResolver {
  *
  * An "include" directive would make it easier to build libraries of
  * Variable and Proc declarations.  We could try to resolve Variables
- * within the entire ScriptEnv like we do for Call to other scripts,
+ * within the entire ScriptLibrary like we do for Call to other scripts,
  * this makes it hard to see how a variable is going to behave.
  *
  * Proc libraries would be very useful for the unit tests, but have

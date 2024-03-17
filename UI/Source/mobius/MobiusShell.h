@@ -17,6 +17,7 @@
 #include "MobiusInterface.h"
 #include "Simulator.h"
 #include "KernelEventHandler.h"
+#include "ScriptAnalyzer.h"
 
 class MobiusShell : public MobiusInterface
 {
@@ -35,14 +36,21 @@ class MobiusShell : public MobiusInterface
     MobiusState* getState();    // also shared by the kernel
     void doAction(class UIAction* action);
     int getParameter(UIParameter* p, int tracknum = 0);
+    
     void installSamples(SampleConfig* samples);
-
+    class ScriptAnalysis* analyzeScripts(class ScriptConfig* config);
+    
     // management thread 
     void performMaintenance();
 
     // temporary test interfaces
     void simulateInterrupt(float* input, float* output, int frames);
     void test();
+
+    // temporary for ScriptAnalyzer
+    class MobiusKernel* getKernel() {
+        return &kernel;
+    }
     
   protected:
     
@@ -74,6 +82,8 @@ class MobiusShell : public MobiusInterface
     // temporary simulator
     bool doSimulation = false;
     Simulator simulator {this};
+
+    ScriptAnalyzer scriptAnalyzer {this};
 
     //
     // internal functions

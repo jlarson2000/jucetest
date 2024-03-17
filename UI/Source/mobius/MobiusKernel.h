@@ -66,7 +66,12 @@ class MobiusKernel : public MobiusContainer::AudioListener
     }
 
     class MobiusState* getState();
-
+    
+    // temporary for ScriptAnalyzer
+    class Mobius* getCore() {
+        return mCore;
+    }
+    
     // event management
     class KernelEvent* newEvent() {
         return eventPool.getEvent();

@@ -2,6 +2,8 @@
 #include <JuceHeader.h>
 
 #include "../../util/Trace.h"
+#include "../../util/List.h"
+
 #include "../../model/ActionType.h"
 #include "../../model/FunctionDefinition.h"
 #include "../../model/UIParameter.h"
@@ -9,6 +11,10 @@
 #include "../../model/Preset.h"
 #include "../../model/Setup.h"
 #include "../../model/Binding.h"
+
+// for getScriptNames
+#include "../../Supervisor.h"
+
 #include "BindingTargetPanel.h"
 
 BindingTargetPanel::BindingTargetPanel()
@@ -35,9 +41,16 @@ void BindingTargetPanel::configure(MobiusConfig* config)
         functions.add(f->getName());
     }
 
+    // scripts used to be just Functions in the dynamically
+    // extended Function array, now we have to analyze the ScriptConfig
     initBox(&scripts);
     addTab(juce::String("Scripts"), &scripts);
-    // todo: need a registry of loaded scripts
+    Supervisor* super = Supervisor::Instance;
+    StringList* names = super->getScriptNames();
+    for (int i = 0 ; i < names->size() ; i++) {
+        const char* name = names->getString(i);
+        scripts.add(name);
+    }
     
     initBox(&controls);
     addTab(juce::String("Controls"), &controls);
@@ -141,7 +154,8 @@ juce::String BindingTargetPanel::getSelectedTargetName()
             // cells won't have qualified names
             juce::String cellName = box->getSelectedValue();
             if (tab > 0) {
-                // not a function, add a qualifier
+                // if this is an activation, will need the Structure class
+                // as well somewhere
             }
             target = cellName;
         }
@@ -186,6 +200,10 @@ void BindingTargetPanel::reset()
  * desired target.  The format of the name must
  * match what is returned by getSelectedTarget so
  * if you add prefixes there you need to parse them here.
+ *
+ * !! current assumption is that the names will be unique
+ * within the entire namespace, which is ok for now but
+ * may not be.  
  */
 void BindingTargetPanel::showSelectedTarget(juce::String name)
 {

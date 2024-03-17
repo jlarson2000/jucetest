@@ -69,7 +69,7 @@ void MainThread::run()
 
         // refresh the UI every 10ms
         // Juce example has this, where does it come from?
-        wait(100);
+        wait(1000);
 
         // flush any accumulated trace messages
         FlushTrace();

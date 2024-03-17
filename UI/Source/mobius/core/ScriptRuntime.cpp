@@ -17,6 +17,7 @@
 #include "Mobius.h"
 #include "Script.h"
 #include "Track.h"
+#include "Script.h"
 
 #include "ScriptRuntime.h"
 
@@ -40,11 +41,23 @@ ScriptRuntime::ScriptRuntime(class Mobius* m)
  * before we start cascading a delete.
  *
  * Revist this...
+ *
+ * Ugh, I remember the problem here.  ScriptInterpreter has several
+ * references to things like Waits and "uses" and expects to unwind
+ * those.  If the model underneath those is gone at this point, mayhem ensues.
+ * So we have to make sure that ScriptRuntime is deleted early in the destruction
+ * sequence.
  */
 ScriptRuntime::~ScriptRuntime()
 {
     if (mScripts != NULL)
       Trace(1, "ScriptRuntime: Leaking lingering script interpreters!");
+
+    while (mScripts != nullptr) {
+        ScriptInterpreter* next = mScripts->getNext();
+        delete mScripts;
+        mScripts = next;
+    }
 }
 
 /**

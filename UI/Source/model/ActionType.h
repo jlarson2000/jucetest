@@ -39,11 +39,17 @@ extern ActionType* ActionFunction;
 extern ActionType* ActionParameter;
 extern ActionType* ActionActivation;
 
-// this was a weird one, used to send down notification
-// of the completion of a ThreadEvent (now KernelEvent)
-// we don't do this using Actions any more so this can be removed
-// unless you come up with some other reason to be able to send down
-// actions that target running ScriptInterpreters
+/**
+ * This was a weird one.
+ * Currently using this to indiciate calling a script which
+ * will not have a resolved FunctionDefinition pointer at this level.
+ * The UIAction will only have the name of the script to call and
+ * possibly an ordinal.
+ *
+ * In old code this was, used to send down notification
+ * of the completion of a ThreadEvent (now KernelEvent)
+ * we don't do this using Actions any more.
+ */
 extern ActionType* ActionScript;
 
 // until we can refactor all the old uses of TargetPreset

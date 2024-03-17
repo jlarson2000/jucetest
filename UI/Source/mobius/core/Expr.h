@@ -255,7 +255,7 @@ class ExNode {
   public:
 
 	ExNode();
-	~ExNode();
+	virtual ~ExNode();
 
 	ExNode* getNext();
 	void setNext(ExNode* n);

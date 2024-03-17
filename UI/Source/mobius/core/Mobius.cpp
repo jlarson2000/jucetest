@@ -51,6 +51,7 @@
 #include "Mode.h"
 #include "Parameter.h"
 //#include "Project.h"
+#include "Scriptarian.h"
 #include "ScriptCompiler.h"
 #include "Script.h"
 #include "ScriptRuntime.h"
@@ -92,9 +93,7 @@ Mobius::Mobius(MobiusKernel* kernel)
     mMidi = new StubMidiInterface();
     
     mActionator = new Actionator(this);
-    mScriptRuntime = new ScriptRuntime(this);
-    mScriptEnv = nullptr;
-    mFunctions = nullptr;
+    mScriptarian = new Scriptarian(this);
     
     //
     // Legacy Initialization
@@ -145,13 +144,7 @@ Mobius::~Mobius()
     // things owned by Kernel that can't be deleted
     // mContainer, mAudioPool, mConfig, mSetup
 
-    // functions are a mess, this is an array that combined
-    // StaticFunctions with generated Script functions
-    // and deleting the array won't delete the pointers in it
-    delete mFunctions;
-    
-	delete mScriptEnv;
-    delete mScriptRuntime;
+    delete mScriptarian;
 
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
@@ -312,8 +305,11 @@ void Mobius::initialize(MobiusConfig* config)
 	// Build the track list
     initializeTracks();
 
-    // compile and install scripts, builds the ScriptEnv
-    initializeScripts();
+    // compile and install scripts, builds the ScriptLibrary
+    // !! be consistent about where subcomponents are allocated
+    // in the Mobius constructor like Scriptarian, or here
+    // like Synchronizer
+    mScriptarian->initialize(config);
     
     // common, thread safe configuration propagation
     propagateConfiguration();
@@ -381,84 +377,6 @@ void Mobius::initializeTracks()
         // to set the active track from the Setup but since we need
         // to share that with reconfigure() do it there
     }
-}
-
-/**
- * Called by initialize() to set up the initial ScriptEnv
- * This can only be done during initialization right now.
- * ScriptConfig changes will not take effect until after restart.
- *
- * This also calls initializeFunctions to build the merged
- * static/script Function table.
- */
-void Mobius::initializeScripts()
-{
-    ScriptConfig* scriptConfig = mConfig->getScriptConfig();
-
-    ScriptCompiler* sc = new ScriptCompiler();
-    ScriptEnv* env = sc->compile(this, scriptConfig);
-    delete sc;
-
-    mScriptEnv = env;
-
-    // rebuild the global Function table to include top-level scripts
-    initializeFunctions();
-
-    // removed initScriptParameters since that didn't seem to do anything
-    // initScriptParameters();
-}
-
-/**
- * Called during the initialize() sequence after loading scripts
- * to build out the Function table.
- *
- * This was formerly a static array but this caused problems when the
- * plugin was instantiated more than once because the Script objects
- * would be deleted when one Mobius plugin was shut down but they were
- * still referenced by the other plugin.
- *
- * Old code should never look at the static Functions array, they
- * must always call Mobius::getFunction to include scripts.
- */
-void Mobius::initializeFunctions()
-{
-    Function** functions = NULL;
-	int i;
-
-    // should already be initialized but make sure
-    Function::initStaticFunctions();
-
-	// first count the static functions
-	// eventually make loop and track triggers dynamnic too
-	int staticCount = 0;
-	for ( ; StaticFunctions[staticCount] != NULL ; staticCount++);
-
-	// add script triggers
-	int scriptCount = 0;
-	List* scripts = NULL;
-	if (mScriptEnv != NULL) {
-		scripts = mScriptEnv->getScriptFunctions();
-		if (scripts != NULL)
-		  scriptCount = scripts->size();
-	}
-
-    // allocate a new array
-	functions = new Function*[staticCount + scriptCount + 1];
-
-    // add statics
-    int psn = 0;
-    for (i = 0 ; i < staticCount ; i++)
-	  functions[psn++] = StaticFunctions[i];
-
-    // add scripts
-    for (i = 0 ; i < scriptCount ; i++)
-      functions[psn++] = (RunScriptFunction*)scripts->get(i);
-
-    // and terminate it
-    functions[psn] = NULL;
-
-    // remember it
-    mFunctions = functions;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -585,8 +503,10 @@ void Mobius::propagateFunctionPreferences()
 {
     // Function sensitivity to focus lock
     StringList* names = mConfig->getFocusLockFunctions();
-    for (int i = 0 ; mFunctions[i] != NULL ; i++) {
-        Function* f = mFunctions[i];
+    Function** functions = mScriptarian->getFunctions();
+    
+    for (int i = 0 ; functions[i] != NULL ; i++) {
+        Function* f = functions[i];
         // always clear this if not in the config
         f->focusLockDisabled = false;
         
@@ -611,8 +531,8 @@ void Mobius::propagateFunctionPreferences()
 
     // Functions that can cancel Mute mode
 	names = mConfig->getMuteCancelFunctions();
-	for (int i = 0 ; mFunctions[i] != NULL ; i++) {
-		Function* f = mFunctions[i];
+	for (int i = 0 ; functions[i] != NULL ; i++) {
+		Function* f = functions[i];
 		if (f->mayCancelMute) {
 			if (names == NULL)
 			  f->cancelMute = false;
@@ -623,8 +543,8 @@ void Mobius::propagateFunctionPreferences()
 
     // Functions that can be used for Switch confirmation
 	names = mConfig->getConfirmationFunctions();
-	for (int i = 0 ; mFunctions[i] != NULL ; i++) {
-		Function* f = mFunctions[i];
+	for (int i = 0 ; functions[i] != NULL ; i++) {
+		Function* f = functions[i];
 		if (f->mayConfirm) {
 			if (names == NULL)
 			  f->confirms = false;
@@ -865,7 +785,7 @@ void Mobius::beginAudioInterrupt(UIAction* actions)
     mActionator->doInterruptActions(actions, mContainer->getInterruptFrames());
 
 	// process scripts
-    mScriptRuntime->doScriptMaintenance();
+    mScriptarian->doScriptMaintenance();
 }
 
 /**
@@ -1123,7 +1043,7 @@ void Mobius::kernelEventCompleted(KernelEvent* e)
     // gets finished
     if (e->type != EventTimeBoundary) {
 
-        mScriptRuntime->finishEvent(e);
+        mScriptarian->finishEvent(e);
     }
 }
 
@@ -1216,18 +1136,14 @@ Parameter* Mobius::getParameter(const char* name)
  * Comments indiciate that "Wait function" was never used and may not
  * work, but there is other code around waiting for a Switch to happen.
  * Need to sort this out.
+ *
+ * Now that this is encapsulated in Scriptarian find a way for
+ * Scripts to reference that instead so we don't need this
+ * pass through.
  */
 Function* Mobius::getFunction(const char * name)
 {
-    Function* found = Function::getFunction(mFunctions, name);
-    
-    // one last try with hidden functions
-    // can't we just have a hidden flag for these rather than
-    // two arrays?
-    if (found == NULL)
-      found = Function::getFunction(HiddenFunctions, name);
-
-    return found;
+    return mScriptarian->getFunction(name);
 }
 
 /**
@@ -1372,17 +1288,17 @@ const char* Mobius::getCustomMode()
 void Mobius::runScript(Action* action)
 {
     // everything is now encapsulated in here
-    mScriptRuntime->runScript(action);
+    mScriptarian->runScript(action);
 }
 
 void Mobius::resumeScript(Track* t, Function* f)
 {
-    mScriptRuntime->resumeScript(t, f);
+    mScriptarian->resumeScript(t, f);
 }
 
 void Mobius::cancelScripts(Action* action, Track* t)
 {
-    mScriptRuntime->cancelScripts(action, t);
+    mScriptarian->cancelScripts(action, t);
 }
 
 /**
@@ -1395,8 +1311,7 @@ void Mobius::cancelScripts(Action* action, Track* t)
  */
 void Mobius::addMessage(const char* msg)
 {
-	//if (mListener != NULL)
-    //mListener->MobiusMessage(msg);
+    mScriptarian->addMessage(msg);
 }
 
 /****************************************************************************

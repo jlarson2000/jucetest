@@ -17,6 +17,7 @@
 #include "../model/UIAction.h"
 #include "../model/XmlRenderer.h"
 #include "../model/UIEventType.h"
+#include "../model/ScriptAnalysis.h"
 
 #include "MobiusContainer.h"
 #include "MobiusKernel.h"
@@ -408,6 +409,36 @@ void MobiusShell::test()
 void MobiusShell::simulateInterrupt(float* input, float* output, int frames)
 {
     simulator.simulateInterrupt(input, output, frames);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Scripts
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Analyze the scripts referenced in a ScriptConfig and return information
+ * about them.
+ *
+ * todo: since analyis and compilation could be a relatively expensive
+ * operation, consider whether we need to cache this for use later if they
+ * are installed.
+ *
+ * Ownership of the ScriptConfig is retained by the caller.
+ * Ownership of the ScriptAnalysis passes to the caller who must delete it.
+ *
+ * !! going to want caching at some level but its complicated.
+ * Supervisor is currently caching the result and will invalidate whenever
+ * it thinks the MobiusConfig changes.  We could also cache it down here,
+ * but that would require Supervisor to call down to reconfigure() to
+ * invalidate the cache, which it probably does but has an obscure
+ * order dependency.
+ */
+ScriptAnalysis* MobiusShell::analyzeScripts(class ScriptConfig* config)
+{
+    scriptAnalyzer.analyze(config);
+    return scriptAnalyzer.takeAnalysis();
 }
 
 /****************************************************************************/

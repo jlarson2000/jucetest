@@ -295,6 +295,8 @@
           <FILE id="ciXgnG" name="Resampler.h" compile="0" resource="0" file="Source/mobius/core/Resampler.h"/>
           <FILE id="T2PYXg" name="Script.cpp" compile="1" resource="0" file="Source/mobius/core/Script.cpp"/>
           <FILE id="iKu9PT" name="Script.h" compile="0" resource="0" file="Source/mobius/core/Script.h"/>
+          <FILE id="JBhqXF" name="Scriptarian.cpp" compile="1" resource="0" file="Source/mobius/core/Scriptarian.cpp"/>
+          <FILE id="BnyopL" name="Scriptarian.h" compile="0" resource="0" file="Source/mobius/core/Scriptarian.h"/>
           <FILE id="Kx9XwY" name="ScriptCompiler.cpp" compile="1" resource="0"
                 file="Source/mobius/core/ScriptCompiler.cpp"/>
           <FILE id="xmZKKx" name="ScriptCompiler.h" compile="0" resource="0"
@@ -356,6 +358,10 @@
         <FILE id="JOsfQX" name="SampleReader.cpp" compile="1" resource="0"
               file="Source/mobius/SampleReader.cpp"/>
         <FILE id="RDP88j" name="SampleReader.h" compile="0" resource="0" file="Source/mobius/SampleReader.h"/>
+        <FILE id="r8da4m" name="ScriptAnalyzer.cpp" compile="1" resource="0"
+              file="Source/mobius/ScriptAnalyzer.cpp"/>
+        <FILE id="bT4DBP" name="ScriptAnalyzer.h" compile="0" resource="0"
+              file="Source/mobius/ScriptAnalyzer.h"/>
         <FILE id="YMzqJ9" name="Simulator.cpp" compile="1" resource="0" file="Source/mobius/Simulator.cpp"/>
         <FILE id="UuGokK" name="Simulator.h" compile="0" resource="0" file="Source/mobius/Simulator.h"/>
         <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>
@@ -422,6 +428,10 @@
         <FILE id="gNzjgL" name="SampleConfig.cpp" compile="1" resource="0"
               file="Source/model/SampleConfig.cpp"/>
         <FILE id="ndteTZ" name="SampleConfig.h" compile="0" resource="0" file="Source/model/SampleConfig.h"/>
+        <FILE id="nyZivT" name="ScriptAnalysis.cpp" compile="1" resource="0"
+              file="Source/model/ScriptAnalysis.cpp"/>
+        <FILE id="YaJIK8" name="ScriptAnalysis.h" compile="0" resource="0"
+              file="Source/model/ScriptAnalysis.h"/>
         <FILE id="NQ5JrS" name="ScriptConfig.cpp" compile="1" resource="0"
               file="Source/model/ScriptConfig.cpp"/>
         <FILE id="rxHb7c" name="ScriptConfig.h" compile="0" resource="0" file="Source/model/ScriptConfig.h"/>

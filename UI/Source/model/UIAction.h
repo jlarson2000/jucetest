@@ -39,7 +39,10 @@
  * Formerly had Bindable (now Structure) in here but I didn't like ugly cache
  * invalidation when the configuration objects are replaced.
  * Until it seems necessary, just remember the name and look them
- * up at runtime.  
+ * up at runtime.
+ *
+ * Ordinal may be set when available for faster lookup of Structures
+ * and Scripts.
  */
 typedef union {
 
@@ -226,7 +229,7 @@ class UIAction {
     //////////////////////////////////////////////////////////////////////
 
     /**
-     * The type of Operation to perform (Function, Parameter, or Activate)
+     * The type of action to perform (Function, Parameter, or Activate)
      */
     ActionType* type;
 
@@ -237,7 +240,7 @@ class UIAction {
 
     /**
      * A resolved pointer to a system constant object like Function
-     * or Parameter that implements the Operation.  For Structures
+     * or Parameter that implements the action.  For Structures
      * that can be activated, it will be ordinal of the object.
      * 
      */

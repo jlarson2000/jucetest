@@ -274,6 +274,7 @@
     <ClCompile Include="..\..\Source\mobius\core\Project.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Resampler.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Script.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\Scriptarian.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\ScriptCompiler.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\ScriptRuntime.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Segment.cpp"/>
@@ -297,6 +298,7 @@
     <ClCompile Include="..\..\Source\mobius\SampleBuilder.cpp"/>
     <ClCompile Include="..\..\Source\mobius\SampleManager.cpp"/>
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\ScriptAnalyzer.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Simulator.cpp"/>
     <ClCompile Include="..\..\Source\mobius\WaveFile.cpp"/>
     <ClCompile Include="..\..\Source\util\DataModel.cpp"/>
@@ -323,6 +325,7 @@
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Preset.cpp"/>
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp"/>
+    <ClCompile Include="..\..\Source\model\ScriptAnalysis.cpp"/>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\Structure.cpp"/>
@@ -2692,6 +2695,7 @@
     <ClInclude Include="..\..\Source\mobius\core\Project.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Resampler.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Script.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\Scriptarian.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ScriptCompiler.h"/>
     <ClInclude Include="..\..\Source\mobius\core\ScriptRuntime.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Segment.h"/>
@@ -2713,6 +2717,7 @@
     <ClInclude Include="..\..\Source\mobius\MobiusShell.h"/>
     <ClInclude Include="..\..\Source\mobius\SampleManager.h"/>
     <ClInclude Include="..\..\Source\mobius\SampleReader.h"/>
+    <ClInclude Include="..\..\Source\mobius\ScriptAnalyzer.h"/>
     <ClInclude Include="..\..\Source\mobius\Simulator.h"/>
     <ClInclude Include="..\..\Source\mobius\WaveFile.h"/>
     <ClInclude Include="..\..\Source\util\DataModel.h"/>
@@ -2740,6 +2745,7 @@
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>
     <ClInclude Include="..\..\Source\model\SampleConfig.h"/>
+    <ClInclude Include="..\..\Source\model\ScriptAnalysis.h"/>
     <ClInclude Include="..\..\Source\model\ScriptConfig.h"/>
     <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\Structure.h"/>

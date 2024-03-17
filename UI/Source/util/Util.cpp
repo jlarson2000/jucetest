@@ -362,6 +362,24 @@ int IndexOf(const char* str, const char* substr, int start)
 
 //////////////////////////////////////////////////////////////////////
 //
+// File utilities
+//
+//////////////////////////////////////////////////////////////////////
+
+bool IsFile(const char *name)
+{
+	bool exists = false;
+	struct stat sb;
+	
+	if (stat(name, &sb) == 0) {
+		if (sb.st_mode & S_IFREG)
+		  exists = true;
+	}
+	return exists;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // Exceptions
 //
 // This was originally used by the XML parser, not sure how much it

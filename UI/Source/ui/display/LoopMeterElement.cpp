@@ -111,6 +111,9 @@ void LoopMeterElement::paint(juce::Graphics& g)
     // borders, labels, etc.
     StatusElement::paint(g);
 
+    // bypass if we don't have a loop, fringe testing case
+    if (loop == nullptr) return;
+
     // outer border around the meter bar
     int leftOffset = MarkerOverhang;
     g.setColour(juce::Colour(MobiusBlue));

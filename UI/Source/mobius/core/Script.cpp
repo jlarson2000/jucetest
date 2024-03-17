@@ -34,7 +34,7 @@
  *   referenced functions, variables, and parameters.
  * 
  * Link
- *   Call references between scripts in the ScriptEnv are resolved.
+ *   Call references between scripts in the ScriptLibrary are resolved.
  *   Some statements may do their expression parsing and variable
  *   resolution here too.  Included in this process is the construction
  *   of a new Function array including both static functions and scripts.
@@ -923,7 +923,7 @@ void ScriptStatement::resolve(Mobius* m)
 }
 
 /**
- * Called when the entire ScriptEnv has been loaded and the
+ * Called when the entire ScriptLibrary has been loaded and the
  * scripts have been exported to the global function table.
  * Overloaded by the subclasses to resolve references between scripts.
  */
@@ -2876,6 +2876,8 @@ ScriptFunctionStatement::~ScriptFunctionStatement()
 {
 	delete mFunctionName;
 	delete mExpression;
+    // note that we do not own mFunction, it is usually static,
+    // if not it is owned by the Script
 }
 
 /**
@@ -2933,12 +2935,15 @@ void ScriptFunctionStatement::link(ScriptCompiler* comp)
             }
             else {
                 // has it been promoted?
-                mFunction = calledScript->getFunction();
-                if (mFunction == NULL) {
+                RunScriptFunction* rsf = calledScript->getFunction();
+                if (rsf == NULL) {
                     // promote it
-                    mFunction = new RunScriptFunction(calledScript);
-                    calledScript->setFunction(mFunction);
+                    rsf = new RunScriptFunction(calledScript);
+                    calledScript->setFunction(rsf);
                 }
+                // for our purposes, we use either the static or dynamic
+                // Function pointer and DO NOT delete it
+                mFunction = rsf;
             }
         }
     }
@@ -3655,16 +3660,16 @@ Script::Script()
 	init();
 }
 
-Script::Script(ScriptEnv* env, const char* filename)
+Script::Script(ScriptLibrary* env, const char* filename)
 {
 	init();
-	mEnv = env;
+	mLibrary = env;
     setFilename(filename);
 }
 
 void Script::init()
 {
-	mEnv = NULL;
+	mLibrary = NULL;
 	mNext = NULL;
     mFunction = NULL;
     mName = NULL;
@@ -3700,6 +3705,8 @@ Script::~Script()
 	Script *el, *next;
 
 	clear();
+    // if we were given a RunScriptFunction at link time or
+    // by Scriptarian, we own it
     delete mFunction;
 	delete mName;
 	delete mDisplayName;
@@ -3713,14 +3720,14 @@ Script::~Script()
 	}
 }
 
-void Script::setEnv(ScriptEnv* env)
+void Script::setLibrary(ScriptLibrary* env)
 {
-    mEnv = env;
+    mLibrary = env;
 }
 
-ScriptEnv* Script::getEnv()
+ScriptLibrary* Script::getLibrary()
 {
-    return mEnv;
+    return mLibrary;
 }
 
 void Script::setNext(Script* s)
@@ -4009,12 +4016,12 @@ bool Script::isClickAllowed()
 	return (mClickLabel != NULL || mEndClickLabel != NULL);
 }
 
-void Script::setFunction(Function* f)
+void Script::setFunction(RunScriptFunction* f)
 {
     mFunction = f;
 }
 
-Function* Script::getFunction()
+RunScriptFunction* Script::getFunction()
 {
     return mFunction;
 }
@@ -4077,20 +4084,20 @@ void Script::xwrite(const char* filename)
 
 //////////////////////////////////////////////////////////////////////
 //
-// ScriptEnv
+// ScriptLibrary
 //
 //////////////////////////////////////////////////////////////////////
 
-ScriptEnv::ScriptEnv()
+ScriptLibrary::ScriptLibrary()
 {
     mNext = NULL;
     mSource = NULL;
 	mScripts = NULL;
 }
 
-ScriptEnv::~ScriptEnv()
+ScriptLibrary::~ScriptLibrary()
 {
-	ScriptEnv *el, *next;
+	ScriptLibrary *el, *next;
 
     delete mSource;
     delete mScripts;
@@ -4102,62 +4109,36 @@ ScriptEnv::~ScriptEnv()
 	}
 }
 
-ScriptEnv* ScriptEnv::getNext()
+ScriptLibrary* ScriptLibrary::getNext()
 {
     return mNext;
 }
 
-void ScriptEnv::setNext(ScriptEnv* env)
+void ScriptLibrary::setNext(ScriptLibrary* env)
 {
     mNext = env;
 }
 
-ScriptConfig* ScriptEnv::getSource()
+ScriptConfig* ScriptLibrary::getSource()
 {
     return mSource;
 }
 
-void ScriptEnv::setSource(ScriptConfig* config)
+void ScriptLibrary::setSource(ScriptConfig* config)
 {
     delete mSource;
     mSource = config;
 }
 
-Script* ScriptEnv::getScripts()
+Script* ScriptLibrary::getScripts()
 {
 	return mScripts;
 }
 
-void ScriptEnv::setScripts(Script* scripts)
+void ScriptLibrary::setScripts(Script* scripts)
 {
     delete mScripts;
     mScripts = scripts;
-}
-
-/**
- * Return a list of Functions for the scripts that are allowed to be bound.
- * This is used by Function::initFunctions when building the global function
- * table.
- */
-List* ScriptEnv::getScriptFunctions()
-{
-	List* functions = NULL;
-
-    for (Script* s = mScripts ; s != NULL ; s = s->getNext()) {
-        if (!s->isHide()) {
-            // may already have a function if we had a cross reference
-            Function* f = s->getFunction();
-            if (f == NULL) {
-                f = new RunScriptFunction(s);
-                s->setFunction(f);
-            }
-
-            if (functions == NULL)
-              functions = new List();
-            functions->add(f);
-        }
-    }
-	return functions;
 }
 
 /**
@@ -4169,7 +4150,7 @@ List* ScriptEnv::getScriptFunctions()
  * ScriptConfig due to filtering out invalid names, compare with the
  * original ScriptConfig which we saved at compilation.
  */
-bool ScriptEnv::isDifference(ScriptConfig* config)
+bool ScriptLibrary::isDifference(ScriptConfig* config)
 {
     bool difference = false;
 
@@ -4196,7 +4177,7 @@ bool ScriptEnv::isDifference(ScriptConfig* config)
  * if it was specified or the base file name.
  * Might want to search on full path to be safe?
  */
-Script* ScriptEnv::getScript(Script* src)
+Script* ScriptLibrary::getScript(Script* src)
 {
     Script* found = NULL;
 

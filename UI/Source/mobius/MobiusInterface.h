@@ -134,6 +134,11 @@ class MobiusInterface {
     virtual void installSamples(class SampleConfig* samples) = 0;
 
     /**
+     * Analyze the scripts referenced in the configuration
+     */
+    virtual class ScriptAnalysis* analyzeScripts(class ScriptConfig* config) = 0;
+
+    /**
      * Run a random test
      */
     virtual void test() = 0;

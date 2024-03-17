@@ -1,7 +1,25 @@
 /**
  * Factored out of Script to try to keep copmilation code in one place.
+ *
+ * Still uses stdio, which works and is portable.  Could use Juce at some point.
+ * 
+ * This can be called in the UI/shell threads, and in the Kernel ONLY
+ * during the initialization phase.
+ *
+ * There was old code in here to support relative paths "so we can distribute
+ * examples" and folders.
+ *
+ * If a folder was in the ScriptConfig we load all .mos files in that folder.
+ * That was convenient for testing, but the new UI does not currently support that.
+ *
+ * We're only going to be getting absolute paths now, and that's the way it
+ * should be, leave it to the UI/Container to resolve relative paths if thhat
+ * becomes important.
+ *
+ * It might be nice to auto-load any .mob files left in the installation or configuration
+ * folders which would requires MobiusContainer to tell us where that is.
+ * 
  */
-
 
 #include "../../util/Util.h"
 #include "../../model/ScriptConfig.h"
@@ -21,7 +39,7 @@ ScriptCompiler::ScriptCompiler()
 {
     mMobius     = NULL;
     mParser     = NULL;
-    mEnv        = NULL;
+    mLibrary        = NULL;
     mScripts    = NULL;
     mLast       = NULL;
     mScript     = NULL;
@@ -36,92 +54,66 @@ ScriptCompiler::~ScriptCompiler()
 }
 
 /**
- * Compile a ScriptConfig into a ScriptEnv.
+ * Compile a ScriptConfig into a ScriptLibrary.
  * 
- * The returned ScriptEnv is completely self contained and only has
+ * The returned ScriptLibrary is completely self contained and only has
  * references to static objects like Functions and Parameters.
  * 
- * Mobius is only necessary to get the configuration directory out of the
- * MobiusContext.
+ * Mobius is only necessary to resolve references to Parameters and Functions.
  */
-ScriptEnv* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
+ScriptLibrary* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
 {
     // should not try to use this more than once
-    if (mEnv != NULL)
-      Trace(1, "ScriptCompiler: dangling environment!\n");
+    if (mLibrary != NULL)
+      Trace(1, "ScriptCompiler: dangling library!\n");
 
     mMobius = m;
-    mEnv = new ScriptEnv();
+    mLibrary = new ScriptLibrary();
     mScripts = NULL;
     mLast = NULL;
 
     // give it a copy of the config for later diff detection
-    mEnv->setSource(config->clone());
+    mLibrary->setSource(config->clone());
 
 	if (config != NULL) {
 		for (ScriptRef* ref = config->getScripts() ; ref != NULL ; 
 			 ref = ref->getNext()) {
 
-#if 0            
-            // allow relative paths so we can distribute examples
-            char path[1024];
+            // removed path handling relative to the installation and
+            // configuration folders, it must be absolute now
 			const char* file = ref->getFile();
-            if (IsAbsolute(file))
-              strcpy(path, file);
-            else {
-                MobiusContext* con = m->getContext();
 
-                strcpy(path, "");
-                // check configuration directory first
-                const char* srcdir = con->getConfigurationDirectory();
-                bool found = false;
-                if (srcdir != NULL) {
-                    sprintf(path, "%s/%s", srcdir, file);
-                    found = IsFile(path) || IsDirectory(path);
-                }
+            // removed support for folders because the old file utils
+            // had ugly OS conditionals in them, use Juce for this
+            // if we want it again
 
-                // fall back to installation directory
-                if (!found) {
-                    srcdir = con->getInstallationDirectory();
-                    if (srcdir != NULL)
-                      sprintf(path, "%s/%s", srcdir, file);
-                    else
-                      strcpy(path, file);
-                }
-            }
-
-			if (IsFile(path)) {
-				parse(path);
-			}
-			else if (IsDirectory(path)) {
-				Trace(2, "Reading Mobius script directory: %s\n", path);
-				StringList* files = GetDirectoryFiles(path, ".mos");
-				if (files != NULL) {
-					for (int i = 0 ; i < files->size() ; i++) {
-						parse(files->getString(i));
-					}
-				}
+            // IsFile uses standard library calls so it's easy
+			if (IsFile(file)) {
+				parse(file);
 			}
             else {
                 Trace(1, "Invalid script path: %s\n", file);
             }
-#endif            
-		}
-	}
-
+        }
+    }
+    
     // Link Phase
+    // todo: this I'd like to try deferring until it is
+    // actually installed in the kernel
     for (Script* s = mScripts ; s != NULL ; s = s->getNext())
       link(s);
     
-    mEnv->setScripts(mScripts);
+    mLibrary->setScripts(mScripts);
 
-    return mEnv;
+    return mLibrary;
 }
 
 /**
+ * Haven't ported this yet...
+ *
  * Recompile one script declared with !autoload
  * Keep the same script object so we don't have to mess
- * with substitution in the ScriptEnv and elsewhere.
+ * with substitution in the ScriptLibrary and elsewhere.
  * This should only be called if the script is not currently
  * running, ScriptInterpreter checks that.
  * 
@@ -152,7 +144,7 @@ void ScriptCompiler::recompile(Mobius* m, Script* script)
                 Trace(2, "Re-reading Mobius script %s\n", filename);
 
                 // Get the environment for linking script references
-                mEnv = script->getEnv();
+                mLibrary = script->getLibrary();
 
                 if (!parse(fp, script)) {
                     // hmm, could try to splice it out of everywhere
@@ -195,7 +187,6 @@ void ScriptCompiler::link(Script* s)
  */
 void ScriptCompiler::parse(const char* filename)
 {
-#if 0
     if (!IsFile(filename)) {
 		Trace(1, "Unable to locate script file %s\n", filename);
 	}
@@ -207,7 +198,7 @@ void ScriptCompiler::parse(const char* filename)
         else {
 			Trace(2, "Reading Mobius script %s\n", filename);
 
-            Script* script = new Script(mEnv, filename);
+            Script* script = new Script(mLibrary, filename);
             
 			// remember the directory, for later relative references
 			// within the script
@@ -238,10 +229,8 @@ void ScriptCompiler::parse(const char* filename)
             fclose(fp);
         }
     }
-#endif    
 }
 
-#if 0
 bool ScriptCompiler::parse(FILE* fp, Script* script)
 {
 	char line[SCRIPT_MAX_LINE + 4];
@@ -419,7 +408,6 @@ bool ScriptCompiler::parse(FILE* fp, Script* script)
     // parse errors and let the script do the best it can?
     return true;
 }
-#endif
 
 /**
  * Helper for script declaration argument parsing.
@@ -765,9 +753,9 @@ void ScriptCompiler::syntaxError(ScriptStatement* stmt, const char* msg)
  *
  * This can be called in two contexts: when compiling an entire ScriptConfig
  * and when recompiling an individual script with !autoload.  In the
- * first case we only look at the local mScripts list since mEnv
+ * first case we only look at the local mScripts list since mLibrary
  * may have things that are no longer configured.  In the second
- * case we must use what is in mEnv.
+ * case we must use what is in mLibrary.
  */
 Script* ScriptCompiler::resolveScript(const char* name)
 {
@@ -777,9 +765,9 @@ Script* ScriptCompiler::resolveScript(const char* name)
         // must be doing a full ScriptConfig compile
         found = resolveScript(mScripts, name);
     }
-    else if (mEnv != NULL) {
-        // fall back to ScriptEnv
-        found = resolveScript(mEnv->getScripts(), name);
+    else if (mLibrary != NULL) {
+        // fall back to ScriptLibrary
+        found = resolveScript(mLibrary->getScripts(), name);
     }
 
     return found;
@@ -825,7 +813,7 @@ Script* ScriptCompiler::resolveScript(Script* scripts, const char* name)
     }
 
     if (found != NULL) {
-		Trace(2, "ScriptEnv: Reference %s resolved to script %s\n",
+		Trace(2, "ScriptLibrary: Reference %s resolved to script %s\n",
 			  name, found->getFilename());
 	}
 

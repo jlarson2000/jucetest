@@ -53,6 +53,10 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
+    // used by BindingTargetPanel to get the names
+    // of the configured Scripts
+    class StringList* getScriptNames();
+
     class MobiusInterface* getMobius() {
         return mobius;
     }
@@ -99,7 +103,7 @@ class Supervisor
 
     // the singleton instance is managed by MobiusInterface::shutdown
     // do not make this a unique_ptr
-    class MobiusInterface* mobius;
+    class MobiusInterface* mobius = nullptr;
     JuceMobiusContainer mobiusContainer {this};
     
     MainThread uiThread {this};
@@ -109,6 +113,8 @@ class Supervisor
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;
     std::unique_ptr<class UIConfig> uiConfig;
+    // script information created on demand
+    std::unique_ptr<class ScriptAnalysis> scriptAnalysis;
 
     // Audio callback statistics
     int prepareToPlayCalls = 0;

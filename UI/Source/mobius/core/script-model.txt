@@ -1,0 +1,132 @@
+
+Script model is unfortunately wound tightly with both the compile-time (ScriptCompiler)
+and runtime (ScriptInterpreter) models.
+
+The compile/link phases are separate phases, but the core ScriptStatement model has references
+to both environments, meaning you can't build this in the UI layer without dragging
+in all the complex internal components, including Mobius.
+
+The UI currently requires ScriptConfig only which has no dependencies.  In order
+to get the list of script names for bindings, it would either have to call down
+to a fully instantiated Mobius to do the parsing, or it would need some sort
+of mini-parser that just did the preamble enough to dig out the name. That would not
+be hard.
+
+I think compiling does not have kernel side effects beyond resolving to static Function
+and Parameter objects, so it is safe to do in the shell, including linking, you just
+can't eval() in the shell.
+
+Compiler wants to use fopen and FILE so the approach taken with Samples where
+file handling is potentially done even above the shell can't be done without major
+refactoring.
+
+All the relative file handling shit needs to go though, ScriptConfig has absolute
+paths.
+
+I'd like to factor out ScriptLoader but file handling is too integrated with
+ScriptCompiler right now, save that for later.
+
+The steps are:
+
+UI
+  edits ScriptConfig
+    - simple list of absolute paths, no directries right now
+
+  validate scripts
+    - doesn't exist yet, but it would be nice to have a "Validate" button
+      in the config editor that loaded and parsed the scripts to generate error
+      messages then displayed them
+        StringList* MobiusInterface::validateScripts(ScriptConfig)
+
+  edits bindings
+    - needs to know the names of runnable scripts in the library for binding UI
+    - could call all the way down to MobiusShell to parse the names
+       StringList* MobiusInterface::getScriptTargets(ScriptConfig)
+    - or have a mini-parser, but would need a lot of duplicate file handling
+
+  ! script analysis
+    - new thing: a MobiusInterface method to analyze a ScriptConfig and return
+    a simple object describing the scripts in it, and any problems it has
+    ScriptAnalysis* MobiusInterface::analyzeScripts(ScriptConfig)
+
+  sends UIActions
+    - UIAction model needs to reference the scripts before they become Functions
+      - there is no dynamic RunScriptFunction building in the UI
+    - start with name references and defer the resolution to Script objects until
+      core boundary, can introduce ordinals later
+    - ordinal assignment could be one of the things returned in ScriptAnalysis
+
+  ScriptAnalysis becomes part of the external model
+
+MobiusShell
+
+  - provide interface for analyzing a ScriptConfig
+    will have to leave file handling in the shell, can't push this up to the UI
+    without a lot more work
+
+  - new ScriptAnalyzer
+    shell level tool that reaches down into core to use ScriptCompiler
+    ScriptCompiler itself must be safe to use in the shell but it can resolve to
+    static core objects
+    ! generated RunScriptFunction Function objects will be sticky here
+    ugh, ScriptCompiler can't resolve to RunScriptFunctions in the Functions array
+    without actually installing the compilation result in the Kernel
+    need to be able to defer how that final link phase is done to kernel
+
+  - on initialize or reconfigure
+    use ScriptAnalyzer to build out the ScriptLibrary, mostly resolved
+    except for RunScriptFunctions
+      hmm, it could actually just build those and leave them in the analysis result
+    - error handling is unclear, we don't have a result from initialize() or reconfigure()
+      yet but that could be nice
+
+    ? do we want different MobiusInterface methods for script installation like we do for samples?
+      reconfigure() doesn't automatcailly slam the scripts in, the UI
+      has to call MobiusInterface::installScripts
+      - this would be done automatically in initialize()
+      - messes up the way ConfigPanels work, needs a special case for ScriptPanel
+
+      - if we do it automatically, difference detection can look at file changes
+        but then we need a ReloadScripts interface method or an Action to force it
+        don't think we need to bother with a UIAction/Function here, that would give you
+        a "Reload Scripts" action button for free, but can also just use a main menu item
+
+  - after script analysis, either automatic or forced
+    package the ScriptLibrary in a KernelMessage and send it down
+
+MobiusKernel
+
+  - receives KernelMessage with already compiled ScriptLibrary
+  - on initialize() only, need a method shell can call directly
+     MobiusKernel::installScripts(ScriptLibrary)
+  - passes ScriptLibrary to Mobius
+
+Mobius core
+  - receives ScriptLibrary from kernel
+  - do not do this as part of initialize or reconfigure?  must receive
+    an explicit call
+    yeah, go with that, keep complicated differencing out of initialize/reconfigure
+    since those are going to be called frequently with no script differences
+
+  - sends ScriptLibrary to Scriptarian to rebuild the Function tables and do
+    final resolution
+
+Next Steps
+
+  ScriptAnalysis
+    - new simple structure for script analysis
+    - new MobiusInterface methods to analyze
+
+  ScriptLibrary
+    - renamed ScriptEnv
+
+  Scriptarian
+    - new internal component to deal with libraries and build the Functions table
+
+
+
+
+
+
+
+

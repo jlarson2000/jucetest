@@ -22,6 +22,7 @@
 #include "model/XmlRenderer.h"
 #include "model/UIAction.h"
 #include "model/MobiusState.h"
+#include "model/ScriptAnalysis.h"
 
 #include "ui/DisplayManager.h"
 
@@ -75,6 +76,7 @@ void Supervisor::start()
 
     // todo: think more about the initialization sequence here
     // see mobius-initialization.txt
+/*
     MobiusInterface::startup();
     mobius = MobiusInterface::getMobius(&mobiusContainer);
     // this is where the bulk of the engine initialization happens
@@ -82,7 +84,8 @@ void Supervisor::start()
     // audio and midi streams, I dislike the difference in side
     // effects between the first time this is called and the second time
     mobius->configure(config);
-
+*/
+    
     // this hasn't been static initialized, don't remember why
     // it may have some dependencies 
     displayManager.reset(new DisplayManager(this, mainComponent));
@@ -99,9 +102,11 @@ void Supervisor::start()
     uiThread.start();
 
     // initial display update
-    MobiusState* state = mobius->getState();
-    displayManager->update(state);
-
+    if (mobius != nullptr) {
+        MobiusState* state = mobius->getState();
+        displayManager->update(state);
+    }
+    
     // wait till everything is initialized before pumping events
     binderator.configure(config);
     binderator.start();
@@ -225,18 +230,21 @@ juce::AudioDeviceManager& Supervisor::getAudioDeviceManager()
  */
 void Supervisor::advance()
 {
-    // tell the engine to do housekeeping before we refresh the UI
-    mobius->performMaintenance();
+    if (mobius != nullptr) {
+        // tell the engine to do housekeeping before we refresh the UI
+        mobius->performMaintenance();
 
-    // tell the simulator to pretend it received some audio
-    // this will set beat flags in state
-    // geez, this violates the notion that we're using a simulator at all
-    // but what the hell, it's okay for now
-    mobius->simulateInterrupt(nullptr, nullptr, 4110);
+        // tell the simulator to pretend it received some audio
+        // this will set beat flags in state
+        // geez, this violates the notion that we're using a simulator at all
+        // but what the hell, it's okay for now
+        mobius->simulateInterrupt(nullptr, nullptr, 4110);
+        
+        // traverse the display components telling then to reflect changes in the engine
+        MobiusState* state = mobius->getState();
+        displayManager->update(state);
+    }
     
-    // traverse the display components telling then to reflect changes in the engine
-    MobiusState* state = mobius->getState();
-    displayManager->update(state);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -403,8 +411,15 @@ void Supervisor::updateMobiusConfig()
 
         writeMobiusConfig(config);
 
+        // it's possible ScriptConfig was changed but we don't
+        // know for sure at this point without a more granular
+        // way to signal it from the ConfigEditor, release
+        // the script analysis cache
+        scriptAnalysis.reset(nullptr);
+
         displayManager->configure(config);
-        mobius->configure(config);
+        if (mobius != nullptr)
+          mobius->configure(config);
         binderator.configure(config);
         midiManager.configure(config);
     }
@@ -419,6 +434,47 @@ void Supervisor::updateUIConfig()
         // DisplayManager/MainWindow are the primary consumers of this
         displayManager->configure(config);
     }
+}
+
+/**
+ * Used by the BindingTargetPanel to show the list of scripts that
+ * may be referenced in a binding.
+ *
+ * This is complicated because it requires not just inspection
+ * of the ScriptConfig, but also loading the files it references
+ * to see what the names of the Scripts will be at runtime.
+ *
+ * It's not as simple as I'd like, but there is so much old script
+ * file parsing code involved with this and I don't want to mess it up.
+ * The analysis will be done by MobiusInterface and we'll cache it here
+ * so we don't have to keep going back unless the configuration changes.
+ *
+ * ScriptAnalysis has more in it than just the names, once it contains
+ * error messages, find a way to display those somewhere.
+ */
+StringList* Supervisor::getScriptNames()
+{
+    StringList* names = nullptr;
+    
+    if (!scriptAnalysis) {
+        // load it
+        MobiusConfig *config = getMobiusConfig();
+        ScriptConfig* sconfig = config->getScriptConfig();
+        if (sconfig != nullptr) {
+            if (mobius != nullptr) {
+                ScriptAnalysis* sa = mobius->analyzeScripts(sconfig);
+                // cache it in the smart pointer
+                scriptAnalysis.reset(sa);
+            }
+        }
+    }
+
+    if (scriptAnalysis) {
+        ScriptAnalysis* sa = scriptAnalysis.get();
+        names = sa->getNames();
+    }
+    
+    return names;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -436,7 +492,9 @@ void Supervisor::installSamples()
     if (sconfig != nullptr) {
         SampleConfig* loaded = sr.loadSamples(sconfig);
         if (loaded != nullptr) {
-            mobius->installSamples(loaded);
+            if (mobius != nullptr) {
+                mobius->installSamples(loaded);
+            }
         }
     }
 }
@@ -484,8 +542,11 @@ void Supervisor::doAction(UIAction* action)
           break;
     }
 
-    if (!handled)
-      mobius->doAction(action);
+    if (!handled) {
+        if (mobius != nullptr) {
+            mobius->doAction(action);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
