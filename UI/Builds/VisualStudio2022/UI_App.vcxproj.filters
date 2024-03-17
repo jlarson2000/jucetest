@@ -691,6 +691,9 @@
     <ClCompile Include="..\..\Source\ui\config\ScriptPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\config\ScriptTable.cpp">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp">
       <Filter>UI\Source\ui\config</Filter>
     </ClCompile>
@@ -3697,6 +3700,9 @@
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\ScriptPanel.h">
+      <Filter>UI\Source\ui\config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\config\ScriptTable.h">
       <Filter>UI\Source\ui\config</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h">

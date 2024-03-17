@@ -15,7 +15,6 @@
 SamplePanel::SamplePanel(ConfigEditor* argEditor) :
     ConfigPanel{argEditor, "Samples", ConfigPanelButton::Save | ConfigPanelButton::Cancel, false}
 {
-    // debugging hack
     setName("SamplePanel");
 
     content.addAndMakeVisible(table);

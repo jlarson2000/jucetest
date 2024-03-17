@@ -130,6 +130,7 @@
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
+    <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>

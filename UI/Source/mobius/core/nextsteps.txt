@@ -1,5 +1,43 @@
-merge Actionator::doInterruptActions
-  and that TriggerState tracker
+Scripts
+  initialization
+    MobuisShell intercepts incomming MobiusConfig
+      rename ScriptEnv to ScriptLibrary
+      Factor out ScriptLoader which contains a ScriptCompiler
+      build a ScriptLibrary
+        think about separating the compile and link phases
+      tell Kernel to install ScriptLibrary
+
+
+   reconfigure
+     MobiusShell intercepts MobiusConfig
+     diff checking on ScriptConfig
+     build ScriptLibrary
+     send KernelMessage with new ScriptLibrary
+     MobiusKernel installs library
+       - cancel all running scripts
+       - rebuild function table
+
+  issue: UI does not extend the FunctionDefinition table to have ScriptRefs
+    ordinal mapping of Functions won't work
+    have to look them up by name, or use a new concept Script Ordinals
+    doing this for samples, but some scripts aren't meant to be called directly
+    folders in the ScriptConfig consuse this too
+    name lookups not terrible if using a HashMap
+    could have an interface where MobiusInterface has a way to look up a script
+    ordinal by name, would be cached in the UIAction
+      although folders complicate by-name bindings too, we have to find all
+      of them anyway to show them in the BindingTargetPanel
+      maybe skip folders for now
+
+Yes, want a Scriptarian to manage the ScriptLibrary and the merged Function table
+  or if we start reffing script by ordinal keep two different tables
+  and search both
+  might be able to do away with RunScriptFunction altogether and just
+  modify the Action
+  I think this can work as long as running a script can't be quantized
+   and need an Event with a Function
+   
+
 
 Long press record broke along the way
   need to completely rethink trigger handling and move as much

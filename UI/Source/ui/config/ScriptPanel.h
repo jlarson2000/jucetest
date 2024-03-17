@@ -6,8 +6,8 @@
 
 #include <JuceHeader.h>
 
-#include "../common/Form.h"
 #include "ConfigPanel.h"
+#include "ScriptTable.h"
 
 class ScriptPanel : public ConfigPanel 
 {
@@ -20,8 +20,11 @@ class ScriptPanel : public ConfigPanel
     void save();
     void cancel();
 
+    void resized() override;
+
   private:
 
-    juce::Label label {"Scripts"};
+    ScriptTable table;
+    juce::String lastFolder;
 
 };

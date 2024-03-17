@@ -166,6 +166,7 @@
     <ClCompile Include="..\..\Source\ui\config\SamplePanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SampleTable.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\ScriptPanel.cpp"/>
+    <ClCompile Include="..\..\Source\ui\config\ScriptTable.cpp"/>
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
@@ -2622,6 +2623,7 @@
     <ClInclude Include="..\..\Source\ui\config\SamplePanel.h"/>
     <ClInclude Include="..\..\Source\ui\config\SampleTable.h"/>
     <ClInclude Include="..\..\Source\ui\config\ScriptPanel.h"/>
+    <ClInclude Include="..\..\Source\ui\config\ScriptTable.h"/>
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButton.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h"/>

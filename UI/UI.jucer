@@ -73,6 +73,8 @@
           <FILE id="zM7JM5" name="SampleTable.h" compile="0" resource="0" file="Source/ui/config/SampleTable.h"/>
           <FILE id="LMAEQ5" name="ScriptPanel.cpp" compile="1" resource="0" file="Source/ui/config/ScriptPanel.cpp"/>
           <FILE id="bUHoC6" name="ScriptPanel.h" compile="0" resource="0" file="Source/ui/config/ScriptPanel.h"/>
+          <FILE id="hZGAaO" name="ScriptTable.cpp" compile="1" resource="0" file="Source/ui/config/ScriptTable.cpp"/>
+          <FILE id="iSQI1L" name="ScriptTable.h" compile="0" resource="0" file="Source/ui/config/ScriptTable.h"/>
           <FILE id="exr3oW" name="SetupPanel.cpp" compile="1" resource="0" file="Source/ui/config/SetupPanel.cpp"/>
           <FILE id="F0YB7p" name="SetupPanel.h" compile="0" resource="0" file="Source/ui/config/SetupPanel.h"/>
         </GROUP>
