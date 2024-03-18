@@ -1,0 +1,23 @@
+
+Nice to have multiple levels of mobius-redirect files
+Support multiple lines in redirect with # comments
+
+Echo to send to both stdout and debug console
+
+relative paths in ScriptConfig
+relative paths in SampleConfig
+
+lobotomize UnitTestSetup for now, rely on pre-configured mobius.xml
+
+Obey noExternalAudio
+
+If we defer sample loading, need a LoadSamples function
+
+While we're there LoadScripts
+  - change menu to just call the two new functions with UIAction
+
+Want buttons to dynamically reconfigure every time scripts are loaded
+  - see dynamic-configuration.txt for thoughs here
+
+Someday would like one-off script loading not bound up in ScriptConfig.
+

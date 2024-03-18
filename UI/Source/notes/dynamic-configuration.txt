@@ -1,0 +1,110 @@
+Thoughts on dynamic configuration of the engine and UI in response to
+loading extended configuration objects like ScriptConfig or SampleConfig.
+
+Meandering thoughts, executive summary:
+
+There can be "dynamic configuration" that the UI may want to respond do that
+can't be derived from the mobius.xml files.  Or from static Function and Parameter objects.
+The XML files need to be loaded and processed by the engine first.  Especially this is scripts,
+but also samples and possibly some form of more general "plugin" in the future.
+
+This could evolve into a much more flexible name/value style of configuration model.
+Rather than forcing the UI to know the MobiusConfig strutcture and static objects directly.
+
+Dynamic configuration consists mainly of Action types and Parameters
+
+UI asks for DynamicConfiguration immediately after sending down a MobiusConfig through
+initialize or reconfigure()
+
+Mobius sends a DynamicConfigChange listener notification if the config changes without
+UI initiation (as a side effect of another action like the LoadScripts function).
+
+Items in the dynamic config are binding targets (actions).  They can be identified by
+name for display and ordinal for optimized lookup.
+
+Some items may have an "automatic binding" which creates a binding without user intervention.
+Most notably for UI buttons.
+
+Automatic binding of parameters could be used for the Instant Parameters component.
+
+---
+
+Alternately, could have something in MobiusState that indiciates when
+scripts changed, just a number like scriptLoads, sampleLoads
+whenever these change the UI may want to respond to config sensitive components
+
+The general issue is any UI component that is sensitive to something in MobiusConfig
+or UIConfig that can be changed by the engine.
+
+  maxTracks
+  maxLoops
+  script buttons
+  sample buttons
+
+Mostly just script/sample action buttons, but leave this open for other things.  A Listener
+is simple and very flexible.  Requires that the UI respond to things that aren't in the
+raw XML files.  Yeah, that's the trick.
+
+Some things the UI just needs a notification to re-read the .xml files or look at the value
+of a memory parameter.  When monitoring memory parameters, MobiusState works well enough
+if the parameter is there.  maxLoops and maxTracks are handled.
+
+Scripts have UI sensitivity that can't be known until the scripts are loaded so it is beyond
+the .xml files.  UI shouldn't be in the business of parsing script files to dig that out,
+need to ask the engine.  Mostly this is just scripts, so explore that later.
+
+For Samples the only thing we could do with them is install action buttons.  In theory
+an arbitrary binding could come with the sample, but that would be modeled in the Sample
+structure in xml.  I like the notion of auto-generating UI action initiators from sample config,
+but that's simple since the engine can't extend the sample model on the fly.
+
+Scripts are where everything gets crazy flexible.  Things a script could do:
+
+   - add/remove action buttons
+   - add/remove menu items
+   - add/remove track strip elements
+
+Scripts influence the UI in two ways
+   - static: part of the Script model, parsed by the engine and sent to the UI
+     does not require user initiating beyond loading the scripts
+     limited to two things
+        actions - engine gains new action types, basically just script invocation
+          rendered as buttons or menu items, available as binding targets
+        parameter/variable - engine gains a parameter that can be displayed and set
+          outside of the XML model
+          currently could be rendered only with the "instant parameters" component
+          started down that path with UserVariable
+
+Don't think we need scripts that operate agains the UI model, interesting but overkill
+but possible.  Scripts basically just perform actions and set parameters against
+a receiver.  Could abstract that and have the UI provide the set of functions and parameters
+the scripts can link to.  Consider this going forward, get scripts out of the business
+of knowing too much about the looping engine.  Some things like Waits will be pretty
+mobius specific though.
+
+So one general concept is, after loading an "extended" configuration, currently just
+scripts and samples.  The engine may be able to advertize actions and parameters that
+aren't in the core model.  These would become available for bindings.
+
+The notion of "auto bind".  In addition to just being there for manual bindings, the
+extended config could ask that a binding be automatically created.  This is how buttons appear.
+
+After any configuration change (initialize, reconfigure) or in response to
+a listener callback MobiusConfigChanged, the UI is expected to call this:
+
+   DynamicConfig* MobiusInterface::getDynamicConfig
+
+The DynamicConfig object can then be cached and reused until it might be changed either
+after UI initiated action, or in response to the listener.
+
+Can't always assume the UI will initiate, ususually it will because it calls
+initialize() or reconfigure() it could just follow that with an immediate synchronous
+call to getDynamicConfig.  But if we allow actions like LoadScripts or LoadScript (incremental!)
+the UI won't know what those do so it still needs a listener.
+
+This is good.  DynamicConfig can have a model specific to what we need now, but can
+be generalized in the future.  The basic mechanisms of retrieving it and notifying
+when it changes are the same.
+
+
+

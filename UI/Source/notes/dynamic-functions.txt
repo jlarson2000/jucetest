@@ -1,0 +1,166 @@
+
+Thoughts on Functions
+
+There is really no need for the UI to work from static FunctionDefionition objects
+most of the time.  The only thing that may be desired is if a Function take arguments,
+then we could model the function signature to help the UI.  Otherwise all the UI needs to
+know is
+
+    name
+    displayName  (doesn't have to be different in this case)
+    ordinal
+    arginfo (optional)
+
+The engine will have internal ordinals that won't be the same as
+UI ordinals, if the UI even needs those.  So mapping will exist.
+
+Knowing the engine ordinals can be part of a discovery process related
+to getDynamicConfig
+
+It's really the same thing: get me all of the possible ActionFunction
+names and ordinals.  That's all you need for the binding UI.
+
+This list is made up of static Functions, callable Scripts, and eventually lambdas!
+
+
+There are only a very small number of Functions that the UI may need to know
+with a concrete model: GlobalReset is one.  But like we have a configure()
+and installSamples() methods directdly on MobiusInterface we can just have
+methods for those, you don't have to do everything with Actions.
+
+Call these the "intrinisic functions" or "interface functions".  There is no
+definition for those, the UI just calls them directly.  Everything else is an Action.
+
+
+Within the engine, it needs to build an ordinal mapping array for fast invocation.
+This can be an array that combines
+
+   static Function pointers
+   Scripts via RunScriptFunction
+   lambdas via RunLambdaFunction
+
+This array is built dynamically whenever the internal configuration changes.
+
+Doing that now in Scriptarian, it gets more complex when we add lambdas, but very similar.
+
+The internal Function model has some legcy structure we need to preserve but fundamentally
+all it needs to do is provide a Function::invoke(Action) method.
+
+Lambda functions are basically the same but they don't have a Function object for
+the closure context.  That's all Functions do, " I want to call this method on this object
+with these arguments".  Arguments are simplified with UIAction.
+
+Functionator would be nice to package this up and provide management for the
+generated Function wrappers, RunScriptFunction and RunLambda function.  RunScriptFunction
+is the problem because those are owned by the Script but could do that safely.
+
+What FunctionDefinition definitely does do now that is useful is provide a stable ordinal.
+Mobius can build the ordinal mapping table just by looking at two concrete arrays of objects.
+UIAction is effectively created with a built-in ordinal via the FunctionDefinition pointer.
+
+If we get rid of FunctionDefinition we've got the name lookup problem.  Need some form
+of resolution or linkage where the engine is provided a list of binding target names and
+it returns the internal ordinals to use for those.  Then UIAction can just pass down the ordinal.
+
+That could be a way to wire in a small number of special functions, just define static
+ordinals that will never change as integer constants.
+
+Ordinal linking is the hard part, some options:
+
+    Mobius::doAction(UIAction)
+      if the UIAction has an ordinal use it, otherwise look it up by name
+      and SAVE it in the UIAction for next time
+      that's the simplest and works for most things since UIActions tend to be constructed
+      once and reused, and copied by Mobius if there are multiple invocations
+
+   int Mobius::getOrdinal(const char* name);
+     this assumes that the ordinal namespace is clean, and contains both functions and parameters
+     hmm, no, still like separating those
+
+   int Mobius::getOrdinal(ActionType type (Function), name)
+     get the ordinal of a function target
+     assumes statics, scripts, and lambdas live in the same namespace
+     if you pass just ActionFunction, otherwise could have ActionScript and ActionLambda
+     but really the UI shouldn't have to care about this, it just needs to knwo the
+     names/ordinals and not how they are implemented.  The only time implementation matters
+     is a convenience for UI display organization
+
+  But we don't need getOrdinal if doAction sets it as a side effect, there is only
+    overhead on the first call.  But could do tis:
+
+  DynamicConfig* Mobius::getConfig(...list of names?)
+
+no, this is complicated and calling getOrdinal one at a time isn't that bad
+
+Really what we want is
+
+   int[] getOrdinals(Bindings* list)
+
+who uses FunctionDefinition?
+
+   Binderator
+     when building UIActions, only needs the ordinal
+
+   MobiusKernel
+     when recognizing SamplePlay
+     still want to have action handlers that don't go through any fancy ordinal mapping
+     just receive UIAction and switch on a simple identifier, could use ordinals for this
+     but then they would have to live in a special ordinal space (static ordinals)
+
+     same applies to eventual UI-only functions, those won't have objects that contain their
+     invoke() behavior just just want to switch on a number and call a method, similar to lambdas
+     but more built-in
+
+     yes, will need ordinal ranges, those within a certain range can use mapping tables, those outside
+     have to be handled with explicit code comparisions
+
+Ordinal Spaces
+   UI - numbers that only the UI recognizes, not in mapping tables in the engine
+   Intrinsic - numbers that are recognized by the engine, not in mapping tables
+   Function - numbers that correspond to the old Function table or whatever optimized
+     dispatch table the engine wants to use
+
+
+Things that happen frequently should have mapped ordinals, others don't need that.
+
+Are Parameters the same?  Sort of, the critical thing UIParameter does is provide
+the methods for C++ structdure editing and UI presentation.  So we do need a model for most of
+those, until we might reach a state where we use lambdas for all that.
+
+There can still be Intrinsic parameters though, just a number that the code recognizes
+and are not mapped through a model.  The config editors would not normally use those.
+
+So really what UIParameter is right now is ModelParameter: objects designed for the editing
+of a MobiusConfig or UIConfig object.  That's all they do.  They have no behavior.
+
+Mobius has a combination of BehaviorParameters and ModelParameters with mostly overlap.
+Would be very nice to have both internally to prevent the duplication.  ModelParameters
+are shared by the UI/engine.  BehaviorParameters extend that model with behavior and are
+linked through ordinals, or just direct object pointers.
+
+Nice digression, back to lambdas...
+
+What I want is this
+
+  Mobius returns a DynamicAction like this
+     type=ActionFunction or ActionLambda
+     name="Load Scripts"
+     ordinal=42
+
+  UI creates a Binding between a MIDI event, or a UI button that sends
+    a UIAction containing the type and ordinal, that's all it needs to know
+
+  Mobius recieves this and looks up the lambda for 42 in a table and calls it
+
+  Lambda does something like Mobius::doSomething(action)
+
+No need for this:
+
+   Mobius::doAction(action)
+     Actionator: find the Function
+       Function::invoke
+         mobius->doSomething(extracted action args)
+
+
+
+  

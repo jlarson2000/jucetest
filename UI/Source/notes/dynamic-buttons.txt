@@ -1,0 +1,58 @@
+Follow on to dynamic-functions
+
+where this all started is a desire to have loading scripts automatically add/remove UI buttons
+
+What triggers this
+  initial configuration or MobiusDynamicConfigChanged notification
+
+
+What to do
+  a variant of configure() that walks the DynamicConfig all the way down to ActionButtons
+  like we do for UIConfig and MobiusConfig
+
+OR
+
+  ActionButtons registers a DynamicConfigListener on Supervisor
+    this is nice because there are so few that actually need this
+
+A listener model is also nice for UI Functions since there won't be many of those.
+
+So basically
+  - config is widespread
+       downward configure() walk
+  - config is selective
+       upward listener registeration
+
+The downside of a Listener model is initialization.  Unless we "fire" change notifications
+immediately after the usual config, the subcomponents need to reach up to Supervisor to get
+it the first time, complicates encapsulation.
+
+Not such a bad thing but kind of messy
+
+  Supervisor::initalize
+
+     do stuff
+     build MainDisplay
+     mainDisplay.configure(mobiusConfig, uiConfig)
+     .. as things build out they register listeners
+     fire all the DynamicConfigListeners
+
+same thing happens on update.
+
+yeah let's go with that for now, we need the listener model anyway to respond
+to random script loads, so why have two ways to get it.  Still could
+do the downward walk but I'd like to combine all config into one walk
+
+   something.configure(mobiusConfig, uiConfig, dynamicConfig)
+
+The only potential problem is components that may want to CHANGE the configuration
+as they initialize themselves.  Happens with some of those that bootstrap
+an initial state when they are used for the first time and want to persist that
+in UIConfig.  Would never happen with mobiusConfig or dynamicConfig assuming
+that is strictly engine dynamics.
+
+ActionButtons on notification
+
+get the list of buttion actions from DynamicConfig
+  remove the ones not on the list and add the ones that are
+
