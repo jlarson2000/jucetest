@@ -11,6 +11,7 @@
 #include "../../model/Preset.h"
 #include "../../model/Setup.h"
 #include "../../model/Binding.h"
+#include "../../model/DynamicConfig.h"
 
 // for getScriptNames
 #include "../../Supervisor.h"
@@ -41,15 +42,37 @@ void BindingTargetPanel::configure(MobiusConfig* config)
         functions.add(f->getName());
     }
 
+    // experiment with function-like things that have no concrete
+    // FunctionDefinition underneath
+    Supervisor* super = Supervisor::Instance;
+    DynamicConfig* dynconfig = super->getDynamicConfig();
+    if (dynconfig != nullptr) {
+        juce::OwnedArray<DynamicAction>* actions = dynconfig->getActions();
+        for (int i = 0 ; i < actions->size() ; i++) {
+            // jfc, why doesn't OwnedArray have a get(index)???
+            DynamicAction* action = (*actions)[i];
+            if (action->type == ActionIntrinsic) {
+                // todo: have the name/displayName in the model but not using it yet
+                const char* name = action->name.toUTF8();
+                functions.add(name);
+            }
+        }
+    }
+
     // scripts used to be just Functions in the dynamically
     // extended Function array, now we have to analyze the ScriptConfig
     initBox(&scripts);
     addTab(juce::String("Scripts"), &scripts);
-    Supervisor* super = Supervisor::Instance;
-    StringList* names = super->getScriptNames();
-    for (int i = 0 ; i < names->size() ; i++) {
-        const char* name = names->getString(i);
-        scripts.add(name);
+    if (dynconfig != nullptr) {
+        juce::OwnedArray<DynamicAction>* actions = dynconfig->getActions();
+        for (int i = 0 ; i < actions->size() ; i++) {
+            DynamicAction* action = (*actions)[i];
+            if (action->type == ActionScript) {
+                // todo: have the name/displayName in the model but not using it yet
+                const char* name = action->name.toUTF8();
+                scripts.add(name);
+            }
+        }
     }
     
     initBox(&controls);
@@ -126,7 +149,20 @@ ActionType* BindingTargetPanel::getSelectedTargetType()
     }
 
     switch (tab) {
-        case 0: type = ActionFunction; break;
+        case 0: {
+            // this one is weird now that we are merging the FunctionDefinitions
+            // and the DynamicActions with ActionIntrinsic
+            // we didn't keep enough state to remember that, so have
+            // to search the definition list
+            // really need to keep a model for every item that has it's type and ordinal
+            // as well asjust the name
+            juce::String name = getSelectedTargetName();
+            FunctionDefinition* f = FunctionDefinition::find(name.toUTF8());
+            if (f != nullptr)
+              type = ActionFunction;
+            else
+              type = ActionIntrinsic;
+        } break;
         case 1: type = ActionScript; break;
         case 2: type = ActionParameter; break; // !! visual only, still a Parameter
         case 3: type = ActionParameter; break; 
@@ -278,6 +314,8 @@ void BindingTargetPanel::capture(Binding* b)
     b->action = getSelectedTargetType();
     juce::String name = getSelectedTargetName();
     b->setActionName(name.toUTF8());
+    // for ActionIntrinsic could be saving the ordinal
+    // but we can resolve that later by name
 }
 
 void BindingTargetPanel::select(Binding* b)

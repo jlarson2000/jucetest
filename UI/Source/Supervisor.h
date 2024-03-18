@@ -13,12 +13,14 @@
 #include <JuceHeader.h>
 
 #include "JuceMobiusContainer.h"
+#include "mobius/MobiusInterface.h"
+
 #include "MainThread.h"
 #include "Binderator.h"
 #include "MidiManager.h"
 #include "RootLocator.h"
 
-class Supervisor
+class Supervisor : public MobiusListener
 {
   public:
 
@@ -33,6 +35,15 @@ class Supervisor
       public:
         virtual ~ActionListener() {};
         virtual bool doAction(UIAction* action) = 0;
+    };
+
+    /**
+     * Evolving listener interface for internal display components that
+     * want to be sensitive to the DynamicConfig from the engine.
+     */
+    class DynamicConfigListener {
+      public:
+        virtual void dynamicConfigChanged(DynamicConfig* config) = 0;
     };
 
     /**
@@ -56,6 +67,8 @@ class Supervisor
     class UIConfig* getUIConfig();
     void updateUIConfig();
 
+    class DynamicConfig* getDynamicConfig();
+
     // used by BindingTargetPanel to get the names
     // of the configured Scripts
     class StringList* getScriptNames();
@@ -75,6 +88,9 @@ class Supervisor
     void addActionListener(ActionListener* l);
     void removeActionListener(ActionListener* l);
 
+    void addDynamicConfigListener(DynamicConfigListener* l);
+    void removeDynamicConfigListener(DynamicConfigListener* l);
+
     // only to be called by MainThread
     void advance();
     
@@ -82,6 +98,10 @@ class Supervisor
 
     // some menu implementations
     void installSamples();
+
+    // MobiusListener
+	void MobiusTimeBoundary();
+    void MobiusDynamicConfigChanged();
 
     // audio thread callbacks
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
@@ -114,13 +134,13 @@ class Supervisor
     MainThread uiThread {this};
 
     juce::Array<ActionListener*> actionListeners;
+    juce::Array<DynamicConfigListener*> dynamicConfigListeners;
 
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;
     std::unique_ptr<class UIConfig> uiConfig;
-    // script information created on demand
-    std::unique_ptr<class ScriptAnalysis> scriptAnalysis;
-
+    std::unique_ptr<class DynamicConfig> dynamicConfig;
+    
     // Audio callback statistics
     int prepareToPlayCalls = 0;
     int getNextAudioBlockCalls = 0;
@@ -148,5 +168,6 @@ class Supervisor
     class UIConfig* readUIConfig();
     void writeUIConfig(class UIConfig* config);
     
+    void notifyDynamicConfigListeners();
     
 };

@@ -62,8 +62,9 @@ typedef union {
 
     void* pointer;
     class MobiusConfig* configuration;
-    class SampleManager* samples;
     class UIAction* action;
+    class SampleManager* samples;
+    class Scriptarian* scripts;
     class KernelEvent* event;
     
 } MessageObject;

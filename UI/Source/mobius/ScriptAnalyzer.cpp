@@ -16,11 +16,17 @@
  * We're only doing compilation here with no kernel side effects so it's
  * safe if dangerous looking.
  *
+ * This started using the ScriptAnalysis function to pass back the analysis
+ * but I'm now using DynamicConfig.  Get rid of ScriptAnalysis eventually.
+ *
+ * Keeping the ScriptLibrary in case it becomes useful but don't need
+ * it currently.
+ *
  */
 
 #include "../util/Trace.h"
 #include "../model/ScriptConfig.h"
-#include "../model/ScriptAnalysis.h"
+#include "../model/DynamicConfig.h"
 
 #include "MobiusShell.h"
 #include "MobiusKernel.h"
@@ -38,41 +44,18 @@ ScriptAnalyzer::~ScriptAnalyzer()
 }
 
 /**
- * Return the analysis
- * Ownership passes to the caller which must delete it.
- *
- * todo: do we need both get/take methods here?
- */
-ScriptAnalysis* ScriptAnalyzer::takeAnalysis()
-{
-    ScriptAnalysis* anal = mAnalysis;
-    mAnalysis = nullptr;
-    return anal;
-}
-
-ScriptLibrary* ScriptAnalyzer::takeLibrary()
-{
-    ScriptLibrary* lib = mLibrary;
-    mLibrary = nullptr;
-    return lib;
-}
-
-/**
  * Do the analysis.
  * Could try to break up the analysis from the full compilation
  * but the UI is likely going to want error messages along with
  * just the script target names so do both.
  *
- * The ScriptConfig remains owned by the caller.
- * Normally takeAnalysis is immediately called to pass it back up.
+ * Both the ScriptConfig and DynamicConfig remain owned by the caller.
+ * 
+ * The internal ScriptLibrary ls left around in case you need it later
+ * without a full recompile but not doing that right now.
  */
-void ScriptAnalyzer::analyze(ScriptConfig* config)
+void ScriptAnalyzer::analyze(ScriptConfig* srcconfig, DynamicConfig* dynconfig)
 {
-    // start over if we had lingering results
-    // we're rebuilding this every time so don't really need to
-    // save them, but might want to cache
-    delete mAnalysis;
-    mAnalysis = nullptr;
     delete mLibrary;
     mLibrary = nullptr;
 
@@ -85,11 +68,9 @@ void ScriptAnalyzer::analyze(ScriptConfig* config)
     MobiusKernel* kernel = shell->getKernel();
     Mobius* core = kernel->getCore();
     
-    mLibrary = compiler->compile(core, config);
+    mLibrary = compiler->compile(core, srcconfig);
     delete compiler;
 
-    // simplify the ScriptLibrary contents into a ScriptAnalysis
-    // don't have error messages yet
     Script* scripts = mLibrary->getScripts();
     while (scripts != nullptr) {
         // Script names are obscure
@@ -99,11 +80,25 @@ void ScriptAnalyzer::analyze(ScriptConfig* config)
         // for the name that must be used to reference it
         const char* bindingName = scripts->getDisplayName();
         if (bindingName != nullptr) {
-            if (mAnalysis == nullptr)
-              mAnalysis = new ScriptAnalysis();
-            mAnalysis->addName(bindingName);
-            if (scripts->isButton())
-              mAnalysis->addButton(bindingName);
+
+            DynamicAction* action = new DynamicAction();
+            // todo: need the name vs displayname difference here?
+            // as long as the name that is displayed can also be
+            // in a UIAction it doesn't matter
+            action->name = bindingName;
+            action->type = ActionScript;
+
+            // todo: I want scripts to have ordinals for fast lookup
+            // this could be just the order they are encountered in the ScriptConfig
+            // but I'm not sure how embedded Procs work, should we have several
+            // callable script procs per file?
+            // keep it simple and have just the name for now
+            action->ordinal = 0;
+
+            // todo: one day have more flexible binding suggestions
+            action->button = scripts->isButton();
+
+            dynconfig->addAction(action);
 
             scripts = scripts->getNext();
         }

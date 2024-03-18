@@ -215,6 +215,16 @@ void Scriptarian::addMessage(const char* msg)
     //mListener->MobiusMessage(msg);
 }
 
+/**
+ * Used by Mobius to phase in a new Scriptarian containing
+ * a newly loaded Script model.  This can't be done if any
+ * Scripts are still running.
+ */
+bool Scriptarian::isBusy()
+{
+    return mRuntime->isBusy();
+}
+
 /****************************************************************************/
 /****************************************************************************/
 /****************************************************************************/

@@ -14,11 +14,8 @@ class ScriptAnalyzer
 
     ~ScriptAnalyzer();
 
-    void analyze(class ScriptConfig* config);
-
-    class ScriptAnalysis* takeAnalysis();
-    class ScriptLibrary* takeLibrary();
-                                    
+    void analyze(class ScriptConfig* config, class DynamicConfig* dynconfig);
+    
   private:
     
     class MobiusShell* shell;

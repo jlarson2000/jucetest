@@ -7,8 +7,12 @@
 
 #include <JuceHeader.h>
 
+#include "../../Supervisor.h"
 #include "../../model/MobiusConfig.h"
+#include "../../model/DynamicConfig.h"
+
 #include "../JuceUtil.h"
+
 #include "ActionButton.h"
 #include "ActionButtons.h"
 #include "MobiusDisplay.h"
@@ -17,10 +21,15 @@ ActionButtons::ActionButtons(MobiusDisplay* argDisplay)
 {
     setName("ActionButtons");
     display = argDisplay;
+
+    // this one is unusual in that we want to know about 
+    // DynamicConfig changes to adjust the buttons
+    Supervisor::Instance->addDynamicConfigListener(this);
 }
 
 ActionButtons::~ActionButtons()
 {
+    Supervisor::Instance->removeDynamicConfigListener(this);
 }
 
 void ActionButtons::add(ActionButton* b)
@@ -39,26 +48,142 @@ void ActionButtons::add(ActionButton* b)
  */
 void ActionButtons::configure(MobiusConfig* config)
 {
-    // remove the current set of buttons
+    buildButtons(config);
+}
+
+void ActionButtons::addButton(ActionButton* b)
+{
+    b->addListener(this);
+    addAndMakeVisible(b);
+    buttons.add(b);
+}
+
+/**
+ * Note that this deletes the button.
+ * buttons.remove will call the destructor.
+ */
+void ActionButtons::removeButton(ActionButton* b)
+{
+    b->removeListener(this);
+    removeChildComponent(b);
+    // yuno remove(b) ?
+    int index = buttons.indexOf(b);
+    if (index >= 0)
+      buttons.remove(index);
+}
+
+/**
+ * We've got two ways to build out the button list, configure()
+ * which pulls them from the MobiusConfig and dynamicConfigChanged()
+ * which pulls them from the DynamicConfig.
+ *
+ * Both sources need to be merged.
+ *
+ * Here we do just the MobiusConfig buttons and preserve the dynamic
+ * buttons and dynamicConfigChanged will do the reverse.
+ */
+void ActionButtons::buildButtons(MobiusConfig* config)
+{
+    // find the things to keep
+    juce::Array<ActionButton*> dynamicButtons;
+    for (int i = 0 ; i < buttons.size() ; i++) {
+        ActionButton* b = buttons[i];
+        if (b->isDynamic()) {
+            dynamicButtons.add(b);
+        }
+    }
+
+    // remove everything from the parent component
     for (int i = 0 ; i < buttons.size() ; i++) {
       removeChildComponent(buttons[i]);
     }
+
+    // remove the ones we want to keep from the owned button list
+    for (int i = 0 ; i < dynamicButtons.size() ; i++) {
+        ActionButton* b = dynamicButtons[i];
+        buttons.removeAndReturn(buttons.indexOf(b));
+    }
+
+    // delete what's left
     buttons.clear();
 
+    // add the MobiusConfig buttons
     BindingSet* baseBindings = config->getBindingSets();
     if (baseBindings != nullptr) {
         Binding* binding = baseBindings->getBindings();
         while (binding != nullptr) {
             if (binding->trigger == TriggerUI) {
                 ActionButton* b = new ActionButton(binding);
-                // could use a Listener pattern or just point it
-                // back to us since we're the only ones that use them
-                b->addListener(this);
-                addAndMakeVisible(b);
-                buttons.add(b);
+                addButton(b);
             }
             binding = binding->getNext();
         }
+    }
+    
+    // and restore the dynamic buttons
+    for (int i = 0 ; i < dynamicButtons.size() ; i++) {
+        addButton(dynamicButtons[i]);
+    }
+}
+
+/**
+ * Rebuild the button list after the DynamicConfig changed.
+ * Here we preserve the MobiusConfig buttons, and rebuild
+ * the dynamic buttons.
+ *
+ * If the button was manually configured then leave it in place.
+ * Otherwise completely rebuild the dynamic button list at the end.
+ * Order will be random which is enough for now.
+ */
+void ActionButtons::dynamicConfigChanged(DynamicConfig* config)
+{
+    bool changes = false;
+    
+    // don't like iteration index assumptions so build
+    // an intermediate list
+    juce::StringArray thingsToKeep;
+    juce::Array<ActionButton*> thingsToRemove;
+    
+    for (int i = 0 ; i < buttons.size() ; i++) {
+        ActionButton* b = buttons[i];
+        if (b->isDynamic()) {
+            thingsToRemove.add(b);
+        }
+        else {
+            thingsToKeep.add(b->getButtonText());
+        }
+    }
+    
+    // remove all the current dynamic buttons
+    for (int i = 0 ; i < thingsToRemove.size() ; i++) {
+        ActionButton* b = thingsToRemove[i];
+        removeButton(b);
+        // removeButton uses button.remove which deletes it
+        changes = true;
+    }
+
+    // now add back the ones that aren't already there
+    juce::OwnedArray<DynamicAction>* actions = config->getActions();
+    for (int i = 0 ; i < actions->size() ; i++) {
+        DynamicAction* action = (*actions)[i];
+        if (action->button) {
+            // did it we have it manually configured?
+            if (!thingsToKeep.contains(action->name)) {
+                ActionButton* b = new ActionButton(action);
+                addButton(b);
+                changes = true;
+            }
+        }
+    }
+
+    // okay, this is a weird one
+    // it is not obvious to me how to do dynamic child component sizing with
+    // the Juce way of thinking which is normally top down
+    // we know we're contained in MobiusDisplay whose resized() method
+    // will call down to our layout() so that should do the needful though
+    // it's not good encapsulation
+    if (changes) {
+        display->resized();
     }
 }
 

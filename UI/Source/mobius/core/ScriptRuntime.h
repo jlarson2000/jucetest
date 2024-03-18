@@ -33,6 +33,8 @@ class ScriptRuntime {
     // Track calls this when it is Reset
     void cancelScripts(Action* action, Track* t);
 
+    bool isBusy();
+
   private:
 
     // need to promote this

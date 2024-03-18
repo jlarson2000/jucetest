@@ -94,6 +94,7 @@ Mobius::Mobius(MobiusKernel* kernel)
     
     mActionator = new Actionator(this);
     mScriptarian = new Scriptarian(this);
+    mPendingScriptarian = nullptr;
     
     //
     // Legacy Initialization
@@ -145,7 +146,8 @@ Mobius::~Mobius()
     // mContainer, mAudioPool, mConfig, mSetup
 
     delete mScriptarian;
-
+    delete mPendingScriptarian;
+    
 	for (int i = 0 ; i < mTrackCount ; i++) {
 		Track* t = mTracks[i];
         delete t;
@@ -651,6 +653,41 @@ void Mobius::setSetupInternal(Setup* setup)
     }
 }
 
+/**
+ * Install a new set of scripts after we've been running.
+ * The shell built an entirely new Scriptarian and we need to
+ * splice it in.  The process is relatively simple as long as
+ * nothing is allowed to remember things inside the Scriptarian.
+ *
+ * The tricky part is that scripts may currently be running which means
+ * the existing ScriptRuntime inside the existing Scriptarian may be busy.
+ *
+ * Usually you only reload scripts when the core is in a quiet state
+ * but we can't depend on that safely.
+ *
+ * If the current Scriptarian is busy, wait until it isn't.
+ */
+void Mobius::installScripts(Scriptarian* neu)
+{
+    if (mPendingScriptarian != nullptr) {
+        // we've apparnetly been busy and someone just keeps
+        // sending them down, ignore the last one
+        mKernel->returnScriptarian(mPendingScriptarian);
+        mPendingScriptarian = nullptr;
+        Trace(1, "Pending Scriptarian was not consumed before we received another!\n");
+        Trace(1, "This may indiciate a hung script\n");
+    }
+
+    if (mScriptarian->isBusy()) {
+        // wait, beginAudioInterrupt will install it when it can
+        mPendingScriptarian = neu;
+    }
+    else {
+        mKernel->returnScriptarian(mScriptarian);
+        mScriptarian = neu;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Audio Interrupt
@@ -757,6 +794,24 @@ void Mobius::beginAudioInterrupt(UIAction* actions)
     // don't know if we still need this but it seems like a good idea
 	if (mHalting) return;
 
+    // phase in a new scriptarian if we're not busy
+    if (mPendingScriptarian != nullptr) {
+        if (!mScriptarian->isBusy()) {
+            mKernel->returnScriptarian(mScriptarian);
+            mScriptarian = mPendingScriptarian;
+            mPendingScriptarian = nullptr;
+        }
+        else {
+            // wait for a future interrupt when it's quiet
+            // todo: if a script is waiting on something, and the
+            // wait was misconfigured, or the UI dropped the ball on
+            // an event, this could cause the script to hang forever
+            // after about 10 seconds we should just give up and
+            // do a global reset, or at least cancel the active scripts
+            // so we can move on
+        }
+    }
+    
 	// Hack for testing, when this flag is set remove all external input
 	// and only pass through sample content.  Necessary for repeatable
 	// tests so we don't get random noise in the input.

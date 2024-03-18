@@ -86,6 +86,10 @@ class MobiusKernel : public MobiusContainer::AudioListener
 #endif
     
     void sendEvent(KernelEvent* e);
+
+    // called by Mobius when it has finished activating a new Scriptarian
+    // return the old one to the shell
+    void returnScriptarian(class Scriptarian* old);
     
   private:
 
@@ -114,6 +118,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // KernelMessage handling
     void reconfigure(class KernelMessage*);
     void installSamples(class KernelMessage* msg);
+    void installScripts(class KernelMessage* msg);
     void doAction(KernelMessage* msg);
     void doEvent(KernelMessage* msg);
     

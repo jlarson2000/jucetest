@@ -1,3 +1,6 @@
+ScriptRuntime
+  ScriptInterpreters are still created and deleted dynaically
+  need to use a pool
 
 Mobius::getSampleRate
   what actually cares about this?

@@ -612,6 +612,7 @@ void ScriptRuntime::freeScripts()
             Trace(mMobius, 2, "Mobius: Script thread %s: ending\n",
                   si->getTraceName());
 
+            // !! need to use a pool
 			delete si;
 		}
 	}
@@ -667,6 +668,16 @@ void ScriptRuntime::finishEvent(KernelEvent* e)
 
         si->finishEvent(e);
     }
+}
+
+/**
+ * Return true if any scripts are running.
+ * Here "running" means waiting on something, if they ran to completion
+ * they wouldn't still be here.
+ */
+bool ScriptRuntime::isBusy()
+{
+    return (mScripts != nullptr);
 }
 
 /****************************************************************************/

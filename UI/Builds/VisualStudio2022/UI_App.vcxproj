@@ -290,6 +290,7 @@
     <ClCompile Include="..\..\Source\mobius\Audio.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioPool.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\Intrinsics.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelEvent.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelEventHandler.cpp"/>
@@ -318,6 +319,7 @@
     <ClCompile Include="..\..\Source\util\XomParser.cpp"/>
     <ClCompile Include="..\..\Source\model\ActionType.cpp"/>
     <ClCompile Include="..\..\Source\model\Binding.cpp"/>
+    <ClCompile Include="..\..\Source\model\DynamicConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\ExValue.cpp"/>
     <ClCompile Include="..\..\Source\model\FunctionDefinition.cpp"/>
     <ClCompile Include="..\..\Source\model\MobiusConfig.cpp"/>
@@ -326,7 +328,6 @@
     <ClCompile Include="..\..\Source\model\OscConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Preset.cpp"/>
     <ClCompile Include="..\..\Source\model\SampleConfig.cpp"/>
-    <ClCompile Include="..\..\Source\model\ScriptAnalysis.cpp"/>
     <ClCompile Include="..\..\Source\model\ScriptConfig.cpp"/>
     <ClCompile Include="..\..\Source\model\Setup.cpp"/>
     <ClCompile Include="..\..\Source\model\Structure.cpp"/>
@@ -2711,6 +2712,7 @@
     <ClInclude Include="..\..\Source\mobius\core\Variable.h"/>
     <ClInclude Include="..\..\Source\mobius\Audio.h"/>
     <ClInclude Include="..\..\Source\mobius\AudioPool.h"/>
+    <ClInclude Include="..\..\Source\mobius\Intrinsics.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelEvent.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelEventHandler.h"/>
@@ -2738,6 +2740,7 @@
     <ClInclude Include="..\..\Source\util\XomParser.h"/>
     <ClInclude Include="..\..\Source\model\ActionType.h"/>
     <ClInclude Include="..\..\Source\model\Binding.h"/>
+    <ClInclude Include="..\..\Source\model\DynamicConfig.h"/>
     <ClInclude Include="..\..\Source\model\ExValue.h"/>
     <ClInclude Include="..\..\Source\model\FunctionDefinition.h"/>
     <ClInclude Include="..\..\Source\model\Messages.h"/>
@@ -2747,7 +2750,6 @@
     <ClInclude Include="..\..\Source\model\OscConfig.h"/>
     <ClInclude Include="..\..\Source\model\Preset.h"/>
     <ClInclude Include="..\..\Source\model\SampleConfig.h"/>
-    <ClInclude Include="..\..\Source\model\ScriptAnalysis.h"/>
     <ClInclude Include="..\..\Source\model\ScriptConfig.h"/>
     <ClInclude Include="..\..\Source\model\Setup.h"/>
     <ClInclude Include="..\..\Source\model\Structure.h"/>

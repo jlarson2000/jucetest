@@ -38,7 +38,6 @@ class MobiusShell : public MobiusInterface
     int getParameter(UIParameter* p, int tracknum = 0);
     
     void installSamples(SampleConfig* samples);
-    class ScriptAnalysis* analyzeScripts(class ScriptConfig* config);
     
     // management thread 
     void performMaintenance();
@@ -51,6 +50,8 @@ class MobiusShell : public MobiusInterface
     class MobiusKernel* getKernel() {
         return &kernel;
     }
+    
+    class DynamicConfig* getDynamicConfig();
     
   protected:
     
@@ -92,6 +93,14 @@ class MobiusShell : public MobiusInterface
     void consumeCommunications();
     void sendKernelConfigure(class MobiusConfig* config);
     void doKernelAction(UIAction* action);
+
+    //
+    // Intrinsic actions
+    //
+
+    void doIntrinsic(UIAction* action);
+    void loadScripts(UIAction* action);
+    void loadSamples(UIAction* action);
     
 };
 

@@ -59,6 +59,9 @@ ActionType* ActionActivation = &ActionActivationObj;
 ActionType ActionScriptObj("script", "Script");
 ActionType* ActionScript = &ActionScriptObj;
 
+ActionType ActionIntrinsicObj("intrinsic", "Intrinsic");
+ActionType* ActionIntrinsic = &ActionIntrinsicObj;
+
 // should just be an enumeration or another SystemConstant
 
 ActionType ActionPresetObj("preset", "Preset");

@@ -10,9 +10,12 @@
 
 #include <JuceHeader.h>
 
+// for DynamicConfigListener
+#include "../../Supervisor.h"
+
 #include "ActionButton.h"
 
-class ActionButtons : public juce::Component, public juce::Button::Listener
+class ActionButtons : public juce::Component, public juce::Button::Listener, public Supervisor::DynamicConfigListener
 {
   public:
 
@@ -29,10 +32,16 @@ class ActionButtons : public juce::Component, public juce::Button::Listener
     
     void add(class ActionButton* b);
 
+    void dynamicConfigChanged(class DynamicConfig* config);
+    
   private:
 
     class MobiusDisplay* display;
     juce::OwnedArray<class ActionButton> buttons;
 
     void centerRow(int start, int end, int rowWidth, int availableWidth);
+
+    void addButton(ActionButton* b);
+    void removeButton(ActionButton* b);
+    void buildButtons(class MobiusConfig* c);
 };

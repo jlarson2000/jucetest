@@ -17,13 +17,16 @@
 #include "../model/UIAction.h"
 #include "../model/XmlRenderer.h"
 #include "../model/UIEventType.h"
-#include "../model/ScriptAnalysis.h"
+#include "../model/DynamicConfig.h"
+
+#include "core/Scriptarian.h"
 
 #include "MobiusContainer.h"
 #include "MobiusKernel.h"
 #include "SampleManager.h"
 #include "Simulator.h"
 #include "AudioPool.h"
+#include "Intrinsics.h"
 
 #include "MobiusShell.h"
 
@@ -191,6 +194,38 @@ void MobiusShell::installSamples(SampleConfig* samples)
 
 //////////////////////////////////////////////////////////////////////
 //
+// Dynamic Configuration
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Analyze the script/sample configuration and build a DynamicConfig
+ * containg the things interesting to the UI.
+ *
+ * Ownership of the object passes to the caller who must delete it.
+ * 
+ * TODO: Rather than dealing with ownership issues, consider making
+ * this behave like MobiusState and we just keep one around and refresh
+ * it until shutdown()
+ */
+DynamicConfig* MobiusShell::getDynamicConfig()
+{
+    DynamicConfig* dynconfig = new DynamicConfig();
+    
+    // keeping the messy logic in ScriptAnalyzer even though it is small
+    scriptAnalyzer.analyze(configuration->getScriptConfig(), dynconfig);
+    
+    // todo: how to say we want auto-buttons for Samples?
+    // could be in the Sample model
+
+    // intrinsic function experiment
+    Intrinsic::addIntrinsics(dynconfig);
+
+    return dynconfig;
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // Maintenance
 //
 //////////////////////////////////////////////////////////////////////
@@ -276,10 +311,19 @@ void MobiusShell::consumeCommunications()
                 delete msg->object.configuration;
             }
                 break;
+                
             case MsgSamples: {
                 // kernel is giving us back the old SampleManager
                 delete msg->object.samples;
             }
+                break;
+                
+            case MsgScripts: {
+                // kerel is giving back an old Scriptarian
+                delete msg->object.scripts;
+            }
+                break;
+                
             case MsgAction: {
                 // kernel returns a processed action
                 delete msg->object.action;
@@ -344,6 +388,9 @@ void MobiusShell::doAction(UIAction* action)
               doKernelAction(action);
         }
     }
+    else if (action->type == ActionIntrinsic) {
+        doIntrinsic(action);
+    }
     else {
         if (doSimulation)
           simulator.doAction(action);
@@ -397,6 +444,107 @@ void MobiusShell::doKernelAction(UIAction* action)
 
 //////////////////////////////////////////////////////////////////////
 //
+// Intrinsic Functions
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Experiment, want all Functions to work this way
+ */
+void MobiusShell::doIntrinsic(UIAction* action)
+{
+    int ordinal = action->implementation.ordinal;
+
+    if (ordinal < IntrinsicBase) {
+        // typically zero, but may be out of range
+        // if not specified you need a name
+        // doesn't seem like we can avoid a simple model for this
+        // if it starts growing
+        // could define it in xml though
+        const char* actionName = action->actionName;
+
+        if (StringEqual(actionName, Intrinsic::LoadScriptsName))
+          ordinal = IntrinsicLoadScripts;
+
+        else if (StringEqual(actionName, Intrinsic::LoadSamplesName))
+          ordinal = IntrinsicLoadScripts;
+        
+        // save it in the UIAction to avoid the name lookup next time
+        action->implementation.ordinal = ordinal;
+    }
+
+    switch (ordinal) {
+        case IntrinsicLoadScripts:
+            loadScripts(action);
+            break;
+
+        case IntrinsicLoadSamples:
+            loadSamples(action);
+            break;
+    }
+}
+
+void MobiusShell::loadSamples(UIAction* action)
+{
+    Trace(2, "Intrinsic loadSamples\n");
+}
+
+/**
+ * Scripts were initially loaded by Mobius during the initialization
+ * phasse when it was safe for it to allocate memory.
+ * Now it isn't.
+ *
+ * Once incremental load is working, revisit the initialize() and
+ * see if we can eliminate the duplication.
+ *
+ * This is a relatively heavy thing to be doing in the shell and requires
+ * reaching deep into the core model to build a Scriptarian.  Because
+ * compilation and linking to internal components like Function and Parameter
+ * is tightly wound together, we can't just compile it to a ScriptLibrary
+ * and pass it down, we have to make an entire scriptarian with a Mobius to
+ * resolve references.
+ *
+ * This works but you have to be extremely careful when modifying Scriptarian
+ * code, nothing in the construction process can have any side effects
+ * on the runtime state of the Mobius we give it for reference resolving.
+ *
+ * Similarly, while Mobius is happily running, it can't do anything to the
+ * Scriptarian model we just built.
+ *
+ */
+void MobiusShell::loadScripts(UIAction* action)
+{
+    Trace(2, "Intrinsic loadScripts\n");
+
+    // dig deep and get the bad boy
+    Mobius* mobius = kernel.getCore();
+    Scriptarian *scriptarian = new Scriptarian(mobius);
+
+    // this is where compile and link happen
+    // shell/kernel have different copies of MobiusConfig
+    // Scriptarian can't make any assumptions that the object
+    // passed to the constructor is going to be the same as the
+    // one in use by Kernel when it is eventually installed
+    // all it needs is the ScriptConfig
+    scriptarian->initialize(configuration);
+
+    // send it down
+
+    KernelMessage* msg = communicator.shellAlloc();
+    if (msg != nullptr) {
+        msg->type = MsgScripts;
+        msg->object.scripts = scriptarian;
+        communicator.shellSend(msg);
+    }
+
+    // technically we could wait until kernel gives us back
+    // the old Scriptarian before notifying, but let's be optimistic
+    if (listener != nullptr)
+      listener->MobiusDynamicConfigChanged();
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // Simulator
 //
 //////////////////////////////////////////////////////////////////////
@@ -409,36 +557,6 @@ void MobiusShell::test()
 void MobiusShell::simulateInterrupt(float* input, float* output, int frames)
 {
     simulator.simulateInterrupt(input, output, frames);
-}
-
-//////////////////////////////////////////////////////////////////////
-//
-// Scripts
-//
-//////////////////////////////////////////////////////////////////////
-
-/**
- * Analyze the scripts referenced in a ScriptConfig and return information
- * about them.
- *
- * todo: since analyis and compilation could be a relatively expensive
- * operation, consider whether we need to cache this for use later if they
- * are installed.
- *
- * Ownership of the ScriptConfig is retained by the caller.
- * Ownership of the ScriptAnalysis passes to the caller who must delete it.
- *
- * !! going to want caching at some level but its complicated.
- * Supervisor is currently caching the result and will invalidate whenever
- * it thinks the MobiusConfig changes.  We could also cache it down here,
- * but that would require Supervisor to call down to reconfigure() to
- * invalidate the cache, which it probably does but has an obscure
- * order dependency.
- */
-ScriptAnalysis* MobiusShell::analyzeScripts(class ScriptConfig* config)
-{
-    scriptAnalyzer.analyze(config);
-    return scriptAnalyzer.takeAnalysis();
 }
 
 /****************************************************************************/

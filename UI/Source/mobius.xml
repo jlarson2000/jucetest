@@ -27,7 +27,8 @@
     subcycles='4'
     windowEdgeAmount='1'
     windowSlideAmount='1'/>
-  <Preset name='Another'
+  <Preset
+    name='Another'
     autoRecordBars='1'
     loopCount='4'
     pitchBendRange='12'
@@ -36,7 +37,8 @@
     speedStepRange='24'
     timeStretchRange='12'
     subcycles='4'/>
-  <Setup name='Default'
+  <Setup
+    name='Default'
     active='0'
     maxTempo='300'
     minTempo='20'>
@@ -93,7 +95,8 @@
       altFeedback='127'
       pan='64'/>
   </Setup>
-  <Setup name='Another'
+  <Setup
+    name='Another'
     active='0'
     maxTempo='300'
     minTempo='20'>
@@ -117,10 +120,11 @@
     <Binding action='function' name='Redo' trigger='ui' value='0'/>
     <Binding action='function' name='Coverage' trigger='ui' value='0'/>
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
-    <Binding action='script' name='Next Track Script' trigger='ui' value='0'/>
+    <Binding action='intrinsic' name='Load Scripts' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>

@@ -52,6 +52,16 @@ extern ActionType* ActionActivation;
  */
 extern ActionType* ActionScript;
 
+/**
+ * An experiment with DynamicAction to define things
+ * that can behave like Functions but have no concrete
+ * model underneath like Function or Parameter.
+ * All they have is a name and an ordinal and it is up
+ * to the action receiver to determine how to implement them.
+ * I'd like all ActionFunctions to work this way.
+ */
+extern ActionType* ActionIntrinsic;
+
 // until we can refactor all the old uses of TargetPreset
 // and decide on the right concrete model, define these
 // here just so we have a place to store the names

@@ -20,14 +20,16 @@ class Scriptarian
     void finishEvent(class KernelEvent* e);
 
     // various runtime control
-    void runScript(Action* action);
-    void resumeScript(Track* t, Function* f);
-    void cancelScripts(Action* action, Track* t);
+    void runScript(class Action* action);
+    void resumeScript(class Track* t, class Function* f);
+    void cancelScripts(class Action* action, class Track* t);
     void addMessage(const char* msg);
 
     // Function lookup
-    Function** getFunctions();
-    Function* getFunction(const char * name);
+    class Function** getFunctions();
+    class Function* getFunction(const char * name);
+
+    bool isBusy();
     
   private:
 

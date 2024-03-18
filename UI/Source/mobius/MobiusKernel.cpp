@@ -139,6 +139,7 @@ void MobiusKernel::consumeCommunications()
 
             case MsgConfigure: reconfigure(msg); break;
             case MsgSamples: installSamples(msg); break;
+            case MsgScripts: installScripts(msg); break;
             case MsgAction: doAction(msg); break;
             case MsgEvent: doEvent(msg); break;
         }
@@ -254,7 +255,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Samples
+// Samples & Scripts
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -279,6 +280,38 @@ void MobiusKernel::installSamples(KernelMessage* msg)
         msg->object.samples = old;
         communicator->kernelSend(msg);
     }
+}
+
+/**
+ * We've just consumed the pending Scriptarian from the shell.
+ * Pass it along and hope it doesn't blow up.
+ */
+void MobiusKernel::installScripts(KernelMessage* msg)
+{
+    if (mCore == nullptr) {
+        // this really can't happen,
+        Trace(1, "MobiusKernel: Can't install Scriptarian without a core!\n");
+        // guess we can clean up, but this is the least of your worries
+        delete msg->object.scripts;
+    }
+    else {
+        mCore->installScripts(msg->object.scripts);
+    }
+    
+    // nothing to return
+    communicator->kernelAbandon(msg);
+}
+
+/**
+ * Called by Mobius when it has finished installing a Scriptarian
+ * and can pass the old back up to the shell for deletion.
+ */
+void MobiusKernel::returnScriptarian(Scriptarian* old)
+{
+    KernelMessage* msg = communicator->kernelAlloc();
+    msg->type = MsgScripts;
+    msg->object.scripts = old;
+    communicator->kernelSend(msg);
 }
 
 //////////////////////////////////////////////////////////////////////

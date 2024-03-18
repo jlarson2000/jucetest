@@ -110,6 +110,12 @@ class Mobius :
     // !! ugly, this is part of the reconfigure() sequence
     // but is also called by Loop, why would it do that?
     void setTrack(int index);
+
+    /**
+     * Install a freshly minted Scriptarian when scripts are reloaded
+     * after we've been initialized and running.
+     */
+    void installScripts(Scriptarian* s);
     
     //////////////////////////////////////////////////////////////////////
     //
@@ -337,6 +343,7 @@ class Mobius :
 	class UserVariables* mVariables;
 
     class Scriptarian* mScriptarian;
+    class Scriptarian* mPendingScriptarian;
     
 	bool mHalting;
 	bool mNoExternalInput;

@@ -6,7 +6,11 @@
  * interface.  The names of the classes are the same so you won't be
  * able to continue using the old ones as old code is ported over.
  *
- * Had to change the names when the core code was brought in.
+ * Too many meandering thoughts in the method comments, clean those up.
+ *
+ * TODO: Really need to nail down the construction, startup, initialize,
+ * reconfigure timeline to accomodate VST plugin probing.
+ * 
  */
 
 #pragma once
@@ -27,8 +31,26 @@ class MobiusListener {
 	 * for the next timer event to make it look more accurate.
 	 */
 	virtual void MobiusTimeBoundary() = 0;
+
+    /**
+     * A change was made internally that effects the dynamic configuration,
+     * typically after loading scripts.  UI is expected to call
+     * getDynamicConfig and respond accordingly.
+     *
+     * Hmm, we could pass it here but have ownership issues.
+     * I want the UI to be able to own the object indefinately.
+     * So either need to be clear that the object passed here
+     * or returned by getDynamicConfig must be deleted, or that
+     * it will become invalid when the engine is shut down.
+     * More thought...
+     */
+    virtual void MobiusDynamicConfigChanged() = 0;
+    
 };
 
+/**
+ * Interfafce to make the Mobius looping engine do the things.
+ */
 class MobiusInterface {
 
   public:
@@ -51,6 +73,10 @@ class MobiusInterface {
      * typically instantiate a plugin just to probe it for information without
      * actually using it, and we don't want to initialize everything
      * if it won't be used.
+     *
+     * TODO: Messy amguity about the differnce between startup() and configure()
+     * Also, change configure to initialize() to better reflect what it does
+     * and match internal code.
      */
     static void MobiusInterface::startup();
 
@@ -65,30 +91,31 @@ class MobiusInterface {
     virtual void setListener(MobiusListener* l) = 0;
 
     /**
+     * TODO: started by just having one configure() method that internally
+     * went to both initialize() and reconfigure().  Sort out whether we should
+     * have that distinction up here.
+     * 
      * Reconfigure the Mobius engine.
      * Called during application startup after loading the initial MobiusConfig
      * and again after editing the configuration.
      *
      * Ownership is retained by the caller.
      *
-     * Not everytthing in MobiusConfig is used by the engine, some is now under "UI"
-     * control such as the management of the audio and MIDI devices, OSC interface,
-     * Sample loading etc.
-     *
-     * We're evolving a layer of code that isn't really part of the UI and isn't
-     * really part of the engine either since it can be implemented on top
-     * of MobiusInterface.  Need to refactor MobiusConfig and remove things
-     * that are no longer relevant.
-     *
-     * todo: the engine may want to return error messages if it doesn't like
+     * TODO: the engine may want to return error messages if it doesn't like
      * something about the configuration
-     *
-     * I'd like to start handling Script loading and parsing above the interface
-     * since it is error prone and may require involvement from the user to fix things.
-     * It also impacts how Bindigns are managed which is now above the interface.
-     * Once scripts are compiled, call loadScripts
      */
     virtual void configure(class MobiusConfig* config) =  0;
+
+    /**
+     * Return information about dynamic configuration.  Should be called
+     * every time after configure() is called or after the DynamicConfigChanged
+     * listener is notified.
+     *
+     * Ownership of the object is passed to the caller.
+     * TODO: Should this be like MobiusState and owned by the engine
+     * till shutdown?
+     */
+    virtual class DynamicConfig* getDynamicConfig() = 0;
 
     /**
      * Return a state object that can be watched by the UI display engine changes.
@@ -105,7 +132,8 @@ class MobiusInterface {
      * This may include checking the status of pending actions,
      * processing automatic exports, and managing communication
      * with the kernel.  It must be called at regular intervals.
-     * todo: Unclear whether this should be done before or after
+     * 
+     * TODO: Unclear whether this should be done before or after
      * refreshing the UI, before may make the UI feel more responsive,
      * after may make the engine more responsive to the UI.  Maybe
      * we want both?
@@ -114,29 +142,32 @@ class MobiusInterface {
     
     /**
      * Tell the engine to do something.
-     * The old engine took ownership of the Action, now ownership is retained
-     * and the object is converted to an internal representation.
+     * Ownership of the UIAction is retained by the caller.
      *
-     * Will want a more helpful error reporting mechanism here.
+     * TODO: Will want a more helpful error reporting mechanism here.
+     * And some actions may have return codes or other return data.
      */
     virtual void doAction(class UIAction* action) = 0;
 
-    // todo: need something to check UIAction status?
+    // TODO: need something to check queued UIAction status
 
     /**
      * Return the value of a Parameter as a normalized ordinal.
      */
     virtual int getParameter(class UIParameter* p, int trackNumber = 0) = 0;
     
+    //
+    // From here down the design is less clear and evolving
+    //
+
     /**
      * Install a set of Samples
      */
     virtual void installSamples(class SampleConfig* samples) = 0;
 
-    /**
-     * Analyze the scripts referenced in the configuration
-     */
-    virtual class ScriptAnalysis* analyzeScripts(class ScriptConfig* config) = 0;
+    //
+    // Temporary testing interface
+    //
 
     /**
      * Run a random test

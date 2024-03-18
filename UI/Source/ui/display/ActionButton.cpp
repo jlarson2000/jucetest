@@ -53,6 +53,7 @@
 #include "../../model/UIConfig.h"
 #include "../../model/UIAction.h"
 #include "../../model/Binding.h"
+#include "../../model/DynamicConfig.h"
 
 #include "Colors.h"
 #include "ActionButton.h"
@@ -79,6 +80,32 @@ ActionButton::ActionButton(Binding* binding)
         // buttons can't be sustain yet
         action.down = true;
     }
+}
+
+/**
+ * Initialie a button to trigger a DynamicAction
+ * As we start evolving DynamicAction there is going to be
+ * some overlap with Bindding, think about what can be shared.
+ */
+ActionButton::ActionButton(DynamicAction* src)
+{
+    setName("ActionButton");
+    
+    // don't wait for mouse up
+    setTriggeredOnMouseDown(true);
+
+    // Binding buttons use a () convention to show that there are arguments
+    // we'll dispense with that
+    setButtonText(src->name);
+    
+    action.type = src->type;
+    // really?  it's 2024 and you're still using strcpy?
+    strcpy(action.actionName, src->name.toUTF8());
+    action.implementation.ordinal = src->ordinal;
+    // buttons can't be sustain yet
+    action.down = true;
+
+    dynamic = true;
 }
 
 ActionButton::~ActionButton()

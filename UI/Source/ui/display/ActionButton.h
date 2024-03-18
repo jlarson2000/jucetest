@@ -16,6 +16,7 @@ class ActionButton : public juce::TextButton
 
     ActionButton();
     ActionButton(class Binding* src);
+    ActionButton(class DynamicAction* src);
     ~ActionButton();
 
     int getPreferredWidth(int height);
@@ -25,10 +26,19 @@ class ActionButton : public juce::TextButton
     
     class UIAction* getAction();
 
+    void setDynamic(bool b) {
+        dynamic = true;
+    }
+
+    bool isDynamic() {
+        return dynamic;
+    }
+
   private:
 
     UIAction action;
-
+    bool dynamic = false;
+    
     void paintButton(juce::Graphics& g, juce::Colour background, juce::Colour text);
 
     juce::String formatButtonName(class Binding *src);

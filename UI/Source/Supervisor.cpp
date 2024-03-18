@@ -22,7 +22,7 @@
 #include "model/XmlRenderer.h"
 #include "model/UIAction.h"
 #include "model/MobiusState.h"
-#include "model/ScriptAnalysis.h"
+#include "model/DynamicConfig.h"
 
 #include "ui/DisplayManager.h"
 
@@ -93,6 +93,9 @@ void Supervisor::start()
     // audio and midi streams, I dislike the difference in side
     // effects between the first time this is called and the second time
     mobius->configure(config);
+
+    // listen for timing and config changes we didn't initiate
+    mobius->setListener(this);
     
     // this hasn't been static initialized, don't remember why
     // it may have some dependencies 
@@ -105,6 +108,11 @@ void Supervisor::start()
     // this MUST be done after UIConfig, I think only for LoopStack
     // dislike the order dependency, just have one and pass both
     displayManager->configure(config);
+
+    // now that the display components are fleshed out, they
+    // may have registered interest in the DynamicConfig
+    // tell the ones that care whata we're starting with
+    notifyDynamicConfigListeners();
 
     // let the UI refresh go
     uiThread.start();
@@ -424,17 +432,23 @@ void Supervisor::updateMobiusConfig()
 
         writeMobiusConfig(config);
 
-        // it's possible ScriptConfig was changed but we don't
-        // know for sure at this point without a more granular
-        // way to signal it from the ConfigEditor, release
-        // the script analysis cache
-        scriptAnalysis.reset(nullptr);
+        // reset this so we get a fresh one on next use
+        // to reflect potential changes to Script actions
+        dynamicConfig.reset(nullptr);
 
         displayManager->configure(config);
         if (mobius != nullptr)
           mobius->configure(config);
         binderator.configure(config);
         midiManager.configure(config);
+
+        // do we need to do this or will we receive a listener callback from Mobius?
+        // updating the MobiusConfig may have changed the ScriptConfig
+        // which may have loaded Scripts, which may have changed the
+        // set of ActionButtons.  Whew.
+        // Since making any kind of internal changes to scripts should result
+        // in a MobiusListener call, let's wait for that to happen since it may not
+        // notifyDynamicConfigListeners();
     }
 }
 
@@ -444,50 +458,74 @@ void Supervisor::updateUIConfig()
         UIConfig* config = uiConfig.get();
         
         writeUIConfig(config);
+
+        // UIConfig can't invalidate DynamicConfig so don't need to reset it here
+        
         // DisplayManager/MainWindow are the primary consumers of this
         displayManager->configure(config);
     }
 }
 
-/**
- * Used by the BindingTargetPanel to show the list of scripts that
- * may be referenced in a binding.
- *
- * This is complicated because it requires not just inspection
- * of the ScriptConfig, but also loading the files it references
- * to see what the names of the Scripts will be at runtime.
- *
- * It's not as simple as I'd like, but there is so much old script
- * file parsing code involved with this and I don't want to mess it up.
- * The analysis will be done by MobiusInterface and we'll cache it here
- * so we don't have to keep going back unless the configuration changes.
- *
- * ScriptAnalysis has more in it than just the names, once it contains
- * error messages, find a way to display those somewhere.
- */
-StringList* Supervisor::getScriptNames()
-{
-    StringList* names = nullptr;
-    
-    if (!scriptAnalysis) {
-        // load it
-        MobiusConfig *config = getMobiusConfig();
-        ScriptConfig* sconfig = config->getScriptConfig();
-        if (sconfig != nullptr) {
-            if (mobius != nullptr) {
-                ScriptAnalysis* sa = mobius->analyzeScripts(sconfig);
-                // cache it in the smart pointer
-                scriptAnalysis.reset(sa);
-            }
-        }
-    }
+//////////////////////////////////////////////////////////////////////
+//
+// DynamicConfig
+//
+//////////////////////////////////////////////////////////////////////
 
-    if (scriptAnalysis) {
-        ScriptAnalysis* sa = scriptAnalysis.get();
-        names = sa->getNames();
+/**
+ * Called by internal components sensitive to the dynamic config.
+ */
+DynamicConfig* Supervisor::getDynamicConfig()
+{
+    if (!dynamicConfig) {
+        dynamicConfig.reset(mobius->getDynamicConfig());
     }
+    return dynamicConfig.get();
+}
+
+void Supervisor::addDynamicConfigListener(DynamicConfigListener* l)
+{
+    if (!dynamicConfigListeners.contains(l))
+      dynamicConfigListeners.add(l);
+}
+
+void Supervisor::removeDynamicConfigListener(DynamicConfigListener* l)
+{
+    dynamicConfigListeners.removeFirstMatchingValue(l);
+}
+
+void Supervisor::notifyDynamicConfigListeners()
+{
+    DynamicConfig* dyn = getDynamicConfig();
     
-    return names;
+    for (int i = 0 ; i < dynamicConfigListeners.size() ; i++) {
+        DynamicConfigListener* l = dynamicConfigListeners[i];
+        l->dynamicConfigChanged(dyn);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Mobius Listener
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Called when the engine advances past a subcycle, cycle, loop boundary
+ * and would like the UI to be refreshed early to make it look snappy.
+ */
+void Supervisor::MobiusTimeBoundary()
+{
+}
+
+/**
+ * Called when the dynamic configuration changes internally as a side
+ * effect of something.  Typically invoking the LoadScripts function.
+ */
+void Supervisor::MobiusDynamicConfigChanged()
+{
+    dynamicConfig.reset(mobius->getDynamicConfig());
+    notifyDynamicConfigListeners();
 }
 
 //////////////////////////////////////////////////////////////////////
