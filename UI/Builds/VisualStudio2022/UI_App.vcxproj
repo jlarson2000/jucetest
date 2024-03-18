@@ -141,6 +141,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\RootLocator.cpp"/>
     <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp"/>
     <ClCompile Include="..\..\Source\DiagnosticWindow.cpp"/>
     <ClCompile Include="..\..\Source\MidiManager.cpp"/>
@@ -2601,6 +2602,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\RootLocator.h"/>
     <ClInclude Include="..\..\Source\JuceMobiusContainer.h"/>
     <ClInclude Include="..\..\Source\DiagnosticWindow.h"/>
     <ClInclude Include="..\..\Source\MidiManager.h"/>

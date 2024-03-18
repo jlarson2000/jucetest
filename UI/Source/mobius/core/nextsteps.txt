@@ -40,6 +40,8 @@ Mobius::addMessage
   did this ever work?
   needs redesign, use KernelEvent and think about a more flexible alerting
   mechanism, related to Prompt
+  What would be nice is to allow scripts to display a message that times out,
+  popping up an alert would be annoying, could just be part of MobiusState
   
 
 KernelEvent

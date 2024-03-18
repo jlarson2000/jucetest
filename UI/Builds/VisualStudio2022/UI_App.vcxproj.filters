@@ -616,6 +616,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\RootLocator.cpp">
+      <Filter>UI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\JuceMobiusContainer.cpp">
       <Filter>UI\Source</Filter>
     </ClCompile>
@@ -3636,6 +3639,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\RootLocator.h">
+      <Filter>UI\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\JuceMobiusContainer.h">
       <Filter>UI\Source</Filter>
     </ClInclude>

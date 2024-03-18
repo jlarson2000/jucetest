@@ -31,6 +31,7 @@
 
 #include "JuceMobiusContainer.h"
 
+#include "RootLocator.h"
 #include "Supervisor.h"
 
 // what do static pointers get filled with?
@@ -47,6 +48,8 @@ Supervisor::Supervisor(juce::AudioAppComponent* main)
     mainComponent = main;
 //    uiThread.setSupervisor(this);
     trace("Supervisor: end construction\n");
+
+    RootLocator::whereAmI();
 }
 
 Supervisor::~Supervisor()
