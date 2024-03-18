@@ -49,7 +49,14 @@ Supervisor::Supervisor(juce::AudioAppComponent* main)
 //    uiThread.setSupervisor(this);
     trace("Supervisor: end construction\n");
 
-    RootLocator::whereAmI();
+    //RootLocator::whereAmI();
+    rootPath = rootLocator.getRootPath();
+    trace("Root path: %s\n", rootPath.toUTF8());
+}
+
+juce::String Supervisor::getRootPath()
+{
+    return rootPath;
 }
 
 Supervisor::~Supervisor()
@@ -266,7 +273,7 @@ const char* UIConfigFile = "ui.xml";
 juce::String Supervisor::findMobiusInstallationPath()
 {
     // obviously need to be smarter here
-    return juce::String("c:/dev/jucetest/UI/Source/");
+    return getRootPath();
 }
 
 /**
@@ -274,8 +281,11 @@ juce::String Supervisor::findMobiusInstallationPath()
  */
 char* Supervisor::readConfigFile(const char* name)
 {
-    juce::String root = findMobiusInstallationPath();
-    juce::String path = root + name;
+    juce::String rootPath = findMobiusInstallationPath();
+    juce::File root (rootPath);
+    juce::File file = root.getChildFile(name);
+    juce::String path = file.getFullPathName();
+    trace("Reading configuration file %s\n", path.toUTF8());
     char* xml = ReadFile(path.toUTF8());
     return xml;
 }
@@ -285,8 +295,10 @@ char* Supervisor::readConfigFile(const char* name)
  */
 void Supervisor::writeConfigFile(const char* name, char* xml)
 {
-    juce::String root = findMobiusInstallationPath();
-    juce::String path = root + name;
+    juce::String rootPath = findMobiusInstallationPath();
+    juce::File root (rootPath);
+    juce::File file = root.getChildFile(name);
+    juce::String path = file.getFullPathName();
     WriteFile(path.toUTF8(), xml);
 }
 

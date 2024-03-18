@@ -190,44 +190,46 @@ void TrackStrip::configure(UIConfig* config)
     
     // todo: need a lambda or subclass for these
     // god this is horrible
-    for (int i = 0 ; i < elementNames->size() ; i++) {
-        const char* name = elementNames->getString(i);
-        StripElement* el = nullptr;
-        StripElementDefinition* def = StripElementDefinition::find(name);
-        if (def == StripDefinitionTrackNumber) {
-            el = new StripTrackNumber(this);
-        }
-        else if (def == StripDefinitionFocusLock) {
-            el = new StripFocusLock(this);
-        }
-        else if (def == StripDefinitionLoopRadar) {
-            el = new StripLoopRadar(this);
-        }
-        else if (def == StripDefinitionLoopThermometer) {
-            el = new StripLoopThermometer(this);
-        }
-        else if (def == StripDefinitionOutput) {
-            el = new StripOutput(this);
-        }
-        else if (def == StripDefinitionInput) {
-            el = new StripInput(this);
-        }
-        else if (def == StripDefinitionFeedback) {
-            el = new StripFeedback(this);
-        }
-        else if (def == StripDefinitionAltFeedback) {
-            el = new StripAltFeedback(this);
-        }
-        else if (def == StripDefinitionLoopStack) {
-            el = new StripLoopStack(this);
-        }
+    if (elementNames != nullptr) {
+        for (int i = 0 ; i < elementNames->size() ; i++) {
+            const char* name = elementNames->getString(i);
+            StripElement* el = nullptr;
+            StripElementDefinition* def = StripElementDefinition::find(name);
+            if (def == StripDefinitionTrackNumber) {
+                el = new StripTrackNumber(this);
+            }
+            else if (def == StripDefinitionFocusLock) {
+                el = new StripFocusLock(this);
+            }
+            else if (def == StripDefinitionLoopRadar) {
+                el = new StripLoopRadar(this);
+            }
+            else if (def == StripDefinitionLoopThermometer) {
+                el = new StripLoopThermometer(this);
+            }
+            else if (def == StripDefinitionOutput) {
+                el = new StripOutput(this);
+            }
+            else if (def == StripDefinitionInput) {
+                el = new StripInput(this);
+            }
+            else if (def == StripDefinitionFeedback) {
+                el = new StripFeedback(this);
+            }
+            else if (def == StripDefinitionAltFeedback) {
+                el = new StripAltFeedback(this);
+            }
+            else if (def == StripDefinitionLoopStack) {
+                el = new StripLoopStack(this);
+            }
         
-        if (el != nullptr) {
-            addAndMakeVisible(el);
-            elements.add(el);
+            if (el != nullptr) {
+                addAndMakeVisible(el);
+                elements.add(el);
+            }
         }
     }
-
+    
     // now let each element configure
     for (int i = 0 ; i < elements.size() ; i++) {
         StripElement* el = elements[i];

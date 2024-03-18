@@ -1,3 +1,8 @@
+mobius.xml
+  suppress zero and false
+  get MobiusConfig and Setup to have attributes on a new line
+
+
 Scripts
   reconfigure after initialization
 

@@ -271,7 +271,9 @@ void XmlRenderer::render(XmlBuffer* b, UIParameter* p, int value)
     }
     else {
         // option to filter zero?
-        b->addAttribute(p->getName(), value);
+        // yes, lots of things are zero/false
+        if (value > 0)
+          b->addAttribute(p->getName(), value);
     }
 }
 
@@ -282,14 +284,15 @@ void XmlRenderer::render(XmlBuffer* b, UIParameter* p, bool value)
     // continue to supress or included it for clarity?
     if (value)
       b->addAttribute(p->getName(), "true");
-    else
-      b->addAttribute(p->getName(), "false");
+    //else
+    //b->addAttribute(p->getName(), "false");
 }
 
 void XmlRenderer::render(XmlBuffer* b, UIParameter* p, const char* value)
 {
     // any filtering options?
-    b->addAttribute(p->getName(), value);
+    if (value != nullptr)
+      b->addAttribute(p->getName(), value);
 }
 
 /**
@@ -464,6 +467,7 @@ void XmlRenderer::parseStructure(XmlElement* e, Structure* structure)
 void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
 {
 	b->addOpenStartTag(EL_MOBIUS_CONFIG);
+	b->setAttributeNewline(true);
 
     render(b, UIParameterMidiInput, c->getMidiInput());
     render(b, UIParameterMidiOutput, c->getMidiOutput());
@@ -569,6 +573,7 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
     renderList(b, EL_ALT_FEEDBACK_DISABLES, c->getAltFeedbackDisables());
 
 	b->decIndent();
+	b->setAttributeNewline(false);
 
 	b->addEndTag(EL_MOBIUS_CONFIG);
 }
@@ -715,10 +720,10 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 void XmlRenderer::render(XmlBuffer* b, Preset* p)
 {
 	b->addOpenStartTag(EL_PRESET);
+	b->setAttributeNewline(true);
 
 	// name, number
 	renderStructure(b, p);
-	b->setAttributeNewline(true);
 
     render(b, UIParameterAltFeedbackEnable, p->isAltFeedbackEnable());
     render(b, UIParameterAutoRecordBars, p->getAutoRecordBars());
@@ -859,6 +864,7 @@ void XmlRenderer::parse(XmlElement* e, Preset* p)
 void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 {
 	b->addOpenStartTag(EL_SETUP);
+	b->setAttributeNewline(true);
 
 	renderStructure(b, setup);
 
@@ -892,6 +898,7 @@ void XmlRenderer::render(XmlBuffer* b, Setup* setup)
 	  render(b, t);
 
 	b->decIndent();
+	b->setAttributeNewline(false);
 	b->addEndTag(EL_SETUP, true);
 }
 

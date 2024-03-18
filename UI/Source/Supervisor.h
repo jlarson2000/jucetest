@@ -16,6 +16,7 @@
 #include "MainThread.h"
 #include "Binderator.h"
 #include "MidiManager.h"
+#include "RootLocator.h"
 
 class Supervisor
 {
@@ -44,6 +45,8 @@ class Supervisor
      */
     Supervisor(juce::AudioAppComponent* main);
     ~Supervisor();
+
+    juce::String getRootPath();
 
     void start();
     void shutdown();
@@ -88,7 +91,9 @@ class Supervisor
   private:
 
     juce::AudioAppComponent* mainComponent;
-
+    RootLocator rootLocator;
+    juce::String rootPath;
+    
     Binderator binderator {this};
 
     // new pattern, assume Instance is accessible

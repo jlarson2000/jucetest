@@ -37,14 +37,16 @@ void ParametersElement::configure(UIConfig* config)
     
     // will probably want a sub-component list for these
     StringList* list = config->getParameters();
-    for (int i = 0 ; i < list->size() ; i++) {
-        const char* name = list->getString(i);
-        UIParameter* p = UIParameter::find(name);
-        if (p == nullptr) {
-            trace("Invalid parameter name %s\n", name);
-        }
-        else {
-            parameters.add(p);
+    if (list != nullptr) {
+        for (int i = 0 ; i < list->size() ; i++) {
+            const char* name = list->getString(i);
+            UIParameter* p = UIParameter::find(name);
+            if (p == nullptr) {
+                trace("Invalid parameter name %s\n", name);
+            }
+            else {
+                parameters.add(p);
+            }
         }
     }
 }
