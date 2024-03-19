@@ -90,10 +90,10 @@ void ScriptRuntime::runScript(Action* action)
     else if (action->down || script->isSustainAllowed()) {
 			
         if (action->down)
-          Trace(mMobius, 2, "Mobius: runScript %s\n", 
+          Trace(2, "Mobius: runScript %s\n", 
                 script->getDisplayName());
         else
-          Trace(mMobius, 2, "Mobius: runScript %s UP\n",
+          Trace(2, "Mobius: runScript %s UP\n",
                 script->getDisplayName());
 
         // If the script is marked for quantize, then we schedule
@@ -237,17 +237,17 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 		if (si == NULL) {
             if (s->isSustainAllowed()) {
                 // shouldn't have removed this
-                Trace(mMobius, 1, "Mobius: SUS script not found!\n");
+                Trace(1, "Mobius: SUS script not found!\n");
             }
             else {
                 // shouldn't have called this method
-                Trace(mMobius, 1, "Mobius: Ignoring up transition of non-sustainable script\n");
+                Trace(1, "Mobius: Ignoring up transition of non-sustainable script\n");
             }
 		}
 		else {
 			ScriptLabelStatement* l = s->getEndSustainLabel();
 			if (l != NULL) {
-                Trace(mMobius, 2, "Mobius: Script thread %s: notify end sustain\n", 
+                Trace(2, "Mobius: Script thread %s: notify end sustain\n", 
                       si->getTraceName());
                 si->notify(l);
             }
@@ -273,13 +273,13 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 				si->setClickCount(si->getClickCount() + 1);
 				si->setClickedMsecs(0);
                 if (l != NULL)
-                  Trace(mMobius, 2, "Mobius: Script thread %s: notify multiclick\n",
+                  Trace(2, "Mobius: Script thread %s: notify multiclick\n",
                         si->getTraceName());
 			}
 			else {
 				l = s->getReentryLabel();
                 if (l != NULL)
-                  Trace(mMobius, 2, "Mobius: Script thread %s notify reentry\n",
+                  Trace(2, "Mobius: Script thread %s notify reentry\n",
                         si->getTraceName());
 			}
 
@@ -475,7 +475,7 @@ void ScriptRuntime::cancelScripts(Action* action, Track* t)
 {
     if (action == NULL) {
         // we had been ignoring these, when can this happen?
-        Trace(mMobius, 2, "Mobius::cancelScripts NULL action\n");
+        Trace(2, "Mobius::cancelScripts NULL action\n");
     }
     else {
         // this will be the interpreter doing the action
@@ -488,7 +488,7 @@ void ScriptRuntime::cancelScripts(Action* action, Track* t)
         for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
 
             if (si != src && (global || si->getTargetTrack() == t)) {
-                Trace(mMobius, 2, "Mobius: Script thread %s: canceling\n",
+                Trace(2, "Mobius: Script thread %s: canceling\n",
                       si->getTraceName());
                 si->stop();
             }
@@ -538,7 +538,7 @@ void ScriptRuntime::doScriptMaintenance()
 					si->setSustainCount(ticks + 1);
 					// don't have to be real accurate with this
 					si->setSustainedMsecs(0);
-                    Trace(mMobius, 2, "Mobius: Script thread %s: notify sustain\n",
+                    Trace(2, "Mobius: Script thread %s: notify sustain\n",
                           si->getTraceName());
 					si->notify(label);
 				}
@@ -566,7 +566,7 @@ void ScriptRuntime::doScriptMaintenance()
                 si->setClickedMsecs(0);
                 // don't have to have one of these
                 if (label != NULL) {
-                    Trace(mMobius, 2, "Mobius: Script thread %s: notify end multiclick\n",
+                    Trace(2, "Mobius: Script thread %s: notify end multiclick\n",
                           si->getTraceName());
                     si->notify(label);
                 }
@@ -609,7 +609,7 @@ void ScriptRuntime::freeScripts()
 			// !! are we absolutely sure there can't be any ScriptEvents
 			// pointing at this?  These used to live forever, it scares me
 
-            Trace(mMobius, 2, "Mobius: Script thread %s: ending\n",
+            Trace(2, "Mobius: Script thread %s: ending\n",
                   si->getTraceName());
 
             // !! need to use a pool

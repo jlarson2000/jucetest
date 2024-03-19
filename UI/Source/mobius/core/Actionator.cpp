@@ -172,7 +172,7 @@ Track* Actionator::resolveTrack(Action* action)
                 Track* active = mMobius->getTrack();
                 if (track != active) {
                     if (track != NULL)
-                      Trace(mMobius, 2, "Mobius: Adjusting target track for activeTrack function %s\n", f->getName());
+                      Trace(2, "Mobius: Adjusting target track for activeTrack function %s\n", f->getName());
                     track = active;
                 }
             }

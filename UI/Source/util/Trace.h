@@ -123,6 +123,32 @@ class TraceRecord {
 /**
  * The interface of an object that may be registered to provide
  * application specific context for the trace records.
+ *
+ * This seems to exist to let some levels of the engine include
+ * track/loop/frame information, which is especially useful for events
+ * on the track.  Mobius implemented but only returned 0/0.
+ * 
+ * Track includes:
+ *
+ *    *context = (getDisplayNumber() * 100) + mLoop->getNumber();
+ *    *time = mLoop->getFrame();
+ *
+ * Why the "*100" is there is a mystery.
+ *
+ * Loop does:
+ * 
+ * 	*context = (mTrack->getDisplayNumber() * 100) + mNumber;
+ * 	*time = mFrame;
+ *
+ * which is the same as Track, but reaches up, it could just be calling
+ * mTrack->getTraceContext
+ *
+ * Layer does this;
+ * 
+ * 	if (mLoop != NULL)
+ * 	  mLoop->getTraceContext(context, time);
+ * 
+ * So all three do the same thing.
  */
 class TraceContext {
 

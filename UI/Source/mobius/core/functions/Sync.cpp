@@ -192,15 +192,15 @@ void SyncMasterFunction::invoke(Action* action, Mobius* m)
         Track* track = m->getTrack();
 
 		if (mTrack) {
-            Trace(m, 2, "Setting track sync master to %ld", (long)track->getDisplayNumber());
+            Trace(2, "Setting track sync master to %ld", (long)track->getDisplayNumber());
             sync->setTrackSyncMaster(track);
         }
         else if (mMidi) {
-            Trace(m, 2, "Setting out sync master to %ld", (long)track->getDisplayNumber());
+            Trace(2, "Setting out sync master to %ld", (long)track->getDisplayNumber());
             sync->setOutSyncMaster(track);
         }
         else {
-            Trace(m, 2, "Setting track and out sync master to %ld", (long)track->getDisplayNumber());
+            Trace(2, "Setting track and out sync master to %ld", (long)track->getDisplayNumber());
             sync->setTrackSyncMaster(track);
             sync->setOutSyncMaster(track);
         }

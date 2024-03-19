@@ -54,6 +54,7 @@
 #include "AudioConstants.h"
 
 #include "Expr.h"
+#include "../../util/Trace.h"
 #include "../../util/List.h"
 #include "../../util/Util.h"
 
@@ -1041,8 +1042,14 @@ ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
 
     // old comments indicate that we once just sent this to the
     // OutputDebugString and printf, which was probably enough
-    si->sendKernelEvent(EventEcho, msg);
+    // new: yeah, if Trace is okay for the kernel, then we don't
+    // need to mess with an event, these also mess with the order
 
+    //si->sendKernelEvent(EventEcho, msg);
+    trace(msg);
+    printf("%s\n", msg);
+    fflush(stdout);
+    
     return NULL;
 }
 

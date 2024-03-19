@@ -518,7 +518,7 @@ void Function::trace(Action* action, Mobius* m)
 	// suppress if we're rescheduling since we've already
 	// done a rescheduling message and it looks like a function came in
 	if (action->rescheduling == NULL && !action->noTrace)
-	  Trace(m, 2, "Function %s %s\n", getName(), ((action->down) ? "down" : "up"));
+	  Trace(2, "Function %s %s\n", getName(), ((action->down) ? "down" : "up"));
 }
 
 void Function::trace(Action* action, Loop* l)
@@ -532,7 +532,7 @@ void Function::trace(Action* action, Loop* l)
  */
 void Function::invoke(Action* action, Mobius* m)
 {
-	Trace(m, 2, "Unimplemented global function %s\n", getName());
+	Trace(2, "Unimplemented global function %s\n", getName());
 }
 
 /**

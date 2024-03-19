@@ -13,6 +13,7 @@
 
 !name Expression Tests
 !autoload
+!button
 
 Echo ******************************************************************
 Echo Expression Tests

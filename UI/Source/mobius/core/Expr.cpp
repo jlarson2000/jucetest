@@ -115,7 +115,8 @@ void* ExValueList::copyElement(void* src)
         if (srcv->getType() == EX_LIST) {
             ExValueList* childlist = srcv->getList();   
             if (childlist->getOwner() != srcv) {
-                printf("WARNING: Transfering ownership of list within list\n");
+                // is this dangeroius?
+                Trace(2, "WARNING: Transfering ownership of list within list\n");
                 fflush(stdout);
             }
             childlist->setOwner(srcv);
@@ -548,8 +549,7 @@ ExValueList* ExValue::takeList()
             // we weren't the owner, I guess this could happen
             // with intermediate ExValues but it's worrisome that
             // there will be a dangling reference somewhere
-            printf("WARNING: takeList with someone else's list\n");
-            fflush(stdout);
+            Trace(2, "WARNING: takeList with someone else's list\n");
         }
         list->setOwner(NULL);
         mList = NULL;
@@ -575,8 +575,7 @@ void ExValue::setOwnedList(ExValueList* src)
 {
     if (src != NULL) {
         if (src->getOwner() != NULL) {
-            printf("WARNING: setOwnedList called with already owned list\n");
-            fflush(stdout);
+            Trace(2, "WARNING: setOwnedList called with already owned list\n");
         }
         src->setOwner(this);
     }
@@ -2124,8 +2123,7 @@ const char* ExCustom::getFunction()
 void ExCustom::eval(ExContext* context, ExValue* value)
 {
     // TODO: Need some way to resolve these!!
-    printf("Unresolved expression function: %s\n", mName);
-    fflush(stdout);
+    Trace(1, "Unresolved expression function: %s\n", mName);
 	value->setNull();
 }
 

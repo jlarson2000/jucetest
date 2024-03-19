@@ -50,8 +50,9 @@ typedef enum {
     // this was for test scripts, but could be generally useful
     EventPrompt,
 
-    // this just did a printf, which is unreliable under VStudio, remove
-    // it or replace it something more flexible
+    // Used by ScriptEchoStatement
+    // for some reason I stopped using printf and made a MobiusThread event,
+    // but that just did printf, so why bother?
     EventEcho,
 
     // not sure what this was for, I guess to inform the UI that we entered

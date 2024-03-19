@@ -887,7 +887,7 @@ void Mobius::endAudioInterrupt()
 				output += (mCaptureOffset * channels);
 				frames -= mCaptureOffset;
 				if (frames < 0) {
-					Trace(this, 1, "Mobius: Recording offset calculation error!\n");
+					Trace(1, "Mobius: Recording offset calculation error!\n");
 					frames = 0;
 				}
 				mCaptureOffset = 0;
@@ -1145,16 +1145,6 @@ int Mobius::getSampleRate()
 UserVariables* Mobius::getVariables()
 {
     return mVariables;
-}
-
-/**
- * Implementation of the util/TraceContext interface.
- * Supply track/loop time.
- */
-void Mobius::getTraceContext(int* context, long* time)
-{
-	*context = 0;
-	*time = 0;
 }
 
 /**
@@ -1771,7 +1761,7 @@ void Mobius::toggleBounceRecording(Action* action)
 		mCapturing = false;
 
 		if (bounce == NULL)
-		  Trace(this, 1, "Mobius: No audio after end of bounce recording!\n");
+		  Trace(1, "Mobius: No audio after end of bounce recording!\n");
 		else {
 			// Determine the track that supplies the preset parameters
 			// (not actually used right now)

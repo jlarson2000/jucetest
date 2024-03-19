@@ -1,0 +1,203 @@
+
+This was always a kludge and is causing a problem in 64-bit because
+of this
+
+
+wtf is this a long?
+		  Trace(3, "Script %s: For track %ld\n", 
+                si->getTraceName(), (long)nextTrack->getDisplayNumber());
+
+Script.cpp
+        // this is for GlobalReset handling
+        a->id = (long)si;
+
+Action* ScriptInterpreter::getAction()
+{
+    if (mAction == NULL) {
+        mAction = mMobius->newAction();
+        mAction->trigger = TriggerScript;
+        
+        // function action needs this for GlobalReset handling
+        // I don't think Parameter actions do
+        mAction->id = (long)this;
+    }
+    return mAction;
+}
+
+It's using action->id to track the ScriptInterpreter that is asking
+for an action, to prevent that script from being canceled if it is the
+one doing the reset.
+
+A long isn't big enough for a pointer any more.
+
+So if we give Action a proper ScriptInterpreter* what is id used for?
+
+bool ScriptInterpreter::isTriggerEqual(Action* action)
+{
+    return (action->trigger == mTrigger && action->id == mTriggerId);
+}
+
+/**
+ * On the up transition of a script trigger, look for an existing script
+ * waiting for that transition.
+ *
+ * NOTE: Some obscure but possible problems if we're using a !focuslock
+ * script and the script itself plays with focuslock.  The script may
+ * not receive retrancy or sustain callbacks if it turns off focus lock.
+ *
+ */
+ScriptInterpreter* ScriptRuntime::findScript(Action* action, Script* s,
+                                                     Track* t)
+{
+	ScriptInterpreter* found = NULL;
+
+	for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {
+
+		// Note that we use getTrack here rather than getTargetTrack since
+		// the script may have changed focus.
+		// Q: Need to distinguish between scripts called from within
+		// scripts and those triggered by MIDI?
+
+		if (si->getScript() == s && 
+			si->getTrack() == t &&
+			si->isTriggerEqual(action)) {
+
+			found = si;
+			break;
+		}
+	}
+
+	return found;
+}
+
+/**
+ * Search for a TriggerWatcher that matches and remove it.
+ * Triggers match on the Trigger type plus the id.
+ * 
+ * !! TODO: Should also have a timeout for these...
+ */
+TriggerWatcher* TriggerState::remove(Action* action)
+{
+    TriggerWatcher* found = NULL;
+    TriggerWatcher* prev = NULL;
+
+    for (TriggerWatcher* t = mWatchers ; t != NULL ; t = t->next) {
+        
+        // a trigger is always uniquely identified by the Trigger type
+        // and the id
+        if (t->trigger == action->trigger && t->triggerId == action->id) {
+            found = t;
+            if (prev != NULL)
+              prev->next = t->next;
+            else 
+              mWatchers = t->next;
+
+            if (mLastWatcher == t) {
+                if (t->next != NULL)
+                  Trace(1, "TriggerState: malformed watcher list!\n");
+                mLastWatcher = prev;
+            }
+
+            break;
+        }
+        else
+          prev = t;
+    }
+
+    return found;
+}
+
+Other uses are just copying from one object to another
+
+In old code we had similar object tracker in Component
+
+    // Trigger id will be the address of the component
+    a->id = (long)this;
+
+and OSC
+
+    // action needs a unique id for up/down tracking with script targets
+    // anythig will do as long as it will be the same for both down and
+    // up messages
+    mAction->id = (long)this;
+
+Lots of weird shit with MIDI bindings
+
+/**
+ * Get the MIDI status code from the action id.
+ * Format: ((status | channel) << 8) | key
+ *
+ * We expect these to be MS_ constaints so zero out the channel.
+ */
+PUBLIC int Action::getMidiStatus()
+{
+    return ((id >> 8) & 0xF0);
+}
+
+/**
+ * Get the MIDI status code from the action id.
+ * Format: ((status | channel) << 8) | key
+ *
+ * We expect the argument to be an MS_ constaints so it is
+ * already 8 bits with a zero channel.
+ */
+PUBLIC void Action::setMidiStatus(int i)
+{
+    id = ((i << 8) | (id & 0xFFF));
+}
+
+/**
+ * Get the MIDI channel from the action id.
+ * Format: ((status | channel) << 8) | key
+ */
+PUBLIC int Action::getMidiChannel()
+{
+    return ((id >> 8) & 0xF);
+}
+
+PUBLIC void Action::setMidiChannel(int i)
+{
+    id = ((i << 8) | (id & 0xF0FF));
+}
+
+
+
+So it is primarily for up/down transition detection, but also for GlobalReset
+handling from scripts to prevent cancelation.
+
+It's not so bad as long as we treat it like a unique id and not read too much into
+what the value means.  When would anything receiving an Action care about what the
+specific MIDI channel was?
+
+The action came from a keyboard and the key was 41
+
+The action came from MIDI and it was channel 2, Control Change, 42
+The action came from the UI and it was button 4
+
+For scripts, is there a way to implement a sustainable trigger?
+I suppose you could do
+
+    Record down
+    ....
+    Record up
+
+or even
+
+    Record long
+
+but why would you ever want to do that, unless it was simulating something?
+
+TriggerScript is inherently not sustainable
+
+While we're working in the area, I hate that down=true has to be the default.
+It should be up=true which is the special case
+
+But it isn't just the trigger that defines sustainability it is the target.
+function::issustainable must be set in order to even generate up actions.  This is
+something missing in the UI model if we move toward intrinsics.  In addition
+to name and ordinal for bindings, alsso need sustainable.
+
+I suppose you could add sustainability to the binging too.  So even though
+a  target function can be sustained, and the trigger can be sustained, you might
+want to override that in the binding and say don't sustain.
+

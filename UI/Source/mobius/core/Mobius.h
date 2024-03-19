@@ -23,9 +23,7 @@
  *                                                                          *
  ****************************************************************************/
 
-class Mobius : 
-    public TraceContext
-    //public MidiEventListener, 
+class Mobius
 {
 	friend class ScriptInterpreter;
 	friend class ScriptSetupStatement;
@@ -264,7 +262,6 @@ class Mobius :
 	
     // trace
 
-	void getTraceContext(int* context, long* time);
 	void logStatus();
     
     // ActionDispatcher, ScriptRuntime

@@ -1,0 +1,4 @@
+
+This guy has a bunch of interesting looking articles
+
+https://embeddedartistry.com/blog/2017/07/14/comparing-variadic-functions-c-vs-c/

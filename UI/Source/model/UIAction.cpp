@@ -172,17 +172,24 @@ void UIAction::reset()
 
 /**
  * Resolve the operation implementation pointer if we haven't already.
+ * This was warning if an implementation object couldn't be found but this
+ * started breaking for ActionScript and ActionIntrinsic.  In the UI, it may
+ * not be possible or even necessary to resolve.  
  */
 void UIAction::resolve()
 {
     if (implementation.object == nullptr) {
         if (type == ActionFunction) {
             implementation.function = FunctionDefinition::find(actionName);
+            if (implementation.function == nullptr)
+              trace("Unresolved function action: %s\n", actionName);
+              
         }
-    }
-
-    if (implementation.object == nullptr) {
-        trace("Unresolved action: %s\n", actionName);
+        else if (type == ActionParameter) {
+            implementation.parameter = UIParameter::find(actionName);
+            if (implementation.parameter == nullptr)
+              trace("Unresolved parameter action: %s\n", actionName);
+        }
     }
 }
 

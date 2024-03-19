@@ -337,10 +337,21 @@ void RenderTrace(TraceRecord* r, char* buffer)
 	  sprintf(buffer, "ERROR: Invalid trace message!\n");
 	else {
         try {
-            sprintf(buffer, "%s%d %ld: ", ((r->level == 1) ? "ERROR: " : ""),
-                    r->context, r->time);
+            // For trace message that didn't have a TraceContext this was leaving
+            // usless "0 0" in front of everything.  Suppress that, though if we just
+            // happen to be at frame zero in a Track what then?  Maybe -1 would
+            // be better for that
+            if (r->context > 0 || r->time > 0) {
+                sprintf(buffer, "%s%d %ld: ", ((r->level == 1) ? "ERROR: " : ""),
+                        r->context, r->time);
+            }
+            else if (r->level == 1) {
+                strcpy(buffer, "ERROR: ");
+            }
+            else {
+                strcpy(buffer, "");
+            }
             buffer += strlen(buffer);
-	
 
             if (strlen(r->string3) > 0) {
                 sprintf(buffer, r->msg, r->string, r->string2, r->string3,
