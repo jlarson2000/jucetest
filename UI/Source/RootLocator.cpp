@@ -100,51 +100,95 @@ void RootLocator::whereAmI()
 }
 
 /**
- * This can eventually support
+ * Figure out where to get things
+ *
+ * checkRedirect will just walk a redirect chain without looking
+ * for specific folder content.
+ *
+ * We'll follow working directory and executable file, though they're
+ * usually the same.
+ *
+ * If we can't find the target file, just leave it in working directory
+ * but there will be sadness.
  */
 juce::String RootLocator::getRootPath()
 {
     // todo: check environment variables
     
-    juce::String root = checkRedirect(juce::File::getCurrentWorkingDirectory());
+    juce::File root = checkRedirect(juce::File::getCurrentWorkingDirectory());
 
-    if (root.length() == 0)
-      root = checkRedirect(juce::File::currentExecutableFile);
-
-    if (root.length() == 0) {
-        root = juce::File::getCurrentWorkingDirectory().getFullPathName();
-        trace("Unable to locate root redirect file\n");
-        trace("Defaulting to %s\n", root);
+    juce::File f = root.getChildFile("mobius.xml");
+    if (!f.existsAsFile()) {
+        // try here
+        root = checkRedirect(juce::File::currentExecutableFile);
+        f = root.getChildFile("mobius.xml");
+        if (!f.existsAsFile()) {
+            // we tried, where should we leave it?
+            trace("RootLocator: Unable to locate mobius.xml!\n");
+            root = juce::File::getCurrentWorkingDirectory();
+        }
     }
+
+    juce::String path = root.getFullPathName();
+    trace("RootLocator: Using root %s\n", path);
     
-    return root;
+    return path;
 }
 
-juce::String RootLocator::checkRedirect(juce::File::SpecialLocationType type)
+juce::File RootLocator::checkRedirect(juce::File::SpecialLocationType type)
 {
     juce::File f = juce::File::getSpecialLocation(type);
     return checkRedirect(f);
 }
 
-juce::String RootLocator::checkRedirect(juce::File path)
+juce::File RootLocator::checkRedirect(juce::File root)
 {
-    juce::String root;
-    
-    juce::File f = path.getChildFile("mobius-redirect");
+    juce::File f = root.getChildFile("mobius-redirect");
     if (f.existsAsFile()) {
         trace("RootLocator: Redirect file found %s\n", f.getFullPathName());
         
         juce::String content = f.loadFileAsString().trim();
-        juce::File redirect (content);
-        if (redirect.isDirectory()) {
-            root = redirect.getFullPathName();
-            trace("RootLocator: Redirecting root %s\n", root);
+        content = findRelevantLine(content);
+
+        if (content.length() == 0) {
+            trace("RootLocator: Empty redirect file\n");
         }
         else {
-            trace("RootLocator: Redirect file found, but directory does not exist: %s\n",
-                  redirect.getFullPathName());
+            juce::File redirect;
+            if (juce::File::isAbsolutePath(content))
+              redirect = juce::File(content);
+            else
+              redirect = root.getChildFile(content);
+        
+            if (redirect.isDirectory()) {
+                trace("RootLocator: Redirecting to %s\n", redirect.getFullPathName());
+
+                // recursively redirect again
+                // todo: this can cause cycles use a Map to avoid this
+                root = checkRedirect(redirect);
+            }
+            else {
+                trace("RootLocator: Redirect file found, but directory does not exist: %s\n",
+                      redirect.getFullPathName());
+            }
         }
     }
-
+    
     return root;
+}
+
+juce::String RootLocator::findRelevantLine(juce::String src)
+{
+    juce::String line;
+
+    juce::StringArray tokens;
+    tokens.addTokens(src, "\n", "");
+    for (int i = 0 ; i < tokens.size() ; i++) {
+        line = tokens[i];
+        if (!line.startsWith("#")) {
+            break;
+        }
+    }
+    
+    return line;
 }

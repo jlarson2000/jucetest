@@ -22,8 +22,8 @@ class RootLocator
     juce::String defaultRoot;
     juce::String redirectRoot;
 
-    juce::String checkRedirect(juce::File path);
-    juce::String checkRedirect(juce::File::SpecialLocationType type);
-    
+    juce::File checkRedirect(juce::File path);
+    juce::File checkRedirect(juce::File::SpecialLocationType type);
+    juce::String findRelevantLine(juce::String src);
 };
 

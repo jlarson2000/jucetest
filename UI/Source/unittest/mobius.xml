@@ -1,113 +1,105 @@
-<MobiusConfig midiInput='Arturia MiniLab mkII' midiOutput='3- Black Box MIDI Out' audioInput='Analog (3+4) (RME Fireface UC)' audioOutput='Speakers (RME Fireface UC)' quickSave='mobiusloop' noiseFloor='13' suggestedLatencyMsec='5' inputLatency='0' outputLatency='0' maxSyncDrift='2048' trackCount='8' groupCount='0' maxLoops='4' longPress='500' monitorAudio='false' pluginPins='16' autoFeedbackReduction='false' integerWaveFile='false' spreadRange='48' traceLevel='0' saveLayers='false' driftCheckPoint='0' midiRecordMode='0' groupFocusLock='false' setup='Default'>
-  <Preset name='Default'
-    altFeedbackEnable='false'
+<MobiusConfig
+  midiInput='Arturia MiniLab mkII'
+  midiOutput='3- Black Box MIDI Out'
+  audioInput='Analog (3+4) (RME Fireface UC)'
+  audioOutput='Speakers (RME Fireface UC)'
+  quickSave='mobiusloop'
+  noiseFloor='13'
+  suggestedLatencyMsec='5'
+  maxSyncDrift='2048'
+  trackCount='8'
+  maxLoops='4'
+  longPress='500'
+  pluginPins='16'
+  spreadRange='48'
+  setup='Default'>
+  <Preset
+    name='Default'
     autoRecordBars='1'
-    autoRecordTempo='0'
-    bounceQuantize='0'
-    emptyLoopAction='0'
-    emptyTrackAction='0'
     loopCount='4'
     maxRedo='1'
-    maxUndo='0'
-    multiplyMode='0'
-    muteCancel='0'
-    muteMode='0'
-    noFeedbackUndo='false'
-    noLayerFlattening='false'
-    overdubQuantized='false'
-    overdubTransfer='0'
     pitchBendRange='12'
-    pitchShiftRestart='false'
     pitchStepRange='24'
-    pitchTransfer='0'
-    quantize='0'
     speedBendRange='12'
-    speedRecord='false'
-    speedShiftRestart='false'
     speedStepRange='24'
-    speedTransfer='0'
     timeStretchRange='12'
-    recordResetsFeedback='false'
-    recordThreshold='0'
-    recordTransfer='0'
-    returnLocation='0'
-    reverseTransfer='0'
     roundingOverdub='true'
-    shuffleMode='0'
-    slipMode='0'
-    slipTime='0'
-    soundCopyMode='0'
     subcycles='4'
-    switchDuration='0'
-    switchLocation='0'
-    switchQuantize='0'
-    switchVelocity='false'
-    timeCopyMode='0'
-    trackLeaveAction='0'
     windowEdgeAmount='1'
-    windowEdgeUnit='0'
-    windowSlideAmount='1'
-    windowSlideUnit='0'/>
-  <Preset name='Another'
-    altFeedbackEnable='false'
+    windowSlideAmount='1'/>
+  <Preset
+    name='Another'
     autoRecordBars='1'
-    autoRecordTempo='0'
-    bounceQuantize='0'
-    emptyLoopAction='0'
-    emptyTrackAction='0'
     loopCount='4'
-    maxRedo='0'
-    maxUndo='0'
-    multiplyMode='0'
-    muteCancel='0'
-    muteMode='0'
-    noFeedbackUndo='false'
-    noLayerFlattening='false'
-    overdubQuantized='false'
-    overdubTransfer='0'
     pitchBendRange='12'
-    pitchShiftRestart='false'
     pitchStepRange='24'
-    pitchTransfer='0'
-    quantize='0'
     speedBendRange='12'
-    speedRecord='false'
-    speedShiftRestart='false'
     speedStepRange='24'
-    speedTransfer='0'
     timeStretchRange='12'
-    recordResetsFeedback='false'
-    recordThreshold='0'
-    recordTransfer='0'
-    returnLocation='0'
-    reverseTransfer='0'
-    roundingOverdub='false'
-    shuffleMode='0'
-    slipMode='0'
-    slipTime='0'
-    soundCopyMode='0'
-    subcycles='4'
-    switchDuration='0'
-    switchLocation='0'
-    switchQuantize='0'
-    switchVelocity='false'
-    timeCopyMode='0'
-    trackLeaveAction='0'
-    windowEdgeAmount='0'
-    windowEdgeUnit='0'
-    windowSlideAmount='0'
-    windowSlideUnit='0'/>
-  <Setup name='Default' active='0' beatsPerBar='0' defaultSyncSource='0' defaultTrackSyncUnit='0' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='0' outRealign='0' realignTime='0' resizeSyncAdjust='0' slaveSyncUnit='0' speedSyncAdjust='0'>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='1' audioOutputPort='1' pluginInputPort='1' pluginOutputPort='1' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
-    <SetupTrack focus='false' mono='false' group='0' input='127' output='127' feedback='127' altFeedback='127' pan='64' audioInputPort='0' audioOutputPort='0' pluginInputPort='0' pluginOutputPort='0' syncSource='0' trackSyncUnit='0'/>
+    subcycles='4'/>
+  <Setup
+    name='Default'
+    active='0'
+    maxTempo='300'
+    minTempo='20'>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'
+      audioInputPort='1'
+      audioOutputPort='1'
+      pluginInputPort='1'
+      pluginOutputPort='1'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
+    <SetupTrack
+      input='127'
+      output='127'
+      feedback='127'
+      altFeedback='127'
+      pan='64'/>
   </Setup>
-  <Setup name='Another' active='0' beatsPerBar='0' defaultSyncSource='0' defaultTrackSyncUnit='0' manualStart='false' maxTempo='300' minTempo='20' muteSyncMode='0' outRealign='0' realignTime='0' resizeSyncAdjust='0' slaveSyncUnit='0' speedSyncAdjust='0'>
+  <Setup
+    name='Another'
+    active='0'
+    maxTempo='300'
+    minTempo='20'>
   </Setup>
   <BindingSet ordinal='0'>
     <Binding action='function' name='Record' trigger='key' value='82'/>
@@ -124,14 +116,11 @@
     <Binding action='function' name='NextTrack' trigger='ui' value='0'/>
     <Binding action='function' name='PrevTrack' trigger='ui' value='0'/>
     <Binding action='function' name='SamplePlay' trigger='ui' value='0' args='1'/>
-    <Binding action='function' name='Undo' trigger='ui' value='0'/>
-    <Binding action='function' name='Redo' trigger='ui' value='0'/>
-    <Binding action='function' name='Coverage' trigger='ui' value='0'/>
-    <Binding action='function' name='Debug' trigger='ui' value='0'/>
-    <Binding action='script' name='Next Track Script' trigger='ui' value='0'/>
+    <Binding action='intrinsic' name='Load Scripts' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>
