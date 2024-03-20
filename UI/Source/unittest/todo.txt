@@ -1,8 +1,82 @@
 
-Nice to have multiple levels of mobius-redirect files
-Support multiple lines in redirect with # comments
+UnitTestSetup
+  wants to install a Preset and a Setup, I guess that's okay
+  keep for now but we don't have to now that we have mobius.xml redirect
 
-Echo to send to both stdout and debug console
+MobiusConfig::setCurrentPreset
+  need to nail down the concept of a default global preset
+  the SetupTrack can override it, but it should not be required to have
+  these set in every track.  If not set fall back to the default
+
+Sample loading
+  samples are no longer loaded automatically, must use the LoadSamples action
+  I suppose we could have a "load on startup" option
+  Unit tests will call LoadSamples many times as part of their standard
+  test initialization sequence, function needs to do diff checking before sending
+  down to the Kernel
+
+  basically on load, Shell keeps it's own copy of the unloaded SampleConfig
+  on reload, test this against what is currently in MobiusConfig and only reload
+  if the path names differ
+
+  Can have a "force" argument in the binding args.  For sample loading from the UI,
+  always include force
+
+Duplicate Script Compilation
+  seeing two sets of compliler trace, one when initializing the Kernel and another
+  when shell calculates the dynmaic actions.  shell should build a dynamic info object
+  before sending it down, and return that every time
+
+LoadScripts doesn't need diff checking like Samples but it could
+  alternately have this in the SampleConfig, autoload=true only for the config
+  in the unit test directory?
+
+Parameter aliases
+  unit tests use old names like 8thsPerCycle and moreLoops
+  see how widesparead those are and consider putting aliases back
+  probably easier just to change the tests
+
+noLayerFlattening
+  make sure this global param works
+
+StartAudioRecording
+  used frequenly in tests
+
+See "Proc Difftest
+  StopAudioRecording
+  
+    # these will be processed in order on the mobius thread
+  SaveLoop ./$(testname)$(suffix)loop
+  Wait thread
+  SaveAudioRecording ./$(testname)$(suffix)rec
+  Wait thread
+
+  going to need SaveLoop and SaveAudioRecording, bring those back
+
+Diff
+  Diff audio ./$(testname)rec
+  will need that too with a KernelEvent
+
+And diff
+
+
+
+Proc RecordBackground
+
+  Wait block
+  StartAudioRecording
+  Sample1
+  Wait frame baseStartWait
+  Record
+  Wait frame baseEndWait
+  Record
+  Wait last
+
+Endproc
+
+  
+
+
 
 relative paths in ScriptConfig
 relative paths in SampleConfig

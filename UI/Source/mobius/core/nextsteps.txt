@@ -5,12 +5,9 @@ When TriggerState ends long press tracking we don't always
 want the up action propagated any further, it just cancles
 the long wait.  Verify this.
 
+Have an unexpectedly high number of max kernel events passing between the layers
 
 ---
-
-Long press record broke along the way
-  need to completely rethink trigger handling and move as much
-  as possible out of core
 
 Bad leak after attempting long-press Record a few times
   doesn't have to be long, just do
