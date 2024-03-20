@@ -63,6 +63,7 @@
 #include "Synchronizer.h"
 
 #include "Track.h"
+#include "Mem.h"
 
 bool TraceFrameAdvance = false;
 
@@ -86,13 +87,12 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
 
     mMobius = m;
 	mSynchronizer = sync;
-    mSyncState = new SyncState(this);
-    mEventManager = new EventManager(this);
+    mSyncState = NEW1(SyncState, this);
+    mEventManager = NEW1(EventManager, this);
     mSetup = NULL;
-	mInput = new InputStream(sync, m->getSampleRate());
-	mOutput = new OutputStream(mInput, m->getAudioPool());
-	//mCsect = new CriticalSection("Track");
-	mVariables = new UserVariables();
+	mInput = NEW2(InputStream, sync, m->getSampleRate());
+	mOutput = NEW2(OutputStream, mInput, m->getAudioPool());
+	mVariables = NEW(UserVariables);
 	mPreset = NULL;
 
 	mLoop = NULL;
@@ -128,16 +128,20 @@ void Track::init(Mobius* m, Synchronizer* sync, int number)
     // Each track has it's own private Preset that can be dynamically
     // changed with scripts or bound parameters without effecting the
     // master preset stored in mobius.xml.  
-    mPreset = new Preset();
+    mPreset = NEW(Preset);
 
     // Flesh out an array of Loop objects, but we'll wait for
     // the installation of the MobiusConfig and the Preset to tell us
     // how many to use.
     // Loop will keep a reference to our Preset
 
-	for (i = 0 ; i < MAX_LOOPS ; i++)
-      mLoops[i] = new Loop(i+1, mMobius, this, mInput, mOutput); 
-
+	for (i = 0 ; i < MAX_LOOPS ; i++) {
+        // yikes, that's a lot of macro
+        Loop* neu = new Loop(i+1, mMobius, this, mInput, mOutput);
+        MemTrack(neu, "Loop", sizeof(class Loop));
+        mLoops[i] = neu;
+    }
+    
     // start with one just so we can ensure mLoop is always set
     mLoop = mLoops[0];
     mLoopCount = 1;

@@ -69,6 +69,7 @@
 #include "Track.h"
 
 #include "Loop.h"
+#include "Mem.h"
 
 // in Track.cpp
 extern bool TraceFrameAdvance;

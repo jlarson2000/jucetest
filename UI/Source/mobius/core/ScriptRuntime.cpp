@@ -20,6 +20,7 @@
 #include "Script.h"
 
 #include "ScriptRuntime.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -219,7 +220,7 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
         // look at what ScriptInterpreter needs from Mobius
         // since it is our child it could be interesting to have it point
         // back to us if all it needs to do is go from Mobius back down to ScriptRuntime
-		ScriptInterpreter* si = new ScriptInterpreter(mMobius, t);
+		ScriptInterpreter* si = NEW2(ScriptInterpreter, mMobius, t);
         si->setNumber(++mScriptThreadCounter);
 
 		// Setting the script will cause a refresh if !autoload was on.
@@ -296,7 +297,7 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 
 		if (si == NULL) {
 			// !! need to pool these
-			si = new ScriptInterpreter(mMobius, t);
+			si = NEW2(ScriptInterpreter, mMobius, t);
             si->setNumber(++mScriptThreadCounter);
 
 			// Setting the script will cause a refresh if !autoload was on.

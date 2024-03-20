@@ -30,6 +30,7 @@
 #include "Mobius.h"
 #include "Script.h"
 #include "Track.h"
+#include "Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -131,7 +132,7 @@ void EventType::move(Loop* l, Event* e, long newFrame)
 
 EventPool::EventPool()
 {
-    mEvents = new EventList();
+    mEvents = NEW(EventList);
     mAllocated = 0;
 }
 
@@ -177,7 +178,7 @@ Event* EventPool::newEvent()
     }
 
     if (e == NULL) {
-        e = new Event(this);
+        e = NEW1(Event, this);
         mAllocated++;
         // Trace(2, "Allocated event at %10x\n", (int)e);
     }
@@ -311,7 +312,7 @@ Event::Event(EventPool* pool)
 
 	// this will be allocated as needed, but not reinitialized  every time
     // to make memory more predictable, just go ahead and allocate it now
-	mPreset = new Preset();
+	mPreset = NEW(Preset);
 }
 
 void Event::init()
@@ -590,7 +591,7 @@ void Event::savePreset(Preset* p)
         // should stop doing this and allocate it when
         // the pool is refreshed
         if (mPreset == nullptr)
-          mPreset = new Preset();
+          mPreset = NEW(Preset);
         mPreset->copyNoAlloc(p);
 		mPresetValid = true;
 	}
@@ -910,7 +911,7 @@ void EventList::flush(bool reset, bool keepScriptEvents)
  */
 EventList* EventList::transfer()
 {
-	EventList* list = new EventList();
+	EventList* list = NEW(EventList);
 
 	for (Event* e = mEvents ; e != NULL ; e = e->getNext())
 	  e->setList(list);

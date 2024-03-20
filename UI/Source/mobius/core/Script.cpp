@@ -81,6 +81,7 @@
 
 #include "ScriptCompiler.h"
 #include "Script.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -2718,7 +2719,7 @@ void ScriptBlockingStatement::link(ScriptCompiler* compiler)
 ScriptBlock* ScriptBlockingStatement::getChildBlock()
 {
     if (mChildBlock == NULL)
-      mChildBlock = new ScriptBlock();
+      mChildBlock = NEW(ScriptBlock);
     return mChildBlock;
 }
 
@@ -2987,7 +2988,7 @@ void ScriptFunctionStatement::link(ScriptCompiler* comp)
                 RunScriptFunction* rsf = calledScript->getFunction();
                 if (rsf == NULL) {
                     // promote it
-                    rsf = new RunScriptFunction(calledScript);
+                    rsf = NEW1(RunScriptFunction, calledScript);
                     calledScript->setFunction(rsf);
                 }
                 // for our purposes, we use either the static or dynamic
@@ -3109,9 +3110,9 @@ ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
                 }
                 else if (!value->isNull()) {
                     // unusual, promote to a list 
-                    ExValue* copy = new ExValue();
+                    ExValue* copy = NEW(ExValue);
                     copy->set(value);
-                    ExValueList* list = new ExValueList();
+                    ExValueList* list = NEW(ExValueList);
                     list->add(copy);
                     a->scriptArgs = list;
                 }
@@ -3187,7 +3188,7 @@ ScriptWaitStatement::ScriptWaitStatement(WaitType type,
 	init();
 	mWaitType = type;
 	mUnit = unit;
-    mExpression = new ExLiteral((int)time);
+    mExpression = NEW1(ExLiteral, (int)time);
 }
 
 void ScriptWaitStatement::init()
@@ -3873,7 +3874,7 @@ void Script::clear()
 ScriptBlock* Script::getBlock()
 {
     if (mBlock == NULL)
-      mBlock = new ScriptBlock();
+      mBlock = NEW(ScriptBlock);
     return mBlock;
 }
 
@@ -4749,6 +4750,14 @@ ScriptInterpreter::~ScriptInterpreter()
     // new: this was leaking
     delete mVariables;
 
+    // the chain pointer here is getStack
+    ScriptStack* stack = mStackPool;
+    while (stack != nullptr) {
+        ScriptStack* next = stack->getStack();
+        stack->setStack(nullptr);
+        delete stack;
+        stack = next;
+    }
 }
 
 void ScriptInterpreter::setNext(ScriptInterpreter* si)
@@ -4811,7 +4820,7 @@ Action* ScriptInterpreter::getAction()
 Export* ScriptInterpreter::getExport()
 {
     if (mExport == NULL) {
-        mExport = new Export(mMobius);
+        mExport = NEW1(Export, mMobius);
     }
     return mExport;
 }
@@ -5014,7 +5023,7 @@ void ScriptInterpreter::setScript(Script* s, bool inuse)
 
 	// kludge, do not refesh if the script is currently in use
 	if (!inuse && s->isAutoLoad()) {
-        ScriptCompiler* comp = new ScriptCompiler();
+        ScriptCompiler* comp = NEW(ScriptCompiler);
         comp->recompile(mMobius, s);
         delete comp;
     }
@@ -5074,7 +5083,7 @@ void ScriptInterpreter::use(Parameter* p)
     }
 
     if (found == NULL) {
-        ScriptUse* use = new ScriptUse(p);
+        ScriptUse* use = NEW1(ScriptUse, p);
         ExValue* value = use->getValue();
         getParameter(p, value);
         use->setNext(mUses);
@@ -5461,7 +5470,7 @@ bool ScriptInterpreter::isWaiting()
 UserVariables* ScriptInterpreter::getVariables()
 {
     if (mVariables == NULL)
-      mVariables = new UserVariables();
+      mVariables = NEW(UserVariables);
     return mVariables;
 }
 
@@ -5528,7 +5537,7 @@ ScriptStack* ScriptInterpreter::allocStack()
 {
     ScriptStack* s = NULL;
     if (mStackPool == NULL)
-      s = new ScriptStack();
+      s = NEW(ScriptStack);
     else {
         s = mStackPool;
         mStackPool = s->getStack();
@@ -5896,13 +5905,13 @@ ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
 	}
 
 	if (arg > 0)
-	  resolver = new ScriptResolver(symbol, arg);
+	  resolver = NEW2(ScriptResolver, symbol, arg);
 
     // next try internal variables
 	if (resolver == NULL) {
 		ScriptInternalVariable* iv = ScriptInternalVariable::getVariable(name);
 		if (iv != NULL)
-		  resolver = new ScriptResolver(symbol, iv);
+		  resolver = NEW2(ScriptResolver, symbol, iv);
 	}
     
     // next look for a Variable in the innermost block
@@ -5917,7 +5926,7 @@ ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
             else {
                 ScriptVariableStatement* v = block->findVariable(name);
                 if (v != NULL)
-                  resolver = new ScriptResolver(symbol, v);
+                  resolver = NEW2(ScriptResolver, symbol, v);
             }
         }
     }
@@ -5925,14 +5934,14 @@ ExResolver* ScriptInterpreter::getExResolver(ExSymbol* symbol)
 	if (resolver == NULL) {
 		Parameter* p = mMobius->getParameter(name);
 		if (p != NULL)
-		  resolver = new ScriptResolver(symbol, p);
+		  resolver = NEW2(ScriptResolver, symbol, p);
 	}
 
     // try some auto-declared system variables
     if (resolver == NULL) {
         for (int i = 0 ; InterpreterVariables[i] != NULL ; i++) {
             if (StringEqualNoCase(name, InterpreterVariables[i])) {
-                resolver = new ScriptResolver(symbol, name);
+                resolver = NEW2(ScriptResolver, symbol, name);
                 break;
             }
         }

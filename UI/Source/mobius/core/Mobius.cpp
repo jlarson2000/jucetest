@@ -101,8 +101,8 @@ Mobius::Mobius(MobiusKernel* kernel)
     mMidi = new StubMidiInterface();
     
     //mActionator = new Actionator(this);
-    mActionator = NEW(Actionator, this);
-    mScriptarian = new Scriptarian(this);
+    mActionator = NEW1(Actionator, this);
+    mScriptarian = NEW1(Scriptarian, this);
     mPendingScriptarian = nullptr;
     
     //

@@ -145,7 +145,7 @@
 #include "Track.h"
 
 #include "EventManager.h"
-
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -160,7 +160,7 @@ EventManager::EventManager(Track* track)
     mSwitch = NULL;
 
     // special event we can inject at sync boundaries
-	mSyncEvent = new Event(nullptr);
+	mSyncEvent = NEW1(Event, nullptr);
 	mSyncEvent->type = SyncEvent;
 	// this keeps it from being returned to the free pool and
     // suppresses warnings

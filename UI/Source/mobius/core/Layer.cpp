@@ -331,6 +331,7 @@
 #include "Script.h"
 #include "Segment.h"
 #include "Stream.h"
+#include "Mem.h"
 
 // In Track.cpp
 extern bool TraceFrameAdvance;
@@ -532,17 +533,17 @@ Layer::Layer(LayerPool* lpool, AudioPool* apool)
     mWindowSubcycleFrames = 0;
 	mCheckpoint = CHECKPOINT_UNSPECIFIED;
 
-	mSmoother = new Smoother();
-    mHeadWindow = new FadeWindow();
-    mTailWindow = new FadeWindow();
+	mSmoother = NEW(Smoother);
+    mHeadWindow = NEW(FadeWindow);
+    mTailWindow = NEW(FadeWindow);
 
-    mPlayCursor = new AudioCursor("play", mAudio);
-    mCopyCursor = new AudioCursor("copy", mAudio);
-    mFeedbackCursor = new AudioCursor("feedback", mAudio);
+    mPlayCursor = NEW2(AudioCursor, "play", mAudio);
+    mCopyCursor = NEW2(AudioCursor, "copy", mAudio);
+    mFeedbackCursor = NEW2(AudioCursor, "feedback", mAudio);
 
-    mRecordCursor = new AudioCursor("record", mAudio);
+    mRecordCursor = NEW2(AudioCursor, "record", mAudio);
     mRecordCursor->setAutoExtend(true);
-    mOverdubCursor = new AudioCursor("new", mAudio);
+    mOverdubCursor = NEW2(AudioCursor, "new", mAudio);
     mOverdubCursor->setAutoExtend(true);
 
 	mFade.init();
@@ -698,8 +699,8 @@ Layer* Layer::spawn()
     neu->mTailWindow = mTailWindow;
 
 	mSegments = NULL;
-    mHeadWindow = new FadeWindow();
-    mTailWindow = new FadeWindow();
+    mHeadWindow = NEW(FadeWindow);
+    mTailWindow = NEW(FadeWindow);
 	mAudio = mAudioPool->newAudio();
     mRecordCursor->setAudio(mAudio);
     mFeedbackCursor->setAudio(mAudio);
@@ -1391,7 +1392,7 @@ Segment* Layer::addSegment(Layer* src)
 {
     Segment* seg = NULL;
     if (src != NULL) {
-        seg = new Segment(src);
+        seg = NEW1(Segment, src);
 		addSegment(seg);
 	}
 	return seg;
@@ -1766,6 +1767,7 @@ void Layer::saveRegion(long startFrame, long frames, const char* name)
 #if 0    
 	long samples = frames * mAudio->getChannels();
 	float* buffer = new float[samples];
+    MemTrack(buffer, "buffer", sizeof(buffer));
 	Audio* a = mAudioPool->newAudio();
 	
 	memset(buffer, 0, sizeof(float) * samples);
@@ -2897,7 +2899,7 @@ void Layer::getNoReflect(LayerContext* con, long startFrame,
 Audio* Layer::flatten()
 {
 	Audio* flat = mAudioPool->newAudio();
-	AudioCursor* cursor = new AudioCursor("flatten", NULL);
+	AudioCursor* cursor = NEW2(AudioCursor, "flatten", NULL);
 	float buffer[AUDIO_MAX_FRAMES_PER_BUFFER * AUDIO_MAX_CHANNELS];
 
     // in case we decide to save this in a project, set the
@@ -3397,7 +3399,7 @@ void Layer::occlude(long startFrame, long frames, bool seamless)
 		else if (segFirst <= lastFrame && segLast >= startFrame) {
 			// split in two
 			// note that we can't clone local segment Audio yet
-			Segment* clone = new Segment(s);
+			Segment* clone = NEW1(Segment, s);
 			addSegment(clone);
 				
 			// replace everything after the startFrame
@@ -3548,7 +3550,7 @@ void Layer::pause(LayerContext* con, long startFrame)
  */
 void Layer::multiplyCycle(LayerContext* con, Layer* src, long modeStartFrame)
 {
-	Segment* cycle = new Segment(src);
+	Segment* cycle = NEW1(Segment, src);
 	long cycleFrames = getCycleFrames();
 
 	// the base of the first cycle in the source layer
@@ -4087,7 +4089,7 @@ void Layer::insertSegmentGap(long startFrame, long frames)
 			long last = offset + seg->getFrames() - 1;
 			if (last >= startFrame) {
 				// it gets split
-				Segment* right = new Segment(seg);
+				Segment* right = NEW1(Segment, seg);
 				long leftlen = startFrame - offset;
 				long rightlen = seg->getFrames() - leftlen;
 				seg->setFrames(leftlen);
@@ -4318,7 +4320,7 @@ void Layer::stutterCycle(LayerContext* con, Layer* src, long srcFrame,
 	// remember to reflect relative to the size of the src layer
 	srcFrame = src->reflectRegion(con, srcFrame, cycleFrames);
 
-	Segment* cycle = new Segment(src);
+	Segment* cycle = NEW1(Segment, src);
 	cycle->setOffset(reflectedDest);
     cycle->setStartFrame(srcFrame);
 	cycle->setFrames(cycleFrames);
@@ -4791,7 +4793,8 @@ LayerContext* LayerPool::getCopyContext()
 {
 	if (mCopyContext == NULL) {
 		float* buffer = new float[AUDIO_MAX_FRAMES_PER_BUFFER * AUDIO_MAX_CHANNELS];
-		mCopyContext = new LayerContext();
+        MemTrack(buffer, "buffer", sizeof(buffer));
+		mCopyContext = NEW(LayerContext);
 		mCopyContext->setBuffer(buffer, AUDIO_MAX_FRAMES_PER_BUFFER);
 	}
 	return mCopyContext;
@@ -4828,7 +4831,7 @@ Layer* LayerPool::newLayer(Loop* loop)
 	Layer* layer = mLayers;
 
 	if (layer == NULL) {
-        layer = new Layer(this, mAudioPool);
+        layer = NEW2(Layer, this, mAudioPool);
         layer->setAllocation(mAllocated++);
     }
 	else {

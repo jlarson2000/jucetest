@@ -7,7 +7,7 @@ AudioDeviceSetup
   useDefaultOutputChannels: true
 Reading configuration file c:\dev\jucetest\UI\Source\unittest\mobius.xml
 Mobius::Mobius
-ERROR: Allocated Action size 616 000002560D6FB7E0
+ERROR: Allocated Action size 616 000001B37F268460
 ERROR: Actionator::initFunctionMap Function DebugStatus not found
 ERROR: Actionator::initFunctionMap Function Divide4 not found
 ERROR: Actionator::initFunctionMap Function Ignore not found
@@ -17,24 +17,253 @@ ERROR: Actionator::initFunctionMap Function SUSRehearse not found
 ERROR: Actionator::initFunctionMap Function SelectTrack not found
 ERROR: Actionator::initFunctionMap Function UIRedraw not found
 ERROR: Actionator::initParameterMap Parameter activeTrack not found
-ERROR: Allocated Actionator size 56 000002560D6BB3C0
+ERROR: Allocated Actionator size 56 000001B37F2C2AC0
+ERROR: Allocated Scriptarian size 40 000001B37F259300
+ERROR: Allocated EventList size 8 000001B37F361600
+ERROR: Allocated Preset size 2776 000001B37F26B4C0
+ERROR: Allocated SyncState size 72 000001B37F277950
+ERROR: Allocated Preset size 2776 000001B37F26BFE0
+ERROR: Allocated Event size 272 000001B37F2820D0
+ERROR: Allocated EventManager size 40 000001B37F259610
+ERROR: Allocated InputStream size 200 000001B37F2A74E0
+ERROR: Allocated OutputStream size 264 000001B37F2828B0
+ERROR: Allocated UserVariables size 8 000001B37F361FB0
+ERROR: Allocated Preset size 2776 000001B37F25A650
+ERROR: Allocated Loop size 624 000001B37F253340
+ERROR: Allocated Loop size 624 000001B37F26CB00
+ERROR: Allocated Loop size 624 000001B37F26CDB0
+ERROR: Allocated Loop size 624 000001B37F26D060
+ERROR: Allocated Loop size 624 000001B37F25B170
+ERROR: Allocated Loop size 624 000001B37F25B420
+ERROR: Allocated Loop size 624 000001B37F25B6D0
+ERROR: Allocated Loop size 624 000001B37F25BB60
+ERROR: Allocated Loop size 624 000001B37C427D10
+ERROR: Allocated Loop size 624 000001B37C426FA0
+ERROR: Allocated Loop size 624 000001B37C427250
+ERROR: Allocated Loop size 624 000001B37C427FC0
+ERROR: Allocated Loop size 624 000001B37C428270
+ERROR: Allocated Loop size 624 000001B37C428520
+ERROR: Allocated Loop size 624 000001B37C427500
+ERROR: Allocated Loop size 624 000001B37C4277B0
+ERROR: Allocated SyncState size 72 000001B37F278520
+ERROR: Allocated Preset size 2776 000001B37F28FAB0
+ERROR: Allocated Event size 272 000001B37F282B50
+ERROR: Allocated EventManager size 40 000001B37F259990
+ERROR: Allocated InputStream size 200 000001B37F2A94C0
+ERROR: Allocated OutputStream size 264 000001B37F282A00
+ERROR: Allocated UserVariables size 8 000001B37F361A10
+ERROR: Allocated Preset size 2776 000001B37F661140
+ERROR: Allocated Loop size 624 000001B37C4287D0
+ERROR: Allocated Loop size 624 000001B37C426CF0
+ERROR: Allocated Loop size 624 000001B37C427A60
+ERROR: Allocated Loop size 624 000001B37F523130
+ERROR: Allocated Loop size 624 000001B37F525420
+ERROR: Allocated Loop size 624 000001B37F524960
+ERROR: Allocated Loop size 624 000001B37F524C10
+ERROR: Allocated Loop size 624 000001B37F525C30
+ERROR: Allocated Loop size 624 000001B37F523EA0
+ERROR: Allocated Loop size 624 000001B37F524EC0
+ERROR: Allocated Loop size 624 000001B37F525170
+ERROR: Allocated Loop size 624 000001B37F524150
+ERROR: Allocated Loop size 624 000001B37F524400
+ERROR: Allocated Loop size 624 000001B37F5246B0
+ERROR: Allocated Loop size 624 000001B37F5256D0
+ERROR: Allocated Loop size 624 000001B37F525980
+ERROR: Allocated SyncState size 72 000001B37F278250
+ERROR: Allocated Preset size 2776 000001B37F661C60
+ERROR: Allocated Event size 272 000001B37F2824C0
+ERROR: Allocated EventManager size 40 000001B37F2596F0
+ERROR: Allocated InputStream size 200 000001B37F2A72C0
+ERROR: Allocated OutputStream size 264 000001B37F282CA0
+ERROR: Allocated UserVariables size 8 000001B37F361790
+ERROR: Allocated Preset size 2776 000001B37F763810
+ERROR: Allocated Loop size 624 000001B37F525EE0
+ERROR: Allocated Loop size 624 000001B37F526190
+ERROR: Allocated Loop size 624 000001B37F522670
+ERROR: Allocated Loop size 624 000001B37F522920
+ERROR: Allocated Loop size 624 000001B37F522BD0
+ERROR: Allocated Loop size 624 000001B37F522E80
+ERROR: Allocated Loop size 624 000001B37F5233E0
+ERROR: Allocated Loop size 624 000001B37F523690
+ERROR: Allocated Loop size 624 000001B37F523940
+ERROR: Allocated Loop size 624 000001B37F523BF0
+ERROR: Allocated Loop size 624 000001B37F54E140
+ERROR: Allocated Loop size 624 000001B37F54BBA0
+ERROR: Allocated Loop size 624 000001B37F54F410
+ERROR: Allocated Loop size 624 000001B37F54D3D0
+ERROR: Allocated Loop size 624 000001B37F54E3F0
+ERROR: Allocated Loop size 624 000001B37F54D680
+ERROR: Allocated SyncState size 72 000001B37F2786D0
+ERROR: Allocated Preset size 2776 000001B37F764330
+ERROR: Allocated Event size 272 000001B37F282610
+ERROR: Allocated EventManager size 40 000001B37F259450
+ERROR: Allocated InputStream size 200 000001B37F2AA4B0
+ERROR: Allocated OutputStream size 264 000001B37F282760
+ERROR: Allocated UserVariables size 8 000001B37F361B00
+ERROR: Allocated Preset size 2776 000001B37F2905D0
+ERROR: Allocated Loop size 624 000001B37F54D930
+ERROR: Allocated Loop size 624 000001B37F54DBE0
+ERROR: Allocated Loop size 624 000001B37F54DE90
+ERROR: Allocated Loop size 624 000001B37F54BE50
+ERROR: Allocated Loop size 624 000001B37F54D120
+ERROR: Allocated Loop size 624 000001B37F54C910
+ERROR: Allocated Loop size 624 000001B37F54C100
+ERROR: Allocated Loop size 624 000001B37F54B8F0
+ERROR: Allocated Loop size 624 000001B37F54E950
+ERROR: Allocated Loop size 624 000001B37F54C3B0
+ERROR: Allocated Loop size 624 000001B37F54C660
+ERROR: Allocated Loop size 624 000001B37F54E6A0
+ERROR: Allocated Loop size 624 000001B37F54EC00
+ERROR: Allocated Loop size 624 000001B37F54CBC0
+ERROR: Allocated Loop size 624 000001B37F54EEB0
+ERROR: Allocated Loop size 624 000001B37F54CE70
+ERROR: Allocated SyncState size 72 000001B37F278760
+ERROR: Allocated Preset size 2776 000001B37F2912F0
+ERROR: Allocated Event size 272 000001B37F281F80
+ERROR: Allocated EventManager size 40 000001B37F259DF0
+ERROR: Allocated InputStream size 200 000001B37F2A9080
+ERROR: Allocated OutputStream size 264 000001B37F282220
+ERROR: Allocated UserVariables size 8 000001B37F362C80
+ERROR: Allocated Preset size 2776 000001B37F291E10
+ERROR: Allocated Loop size 624 000001B37F54F160
+ERROR: Allocated Loop size 624 000001B37F925890
+ERROR: Allocated Loop size 624 000001B37F925080
+ERROR: Allocated Loop size 624 000001B37F928390
+ERROR: Allocated Loop size 624 000001B37F9260A0
+ERROR: Allocated Loop size 624 000001B37F9255E0
+ERROR: Allocated Loop size 624 000001B37F925B40
+ERROR: Allocated Loop size 624 000001B37F928640
+ERROR: Allocated Loop size 624 000001B37F924B20
+ERROR: Allocated Loop size 624 000001B37F925DF0
+ERROR: Allocated Loop size 624 000001B37F927370
+ERROR: Allocated Loop size 624 000001B37F924DD0
+ERROR: Allocated Loop size 624 000001B37F9270C0
+ERROR: Allocated Loop size 624 000001B37F9268B0
+ERROR: Allocated Loop size 624 000001B37F925330
+ERROR: Allocated Loop size 624 000001B37F927620
+ERROR: Allocated SyncState size 72 000001B37F276C60
+ERROR: Allocated Preset size 2776 000001B37F92DC20
+ERROR: Allocated Event size 272 000001B37F55CB40
+ERROR: Allocated EventManager size 40 000001B300080F00
+ERROR: Allocated InputStream size 200 000001B37F2A6710
+ERROR: Allocated OutputStream size 264 000001B37F55D5C0
+ERROR: Allocated UserVariables size 8 000001B37F362F50
+ERROR: Allocated Preset size 2776 000001B37F92D090
+ERROR: Allocated Loop size 624 000001B37F927B80
+ERROR: Allocated Loop size 624 000001B37F9280E0
+ERROR: Allocated Loop size 624 000001B37F926600
+ERROR: Allocated Loop size 624 000001B37F926350
+ERROR: Allocated Loop size 624 000001B37F926E10
+ERROR: Allocated Loop size 624 000001B37F9278D0
+ERROR: Allocated Loop size 624 000001B37F926B60
+ERROR: Allocated Loop size 624 000001B37F927E30
+ERROR: Allocated Loop size 624 000001B37F9580A0
+ERROR: Allocated Loop size 624 000001B37F957DF0
+ERROR: Allocated Loop size 624 000001B37F958350
+ERROR: Allocated Loop size 624 000001B37F959370
+ERROR: Allocated Loop size 624 000001B37F9575E0
+ERROR: Allocated Loop size 624 000001B37F958600
+ERROR: Allocated Loop size 624 000001B37F9588B0
+ERROR: Allocated Loop size 624 000001B37F957890
+ERROR: Allocated SyncState size 72 000001B37F277710
+ERROR: Allocated Preset size 2776 000001B37F92E7B0
+ERROR: Allocated Event size 272 000001B37F55BB80
+ERROR: Allocated EventManager size 40 000001B300081130
+ERROR: Allocated InputStream size 200 000001B37F2A6820
+ERROR: Allocated OutputStream size 264 000001B37F55D1D0
+ERROR: Allocated UserVariables size 8 000001B37F362CD0
+ERROR: Allocated Preset size 2776 000001B37F92F340
+ERROR: Allocated Loop size 624 000001B37F958B60
+ERROR: Allocated Loop size 624 000001B37F958E10
+ERROR: Allocated Loop size 624 000001B37F959620
+ERROR: Allocated Loop size 624 000001B37F957330
+ERROR: Allocated Loop size 624 000001B37F9590C0
+ERROR: Allocated Loop size 624 000001B37F956060
+ERROR: Allocated Loop size 624 000001B37F957080
+ERROR: Allocated Loop size 624 000001B37F9598D0
+ERROR: Allocated Loop size 624 000001B37F957B40
+ERROR: Allocated Loop size 624 000001B37F955DB0
+ERROR: Allocated Loop size 624 000001B37F956310
+ERROR: Allocated Loop size 624 000001B37F9565C0
+ERROR: Allocated Loop size 624 000001B37F956870
+ERROR: Allocated Loop size 624 000001B37F956B20
+ERROR: Allocated Loop size 624 000001B37F956DD0
+ERROR: Allocated Loop size 624 000001B3002A5740
+ERROR: Allocated SyncState size 72 000001B37F2775F0
+ERROR: Allocated Preset size 2776 000001B37F928B30
+ERROR: Allocated Event size 272 000001B37F55D710
+ERROR: Allocated EventManager size 40 000001B300080950
+ERROR: Allocated InputStream size 200 000001B37F2A6930
+ERROR: Allocated OutputStream size 264 000001B37F55D080
+ERROR: Allocated UserVariables size 8 000001B37F362D20
+ERROR: Allocated Preset size 2776 000001B37F92FED0
+ERROR: Allocated Loop size 624 000001B3002A6CC0
+ERROR: Allocated Loop size 624 000001B3002A74D0
+ERROR: Allocated Loop size 624 000001B3002A6760
+ERROR: Allocated Loop size 624 000001B3002A6A10
+ERROR: Allocated Loop size 624 000001B3002A6F70
+ERROR: Allocated Loop size 624 000001B3002A7CE0
+ERROR: Allocated Loop size 624 000001B3002A5CA0
+ERROR: Allocated Loop size 624 000001B3002A8240
+ERROR: Allocated Loop size 624 000001B3002A5490
+ERROR: Allocated Loop size 624 000001B3002A7A30
+ERROR: Allocated Loop size 624 000001B3002A84F0
+ERROR: Allocated Loop size 624 000001B3002A7220
+ERROR: Allocated Loop size 624 000001B3002A5F50
+ERROR: Allocated Loop size 624 000001B3002A7F90
+ERROR: Allocated Loop size 624 000001B3002A7780
+ERROR: Allocated Loop size 624 000001B3002A87A0
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
+ERROR: Allocated ScriptBlock size 48 000001B300081360
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
+ERROR: Allocated ScriptBlock size 48 000001B300081750
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ERROR: Allocated ScriptBlock size 48 000001B3000812F0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
+ERROR: Allocated ScriptBlock size 48 000001B300080F70
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
+ERROR: Allocated ScriptBlock size 48 000001B300081210
+ERROR: Allocated ScriptBlock size 48 000001B300081280
+ERROR: Allocated ScriptBlock size 48 000001B3000813D0
+ERROR: Allocated ScriptBlock size 48 000001B3000817C0
+ERROR: Allocated ScriptBlock size 48 000001B3003D52B0
+ERROR: Allocated ScriptBlock size 48 000001B3003D55C0
+ERROR: Allocated ScriptBlock size 48 000001B3003D5780
+ERROR: Allocated ScriptBlock size 48 000001B3003D49F0
+ERROR: Allocated ScriptBlock size 48 000001B3003D44B0
+ERROR: Allocated ScriptBlock size 48 000001B3003D5A20
+ERROR: Allocated ScriptBlock size 48 000001B3003D51D0
+ERROR: Allocated ScriptBlock size 48 000001B3003D4440
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ERROR: Allocated RunScriptFunction size 1152 000001B3003DC2B0
 Reading configuration file c:\dev\jucetest\UI\Source\unittest\ui.xml
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
+ERROR: Allocated ScriptBlock size 48 000001B30403B5E0
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
+ERROR: Allocated ScriptBlock size 48 000001B30403AAF0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ERROR: Allocated ScriptBlock size 48 000001B30403B420
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
+ERROR: Allocated ScriptBlock size 48 000001B30403B1F0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
+ERROR: Allocated ScriptBlock size 48 000001B30403A3F0
+ERROR: Allocated ScriptBlock size 48 000001B30403B650
+ERROR: Allocated ScriptBlock size 48 000001B30403A9A0
+ERROR: Allocated ScriptBlock size 48 000001B30403A460
+ERROR: Allocated ScriptBlock size 48 000001B30403B7A0
+ERROR: Allocated ScriptBlock size 48 000001B30403B880
+ERROR: Allocated ScriptBlock size 48 000001B30403B8F0
+ERROR: Allocated ScriptBlock size 48 000001B30403AA80
+ERROR: Allocated ScriptBlock size 48 000001B30403ABD0
+ERROR: Allocated ScriptBlock size 48 000001B30403A070
+ERROR: Allocated ScriptBlock size 48 000001B30403C300
+ERROR: Allocated ScriptBlock size 48 000001B30403BFF0
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ERROR: Allocated RunScriptFunction size 1152 000001B3007842B0
 Supervisor::prepareToPlay first call
 AudioDeviceSetup
   inputDeviceName: ADAT (5+6) (RME Fireface UC)
@@ -48,6 +277,8 @@ Supervisor: audio source num samples 441
 Supervisor: audio buffer channels 2
 Supervisor: audio buffer samples 441
 Mobius: runScript Expression Tests
+ERROR: Allocated ScriptInterpreter size 296 000001B304062CD0
+ERROR: Allocated ScriptCompiler size 1088 000001B30414E300
 Mobius: Starting script thread 1:Expression Tests
 ******************************************************************
 Expression Tests
@@ -63,27 +294,77 @@ Expression Tests
 801 0: Track::reset
 Script 1:Expression Tests: UnitTestSetup
 ERROR: Mobius::unitTestSetup can't set the current preset!
-ERROR: Mobius::unitTestSetup can't write the new configuration!
 ERROR: Mobius::unitTestSetup can't set the current preset!
 Script 1:Expression Tests: setting global parameter quickSave = synctest
+ERROR: Allocated UserVariables size 8 000001B30423B780
+ERROR: Allocated Preset size 2776 000001B37F92A250
+ERROR: Allocated Event size 272 000001B304227650
 101 0: EventManager: Add event Script( ) 0
+ERROR: Allocated ScriptStack size 376 000001B37F2B9E60
 Script 1:Expression Tests: Wait
 101 0: E: Script 0
+ERROR: Allocated ScriptStack size 376 000001B37F2BA020
 Expr 1 - Reference Tests
 Script 1:Expression Tests: initializing script variable local1 = a local variable
 Script 1:Expression Tests: initializing track variable track1 = a track variable
 Script 1:Expression Tests: initializing global variable global1 = a global variable
+ERROR: Allocated ScriptResolver size 64 000001B3006D5180
+ERROR: Allocated ScriptResolver size 64 000001B3006D4380
+ERROR: Allocated ScriptResolver size 64 000001B3006D4C80
+ERROR: Allocated ScriptResolver size 64 000001B3006D5B00
+ERROR: Allocated ScriptResolver size 64 000001B3006B6B00
+ERROR: Allocated Export size 64 000001B3006B7600
+ERROR: Allocated ScriptResolver size 64 000001B3006B7000
+ERROR: Allocated ScriptResolver size 64 000001B3006B8680
+ERROR: Allocated ScriptResolver size 64 000001B3006B9800
+ERROR: Allocated ScriptResolver size 64 000001B3006B7D00
+ERROR: Allocated ScriptResolver size 64 000001B3006C3580
+ERROR: Allocated ScriptResolver size 64 000001B3006BF180
+ERROR: Allocated ScriptResolver size 64 000001B3006C2C80
+ERROR: Allocated ScriptStack size 376 000001B3040244A0
+ERROR: Allocated ScriptResolver size 64 000001B3006C8A80
+ERROR: Allocated ScriptResolver size 64 000001B3006C8580
 Expr 2 - Logical Expression Tests
+ERROR: Allocated ScriptResolver size 64 000001B3006CB300
+ERROR: Allocated ScriptResolver size 64 000001B3006CDF00
+ERROR: Allocated ScriptResolver size 64 000001B3006CDE80
+ERROR: Allocated ScriptResolver size 64 000001B3006CF180
+ERROR: Allocated ScriptResolver size 64 000001B3006CE400
+ERROR: Allocated ScriptResolver size 64 000001B3006CE000
+ERROR: Allocated ScriptResolver size 64 000001B3006CE080
+ERROR: Allocated ScriptResolver size 64 000001B3006CF200
+ERROR: Allocated ScriptResolver size 64 000001B3006D1980
+ERROR: Allocated ScriptResolver size 64 000001B3006D1A00
+ERROR: Allocated ScriptResolver size 64 000001B3006CFF80
+ERROR: Allocated ScriptResolver size 64 000001B3006D2280
 Expr 3 - Math Expression Tests
+ERROR: Allocated ScriptResolver size 64 000001B3006D2A80
 Expr 4 - Set Expression Tests
 Script 1:Expression Tests: initializing script variable bogus = 103
+ERROR: Allocated ScriptResolver size 64 000001B3006D3000
 Script 1:Expression Tests: initializing script variable calc = 6
+ERROR: Allocated ScriptResolver size 64 000001B300765620
 Script 1:Expression Tests: initializing track variable tcalc = 6
+ERROR: Allocated ScriptResolver size 64 000001B300764FA0
 Script 1:Expression Tests: initializing global variable gcalc = 6
+ERROR: Allocated ScriptResolver size 64 000001B3007658A0
+ERROR: Allocated ScriptResolver size 64 000001B300763F20
+ERROR: Allocated ScriptResolver size 64 000001B3007640A0
+ERROR: Allocated ScriptResolver size 64 000001B300765020
+ERROR: Allocated ScriptResolver size 64 000001B300764C20
 Script 1:Expression Tests: setting track parameter subcycles = 6
+ERROR: Allocated ScriptResolver size 64 000001B300763CA0
 Script 1:Expression Tests: initializing script variable foo = 42
+ERROR: Allocated ScriptResolver size 64 000001B3007645A0
+ERROR: Allocated ScriptResolver size 64 000001B30076D320
 Expr 5 - Jump Tests
+ERROR: Allocated ScriptResolver size 64 000001B30076C520
+ERROR: Allocated ScriptResolver size 64 000001B30076D520
 Script 1:Expression Tests: initializing script variable bogus = 103
+ERROR: Allocated ScriptResolver size 64 000001B30076CA20
+ERROR: Allocated ScriptResolver size 64 000001B30076DBA0
+ERROR: Allocated ScriptResolver size 64 000001B30076BD20
+ERROR: Allocated ScriptResolver size 64 000001B30076D4A0
 Expr 6 - Call Tests
 You should see "ScriptOfDestiny called" after each test header
 *** Calling with simple name
@@ -92,7 +373,10 @@ Script Of Destiny
 Script Of Destiny
 *** Calling as a function
 Mobius: runScript ScriptOfDestiny
+ERROR: Allocated ScriptInterpreter size 296 000001B304062E40
 Mobius: Starting script thread 2:ScriptOfDestiny
+ERROR: Allocated Preset size 2776 000001B37F92ADE0
+ERROR: Allocated Event size 272 000001B304228220
 101 0: EventManager: Add event Script( ) 22050
 Script 1:Expression Tests: Wait
 Script Of Destiny
@@ -102,7 +386,10 @@ Mobius: Script thread 2:ScriptOfDestiny: ending
 Expr 7 - Argument Test
 You should see lines "TestInner2 foo" and "TestInner1 foo"
 TestInner2 foo
+ERROR: Allocated ScriptResolver size 64 000001B30076BE20
 Script 1:Expression Tests: initializing script variable arg = foo
+ERROR: Allocated ScriptResolver size 64 000001B30076C0A0
+ERROR: Allocated ScriptStack size 376 000001B304024660
 TestInner1 foo
 Expression Tests Complete
 Script 1:Expression Tests: end
@@ -120,5 +407,5 @@ Total shell sends 13
 Total kernel sends 13
 Supervisor ending statistics:
   prepareToPlay 1
-  getNextAudioBlock 85519
+  getNextAudioBlock 574
   releaseResources 0
