@@ -29,12 +29,16 @@ class ActionButtons : public juce::Component, public juce::Button::Listener, pub
     void resized() override;
     void paint (juce::Graphics& g) override;
     void buttonClicked(juce::Button* b) override;
+    void buttonStateChanged(juce::Button* b) override;
     
     void add(class ActionButton* b);
 
     void dynamicConfigChanged(class DynamicConfig* config);
     
   private:
+
+    // experiment with sustainable buttons
+    bool enableSustain = true;
 
     class MobiusDisplay* display;
     juce::OwnedArray<class ActionButton> buttons;
@@ -44,4 +48,6 @@ class ActionButtons : public juce::Component, public juce::Button::Listener, pub
     void addButton(ActionButton* b);
     void removeButton(ActionButton* b);
     void buildButtons(class MobiusConfig* c);
+    void assignTriggerIds();
+    void buttonUp(ActionButton* b);
 };

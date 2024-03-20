@@ -1,6 +1,9 @@
 Unit tests want the notion of the "current preset" which was
 not well defined.  See Mapper/GetCurrentPreset
 
+When TriggerState ends long press tracking we don't always
+want the up action propagated any further, it just cancles
+the long wait.  Verify this.
 
 
 ---

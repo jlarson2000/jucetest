@@ -60,6 +60,7 @@
 
 ActionButton::ActionButton()
 {
+    downTracker = false;
 }
 
 /**
@@ -77,6 +78,14 @@ ActionButton::ActionButton(Binding* binding)
     else {
         setButtonText(formatButtonName(binding));
         action.init(binding);
+
+        // ActionButtons will now assign the buttons
+        // a unique triggerId so we can be sustainable
+        // triggers
+
+        // for that to work though we have to get Juce to send
+        // down and up transitions and I don't think it can
+        
         // buttons can't be sustain yet
         action.down = true;
     }
@@ -210,3 +219,23 @@ UIAction* ActionButton::getAction()
     return &action;
 }
 
+void ActionButton::setTriggerId(int id)
+{
+    action.triggerId = id;
+}
+
+/**
+ * Flag to track the down state of the button so ActionButtons
+ * can watch for an up transition when it receives
+ * ButtonListener:: buttonStateChanged.
+ */
+void ActionButton::setDownTracker(bool b)
+{
+    downTracker = b;
+}
+
+// Button already has isDown) so don't conflict with that
+bool ActionButton::isDownTracker()
+{
+    return downTracker;
+}

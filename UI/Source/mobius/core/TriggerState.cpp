@@ -124,6 +124,8 @@ void TriggerState::assimilate(Action* action)
     
     if (func == NULL) {
         // should have been caught by now
+        // what about script triggers that won't have functions?
+        // or will it be a RunScriptFunction?
         Trace(1, "TriggerState::assimilate missing function!\n");
     }
     else if (!action->down) {

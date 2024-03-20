@@ -34,10 +34,17 @@ class ActionButton : public juce::TextButton
         return dynamic;
     }
 
+    void setTriggerId(int id);
+
+    // called by ActionButtons as down/up transitions are detected
+    void setDownTracker(bool b);
+    bool isDownTracker();
+    
   private:
 
     UIAction action;
     bool dynamic = false;
+    bool downTracker = false;
     
     void paintButton(juce::Graphics& g, juce::Colour background, juce::Colour text);
 

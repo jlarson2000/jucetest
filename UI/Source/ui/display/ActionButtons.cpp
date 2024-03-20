@@ -32,11 +32,14 @@ ActionButtons::~ActionButtons()
     Supervisor::Instance->removeDynamicConfigListener(this);
 }
 
+// who used this?  there's a lot more too it than this
+#if 0
 void ActionButtons::add(ActionButton* b)
 {
     addAndMakeVisible(b);
     b->addListener(this);
 }
+#endif
 
 /**
  * Read the button bindings from the MobiusConfig and build the list
@@ -124,6 +127,8 @@ void ActionButtons::buildButtons(MobiusConfig* config)
     for (int i = 0 ; i < dynamicButtons.size() ; i++) {
         addButton(dynamicButtons[i]);
     }
+
+    assignTriggerIds();
 }
 
 /**
@@ -176,6 +181,8 @@ void ActionButtons::dynamicConfigChanged(DynamicConfig* config)
         }
     }
 
+    assignTriggerIds();
+
     // okay, this is a weird one
     // it is not obvious to me how to do dynamic child component sizing with
     // the Juce way of thinking which is normally top down
@@ -184,6 +191,38 @@ void ActionButtons::dynamicConfigChanged(DynamicConfig* config)
     // it's not good encapsulation
     if (changes) {
         display->resized();
+    }
+}
+
+/**
+ * Once we've built the ActionButton list, assign each one
+ * a unique trigger id for their UIAction.  This is necessary
+ * if you want them to behave as momentary triggers with
+ * long-press or sustain behavior.
+ *
+ * There is a very rare race condition here where if you were holding
+ * a button at the same time as the button list was rebuilt.
+ * ActionButtons might change ids, and TriggerState down in the core
+ * would then be tracking the wrong button.  For that to happen though you
+ * would have to be holding down a button with the mouse and at the same time
+ * do something that results in button rebuilding, like editing the button bindings
+ * (unpossible), reloading the UIConfig (also unpossible), reloading scripts via
+ * the dynamicConfigChanged callback and some of the scripts have !button declarations.
+ * That least one is the only one even remotely possible, and it would take effort
+ * to make that happen.  Scripts don't reload by themselves.
+ * The "failure" mode should someone be bored enough to try that could be an up
+ * transition that is ignored resulting in a long press that doesn't end.
+ * Not catestrophic and not worth the effort to try and prevent.
+ */
+void ActionButtons::assignTriggerIds()
+{
+    // trigger type is TriggerUI and we're the only ones that can send actions
+    // right now, if other components start doing that we'll need to coordinate
+    // the assignment of ids so they don't overlap
+    // for now just number them from 1
+    for (int i = 0 ; i < buttons.size() ; i++) {
+        ActionButton* b = buttons[i];
+        b->setTriggerId(i+1);
     }
 }
 
@@ -317,7 +356,98 @@ void ActionButtons::buttonClicked(juce::Button* src)
 {
     // todo: figure out of dynamic_cast has any performance implications
     ActionButton* ab = (ActionButton*)src;
-    display->doAction(ab->getAction());
+    UIAction* action = ab->getAction();
+
+    // a click is always down but this depends on
+    // ActionButton setting setTriggeredOnMouseDown(true);
+    action->down = true;
+
+    // if we're configured to allow sustain, then make it look like we can
+    if (enableSustain)
+      action->triggerMode = TriggerModeMomentary;
+    else
+      action->triggerMode = TriggerModeOnce;
+
+    display->doAction(action);
+}
+
+/**
+ * Trying to figure out if we can do sustain triggers
+ *
+ * Well we can but ButtonState makes it harder than it could be
+ * there is no "up" state.  When you press the button
+ * a buttonDown will be received.  When the button goes up
+ * you will be in either buttonNormal or buttonOver depending
+ * on whether you haved the mouse off the button while
+ * it was held.
+ *
+ * You can't just assume that Normal means up, because you
+ * get that if you just hover over the button and then hover
+ * away, it goes from Over to Normal.
+ *
+ * To reliably track down then up, you have to remember
+ * when a Down notification was received, and check that
+ * the next time the state is anything other than Down.
+ */
+void ActionButtons::buttonStateChanged(juce::Button* b)
+{
+    ActionButton* ab = (ActionButton*)b;
+    juce::Button::ButtonState state = b->getState();
+
+    switch (state) {
+        case juce::Button::ButtonState::buttonNormal: {
+            Trace(2, "Button normal\n");
+            if (ab->isDownTracker()) {
+                // this is relatively unusual, you pressed on
+                // it then moved the mouse away before releasing
+                buttonUp(ab);
+            }
+        }
+            break;
+
+        case juce::Button::ButtonState::buttonOver: {
+            Trace(2, "Button over\n");
+            if (ab->isDownTracker()) {
+                // this is the usual case, you were still
+                // over the button when it was relased
+                buttonUp(ab);
+            }
+        }
+            break;
+            
+        case juce::Button::ButtonState::buttonDown: {
+            Trace(2, "Button down\n");
+            if (ab->isDownTracker()) {
+                // this could be a problem, we've already
+                // sent a down UIAction to the engine and
+                // now we're going to do it again without
+                // releasing the last one
+                // TriggerState may figure that out but I'm not sure
+                // should we force a buttonUp?
+                Trace(1, "ActionButtons: Dupicate down state detected\n");
+            }
+            // don't have to do anything here, the buttonClicked
+            // callback will do the action
+            ab->setDownTracker(true);
+        }
+            break;
+    }
+}
+
+/**
+ * Called by the state tracker when we think the button
+ * was released.  Send an "up" action so this button
+ * can behave as a sustainable trigger.
+ */
+void ActionButtons::buttonUp(ActionButton* b)
+{
+    if (enableSustain) {
+        Trace(2, "ActionButtons: Sending up action\n");
+        UIAction* action = b->getAction();
+        action->down = false;
+        display->doAction(action);
+    }
+    b->setDownTracker(false);
 }
 
 /****************************************************************************/
