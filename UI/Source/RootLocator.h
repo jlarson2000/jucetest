@@ -15,12 +15,11 @@ class RootLocator
     static void whereAmI();
 
     juce::String getRootPath();
-
+    juce::File getRoot();
+    
   private:
 
-    // use String or File for these?
-    juce::String defaultRoot;
-    juce::String redirectRoot;
+    juce::File verifiedRoot;
 
     juce::File checkRedirect(juce::File path);
     juce::File checkRedirect(juce::File::SpecialLocationType type);

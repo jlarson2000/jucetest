@@ -61,7 +61,7 @@ bool IsPlugin(class Mobius* m)
  */
 UIEventType* MapEventType(EventType* src)
 {
-    return UIEventType::find(src->name);
+    return (src != nullptr) ? UIEventType::find(src->name) : nullptr;
 }
 
 /**
@@ -74,7 +74,7 @@ UIEventType* MapEventType(EventType* src)
  */
 class FunctionDefinition* MapFunction(class Function* src)
 {
-    return FunctionDefinition::find(src->name);
+    return (src != nullptr) ? FunctionDefinition::find(src->name) : nullptr;
 }
 
 /**
@@ -97,7 +97,7 @@ class FunctionDefinition* MapFunction(class Function* src)
  */
 class UIParameter* MapParameter(class Parameter* src)
 {
-    return UIParameter::find(src->name);
+    return (src != nullptr) ? UIParameter::find(src->name) : nullptr;
 }
 
 /**
@@ -110,7 +110,7 @@ class UIParameter* MapParameter(class Parameter* src)
  */
 class ModeDefinition* MapMode(class MobiusMode* mode)
 {
-    return ModeDefinition::find(mode->name);
+    return (mode != nullptr) ? ModeDefinition::find(mode->name) : nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////

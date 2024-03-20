@@ -121,6 +121,9 @@
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\calltest.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\echo.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\exprtest.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>

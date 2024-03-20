@@ -111,28 +111,35 @@ void RootLocator::whereAmI()
  * If we can't find the target file, just leave it in working directory
  * but there will be sadness.
  */
+juce::File RootLocator::getRoot()
+{
+    // is this the right way to check for uninitialized?
+    if (verifiedRoot == juce::File()) {
+        // todo: check environment variables
+    
+        juce::File root = checkRedirect(juce::File::getCurrentWorkingDirectory());
+
+        juce::File f = root.getChildFile("mobius.xml");
+        if (!f.existsAsFile()) {
+            // try here
+            root = checkRedirect(juce::File::currentExecutableFile);
+            f = root.getChildFile("mobius.xml");
+            if (!f.existsAsFile()) {
+                // we tried, where should we leave it?
+                trace("RootLocator: Unable to locate mobius.xml!\n");
+                root = juce::File::getCurrentWorkingDirectory();
+            }
+        }
+
+        verifiedRoot = root;
+    }
+    
+    return verifiedRoot;
+}
+
 juce::String RootLocator::getRootPath()
 {
-    // todo: check environment variables
-    
-    juce::File root = checkRedirect(juce::File::getCurrentWorkingDirectory());
-
-    juce::File f = root.getChildFile("mobius.xml");
-    if (!f.existsAsFile()) {
-        // try here
-        root = checkRedirect(juce::File::currentExecutableFile);
-        f = root.getChildFile("mobius.xml");
-        if (!f.existsAsFile()) {
-            // we tried, where should we leave it?
-            trace("RootLocator: Unable to locate mobius.xml!\n");
-            root = juce::File::getCurrentWorkingDirectory();
-        }
-    }
-
-    juce::String path = root.getFullPathName();
-    trace("RootLocator: Using root %s\n", path);
-    
-    return path;
+    return getRoot().getFullPathName();
 }
 
 juce::File RootLocator::checkRedirect(juce::File::SpecialLocationType type)

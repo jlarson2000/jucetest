@@ -15,6 +15,7 @@
 
 //#include "util/DataModel.h"
 #include "util/Trace.h"
+#include "util/TraceFile.h"
 #include "util/FileUtil.h"
 
 #include "model/MobiusConfig.h"
@@ -63,6 +64,7 @@ Supervisor::~Supervisor()
 {
     trace("Supervisor: destructor\n");
     // todo: check for proper termination?
+    TraceFile.flush();
 }
 
 /**
@@ -70,6 +72,10 @@ Supervisor::~Supervisor()
  */
 void Supervisor::start()
 {
+    // note using lower "trace" functions here till we get
+    // Trace set up
+    trace("Supervisor::start\n");
+
     // we've been using the simple non-buffering Trace tools during
     // early development, the more complicated buffered Trace is now
     // controlled up here rather than buried in Mobius
@@ -78,8 +84,21 @@ void Supervisor::start()
     // MainThread will later register itself as the TraceListener and
     // call FlushTrace
     TraceDebugLevel = 2;
+
+    // normally would enable this now, but deferring that
+    // till the first Echo script statement for testing
+    // if you enable network trace, you'd better be sure
+    // MainThread quickly installs itself as the listener
+    // so we start buffering
+    //TraceClient.setEnabled(true);
+
+    juce::File root = rootLocator.getRoot();
+    juce::File logfile = root.getChildFile("tracelog.txt");
+    TraceFile.setFile(logfile);
+    TraceFile.clear();
+    TraceFile.enable();
+    // can now start using capital Trace
     
-    trace("Supervisor::start\n");
     traceDeviceStatus();
     
     MobiusConfig* config = getMobiusConfig();
@@ -186,6 +205,8 @@ void Supervisor::shutdown()
     // mobiusConfig and uiConfig are smart pointers
 
     traceFinalStatistics();
+    
+    TraceFile.flush();
 }
 
 /**
@@ -198,26 +219,26 @@ void Supervisor::traceDeviceStatus()
     // duplicated in ui/config/AudioDevicesPanel
     juce::AudioDeviceManager::AudioDeviceSetup setup = deviceManager.getAudioDeviceSetup();
 
-    trace("AudioDeviceSetup\n");
-    trace("  inputDeviceName: " + setup.inputDeviceName);
-    trace("  outputDeviceName: " + setup.outputDeviceName);
-    trace("  sampleRate: " + juce::String(setup.sampleRate));
-    trace("  bufferSize: " + juce::String(setup.bufferSize));
+    Tracej("AudioDeviceSetup");
+    Tracej("  inputDeviceName: " + setup.inputDeviceName);
+    Tracej("  outputDeviceName: " + setup.outputDeviceName);
+    Tracej("  sampleRate: " + juce::String(setup.sampleRate));
+    Tracej("  bufferSize: " + juce::String(setup.bufferSize));
     const char* bstring = setup.useDefaultInputChannels ? "true" : "false";
-    trace("  useDefaultInputChannels: " + juce::String(bstring));
+    Tracej("  useDefaultInputChannels: " + juce::String(bstring));
     bstring = setup.useDefaultOutputChannels ? "true" : "false";
-    trace("  useDefaultOutputChannels: " + juce::String(bstring));
+    Tracej("  useDefaultOutputChannels: " + juce::String(bstring));
     // inputChannels and outputChannels are BigIneger bit vectors
 }
 
 void Supervisor::traceFinalStatistics()
 {
-    trace("Supervisor ending statistics:\n");
-    trace("  prepareToPlay %d\n", prepareToPlayCalls);
-    trace("  getNextAudioBlock %d\n", getNextAudioBlockCalls);
-    trace("  releaseResources %d\n", releaseResourcesCalls);
+    Tracej("Supervisor ending statistics:");
+    Tracej("  prepareToPlay " + juce::String(prepareToPlayCalls));
+    Tracej("  getNextAudioBlock " + juce::String(getNextAudioBlockCalls));
+    Tracej("  releaseResources " + juce::String(releaseResourcesCalls));
     if (audioPrepared) 
-      trace("  Ending with audio still prepared!\n");
+      Tracej("  Ending with audio still prepared!");
 }
 
 /**
@@ -293,7 +314,7 @@ char* Supervisor::readConfigFile(const char* name)
     juce::File root (rootPath);
     juce::File file = root.getChildFile(name);
     juce::String path = file.getFullPathName();
-    trace("Reading configuration file %s\n", path.toUTF8());
+    Tracej("Reading configuration file " + path);
     char* xml = ReadFile(path.toUTF8());
     return xml;
 }
@@ -657,28 +678,29 @@ void Supervisor::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
     if (prepareToPlayCalls == 0) {
         // first time here, trace to something to understand when things start
         // happening during initialization
-        trace("Supervisor::prepareToPlay first call\n");
+        Tracej("Supervisor::prepareToPlay first call");
         // wasn't set up during construction, better be by now
         traceDeviceStatus();
     }
     else if (audioPrepared) {
         // called again in an already prepared state without calling releaseResources
         // can this happen?
-        trace("Supervisor::prepareToPlay already prepared\n");
+        Tracej("Supervisor::prepareToPlay already prepared");
         if (sampleRate != preparedSampleRate)
-          trace("  sampleRate changing from %lf\n", preparedSampleRate);
+          Tracej("  sampleRate changing from " + juce::String(preparedSampleRate));
         if (samplesPerBlockExpected != preparedSamplesPerBlock)
-          trace("  samplesPerBlock changing from %d\n", preparedSamplesPerBlock);
+          Tracej("  samplesPerBlock changing from " + juce::String(preparedSamplesPerBlock));
     }
     else {
-        trace("Supervisor::prepareToPlay\n");
+        Tracej("Supervisor::prepareToPlay");
     }
 
     prepareToPlayCalls++;
     preparedSamplesPerBlock = samplesPerBlockExpected;
     preparedSampleRate = sampleRate;
     
-    trace("samplesPerBlockExpected %d sampleRate %lf\n", samplesPerBlockExpected, sampleRate);
+    Tracej("samplesPerBlockExpected " + juce::String(samplesPerBlockExpected) +
+          " sampleRate "  + juce::String(sampleRate));
 
     // if we were already prepared, and no changes were made, we could
     // suppress passing this along?
@@ -714,11 +736,11 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // stays at preparedSamplesPerBlock, and whether startSample jumps areound or
     // statys at zero
     if (audioLastSourceStartSample != bufferToFill.startSample) {
-        trace("Supervisor: audio source start sample %d\n", bufferToFill.startSample);
+        Tracej("Supervisor: audio source start sample " + juce::String(bufferToFill.startSample));
         audioLastSourceStartSample = bufferToFill.startSample;
     }
     if (audioLastSourceNumSamples != bufferToFill.numSamples) {
-        trace("Supervisor: audio source num samples %d\n", bufferToFill.numSamples);
+        Tracej("Supervisor: audio source num samples " + juce::String(bufferToFill.numSamples));
         audioLastSourceNumSamples = bufferToFill.numSamples;
     }
 
@@ -730,7 +752,7 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // works well enough for now, I alwaysd used 8 for both
     int channels = bufferToFill.buffer->getNumChannels();
     if (audioLastBufferChannels != channels) {
-        trace("Supervisor: audio buffer channels %d\n", channels);
+        Tracej("Supervisor: audio buffer channels " + juce::String(channels));
         audioLastBufferChannels = channels;
     }
 
@@ -739,13 +761,13 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // clearActiveBufferRegion seems to imply that
     int samples = bufferToFill.buffer->getNumSamples();
     if (audioLastBufferSamples != samples) {
-        trace("Supervisor: audio buffer samples %d\n", samples);
+        Tracej("Supervisor: audio buffer samples " + juce::String(samples));
         audioLastBufferSamples = samples;
     }
     
     // can these ever be different
     if (samples > audioLastSourceNumSamples) {
-        trace("Supervisor: buffer is larger than requested\n");
+        Tracej("Supervisor: buffer is larger than requested");
         // startSample should be > 0 then because we're only
         // filling a portion of the buffer
         // doesn't really matter, Juce may want to deal with larger
@@ -766,7 +788,7 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     if (!audioPrepared) {
         if (!audioUnpreparedBlocksTraced) {
             // this isn't supposed to happen, right?
-            trace("Supervisor::getNextAudioBlock called in an unprepared state\n");
+            Tracej("Supervisor::getNextAudioBlock called in an unprepared state");
             // prevent this from happening more than once if it's common
             // audioUnpreparedBlocksTraced = true;
         }
@@ -780,7 +802,7 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
 
 void Supervisor::releaseResources()
 {
-    trace("Supervisor::releaseResources\n");
+    Trace("Supervisor::releaseResources");
 
     mobiusContainer.releaseResources();
     

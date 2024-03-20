@@ -55,6 +55,7 @@
 
 #include "Expr.h"
 #include "../../util/Trace.h"
+#include "../../util/TraceClient.h"
 #include "../../util/List.h"
 #include "../../util/Util.h"
 
@@ -994,6 +995,12 @@ char* ScriptStatement::parseArgs(char* line, int argOffset, int toParse)
 				bool more = (*line != 0);
 				*line = 0;
 				if (strlen(token)) {
+
+                    // !! for a few statements this may have prior content
+                    // make the caller clean this out until we can figure
+                    // out the best way to safely reclaim these
+                    if (mArgs[argOffset] != nullptr)
+                      Trace(1, "ScriptStatemement::parseArgs lingering argument value from prior parse!!!!!!!!\n");
                     mArgs[argOffset] = CopyString(token);
                     argOffset++;
 				}
@@ -1040,13 +1047,22 @@ ScriptStatement* ScriptEchoStatement::eval(ScriptInterpreter* si)
 		msg[len+1] = 0;
 	}
 
-    // old comments indicate that we once just sent this to the
-    // OutputDebugString and printf, which was probably enough
-    // new: yeah, if Trace is okay for the kernel, then we don't
-    // need to mess with an event, these also mess with the order
-
+    // old code was sending this through MobiusThread for some reason
+    // in the new kernel, just going direct to the debug output stream
+    // should be safe and avoids another moving part.  If you enable
+    // the networked debug console, then trace should be buffered though
+    // don't mess with a KernelEvent for this
     //si->sendKernelEvent(EventEcho, msg);
-    trace(msg);
+    
+    // temporary, until the network console is reliable, defer enabling
+    // it until you do the first echo
+    // yeah, not ready for prime time
+    //TraceClient.setEnabled(true);
+
+    Trace(msg);
+    // Once buffered trace is working we won't need this
+    // but on the off chance you're still running unit tests
+    // from the console, send it there too
     printf("%s\n", msg);
     fflush(stdout);
     
@@ -1359,6 +1375,23 @@ ScriptVariableStatement::ScriptVariableStatement(ScriptCompiler* comp,
 
 	// isolate the scope identifier and variable name
 
+    // new: arg parsing is WAY to fucking memory sensitive
+    // this is a weird statement parser because normally mArgs
+    // has string copies that get left behind and deleted
+    // in the ScriptStatement destructor
+    // here we're parsing args twice, once to look for the
+    // scope arg which we convert into a constant, and then
+    // again for the rest
+    // since parseArgs doesn't delete prior content we'll
+    // leak whatever was in mArgs[0]
+    // so you could have parseArgs detect that, but I'm afraid if
+    // it deletes it, something could have captured the value
+    // like we do here with mName and ownership transfer was not
+    // obvious
+    // to prevent the leak, "steal" it from the mArgs array and
+    // put a trace in parseArgs when it notices prior content so we
+    // can hunt those down
+    
 	args = parseArgs(args, 0, 1);
 	const char* arg = mArgs[0];
 
@@ -1375,6 +1408,10 @@ ScriptVariableStatement::ScriptVariableStatement(ScriptCompiler* comp,
 
 	if (mName == NULL) {
 		// first arg was the scope, parse another
+        // see comments above about what we're doing here
+        delete mArgs[0];
+        mArgs[0] = nullptr;
+        
 		args = parseArgs(args, 0, 1);
 		mName = mArgs[0];
 	}
@@ -2514,6 +2551,11 @@ ScriptCallStatement::ScriptCallStatement(ScriptCompiler* comp,
       mExpression = comp->parseExpression(this, args);
 }
 
+ScriptCallStatement::~ScriptCallStatement()
+{
+    delete mExpression;
+}
+
 const char* ScriptCallStatement::getKeyword()
 {
     return "Call";
@@ -3019,7 +3061,7 @@ ScriptStatement* ScriptFunctionStatement::eval(ScriptInterpreter* si)
         a->trigger = TriggerScript;
 
         // this is for GlobalReset handling
-        a->id = (long)si;
+        a->triggerOwner = si;
 
         // would be nice if this were just part of the Function's
         // arglist parsing?
@@ -3319,7 +3361,7 @@ ScriptStatement* ScriptWaitStatement::eval(ScriptInterpreter* si)
         v.setNull();
         vars->set("interrupted", &v);
     }
-
+    
     switch (mWaitType) {
         case WAIT_NONE: {	
             // probably an error somewhere
@@ -4704,6 +4746,9 @@ ScriptInterpreter::~ScriptInterpreter()
     delete mAction;
     delete mExport;
 
+    // new: this was leaking
+    delete mVariables;
+
 }
 
 void ScriptInterpreter::setNext(ScriptInterpreter* si)
@@ -4752,7 +4797,7 @@ Action* ScriptInterpreter::getAction()
         
         // function action needs this for GlobalReset handling
         // I don't think Parameter actions do
-        mAction->id = (long)this;
+        mAction->triggerOwner = this;
     }
     return mAction;
 }
@@ -4902,7 +4947,7 @@ void ScriptInterpreter::setTrigger(Action* action)
     }
     else {
         mTrigger = action->trigger;
-        mTriggerId = action->id;
+        mTriggerId = action->triggerId;
         mTriggerValue = action->triggerValue;
         mTriggerOffset = action->triggerOffset;
     }
@@ -4930,7 +4975,7 @@ int ScriptInterpreter::getTriggerOffset()
 
 bool ScriptInterpreter::isTriggerEqual(Action* action)
 {
-    return (action->trigger == mTrigger && action->id == mTriggerId);
+    return (action->trigger == mTrigger && action->triggerId == mTriggerId);
 }
 
 void ScriptInterpreter::reset()

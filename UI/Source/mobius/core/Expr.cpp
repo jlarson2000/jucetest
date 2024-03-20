@@ -934,6 +934,10 @@ ExNode::~ExNode()
 		delete node;
 		node = next;
 	}
+
+    // new: we were leaking children, if something
+    // craters it might be this
+    delete mChildren;
 }
 
 ExNode* ExNode::getNext()

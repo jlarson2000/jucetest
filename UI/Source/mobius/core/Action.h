@@ -166,12 +166,9 @@ class Action {
     //////////////////////////////////////////////////////////////////////
 
     // things that are direct copies from UIAction
-    //
-    // !! For script triggers, this will be the address of the ScriptInterpreter.
-    // "This is only used for some special handling of the GlobalReset function."
-    // this has the 64-bit pointer problem, need another way to do this
-	long id;
-
+	long triggerId;
+    void* triggerOwner;
+    
 	class Trigger* trigger;
     class TriggerMode* triggerMode;
     int triggerValue;

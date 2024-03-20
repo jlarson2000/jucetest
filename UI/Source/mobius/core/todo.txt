@@ -1,3 +1,12 @@
+
+UserVariables
+  this is an absolute mess, so much dynamic allocation going on in ScriptInterpreter
+
+
+Action::getMidiChannel, etc.
+  this is all a huge mess and unfortunately used by FunctionUtil, Pitch.cpp and Speed.cpp
+  redesign this at some point
+
 ScriptRuntime
   ScriptInterpreters are still created and deleted dynaically
   need to use a pool
@@ -8,11 +17,6 @@ Mobius::getSampleRate
   that can be added much higher
   a few things need it to do tempo calculations
   
-SystemConstant
-  standardize on using Instances as the vector, find() as the search
-  function, and trace() as the dump function
-  
-
 Mobius::getState
   - don't need to be returning OverlayBindings?  Well I guess a script
     could have changed them

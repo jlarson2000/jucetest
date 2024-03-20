@@ -309,7 +309,7 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 			if (s->isSustainAllowed() &&
 				action != NULL && 
                 action->isSustainable() && 
-				action->id > 0) {
+				action->triggerId > 0) {
 
 				si->setSustaining(true);
 			}
@@ -317,7 +317,7 @@ void ScriptRuntime::startScript(Action* action, Script* s, Track* t)
 			// to be elibible for multi-clicking, we don't need anything
 			// special from the action context
 			if (s->isClickAllowed() && 
-				action != NULL && action->id > 0) {
+				action != NULL && action->triggerId > 0) {
 
 				si->setClicking(true);
 			}
@@ -482,7 +482,7 @@ void ScriptRuntime::cancelScripts(Action* action, Track* t)
         // hmm, rather than pass this through the Action, we could have
         // doScriptMaintenance set a local variable for the thread
         // it is currently running
-        ScriptInterpreter* src = (ScriptInterpreter*)(action->id);
+        ScriptInterpreter* src = (ScriptInterpreter*)(action->triggerOwner);
         bool global = (action->getFunction() == GlobalReset);
 
         for (ScriptInterpreter* si = mScripts ; si != NULL ; si = si->getNext()) {

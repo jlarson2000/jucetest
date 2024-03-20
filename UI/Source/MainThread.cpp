@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 
 #include "util/Trace.h"
+#include "util/TraceFile.h"
 #include "Supervisor.h"
 #include "MainThread.h"
 
@@ -39,7 +40,7 @@ void MainThread::start()
     options.withPeriodMs(1);
 
     if (!startRealtimeThread(options)) {
-        trace("Unable to start thread\n");
+        Trace(1, "Unable to start thread\n");
     }
 }
 
@@ -47,7 +48,7 @@ void MainThread::stop()
 {
     // example says: allow 2 seconds to stop cleanly - should be plenty of time
     if (!stopThread(2000)) {
-        trace("Unable to start thread\n");
+        Trace(1, "Unable to start thread\n");
     }
 }
 
@@ -72,7 +73,17 @@ void MainThread::run()
         wait(100);
 
         // flush any accumulated trace messages
-        FlushTrace();
+        // don't do this if you didn't install as GlobaltraceListener above
+        // not liking the interface here, can't flush in traceEvent
+        // because that's called from other threads, maybe do
+        // FlushTrace(this) and let it decide if this should be the trace flush
+        // controller?
+        if (GlobalTraceListener == this)
+          FlushTrace();
+
+        // hmm, not liking the double buffering
+        // Should FlushTrace do this or are they independent?
+        TraceFile.flush();
 
         // from the Juce example
         // because this is a background thread, we mustn't do any UI work without

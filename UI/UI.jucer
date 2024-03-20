@@ -263,6 +263,8 @@
           <FILE id="A548Vd" name="Loop.h" compile="0" resource="0" file="Source/mobius/core/Loop.h"/>
           <FILE id="q1lpim" name="Mapper.cpp" compile="1" resource="0" file="Source/mobius/core/Mapper.cpp"/>
           <FILE id="BHbh81" name="Mapper.h" compile="0" resource="0" file="Source/mobius/core/Mapper.h"/>
+          <FILE id="AXgurM" name="Mem.cpp" compile="1" resource="0" file="Source/mobius/core/Mem.cpp"/>
+          <FILE id="Kz2Efj" name="Mem.h" compile="0" resource="0" file="Source/mobius/core/Mem.h"/>
           <FILE id="W6SHN9" name="Messages.h" compile="0" resource="0" file="Source/mobius/core/Messages.h"/>
           <FILE id="o71Rla" name="MidiByte.h" compile="0" resource="0" file="Source/mobius/core/MidiByte.h"/>
           <FILE id="Semctj" name="MidiEvent.cpp" compile="1" resource="0" file="Source/mobius/core/MidiEvent.cpp"/>
@@ -391,6 +393,10 @@
         <FILE id="rCdOpI" name="qtrace.h" compile="0" resource="0" file="Source/util/qtrace.h"/>
         <FILE id="kxfasO" name="Trace.cpp" compile="1" resource="0" file="Source/util/Trace.cpp"/>
         <FILE id="JZyodG" name="Trace.h" compile="0" resource="0" file="Source/util/Trace.h"/>
+        <FILE id="dba9iS" name="TraceClient.cpp" compile="1" resource="0" file="Source/util/TraceClient.cpp"/>
+        <FILE id="O72iMF" name="TraceClient.h" compile="0" resource="0" file="Source/util/TraceClient.h"/>
+        <FILE id="I7g2J4" name="TraceFile.cpp" compile="1" resource="0" file="Source/util/TraceFile.cpp"/>
+        <FILE id="erMiE5" name="TraceFile.h" compile="0" resource="0" file="Source/util/TraceFile.h"/>
         <FILE id="yz3ePc" name="Util.cpp" compile="1" resource="0" file="Source/util/Util.cpp"/>
         <FILE id="N7aEkq" name="Util.h" compile="0" resource="0" file="Source/util/Util.h"/>
         <FILE id="udcaId" name="Vbuf.cpp" compile="1" resource="0" file="Source/util/Vbuf.cpp"/>

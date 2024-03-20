@@ -24,12 +24,12 @@ SampleConfig* SampleReader::loadSamples(SampleConfig* src)
             if (filename != nullptr) {
                 juce::File file(filename);
                 if (!file.exists()) {
-                    trace("Sample file not found: %s\n", filename);
+                    Trace(1, "Sample file not found: %s\n", filename);
                 }
                 else {
                     Sample* copySample = readWaveFile(file);
                     if (copySample == nullptr) {
-                        trace("Sample data could not be read: %s\n", filename);
+                        Trace(1, "Sample data could not be read: %s\n", filename);
                     } 
                     else {
                         loaded->add(copySample);

@@ -72,13 +72,13 @@ void Binderator::installAction(Binding* b)
 
     const char* name = b->getActionName();
     if (name == nullptr) {
-        trace("Binderator: Ignoring Binding with no name\n");
+        Trace(1, "Binderator: Ignoring Binding with no name\n");
     }
     else if (trigger == TriggerKey) {
         int code = b->triggerValue;
         // could check the upper range too
         if (code <= 0) {
-            trace("Binderator: Ignoring Binding with invalid value %s\n", name);
+            Trace(1, "Binderator: Ignoring Binding with invalid value %s\n", name);
         }
         else {
             // mask off all but the bottom byte to get rid of bit 17 for extended chars
@@ -86,16 +86,16 @@ void Binderator::installAction(Binding* b)
 
             ActionType* type = b->action;
             if (type == nullptr) {
-                trace("Binderator: Ignoring Binding with no action type %s\n", name);
+                Trace(1, "Binderator: Ignoring Binding with no action type %s\n", name);
             }
             else if (type != ActionFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function action %s\n", name);
+                Trace(1, "Binderator: Ignoring Binding for non-function action %s\n", name);
             }
             else {
                 FunctionDefinition* func = FunctionDefinition::find(name);
                 if (func == nullptr) {
-                    trace("Binderator: Ignoring Binding for invalid function %s\n", name);
+                    Trace(1, "Binderator: Ignoring Binding for invalid function %s\n", name);
                 }
                 else {
                     UIAction* action = new UIAction();
@@ -113,21 +113,21 @@ void Binderator::installAction(Binding* b)
         // we pile them into one and have a list?
         int note = b->triggerValue;
         if (note < 0 || note > 0xFF) {
-            trace("Binderator: Invalid MIDI note %d\n", note);
+            Trace(1, "Binderator: Invalid MIDI note %d\n", note);
         }
         else {
             ActionType* type = b->action;
             if (type == nullptr) {
-                trace("Binderator: Ignoring Binding with no action type %s\n", name);
+                Trace(1, "Binderator: Ignoring Binding with no action type %s\n", name);
             }
             else if (type != ActionFunction) {
                 // only support Functions for awhile
-                trace("Binderator: Ignoring Binding for non-function action %s\n", name);
+                Trace(1, "Binderator: Ignoring Binding for non-function action %s\n", name);
             }
             else {
                 FunctionDefinition* func = FunctionDefinition::find(name);
                 if (func == nullptr) {
-                    trace("Binderator: Ignoring Binding for invalid function %s\n", name);
+                    Trace(1, "Binderator: Ignoring Binding for invalid function %s\n", name);
                 }
                 else {
                     UIAction* action = new UIAction();

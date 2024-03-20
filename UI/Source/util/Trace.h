@@ -182,6 +182,8 @@ class TraceListener {
  *                                                                          *
  ****************************************************************************/
 
+// old functions that aren't used
+
 void ResetTrace();
 void WriteTrace(const char* file);
 void AppendTrace(const char* file);
@@ -284,5 +286,16 @@ void Trace(TraceContext* c, int level, const char* msg,
 
 void Trace(TraceContext* c, int level, const char* msg, const char* str,
 				  long l1, long l2, long l3, long l4, long l5);
+
+// new, trace without checking level on a pre-formatted string
+// but unlike trace() support buffering
+void Trace(const char* msg);
+
+// sigh, get "ambiguous call to overloaded function"
+// if it has the same name as above, this isn't used much, sort it out later
+void Tracej(juce::String msg);
+
+// only for use by TraceClient
+void TraceRaw(const char* msg);
 
 #endif

@@ -53,7 +53,8 @@ TriggerWatcher::~TriggerWatcher()
 void TriggerWatcher::init(Action* a)
 {
     trigger = a->trigger;
-    triggerId = a->id;
+    // owner doesn't matter here
+    triggerId = a->triggerId;
     // !! shouldn't we just be able to use the ResolvedTarget here?
     function = a->getFunction();
     track = a->getTargetTrack();
@@ -222,7 +223,7 @@ TriggerWatcher* TriggerState::remove(Action* action)
         
         // a trigger is always uniquely identified by the Trigger type
         // and the id
-        if (t->trigger == action->trigger && t->triggerId == action->id) {
+        if (t->trigger == action->trigger && t->triggerId == action->triggerId) {
             found = t;
             if (prev != NULL)
               prev->next = t->next;
@@ -278,7 +279,7 @@ void TriggerState::advance(Actionator* actionator, int frames)
                 // trigger
                 // what about triggerValue and triggerOffset?
                 a->trigger = t->trigger;
-                a->id = t->triggerId;
+                a->triggerId = t->triggerId;
 
                 // target
                 // sigh, we need everything in ResolvedTarget 

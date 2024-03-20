@@ -1059,7 +1059,7 @@ class ScriptIfStatement : public ScriptConditionalStatement {
   public:
 
 	ScriptIfStatement(class ScriptCompiler* con, char* args);
-
+    
     const char* getKeyword();
     void resolve(Mobius* m);
 	bool isIf();
@@ -1189,7 +1189,8 @@ class ScriptCallStatement : public ScriptStatement {
   public:
 
 	ScriptCallStatement(class ScriptCompiler* con, char* args);
-
+    ~ScriptCallStatement();
+    
     const char* getKeyword();
     void resolve(Mobius* m);
     void link(class ScriptCompiler* comp);

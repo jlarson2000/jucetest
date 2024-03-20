@@ -42,7 +42,8 @@
 void Action::assimilate(UIAction* src)
 {
     // Trigger
-    id = src->id;
+    triggerId = src->triggerId;
+    triggerOwner = src->triggerOwner;
     trigger = src->trigger;
     triggerMode = src->triggerMode;
     triggerValue = src->triggerValue;
@@ -82,7 +83,8 @@ void Action::assimilate(UIAction* src)
 void Action::init()
 {
     // Trigger
-    id = 0;
+    triggerId = 0;
+    triggerOwner = nullptr;
     trigger = NULL;
     triggerMode = NULL;
     triggerValue = 0;
@@ -210,7 +212,8 @@ void Action::clone(Action* src)
     // assume names don't need to convey
 
     // Trigger
-    id = src->id;
+    triggerId = src->triggerId;
+    triggerOwner = src->triggerOwner;
     trigger = src->trigger;
     triggerMode = src->triggerMode;
     triggerValue = src->triggerValue;
@@ -494,6 +497,11 @@ void Action::setKernelEvent(KernelEvent* te)
  *                                                                          *
  ****************************************************************************/
 
+// !! todo:
+// Duplicated from UIAction, and really should try not to use these at all
+// Only used by FunctionUtil for Pitch.cpp and Speed.cpp
+// think about why this is necessary
+
 /**
  * Get the MIDI status code from the action id.
  * Format: ((status | channel) << 8) | key
@@ -502,7 +510,7 @@ void Action::setKernelEvent(KernelEvent* te)
  */
 int Action::getMidiStatus()
 {
-    return ((id >> 8) & 0xF0);
+    return ((triggerId >> 8) & 0xF0);
 }
 
 /**
@@ -514,7 +522,7 @@ int Action::getMidiStatus()
  */
 void Action::setMidiStatus(int i)
 {
-    id = ((i << 8) | (id & 0xFFF));
+    triggerId = ((i << 8) | (triggerId & 0xFFF));
 }
 
 /**
@@ -523,12 +531,12 @@ void Action::setMidiStatus(int i)
  */
 int Action::getMidiChannel()
 {
-    return ((id >> 8) & 0xF);
+    return ((triggerId >> 8) & 0xF);
 }
 
 void Action::setMidiChannel(int i)
 {
-    id = ((i << 8) | (id & 0xF0FF));
+    triggerId = ((i << 8) | (triggerId & 0xF0FF));
 }
 
 /**
@@ -537,12 +545,12 @@ void Action::setMidiChannel(int i)
  */
 int Action::getMidiKey()
 {
-    return (id & 0xFF);
+    return (triggerId & 0xFF);
 }
 
 void Action::setMidiKey(int i)
 {
-    id = (i | (id & 0xFF00));
+    triggerId = (i | (triggerId & 0xFF00));
 }
 
 /**

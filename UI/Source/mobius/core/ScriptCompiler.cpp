@@ -38,8 +38,13 @@
 ScriptCompiler::ScriptCompiler()
 {
     mMobius     = NULL;
+
+    // these are dyamically allocated
     mParser     = NULL;
     mLibrary        = NULL;
+
+    // these are intermediate compile state that will end
+    // up in mLibrary
     mScripts    = NULL;
     mLast       = NULL;
     mScript     = NULL;
@@ -51,6 +56,8 @@ ScriptCompiler::ScriptCompiler()
 ScriptCompiler::~ScriptCompiler()
 {
     delete mParser;
+    // shouldn't be dangling
+    delete mLibrary;
 }
 
 /**
@@ -105,7 +112,11 @@ ScriptLibrary* ScriptCompiler::compile(Mobius* m, ScriptConfig* config)
     
     mLibrary->setScripts(mScripts);
 
-    return mLibrary;
+    // ownership transfers
+    ScriptLibrary* retval = mLibrary;
+    mLibrary = nullptr;
+    
+    return retval;
 }
 
 /**

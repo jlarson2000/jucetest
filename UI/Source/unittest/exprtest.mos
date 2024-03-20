@@ -21,8 +21,10 @@ Echo ******************************************************************
 
 # make sure we're starting clean
 GlobalReset
+
 # necessary to get the preset to a known state
 UnitTestSetup
+
 set noExternalAudio true
 set quickSave synctest
 

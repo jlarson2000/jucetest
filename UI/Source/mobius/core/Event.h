@@ -575,10 +575,11 @@ class Event {
 
     } fields;
 
-  protected:
-
+    // new: were protected, moved up to track down a leak
 	Event(class EventPool* p);
 	~Event();
+
+  protected:
 
     EventPool* getPool() {return mPool;}
     void setPooled(bool b);

@@ -1,0 +1,124 @@
+AudioDeviceSetup
+  inputDeviceName: 
+  outputDeviceName: 
+  sampleRate: 0
+  bufferSize: 0
+  useDefaultInputChannels: true
+  useDefaultOutputChannels: true
+Reading configuration file c:\dev\jucetest\UI\Source\unittest\mobius.xml
+Mobius::Mobius
+ERROR: Allocated Action size 616 000002560D6FB7E0
+ERROR: Actionator::initFunctionMap Function DebugStatus not found
+ERROR: Actionator::initFunctionMap Function Divide4 not found
+ERROR: Actionator::initFunctionMap Function Ignore not found
+ERROR: Actionator::initFunctionMap Function SelectLoop not found
+ERROR: Actionator::initFunctionMap Function SpeedShift not found
+ERROR: Actionator::initFunctionMap Function SUSRehearse not found
+ERROR: Actionator::initFunctionMap Function SelectTrack not found
+ERROR: Actionator::initFunctionMap Function UIRedraw not found
+ERROR: Actionator::initParameterMap Parameter activeTrack not found
+ERROR: Allocated Actionator size 56 000002560D6BB3C0
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
+ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+Reading configuration file c:\dev\jucetest\UI\Source\unittest\ui.xml
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
+ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
+Supervisor::prepareToPlay first call
+AudioDeviceSetup
+  inputDeviceName: ADAT (5+6) (RME Fireface UC)
+  outputDeviceName: Speakers (RME Fireface UC)
+  sampleRate: 44100
+  bufferSize: 441
+  useDefaultInputChannels: true
+  useDefaultOutputChannels: true
+samplesPerBlockExpected 441 sampleRate 44100
+Supervisor: audio source num samples 441
+Supervisor: audio buffer channels 2
+Supervisor: audio buffer samples 441
+Mobius: runScript Expression Tests
+Mobius: Starting script thread 1:Expression Tests
+******************************************************************
+Expression Tests
+******************************************************************
+101 0: Function GlobalReset down
+101 0: Track::reset
+201 0: Track::reset
+301 0: Track::reset
+401 0: Track::reset
+501 0: Track::reset
+601 0: Track::reset
+701 0: Track::reset
+801 0: Track::reset
+Script 1:Expression Tests: UnitTestSetup
+ERROR: Mobius::unitTestSetup can't set the current preset!
+ERROR: Mobius::unitTestSetup can't write the new configuration!
+ERROR: Mobius::unitTestSetup can't set the current preset!
+Script 1:Expression Tests: setting global parameter quickSave = synctest
+101 0: EventManager: Add event Script( ) 0
+Script 1:Expression Tests: Wait
+101 0: E: Script 0
+Expr 1 - Reference Tests
+Script 1:Expression Tests: initializing script variable local1 = a local variable
+Script 1:Expression Tests: initializing track variable track1 = a track variable
+Script 1:Expression Tests: initializing global variable global1 = a global variable
+Expr 2 - Logical Expression Tests
+Expr 3 - Math Expression Tests
+Expr 4 - Set Expression Tests
+Script 1:Expression Tests: initializing script variable bogus = 103
+Script 1:Expression Tests: initializing script variable calc = 6
+Script 1:Expression Tests: initializing track variable tcalc = 6
+Script 1:Expression Tests: initializing global variable gcalc = 6
+Script 1:Expression Tests: setting track parameter subcycles = 6
+Script 1:Expression Tests: initializing script variable foo = 42
+Expr 5 - Jump Tests
+Script 1:Expression Tests: initializing script variable bogus = 103
+Expr 6 - Call Tests
+You should see "ScriptOfDestiny called" after each test header
+*** Calling with simple name
+Script Of Destiny
+*** Calling with a file name
+Script Of Destiny
+*** Calling as a function
+Mobius: runScript ScriptOfDestiny
+Mobius: Starting script thread 2:ScriptOfDestiny
+101 0: EventManager: Add event Script( ) 22050
+Script 1:Expression Tests: Wait
+Script Of Destiny
+Mobius: Script thread 2:ScriptOfDestiny: ending
+101 0: E: Script 441
+*** End of Test6
+Expr 7 - Argument Test
+You should see lines "TestInner2 foo" and "TestInner1 foo"
+TestInner2 foo
+Script 1:Expression Tests: initializing script variable arg = foo
+TestInner1 foo
+Expression Tests Complete
+Script 1:Expression Tests: end
+Mobius: Script thread 1:Expression Tests: ending
+Supervisor::releaseResources
+AudioPool: 0 buffers allocated, 0 in the pool, 0 in use
+ERROR: Mobius::~Mobius mHalting was set!
+ERROR: EventPool: 2 allocated, 2 in the pool, 0 in use
+KernelCommunicator: statistics
+  Created 20 available 0
+  min pool 8
+  max shell 12
+  max kernel 12
+Total shell sends 13
+Total kernel sends 13
+Supervisor ending statistics:
+  prepareToPlay 1
+  getNextAudioBlock 85519
+  releaseResources 0

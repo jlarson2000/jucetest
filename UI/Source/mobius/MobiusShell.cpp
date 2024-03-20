@@ -374,7 +374,7 @@ void MobiusShell::doAction(UIAction* action)
     if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == nullptr) {
-            trace("Unresolved function: %s\n", action->actionName);
+            Trace(1, "Unresolved function: %s\n", action->actionName);
         }
         else if (f == SamplePlay) {
             // this one we can handle

@@ -1,38 +1,6 @@
+Unit tests want the notion of the "current preset" which was
+not well defined.  See Mapper/GetCurrentPreset
 
-action->id for scripts has the pointer-to-long lossage
-  add action->script pointer for this
-
-TriggerUI could be sustainable or not
-  if we assume sustainable, then each action button needs a unique id
-    could be the ordinal of it's location in the button list
-  if we allow selective sustain on some buttons but not others
-    still need unique ids if sustainable, but if not sustainable
-    an completely skip trigger tracking
-
-Unclear whether host bindings should be sustainable or not.  Since they're
-ultimately just moving a CC from 127 to zero, it could do that, but not all host
-parameters behave that way so it would need to be a binding setting.
-
-Action->id is only necessary for sustainable triggers with sustainable targets
-  if either of those is false, then we will never track this trigger
-  and it won't need an id
-
-The system must make no assumptions about what trigger->id means, it's just a unique number
-
-TriggerState in action is the only thing that cares about this
-
-May need a binding option if a source in general can be sustainable (UI Button) but
-each binding is different.
-
-Still don't like that some functions have SUS variants.  If you bind a SUS function
-to a trigger that can't be sustained, then it should behave like the non-SUS variant.
-
-However, if you bind a non-SUS function to a sustainable trigger, it doesn't mean
-it can BECOME a SUS function.  That would have to be added in the binding.  which
-is nice because it means we can get rid of SUS functions.  Part of the function
-definition is "is sustainable".  Meaning it can be sustained but doesn't have to.
-the decision is left to the binding.  and the option to make the binding sustainaned
-tests "is sustainable" to even offer that option.
 
 
 ---

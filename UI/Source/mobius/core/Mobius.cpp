@@ -62,12 +62,15 @@
 #include "Variable.h"
 
 #include "Mobius.h"
+#include "Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
 // New Kernel Interface
 //
 //////////////////////////////////////////////////////////////////////
+
+#define xxx(cls) new cls
 
 /**
  * Build out only the state that can be done reliably in a static initializer.
@@ -76,6 +79,11 @@
 Mobius::Mobius(MobiusKernel* kernel)
 {
     Trace(2, "Mobius::Mobius");
+
+    Action* a = NEW(Action);
+    delete a;
+    Preset* p = xxx(Preset);
+    delete p;
 
     mKernel = kernel;
 
@@ -92,7 +100,8 @@ Mobius::Mobius(MobiusKernel* kernel)
     // temporary adapters for old interfaces
     mMidi = new StubMidiInterface();
     
-    mActionator = new Actionator(this);
+    //mActionator = new Actionator(this);
+    mActionator = NEW(Actionator, this);
     mScriptarian = new Scriptarian(this);
     mPendingScriptarian = nullptr;
     
@@ -1487,8 +1496,11 @@ void Mobius::cancelGlobalMute(Action* action)
  * Bootstrap and select a standard unit test setup.
  * This is called only by evaluation of the UnitTestSetup script statement.
  *
- * This is unusual because we're in the interrupt handler but we'll
- * also perform an edit to the master config.
+ * In old code this saved the modified configuration to the file system.
+ * I thought about just requiring that a special mobius.xml for unit tests
+ * and always loading that through mobius-redirect.  That's actually
+ * happening, but let's continue the old way and fix them if they
+ * already exist just to make initial testing less error prone.
  * 
  * We first bootstrap a Setup named "Unit Test Setup" and "Unit Test Preset"
  * if they don't already exist.  If the setup or preset already exist they
@@ -1517,7 +1529,7 @@ void Mobius::unitTestSetup()
     if (unitTestSetup(mConfig)) {
         // the part we can't do in the new world
         //writeConfiguration(mConfig);
-        Trace(1, "Mobius::unitTestSetup can't write the new configuration!\n");
+        //Trace(1, "Mobius::unitTestSetup can't write the new configuration!\n");
     }
     
 
@@ -1559,7 +1571,7 @@ bool Mobius::unitTestSetup(MobiusConfig* config)
     // just an ordinal now
     // this no longer exists, need to refine a permanent MobiusConfig
     // notion of what this means
-    Trace(1, "Mobius::unitTestSetup can't set the current preset!\n");
+    Trace(1, "Mobius::unitTestSetup can't set the current preset!\n");        
     //config->setCurrentPreset(p);
 
     // boostrap a setup

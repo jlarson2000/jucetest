@@ -88,13 +88,13 @@ int JuceMobiusContainer::getSampleRate()
 
 int JuceMobiusContainer::getInputLatency()
 {
-    trace("JuceMobiusContainer::getInputLatencyFrames doesn't want you to know!\n");
+    Trace(1, "JuceMobiusContainer::getInputLatencyFrames doesn't want you to know!\n");
     return 0;
 }
 
 int JuceMobiusContainer::getOutputLatency()
 {
-    trace("JuceMobiusContainer::getOutputLatencyFrames doesn't want you to know!\n");
+    Trace(1, "JuceMobiusContainer::getOutputLatencyFrames doesn't want you to know!\n");
     return 0;
 }
 
@@ -132,12 +132,18 @@ long JuceMobiusContainer::getInterruptFrames()
  * getNextAudioBlock and let the handler fill the interleaved
  * output buffer.  The output buffer will have been cleared
  * so it doesn't have to do anything if it doesn't want to.
+ *
+ * Note that when the noExternalInput test parameter is on,
+ * this will be called with nullptr for the output buffer
+ * since it is not needed.  But check both to be safe.
+ *
+ * todo: ignoring port numbers, need to fix that
  */
 void JuceMobiusContainer::getInterruptBuffers(int inport, float** input, 
                                              int outport, float** output)
 {
-    *input = inputBuffer;
-    *output = outputBuffer;
+    if (input != nullptr) *input = inputBuffer;
+    if (output != nullptr) *output = outputBuffer;
 }
 	
 //////////////////////////////////////////////////////////////////////

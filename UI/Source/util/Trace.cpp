@@ -1,4 +1,7 @@
 //
+// This is very old code that could use a refresh, but it is used EVERYWHERE
+// and I needed it early
+//
 // Replaced CriticalSection with Juce CriticalSection/ScopedLock
 // Lingering issues about where to get io.h and windows.h for DebugOutputStream
 // Forced it on for now, but when we get to the Mac port this will need
@@ -59,7 +62,12 @@
 #endif
 
 #include "Util.h"
+#include "TraceClient.h"
+#include "TraceFile.h"
 #include "Trace.h"
+
+// forward reference to private function 
+extern void TraceEmit(const char* msg);
 
 /****************************************************************************
  *                                                                          *
@@ -70,6 +78,9 @@
 //
 // Simple non-buffering trace used in non-critical UI threads
 // Added support for juce::String
+//
+// todo: shoudl this use TraceEmit now to go to the console
+// or keep it simple?
 //
 
 bool TraceToDebug = true;
@@ -274,15 +285,7 @@ void AddTrace(TraceContext* context, int level,
             // used to leave the csect early, but it's easier just to let
             // it extend to the original scope
             // TraceCsect->leave();
-            const char* warning = "WARNING: Trace record buffer overflow!!\n";
-#ifdef _WIN32
-			OutputDebugString(warning);
-            fprintf(stdout, warning);
-            fflush(stdout);
-#else
-            fprintf(stderr, warning);
-            fflush(stderr);
-#endif
+            TraceEmit("WARNING: Trace record buffer overflow!!\n");
 		}
         else {
             // use the default context if none explictily passedn
@@ -325,6 +328,51 @@ void AddTrace(TraceContext* context, int level,
 		if (level <= 1)
 		  TraceBreakpoint();
 	}
+}
+
+/**
+ * Variant of the above that just creates a TraceRecord
+ * with a pre-formatted string and skips level checking.
+ * Used for script Echo statement
+ */
+void AddTrace(const char* msg) 
+{
+	// kludge: trying to track down a problem, make sure the 
+	// records are initialized
+	if (!TraceInitialized) {
+		for (int i = 0 ; i < MAX_TRACE_RECORDS ; i++)
+			TraceRecords[i].msg = nullptr;
+		TraceInitialized =  true;
+	}
+    
+    const juce::ScopedLock lock (TraceCriticalSection);
+    
+    TraceRecord* r = &TraceRecords[TraceTail];
+
+    int nextTail = TraceTail + 1;
+    if (nextTail >= MAX_TRACE_RECORDS)
+      nextTail = 0;
+
+    if (nextTail == TraceHead) {
+        TraceRaw("WARNING: Trace record buffer overflow!!\n");
+    }
+    else {
+        r->msg = msg;
+        r->level = 0;
+        r->context = 0;
+        r->time = 0;
+        r->long1 = 0;
+        r->long2 = 0;
+        r->long3 = 0;
+        r->long4 = 0;
+        r->long5 = 0;
+        r->string[0] = 0;
+        r->string2[0] = 0;
+        r->string3[0] = 0;
+        
+        // only change the tail after the record is fully initialized
+        TraceTail = nextTail;
+    }
 }
 
 /**
@@ -454,24 +502,17 @@ void FlushTrace()
         TraceRecord* r = &TraceRecords[head];
 		RenderTrace(r, buffer);
 
+        // not used any more what what the heck
+        // note that the way AddTrace works, if you
+        // set TracePrintLevel high it will now
+        // make TraceEmit unconditional, but you
+        // shoudlnt' be using PrintLevel anyway
 		if (r->level <= TracePrintLevel) {
 			printf("%s", buffer);
 			fflush(stdout);
 		}
 
-		if (r->level <= TraceDebugLevel) {
-
-#ifdef _WIN32
-			OutputDebugString(buffer);
-#else
-			// OSX sadly doesn't seem to have anything equivalent emit to stderr
-			// if we're not already emitting to stdout
-			if (!(r->level <= TracePrintLevel)) {
-				fprintf(stderr, "%s", buffer);
-				fflush(stderr);
-			}
-#endif
-		}
+        TraceEmit(buffer);
 
 		head++;
 		if (head >= MAX_TRACE_RECORDS)
@@ -483,6 +524,13 @@ void FlushTrace()
 
 /**
  * Flush the messages or notify the listener
+ *
+ * In old code the listener just called signal() to break
+ * it out of the thread loop wait.  It would then
+ * be expected to immediately call FlushTrace.
+ * So technically traceEvent() doesn't do the flush.
+ * We'll be getting FlushTrace calls periodically with or
+ * without notifying the listener.
  */
 void FlushOrNotify()
 {
@@ -497,6 +545,24 @@ void FlushOrNotify()
  *   							TRACE METHODS                               *
  *                                                                          *
  ****************************************************************************/
+
+/**
+ * New, more direct trace that skips levels,  formatting, and all the folderol.
+ * Used for script Echo, and possibly elsewhere.
+ */
+void Trace(const char* msg)
+{
+    if (msg != nullptr) {
+        AddTrace(msg);
+        FlushOrNotify();
+    }
+}
+
+// not used for performance critical stuff, mostly optional structure dumps
+void Tracej(juce::String msg)
+{
+    Trace(msg.toUTF8());
+}
 
 /**
  * Called for every string argument to make sure that it has a value,
@@ -746,6 +812,68 @@ void Trace(TraceContext* context, int level, const char* msg,
     arg = CheckString(arg);
     AddTrace(context, level, msg, arg, nullptr, nullptr, l1, l2, l3, l4, l5);
 	FlushOrNotify();
+}
+
+//////////////////////////////////////////////////////////////////////.
+//
+// Trace Emitters
+//
+// This is new, to support directing trace messages to one of several
+// destinations, notably the TraceClient and DebugWindow
+//
+//////////////////////////////////////////////////////////////////////.
+
+/**
+ * All the old code should eventually make it's way down here,
+ * either synchronsly if GlobalTraceListener isn't set, or
+ * asynchronusly if trace is flushed in a maintenance thread.
+ *
+ * We've passed TraceDebugLevel and have rendered the TraceRecord
+ * into a single string.
+ *
+ * There are now three places this can go: stdout, the debug output stream
+ * or the new DebugWindow.
+ *
+ * I don't really need stdout any more since that's useless under Visual Studio
+ * and I don't run from the command line any more.
+ *
+ * Always send to the debug output stream.
+ *
+ * Whether or not we send to the debug window will be controlled
+ * within that class, but the behavior of that must be extremely robust.
+ * If something goes wrong do not throw exceptions or cause any other
+ * disruption that would prevent at least the debug output stream from
+ * getting fed.
+ *
+ * As usual Mac's don't have OutputDebugString so send it to stderr which
+ * seemed to be reliable than stdout at the time.
+ */
+void TraceEmit(const char* msg)
+{
+#ifdef _WIN32
+    OutputDebugString(msg);
+#else
+    fprintf(stderr, "%s", msg);
+    fflush(stderr);
+#endif
+
+    TraceClient.send(msg);
+    // client doesn't work, use this for now
+    TraceFile.add(msg);
+}
+
+/**
+ * So TraceClient can tell us things when it is broken, this
+ * is the least we can do.
+ */
+void TraceRaw(const char* msg)
+{
+#ifdef _WIN32
+    OutputDebugString(msg);
+#else
+    fprintf(stderr, "%s", msg);
+    fflush(stderr);
+#endif
 }
 
 /****************************************************************************/

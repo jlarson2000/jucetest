@@ -50,8 +50,8 @@ UIAction::UIAction(UIAction* src)
     next = nullptr;
     
     // Trigger
-    id = src->id;
     trigger = src->trigger;
+    triggerId = src->triggerId;
     triggerMode = src->triggerMode;
     passOscArg = src->passOscArg;
     triggerValue = src->triggerValue;
@@ -95,7 +95,7 @@ void UIAction::init()
 {
     next = nullptr;
     // Trigger
-    id = 0;
+    triggerId = 0;
     trigger = nullptr;
     triggerMode = nullptr;
     passOscArg = false;
@@ -279,18 +279,18 @@ bool UIAction::isTargetEqual(UIAction* other)
 }
 
 /**
- * Get the MIDI status code from the action id.
+ * Get the MIDI status code from the trigger id.
  * Format: ((status | channel) << 8) | key
  *
  * We expect these to be MS_ constaints so zero out the channel.
  */
 int UIAction::getMidiStatus()
 {
-    return ((id >> 8) & 0xF0);
+    return ((triggerId >> 8) & 0xF0);
 }
 
 /**
- * Get the MIDI status code from the action id.
+ * Get the MIDI status code from the trigger id.
  * Format: ((status | channel) << 8) | key
  *
  * We expect the argument to be an MS_ constaints so it is
@@ -298,35 +298,35 @@ int UIAction::getMidiStatus()
  */
 void UIAction::setMidiStatus(int i)
 {
-    id = ((i << 8) | (id & 0xFFF));
+    triggerId = ((i << 8) | (triggerId & 0xFFF));
 }
 
 /**
- * Get the MIDI channel from the action id.
+ * Get the MIDI channel from the trigger id.
  * Format: ((status | channel) << 8) | key
  */
 int UIAction::getMidiChannel()
 {
-    return ((id >> 8) & 0xF);
+    return ((triggerId >> 8) & 0xF);
 }
 
 void UIAction::setMidiChannel(int i)
 {
-    id = ((i << 8) | (id & 0xF0FF));
+    triggerId = ((i << 8) | (triggerId & 0xF0FF));
 }
 
 /**
- * Get the MIDI key, program, or CC number from the action id.
+ * Get the MIDI key, program, or CC number from the trigger id.
  * Format: ((status | channel) << 8) | key
  */
 int UIAction::getMidiKey()
 {
-    return (id & 0xFF);
+    return (triggerId & 0xFF);
 }
 
 void UIAction::setMidiKey(int i)
 {
-    id = (i | (id & 0xFF00));
+    triggerId = (i | (triggerId & 0xFF00));
 }
 
 /**

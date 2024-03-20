@@ -173,12 +173,12 @@ void AudioPool::dump()
 
     int used = mAllocated - pooled;
 
-    trace("AudioPool: %d buffers allocated, %d in the pool, %d in use\n",
+    Trace(2, "AudioPool: %d buffers allocated, %d in the pool, %d in use\n",
            mAllocated, pooled, used);
 
     // this should match
     if (used != mInUse)
-      trace("AudioPool: Unmatched usage counters %d %d\n",
+      Trace(2, "AudioPool: Unmatched usage counters %d %d\n",
              used, mInUse);
 
     //}

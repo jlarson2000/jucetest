@@ -1006,11 +1006,11 @@ void Audio::dump(TraceBuffer* b)
 void Audio::diff(Audio* a)
 {
 	if (mFrames != a->getFrames()) {
-		trace("Frame counts differ this=%ld other=%ld\n",
+		Trace(2, "Frame counts differ this=%ld other=%ld\n",
 			   mFrames, a->getFrames());
 	}
 	else if (mChannels != a->getChannels()) {
-		trace("Channel counts differ this=%d other=%d\n",
+		Trace(2, "Channel counts differ this=%d other=%d\n",
 			   (int)mChannels, (int)a->getChannels());
 	}
 	else {
@@ -1034,7 +1034,7 @@ void Audio::diff(Audio* a)
 			
 			for (int j = 0 ; j < mChannels && !stop ; j++) {
 				if (f1[j] != f2[j]) {
-					trace("Difference at frame %d\n", i);
+					Trace(2, "Difference at frame %d\n", i);
 					stop = true;
 				}
 			}

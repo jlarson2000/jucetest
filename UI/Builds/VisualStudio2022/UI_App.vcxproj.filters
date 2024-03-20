@@ -973,6 +973,9 @@
     <ClCompile Include="..\..\Source\mobius\core\Mapper.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\Mem.cpp">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp">
       <Filter>UI\Source\mobius\core</Filter>
     </ClCompile>
@@ -1124,6 +1127,12 @@
       <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\Trace.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\TraceClient.cpp">
+      <Filter>UI\Source\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\util\TraceFile.cpp">
       <Filter>UI\Source\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\util\Util.cpp">
@@ -3885,6 +3894,9 @@
     <ClInclude Include="..\..\Source\mobius\core\Mapper.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\core\Mem.h">
+      <Filter>UI\Source\mobius\core</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Messages.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
@@ -4027,6 +4039,12 @@
       <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\Trace.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\TraceClient.h">
+      <Filter>UI\Source\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\util\TraceFile.h">
       <Filter>UI\Source\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\util\Util.h">

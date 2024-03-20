@@ -260,6 +260,7 @@
     <ClCompile Include="..\..\Source\mobius\core\Layer.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Loop.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\Mapper.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\Mem.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiEvent.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiQueue.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\MidiTransport.cpp"/>
@@ -311,6 +312,8 @@
     <ClCompile Include="..\..\Source\util\MidiUtil.cpp"/>
     <ClCompile Include="..\..\Source\util\qtrace.cpp"/>
     <ClCompile Include="..\..\Source\util\Trace.cpp"/>
+    <ClCompile Include="..\..\Source\util\TraceClient.cpp"/>
+    <ClCompile Include="..\..\Source\util\TraceFile.cpp"/>
     <ClCompile Include="..\..\Source\util\Util.cpp"/>
     <ClCompile Include="..\..\Source\util\Vbuf.cpp"/>
     <ClCompile Include="..\..\Source\util\XmlBuffer.cpp"/>
@@ -2684,6 +2687,7 @@
     <ClInclude Include="..\..\Source\mobius\core\Layer.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Loop.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Mapper.h"/>
+    <ClInclude Include="..\..\Source\mobius\core\Mem.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Messages.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiByte.h"/>
     <ClInclude Include="..\..\Source\mobius\core\MidiEvent.h"/>
@@ -2732,6 +2736,8 @@
     <ClInclude Include="..\..\Source\util\MidiUtil.h"/>
     <ClInclude Include="..\..\Source\util\qtrace.h"/>
     <ClInclude Include="..\..\Source\util\Trace.h"/>
+    <ClInclude Include="..\..\Source\util\TraceClient.h"/>
+    <ClInclude Include="..\..\Source\util\TraceFile.h"/>
     <ClInclude Include="..\..\Source\util\Util.h"/>
     <ClInclude Include="..\..\Source\util\Vbuf.h"/>
     <ClInclude Include="..\..\Source\util\XmlBuffer.h"/>
