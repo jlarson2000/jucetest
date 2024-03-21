@@ -1,0 +1,17 @@
+
+Need a way to display important warning messages to the user.
+
+A popup alert is traditinal but in a performance situation that can get in the way.
+
+For anything that needs to be said in a performance situation, things from the engine
+that are not fatal, a temporary error message that displays then times out and goes away
+would be nice.
+
+Could collect those in an "error log" that can be shwon with a manu item.
+
+A file based error collector would be very nice once this starts getting out
+to users.  If something seems weird I can ask them to send me the logs.
+
+This would be in addition to the trace log, something that is always there, and
+starts pruning after it gets to a certain size.
+

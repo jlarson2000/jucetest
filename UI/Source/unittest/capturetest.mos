@@ -1,0 +1,15 @@
+!name Capture Test
+!autoload
+!button
+
+StartCapture
+Record
+Wait msec 1000
+Record
+Wait last
+
+StopCapture
+SaveCapture testcapture
+SaveLoop
+
+

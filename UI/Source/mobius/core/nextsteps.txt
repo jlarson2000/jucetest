@@ -1,3 +1,21 @@
+Audio file writer that tries to go in blocks instead of one sample at a time
+
+Alerts
+  now that we have file handling there are things that can go wrong
+  that the user will need to know about
+  see alerts.txt
+  give MobiusListener a simple error reporting mechanism and leave
+   and let it decide whether to use a popup or just show it on the display
+   for 10 seconds
+   
+Audio::~Audio() 
+  calls freeBuffers to return the buffers to the pool so can't
+  delete the pool before this
+  HATE this
+  Changing the way AudioPool works I think is going to be required
+  before general release
+
+
 Unit tests want the notion of the "current preset" which was
 not well defined.  See Mapper/GetCurrentPreset
 

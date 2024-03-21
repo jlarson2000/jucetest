@@ -49,9 +49,9 @@ bool KernelEvent::setArg(int number, const char* value)
     else {
         char* dest = nullptr;
         switch (number) {
-            case 0: &arg1; break;
-            case 1: &arg2; break;
-            case 2: &arg3; break;
+            case 0: dest = arg1; break;
+            case 1: dest = arg2; break;
+            case 2: dest = arg3; break;
         }
         
         if (dest == nullptr) {

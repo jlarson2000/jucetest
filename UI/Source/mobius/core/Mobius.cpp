@@ -154,6 +154,7 @@ Mobius::~Mobius()
     // things owned by Kernel that can't be deleted
     // mContainer, mAudioPool, mConfig, mSetup
 
+    delete mCaptureAudio;
     delete mScriptarian;
     delete mPendingScriptarian;
     
@@ -1278,6 +1279,85 @@ void Mobius::toggleBounceRecording(Action* action)
 	}
 }
 
+/**
+ * Save the active loop in the active track.
+ * Also known as "quick save" because it can be bound to a function
+ * and executed without prompting the user for a destination file.
+ *
+ * The file name may be passed as an argument in the action which
+ * is normally set when initiated by a script.  If this comes from
+ * outside, and the argument was not specified in the binding, then
+ * we use the global parameter "quickSave" to specify the base file name.
+ * which will be created under the root configuration directory unless
+ * the parameter value is an absolute path.
+ *
+ * This still follows the old convention of simply sending the maintenance
+ * thread a message that a save should happen and expecting it to call
+ * getPlaybackAudio when it is ready.
+ *
+ * Unlike capture which is stable, this is fraught with race conditions
+ * because we're returning a pointer directly into a potentially active loop.
+ * As long as the loop is not being modified it works well enough for
+ * unit tests, but this can't be used reliably by end users.
+ *
+ * It would be MUCH better for this to make a copy of the loop
+ * now while we're in the audio thread and pass the whole thing back
+ * rather than making the thread call back to get a live object.
+ * Takes a little more memory and since the copy happens in the audio thread
+ * it could cause a buffer underrun, but at least it is less likely to crash.
+ */
+void Mobius::saveLoop(Action* action)
+{
+    const char* file = NULL;
+    if (action != NULL && action->arg.getType() == EX_STRING)
+      file = action->arg.getString();
+
+    // this has never supported track scope in the actino, it always
+    // went to the active track, which makes sense for a "quick save"
+    // but might want it to be selective
+    
+    // todo: check to see if the track even has a non-empty loop
+    // before bothering with the kernel event
+    // if you skip the event make sure script waits will immediately
+    // cancel if there was no event scheduled
+    
+    KernelEvent* e = newKernelEvent();
+    e->type = EventSaveLoop;
+    e->setArg(0, file);
+
+    if (action != NULL) {
+        // here we save the event we're sending up on the Action
+        // so the script that is calling us can wait on it
+        action->setKernelEvent(e);
+    }
+    
+	sendKernelEvent(e);
+}
+
+/**
+ * Eventually called by KernelEvent handling to implement SaveLoop.
+ *
+ * Obvsiously serious race conditions here, but relatively safe
+ * as long as you don't do a Reset while it is being saved.  Even then
+ * the buffers will be returned to the pool so we should at least
+ * not have invalid pointers.
+ *
+ * !! The Rehearse test scripts can get into a race condition
+ * of they SaveLoop at the exact end of the loop when we're
+ * about to enter another record phase.
+ */
+Audio* Mobius::getPlaybackAudio()
+{
+    Audio* audio = mTrack->getPlaybackAudio();
+
+    // since this might be saved to a file make sure the
+    // sample rate is correct
+	if (audio != NULL)
+	  audio->setSampleRate(getSampleRate());
+
+    return audio;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Acctionator support and forwarding
@@ -1749,30 +1829,6 @@ void Mobius::setNoExternalInput(bool b)
  *                              GLOBAL FUNCTIONS                            *
  *                                                                          *
  ****************************************************************************/
-
-/**
- * Eventually called by KernelEvent handling to implement SaveLoop.
- *
- * Obvsiously serious race conditions here, but relatively safe
- * as long as you don't do a Reset while it is being saved.  Even then
- * the buffers will be returned to the pool so we should at least
- * not have invalid pointers.
- *
- * !! The Rehearse test scripts can get into a race condition
- * of they SaveLoop at the exact end of the loop when we're
- * about to enter another record phase.
- */
-Audio* Mobius::getPlaybackAudio()
-{
-    Audio* audio = mTrack->getPlaybackAudio();
-
-    // since this might be saved to a file make sure the
-    // sample rate is correct
-	if (audio != NULL)
-	  audio->setSampleRate(getSampleRate());
-
-    return audio;
-}
 
 /**
  * GlobalReset function handler.  This isn't a "global" function

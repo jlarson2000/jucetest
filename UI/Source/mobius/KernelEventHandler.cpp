@@ -7,13 +7,14 @@
 #include <JuceHeader.h>
 
 #include "../util/Trace.h"
-
-#include "../RootLocator.h"
+#include "../util/Util.h"
+#include "../model/MobiusConfig.h"
 
 #include "Audio.h"
 #include "KernelEvent.h"
 #include "MobiusShell.h"
 #include "KernelEventHandler.h"
+#include "WaveFile.h"
 
 #include "core/Mobius.h"
 
@@ -103,13 +104,11 @@ void KernelEventHandler::doSaveAudio(KernelEvent* e)
 }
 
 /**
- * Old code scheduled this from Mobius::saveLoop which was
- * "called by the UI to save the current loop to a file".
- * From MobiusThread it would just call back to Mobius::getPlaybackAudio
- * and write the file, so this never needed to be an event in the first place.
+ * This is where we end up at the end of the SaveLoop function.
  *
- * There was also the Save Function which could have initiated the save from
- * within and would have needed an event.
+ * Still have the old convention of not passing the loop Audio
+ * in the event, but expecting the handler to call back to getPlaybackAudio.
+ * See comments over there why this sucks and is dangerous.
  *
  * For any complex state file saves the problem from the UI/shell is that it
  * is unreliable to capture the state of an Audio object while the audio thread
@@ -134,10 +133,31 @@ void KernelEventHandler::doSaveAudio(KernelEvent* e)
  * files whe're you're busy with loop building.
  *
  * No good simple solutions.
+ *
+ * If the file name is passed through the event it will be used.  If not passed
+ * it used the value of the quickSave global parameter as the base file name,
+ * then added a numeric suffix to make it unique.
+ * Not doing uniqueness yet but need to.
  */
 void KernelEventHandler::doSaveLoop(KernelEvent* e)
 {
-    // saveLoop was taken out pending Project redesign
+    // get the Audio to save
+    MobiusKernel* kernel = shell->getKernel();
+    Mobius* mobius = kernel->getCore();
+    Audio* loop = mobius->getPlaybackAudio();
+
+    MobiusConfig* config = shell->getConfiguration();
+    const char* quickfile = config->getQuickSave();
+    if (quickfile == nullptr) {
+        // this is what old code used, better name might
+        // just be "quicksave" to show where it came from
+        quickfile = "mobiusloop";
+    }
+
+    juce::File file = buildFilePath(e->arg1, quickfile, ".wav");
+
+    // use the old utility for now
+    writeFile(loop, file);
 }
 
 /**
@@ -160,18 +180,86 @@ void KernelEventHandler::doDiff(KernelEvent* e)
 {
 }
 
+/**
+ * Here for an event scheduled by the special
+ * ScriptDiffStatement which is not a formal Function.
+ * Since there is no action scripts can't wait on this and
+ * expect nothing in return.
+ *
+ * Unlike SaveLoop and SaveCapture, this is useful only
+ * for the unit tests.  Tests expect it to compare two audio
+ * files and emit usefful messages to the console for inspection.
+ * 
+ * This is useful only for the unit tests
+ */
 void KernelEventHandler::doDiffAudio(KernelEvent* e)
 {
+    const char* file1 = e->arg1;
+    const char* file2 = e->arg2;
+    bool reverse = StringEqualNoCase(e->arg3, "reverse");
+
+    if (file1 != NULL && file2 != NULL) {
+        // just assume these are both relative
+        // !! what does that mean, relative to what?
+        // first arg "type" is now an EventType not an int
+        // diff(e->type, reverse, file1, file2);
+    }
+    else if (file1 != NULL) {
+#if 0
+        const char* extension = ".wav";
+        const char* master = getTestPath(file1, extension);
+        char newpath[1025];
+        strcpy(newpath, file1);
+        if (!EndsWith(newpath, extension))
+          strcat(newpath, extension);
+        diff(type, reverse, newpath, master);
+#endif
+        
+    }
 }
+
+#if 0
+PRIVATE const char* MobiusThread::getTestPath(const char* name, const 
+											  char* extension)
+{
+	MobiusConfig* config = mMobius->getConfiguration();
+	const char* root = config->getUnitTests();
+	if (root == NULL) {
+		// guess
+		root = "../../../mobiustest";
+	}
+
+	sprintf(mPathBuffer, "%s/expected/%s", root, name);
+
+	if (!EndsWith(mPathBuffer, extension))
+	  strcat(mPathBuffer, extension);
+
+	return mPathBuffer;
+}
+#endif
 
 void KernelEventHandler::doPrompt(KernelEvent* e)
 {
 }
 
+/**
+ * !! this does not appear to be needed
+ * ScriptEchoStatement commented out the event send and
+ * is just calling Trace directly
+ */
 void KernelEventHandler::doEcho(KernelEvent* e)
 {
 }
 
+/**
+ * Here we're supposed to call MobiusListener to make
+ * it break out of the maintenance thread waith loop
+ * and refreh the UI.
+ * !! actually I don't think this works, if we're here
+ * then we're already in the maintenance thread since
+ * that's where shell events are processed.  So must have
+ * called this directly from the audio thread.
+ */
 void KernelEventHandler::doTimeBoundary(KernelEvent* e)
 {
 }
@@ -204,6 +292,8 @@ void KernelEventHandler::doTimeBoundary(KernelEvent* e)
 juce::File KernelEventHandler::buildFilePath(const char* name, const char* defaultName,
                                              const char* extension)
 {
+    MobiusContainer* container = shell->getContainer();
+    juce::File root = container->getRoot();
     juce::File file;
 
     if (strlen(name) > 0) {
@@ -219,113 +309,297 @@ juce::File KernelEventHandler::buildFilePath(const char* name, const char* defau
             // example: SaveAudioRecording ./$(testname)$(suffix)rec
             // to be consistent with that common use assume that an absolute path
             // includes the leaf file name, but possibly without an extension
+            // any reason not to just force it to .wav ?
             if (maybe.getFileExtension().length() == 0)
-              maybe = juce::File(juce::String(name) + extension);
+              maybe = maybe.withFileExtension(extension);
             
-            if (file.existsAsFile()) {
+            if (maybe.existsAsFile()) {
                 file = maybe;
             }
             else {
-                // not a file yet, I do't want to auto create parent directories
-                // so make sure that existts first
-                juce::File parent = file.getParentDirectory();
-                if (!parent.isDirectory()) {
+                // not a file yet, I don't want to auto create parent directories
+                // if the user typed it in wrong, so make sure the parent exists
+                juce::File parent = maybe.getParentDirectory();
+                if (parent.isDirectory()) {
+                    file = maybe;
+                }
+                else {
                     // this is the first time we need an alert
                     // for unit tests, just trace and move on but for
                     // user initiated will need to display something
-                    Trace(1, "Invalid file path: %s\n", file.getFullPathName().toUTF8());
+                    Trace(1, "Invalid file path: %s\n", maybe.getFullPathName().toUTF8());
                 }
-                else {
-                    file = maybe;
-                }
-            }
-        }
-    }
-
-    // this sure seems like a weird way to test "is it set?"
-    if (file == juce::File()) {
-        // not absolute put it under the config directory
-        MobiusContainer* container = shell->getContainer();
-        juce::File root = container->getRoot();
-        if (strlen(name) > 0) {
-            juce::File maybe = juce::File(root.getFullPathName() + name);
-            if (maybe.getFileExtension().length() == 0)
-              maybe = juce::File(juce::String(name) + extension);
-            
-            if (file.existsAsFile()) {
-                file = maybe;
-            }
-            else {
-                // can skip the parent existance in this case since we can
-                // trust container->getRoot
-                file = maybe;
             }
         }
         else {
-            // sub the default name
-            file = juce::File(root.getFullPathName() + defaultName + extension);
+            // not absolute, put it under the root config directory
+            MobiusContainer* container = shell->getContainer();
+            juce::File root = container->getRoot();
+            juce::File maybe = root.getChildFile(name);
+            if (maybe.getFileExtension().length() == 0)
+              maybe = maybe.withFileExtension(extension);
+
+            if (maybe.existsAsFile()) {
+                file = maybe;
+            }
+            else {
+                // since we've extended the root which must exist, can allow
+                // the automatic creation of subdirectries
+                file = maybe;
+            }
         }
     }
+    else {
+        // no name passed, use the defaults
+        file = root.getChildFile(defaultName).withFileExtension(extension);
 
-    juce::Result result = file.create();
-    const char* path = file.getFullPathName().toUTF8();
-    if (!result.wasOk()) {
-        Trace(1, "Unable to create file: %s\n", path);
-        file = juce::File();
+        // !! todo: old code checked the file for uniqueness and if it was
+        // already there added a numeric qualifier, need to do this for both
+        // quickSave and capture
     }
 
+    // seems like an odd way to test for being set
+    if (file == juce::File()) {
+        // unable to verify a location, should have already traced why
+    }
+    else {
+        juce::Result result = file.create();
+        if (!result.wasOk()) {
+            Trace(1, "Unable to create file: %s\n", file.getFullPathName().toUTF8());
+            file = juce::File();
+        }
+    }
+    
     return file;
 }
 
+// this used to be saved in the .wav file
+// int Audio::WriteFormat = WAV_FORMAT_IEEE;
+
 /**
  * Write an audio file using the old tool.
+ * This is an adaptation of what used to be in Audio::write()
+ * which no longer exists, but still sucks because it does this
+ * a sample at a time rather than blocking.  Okay for initial testing
+ * but you can do better.
  */
 void KernelEventHandler::writeFile(Audio* a, juce::File file)
 {
-}
-
-#if 0
-int Audio::write(const char *name, int format) 
-{
-	int error = 0;
-
+    // Old code gave the illusion that it supported something other than 2
+    // channels but this was never tested.  Ensuing that this all stays
+    // in sync and something forgot to set the channels is tedius, just
+    // force it to 2 no matter what Audio says
+    //int channels = a->getChannels();
+    int channels = 2;
+    int frames = a->getFrames();
+    
 	WaveFile* wav = new WaveFile();
-	wav->setChannels(mChannels);
-	wav->setFrames(mFrames);
-	wav->setFormat(format);
-	wav->setFile(name);
-
-	error = wav->writeStart();
+	wav->setChannels(channels);
+	wav->setFrames(frames);
+    // other format is PCM, but I don't think the old writer supported that?
+	wav->setFormat(WAV_FORMAT_IEEE);
+    // this was how we conveyed the file path
+    const char* path = file.getFullPathName().toUTF8();
+	wav->setFile(path);
+    
+	int error = wav->writeStart();
 	if (error) {
-		Trace(1, "Error writing file %s: %s\n", name, 
+		Trace(1, "Error writing file %s: %s\n", path, 
 			  wav->getErrorMessage(error));
 	}
 	else {
 		// write one frame at a time not terribly effecient but messing
 		// with blocking at this level isn't going to save much
 		AudioBuffer b;
-		float buffer[AUDIO_MAX_CHANNELS];
+        // not sure where this constant went but we don't support more than 2 anyway
+		//float buffer[AUDIO_MAX_CHANNELS];
+		float buffer[4];
 		b.buffer = buffer;
 		b.frames = 1;
-		b.channels = mChannels;
+		b.channels = channels;
 
-		for (long i = 0 ; i < mFrames ; i++) {
+		for (long i = 0 ; i < frames ; i++) {
 			memset(buffer, 0, sizeof(buffer));
-			get(&b, i);
+			a->get(&b, i);
 			wav->write(buffer, 1);
 		}
 
 		error = wav->writeFinish();
 		if (error) {
-			Trace(1, "Error finishing file %s: %s\n", name, 
+			Trace(1, "Error finishing file %s: %s\n", path, 
 				  wav->getErrorMessage(error));
+		}
+    }
+
+    delete wav;
+}
+
+/**
+ * This a slightly modified version of the old diff utility.
+ * Rather than printf it sends to the Trace log.
+ * Actually no, it will need heavy modifications because it needs
+ * the old file utils I don't want to drag over and it used Audio(file)
+ * constructor to read the files which no longer exists.
+ * 
+ * Diff two files.  Assume they are binary.
+ * Could be smarter about printing differences if these turn
+ * out to be non-binary project files.
+ */
+void KernelEventHandler::diff(int type, bool reverse,
+                              const char* file1, const char* file2)
+{
+#if 0    
+	int size1 = GetFileSize(file1);
+	int size2 = GetFileSize(file2);
+
+	if (size1 < 0) {
+		printf("ERROR: File does not exist: %s\n", file1);
+		fflush(stdout);
+	}
+	else if (size2 < 0) {
+		printf("ERROR: File does not exist: %s\n", file2);
+		fflush(stdout);
+	}
+	else if (size1 != size2) {
+		printf("ERROR: Files differ in size: %s, %s\n", file1, file2);
+		fflush(stdout);
+	}
+	else {
+		FILE* fp1 = fopen(file1, "rb");
+		if (fp1 == NULL) {
+			printf("Unable to open file: %s\n", file1);
+			fflush(stdout);
+		}
+		else {
+			FILE* fp2 = fopen(file2, "rb");
+			if (fp2 == NULL) {
+				printf("Unable to open file: %s\n", file2);
+				fflush(stdout);
+			}
+			else {
+				bool different = false;
+				if (type == TE_DIFF_AUDIO) {
+
+					bool checkFloats = false;
+                    AudioPool* pool = mMobius->getAudioPool();
+
+					Audio* a1 = pool->newAudio(file1);
+					Audio* a2 = pool->newAudio(file2);
+					int channels = a1->getChannels();
+
+					if (a1->getFrames() != a2->getFrames()) {
+						printf("Frame counts differ %s, %s\n", file1, file2);
+						fflush(stdout);
+					}
+					else if (channels != a2->getChannels()) {
+						printf("Channel counts differ %s, %s\n", file1, file2);
+						fflush(stdout);
+					}
+					else {
+						AudioBuffer b1;
+						float f1[AUDIO_MAX_CHANNELS];
+						b1.buffer = f1;
+						b1.frames = 1;
+						b1.channels = channels;
+
+						AudioBuffer b2;
+						float f2[AUDIO_MAX_CHANNELS];
+						b2.buffer = f2;
+						b2.frames = 1;
+						b2.channels = channels;
+
+						bool stop = false;
+						int psn2 = (reverse) ? a2->getFrames() - 1 : 0;
+
+						for (int i = 0 ; i < a1->getFrames() && !different ; 
+							 i++) {
+
+							memset(f1, 0, sizeof(f1));
+							memset(f2, 0, sizeof(f2));
+							a1->get(&b1, i);
+							a2->get(&b2, psn2);
+			
+							for (int j = 0 ; j < channels && !different ; j++) {
+								// sigh, due to rounding errors it is 
+								// impossible to reliably assume that
+								// x + y - y = x with floats, so coerce
+								// to an integer to do the comparion
+
+								if (checkFloats) {
+									if (f1[j] != f2[j]) {
+										printf("WARNING: files differ at frame %d: %f %f: %s, %s\n", 
+											   i, f1[j], f2[j], file1, file2);
+										fflush(stdout);
+									}
+								}
+
+								// 24 bit is too much, but 16 is too small
+								// 16 bit signed (2^15)
+								//float precision = 32767.0f;
+								// 24 bit signed (2^23)
+								//float precision = 8388608.0f;
+								// 20 bit
+								float precision = 524288.0f;
+								
+								int i1 = (int)(f1[j] * precision);
+								int i2 = (int)(f2[j] * precision);
+
+								if (i1 != i2) {
+									printf("Files differ at frame %d: %d %d: %s, %s\n", 
+										   i, i1, i2, file1, file2);
+									fflush(stdout);
+									different = true;
+								}
+							}
+
+							if (reverse)
+							  psn2--;
+							else
+							  psn2++;
+						}
+					}
+
+					delete a1;
+					delete a2;
+				}
+				else {
+					unsigned char byte1;
+					unsigned char byte2;
+
+					for (int i = 0 ; i < size1 && !different ; i++) {
+						if (fread(&byte1, 1, 1, fp1) < 1) {
+							printf("Unable to read file: %s\n", file1);
+							fflush(stdout);
+							different = true;
+						}
+						else if (fread(&byte2, 1, 1, fp2) < 1) {
+							printf("Unable to read file: %s\n", file2);
+							fflush(stdout);
+							different = true;
+						}
+						else if (byte1 != byte2) {
+							printf("Files differ at byte %d: %s, %s\n",
+								   i, file1, file2);
+							fflush(stdout);
+							different = true;
+						}
+					}
+				}
+				fclose(fp2);
+				if (!different) {
+				  printf("%s - ok\n", file1);
+				  fflush(stdout);
+				}
+			}
+			fclose(fp1);
 		}
 	}
 
-	delete wav;
-	return error;
-}
+	fflush(stdout);
+
 #endif
+    
+}
 
 /****************************************************************************/
 /****************************************************************************/

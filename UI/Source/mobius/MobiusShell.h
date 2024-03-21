@@ -54,11 +54,14 @@ class MobiusShell : public MobiusInterface
     class DynamicConfig* getDynamicConfig();
     
     // for internal components like KernelEventHandler
+
     class MobiusContainer* getContainer() {
         return container;
     }
     
-    
+    class MobiusConfig* getConfiguration() {
+        return configuration;
+    }
 
   protected:
     

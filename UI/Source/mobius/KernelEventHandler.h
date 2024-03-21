@@ -38,6 +38,8 @@ class KernelEventHandler
                              const char* extension);
 
     void writeFile(class Audio* a, juce::File file);
+    void diff(int type, bool reverse,
+              const char* file1, const char* file2);
 
 };
 

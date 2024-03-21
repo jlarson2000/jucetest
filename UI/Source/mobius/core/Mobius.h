@@ -108,7 +108,7 @@ class Mobius
     // !! ugly, this is part of the reconfigure() sequence
     // but is also called by Loop, why would it do that?
     void setTrack(int index);
-
+    
     /**
      * Install a freshly minted Scriptarian when scripts are reloaded
      * after we've been initialized and running.
@@ -121,6 +121,12 @@ class Mobius
      */
     Audio* getCapture();
 
+    /**
+     * Retrieve the contents of the current loop for the KernelEvent
+     * handler for SaveLoop.
+     */
+	Audio* getPlaybackAudio();
+    
     //////////////////////////////////////////////////////////////////////
     //
     // Environment accessors for internal components
@@ -239,14 +245,12 @@ class Mobius
 	void globalMute(class Action* action);
 	void cancelGlobalMute(class Action* action);
 	void globalPause(class Action* action);
-	void sampleTrigger(class Action* action, int index);
-	long getLastSampleFrames();
     
 	void startCapture(class Action* action);
 	void stopCapture(class Action* action);
 	void saveCapture(class Action* action);
-
 	void toggleBounceRecording(class Action* action);
+    void saveLoop(class Action* action);
 
     void unitTestSetup();
 
@@ -288,7 +292,6 @@ class Mobius
 
 	// used by KernelEvent handlers
 
-	Audio* getPlaybackAudio();
 	//void loadProjectInternal(class Project* p);
 
     // Need these for the Setup and Preset script statements
