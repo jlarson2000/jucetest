@@ -1,0 +1,108 @@
+Old code handling of the installation and configuration directories
+
+This was rather involved, and I don't want to do anything this now.
+Assume MobiusContainer->getRootPath returns this.
+
+On windows the install and config directories were the same.
+
+On Mac install was obtained by looking for Bundle info, and old comments
+say the config directory was:
+
+ * on Mac config will be /Library/Application Support/Mobius.
+
+For plugins I think the problem was that the .dll was in VstPlugins
+rather than the main installation directory which is why we had to
+use a registry key.
+
+In the new world, I like the expected convention of putting config
+files in a standard location /Library under Mac and .../ApplicationSupport
+or some such thing on Windows.  Juce can find those.
+
+
+Random code fragments related to this...
+
+
+On Windows, expected the installer to set a registry key 
+
+#define REGKEY "Software\\Circular Labs\\Mobius 2"
+
+/**
+ * Called from WinMain and VstMain.
+ * A WindowsContext has been initialized with the HINSTANCE and
+ * the command line, here we figure out where the installation
+ * directory is and repair the registry if necessary.
+ */
+PUBLIC void WinMobiusInit(WindowsContext* wc)
+{
+    // The GetRegistryCU return value is owned by the caller and
+    // must be freed.
+    // !! But freed how? Deleting this is causing a crash in Ableton, 
+    // so make a copy and let the registry string leak, it probably
+    // needs free() but unsure if there are runtime library 
+    // compatability issues
+    char* regstr = GetRegistryCU(REGKEY, "InstDirectory");
+    if (regstr != NULL)
+      wc->setInstallationDirectory(regstr);
+    else {
+        // try to repair it, handy for development
+        // WindowsContext has code to figure out the directory
+        // containing the DLL but that's typically the working
+        // directory which is almost never what we want
+
+        const char* dflt = "c:\\Program Files\\Mobius 2";
+        if (IsDirectory(dflt)) {
+
+            // try to fix the registry
+            printf("Repairing registry installation direcory: %s\n", dflt);
+            if (!SetRegistryCU(REGKEY, "InstDirectory", dflt))
+              printf("Error repairing registry!\n");
+            fflush(stdout);
+
+            wc->setInstallationDirectory(dflt);
+        }
+    }
+}
+
+/**
+ * Attempt to locate the installation directory, on Windows the installer
+ * puts this in a registry key.
+ */
+PUBLIC const char* WindowsContext::getInstallationDirectory()
+{
+    // It should have been set by now.  If not fall back to the directory
+    // containing the DLL.  
+	// !! is this ever what we want?
+
+	if (mInstallationDirectory == NULL && mInstance != NULL) {
+		char path[1024 * 4];
+		GetModuleFileName(mInstance, path, sizeof(path));
+		// this will have the module file on the end, strip it
+		if (strlen(path)) {
+			char directory[1024 * 4];
+			ReplacePathFile(path, NULL, directory);
+			mInstallationDirectory = CopyString(directory);
+		}
+	}
+
+	return mInstallationDirectory;
+}
+
+On Mac...
+
+PUBLIC const char* MacContext::getInstallationDirectory()
+{
+	if (mInstallationDirectory == NULL) {
+		static char path[PATH_MAX];
+		strcpy(path, "");
+
+		CFBundleRef mainBundle = CFBundleGetMainBundle();
+		CFURLRef url = CFBundleCopyResourcesDirectoryURL(mainBundle);
+		if (!CFURLGetFileSystemRepresentation(url, TRUE, (UInt8*)path, PATH_MAX)) {
+			Trace(1, "Unable to get bundle Resources path!\n");
+		}
+		CFRelease(url);
+
+		mInstallationDirectory = CopyString(path);
+	}
+	return mInstallationDirectory;
+}

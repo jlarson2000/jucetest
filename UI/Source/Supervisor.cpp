@@ -55,6 +55,11 @@ Supervisor::Supervisor(juce::AudioAppComponent* main)
     trace("Root path: %s\n", rootPath.toUTF8());
 }
 
+juce::File Supervisor::getRoot()
+{
+    return rootLocator.getRoot();
+}
+
 juce::String Supervisor::getRootPath()
 {
     return rootPath;

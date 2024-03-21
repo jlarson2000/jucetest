@@ -57,6 +57,7 @@ class Supervisor : public MobiusListener
     Supervisor(juce::AudioAppComponent* main);
     ~Supervisor();
 
+    juce::File getRoot();
     juce::String getRootPath();
 
     void start();

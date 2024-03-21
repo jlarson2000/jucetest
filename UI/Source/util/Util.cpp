@@ -378,6 +378,27 @@ bool IsFile(const char *name)
 	return exists;
 }
 
+/**
+ * Return true if the path is an absolute path.
+ * Not sure how accurate this was, but it got the job done.
+ * Juce is far better at this sort of thing.
+ */
+bool IsAbsolute(const char* path)
+{
+    bool absolute = false;
+    if (path != NULL) {
+        int len = strlen(path);
+        if (len > 0) {
+            absolute = (path[0] == '/' || 
+                        path[0] == '\\' ||
+						// actually this is meaningless, it's a shell thing
+                        //path[0] == '~' ||
+                        (len > 2 && path[1] == ':'));
+        }
+    }
+    return absolute;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Exceptions

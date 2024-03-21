@@ -115,6 +115,12 @@ class Mobius
      */
     void installScripts(Scriptarian* s);
     
+    /**
+     * Retrieve the capture audio for the KernelEvent handler
+     * to save capture.
+     */
+    Audio* getCapture();
+
     //////////////////////////////////////////////////////////////////////
     //
     // Environment accessors for internal components
@@ -282,7 +288,6 @@ class Mobius
 
 	// used by KernelEvent handlers
 
-	Audio* getCapture();
 	Audio* getPlaybackAudio();
 	//void loadProjectInternal(class Project* p);
 
@@ -347,9 +352,10 @@ class Mobius
 	char mCustomMode[MAX_CUSTOM_MODE];
 
 	// state related to realtime audio capture
-	Audio* mAudio;
+	Audio* mCaptureAudio;
 	bool mCapturing;
 	long mCaptureOffset;
+
 	
 	// state exposed to the outside world
 	MobiusState mState;

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <JuceHeader.h>
+
 class KernelEventHandler
 {
   public:
@@ -31,6 +33,11 @@ class KernelEventHandler
     void doPrompt(class KernelEvent* e);
     void doEcho(class KernelEvent* e);
     void doTimeBoundary(class KernelEvent* e);
+
+    juce::File buildFilePath(const char* name, const char* defaultName,
+                             const char* extension);
+
+    void writeFile(class Audio* a, juce::File file);
 
 };
 

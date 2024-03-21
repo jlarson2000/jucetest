@@ -45,6 +45,11 @@ void JuceMobiusContainer::setAudioListener(MobiusContainer::AudioListener* l)
     audioListener = l;
 }
 
+juce::File JuceMobiusContainer::getRoot()
+{
+    return supervisor->getRoot();
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // MobiusContainer

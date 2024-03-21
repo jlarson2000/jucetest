@@ -59,6 +59,7 @@ class JuceMobiusContainer : public MobiusContainer
     void releaseResources();
 
     // MobiusContainer
+    juce::File getRoot();
     void setAudioListener(class MobiusContainer::AudioListener* l);
     int getMillisecondCounter();
     void sleep(int millis);

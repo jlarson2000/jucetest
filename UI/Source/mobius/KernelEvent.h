@@ -30,8 +30,8 @@ typedef enum {
     // Would only need events if you can ask for this from scripts.
     EventSaveLoop,
 
-    // scheduled by Mobius::saveCapture which is called by
-    // SaveCapture->invoke
+    // Used by the SaveCapture function to save the results
+    // of a capture to a file.  File name to use is passed in the first argument
     EventSaveAudio,
     
     EventSaveProject,

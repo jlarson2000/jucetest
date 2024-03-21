@@ -1,0 +1,24 @@
+The old UI has a thin rectangle on the display named "Minor Modes" that must
+just display all the active minor modes.  Will need that at some point.
+The UI for minor modes has them all hard coded:
+
+		marker = ReverseMode->getDisplayName();
+        ...
+		marker = CaptureMode->getDisplayName();
+
+        tstate->speedToggle != mSpeedToggle ||
+		tstate->speedOctave != mSpeedOctave ||
+		tstate->speedStep != mSpeedStep ||
+
+That are taken from track members
+
+    s->speedToggle = mSpeedToggle;
+    s->speedOctave = mInput->getSpeedOctave();
+    s->speedStep = mInput->getSpeedStep();
+    s->speedBend = mInput->getSpeedBend();
+    s->pitchOctave = mInput->getPitchOctave();
+    s->pitchStep = mInput->getPitchStep();
+    s->pitchBend = mInput->getPitchBend();
+    s->timeStretch = mInput->getTimeStretch();
+	s->reverse = mInput->isReverse();
+

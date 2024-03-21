@@ -120,7 +120,7 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mCustomMode[0] = 0;
 	//mPendingProject = NULL;
 	//mSaveProject = NULL;
-	mAudio = NULL;
+	mCaptureAudio = NULL;
 	mCapturing = false;
 	mCaptureOffset = 0;
 	mSynchronizer = NULL;
@@ -864,31 +864,19 @@ void Mobius::endAudioInterrupt()
 	if (mHalting) return;
 
     long frames = mContainer->getInterruptFrames();
+
 	mSynchronizer->interruptEnd();
 	
 	// if we're recording, capture whatever was left in the output buffer
 	// !! need to support merging of all of the output buffers for
 	// each port selected in each track
-	if (mCapturing && mAudio != NULL) {
+    // see design/capture-bounce.txt
+    
+	if (mCapturing && mCaptureAudio != NULL) {
 		float* output = NULL;
+        // note, only looking at port zero
 		mContainer->getInterruptBuffers(0, NULL, 0, &output);
 		if (output != NULL) {
-
-			// debugging capture
-            // this was convenient at the time, and I'd like to support it now
-            // but need to give MobiusContainer an interface for file handling
-#if 0            
-			static int bufcount = 1;
-			if (false && bufcount < 5) {
-				char file[128];
-				sprintf(file, "record%d-%ld.wav", bufcount++, mAudio->getFrames());
-                Audio* temp = mAudioPool->newAudio();
-                temp->append(output, frames);
-                temp->write(file);
-                temp->free();
-			}
-#endif
-            
 			// the first block in the recording may be a partial block
 			if (mCaptureOffset > 0) {
                 // !! assuming 2 channel ports
@@ -902,7 +890,7 @@ void Mobius::endAudioInterrupt()
 				mCaptureOffset = 0;
 			}
 
-			mAudio->append(output, frames);
+			mCaptureAudio->append(output, frames);
 		}
 	}
 
@@ -921,6 +909,373 @@ void Mobius::endAudioInterrupt()
         sendKernelEvent(e);
     }
 */
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Capture and Bounce
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * StartCapture global function handler.
+ *
+ * Also called by the BounceEvent handler to begin a bounce recording.
+ * May want to have different Audios for StartCapture and Bounce,
+ * but it's simpler to reuse the same mechanism for both.
+ *
+ * Here we just set the mCapturing flag to enable recording,
+ * appending content to mCaptureAudio happens in endAudioInterrupt
+ * after all the tracks have had a chance to contribute.
+ *
+ * Note though that what we include in the capture depends on when
+ * the StartCapture function was invoked.  There are two possible times:
+ *
+ *    1) At the start of the audio interrupt before audio blocks
+ *       are being processed.  This happens when a UIAction was received
+ *       from above, or when a script runs and initiaites the capture.
+ *
+ *    2) In the middle of audio block processing if the Function was
+ *       scheduled with an Event.  This happens when StartCapture
+ *       is quantized, or when it is invoked from a script that has been
+ *       waiting for a particular time.
+ *
+ * If we're in case 2, the first part of the audio block that has already
+ * been consumed is technically not part of the recording.  The test scripts
+ * currently use "Wait block" to avoid this and have predictable results.
+ * 
+ * But the Bounce function needs to be more precise.  mCaptureOffset is
+ * set to the track's processed output frames and used later.
+ *
+ * todo: That last comment I don't understand.  Bouce was sort of half
+ * done anyway so not focusing on that till we get to Bounce.
+ *
+ * todo: Capture only works for one track, identified in the action.
+ * It can be the active track but it can't be a group.  Tests don't
+ * need to capture more than one track, but a more general resampling
+ * feature might want to.
+ */
+void Mobius::startCapture(Action* action)
+{
+    // if we're already capturing, ignore it
+    // this currently requires specific Start and Stop functions, could
+    // let this toggle like Record and Bounce, but this is only used in
+    // scripts right now
+	if (!mCapturing) {
+		if (mCaptureAudio != NULL) {
+            // left behind from the last capture, clear it
+            // if not clear already
+            mCaptureAudio->reset();
+        }
+        else {
+            mCaptureAudio = mAudioPool->newAudio();
+            // this I've always done, not sure how significant it is
+            // it probably ends up in metadata in the .wav file 
+            mCaptureAudio->setSampleRate(getSampleRate());
+        }
+		mCapturing = true;
+
+        // if we're not at the start of the interrupt, save
+        // the block offset of where we are now
+        // todo: I see this gets it from the Track, are there any
+        // conditions where Tracks could have different ideas of what
+        // "processed output frames" means?  If that is sensntive to things
+        // like TimeStretch then it is probably wrong, here we need to
+        // and won't work if we ever do multi-track capture
+        Track* t = resolveTrack(action);
+        if (t == NULL)
+          t = mTrack;
+
+		mCaptureOffset = t->getProcessedOutputFrames();
+	}
+}
+
+/**
+ * StopCapture global function handler.
+ * 
+ * Old comments:
+ * Also now used by the BounceEvent handler when we end a bouce record.
+ * 
+ * If we're in a script, try to be precise about where we end the
+ * recording.  Simply turning the flag off will remove all of the
+ * current block from the recording, and a portion of it may
+ * actually have been included.
+ * 
+ * UPDATE: Any reason why we should only do this from a script?
+ * Seems like something we should do all the time, especially for bounces.
+ * :End old comments
+ *
+ * new: This looks weird, we're asking the track for ProcessedOutputFrames
+ * which is the same thing we did in startCapture to set mCaptureOffset.
+ * This captures the audio from the start of the block up to whever
+ * the current event is in the track.  Fine, but why is this track specific?
+ *
+ * Also we're only looking at output port zero which may not be the
+ * port the track was actually sending to.  
+ *
+ */
+void Mobius::stopCapture(Action* action)
+{
+	if (mCapturing && mCaptureAudio != NULL
+		// && action->trigger == TriggerScript
+		) {
+		float* output = NULL;
+		// TODO: merge the interrupt buffers for all port sets
+		// that are being used by any of the tracks
+		mContainer->getInterruptBuffers(0, NULL, 0, &output);
+		if (output != NULL) {
+			Track* t = resolveTrack(action);
+            if (t == NULL)
+              t = mTrack;
+			mCaptureAudio->append(output, t->getProcessedOutputFrames());
+		}
+	}
+
+	mCapturing = false;
+}
+
+/**
+ * SaveCapture global function handler.
+ *
+ * The mAudioCapture object has been accumulating audio during
+ * audio block processing, and a little at the end from
+ * the stopCapture function handler.
+ *
+ * This expects the file name to be passed as an Action argument
+ * which it will be when called from a script.  I suppose
+ * this could have also been a bound action from the UI, but you
+ * would need to include the file in the binding.
+ *
+ * I don't know if it does, but we should allow the file to be
+ * optional, and have it fall back to the quickSaveFile parameter.
+ *
+ * The file save is actually performed by the shell through a KernelEvent.
+ * We just pass the file name, the even thandler is expected to call down
+ * to Mobius::getCapture when it is ready to save.
+ *
+ * todo: Could avoid the extra step and just pass mCaptureAudio here
+ * but I like keeping the subtle ownersip window of mCaptureAudio
+ * smaller.
+ *
+ * new: this is normally called sometime after StopCapture it called
+ * but we could still be within an active capture if the action
+ * is being sent from the UI rather than a test script.  Even if it
+ * from a script it seems reasonable to start the save process
+ * and stop the capture at the same time so you don't have to remember
+ * to call StopCapture.  In fact if you don't stop it here, then
+ * we can still be in an active capture when Mobius::getCapture
+ * is eventually called by the event handler which makes the returned
+ * Audio unstable.  So stop it now.
+ */
+void Mobius::saveCapture(Action* action)
+{
+    if (mCapturing) {
+        // someone forgot to call StopCapture first
+        // like stopCapture we have an Action here but
+        // there is no guarantee that the target track will be
+        // the same  it shouldn't matter as long as
+        // Track::getProcessedOutputFrames would be the same
+        // for all tracks, which I think it is but I'm not
+        // certain about what happens during time stretch modes
+        Trace(1, "Warning: saveCapture with active capture, stopping capture\n");
+        stopCapture(action);
+    }
+
+    // action won't be non-null any more, if it ever was
+    const char* file = NULL;
+    if (action != NULL && action->arg.getType() == EX_STRING)
+      file = action->arg.getString();
+
+    KernelEvent* e = newKernelEvent();
+    e->type = EventSaveAudio;
+    // this will copy the name to a static buffer on the event
+    // so no ownership issues of the string
+    e->setArg(0, file);
+
+    if (action != NULL) {
+        // here we save the event we're sending up on the Action
+        // so the script that is calling us can wait on it
+        action->setKernelEvent(e);
+    }
+    
+	sendKernelEvent(e);
+}
+
+/**
+ * Eventually called by KernelEvent to implement the SaveCapture function.
+ * 
+ * We are now in the maintenance thread since mCaptureAudio was not copied
+ * and passed in the event.  There is a subtle ownership window here
+ * that isn't a problem for test scripts but could be if this becomes
+ * a more general feature.
+ *
+ * The maintenance thread expects the Audio object we're returning to
+ * remain stable for as long as it takes to save the file.  This
+ * means that mCapture must be OFF at this point, which it noramlly will
+ * be, but if they're calling SaveCapture from a UI component that isn't
+ * necessarily the case.
+ *
+ * Further, once this method returns, mCaptureAudio should be considered
+ * to be in a "checked out" state and any further modifications should
+ * be prevented until it is "checked in" later when the KernelEvent
+ * sent up by saveCapture is completed.   That happens in
+ * Mobius::kernelEventCompleted which right now just informs the
+ * script that it can stop waiting.
+ *
+ * If you want to make this safer, should set a "pending save"
+ * flag here and clear it in kernelEventCompleted so more capture
+ * can happen.  That does however mean that if a kernel bug fails
+ * to complete the event, we could disable future captures forever
+ * which isn't so bad.
+ *
+ * To avoid expensive copying of a large Audio object, the caller
+ * MUST NOT DELETE the returned object.  It remains owned by Mobius
+ * and should only be used for a short period of time.
+ * 
+ */
+Audio* Mobius::getCapture()
+{
+    Audio* capture = nullptr;
+    
+    if (mCapturing) {
+        // this isn't supposed to be happening now, this should
+        // only be called in response to an EventSaveAudio
+        // KernelEvent and that should have stopped it
+        Trace(1, "Mobius::getCapture called while still capturing!\n");
+    }
+    else if (mCaptureAudio == nullptr) {
+        // nothing to give, shouldn't be asking if unless you
+        // knew it was relevant
+        Trace(1, "Mobius: getCapture called without a saved capture\n");
+    }
+    else {
+        capture = mCaptureAudio;
+
+        // todo: here is where the "checkout" concept could be done
+        // to prevent further modifications to the capture Audio
+        // object while it is out being saved
+
+        // old code had a sleep here, don't remember why that would
+        // have been necessary if the capture was stopped properly
+		//SleepMillis(100);
+	}
+	return capture;
+}
+
+/**
+ * Hander for BounceEvent.
+ * See design/capture-bounce.txt
+ * 
+ * Since all the logic is up here in Mobius, the event handler doesn't
+ * do anything other than provide a mechanism for scheduling the call
+ * at a specific time.
+ *
+ * Currently using the same mechanism as audio recording, the only difference
+ * is that the start/end times may be quantized and how we process the
+ * recording after it has finished.
+ * 
+ */
+void Mobius::toggleBounceRecording(Action* action)
+{
+	if (!mCapturing) {
+		// start one, use the same function that StartCapture uses
+		startCapture(action);
+	}
+	else {
+		// stop and capture it
+		stopCapture(action);
+		Audio* bounce = mCaptureAudio;
+		mCaptureAudio = NULL;
+		mCapturing = false;
+
+		if (bounce == NULL)
+		  Trace(1, "Mobius: No audio after end of bounce recording!\n");
+		else {
+			// Determine the track that supplies the preset parameters
+			// (not actually used right now)
+			Track* source = resolveTrack(action);
+            if (source == NULL)
+              source = mTrack;
+			Preset* p = source->getPreset();
+
+			// TODO: p->getBounceMode() should tell us whether
+			// to simply mute the source tracks or reset them,
+			// for now assume mute
+			
+			// locate the target track for the bounce
+			Track* target = NULL;
+			int targetIndex = 0;
+			for (int i = 0 ; i < mTrackCount ; i++) {
+				Track* t = mTracks[i];
+				// formerly would not select the "source" track
+				// but if it is empty we should use it?
+				//if (t != source && t->isEmpty()) {
+				if (t->isEmpty()) {
+					target = t;
+					targetIndex = i;
+					break;
+				}
+			}
+
+			// determine the number of cycles in the bounce track
+			Track* cycleTrack = source;
+			if (cycleTrack == NULL || cycleTrack->isEmpty()) {
+				for (int i = 0 ; i < mTrackCount ; i++) {
+					Track* t = mTracks[i];
+					// ignore muted tracks?
+					if (!t->isEmpty()) {
+						cycleTrack = t;
+						break;
+					}
+				}
+			}
+
+			int cycles = 1;
+			if (cycleTrack != NULL) {
+				Loop* l = cycleTrack->getLoop();
+				long cycleFrames = l->getCycleFrames();
+				long recordedFrames = bounce->getFrames();
+				if ((recordedFrames % cycleFrames) == 0)
+				  cycles = recordedFrames / cycleFrames;
+			}
+            
+			if (target == NULL) {
+				// all dressed up, nowhere to go
+                // formerly deleted the entire Audio here which
+                // should have returned at least some of it to the AudioPool
+                // now, we just put it back so we can continue to use it for
+                // future captures
+                mCaptureAudio = bounce;
+			}
+			else {
+				// this is raw, have to fade the edge
+				bounce->fadeEdges();
+
+                // this is where the ownership transfers
+                // it makes it's way to Loop::setBouncRecording
+                // which resets itself and builds a single Layer containing
+                // the Audio we're passing
+				target->setBounceRecording(bounce, cycles);
+
+				// all other tracks go dark
+				// technically we should have prepared for this by scheduling
+				// a mute jump in all the tracks at the moment the
+				// BounceFunction was called.  But that's hard, and at
+				// ASIO latencies, it will be hard to notice the latency
+				// adjustment.
+
+				for (int i = 0 ; i < mTrackCount ; i++) {
+					Track* t = mTracks[i];
+					if (t != target)
+					  t->setMuteKludge(NULL, true);
+				}
+
+				// and make it the active track
+				// sigh, the tooling is all set up to do this by index
+				setTrack(targetIndex);
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1452,8 +1807,8 @@ void Mobius::globalReset(Action* action)
 
 		// cancel in progress audio recordings	
 		// or should we leave the last one behind?
-		if (mAudio != NULL)
-		  mAudio->reset();
+		if (mCaptureAudio != NULL)
+		  mCaptureAudio->reset();
 		mCapturing = false;
 
 		// post a thread event to notify the UI
@@ -1589,268 +1944,6 @@ bool Mobius::unitTestSetup(MobiusConfig* config)
     SetCurrentSetup(config, s->ordinal);
 
     return needsSaving;
-}
-
-/****************************************************************************
- *                                                                          *
- *                                  CAPTURE                                 *
- *                                                                          *
- ****************************************************************************/
-
-/**
- * StartCapture global function handler.
- *
- * Also called by the BounceEvent handler to begin a bounce recording.
- * May want to have different Audios for StartCapture and Bounce,
- * but it's simpler to reuse the same mechanism for both.
- *
- * Here we just set the mCapturing flag to enable recording, 
- * appending the samples to mAudio actually happens down in
- * recorderMonitorExit after all the tracks have had a chance to 
- * contribute.  Note though that on the first block we may
- * actually be somewhere in the middle due event scheduling, and the first
- * part of the block is technically not part of the recording.  The test
- * scripts currently use "Wait block" to avoid this, but BouceEvent needs
- * to be more precise.  The block offset for the first block is stored
- * in mCaptureOffset, used once then reset back to zero.
- */
-void Mobius::startCapture(Action* action)
-{
-	if (!mCapturing) {
-		if (mAudio != NULL)
-		  mAudio->reset();
-        else {
-            mAudio = mAudioPool->newAudio();
-            mAudio->setSampleRate(getSampleRate());
-        }
-		mCapturing = true;
-
-		Track* t = resolveTrack(action);
-        if (t == NULL)
-          t = mTrack;
-
-		mCaptureOffset = t->getProcessedOutputFrames();
-	}
-}
-
-/**
- * StopCapture global function handler.
- * 
- * Also now used by the BounceEvent handler when we end a bouce record.
- * 
- * If we're in a script, try to be precise about where we end the
- * recording.  Simply turning the flag off will remove all of the
- * current block from the recording, and a portion of it may
- * actually have been included.
- * 
- * UPDATE: Any reason why we should only do this from a script?
- * Seems like something we should do all the time, especially for bounces.
- */
-void Mobius::stopCapture(Action* action)
-{
-
-	if (mCapturing && mAudio != NULL
-		// && action->trigger == TriggerScript
-		) {
-		float* output = NULL;
-		// TODO: merge the interrupt buffers for all port sets
-		// that are being used by any of the tracks
-		mContainer->getInterruptBuffers(0, NULL, 0, &output);
-		if (output != NULL) {
-			Track* t = resolveTrack(action);
-            if (t == NULL)
-              t = mTrack;
-			mAudio->append(output, t->getProcessedOutputFrames());
-		}
-	}
-
-	mCapturing = false;
-}
-
-/**
- * SaveCapture global function handler.
- *
- * This expects the file to be passed, or maybe just allows it
- * when called from a script.  Pass control to the shell to do the
- * file IO.
- */
-void Mobius::saveCapture(Action* action)
-{
-    // action won't be non-null any more, if it ever was
-    const char* file = NULL;
-    if (action != NULL && action->arg.getType() == EX_STRING)
-      file = action->arg.getString();
-
-    KernelEvent* e = newKernelEvent();
-    e->type = EventSaveAudio;
-    e->setArg(0, file);
-
-    // pass the event back up so the script can wait on it
-    if (action != NULL)
-      action->setKernelEvent(e);
-
-	sendKernelEvent(e);
-}
-
-/**
- * Eventually called by KernelEvent to implement the SaveCapture function.
- * 
- * !! We have a race condition with the interrupt handler.  
- * Tell it to stop recording and pause for at least one interupt.
- *
- * Caller MUST NOT DELETE the returned Audio object.  We keep it around
- * for the next time.  
- */
-Audio* Mobius::getCapture()
-{
-	if (mAudio != NULL) {
-		mCapturing = false;
-		SleepMillis(100);
-	}
-	return mAudio;
-}
-
-/**
- * Hander for BounceEvent.
- *
- * NOTE: Since this relies on the audio recording stuff above have to
- * reconcile the inside/outside interrupt issues.  Think more about this
- * when you redesign bounce.
- *
- * Since all the logic is up here in Mobius, the event handler doesn't
- * do anything other than provide a mechanism for scheduling the call
- * at a specific time.
- *
- * Note that if we are called by the event handler rather than
- * directly by BounceFunction, we won't have a Action so the
- * things we call need to deal with that.
- *
- * Currently using the same mechanism as audio recording, the only difference
- * is that the start/end times may be quantized and how we process the
- * recording after it has finished.
- * 
- * TODO: I was going to support a BounceMode preset parameter that
- * would let you customize the bounce. The default would be to mute all
- * source tracks, another option would be to reset them.  Should we do
- * this we need to decide which of the possible source tracks provides
- * the Preset.  Assume the current track if not changed by the script.
- *
- * Selecting the target track could also be controlled with parameters.
- * Currently we pick the first non-empty track from the left.
- *
- * Try to preserve the cycle length in the bounce target track.  If the
- * length of the bounce track is an even multiple of the cycle length 
- * of the source track(s) preserve the cycle length.
- * 
- * Determining the cycle length of the source tracks is ambiguous because
- * all tracks could have a different cycle length.  Some methods are:
- *
- *  - Let tracks "vote" and the ones with the most common cycle length win.  
- *    Muted tracks should not be allowed to vote.  
- *
- *  - The first unmuted track from the left wins.
- *
- *  - The current track (or script target track) wins, but it may be empty.
- *
- *  - The current track wins if not empty, otherwise first unmuted
- *    track from the left.
- *
- * It feels right to favor the current track if it is not empty.
- * Voting would be nice but complicated, assume for now we can pick
- * the first one from the left.
- */
-void Mobius::toggleBounceRecording(Action* action)
-{
-	if (!mCapturing) {
-		// start one, use the same function that StartCapture uses
-		startCapture(action);
-	}
-	else {
-		// stop and capture it
-		stopCapture(action);
-		Audio* bounce = mAudio;
-		mAudio = NULL;
-		mCapturing = false;
-
-		if (bounce == NULL)
-		  Trace(1, "Mobius: No audio after end of bounce recording!\n");
-		else {
-			// Determine the track that supplies the preset parameters
-			// (not actually used right now)
-			Track* source = resolveTrack(action);
-            if (source == NULL)
-              source = mTrack;
-			Preset* p = source->getPreset();
-
-			// TODO: p->getBounceMode() should tell us whether
-			// to simply mute the source tracks or reset them,
-			// for now assume mute
-			
-			// locate the target track for the bounce
-			Track* target = NULL;
-			int targetIndex = 0;
-			for (int i = 0 ; i < mTrackCount ; i++) {
-				Track* t = mTracks[i];
-				// formerly would not select the "source" track
-				// but if it is empty we should use it?
-				//if (t != source && t->isEmpty()) {
-				if (t->isEmpty()) {
-					target = t;
-					targetIndex = i;
-					break;
-				}
-			}
-
-			// determine the number of cycles in the bounce track
-			Track* cycleTrack = source;
-			if (cycleTrack == NULL || cycleTrack->isEmpty()) {
-				for (int i = 0 ; i < mTrackCount ; i++) {
-					Track* t = mTracks[i];
-					// ignore muted tracks?
-					if (!t->isEmpty()) {
-						cycleTrack = t;
-						break;
-					}
-				}
-			}
-
-			int cycles = 1;
-			if (cycleTrack != NULL) {
-				Loop* l = cycleTrack->getLoop();
-				long cycleFrames = l->getCycleFrames();
-				long recordedFrames = bounce->getFrames();
-				if ((recordedFrames % cycleFrames) == 0)
-				  cycles = recordedFrames / cycleFrames;
-			}
-
-			if (target == NULL) {
-				// all dressed up, nowhere to go
-				delete bounce;
-			}
-			else {
-				// this is raw, have to fade the edge
-				bounce->fadeEdges();
-				target->setBounceRecording(bounce, cycles);
-
-				// all other tracks go dark
-				// technically we should have prepared for this by scheduling
-				// a mute jump in all the tracks at the moment the
-				// BounceFunction was called.  But that's hard, and at
-				// ASIO latencies, it will be hard to notice the latency
-				// adjustment.
-
-				for (int i = 0 ; i < mTrackCount ; i++) {
-					Track* t = mTracks[i];
-					if (t != target)
-					  t->setMuteKludge(NULL, true);
-				}
-
-				// and make it the active track
-				// sigh, the tooling is all set up to do this by index
-				setTrack(targetIndex);
-			}
-		}
-	}
 }
 
 /****************************************************************************/

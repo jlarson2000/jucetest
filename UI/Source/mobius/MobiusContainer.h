@@ -38,6 +38,9 @@
 
 #pragma once
 
+// for juce::File
+#include <JuceHeader.h>
+
 class MobiusContainer
 {
   public:
@@ -112,6 +115,8 @@ class MobiusContainer
 	virtual void getInterruptBuffers(int inport, float** input, 
                                      int outport, float** output) = 0;
 
+    virtual juce::File getRoot() = 0;
+    
 };
 
 /**
