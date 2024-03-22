@@ -35,6 +35,7 @@ class KernelEventHandler
     void doEcho(class KernelEvent* e);
     void doTimeBoundary(class KernelEvent* e);
     void doUnitTestSetup(class KernelEvent* e);
+    void doAlert(class KernelEvent* e);
 
     juce::File getSaveFile(const char* name, const char* defaultName, const char* extension);
     void writeFile(class Audio* a, juce::File file);

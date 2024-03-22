@@ -66,6 +66,8 @@ typedef enum {
     // it could just be a KernelMessage type?
     EventTimeBoundary,
 
+    EventAlert,
+
     // new for unit tests
     EventUnitTestSetup
 

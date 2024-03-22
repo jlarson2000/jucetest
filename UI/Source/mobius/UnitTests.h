@@ -38,8 +38,8 @@ class UnitTests
     
   private:
 
-    void setup();
-    bool unitTestSetup(class MobiusConfig* config);
+    void installPresetAndSetup(class MobiusConfig* config);
+    void loadConfigOverlay(MobiusConfig* main);
 
     juce::File getTestRoot();
     juce::File getOutputFile(const char* name);

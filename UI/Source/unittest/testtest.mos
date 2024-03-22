@@ -1,6 +1,8 @@
 !name Test Tests
 !button
 
+Alert "Running test!"
+
 # use the necessary bits for running an actual test
 
 #this does a GlobalReset, installs the Setup and Preset,

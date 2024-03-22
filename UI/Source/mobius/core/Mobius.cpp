@@ -1418,6 +1418,13 @@ MobiusContainer* Mobius::getContainer()
     return mContainer;
 }
 
+// used only by SampleFunction to pass a sample trigger
+// up from a script to the kernel
+MobiusKernel* Mobius::getKernel()
+{
+    return mKernel;
+}
+
 // used by Midi, MidiExporter
 MidiInterface* Mobius::getMidiInterface()
 {

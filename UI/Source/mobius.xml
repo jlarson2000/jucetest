@@ -128,6 +128,7 @@
     <ScripRef file='C:\dev\jucetest\UI\Source\unittest\echo.mos'/>
     <ScripRef file='C:\dev\jucetest\UI\Source\unittest\calltest.mos'/>
     <ScripRef file='C:\dev\jucetest\UI\Source\unittest\exprtest.mos'/>
+    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\testtest.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>

@@ -1,0 +1,13 @@
+<!-- Sparse MobiusConfig containing overrides for unit testing -->
+<MobiusConfig
+    inputLatency="256"
+    outputLatenc="256">
+  <SampleConfig>
+    <Sample path='samples/base.wav'/>
+    <Sample path='samples/medium.wav'/>
+    <Sample path='samples/medium2.wav'/>
+    <Sample path='samples/short1.wav'/>
+    <Sample path='samples/short2.wav'/>
+    <Sample path='samples/long.wav'/>
+  </SampleConfig>
+</MobiusConfig>

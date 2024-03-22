@@ -3,9 +3,20 @@
  * Only used internally by test scripts, in the new world
  * SampleTrigger is haneled by the kernel above the core.
  *
- * This is equivalent to the UI FunctionDefinition SamplePlay
- * but only used internally and we don't map them.
- * 
+ * When scripts see a statement keyword that does not resolve to an
+ * internal script object, it expects it to be the name of a Function.
+ *
+ * This special case is necessary because SamplePlay is now a Kernel level
+ * UIAction and never makes it down to the core.  So normally the core doesn't
+ * need to be aware of samples EXCEPT for scripts which expect to be able to
+ * anything.
+ *
+ * This is kind of messy and if we start having more of these need to oome up
+ * with a more general way for core to send actions UP to kernel rather than
+ * the other way around.  For now, the Function object is there so the
+ * script has something to resolve to, but we can't get here through a normal Action
+ * or Event, it is only invoked from scripts.
+ *
  */
 
 #include "../../MobiusKernel.h"
@@ -14,16 +25,16 @@
 #include "../Action.h"
 #include "../Mobius.h"
 
-class SampleTriggerFunction {
+class SampleFunction : public Function {
   public:
-	SampleFunction(int index);
+	SampleFunction();
 	void invoke(Action* action, Mobius* m);
 };
 
-SampleTriggerFunction SampleTriggerObj;
-Function* SampleTrigger = &SampleTriggerObj;
+SampleFunction CoreSamplePlayObj;
+Function* CoreSamplePlay = &CoreSamplePlayObj;
 
-PUBLIC SampleTriggerFunction::SampleTriggerFunction()
+SampleFunction::SampleFunction()
 {
 	global = true;
 	noFocusLock = true;
@@ -32,7 +43,7 @@ PUBLIC SampleTriggerFunction::SampleTriggerFunction()
     scriptOnly = true;
 }
 
-void SampleTriggerFunction::invoke(Action* action, Mobius* m)
+void SampleFunction::invoke(Action* action, Mobius* m)
 {
 	if (action->down) {
 		trace(action, m);
@@ -44,7 +55,7 @@ void SampleTriggerFunction::invoke(Action* action, Mobius* m)
 
         if (sampleIndex >= 0) {
             MobiusKernel* k = m->getKernel();
-            k->sampleTrigger(sampleIndex);
+            k->coreSampleTrigger(sampleIndex);
         }
     }
 }

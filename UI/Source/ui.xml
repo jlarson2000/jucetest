@@ -8,6 +8,7 @@
     <Location name='ParametersElement' x='771' y='21' disabled='0'/>
     <Location name='AudioMeterElement' x='343' y='347' disabled='0'/>
     <Location name='LayerElement' x='662' y='354' disabled='0'/>
+    <Location name='AlertElement' x='765' y='422' disabled='0'/>
   </Locations>
   <InstantParameters>
     <String>preset</String>

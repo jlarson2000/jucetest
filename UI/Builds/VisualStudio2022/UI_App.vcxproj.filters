@@ -706,6 +706,9 @@
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\display\AlertElement.cpp">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ui\display\AudioMeterElement.cpp">
       <Filter>UI\Source\ui\display</Filter>
     </ClCompile>
@@ -814,6 +817,9 @@
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp">
       <Filter>UI\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Alert.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\Bounce.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
@@ -890,6 +896,9 @@
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\RunScript.cpp">
+      <Filter>UI\Source\mobius\core\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Sample.cpp">
       <Filter>UI\Source\mobius\core\functions</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\mobius\core\functions\Save.cpp">
@@ -3745,6 +3754,9 @@
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h">
+      <Filter>UI\Source\ui\display</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\display\AlertElement.h">
       <Filter>UI\Source\ui\display</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\display\AudioMeterElement.h">

@@ -1,3 +1,82 @@
+Really not liking mobius-redirect to locate things for unit tests.
+That's fine for debugging where you need to redirect the executable location
+back to the source tree, but not just to get mobius.xml since that drags everything
+else along with it.  What we fundamentally need is:
+
+   UnitTestRoot
+     the absolute file path to a folder containng the captured audio files,
+     sample files and scripts that run the unit test
+
+     this is normally in a different Git repo than the main source tree
+
+This is also where transient runtime results will be kept.
+
+Don't want to use MobiusRoot redirects for this since there can be other
+things in MobiusRoot besides mobius.xml that we don't want to duplicate
+since the entire Root shifts.
+
+Within MobiusRoot, there can be a file that says where the UnitTestRoot is
+formerly had that in MobiusConfig but that makes it kind of hidden and we don't
+need that to be an editable parameter.
+
+Can put this in RootLocator or UnitTests.
+
+For testing, can maingain test scripst under the Root source tree, but this
+is not required.  Tests can't load themselves from files, there must still be
+a ScriptConfig that causes them to be loaded.
+
+UnitTestSetup is able to slam in a custom ScriptConfig, it could add a ScriptConfig too.
+
+what could be interesting is a sparse MobiusConfig that is merged on top of the
+main MobiusConfig only when the unit tests are activated.
+
+Liking that, it makes maintenance easier than hard coding.
+
+Mobius starts up with a mobius.xml normally.  UnitTestSetup locates UnitTestRoot and
+parses the mobius.xml file in it.  It then selectively overwrite parts of the memory
+MobiusConfig with what came from the overlay file.  This exists only in memory and will
+be lost if you edit the config in the UI.
+
+Still a weird bootstrappign problem.  UnitTestSetup can only be called from scripts
+right now, there is no bindable function.  So to get that called you must configure
+a single script that calls it, then the others can be installed.
+
+This would be cleaner if UnitTestSetup were an actual UIFunction.
+
+Or it could be a Menu item, it doesn't have to be a button.
+Or an intrinsic.
+
+However we get this loaded the SampleConfig and ScriptConfig must be
+allowed to have relative path names that get expanded at runtime.
+
+<SampleConfig>
+  <Sample path="samples/gcloop"/>
+
+How is the root specified
+
+<SampleConfig root='UnitTestRoot'>
+
+<Sample path="$UnitTestRoot/samples/gcloop"/>
+
+Like having this on a per sample basis.  Without a prefix:
+
+<Sample path="samples/gcloop"/>
+
+file is relative to the main Root.
+
+$Root/samples/gcloop is the same as samples/gcloop
+
+This awareness will need to be baked into SampleReader
+
+Same applies for ScriptRef
+
+
+
+
+
+
+
+----------------------------------------------------------------------
 
 Mobius has some old support for unit tests
 

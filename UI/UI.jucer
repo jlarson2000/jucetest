@@ -87,6 +87,9 @@
           <FILE id="fDm6Vs" name="ActionButtons.cpp" compile="1" resource="0"
                 file="Source/ui/display/ActionButtons.cpp"/>
           <FILE id="JEpK4O" name="ActionButtons.h" compile="0" resource="0" file="Source/ui/display/ActionButtons.h"/>
+          <FILE id="XEu9CG" name="AlertElement.cpp" compile="1" resource="0"
+                file="Source/ui/display/AlertElement.cpp"/>
+          <FILE id="Cjhodf" name="AlertElement.h" compile="0" resource="0" file="Source/ui/display/AlertElement.h"/>
           <FILE id="sCNRwz" name="AudioMeterElement.cpp" compile="1" resource="0"
                 file="Source/ui/display/AudioMeterElement.cpp"/>
           <FILE id="FpvABV" name="AudioMeterElement.h" compile="0" resource="0"
@@ -190,6 +193,7 @@
       <GROUP id="{4F6A3072-2740-FD34-203C-0D9000D493F6}" name="mobius">
         <GROUP id="{8E4BAFF4-3AEF-CED4-3179-55768C778B1C}" name="core">
           <GROUP id="{7F4264E6-7D7C-D713-8A19-178DDC4B82F9}" name="functions">
+            <FILE id="e38cai" name="Alert.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Alert.cpp"/>
             <FILE id="bJwqIY" name="Bounce.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Bounce.cpp"/>
             <FILE id="LY3sKE" name="Capture.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Capture.cpp"/>
             <FILE id="NvOinP" name="Checkpoint.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Checkpoint.cpp"/>
@@ -219,6 +223,7 @@
             <FILE id="E6iHan" name="Reset.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reset.cpp"/>
             <FILE id="fmL5aI" name="Reverse.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Reverse.cpp"/>
             <FILE id="EKTDgU" name="RunScript.cpp" compile="1" resource="0" file="Source/mobius/core/functions/RunScript.cpp"/>
+            <FILE id="Zedliz" name="Sample.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Sample.cpp"/>
             <FILE id="yL28ee" name="Save.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Save.cpp"/>
             <FILE id="dshLuO" name="Shuffle.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Shuffle.cpp"/>
             <FILE id="KPWyA3" name="Slip.cpp" compile="1" resource="0" file="Source/mobius/core/functions/Slip.cpp"/>

@@ -28,6 +28,7 @@
 class MobiusKernel : public MobiusContainer::AudioListener
 {
     friend class UnitTests;
+    friend class SampleFunction;
     
   public:
 
@@ -93,9 +94,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // return the old one to the shell
     void returnScriptarian(class Scriptarian* old);
 
-    // only internal SampleTrigger function
-    void sampleTrigger(int index);
-    
   protected:
     
     // hacky shit for unit test setup
@@ -106,6 +104,9 @@ class MobiusKernel : public MobiusContainer::AudioListener
     void setSampleManager(class SampleManager* sm) {
         samples = sm;
     }
+
+    // Sample function handler for the core
+    void coreSampleTrigger(int index);
 
   private:
 

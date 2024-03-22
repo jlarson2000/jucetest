@@ -1436,6 +1436,11 @@ void Function::initStaticFunctions()
 
         add(StaticFunctions, ReloadScripts);
 
+        // special function so scrpts can trigger samples
+        // up in MobiusKernel
+        add(StaticFunctions, CoreSamplePlay);
+        add(StaticFunctions, Alert);
+
         // 
         // Special list of hidden debugging function callable from scripts.
         //

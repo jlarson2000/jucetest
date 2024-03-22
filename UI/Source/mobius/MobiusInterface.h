@@ -15,6 +15,10 @@
 
 #pragma once
 
+// using juce::String for MobiusAlert
+#include <JuceHeader.h>
+
+
 /**
  * Normally used by the UI to receive notifications when something
  * happens within the engine that is interesting for the display.
@@ -45,6 +49,11 @@ class MobiusListener {
      * More thought...
      */
     virtual void MobiusDynamicConfigChanged() = 0;
+
+    /**
+     * The engine has something important to say
+     */
+    virtual void MobiusAlert(juce::String msg) = 0;
     
 };
 

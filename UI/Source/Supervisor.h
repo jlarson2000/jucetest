@@ -47,6 +47,14 @@ class Supervisor : public MobiusListener
     };
 
     /**
+     * For display components that want to receive alerts.
+     */
+    class AlertListener {
+      public:
+        virtual void alertReceived(juce::String msg) = 0;
+    };
+    
+    /**
      * Constructed by MainComponent
      * Unclear how much we need to know about this.  Will find out
      * if we need the full AudioAppComponent interface here.
@@ -92,6 +100,9 @@ class Supervisor : public MobiusListener
     void addDynamicConfigListener(DynamicConfigListener* l);
     void removeDynamicConfigListener(DynamicConfigListener* l);
 
+    void addAlertListener(AlertListener* l);
+    void removeAlertListener(AlertListener* l);
+
     // only to be called by MainThread
     void advance();
     
@@ -103,7 +114,8 @@ class Supervisor : public MobiusListener
     // MobiusListener
 	void MobiusTimeBoundary();
     void MobiusDynamicConfigChanged();
-
+    void MobiusAlert(juce::String msg);
+    
     // audio thread callbacks
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill);
@@ -136,6 +148,7 @@ class Supervisor : public MobiusListener
 
     juce::Array<ActionListener*> actionListeners;
     juce::Array<DynamicConfigListener*> dynamicConfigListeners;
+    juce::Array<AlertListener*> alertListeners;
 
     // master copies of the configuration files
     std::unique_ptr<class MobiusConfig> mobiusConfig;
@@ -170,5 +183,6 @@ class Supervisor : public MobiusListener
     void writeUIConfig(class UIConfig* config);
     
     void notifyDynamicConfigListeners();
+    void notifyAlertListeners(juce::String msg);
     
 };

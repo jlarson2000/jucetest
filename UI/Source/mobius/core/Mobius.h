@@ -146,6 +146,12 @@ class Mobius
     class MobiusContainer* getContainer();
 
     /**
+     * Used by a small number of internal function handlers that forward
+     * things back up to the kernel.
+     */
+    class MobiusKernel* getKernel();
+
+    /**
      * Return the shared MobiusConfig for use by internal components.
      *
      * This is shared with Kernel and should have limited modifications.

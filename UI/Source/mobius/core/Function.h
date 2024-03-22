@@ -458,6 +458,12 @@ extern Function* WindowEndForward;
 extern Function* WindowMove;
 extern Function* WindowResize;
 
+// hacky function so scripts can trigger samples
+// implemented in Kernel
+extern Function* CoreSamplePlay;
+extern Function* Alert;
+
+
 extern Function* StaticFunctions[];
 extern Function* HiddenFunctions[];
 

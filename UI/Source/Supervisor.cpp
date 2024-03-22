@@ -494,6 +494,40 @@ void Supervisor::updateUIConfig()
 
 //////////////////////////////////////////////////////////////////////
 //
+// Alerts
+//
+//////////////////////////////////////////////////////////////////////
+
+void Supervisor::addAlertListener(AlertListener* l)
+{
+    if (!alertListeners.contains(l))
+      alertListeners.add(l);
+}
+
+void Supervisor::removeAlertListener(AlertListener* l)
+{
+    alertListeners.removeFirstMatchingValue(l);
+}
+
+void Supervisor::notifyAlertListeners(juce::String msg)
+{
+    for (int i = 0 ; i < alertListeners.size() ; i++) {
+        AlertListener* l = alertListeners[i];
+        l->alertReceived(msg);
+    }
+}
+
+/**
+ * MobiusListener method to receive an alert from the engine.
+ * We pass it along to our listeners.
+ */
+void Supervisor::MobiusAlert(juce::String msg)
+{
+    notifyAlertListeners(msg);
+}
+
+//////////////////////////////////////////////////////////////////////
+//
 // DynamicConfig
 //
 //////////////////////////////////////////////////////////////////////

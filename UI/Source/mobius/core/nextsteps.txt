@@ -1,12 +1,10 @@
 UnitTests
-  make sure globalReset can be called from UnitTestSetupStatement without canceling the script
-  the SampleN functions are gone, but we need them from scripts
-    this is another case where resolution to something other than a Function would be nice
-    put back SampleTrigger temporarily
-    scripts want Sample1, etc.
-  have UnitTests::setup build a SampleConfig with the right paths, don't rely on mobius.xml
-  
+  Laptop audio device comes up with a 48k sample rate, can that be influenced?
+  If the MobiusContainer sample rate doesn't match what is stored in the .wav
+  file should warn.
 
+  don't bother resolving SampleConfig if we're not going to load it?
+  probably still need to though to do diff checking
 
 
 Audio file writer that tries to go in blocks instead of one sample at a time

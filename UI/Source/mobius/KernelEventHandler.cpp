@@ -70,6 +70,9 @@ void KernelEventHandler::doEvent(KernelEvent* e)
             case EventTimeBoundary:
                 doTimeBoundary(e); break;
                 
+            case EventAlert:
+                doAlert(e); break;
+
             case EventUnitTestSetup:
                 doUnitTestSetup(e); break;
                 
@@ -114,6 +117,15 @@ void KernelEventHandler::doSaveCapture(KernelEvent* e)
     }
     
     AudioFile::write(file, capture);
+}
+
+void KernelEventHandler::doAlert(KernelEvent* e)
+{
+    MobiusListener* l = shell->getListener();
+    if (l != nullptr) {
+        juce::String alert (e->arg1);
+        l->MobiusAlert(alert);
+    }
 }
 
 /**

@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\Source\ui\config\SetupPanel.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButton.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\ActionButtons.cpp"/>
+    <ClCompile Include="..\..\Source\ui\display\AlertElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\AudioMeterElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\BeatersElement.cpp"/>
     <ClCompile Include="..\..\Source\ui\display\CounterElement.cpp"/>
@@ -207,6 +208,7 @@
     <ClCompile Include="..\..\Source\ui\TableTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TabTest.cpp"/>
     <ClCompile Include="..\..\Source\ui\TestPanel.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Alert.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Bounce.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Capture.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Checkpoint.cpp"/>
@@ -233,6 +235,7 @@
     <ClCompile Include="..\..\Source\mobius\core\functions\Reset.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Reverse.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\RunScript.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\core\functions\Sample.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Save.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Shuffle.cpp"/>
     <ClCompile Include="..\..\Source\mobius\core\functions\Slip.cpp"/>
@@ -2638,6 +2641,7 @@
     <ClInclude Include="..\..\Source\ui\config\SetupPanel.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButton.h"/>
     <ClInclude Include="..\..\Source\ui\display\ActionButtons.h"/>
+    <ClInclude Include="..\..\Source\ui\display\AlertElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\AudioMeterElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\BeatersElement.h"/>
     <ClInclude Include="..\..\Source\ui\display\Colors.h"/>

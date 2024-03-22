@@ -66,6 +66,12 @@ class MobiusShell : public MobiusInterface
         return configuration;
     }
 
+    // for internal components like KernelEventHandler
+    // that want to notify the listener
+    MobiusListener* getListener() {
+        return listener;
+    }
+
   protected:
     
     // accessors for the Kernel only

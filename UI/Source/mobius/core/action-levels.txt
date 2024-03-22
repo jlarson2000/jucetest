@@ -1,0 +1,36 @@
+
+The thinking about UIActions being handled at several levels and
+not needed in core doesn't work for the ones that need to be called
+from scripts.
+
+The UI/Mobius boundary is fine, Mobius uses MobiusListener to push things
+up, but we don't have a core->kernel->shell path.
+
+The only one handled above core right now is SamplePlay, Shell passes
+it to Kernel through the communicator like any other action.
+
+Kernel intercepts it and handles it without passing down to core.
+
+Thought: UIActions sent from core to kernel.
+
+Since Kernel responds to UIAction and not Actoin which is core-specific
+core can use the same model to pass actions UP to the Kernel.  The execution
+environment is different though because UIActions are expected to sent back
+to the shell for reclaation.  When done from core they would be statically
+allocated and not returned to shell.
+
+Alternately, since we won't have many of these, just have MobiusKernel implement
+proected methods that can be called directly.  That's similar to how Mobius implements
+global functions.
+
+THe annoying thing is that we need a core Function object for every kernel action
+we want to use.
+
+With some work this could be generalized so that scripts first resolve to core Functions.
+If they can't find one they look in the UIFunction list and if found create a UIAction
+and pass it up to Kernel.  Extensible but a lot of work for only one special case.
+
+Keep it simple and wait on this.
+
+To make it marginally easier can have a KernelFunction class with mulitple
+objects with names that match UIFunction names

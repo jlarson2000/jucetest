@@ -100,6 +100,8 @@
 #include "../model/MobiusConfig.h"
 #include "../model/Preset.h"
 #include "../model/Setup.h"
+#include "../model/SampleConfig.h"
+#include "../model/XmlRenderer.h"
 
 #include "Audio.h"
 #include "AudioFile.h"
@@ -192,15 +194,17 @@ void UnitTests::setup(KernelEvent* e)
 
     // now we need to dive down and fuck with the core's MobiusConfig
     MobiusKernel* kernel = shell->getKernel();
-    MobiusConfig* config = kernel->getMobiusConfig();
+    MobiusConfig* kernelConfig = kernel->getMobiusConfig();
     
     // formerly wrote the modified config back to the file system,
     // I don't think that was necessary
-    unitTestSetup(config);
+    installPresetAndSetup(kernelConfig);
+
+    loadConfigOverlay(kernelConfig);
     
     // now set and propagate the setup and preset
     // note that all loops have to be reset for the preset to be refreshed
-    Setup* setup = GetSetup(config, UNIT_TEST_SETUP_NAME);
+    Setup* setup = GetSetup(kernelConfig, UNIT_TEST_SETUP_NAME);
 
     // this one however activates it so we have to go down to core
     // really want to get rid of this shit
@@ -208,23 +212,19 @@ void UnitTests::setup(KernelEvent* e)
     mobius->setSetupInternal(setup);
 
     // install the unit test samples if they aren't already there
-    // currently assumes the samples are in MobiusConfig, just not loaded
-    // which requires mobius-redirect
-    // better to generate one in memory with what we want so we
-    // don't have to depend on redirect
-
     SampleManager* samples = kernel->getSampleManager();
     if (samples != nullptr) {
-        // we've already loaded them, could diff them against what
-        // we expect
+        // we've already loaded them
+        // !! should diff these and replace them if they differ
     }
     else {
         // load the sample files
-        // the UI does this if initiated by the user, since we need to
-        // be able to do this down here, might as well load all sample
-        // loading down and all the UI has to do is call installSamples()
-        // with no args
-        SampleConfig* srcConfig = config->getSampleConfig();
+        // The UI layer builds a "loaded" SampleConfig and passes it to
+        // MobiusShell if sample loading is iniated by the UI.
+        // Since we have to be able to build the SampleManager down here
+        // too, might as well do all sample loading in the shell so the UI
+        // doesn't have to bother with SampleReader.
+        SampleConfig* srcConfig = kernelConfig->getSampleConfig();
 
         // take the simple config and load the data
         // interface is weird here
@@ -244,6 +244,8 @@ void UnitTests::setup(KernelEvent* e)
         // fast and loose and assume kernel was left in GlobalReset
         kernel->setSampleManager(manager);
     }
+
+    // similar thing could be done for ScriptConfig too
 }
 
 /**
@@ -252,10 +254,8 @@ void UnitTests::setup(KernelEvent* e)
  * the interrupt config to make sure they're both in sync without
  * having to worry about cloning and adding to the history list.
  */
-bool UnitTests::unitTestSetup(MobiusConfig* config)
+void UnitTests::installPresetAndSetup(MobiusConfig* config)
 {
-    bool needsSaving = false;
-
     // boostrap a preset
     Preset* p = GetPreset(config, UNIT_TEST_PRESET_NAME);
     if (p != NULL) {
@@ -265,8 +265,9 @@ bool UnitTests::unitTestSetup(MobiusConfig* config)
         p = new Preset();
         p->setName(UNIT_TEST_PRESET_NAME);
         config->addPreset(p);
-        needsSaving = true;
     }
+
+    // and make it the default
     // just an ordinal now
     // this no longer exists, need to refine a permanent MobiusConfig
     // notion of what this means
@@ -283,13 +284,70 @@ bool UnitTests::unitTestSetup(MobiusConfig* config)
         s->setName(UNIT_TEST_SETUP_NAME);
         s->reset(p);
         config->addSetup(s);
-        needsSaving = true;
     }
     SetCurrentSetup(config, s->ordinal);
-
-    return needsSaving;
 }
 
+/**
+ * Look for a mobius-overlay.xml and merge it into the main MobiusConfig.
+ */
+void UnitTests::loadConfigOverlay(MobiusConfig* config)
+{
+    juce::File root = getTestRoot();
+    juce::File file = root.getChildFile("mobius-overlay.xml");
+    if (file.existsAsFile()) {
+        juce::String xml = file.loadFileAsString();
+        XmlRenderer xr;
+        MobiusConfig* overlay = xr.parseMobiusConfig(xml.toUTF8());
+
+        // install samples
+        SampleConfig* samples = overlay->getSampleConfig();
+        if (samples != nullptr) {
+            Sample* sample = samples->getSamples();
+            Sample* resolved = nullptr;
+            Sample* last = nullptr;
+            while (sample != nullptr) {
+                const char* path = sample->getFilename();
+                // these are expected to be relative to UnitTestRoot
+                // could be smarter about absolute paths or $ references
+                // but don't really need that yet
+                file = root.getChildFile(path);
+                if (!file.existsAsFile()) {
+                    Trace(1, "Unable to resolve sample file %s\n",
+                          file.getFullPathName().toUTF8());
+                }
+                else {
+                    Sample* neu = new Sample(file.getFullPathName().toUTF8());
+                    if (resolved == nullptr)
+                      resolved = neu;
+                    else
+                      last->setNext(neu);
+                    last = neu;
+                }
+                sample = sample->getNext();
+            }
+
+            // can't modify what is inside overlay as that will be deleted
+            SampleConfig* newSamples = new SampleConfig();
+            newSamples->setSamples(resolved);
+
+            // since order is critical for trigger indexes, don't try to merge
+            // these, it completely replaces it
+            config->setSampleConfig(newSamples);
+        }
+
+        // install scripts?
+        // if we do this, a merge might be better than an overwrite
+
+        // selected parameters, could iterate over the UIParameter::Instances
+        // list to get any of them
+        config->setInputLatency(overlay->getInputLatency());
+        config->setOutputLatency(overlay->getOutputLatency());
+
+        delete overlay;
+    }
+}
+        
 //////////////////////////////////////////////////////////////////////
 //
 // Files
