@@ -7,7 +7,7 @@ AudioDeviceSetup
   useDefaultOutputChannels: true
 Reading configuration file c:\dev\jucetest\UI\Source\unittest\mobius.xml
 Mobius::Mobius
-ERROR: Allocated Action size 616 000002C635204740
+ERROR: Allocated Action size 616 000001EF9A926F40
 ERROR: Actionator::initFunctionMap Function DebugStatus not found
 ERROR: Actionator::initFunctionMap Function Divide4 not found
 ERROR: Actionator::initFunctionMap Function Ignore not found
@@ -17,257 +17,265 @@ ERROR: Actionator::initFunctionMap Function SUSRehearse not found
 ERROR: Actionator::initFunctionMap Function SelectTrack not found
 ERROR: Actionator::initFunctionMap Function UIRedraw not found
 ERROR: Actionator::initParameterMap Parameter activeTrack not found
-ERROR: Allocated Actionator size 56 000002C6351F81E0
-ERROR: Allocated Scriptarian size 40 000002C63519FD50
-ERROR: Allocated EventList size 8 000002C6352A2500
-ERROR: Allocated Preset size 2776 000002C63527BC10
-ERROR: Allocated SyncState size 72 000002C6351C2460
-ERROR: Allocated Preset size 2776 000002C63527C730
-ERROR: Allocated Event size 272 000002C6351C0D30
-ERROR: Allocated EventManager size 40 000002C63519FB90
-ERROR: Allocated InputStream size 200 000002C6351EE160
-ERROR: Allocated OutputStream size 264 000002C6351C0A90
-ERROR: Allocated UserVariables size 8 000002C6352A1970
-ERROR: Allocated Preset size 2776 000002C6351CF020
-ERROR: Allocated Loop size 624 000002C635193980
-ERROR: Allocated Loop size 624 000002C63527E770
-ERROR: Allocated Loop size 624 000002C63527EA20
-ERROR: Allocated Loop size 624 000002C63527ECD0
-ERROR: Allocated Loop size 624 000002C63527D250
-ERROR: Allocated Loop size 624 000002C6323C63F0
-ERROR: Allocated Loop size 624 000002C6323C7160
-ERROR: Allocated Loop size 624 000002C6323C66A0
-ERROR: Allocated Loop size 624 000002C6323C7410
-ERROR: Allocated Loop size 624 000002C6323C7970
-ERROR: Allocated Loop size 624 000002C6323C6950
-ERROR: Allocated Loop size 624 000002C6323C6C00
-ERROR: Allocated Loop size 624 000002C6323C5E90
-ERROR: Allocated Loop size 624 000002C6323C6EB0
-ERROR: Allocated Loop size 624 000002C6323C76C0
-ERROR: Allocated Loop size 624 000002C6323C6140
-ERROR: Allocated SyncState size 72 000002C6351C2340
-ERROR: Allocated Preset size 2776 000002C6351CFB40
-ERROR: Allocated Event size 272 000002C6351C0BE0
-ERROR: Allocated EventManager size 40 000002C63519FC00
-ERROR: Allocated InputStream size 200 000002C6351EE5A0
-ERROR: Allocated OutputStream size 264 000002C6351C0940
-ERROR: Allocated UserVariables size 8 000002C6352A3400
-ERROR: Allocated Preset size 2776 000002C6355A1140
-ERROR: Allocated Loop size 624 000002C63543DEC0
-ERROR: Allocated Loop size 624 000002C63543DC10
-ERROR: Allocated Loop size 624 000002C63543E170
-ERROR: Allocated Loop size 624 000002C63543E6D0
-ERROR: Allocated Loop size 624 000002C63543E980
-ERROR: Allocated Loop size 624 000002C63543EC30
-ERROR: Allocated Loop size 624 000002C63543E420
-ERROR: Allocated Loop size 624 000002C63543EEE0
-ERROR: Allocated Loop size 624 000002C63543D400
-ERROR: Allocated Loop size 624 000002C63543D6B0
-ERROR: Allocated Loop size 624 000002C63543D960
-ERROR: Allocated Loop size 624 000002C6354656A0
-ERROR: Allocated Loop size 624 000002C635464680
-ERROR: Allocated Loop size 624 000002C635465950
-ERROR: Allocated Loop size 624 000002C635464930
-ERROR: Allocated Loop size 624 000002C635465C00
-ERROR: Allocated SyncState size 72 000002C6351C2730
-ERROR: Allocated Preset size 2776 000002C6355A1C60
-ERROR: Allocated Event size 272 000002C6351C0010
-ERROR: Allocated EventManager size 40 000002C63519FC70
-ERROR: Allocated InputStream size 200 000002C6351EE6B0
-ERROR: Allocated OutputStream size 264 000002C6351C07F0
-ERROR: Allocated UserVariables size 8 000002C6352A3770
-ERROR: Allocated Preset size 2776 000002C6356A3810
-ERROR: Allocated Loop size 624 000002C635464BE0
-ERROR: Allocated Loop size 624 000002C635464E90
-ERROR: Allocated Loop size 624 000002C635465EB0
-ERROR: Allocated Loop size 624 000002C635465140
-ERROR: Allocated Loop size 624 000002C635466160
-ERROR: Allocated Loop size 624 000002C6354653F0
-ERROR: Allocated Loop size 624 000002C635467C10
-ERROR: Allocated Loop size 624 000002C635466EA0
-ERROR: Allocated Loop size 624 000002C635467960
-ERROR: Allocated Loop size 624 000002C635467EC0
-ERROR: Allocated Loop size 624 000002C635468170
-ERROR: Allocated Loop size 624 000002C635466690
-ERROR: Allocated Loop size 624 000002C635466940
-ERROR: Allocated Loop size 624 000002C635466BF0
-ERROR: Allocated Loop size 624 000002C6354676B0
-ERROR: Allocated Loop size 624 000002C635467150
-ERROR: Allocated SyncState size 72 000002C6351C19B0
-ERROR: Allocated Preset size 2776 000002C6356A4330
-ERROR: Allocated Event size 272 000002C6351C0160
-ERROR: Allocated EventManager size 40 000002C63519FF80
-ERROR: Allocated InputStream size 200 000002C6351EB190
-ERROR: Allocated OutputStream size 264 000002C6351C02B0
-ERROR: Allocated UserVariables size 8 000002C6352A2C80
-ERROR: Allocated Preset size 2776 000002C6357BF020
-ERROR: Allocated Loop size 624 000002C635467400
-ERROR: Allocated Loop size 624 000002C63548D910
-ERROR: Allocated Loop size 624 000002C63548F3F0
-ERROR: Allocated Loop size 624 000002C63548E680
-ERROR: Allocated Loop size 624 000002C63548E120
-ERROR: Allocated Loop size 624 000002C63548E3D0
-ERROR: Allocated Loop size 624 000002C63548E930
-ERROR: Allocated Loop size 624 000002C63548DBC0
-ERROR: Allocated Loop size 624 000002C63548F140
-ERROR: Allocated Loop size 624 000002C63548DE70
-ERROR: Allocated Loop size 624 000002C63548EBE0
-ERROR: Allocated Loop size 624 000002C63548EE90
-ERROR: Allocated Loop size 624 000002C63549CD20
-ERROR: Allocated Loop size 624 000002C63549D530
-ERROR: Allocated Loop size 624 000002C63549C510
-ERROR: Allocated Loop size 624 000002C63549BFB0
-ERROR: Allocated SyncState size 72 000002C6351C2610
-ERROR: Allocated Preset size 2776 000002C63549DA10
-ERROR: Allocated Event size 272 000002C6351C0400
-ERROR: Allocated EventManager size 40 000002C6351A00D0
-ERROR: Allocated InputStream size 200 000002C6351EBE50
-ERROR: Allocated OutputStream size 264 000002C6351C0550
-ERROR: Allocated UserVariables size 8 000002C6352A29B0
-ERROR: Allocated Preset size 2776 000002C635920900
-ERROR: Allocated Loop size 624 000002C63549CFD0
-ERROR: Allocated Loop size 624 000002C63549BA50
-ERROR: Allocated Loop size 624 000002C63549C7C0
-ERROR: Allocated Loop size 624 000002C63549D280
-ERROR: Allocated Loop size 624 000002C63549BD00
-ERROR: Allocated Loop size 624 000002C63549CA70
-ERROR: Allocated Loop size 624 000002C63549C260
-ERROR: Allocated Loop size 624 000002C635869120
-ERROR: Allocated Loop size 624 000002C635868E70
-ERROR: Allocated Loop size 624 000002C63586A950
-ERROR: Allocated Loop size 624 000002C635868660
-ERROR: Allocated Loop size 624 000002C63586A3F0
-ERROR: Allocated Loop size 624 000002C635868BC0
-ERROR: Allocated Loop size 624 000002C635869E90
-ERROR: Allocated Loop size 624 000002C63586B160
-ERROR: Allocated Loop size 624 000002C635868910
-ERROR: Allocated SyncState size 72 000002C6351C1140
-ERROR: Allocated Preset size 2776 000002C63586FDA0
-ERROR: Allocated Event size 272 000002C635868090
-ERROR: Allocated EventManager size 40 000002C63584CA40
-ERROR: Allocated InputStream size 200 000002C6351EAF70
-ERROR: Allocated OutputStream size 264 000002C635867F40
-ERROR: Allocated UserVariables size 8 000002C6352A3090
-ERROR: Allocated Preset size 2776 000002C635873770
-ERROR: Allocated Loop size 624 000002C635869680
-ERROR: Allocated Loop size 624 000002C63586B6C0
-ERROR: Allocated Loop size 624 000002C63586AEB0
-ERROR: Allocated Loop size 624 000002C63586BC20
-ERROR: Allocated Loop size 624 000002C635869930
-ERROR: Allocated Loop size 624 000002C63586B970
-ERROR: Allocated Loop size 624 000002C6358693D0
-ERROR: Allocated Loop size 624 000002C63586AC00
-ERROR: Allocated Loop size 624 000002C63586B410
-ERROR: Allocated Loop size 624 000002C635869BE0
-ERROR: Allocated Loop size 624 000002C63586BED0
-ERROR: Allocated Loop size 624 000002C63586C180
-ERROR: Allocated Loop size 624 000002C63586A6A0
-ERROR: Allocated Loop size 624 000002C63586A140
-ERROR: Allocated Loop size 624 000002C63586D130
-ERROR: Allocated Loop size 624 000002C63586DEA0
-ERROR: Allocated SyncState size 72 000002C6351C1890
-ERROR: Allocated Preset size 2776 000002C6358714C0
-ERROR: Allocated Event size 272 000002C635866F80
-ERROR: Allocated EventManager size 40 000002C63584CB90
-ERROR: Allocated InputStream size 200 000002C6351EE7C0
-ERROR: Allocated OutputStream size 264 000002C6358681E0
-ERROR: Allocated UserVariables size 8 000002C6352A31D0
-ERROR: Allocated Preset size 2776 000002C635872050
-ERROR: Allocated Loop size 624 000002C63586D690
-ERROR: Allocated Loop size 624 000002C63586E150
-ERROR: Allocated Loop size 624 000002C63586CBD0
-ERROR: Allocated Loop size 624 000002C63586C920
-ERROR: Allocated Loop size 624 000002C63586C670
-ERROR: Allocated Loop size 624 000002C63586CE80
-ERROR: Allocated Loop size 624 000002C63586D3E0
-ERROR: Allocated Loop size 624 000002C63586D940
-ERROR: Allocated Loop size 624 000002C63586DBF0
-ERROR: Allocated Loop size 624 000002C635B49010
-ERROR: Allocated Loop size 624 000002C635B4ADA0
-ERROR: Allocated Loop size 624 000002C635B49D80
-ERROR: Allocated Loop size 624 000002C635B4A840
-ERROR: Allocated Loop size 624 000002C635B48D60
-ERROR: Allocated Loop size 624 000002C635B4C070
-ERROR: Allocated Loop size 624 000002C635B492C0
-ERROR: Allocated SyncState size 72 000002C6351C2C40
-ERROR: Allocated Preset size 2776 000002C635874E90
-ERROR: Allocated Event size 272 000002C635868330
-ERROR: Allocated EventManager size 40 000002C63584C7A0
-ERROR: Allocated InputStream size 200 000002C6351EAA20
-ERROR: Allocated OutputStream size 264 000002C6358670D0
-ERROR: Allocated UserVariables size 8 000002C6352A3B30
-ERROR: Allocated Preset size 2776 000002C635872BE0
-ERROR: Allocated Loop size 624 000002C635B48AB0
-ERROR: Allocated Loop size 624 000002C635B4A030
-ERROR: Allocated Loop size 624 000002C635B4C320
-ERROR: Allocated Loop size 624 000002C635B49570
-ERROR: Allocated Loop size 624 000002C635B4B300
-ERROR: Allocated Loop size 624 000002C635B4AAF0
-ERROR: Allocated Loop size 624 000002C635B4BDC0
-ERROR: Allocated Loop size 624 000002C635B49820
-ERROR: Allocated Loop size 624 000002C635B4B050
-ERROR: Allocated Loop size 624 000002C635B49AD0
-ERROR: Allocated Loop size 624 000002C635B4A2E0
-ERROR: Allocated Loop size 624 000002C635B4A590
-ERROR: Allocated Loop size 624 000002C635B48800
-ERROR: Allocated Loop size 624 000002C635B4B5B0
-ERROR: Allocated Loop size 624 000002C635B4B860
-ERROR: Allocated Loop size 624 000002C635B4BB10
+ERROR: Allocated Actionator size 56 000001EF9D828C70
+ERROR: Allocated Scriptarian size 40 000001EF9D8D0870
+ERROR: Allocated EventList size 8 000001EF9D7D8700
+ERROR: Allocated Preset size 2776 000001EF9D7FEF10
+ERROR: Allocated SyncState size 72 000001EF9D815C80
+ERROR: Allocated Preset size 2776 000001EF9D7FFC30
+ERROR: Allocated Event size 272 000001EF9D7EFDD0
+ERROR: Allocated EventManager size 40 000001EF9D8D0F00
+ERROR: Allocated InputStream size 200 000001EF9A95B540
+ERROR: Allocated OutputStream size 264 000001EF9D7EFC80
+ERROR: Allocated UserVariables size 8 000001EF9D7D9D30
+ERROR: Allocated Preset size 2776 000001EF9D7C9310
+ERROR: Allocated Loop size 624 000001EF9D800750
+ERROR: Allocated Loop size 624 000001EF9D800A00
+ERROR: Allocated Loop size 624 000001EF9D7C9E30
+ERROR: Allocated Loop size 624 000001EF9D7CA0E0
+ERROR: Allocated Loop size 624 000001EF9D7CA390
+ERROR: Allocated Loop size 624 000001EF9D7CA640
+ERROR: Allocated Loop size 624 000001EF9D7CA8F0
+ERROR: Allocated Loop size 624 000001EF9D7CAD80
+ERROR: Allocated Loop size 624 000001EF9D7CB030
+ERROR: Allocated Loop size 624 000001EF9A953E70
+ERROR: Allocated Loop size 624 000001EF9A954120
+ERROR: Allocated Loop size 624 000001EF9A9533B0
+ERROR: Allocated Loop size 624 000001EF9A953660
+ERROR: Allocated Loop size 624 000001EF9A9543D0
+ERROR: Allocated Loop size 624 000001EF9A954680
+ERROR: Allocated Loop size 624 000001EF9A954930
+ERROR: Allocated SyncState size 72 000001EF9D8163D0
+ERROR: Allocated Preset size 2776 000001EF9DA6E5A0
+ERROR: Allocated Event size 272 000001EF9D7EFB30
+ERROR: Allocated EventManager size 40 000001EF9D8D0250
+ERROR: Allocated InputStream size 200 000001EF9A95B100
+ERROR: Allocated OutputStream size 264 000001EF9D7F0070
+ERROR: Allocated UserVariables size 8 000001EF9D7DA410
+ERROR: Allocated Preset size 2776 000001EF9DBD1140
+ERROR: Allocated Loop size 624 000001EF9A954BE0
+ERROR: Allocated Loop size 624 000001EF9A953910
+ERROR: Allocated Loop size 624 000001EF9A953BC0
+ERROR: Allocated Loop size 624 000001EF9A953100
+ERROR: Allocated Loop size 624 000001EF9D7DEF70
+ERROR: Allocated Loop size 624 000001EF9D7E1510
+ERROR: Allocated Loop size 624 000001EF9D7E0FB0
+ERROR: Allocated Loop size 624 000001EF9D7E1A70
+ERROR: Allocated Loop size 624 000001EF9D7DFF90
+ERROR: Allocated Loop size 624 000001EF9D7DF220
+ERROR: Allocated Loop size 624 000001EF9D7E0D00
+ERROR: Allocated Loop size 624 000001EF9D7DEA10
+ERROR: Allocated Loop size 624 000001EF9D7DDF50
+ERROR: Allocated Loop size 624 000001EF9D7DE4B0
+ERROR: Allocated Loop size 624 000001EF9D7E17C0
+ERROR: Allocated Loop size 624 000001EF9D7DE200
+ERROR: Allocated SyncState size 72 000001EF9D8168E0
+ERROR: Allocated Preset size 2776 000001EF9DBD1E60
+ERROR: Allocated Event size 272 000001EF9D7F01C0
+ERROR: Allocated EventManager size 40 000001EF9D8D02C0
+ERROR: Allocated InputStream size 200 000001EF9A95C640
+ERROR: Allocated OutputStream size 264 000001EF9D7F0310
+ERROR: Allocated UserVariables size 8 000001EF9D7DA4B0
+ERROR: Allocated Preset size 2776 000001EF9DCD3C10
+ERROR: Allocated Loop size 624 000001EF9D7DE760
+ERROR: Allocated Loop size 624 000001EF9D7E1260
+ERROR: Allocated Loop size 624 000001EF9D7DFA30
+ERROR: Allocated Loop size 624 000001EF9D7DECC0
+ERROR: Allocated Loop size 624 000001EF9D7E04F0
+ERROR: Allocated Loop size 624 000001EF9D7DF4D0
+ERROR: Allocated Loop size 624 000001EF9D7DF780
+ERROR: Allocated Loop size 624 000001EF9D7E07A0
+ERROR: Allocated Loop size 624 000001EF9D7DFCE0
+ERROR: Allocated Loop size 624 000001EF9D7E0240
+ERROR: Allocated Loop size 624 000001EF9D7E0A50
+ERROR: Allocated Loop size 624 000001EF9DABB0D0
+ERROR: Allocated Loop size 624 000001EF9DABA0B0
+ERROR: Allocated Loop size 624 000001EF9DABB630
+ERROR: Allocated Loop size 624 000001EF9DABA8C0
+ERROR: Allocated Loop size 624 000001EF9DABCE60
+ERROR: Allocated SyncState size 72 000001EF9D816580
+ERROR: Allocated Preset size 2776 000001EF9DABD5B0
+ERROR: Allocated Event size 272 000001EF9D7EF5F0
+ERROR: Allocated EventManager size 40 000001EF9D7C7380
+ERROR: Allocated InputStream size 200 000001EF9A959120
+ERROR: Allocated OutputStream size 264 000001EF9D7EF740
+ERROR: Allocated UserVariables size 8 000001EF9D7DA5A0
+ERROR: Allocated Preset size 2776 000001EF9DDEE900
+ERROR: Allocated Loop size 624 000001EF9DABC900
+ERROR: Allocated Loop size 624 000001EF9DABB380
+ERROR: Allocated Loop size 624 000001EF9DABC3A0
+ERROR: Allocated Loop size 624 000001EF9DABC650
+ERROR: Allocated Loop size 624 000001EF9DABCBB0
+ERROR: Allocated Loop size 624 000001EF9DAB98A0
+ERROR: Allocated Loop size 624 000001EF9DABA360
+ERROR: Allocated Loop size 624 000001EF9DABD110
+ERROR: Allocated Loop size 624 000001EF9DAB95F0
+ERROR: Allocated Loop size 624 000001EF9DAB9B50
+ERROR: Allocated Loop size 624 000001EF9DAB9E00
+ERROR: Allocated Loop size 624 000001EF9DABA610
+ERROR: Allocated Loop size 624 000001EF9DABBB90
+ERROR: Allocated Loop size 624 000001EF9DABAB70
+ERROR: Allocated Loop size 624 000001EF9DABB8E0
+ERROR: Allocated Loop size 624 000001EF9DABBE40
+ERROR: Allocated SyncState size 72 000001EF9D817660
+ERROR: Allocated Preset size 2776 000001EF9DDEF830
+ERROR: Allocated Event size 272 000001EF9D7EF890
+ERROR: Allocated EventManager size 40 000001EF9D7CF410
+ERROR: Allocated InputStream size 200 000001EF9A95A110
+ERROR: Allocated OutputStream size 264 000001EF9D7EF9E0
+ERROR: Allocated UserVariables size 8 000001EF9D7DA5F0
+ERROR: Allocated Preset size 2776 000001EF9DACE270
+ERROR: Allocated Loop size 624 000001EF9DABC0F0
+ERROR: Allocated Loop size 624 000001EF9DABAE20
+ERROR: Allocated Loop size 624 000001EF9DE79CC0
+ERROR: Allocated Loop size 624 000001EF9DE79200
+ERROR: Allocated Loop size 624 000001EF9DE7A780
+ERROR: Allocated Loop size 624 000001EF9DE7A220
+ERROR: Allocated Loop size 624 000001EF9DE79F70
+ERROR: Allocated Loop size 624 000001EF9DE7A4D0
+ERROR: Allocated Loop size 624 000001EF9DE78F50
+ERROR: Allocated Loop size 624 000001EF9DE794B0
+ERROR: Allocated Loop size 624 000001EF9DE78CA0
+ERROR: Allocated Loop size 624 000001EF9DE79760
+ERROR: Allocated Loop size 624 000001EF9DE79A10
+ERROR: Allocated Loop size 624 000001EF9DE94350
+ERROR: Allocated Loop size 624 000001EF9DE958D0
+ERROR: Allocated Loop size 624 000001EF9DE94B60
+ERROR: Allocated SyncState size 72 000001EF9D8170C0
+ERROR: Allocated Preset size 2776 000001EF9DE99530
+ERROR: Allocated Event size 272 000001EF9DE95F50
+ERROR: Allocated EventManager size 40 000001EF9D7CF4F0
+ERROR: Allocated InputStream size 200 000001EF9A959230
+ERROR: Allocated OutputStream size 264 000001EF9DE97990
+ERROR: Allocated UserVariables size 8 000001EF9D7DA2D0
+ERROR: Allocated Preset size 2776 000001EF9DE9DA90
+ERROR: Allocated Loop size 624 000001EF9DE948B0
+ERROR: Allocated Loop size 624 000001EF9DE93DF0
+ERROR: Allocated Loop size 624 000001EF9DE950C0
+ERROR: Allocated Loop size 624 000001EF9DE94E10
+ERROR: Allocated Loop size 624 000001EF9DE95370
+ERROR: Allocated Loop size 624 000001EF9DE94600
+ERROR: Allocated Loop size 624 000001EF9DE95620
+ERROR: Allocated Loop size 624 000001EF9DE940A0
+ERROR: Allocated Loop size 624 000001EF9DEC6360
+ERROR: Allocated Loop size 624 000001EF9DEC83A0
+ERROR: Allocated Loop size 624 000001EF9DEC6610
+ERROR: Allocated Loop size 624 000001EF9DEC78E0
+ERROR: Allocated Loop size 624 000001EF9DEC60B0
+ERROR: Allocated Loop size 624 000001EF9DEC5090
+ERROR: Allocated Loop size 624 000001EF9DEC68C0
+ERROR: Allocated Loop size 624 000001EF9DEC8650
+ERROR: Allocated SyncState size 72 000001EF9D816070
+ERROR: Allocated Preset size 2776 000001EF9DE9E620
+ERROR: Allocated Event size 272 000001EF9DE97060
+ERROR: Allocated EventManager size 40 000001EF9D7CEF40
+ERROR: Allocated InputStream size 200 000001EF9A95B650
+ERROR: Allocated OutputStream size 264 000001EF9DE975A0
+ERROR: Allocated UserVariables size 8 000001EF9D7DA320
+ERROR: Allocated Preset size 2776 000001EF9DE9C370
+ERROR: Allocated Loop size 624 000001EF9DEC7B90
+ERROR: Allocated Loop size 624 000001EF9DEC6B70
+ERROR: Allocated Loop size 624 000001EF9DEC7630
+ERROR: Allocated Loop size 624 000001EF9DEC6E20
+ERROR: Allocated Loop size 624 000001EF9DEC8900
+ERROR: Allocated Loop size 624 000001EF9DEC70D0
+ERROR: Allocated Loop size 624 000001EF9DEC5340
+ERROR: Allocated Loop size 624 000001EF9DEC7380
+ERROR: Allocated Loop size 624 000001EF9DEC55F0
+ERROR: Allocated Loop size 624 000001EF9DEC8BB0
+ERROR: Allocated Loop size 624 000001EF9DEC58A0
+ERROR: Allocated Loop size 624 000001EF9DEC5B50
+ERROR: Allocated Loop size 624 000001EF9DEC7E40
+ERROR: Allocated Loop size 624 000001EF9DEC5E00
+ERROR: Allocated Loop size 624 000001EF9DEC80F0
+ERROR: Allocated Loop size 624 000001EF9E1768C0
+ERROR: Allocated SyncState size 72 000001EF9D8166A0
+ERROR: Allocated Preset size 2776 000001EF9DE9A0C0
+ERROR: Allocated Event size 272 000001EF9DE965E0
+ERROR: Allocated EventManager size 40 000001EF9D7CF2C0
+ERROR: Allocated InputStream size 200 000001EF9A95ADD0
+ERROR: Allocated OutputStream size 264 000001EF9DE97450
+ERROR: Allocated UserVariables size 8 000001EF9D7DA640
+ERROR: Allocated Preset size 2776 000001EF9DE9CF00
+ERROR: Allocated Loop size 624 000001EF9E177630
+ERROR: Allocated Loop size 624 000001EF9E176610
+ERROR: Allocated Loop size 624 000001EF9E1778E0
+ERROR: Allocated Loop size 624 000001EF9E177380
+ERROR: Allocated Loop size 624 000001EF9E174070
+ERROR: Allocated Loop size 624 000001EF9E177B90
+ERROR: Allocated Loop size 624 000001EF9E174DE0
+ERROR: Allocated Loop size 624 000001EF9E176B70
+ERROR: Allocated Loop size 624 000001EF9E174320
+ERROR: Allocated Loop size 624 000001EF9E176E20
+ERROR: Allocated Loop size 624 000001EF9E1745D0
+ERROR: Allocated Loop size 624 000001EF9E1760B0
+ERROR: Allocated Loop size 624 000001EF9E1770D0
+ERROR: Allocated Loop size 624 000001EF9E174880
+ERROR: Allocated Loop size 624 000001EF9E174B30
+ERROR: Allocated Loop size 624 000001EF9E176360
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
-ERROR: Allocated ScriptBlock size 48 000002C63584CFF0
+ERROR: Allocated ScriptBlock size 48 000001EF9D7CF720
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
-ERROR: Allocated ScriptBlock size 48 000002C63584D290
+ERROR: Allocated ScriptBlock size 48 000001EF9D7CF950
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated ScriptBlock size 48 000002C63584CCE0
+ERROR: Allocated ScriptBlock size 48 000001EF9D7CFAA0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
-ERROR: Allocated ScriptBlock size 48 000002C63584D060
+ERROR: Allocated ScriptBlock size 48 000001EF9D7CFB80
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
-ERROR: Allocated ScriptBlock size 48 000002C63584D0D0
-ERROR: Allocated ScriptBlock size 48 000002C63584D300
-ERROR: Allocated ScriptBlock size 48 000002C63584D370
-ERROR: Allocated ScriptBlock size 48 000002C63589C1F0
-ERROR: Allocated ScriptBlock size 48 000002C63589BC40
-ERROR: Allocated ScriptBlock size 48 000002C63589CDC0
-ERROR: Allocated ScriptBlock size 48 000002C63589CE30
-ERROR: Allocated ScriptBlock size 48 000002C63589C730
-ERROR: Allocated ScriptBlock size 48 000002C63589C260
-ERROR: Allocated ScriptBlock size 48 000002C63589C8F0
-ERROR: Allocated ScriptBlock size 48 000002C63589D060
-ERROR: Allocated ScriptBlock size 48 000002C63589C420
+ERROR: Allocated ScriptBlock size 48 000001EF9E29F540
+ERROR: Allocated ScriptBlock size 48 000001EF9E29F0E0
+ERROR: Allocated ScriptBlock size 48 000001EF9E2A0110
+ERROR: Allocated ScriptBlock size 48 000001EF9E2A0030
+ERROR: Allocated ScriptBlock size 48 000001EF9E29EDD0
+ERROR: Allocated ScriptBlock size 48 000001EF9E29FE00
+ERROR: Allocated ScriptBlock size 48 000001EF9E2A07A0
+ERROR: Allocated ScriptBlock size 48 000001EF9E29EE40
+ERROR: Allocated ScriptBlock size 48 000001EF9E2A0180
+ERROR: Allocated ScriptBlock size 48 000001EF9E29FA80
+ERROR: Allocated ScriptBlock size 48 000001EF9E2A0500
+ERROR: Allocated ScriptBlock size 48 000001EF9E29FFC0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\capturetest.mos
-ERROR: Allocated ScriptBlock size 48 000002C63589BEE0
+ERROR: Allocated ScriptBlock size 48 000001EF9E29F770
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\sample.mos
+ERROR: Allocated ScriptBlock size 48 000001EF9E29F070
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated RunScriptFunction size 1152 000002C635C73350
+ERROR: Allocated RunScriptFunction size 1152 000001EF9DECE900
+ERROR: Script Test Sample: unresolved function Sample1
+ERROR: --> File C:\dev\jucetest\UI\Source\unittest\sample.mos line 4
 Reading configuration file c:\dev\jucetest\UI\Source\unittest\ui.xml
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB0940
+ERROR: Allocated ScriptBlock size 48 000001EFA2295DA0
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB09B0
+ERROR: Allocated ScriptBlock size 48 000001EFA2296190
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB1DD0
+ERROR: Allocated ScriptBlock size 48 000001EFA2296C80
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB0E10
+ERROR: Allocated ScriptBlock size 48 000001EFA22966D0
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\exprtest.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB1820
-ERROR: Allocated ScriptBlock size 48 000002C639BB1350
-ERROR: Allocated ScriptBlock size 48 000002C639BB0A20
-ERROR: Allocated ScriptBlock size 48 000002C639BB1970
-ERROR: Allocated ScriptBlock size 48 000002C639BB0BE0
-ERROR: Allocated ScriptBlock size 48 000002C639BB04E0
-ERROR: Allocated ScriptBlock size 48 000002C639BB1200
-ERROR: Allocated ScriptBlock size 48 000002C639BB2460
-ERROR: Allocated ScriptBlock size 48 000002C639BB20E0
-ERROR: Allocated ScriptBlock size 48 000002C639BB24D0
-ERROR: Allocated ScriptBlock size 48 000002C639BB2540
-ERROR: Allocated ScriptBlock size 48 000002C639BB2310
+ERROR: Allocated ScriptBlock size 48 000001EFA2296890
+ERROR: Allocated ScriptBlock size 48 000001EFA2296740
+ERROR: Allocated ScriptBlock size 48 000001EFA2297460
+ERROR: Allocated ScriptBlock size 48 000001EFA2296CF0
+ERROR: Allocated ScriptBlock size 48 000001EFA2297A80
+ERROR: Allocated ScriptBlock size 48 000001EFA2297AF0
+ERROR: Allocated ScriptBlock size 48 000001EFA2298030
+ERROR: Allocated ScriptBlock size 48 000001EFA2297D20
+ERROR: Allocated ScriptBlock size 48 000001EFA2297D90
+ERROR: Allocated ScriptBlock size 48 000001EFA2297E00
+ERROR: Allocated ScriptBlock size 48 000001EFA2297EE0
+ERROR: Allocated ScriptBlock size 48 000001EFA2297E70
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\capturetest.mos
-ERROR: Allocated ScriptBlock size 48 000002C639BB2620
+ERROR: Allocated ScriptBlock size 48 000001EFA2295010
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\sample.mos
+ERROR: Allocated ScriptBlock size 48 000001EFA2294980
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference calltest resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script C:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated RunScriptFunction size 1152 000002C635FF5C10
+ERROR: Allocated RunScriptFunction size 1152 000001EF9E624DF0
+ERROR: Script Test Sample: unresolved function Sample1
+ERROR: --> File C:\dev\jucetest\UI\Source\unittest\sample.mos line 4
 Supervisor::prepareToPlay first call
 AudioDeviceSetup
   inputDeviceName: ADAT (5+6) (RME Fireface UC)
@@ -280,18 +288,13 @@ samplesPerBlockExpected 441 sampleRate 44100
 Supervisor: audio source num samples 441
 Supervisor: audio buffer channels 2
 Supervisor: audio buffer samples 441
-Supervisor::releaseResources
-AudioPool: 0 buffers allocated, 0 in the pool, 0 in use
-ERROR: Mobius::~Mobius mHalting was set!
-ERROR: EventPool: 0 allocated, 0 in the pool, 0 in use
-KernelCommunicator: statistics
-  Created 20 available 0
-  min pool 8
-  max shell 12
-  max kernel 12
-Total shell sends 12
-Total kernel sends 12
-Supervisor ending statistics:
-  prepareToPlay 1
-  getNextAudioBlock 244
-  releaseResources 0
+Button over
+Button down
+Mobius: runScript Test Sample
+ERROR: Allocated ScriptInterpreter size 296 000001EFA24904A0
+Mobius: Starting script thread 1:Test Sample
+ERROR: Script 1:Test Sample: unresolved function Sample1
+Mobius: Script thread 1:Test Sample: ending
+Button over
+ActionButtons: Sending up action
+Button normal

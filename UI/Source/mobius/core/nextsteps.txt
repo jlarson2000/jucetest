@@ -1,3 +1,14 @@
+UnitTests
+  make sure globalReset can be called from UnitTestSetupStatement without canceling the script
+  the SampleN functions are gone, but we need them from scripts
+    this is another case where resolution to something other than a Function would be nice
+    put back SampleTrigger temporarily
+    scripts want Sample1, etc.
+  have UnitTests::setup build a SampleConfig with the right paths, don't rely on mobius.xml
+  
+
+
+
 Audio file writer that tries to go in blocks instead of one sample at a time
 
 Alerts

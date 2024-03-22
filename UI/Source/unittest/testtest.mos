@@ -1,0 +1,13 @@
+!name Test Tests
+!button
+
+# use the necessary bits for running an actual test
+
+#this does a GlobalReset, installs the Setup and Preset,
+#loads a forced SampleConfig
+
+UnitTestSetup
+Wait thread
+
+// play one of the test samples
+Sample 1
