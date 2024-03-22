@@ -333,6 +333,8 @@
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
         <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>
+        <FILE id="jErnGH" name="AudioFile.cpp" compile="1" resource="0" file="Source/mobius/AudioFile.cpp"/>
+        <FILE id="XCxjp6" name="AudioFile.h" compile="0" resource="0" file="Source/mobius/AudioFile.h"/>
         <FILE id="TZns7W" name="AudioPool.cpp" compile="1" resource="0" file="Source/mobius/AudioPool.cpp"/>
         <FILE id="dBer2Q" name="AudioPool.h" compile="0" resource="0" file="Source/mobius/AudioPool.h"/>
         <FILE id="R2Z9W5" name="Intrinsics.cpp" compile="1" resource="0" file="Source/mobius/Intrinsics.cpp"/>
@@ -370,6 +372,8 @@
               file="Source/mobius/ScriptAnalyzer.h"/>
         <FILE id="YMzqJ9" name="Simulator.cpp" compile="1" resource="0" file="Source/mobius/Simulator.cpp"/>
         <FILE id="UuGokK" name="Simulator.h" compile="0" resource="0" file="Source/mobius/Simulator.h"/>
+        <FILE id="bf4jBL" name="UnitTests.cpp" compile="1" resource="0" file="Source/mobius/UnitTests.cpp"/>
+        <FILE id="pmsomD" name="UnitTests.h" compile="0" resource="0" file="Source/mobius/UnitTests.h"/>
         <FILE id="BCqKCe" name="WaveFile.cpp" compile="1" resource="0" file="Source/mobius/WaveFile.cpp"/>
         <FILE id="F6kToV" name="WaveFile.h" compile="0" resource="0" file="Source/mobius/WaveFile.h"/>
       </GROUP>

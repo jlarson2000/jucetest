@@ -300,7 +300,7 @@ class SampleManager
 	 * Trigger a sustained sample.
 	 * Only for use by Mobius in response to function handlers.
 	 */
-    void trigger(MobiusContainer* stream, int index, bool down);
+    void trigger(class MobiusContainer* stream, int index, bool down);
 
     // called when buffers are available
     void containerAudioAvailable(class MobiusContainer* cont);

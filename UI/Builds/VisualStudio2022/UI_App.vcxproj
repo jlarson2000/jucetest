@@ -290,6 +290,7 @@
     <ClCompile Include="..\..\Source\mobius\core\Variable.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Audio.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\AudioFile.cpp"/>
     <ClCompile Include="..\..\Source\mobius\AudioPool.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Intrinsics.cpp"/>
     <ClCompile Include="..\..\Source\mobius\KernelCommunicator.cpp"/>
@@ -303,6 +304,7 @@
     <ClCompile Include="..\..\Source\mobius\SampleReader.cpp"/>
     <ClCompile Include="..\..\Source\mobius\ScriptAnalyzer.cpp"/>
     <ClCompile Include="..\..\Source\mobius\Simulator.cpp"/>
+    <ClCompile Include="..\..\Source\mobius\UnitTests.cpp"/>
     <ClCompile Include="..\..\Source\mobius\WaveFile.cpp"/>
     <ClCompile Include="..\..\Source\util\DataModel.cpp"/>
     <ClCompile Include="..\..\Source\util\FileUtil.cpp"/>
@@ -2715,6 +2717,7 @@
     <ClInclude Include="..\..\Source\mobius\core\TriggerState.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Variable.h"/>
     <ClInclude Include="..\..\Source\mobius\Audio.h"/>
+    <ClInclude Include="..\..\Source\mobius\AudioFile.h"/>
     <ClInclude Include="..\..\Source\mobius\AudioPool.h"/>
     <ClInclude Include="..\..\Source\mobius\Intrinsics.h"/>
     <ClInclude Include="..\..\Source\mobius\KernelCommunicator.h"/>
@@ -2727,6 +2730,7 @@
     <ClInclude Include="..\..\Source\mobius\SampleReader.h"/>
     <ClInclude Include="..\..\Source\mobius\ScriptAnalyzer.h"/>
     <ClInclude Include="..\..\Source\mobius\Simulator.h"/>
+    <ClInclude Include="..\..\Source\mobius\UnitTests.h"/>
     <ClInclude Include="..\..\Source\mobius\WaveFile.h"/>
     <ClInclude Include="..\..\Source\util\DataModel.h"/>
     <ClInclude Include="..\..\Source\util\FileUtil.h"/>

@@ -1,3 +1,18 @@
+Automatic script waits
+  unit tests frequently want to do things that have to be pushed to the
+  maintenance thread, and they always have to add a "Wait thread" after it
+  would be nice to have the wait be done implicitly without a Wait statement
+  especially for UnitTestSetup if that's where samples are loaded
+
+Intrinsic script functions
+  with the introduction of InstallSamples that must be called from a script
+  we have to either add a ScriptStatement for that, or we need a static Function
+  object like we do for a few others to get it to resolve to something
+  would be nice to have intrinsic functions like we do up in the shell down
+  in the kernel for scripts 
+
+Capture/Bounce
+  stopCapture is only looking at port zero
 
 UserVariables
   this is an absolute mess, so much dynamic allocation going on in ScriptInterpreter

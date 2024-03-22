@@ -27,6 +27,8 @@
 
 class MobiusKernel : public MobiusContainer::AudioListener
 {
+    friend class UnitTests;
+    
   public:
 
     MobiusKernel(class MobiusShell* shell, class KernelCommunicator* comm);
@@ -90,7 +92,18 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // called by Mobius when it has finished activating a new Scriptarian
     // return the old one to the shell
     void returnScriptarian(class Scriptarian* old);
+
+  protected:
     
+    // hacky shit for unit test setup
+    class SampleManager* getSampleManager() {
+        return samples;
+    }
+
+    void setSampleManager(class SampleManager* sm) {
+        samples = sm;
+    }
+
   private:
 
     // stuff we are either passed or pull from the shell

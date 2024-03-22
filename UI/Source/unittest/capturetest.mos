@@ -2,6 +2,11 @@
 !autoload
 !button
 
+# wtf is this?
+GeneralReset
+UnitTestSetup
+Wait thread
+
 StartCapture
 Record
 Wait msec 1000
@@ -9,7 +14,17 @@ Record
 Wait last
 
 StopCapture
-SaveCapture testcapture
-SaveLoop
+
+SaveCapture foocap
+Wait thread
+
+SaveLoop fooloop
+Wait thread
+
+Diff foocap
+
+Reset
+
+
 
 

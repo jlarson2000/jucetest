@@ -1,6 +1,10 @@
 /**
  * Helper class for MobiusShell that encapsulates code
  * related to prcessing KernelEvents
+ *
+ * Most of the stuff in here is realted to unit test files and
+ * moved to UnitTests.
+ * 
  */
 
 // let Juce leak in here for File handling
@@ -11,24 +15,25 @@
 #include "../model/MobiusConfig.h"
 
 #include "Audio.h"
+#include "AudioFile.h"
+
 #include "KernelEvent.h"
 #include "MobiusShell.h"
-#include "KernelEventHandler.h"
-#include "WaveFile.h"
+#include "UnitTests.h"
 
 #include "core/Mobius.h"
 
+#include "KernelEventHandler.h"
+
 /**
- * Process an event sent up by the Kernel.  All but one
- * are from Scripts atm.
+ * Process an event sent up by the Kernel.  All but oen will be from
+ * scripts, and most are only relevant for the unit tests.
  * 
  * This came out of a KernelMessage which will return the event
  * to the Kernel so that it may be returned to the pool.  All we
  * need to do is process it and in rare cases set a return code.
  *
  * There aren't many of these so a switch gets the job done.
- * What most of these do is under heavy redesign so they're stubs.
- * 
  */
 void KernelEventHandler::doEvent(KernelEvent* e)
 {
@@ -38,8 +43,8 @@ void KernelEventHandler::doEvent(KernelEvent* e)
             case EventSaveLoop:
                 doSaveLoop(e); break;
                 
-            case EventSaveAudio:
-                doSaveAudio(e); break;
+            case EventSaveCapture:
+                doSaveCapture(e); break;
 
             case EventSaveProject:
                 doSaveProject(e); break;
@@ -47,8 +52,8 @@ void KernelEventHandler::doEvent(KernelEvent* e)
             case EventSaveConfig:
                 doSaveConfig(e); break;
 
-            case EventLoad:
-                doLoad(e); break;
+            case EventLoadLoop:
+                doLoadLoop(e); break;
 
             case EventDiff:
                 doDiff(e); break;
@@ -64,6 +69,9 @@ void KernelEventHandler::doEvent(KernelEvent* e)
 
             case EventTimeBoundary:
                 doTimeBoundary(e); break;
+                
+            case EventUnitTestSetup:
+                doUnitTestSetup(e); break;
                 
             default:
                 Trace(1, "KernelEventHandler: Unknown type code %d\n", e->type);
@@ -90,17 +98,22 @@ void KernelEventHandler::doEvent(KernelEvent* e)
  * as a function argument in the binding/action which
  * should also have been left in the event.
  */
-void KernelEventHandler::doSaveAudio(KernelEvent* e)
+void KernelEventHandler::doSaveCapture(KernelEvent* e)
 {
     // get the Audio to save
     MobiusKernel* kernel = shell->getKernel();
     Mobius* mobius = kernel->getCore();
     Audio* capture = mobius->getCapture();
 
-    juce::File file = buildFilePath(e->arg1, "capture", ".wav");
-
-    // use the old utility for now
-    writeFile(capture, file);
+    juce::File file;
+    if (UnitTests::Instance->isEnabled()) {
+        file = UnitTests::Instance->getSaveCaptureFile(e);
+    }
+    else {
+        file = getSaveFile(e->arg1, "capture", ".wav");
+    }
+    
+    AudioFile::write(file, capture);
 }
 
 /**
@@ -146,37 +159,44 @@ void KernelEventHandler::doSaveLoop(KernelEvent* e)
     Mobius* mobius = kernel->getCore();
     Audio* loop = mobius->getPlaybackAudio();
 
-    MobiusConfig* config = shell->getConfiguration();
-    const char* quickfile = config->getQuickSave();
-    if (quickfile == nullptr) {
-        // this is what old code used, better name might
-        // just be "quicksave" to show where it came from
-        quickfile = "mobiusloop";
+    juce::File file;
+    if (UnitTests::Instance->isEnabled()) {
+        file = UnitTests::Instance->getSaveLoopFile(e);
+    }
+    else {
+        MobiusConfig* config = shell->getConfiguration();
+        const char* quickfile = config->getQuickSave();
+        if (quickfile == nullptr) {
+            // this is what old code used, better name might
+            // just be "quicksave" to show where it came from
+            quickfile = "mobiusloop";
+        }
+        
+        file = getSaveFile(e->arg1, quickfile, ".wav");
     }
 
-    juce::File file = buildFilePath(e->arg1, quickfile, ".wav");
-
-    // use the old utility for now
-    writeFile(loop, file);
+    AudioFile::write(file, loop);
 }
 
 /**
- * Seems to be scheduled by a scripot, did
  * This was also fraught with peril
  */
 void KernelEventHandler::doSaveProject(KernelEvent* e)
 {
 }
 
+/**
+ * This was an obscure one used to permanently save
+ * the MobiusConfig file if an Action came down to change
+ * the setup, and OperatorPermanent was used.
+ * Took that out since it probably shouldn't be supported
+ * so this handler can go away.
+ */
 void KernelEventHandler::doSaveConfig(KernelEvent* e)
 {
 }
 
-void KernelEventHandler::doLoad(KernelEvent* e)
-{
-}
-
-void KernelEventHandler::doDiff(KernelEvent* e)
+void KernelEventHandler::doLoadLoop(KernelEvent* e)
 {
 }
 
@@ -185,59 +205,28 @@ void KernelEventHandler::doDiff(KernelEvent* e)
  * ScriptDiffStatement which is not a formal Function.
  * Since there is no action scripts can't wait on this and
  * expect nothing in return.
- *
- * Unlike SaveLoop and SaveCapture, this is useful only
- * for the unit tests.  Tests expect it to compare two audio
- * files and emit usefful messages to the console for inspection.
- * 
- * This is useful only for the unit tests
  */
 void KernelEventHandler::doDiffAudio(KernelEvent* e)
 {
-    const char* file1 = e->arg1;
-    const char* file2 = e->arg2;
-    bool reverse = StringEqualNoCase(e->arg3, "reverse");
-
-    if (file1 != NULL && file2 != NULL) {
-        // just assume these are both relative
-        // !! what does that mean, relative to what?
-        // first arg "type" is now an EventType not an int
-        // diff(e->type, reverse, file1, file2);
-    }
-    else if (file1 != NULL) {
-#if 0
-        const char* extension = ".wav";
-        const char* master = getTestPath(file1, extension);
-        char newpath[1025];
-        strcpy(newpath, file1);
-        if (!EndsWith(newpath, extension))
-          strcat(newpath, extension);
-        diff(type, reverse, newpath, master);
-#endif
-        
-    }
+    UnitTests::Instance->diffAudio(e);
 }
 
-#if 0
-PRIVATE const char* MobiusThread::getTestPath(const char* name, const 
-											  char* extension)
+/** 
+ * Like doDiffAudio but for non-Audio files.
+ * Think this was only used for Project structure files.
+ */
+void KernelEventHandler::doDiff(KernelEvent* e)
 {
-	MobiusConfig* config = mMobius->getConfiguration();
-	const char* root = config->getUnitTests();
-	if (root == NULL) {
-		// guess
-		root = "../../../mobiustest";
-	}
-
-	sprintf(mPathBuffer, "%s/expected/%s", root, name);
-
-	if (!EndsWith(mPathBuffer, extension))
-	  strcat(mPathBuffer, extension);
-
-	return mPathBuffer;
+    UnitTests::Instance->diffText(e);
 }
-#endif
 
+/**
+ * A partially finished feature to let scripts interactively
+ * prompt the user for a yes/no decision.  Never used much
+ * if at all.  This is interesting in theory so keep the
+ * mechanism in place, but it needs more work to be generally
+ * useful.
+ */
 void KernelEventHandler::doPrompt(KernelEvent* e)
 {
 }
@@ -253,15 +242,28 @@ void KernelEventHandler::doEcho(KernelEvent* e)
 
 /**
  * Here we're supposed to call MobiusListener to make
- * it break out of the maintenance thread waith loop
- * and refreh the UI.
- * !! actually I don't think this works, if we're here
+ * the maintenance thread loop break out of a wait state
+ * and refresh the UI early.  
+ *
+ * !!  don't think this works or is necessary, if we're here
  * then we're already in the maintenance thread since
  * that's where shell events are processed.  So must have
  * called this directly from the audio thread.
  */
 void KernelEventHandler::doTimeBoundary(KernelEvent* e)
 {
+}
+
+/**
+ * Here after the UnitTestSetup script statement.
+ * Before this just did some tweaking of the Preset
+ * and Setup in the audio thread, but now that we defer
+ * loading of samples, it needs to be done from the shell down.
+ * And the script needs to wait for it to finish.
+ */
+void KernelEventHandler::doUnitTestSetup(KernelEvent* e)
+{
+    UnitTests::Instance->setup(e);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -288,9 +290,11 @@ void KernelEventHandler::doTimeBoundary(KernelEvent* e)
  * Quick Save used a counter for name uniqueness, capture
  * didn't have that.
  *
+ * UnitTests have their own version of this with more assumptions.
+ *
  */
-juce::File KernelEventHandler::buildFilePath(const char* name, const char* defaultName,
-                                             const char* extension)
+juce::File KernelEventHandler::getSaveFile(const char* name, const char* defaultName,
+                                           const char* extension)
 {
     MobiusContainer* container = shell->getContainer();
     juce::File root = container->getRoot();
@@ -371,234 +375,6 @@ juce::File KernelEventHandler::buildFilePath(const char* name, const char* defau
     }
     
     return file;
-}
-
-// this used to be saved in the .wav file
-// int Audio::WriteFormat = WAV_FORMAT_IEEE;
-
-/**
- * Write an audio file using the old tool.
- * This is an adaptation of what used to be in Audio::write()
- * which no longer exists, but still sucks because it does this
- * a sample at a time rather than blocking.  Okay for initial testing
- * but you can do better.
- */
-void KernelEventHandler::writeFile(Audio* a, juce::File file)
-{
-    // Old code gave the illusion that it supported something other than 2
-    // channels but this was never tested.  Ensuing that this all stays
-    // in sync and something forgot to set the channels is tedius, just
-    // force it to 2 no matter what Audio says
-    //int channels = a->getChannels();
-    int channels = 2;
-    int frames = a->getFrames();
-    
-	WaveFile* wav = new WaveFile();
-	wav->setChannels(channels);
-	wav->setFrames(frames);
-    // other format is PCM, but I don't think the old writer supported that?
-	wav->setFormat(WAV_FORMAT_IEEE);
-    // this was how we conveyed the file path
-    const char* path = file.getFullPathName().toUTF8();
-	wav->setFile(path);
-    
-	int error = wav->writeStart();
-	if (error) {
-		Trace(1, "Error writing file %s: %s\n", path, 
-			  wav->getErrorMessage(error));
-	}
-	else {
-		// write one frame at a time not terribly effecient but messing
-		// with blocking at this level isn't going to save much
-		AudioBuffer b;
-        // not sure where this constant went but we don't support more than 2 anyway
-		//float buffer[AUDIO_MAX_CHANNELS];
-		float buffer[4];
-		b.buffer = buffer;
-		b.frames = 1;
-		b.channels = channels;
-
-		for (long i = 0 ; i < frames ; i++) {
-			memset(buffer, 0, sizeof(buffer));
-			a->get(&b, i);
-			wav->write(buffer, 1);
-		}
-
-		error = wav->writeFinish();
-		if (error) {
-			Trace(1, "Error finishing file %s: %s\n", path, 
-				  wav->getErrorMessage(error));
-		}
-    }
-
-    delete wav;
-}
-
-/**
- * This a slightly modified version of the old diff utility.
- * Rather than printf it sends to the Trace log.
- * Actually no, it will need heavy modifications because it needs
- * the old file utils I don't want to drag over and it used Audio(file)
- * constructor to read the files which no longer exists.
- * 
- * Diff two files.  Assume they are binary.
- * Could be smarter about printing differences if these turn
- * out to be non-binary project files.
- */
-void KernelEventHandler::diff(int type, bool reverse,
-                              const char* file1, const char* file2)
-{
-#if 0    
-	int size1 = GetFileSize(file1);
-	int size2 = GetFileSize(file2);
-
-	if (size1 < 0) {
-		printf("ERROR: File does not exist: %s\n", file1);
-		fflush(stdout);
-	}
-	else if (size2 < 0) {
-		printf("ERROR: File does not exist: %s\n", file2);
-		fflush(stdout);
-	}
-	else if (size1 != size2) {
-		printf("ERROR: Files differ in size: %s, %s\n", file1, file2);
-		fflush(stdout);
-	}
-	else {
-		FILE* fp1 = fopen(file1, "rb");
-		if (fp1 == NULL) {
-			printf("Unable to open file: %s\n", file1);
-			fflush(stdout);
-		}
-		else {
-			FILE* fp2 = fopen(file2, "rb");
-			if (fp2 == NULL) {
-				printf("Unable to open file: %s\n", file2);
-				fflush(stdout);
-			}
-			else {
-				bool different = false;
-				if (type == TE_DIFF_AUDIO) {
-
-					bool checkFloats = false;
-                    AudioPool* pool = mMobius->getAudioPool();
-
-					Audio* a1 = pool->newAudio(file1);
-					Audio* a2 = pool->newAudio(file2);
-					int channels = a1->getChannels();
-
-					if (a1->getFrames() != a2->getFrames()) {
-						printf("Frame counts differ %s, %s\n", file1, file2);
-						fflush(stdout);
-					}
-					else if (channels != a2->getChannels()) {
-						printf("Channel counts differ %s, %s\n", file1, file2);
-						fflush(stdout);
-					}
-					else {
-						AudioBuffer b1;
-						float f1[AUDIO_MAX_CHANNELS];
-						b1.buffer = f1;
-						b1.frames = 1;
-						b1.channels = channels;
-
-						AudioBuffer b2;
-						float f2[AUDIO_MAX_CHANNELS];
-						b2.buffer = f2;
-						b2.frames = 1;
-						b2.channels = channels;
-
-						bool stop = false;
-						int psn2 = (reverse) ? a2->getFrames() - 1 : 0;
-
-						for (int i = 0 ; i < a1->getFrames() && !different ; 
-							 i++) {
-
-							memset(f1, 0, sizeof(f1));
-							memset(f2, 0, sizeof(f2));
-							a1->get(&b1, i);
-							a2->get(&b2, psn2);
-			
-							for (int j = 0 ; j < channels && !different ; j++) {
-								// sigh, due to rounding errors it is 
-								// impossible to reliably assume that
-								// x + y - y = x with floats, so coerce
-								// to an integer to do the comparion
-
-								if (checkFloats) {
-									if (f1[j] != f2[j]) {
-										printf("WARNING: files differ at frame %d: %f %f: %s, %s\n", 
-											   i, f1[j], f2[j], file1, file2);
-										fflush(stdout);
-									}
-								}
-
-								// 24 bit is too much, but 16 is too small
-								// 16 bit signed (2^15)
-								//float precision = 32767.0f;
-								// 24 bit signed (2^23)
-								//float precision = 8388608.0f;
-								// 20 bit
-								float precision = 524288.0f;
-								
-								int i1 = (int)(f1[j] * precision);
-								int i2 = (int)(f2[j] * precision);
-
-								if (i1 != i2) {
-									printf("Files differ at frame %d: %d %d: %s, %s\n", 
-										   i, i1, i2, file1, file2);
-									fflush(stdout);
-									different = true;
-								}
-							}
-
-							if (reverse)
-							  psn2--;
-							else
-							  psn2++;
-						}
-					}
-
-					delete a1;
-					delete a2;
-				}
-				else {
-					unsigned char byte1;
-					unsigned char byte2;
-
-					for (int i = 0 ; i < size1 && !different ; i++) {
-						if (fread(&byte1, 1, 1, fp1) < 1) {
-							printf("Unable to read file: %s\n", file1);
-							fflush(stdout);
-							different = true;
-						}
-						else if (fread(&byte2, 1, 1, fp2) < 1) {
-							printf("Unable to read file: %s\n", file2);
-							fflush(stdout);
-							different = true;
-						}
-						else if (byte1 != byte2) {
-							printf("Files differ at byte %d: %s, %s\n",
-								   i, file1, file2);
-							fflush(stdout);
-							different = true;
-						}
-					}
-				}
-				fclose(fp2);
-				if (!different) {
-				  printf("%s - ok\n", file1);
-				  fflush(stdout);
-				}
-			}
-			fclose(fp1);
-		}
-	}
-
-	fflush(stdout);
-
-#endif
-    
 }
 
 /****************************************************************************/

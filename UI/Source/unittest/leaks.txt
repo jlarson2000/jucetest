@@ -1,0 +1,29 @@
+Detected memory leaks!
+Dumping objects ->
+{87050} normal block at 0x000002CC9DE50660, 376 bytes long.
+ Data: <          D     > 00 00 00 00 00 00 00 00 E0 07 44 99 CC 02 00 00 
+{87049} normal block at 0x000002CC9DE71FE0, 88 bytes long.
+ Data: <                > D0 A2 F5 9D CC 02 00 00 00 00 00 00 00 00 00 00 
+{87048} normal block at 0x000002CC9E0058A0, 32 bytes long.
+ Data: <00G             > 30 30 47 9C F6 7F 00 00 E0 1F E7 9D CC 02 00 00 
+{87047} normal block at 0x000002CC9DF5A2D0, 160 bytes long.
+ Data: <             foo> 03 00 00 00 00 00 00 00 00 00 00 00 00 66 6F 6F 
+{87037} normal block at 0x000002CC9DE70D20, 88 bytes long.
+ Data: <                > D0 B0 F5 9D CC 02 00 00 00 00 00 00 00 00 00 00 
+{87036} normal block at 0x000002CC9E004FA0, 32 bytes long.
+ Data: <00G             > 30 30 47 9C F6 7F 00 00 20 0D E7 9D CC 02 00 00 
+{87035} normal block at 0x000002CC9DF5B0D0, 160 bytes long.
+ Data: <             foo> 03 00 00 00 00 00 00 00 00 00 00 00 00 66 6F 6F 
+{78945} normal block at 0x000002CC9DE512A0, 376 bytes long.
+ Data: <`         D     > 60 06 E5 9D CC 02 00 00 A0 08 44 99 CC 02 00 00 
+{78896} normal block at 0x000002CC9DE510E0, 376 bytes long.
+ Data: <          >     > A0 12 E5 9D CC 02 00 00 80 91 3E 99 CC 02 00 00 
+{78892} normal block at 0x000002CC99454100, 376 bytes long.
+ Data: <          >     > E0 10 E5 9D CC 02 00 00 80 82 3E 99 CC 02 00 00 
+Object dump complete.
+
+
+{87050} normal block at 0x000002CC9DE50660, 376 bytes long.
+{78945} normal block at 0x000002CC9DE512A0, 376 bytes long.
+{78896} normal block at 0x000002CC9DE510E0, 376 bytes long.
+{78892} normal block at 0x000002CC99454100, 376 bytes long.

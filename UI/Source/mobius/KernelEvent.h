@@ -22,26 +22,30 @@ typedef enum {
     // wait for what?
     EventWait,
 
-    // Need to revisit these, do we really need the initiation
-    // of state file saves from the Kernel?  Usually they would
-    // come from the UI and could be processed as UIActions in the Shell
-    // or just MobiusInterface method calls.  They don't need to go all the way
-    // down to a Kernel Function handler, then back up.
-    // Would only need events if you can ask for this from scripts.
+    // Need to revisit these, the only time file saves are initiated
+    // from the Kernel are in test scripts
+    // For normal user use, they would be initiated from the UI
+    // and could just be handled directly by MobiusShell without going
+    // all the way down to the SaveLoop function and then back up
+    // to the maintenance thread
     EventSaveLoop,
 
     // Used by the SaveCapture function to save the results
-    // of a capture to a file.  File name to use is passed in the first argument
-    EventSaveAudio,
+    // of a capture to a file.
+    // Same issues as SaveLoop
+    EventSaveCapture,
     
     EventSaveProject,
+    
     // this was a weird one, it was in response to the UI setting OperatorPermanent
     // on a Setup action to cause it to be saved permanently in mobius.xml
     // we shouldn't need that in an Action handler, just do it in the UI if that's
     // what you want
     EventSaveConfig,
     
-    EventLoad,
+    // same issues as SaveLoop regarding handling this early
+    // in MobiusShell when it comes from the UI
+    EventLoadLoop,
 
     // these are designed for unit tests scripts so they do need to be events
     EventDiff,
@@ -51,23 +55,19 @@ typedef enum {
     EventPrompt,
 
     // Used by ScriptEchoStatement
-    // for some reason I stopped using printf and made a MobiusThread event,
-    // but that just did printf, so why bother?
+    // !! removed and it just uses Trace directly now, don't need this
     EventEcho,
-
-    // not sure what this was for, I guess to inform the UI that we entered
-    // global reset, so it can do a big repait, why not just have a more
-    // generic EventRefresh?
-    // never used
-    //EventGlobalReset,
 
     // this was how we asked the UI to refresh closer to a subcycle/cycle/loop
     // boundary being crossed rather than waiting for the next 1/10th refresh cycle
     // it made the UI appear more accurate for things like the beaters that were supposed
     // to pulse at regular intervals
     // since this happens frequently and is simple, it doesn't have to be a ThreadEvent
-    // it could just be a KernelMessage type
-    EventTimeBoundary
+    // it could just be a KernelMessage type?
+    EventTimeBoundary,
+
+    // new for unit tests
+    EventUnitTestSetup
 
 } KernelEventType;
 

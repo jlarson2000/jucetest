@@ -22,3 +22,8 @@ That are taken from track members
     s->timeStretch = mInput->getTimeStretch();
 	s->reverse = mInput->isReverse();
 
+might be nice for minor modes in TrackState to just be a csv so we don't need
+special code every time we add/remove one
+
+these could be placed in a modestly sized static array
+

@@ -18,10 +18,13 @@
 #include "Simulator.h"
 #include "KernelEventHandler.h"
 #include "ScriptAnalyzer.h"
+#include "UnitTests.h"
 
 class MobiusShell : public MobiusInterface
 {
     friend class MobiusKernel;
+    friend class KernelEventHandler;
+    friend class UnitTests;
     
   public:
 
@@ -96,6 +99,9 @@ class MobiusShell : public MobiusInterface
 
     ScriptAnalyzer scriptAnalyzer {this};
 
+    // Unit Test Support
+    UnitTests unitTests {this};
+    
     //
     // internal functions
     //
@@ -111,6 +117,6 @@ class MobiusShell : public MobiusInterface
     void doIntrinsic(UIAction* action);
     void loadScripts(UIAction* action);
     void loadSamples(UIAction* action);
-    
+
 };
 

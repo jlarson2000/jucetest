@@ -1388,8 +1388,9 @@ class ScriptDiffStatement : public ScriptStatement {
 
   private:
 
-	bool mAudio;
+	bool mText;
 	bool mReverse;
+    int mFirstArg;
 };
 
 /****************************************************************************

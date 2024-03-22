@@ -13,6 +13,7 @@
 #include "../Audio.h"
 #include "../AudioPool.h"
 #include "../MobiusKernel.h"
+#include "../UnitTests.h"
 
 // got lost somewhere
 #define MAX_CUSTOM_MODE 256
@@ -252,17 +253,18 @@ class Mobius
 	void toggleBounceRecording(class Action* action);
     void saveLoop(class Action* action);
 
-    void unitTestSetup();
-
-    // needed by TrackSetupParameter to change setups within the interrupt
-    void setSetupInternal(int index);
-
-    // Unit Test Interface
 
     // this no longer exists, but we will want to allow a MobiusConfig
     // override for testing
     //void setOutputLatency(int l);
 
+    // needed by TrackSetupParameter to change setups within the interrupt
+    void setSetupInternal(int index);
+
+    // now needed by UnitTests
+    // !! clean this shit up
+    void setSetupInternal(class Setup* s);
+    
 	// user defined variables
     class UserVariables* getVariables();
 
@@ -294,9 +296,6 @@ class Mobius
 
 	//void loadProjectInternal(class Project* p);
 
-    // Need these for the Setup and Preset script statements
-    void setSetupInternal(class Setup* setup);
-
     // for some Functions
     void setPresetInternal(int p);
 
@@ -315,8 +314,6 @@ class Mobius
     void endAudioInterrupt();
 
     // legacy
-    
-    bool unitTestSetup(MobiusConfig* config);
 
 	void setConfiguration(class MobiusConfig* config, bool doBindings);
 	void initObjectPools();
@@ -358,11 +355,10 @@ class Mobius
 	Audio* mCaptureAudio;
 	bool mCapturing;
 	long mCaptureOffset;
-
 	
 	// state exposed to the outside world
 	MobiusState mState;
-
+    
 };
 
 /****************************************************************************/

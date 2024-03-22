@@ -1088,7 +1088,7 @@ void Mobius::saveCapture(Action* action)
       file = action->arg.getString();
 
     KernelEvent* e = newKernelEvent();
-    e->type = EventSaveAudio;
+    e->type = EventSaveCapture;
     // this will copy the name to a static buffer on the event
     // so no ownership issues of the string
     e->setArg(0, file);
@@ -1140,7 +1140,7 @@ Audio* Mobius::getCapture()
     
     if (mCapturing) {
         // this isn't supposed to be happening now, this should
-        // only be called in response to an EventSaveAudio
+        // only be called in response to an EventSaveCapture
         // KernelEvent and that should have stopped it
         Trace(1, "Mobius::getCapture called while still capturing!\n");
     }
@@ -1895,111 +1895,6 @@ void Mobius::cancelGlobalMute(Action* action)
 		t->setGlobalMute(false);
 		t->setSolo(false);
 	}
-}
-
-/**
- * Names that used to live somewhere and need someplace better
- */
-#define UNIT_TEST_SETUP_NAME "UnitTestSetup"
-#define UNIT_TEST_PRESET_NAME "UnitTestPreset"
-
-/**
- * Bootstrap and select a standard unit test setup.
- * This is called only by evaluation of the UnitTestSetup script statement.
- *
- * In old code this saved the modified configuration to the file system.
- * I thought about just requiring that a special mobius.xml for unit tests
- * and always loading that through mobius-redirect.  That's actually
- * happening, but let's continue the old way and fix them if they
- * already exist just to make initial testing less error prone.
- * 
- * We first bootstrap a Setup named "Unit Test Setup" and "Unit Test Preset"
- * if they don't already exist.  If the setup or preset already exist they
- * are initialized to a standard state.  This initialization prevents
- * test anomolies that can happen if the unit test setup is manually edited.
- *
- * TODO: Ideally we would have a way to install the
- * samples the tests require, for now assume we've got a 
- * captured mobius.xml file for unit tests.  But if we do that
- * then why bother with this?
- *
- * new: leaving this in place because we're going to want it eventually
- * but need to work out why writeConfiguration was needed and
- * move it higher
- *
- */
-void Mobius::unitTestSetup()
-{
-    bool saveConfig = false;
-	bool saveSamples = false;
-
-    // first bootstrap the master config
-    // !! ordinarilly we try not to do things like write files 
-    // in the interrupt handler but since this is just for testing don't
-    // bother bifurcating this into a KernelEvent part and an interrupt part
-    if (unitTestSetup(mConfig)) {
-        // the part we can't do in the new world
-        //writeConfiguration(mConfig);
-        //Trace(1, "Mobius::unitTestSetup can't write the new configuration!\n");
-    }
-    
-
-    // then apply the same changes to the interrupt config so we
-    // can avoid pushing another thing on the history
-    unitTestSetup(mConfig);
-
-    // then set and propagate the setup and preset
-    // note that all loops have to be reset for the preset to be refreshed
-    Setup* setup = GetSetup(mConfig, UNIT_TEST_SETUP_NAME);
-    setSetupInternal(setup);
-
-    // can't do this down here
-    //if (mListener)
-    //mListener->MobiusConfigChanged();}
-}
-
-/**
- * Initialize the unit test setup and preset within a config object.
- * This is called twice, once for the master config and once for
- * the interrupt config to make sure they're both in sync without
- * having to worry about cloning and adding to the history list.
- */
-bool Mobius::unitTestSetup(MobiusConfig* config)
-{
-    bool needsSaving = false;
-
-    // boostrap a preset
-    Preset* p = GetPreset(config, UNIT_TEST_PRESET_NAME);
-    if (p != NULL) {
-        p->reset();
-    }
-    else {
-        p = new Preset();
-        p->setName(UNIT_TEST_PRESET_NAME);
-        config->addPreset(p);
-        needsSaving = true;
-    }
-    // just an ordinal now
-    // this no longer exists, need to refine a permanent MobiusConfig
-    // notion of what this means
-    Trace(1, "Mobius::unitTestSetup can't set the current preset!\n");        
-    //config->setCurrentPreset(p);
-
-    // boostrap a setup
-    Setup* s = GetSetup(config, UNIT_TEST_SETUP_NAME);
-    if (s != NULL) {
-        s->reset(p);
-    }
-    else {
-        s = new Setup();
-        s->setName(UNIT_TEST_SETUP_NAME);
-        s->reset(p);
-        config->addSetup(s);
-        needsSaving = true;
-    }
-    SetCurrentSetup(config, s->ordinal);
-
-    return needsSaving;
 }
 
 /****************************************************************************/

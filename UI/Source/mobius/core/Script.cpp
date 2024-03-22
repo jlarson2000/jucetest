@@ -64,6 +64,8 @@
 #include "../../model/ScriptConfig.h"
 #include "../../model/UserVariable.h"
 
+#include "../UnitTests.h"
+
 #include "Action.h"
 #include "Event.h"
 #include "EventManager.h"
@@ -2319,6 +2321,10 @@ ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
+// new: originaly this just called a Mobius function synchronously
+// but now that we defer sample installation, this has to be a
+// KernelEvent to the shell we wait on
+
 ScriptUnitTestSetupStatement::ScriptUnitTestSetupStatement(ScriptCompiler* comp, 
                                                                   char* args)
 {
@@ -2332,8 +2338,19 @@ const char* ScriptUnitTestSetupStatement::getKeyword()
 ScriptStatement* ScriptUnitTestSetupStatement::eval(ScriptInterpreter* si)
 {
     Trace(2, "Script %s: UnitTestSetup\n", si->getTraceName());
+
+    // start with a GlobalReset to make sure the engine
+    // is quiet for the UnitTestSetup event handler
     Mobius* m = si->getMobius();
-    m->unitTestSetup();
+    m->globalReset(nullptr);
+
+    // now push up to the shell for complex configuration
+    KernelEvent* e = si->newKernelEvent();
+    e->type = EventUnitTestSetup;
+    // any args of interest?
+    // if we're already in "unit test mode" could disable it if you do it again
+    si->sendKernelEvent(e);
+
     return NULL;
 }
 
@@ -2438,7 +2455,7 @@ ScriptStatement* ScriptLoadStatement::eval(ScriptInterpreter* si)
 	const char* file = v.getString();
 
 	Trace(2, "Script %s: load %s\n", si->getTraceName(), file);
-    si->sendKernelEvent(EventLoad, file);
+    si->sendKernelEvent(EventLoadLoop, file);
 
     return NULL;
 }
@@ -2482,18 +2499,35 @@ ScriptStatement* ScriptSaveStatement::eval(ScriptInterpreter* si)
  *                                                                          *
  ****************************************************************************/
 
+/**
+ * Original syntax required an "audio" argument to diff audio.
+ * Since that's the usual case we'll make that optional and
+ * require "text" to make it do a text diff.  Will have
+ * to change the old scripts that use that but they're very few.
+ *
+ * If "reverse" was the first arg, then this is an audio diff
+ * in reverse.
+ */
 ScriptDiffStatement::ScriptDiffStatement(ScriptCompiler* comp,
 												char* args)
 {
-	mAudio = false;
+	mText = false;
 	mReverse = false;
+    mFirstArg = 0;
+    
     parseArgs(args);
 
-	if (StringEqualNoCase(mArgs[0], "audio"))
-	  mAudio = true;
+	if (StringEqualNoCase(mArgs[0], "audio")) {
+        // backward compatibility, it is now the default and doesn't need to be included
+        mFirstArg = 1;
+    }
 	else if (StringEqualNoCase(mArgs[0], "reverse")) {
-		mAudio = true;
 		mReverse = true;
+        mFirstArg = 1;
+	}
+	else if (StringEqualNoCase(mArgs[0], "text")) {
+		mText = true;
+        mFirstArg = 1;
 	}
 }
 
@@ -2502,18 +2536,20 @@ const char* ScriptDiffStatement::getKeyword()
     return "Diff";
 }
 
+/**
+ * Most scripts will omit the second file name
+ */
 ScriptStatement* ScriptDiffStatement::eval(ScriptInterpreter* si)
 {
 	ExValue file1;
 	ExValue file2;
-	int firstarg = (mAudio) ? 1 : 0;
 
-	si->expandFile(mArgs[firstarg], &file1);
-	si->expandFile(mArgs[firstarg + 1], &file2);
+	si->expandFile(mArgs[mFirstArg], &file1);
+	si->expandFile(mArgs[mFirstArg + 1], &file2);
     Trace(2, "Script %s: diff %s %s\n", si->getTraceName(), 
           file1.getString(), file2.getString());
 
-	KernelEventType type = (mAudio) ? EventDiffAudio : EventDiff;
+	KernelEventType type = (mText) ? EventDiff : EventDiffAudio;
     KernelEvent* e = si->newKernelEvent();
     e->type = type;
     e->setArg(0, file1.getString());
@@ -5720,16 +5756,37 @@ void ScriptInterpreter::getStackArg(ScriptStack* stack,
  *
  * TODO: Would be nice to have variables to get to the
  * installation and configuration directories.
+ *
+ * new: this was only used by the unit tests and made assumptions
+ * about current working directory and where the script was loaded from
+ * that conflicts with the new world order enforced by KernelEventHandler
+ * and UnitTests.  Just leave the file unadorned and figure it out later.
+ * The one thing that may make sense for the general user is relative
+ * to the location of the script.  If you had a directory full of scripts
+ * together with the files they loaded, you wouldn't have to use absolute paths
+ * in the script.  But the new default of expecting them in the root directory
+ * won't work.
+ *
+ * KernelEventHandler can't figure that out because the script location
+ * is gone by the time it gets control of the KernelEvent.
+ *
+ * But we DON'T want relative path shanigans happening if we're in "unit test mode"
+ * because KernelEventHandler/UnitTests will figure that out and it is different
+ * than it used to be.
+ *
+ * Just leave the file alone for now and reconsider script-path-relative later
+ * 
  */
 void ScriptInterpreter::expandFile(const char* value, ExValue* retval)
 {
-#if 0    
 	retval->setNull();
 
     // first do basic expansion
     expand(value, retval);
 	
-	char* buffer = retval->getBuffer();
+    // lobotomy of old code here, just leave it with the basic expansion
+#if 0
+    char* buffer = retval->getBuffer();
 	int curlen = strlen(buffer);
 
     if (curlen > 0 && !IsAbsolute(buffer)) {
@@ -5760,6 +5817,7 @@ void ScriptInterpreter::expandFile(const char* value, ExValue* retval)
 				// insert the prefix
 				for (i = 0 ; i < insertlen ; i++)
 				  buffer[i] = dir[i];
+
 
                 if (needslash)
                   buffer[insertlen] = '/';
