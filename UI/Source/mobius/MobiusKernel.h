@@ -93,6 +93,9 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // return the old one to the shell
     void returnScriptarian(class Scriptarian* old);
 
+    // only internal SampleTrigger function
+    void sampleTrigger(int index);
+    
   protected:
     
     // hacky shit for unit test setup

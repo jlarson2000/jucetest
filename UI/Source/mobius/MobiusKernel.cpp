@@ -376,6 +376,17 @@ void MobiusKernel::doAction(KernelMessage* msg)
       communicator->kernelAbandon(msg);
 }
 
+/**
+ * Special sample trigger entry point for the hidden SampleTrigger
+ * function which can only be called from scripts.
+ */
+void MobiusKernel::sampleTrigger(int index)
+{
+    if (samples != nullptr) {
+        samples->trigger(index, true);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Parameters
