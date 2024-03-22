@@ -291,17 +291,26 @@ class MobiusConfig {
 	void setSaveLayers(bool b);
 	bool isSaveLayers();
 
-	class Preset* getPresets();
-    void setPresets(class Preset* list);
-	void addPreset(class Preset* p);
-
 	class Setup* getSetups();
 	void setSetups(class Setup* list);
 	void addSetup(class Setup* p);
-    const char* getActiveSetup();
-    void setActiveSetup(const char* name);
-	class Setup* getSetup(const char* name);
+    class Setup* getSetup(const char* name);
+    class Setup* getSetup(int ordinal);
 
+    const char* getStartingSetupName();
+    void setStartingSetupName(const char* name);
+    class Setup* getStartingSetup();
+    
+	class Preset* getPresets();
+    void setPresets(class Preset* list);
+	void addPreset(class Preset* p);
+    class Preset* getPreset(const char* name);
+    class Preset* getPreset(int ordinal);
+    
+    const char* getDefaultPresetName();
+    void setDefaultPresetName(const char* name);
+    class Preset* getDefaultPreset();
+    
 	class BindingSet* getBindingSets();
 	void addBindingSet(class BindingSet* bs);
 
@@ -449,9 +458,12 @@ class MobiusConfig {
      * was selected when the config was saved. 
      */
 	class Setup* mSetups;
-    char* mActiveSetup;
+    char* mStartingSetupName;
+    class Setup* mStartingSetup;
 
 	class Preset* mPresets;
+    char* mDefaultPresetName;
+    class Preset* mDefaultPreset;
 
     // there is always (and usually) a sigle BindingSet
     // if there is more than one, those are considered "overlay"

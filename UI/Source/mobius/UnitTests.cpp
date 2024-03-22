@@ -2,96 +2,54 @@
  * Code related to running the unit tests.
  * This does some sensitive reach-arounds to Mobius without
  * going through KernelCommunicator so be careful...
+ *
+ * There is one singleton UnitTests object containing code to
+ * implement various unit testing features that would not normally be active.
+ * It is a part of MobiusShell.
  * 
- * The structure of the old test direcrory was:
+ * The engine may be placed in "unit test mode" during which it forces the
+ * installation of a Preset and a Setup with a known configuration, sets
+ * a few global parameters, loads a set of Samples, and loads a set of Scripts.
+ * The scripts may in turn add buttons to the UI.  This configuration takes the
+ * place of the copy of MobiusConfig managed by the MobiusKernel and shared
+ * with the Mobius core.
+ *
+ * Note that it does not replace the config managed by MobiusShell.  There was no
+ * good reason for that other than it wasn't immediately necessary and saves some work
+ * but might want to do that for consistency.  That also gives us a way to restore
+ * the original config when unit test mode is canceled.
+ *
+ * This modified configuration is only active in memory, it is not saved
+ * on the file system, and it will be lost if you edit the configuration in the UI
+ * and push a new MobiusConfig down.  That effectively disables unit test mode.
+ *
+ * Unit test mode can be enabled in one of two ways.  First, by binding an action in
+ * the UI to the UnitTestMode function.  This would typically be bound to a UI
+ * action button.  Second, it may be enabled from a script with the old UnitTestSetup
+ * statement.  This was a built-in script statement and not a Function.  Now that
+ * we have the Function it could be replaced.
+ *
+ * While in unit test mode, the behavior of the SaveCapture, SaveLoop, and LoadLoop
+ * functions are different.  It will load and save files relative to the "unit test root"
+ * rather than normal installation root.  This is used so that the large library
+ * of unit test sample and captured recording files can be located in a directory
+ * apart from the main installation.  This file redirect is handled by KernelEventHandler.
+ *
+ * Configuration of samples and scripts is done with a configuration "overlay".  This
+ * is an xml file found in the unit test root named mobius-overlay.xml.  It contains
+ * a sparse MobiusConfig object with just the information that the tests need, primarily
+ * this is a SampleConfig, a ScriptConfig, and a few global parameters.  When unit
+ * test mode is activated, this file is ready and it's contents are merged with
+ * the full MobiusConfig read from the mobius.xml file from the installation root.
+ *
+ * There is not currently a way to cancel unit test mode without restarting.
+ * The test scripts call UnitTestSetup in every script, so we only do setup once
+ * and then assume it remains stable.  May need to do partial reinitialization
+ * of the Preset and the Setup but the samples and scripts can be reused.
+ *
+ * The same applies to the UnitTestMode function from the UI, though there it would
+ * be convenient for the function to act as a toggle turning it on and off.
  * 
- *     ./            script source files and output .wav files from the tests
- *     ./expected    correct .wav files for comparision
- *
- * There was a global UnitTestsParameter that I think was used to specify
- * the location of the scripts and the master files, with test runtime results
- * being deposited in the CWD.
- *
- * Whatever we did, I'd like it to work so that the unit test scripts and
- * master comparision files live in a different Git repository as they did before.
- * To avoid CWD dependencies, this directory will contain test run results.
- *
- *    ./results
- *
- * This impacts the behavior of any Save and Load functions that might
- * be of general use outside the unit tests, since those need to have
- * more control over where the files go.
- *
- * By default these functions assume files are in the root directory
- * which will either be the installation directory, or an OS specific
- * folder used to contain user settings.
- *
- * With mobius-redirect we can now change the entire root to go somewhere
- * else, but wondering if there should be a "unit test mode" or a parameter
- * to point to where the unit tests are so we don't have to use
- * redirects just to run the tests.  Because mobius.xml is accessed so
- * early, and the unit tests need their own stable mobius.xml, there
- * are advantages to using mobius-redirect.  Still it would be nice
- * if the redirect could go to a folder under the main source tree for
- * easier maintenance, but still have the test files located somewhere else.
- *
- * The scripts are small so I don't mind having them in the main source tree
- * but the audio files are massive and need to go somewhere else.
- *
- * Scripts need a way to say "I'm a unit test" which changes the behavior
- * of these functions:
- *
- *     SaveAudio, SaveLoop, SaveProject
- *       Unless the file path is absolute it will save the file
- *       under $UNIT_TEST_ROOT/results
- *
- *     Load
- *        read the file from $UNIT_TEST_ROOT/expected
- *
- *     Diff, DiffAudio
- *       first file is in $UNIT_TEST_ROOT/results
- *       second file is in $UNIT_TEST_ROOT/expected
- *
- * Test scripts must call the UnitTestSetup function, which isn't really
- * a function right now, it's a special statement wired in to the script language.
- * This will set a flag in Mobius that can be tested here to
- * see whether the special file handling needs to be done.
- *
- * Setup Notes
- * 
- * This used to bootstrap a Preset and Setup with a stable
- * configuration, but I'm moving toward just using mobius-redirect for that
- * // Think about not requiring mobius-redirect just to run tests.
- * UnitTestSetup can just as easilly force the load of a MobiusConfig
- * from anywhere without needing to redirect for general use.
- * 
- * The tests need to know the location of the "unit test root" which
- * is different from the standard root and is where the test result
- * files go and the expected files live.  There are a few ways this could work
- * 
- * UnitTestSetup argument
- *    make the tests pass the absolute path to the directory
- *    inconvenience for the test writer and makes different machines harder
- * 
- * Root relative
- * 
- *   test files are expected to be relative to the standard system root
- *   putting it under the root is awkward for development since Git sees
- *   them and you have to add .gitignores to make it stop getting excited
- * 
- * These are going to be in a different Git repository so unwinding
- *   out of the development tree would look like this:
- * 
- *   Typical dev directory
- *      c:/dev/mobiusrepo/mobius/Source
- *   Relative test directory
- *      c:/dev/mobiustest
- * 
- * This doesn't work so well if you want to run tests from a normal
- * isntallation rather than the dev tree.  The root location the
- * is something like /Library/Application Support on Mac
- * and c:/Program Files?...  on Windows and we don't want to mess
- * with putting test files there.
  */
 
 #include "../util/Util.h"
@@ -119,9 +77,9 @@
 
 #include "UnitTests.h"
 
-// implementation of static declaration
+// implementation of the static declaration
+// the object will be a member object of MobiusShell
 UnitTests* UnitTests::Instance = nullptr;
-
 
 /**
  * This one is unusual in that we want it to be a singleton but don't
@@ -150,9 +108,48 @@ UnitTests::~UnitTests()
 //
 // Setup
 //
-// This is the ugliest part of all this and needs serious thought
-//
 //////////////////////////////////////////////////////////////////////
+
+/**
+ * The entry point for the UnitTestSetup script statement.
+ * Enable unit test mode if it is not already on, and leave it on.
+ * We will be here through a KernelEvent sent from the script interpreter.
+ *
+ * The core will be left in a state of GlobalReset so we can modify
+ * it directly.
+ */
+void UnitTests::scriptSetup(KernelEvent* e)
+{
+    // only do this once so scripts can call it multiple times
+    if (!enabled)
+      setup();
+}
+
+/**
+ * The entry point for the UnitTestMode function.
+ * Here we're comming from a bound action in the UI.
+ * May want this to behave as a toggle.
+ *
+ * The core is not necessarily in a state of GlobalReset.  If it isn't
+ * we have two options:
+ *
+ *    - force global reset, and wait for the kernel to handle that request
+ *    - return an error to the UI and make them do it
+ *    - live dangerously and proceed
+ *
+ * Forcing global reset would require the scheduling of a UIAction and a sleep
+ * while we wait for the kernel to respond.  Doable but annoying.  A warning
+ * message would be the safest thing.
+ *
+ * Living dangeriously is my business, and since this is only for my unit testing
+ * I'll trust you to do the right thing.
+ */
+void UnitTests::functionSetup(UIAction* a)
+{
+    // may want this to be a toggle?
+    if (!enabled)
+      setup();
+}
 
 /**
  * Names that used to live somewhere and need someplace better
@@ -162,55 +159,30 @@ UnitTests::~UnitTests()
 
 /**
  * Prepare the system for unit tests
- * Reachable only from the UnitTestSetup script statement.
  *
- * Originaly this was done synchronously within the core but with
- * deferred sample loading it needed to be pushed up to the shell
- * to do file handling safely.
+ * We are operating at the shell level, either in the UI thread or
+ * the maintenance thread.
  *
- * That now has a reverse problem where we need to do something
- * to the core from up here and don't want to mess with KernelCommunicator
- * message passing.  In particular I need the core to be in a state
- * of GlobalReset so we can do things to it without messing up the audio thread.
- * UnitTestSetupt will do a Mobius::globalReset on the way out, so when
- * we reach this event handler it can be assumed the kernel is quiet.
- * 
- * In the olden times, this used to bootstrap a special Setup and Preset
- * so the tests would have something stable to use.  We can now use
- * mobius-redirect to accomplish that on startup, but I'd still like
- * to be able to run in either mode without a redirect.
- *
- * We'll reach down and do that, but needs more thought.
- *
+ * To avoid KernelCommunicator and conflicts with the audio thread
+ * the system must be in a state of GlobalReset allowing us to directly
+ * modify objects in the kernel/core safely.  We don't normally do this
+ * but saves a lot of communication headaches just for the unit tests.
  */
-void UnitTests::setup(KernelEvent* e)
+void UnitTests::setup()
 {
-    // this is the main thing we need to do to get KernelEventHandler
-    // to redirect file handling to us so we can use alternate locations
-    // note that there is no way to clear this after it is set which
-    // is unfortunate, would like this to be restored automatcially when
-    // the test script terminates, or use a KernelEvent arg to turn it on and off
+    // this starts KernelEventHandler doing file system redirects
     enabled = true;
 
     // now we need to dive down and fuck with the core's MobiusConfig
     MobiusKernel* kernel = shell->getKernel();
     MobiusConfig* kernelConfig = kernel->getMobiusConfig();
     
-    // formerly wrote the modified config back to the file system,
-    // I don't think that was necessary
+    // special Preset and Setup
     installPresetAndSetup(kernelConfig);
 
+    // SampleConfig, ScriptConfig, and a few parameters
     loadConfigOverlay(kernelConfig);
     
-    // now set and propagate the setup and preset
-    // note that all loops have to be reset for the preset to be refreshed
-    Setup* setup = GetSetup(kernelConfig, UNIT_TEST_SETUP_NAME);
-
-    // this one however activates it so we have to go down to core
-    // really want to get rid of this shit
-    Mobius* mobius = kernel->getCore();
-    mobius->setSetupInternal(setup);
-
     // install the unit test samples if they aren't already there
     SampleManager* samples = kernel->getSampleManager();
     if (samples != nullptr) {
@@ -250,14 +222,13 @@ void UnitTests::setup(KernelEvent* e)
 
 /**
  * Initialize the unit test setup and preset within a config object.
- * This is called twice, once for the master config and once for
- * the interrupt config to make sure they're both in sync without
- * having to worry about cloning and adding to the history list.
+ * The MobiusConfig here is the one actually installed in MobiusKernel
+ * and Mobius.
  */
 void UnitTests::installPresetAndSetup(MobiusConfig* config)
 {
     // boostrap a preset
-    Preset* p = GetPreset(config, UNIT_TEST_PRESET_NAME);
+    Preset* p = config->getPreset(UNIT_TEST_PRESET_NAME);
     if (p != NULL) {
         p->reset();
     }
@@ -266,16 +237,10 @@ void UnitTests::installPresetAndSetup(MobiusConfig* config)
         p->setName(UNIT_TEST_PRESET_NAME);
         config->addPreset(p);
     }
-
-    // and make it the default
-    // just an ordinal now
-    // this no longer exists, need to refine a permanent MobiusConfig
-    // notion of what this means
-    Trace(1, "Mobius::unitTestSetup can't set the current preset!\n");        
-    //config->setCurrentPreset(p);
+    config->setDefaultPresetName(UNIT_TEST_PRESET_NAME);
 
     // boostrap a setup
-    Setup* s = GetSetup(config, UNIT_TEST_SETUP_NAME);
+    Setup* s = config->getSetup(UNIT_TEST_SETUP_NAME);
     if (s != NULL) {
         s->reset(p);
     }
@@ -285,7 +250,12 @@ void UnitTests::installPresetAndSetup(MobiusConfig* config)
         s->reset(p);
         config->addSetup(s);
     }
-    SetCurrentSetup(config, s->ordinal);
+    config->setStartingSetupName(UNIT_TEST_SETUP_NAME);
+
+    // this will propagate the changes to the tracks
+    MobiusKernel* kernel = shell->getKernel();
+    Mobius* mobius = kernel->getCore();
+    mobius->setActiveSetup(UNIT_TEST_SETUP_NAME);
 }
 
 /**

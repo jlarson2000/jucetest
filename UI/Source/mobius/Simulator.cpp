@@ -577,7 +577,7 @@ Preset* Simulator::getTrackPreset(SetupTrack* track)
     // kludge: make sure ordinals are assigned
     Structure::ordinate(configuration->getPresets());
     
-    const char* pname = track->getPreset();
+    const char* pname = track->getStartingPresetName();
     if (pname == nullptr) {
         // not uncommon, auto-select the first one
         // is there a configuration for the default preset?
@@ -616,7 +616,7 @@ int Simulator::getParameter(UIParameter* p, int tracknum)
     int value = 0;
     ExValue ev;
 
-    if (p == UIParameterPreset) {
+    if (p == UIParameterStartingPreset) {
         // this is the only TYPE_STRING supported, convert to ordinal
         SetupTrack* track = getSetupTrack(tracknum);
         if (track != nullptr) {

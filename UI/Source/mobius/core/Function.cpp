@@ -1146,7 +1146,7 @@ void Function::changePreset(Action* action, Loop* loop, bool after)
         if (next != NULL && next != current) {
             // !! pretty sure these are zero based like the new ordinals
             //m->setPresetInternal(((Preset*)next)->getNumber());
-            m->setPresetInternal(((Preset*)next)->ordinal);
+            m->setActivePreset(((Preset*)next)->ordinal);
         }
     }
 }

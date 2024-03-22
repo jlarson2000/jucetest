@@ -5803,7 +5803,7 @@ void Loop::trackEvent(Event* e)
             }
         }
 
-        mMobius->setTrack(next->getRawNumber());
+        mMobius->setActiveTrack(next->getRawNumber());
         // copied track should be able to become a sync master?
     }
 }

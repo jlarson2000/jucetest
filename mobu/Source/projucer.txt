@@ -10,6 +10,8 @@ c:\dev\jucetest\UI\Source\model
 Locate "Configuration-specific Linker Flags"
 
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Trace.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\TraceClient.obj
+c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\TraceFile.obj
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ExValue.obj
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Util.obj
 c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Vbuf.obj

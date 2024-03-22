@@ -498,6 +498,8 @@ void Actionator::doPreset(Action* a)
  */
 void Actionator::doSetup(Action* a)
 {
+    // this got redesigned recently, revisit
+#if 0    
     MobiusConfig* config = mMobius->getConfiguration();
 
     // If we're here from a Binding should have resolved
@@ -523,7 +525,7 @@ void Actionator::doSetup(Action* a)
         // to set one from the interrupt config by number
         SetCurrentSetup(config, number);
         mMobius->setSetupInternal(number);
-
+        
         // special operator just for setups to cause it to be saved
         // UPDATE: This is old and questionable, it isn't used
         // anywhere in core code or scripts.  It was used in UI.cpp in response
@@ -533,14 +535,13 @@ void Actionator::doSetup(Action* a)
         // have the UI do that it's own damn self rather than sending it all the way
         // down here, only to have a KernelEvent back
         // can remove this EventType
-#if 0        
-        if (a->actionOperator == OperatorPermanent) {
-            ThreadEvent* te = new ThreadEvent(TE_SAVE_CONFIG);
-            mMobius->addEvent(te);
-        }
-#endif
+        //if (a->actionOperator == OperatorPermanent) {
+        //ThreadEvent* te = new ThreadEvent(TE_SAVE_CONFIG);
+        //mMobius->addEvent(te);
+        //}
         
     }
+#endif
 }
 
 /**

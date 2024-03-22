@@ -172,7 +172,7 @@ void ParametersElement::paint(juce::Graphics& g)
         
         // special case kludge for this one, if we start having
         // more think of a more general way to do this
-        if (p == UIParameterPreset) {
+        if (p == UIParameterStartingPreset) {
             if (i < presetNames.size())
               strValue = presetNames[value];
             else

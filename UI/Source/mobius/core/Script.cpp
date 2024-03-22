@@ -2253,7 +2253,7 @@ ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
 
     if (s != NULL) {
         // special interface for us to avoid queueing for the next interrupt
-		m->setSetupInternal(s);
+		m->setActiveSetup(s->getName());
 	}
 
     return NULL;

@@ -21,6 +21,7 @@
  * 
  */
 
+#include "../../util/Trace.h"
 #include "../../util/Util.h"
 #include "../../model/ScriptConfig.h"
 

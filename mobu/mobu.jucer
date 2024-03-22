@@ -15,6 +15,7 @@
             file="Source/ParameterGenerator.cpp"/>
       <FILE id="im6YkP" name="ParameterGenerator.h" compile="0" resource="0"
             file="Source/ParameterGenerator.h"/>
+      <FILE id="obvGz1" name="Shit.cpp" compile="1" resource="0" file="Source/Shit.cpp"/>
       <FILE id="WH2rs1" name="UIParameter.cpp" compile="1" resource="0" file="Source/UIParameter.cpp"/>
       <FILE id="E1AC8i" name="UIParameter.h" compile="0" resource="0" file="Source/UIParameter.h"/>
       <FILE id="TbOWTx" name="UIParameterClasses.cpp" compile="1" resource="0"
@@ -32,7 +33,7 @@
   <EXPORTFORMATS>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="mobu" extraLinkerFlags="c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Trace.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ExValue.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Util.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Vbuf.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\List.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Preset.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Structure.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Setup.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\MobiusConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\UserVariable.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ScriptConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\SampleConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\OscConfig.obj&#10;"
+        <CONFIGURATION isDebug="1" name="Debug" targetName="mobu" extraLinkerFlags="c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Trace.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\TraceClient.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\TraceFile.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ExValue.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Util.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Vbuf.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\List.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Preset.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Structure.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\Setup.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\MobiusConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\UserVariable.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\ScriptConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\SampleConfig.obj&#10;c:\dev\jucetest\UI\Builds\VisualStudio2022\x64\Debug\App\OscConfig.obj&#10;"
                        headerPath="c:\dev\jucetest\UI\Source\model&#10;c:\dev\jucetest\UI\Source\util&#10;"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="mobu"/>
       </CONFIGURATIONS>

@@ -229,6 +229,9 @@
     <ClCompile Include="..\..\Source\ParameterGenerator.cpp">
       <Filter>mobu\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Shit.cpp">
+      <Filter>mobu\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\UIParameter.cpp">
       <Filter>mobu\Source</Filter>
     </ClCompile>

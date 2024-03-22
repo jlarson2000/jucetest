@@ -47,6 +47,8 @@
 #include "../../model/UserVariable.h"
 #include "../../model/Setup.h"
 
+#include "../MobiusContainer.h"
+
 #include "Action.h"
 #include "Event.h"
 #include "EventManager.h"
@@ -1228,7 +1230,7 @@ Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
     if (setup != NULL) {
         SetupTrack* st = setup->getTrack(mRawNumber);
         if (st != NULL) {
-            const char* pname = st->getPreset();
+            const char* pname = st->getStartingPresetName();
             if (pname != NULL) {
                 preset = GetPreset(config, pname);
                 if (preset == NULL)
@@ -1801,7 +1803,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 			// ?? should we auto-select the first preset
 		}
 		else {
-			const char* presetName = st->getPreset();
+			const char* presetName = st->getStartingPresetName();
 			if (presetName != NULL) {
 				MobiusConfig* config = mMobius->getConfiguration();
 				Preset* p = GetPreset(config, presetName);

@@ -1211,6 +1211,8 @@ class TrackPresetParameterType : public TrackParameter
 
 Parameter* TrackPresetParameter = new TrackPresetParameterType();
 
+// !!!!!!!!!!!!!! needs to be startingPreset
+
 TrackPresetParameterType::TrackPresetParameterType() :
     // this must match the TargetPreset name
     TrackParameter("preset", MSG_PARAM_TRACK_PRESET)
@@ -1223,7 +1225,7 @@ TrackPresetParameterType::TrackPresetParameterType() :
 
 void TrackPresetParameterType::getValue(SetupTrack* t, ExValue* value)
 {
-    value->setString(t->getPreset());
+    value->setString(t->getStartingPresetName());
 }
 
 void TrackPresetParameterType::setValue(SetupTrack* t, ExValue* value)
@@ -1231,7 +1233,7 @@ void TrackPresetParameterType::setValue(SetupTrack* t, ExValue* value)
     // since we intend this for parsing and editing should always
     // have a string, harder to support ordinals here because
     // we don't have a handle to Mobius
-    t->setPreset(value->getString());
+    t->setStartingPresetName(value->getString());
 }
 
 int TrackPresetParameterType::getOrdinalValue(Track* t)

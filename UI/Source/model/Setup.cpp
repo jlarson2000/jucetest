@@ -185,13 +185,14 @@ void Setup::reset(Preset* p)
     // start over with a new SetupTrack list
     setTracks(nullptr);
 
-    // note that getTrack(i) will bootstrap a track at
-    // that location if one doesn't exist
+    // formerly copied the given preset name into
+    // every track because we didn't have the notion
+    // of the defaultPreset, shouldn't need that any more
     for (int i = 0 ; i < DEFAULT_TRACK_COUNT ; i++) {
         SetupTrack* t = getTrack(i);
         t->reset();
         if (p != nullptr)
-          t->setPreset(p->getName());
+          t->setStartingPresetName(p->getName());
     }
 
     initParameters();
@@ -433,7 +434,7 @@ SetupTrack::SetupTrack()
 {
 	mNext = nullptr;
     mName = nullptr;
-	mPreset = nullptr;
+	mStartingPresetName = nullptr;
 	mVariables = nullptr;
 	reset();
 }
@@ -443,7 +444,7 @@ SetupTrack::~SetupTrack()
 	SetupTrack *el, *next;
 
 	delete mName;
-	delete mPreset;
+	delete mStartingPresetName;
 	delete mVariables;
 
 	for (el = mNext ; el != nullptr ; el = next) {
@@ -457,11 +458,11 @@ SetupTrack::SetupTrack(SetupTrack* src)
 {   
 	mNext = nullptr;
     mName = nullptr;
-	mPreset = nullptr;
+	mStartingPresetName = nullptr;
 	mVariables = nullptr;
     
     setName(src->getName());
-    setPreset(src->getPreset());
+    setStartingPresetName(src->getStartingPresetName());
 
 	mFocusLock = src->isFocusLock();
 	mGroup = src->getGroup();
@@ -491,7 +492,7 @@ SetupTrack::SetupTrack(SetupTrack* src)
  */
 void SetupTrack::reset()
 {
-	setPreset(nullptr);
+	setStartingPresetName(nullptr);
     setName(nullptr);
 	mFocusLock = false;
     mGroup = 0;
@@ -519,7 +520,10 @@ void SetupTrack::capture(MobiusState* state)
 {
     TrackState* t = state->track;
 
-	setPreset(t->preset->getName());
+    // if we continue to do this, should avoid setting
+    // this if the runtime preset is the same as the
+    // default preset
+	setStartingPresetName(t->preset->getName());
 
 	mFocusLock = t->focusLock;
 	mGroup = t->group;
@@ -576,15 +580,15 @@ const char* SetupTrack::getName()
 	return mName;
 }
 
-void SetupTrack::setPreset(const char* p)
+void SetupTrack::setStartingPresetName(const char* name)
 {
-	delete mPreset;
-	mPreset = CopyString(p);
+	delete mStartingPresetName;
+	mStartingPresetName = CopyString(name);
 }
 
-const char* SetupTrack::getPreset()
+const char* SetupTrack::getStartingPresetName()
 {
-	return mPreset;
+	return mStartingPresetName;
 }
 
 void SetupTrack::setFocusLock(bool b)

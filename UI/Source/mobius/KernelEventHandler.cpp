@@ -275,7 +275,7 @@ void KernelEventHandler::doTimeBoundary(KernelEvent* e)
  */
 void KernelEventHandler::doUnitTestSetup(KernelEvent* e)
 {
-    UnitTests::Instance->setup(e);
+    UnitTests::Instance->scriptSetup(e);
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -263,7 +263,7 @@ void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
 
     // !! allocates memory
     if (setup != NULL)
-      c->setActiveSetup(setup->getName());
+      c->setStartingSetupName(setup->getName());
 }
 
 /**
@@ -297,12 +297,10 @@ void SetupNameParameterType::setValue(Action* action)
             // the wrong selection.
 
             // !! allocates memory
-            config->setActiveSetup(setup->getName());
+            config->setStartingSetupName(setup->getName());
 
             // then set the one we're actually using internally
-            // we're always inside the interrupt at this point
-            //m->setSetupInternal(setup->getNumber());
-            m->setSetupInternal(setup->ordinal);
+            m->setActiveSetup(setup->ordinal);
         }
     }
 }
@@ -401,7 +399,7 @@ void SetupNumberParameterType::setValue(Action* action)
 
     if (setup != NULL) {
         // we're always in the interrupt so can set it now
-        m->setSetupInternal(index);
+        m->setActiveSetup(index);
     }
 }
 
@@ -473,7 +471,7 @@ void TrackParameterType::setValue(Action* action)
     Mobius* m = (Mobius*)action->mobius;
 	// let this be 1 based in the script
 	int ivalue = action->arg.getInt() - 1;
-	m->setTrack(ivalue);
+	m->setActiveTrack(ivalue);
 }
 
 /**

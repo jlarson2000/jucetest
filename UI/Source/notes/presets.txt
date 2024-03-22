@@ -1,0 +1,437 @@
+
+MobiusConfig has a list of one or more Presets and one or more Setups.  There
+will always be at least one of each.
+
+MobiusConfig has the notion of the "active setup".  This is the Setup that
+will be active when the system is started.  The name of the active setup is
+stored permanently in the MobiusConfig so that it may be restored.
+
+The active setup may be changed at runtime, and this change may or may not be stored
+permanently.
+
+Original code was a mess but now the active preset is saved in mobius.xml
+with the "activeSetup" attribute and accessible through the ActiveSetup Parameter.
+This is represented in the model as a string.
+
+The MobiusConfig methods for this value are getActiveSetupName and setActiveSetupName.
+
+At runtime, convenience methods are provided to get and set the active Setup object.
+
+The getActiveSetup() method will return the Setup object that is named by getActiveSetupName.
+
+There are several ways to set the active setup at runtime besides using the name.
+
+setActiveSetup(int ordinal)
+  looks up the Setup by ordinal and makes it active, ignored if there is no setup with this ordinal
+
+setActiveSetup(const char* name)
+  looks up thhe Setup by name and makes it active, ignored if there is no Setup with this name
+  this is the same as setActiveSetupName but in addition caches the active setup object
+  
+setActiveSetup(Setup)
+  changes the runtime active Setup to one matching the provided Setups name
+  this is normally called with a Setup object that is "in" the configuration
+  if called with a random disconnected Setup, we lookup the contained Setup by name
+  and use that.  You can't just put random Setup objects inside MobiusConfig
+
+In both cases, mSetupName will be changed to match the new active setup.
+think: I prefer that the name and cached object match.  if there is ever a reason
+to temporarily override the Setup then go back to the original one will need
+a different set of methods for that like overrideActiveSetup and getEffectiveSetup
+
+
+Presets behave the same, but the notion of the "active" preset is different.
+
+There is one global default preset that is normally the one that is active, but this
+can be overridden by the Setup.  Each SetupTrack within the Setup can store the
+name of a Preset to be active in that track that is different than the default Preset.
+I don't know if that was ever used much if at all, but it could have been.
+
+This is messy because if you really want setups to control the preset, then there should
+probably be three levels: global default, setup default, and track.
+That's maximum flexibility but I really doubt anyone used that and it makes thinking
+about presets confusing and clutters the UI.
+
+Think through the common uses cases...
+
+A Setup is used to configure the tracks for a relatively stable operating environment.
+Either you are running as a plugin or standalone and may want different port settings
+for plugins pins vs. hardware channels.  Once you set ports, you may want different
+input levels, pan, or mono mode.  These are the IO settings, and rarely change.
+
+   Input/Output Port
+   Input/Output Level
+   Mono Mode
+   Pan
+   Initial Active Track
+   Binding Overlays (IO of MIDI controllers)
+
+Beyond IO settings, there are the Performance Settings.  These are options that control
+how tracks behave as you are perfoming and are more variable:
+
+   Synchronization, Feedback, Realign, Reset Behavior, Output Level for mixing
+
+Those may change from song to song, keeping the same IO parameters.
+At the very least we should separate those in the UI to avoid clutter for the things
+a user typically wants to set.  Could also make those distinct objects so you can have
+one set of IO settings and multiple performance settings.  This needs more thought.
+
+Within the Performance Settings is the active Preset.  This you may want to change from
+time to time when switching songs or during a performance.  Aruably some of the things
+in the Setup could be Preset parameters?
+
+But when using tracks, it is important to remember that the user only ever thinks about
+the track they are "in".  So when you "change presets" are you changing it for only that
+track or all tracks?  Usually it would be all tracks.
+
+Hmm, this is a thorny problem you could want both.
+
+I think the thing to get working first is that tracks can override the preset so we do need
+two levels but this is not normally done.  The "effective" preset is either from the Track
+or the default preset.
+
+That is the state you are in on Reset.
+
+Tracks always have an ActivePreset but it may be the default preset.  Need to get the names
+clear this is the problem now.
+
+  Default Preset - global default
+  Track Preset - overrides the defeault for one track
+  Effective Preset/Active Preset - either the Track or Default preset
+
+Other names for Default Preset: Global Preset
+Other names for Track Preset: Default Track Preset, Initial Track Preset, Local Preset, Override Preset
+
+I like the name Default because it implies that it could be something different somewhere
+Global makes it sound more authoritative than it is
+
+Selected is ambiguous, selected where?  globally or just within the track?
+
+Active implies transience, it's the one you're using at the moment, but it may change
+
+Since you can change parameters at runtime, and those do not persist after Reset, this complicates
+the notion of "active".  Is the Active preset the one currently active in the track WITH the
+ad-hoc parameter changes?  Or is it the the base preset that was active before you started making
+parameter changes?
+
+Yes, for presets it is important that "active" not imply permanence.  This unlike the "active setup"
+which is something stored permanently in the MobiusConfig.
+
+--------
+
+Okay let's nail some concepts down.
+
+Default Preset - the one you use whenever nothing else overrides it
+
+Starting Preset - can be set on each track, if not set the Starting Preset is the Default Preset
+
+Reset - the default or starting state of a track when nothing is happening
+
+Running - the state a track is in when it is recording, playing, or running a script
+  mute and pause are still states of running
+  "arming" parameters before recording that deviate from the starting preset is a state of running
+
+When a track is in Reset the preset returns to the starting preset and all parameters
+have their values from the starting preset.
+
+When a track is running a parameter can change temporaliy and will return to the value
+in the starting preset when the track is reset.
+
+When a track is running, the entire preset and all of it's parameters can change.
+  this is called the Running or Active preset
+
+I'm liking running rather than active because active means we've picked one but it implies
+more permanence than running which is only the state you are in until you reset.  It
+matters less now that we have a well defined "starting" preset.
+
+"Active track" sounds better than "running track" though.
+
+Permanence or Persistence
+
+When using the configuration editor you are making persistent changes to the configuration
+that will survive a restart.
+
+When changing a preset or parameter while running, you are not making a permentnt change, the
+preset or parameter will return to the starting values on reset.
+
+Twiddling a level control while a track is in reset is a form of "arming".  The value will
+be lost when the track is reset.
+  - this is something we may want to have, twist the knobs to set up a mix and have that mix
+    restored on reset
+  - currently done with "capture" in the config editor
+  - convenient to have a "Capture Mix" function or menu item that saves the current state
+    in the setup without having to bring up the config editor.
+  - auto-capture is possible but don't want to write the file every time a knob is moved
+    - these would be stored in memory and saved periodically or at shutdown
+    - when you bring up the config editor, would need to capture from memory and merge that
+      with what is currently in the file, not bad
+
+Soft reset vs. Hard Reset
+  soft reset erases loop content and cancels scripts but retains the runnign state
+  of presets and parameters
+  might be interesting
+
+  hard reset restores the state to what is in the files
+
+Currently it is clear that when you use the config panels you are making
+a change to the file system.  When you do something in the main window
+you are not, but I'm not sure I like that distinction.  Could have the notion
+of "Use" or "Apply" vs. "Save".  If you save something it will be there on restart.
+If you Use something it lives in memory until you shut down or do a Revert or Hard Reset.
+
+There is implied ownership of Presets and parameters.  If you make a running change to
+a parameter then change the running preset, the parameter reverts.
+
+Concent: Revert
+  to go back to the starting state of a parameter
+  happens on Reset or with a function that does not do a full track reset
+    - yes, may want this, keep the loop going but throw away running parameter changes
+
+  alt: ParameterReset, just reset the parameters but not the track contents
+
+Setups have less of a running vs. starting state.  If you change the starting setup, this
+change is persisted to the file.  This distinction is clear when using the UI but less
+so in scripts.
+
+   set setup foo
+
+I think this should be a running change not a file change.  Maybe "memory change" vs. "file change"
+would be clear.
+
+The Preset/Setup menus make this really unclear.  When you edit a setup and change the starting
+preset and click Save you think it's going to a file.
+
+When you select a setup from a menu, the current expectation is that is stored in a file, it's
+like a simplified Global Parameter modification to change the starting setup.
+
+Or you could say this changes the Running Setup, not the Starting Setup. I like having Starting
+imply persistence.
+
+  Starting Setup is in the MobiusConfig as a global parameter
+  Running Setup is a memory change you can make with scripts or the main manu
+    - but I think the expectation would always be to have this restored
+
+  ! session
+
+  we don't really have the concept of a session, which would be more like several
+  copies of a MobiusConfig
+
+Ugh, this is going into the weeds.
+
+Default preset - something in MobiusConfig
+Starting Preset - something in TrackSetup or the Default Preset
+Running/Active Preset - what is active at runtime
+
+The Running Preset can revert to the Starting Preset when certain things happen
+  expicitly by asking to Revert
+  as a side effect of something else like a track Reset
+    - side effect revert can be explored later, but these concepts seep clear
+         starting, running, revert (running to starting)
+
+How are presets changed.
+
+set preset foo
+  in the config editor modifies a MobiusConfig and saves it to the file system
+
+  with a binding or in a script changes the running preset but does not save it
+    can be reverted to the starting preset
+
+Key: you can't change the starting preset from a binding or script, only the running preset.
+
+Back to MobiusConfig.  the "defaultPreset" parameter seems clear, it is stored with with
+a name and you can change it in memory, but saving it is defined elsewhere.  Yes, when we talk
+about parameters some need a clear distinction between their runtime values and persistent value.
+
+   set preset foo
+      - this changes the running preset, it does not change the defaultPreset
+      - so in the Parameter model, do we need to distinguish these?
+
+   the config editor wants to use a Parameter to change the default preset in MobiusConfig
+   
+   but scripts want to use a Parameter to change the running preset without touching MobiusConfig
+   can these have the same name?
+
+   set preset foo
+   set defaultPreset foo
+     - would imply permanence or does that just mean use this as the default for this session
+       but revert to what was in the file on restart
+
+
+   so "set preset foo"  is actually "set runningPreset foo"
+
+   YES, that's the key, we have ambiugity in scripts over "setting the parameter named preset foo
+   in an object" to changing the runtime state of this parameter.
+
+ugh, this is too fucking hard, what do you want to happen
+
+   set preset foo
+      change the running preset, has no impact on mobius.xml
+      will be reverted on reset to the Starting Preset
+
+   MobiusConfig cannot store the running Preset this should in Track memory which it is
+     though logically it's as if you are editing a SetupTrack object at runtime right?
+     If you think of all parameters coming from a Preset or a SetupTrack, then the runtime model
+     can just be those things, it's just that we might throw them away
+
+
+MobiusConfig should have no method that imply "running" that is an engine concept.  The engine
+may choose to implement "running" with the same object but it doesn't have to.
+
+I think the pain is coming from wanting a Parameter implementation to know the context in which
+is being set.  If it is in the config editor, put it in an object that looks like this.  If it is
+at runtiem, put it over here.
+
+UIAction implies runtime.  A UIAction doesn't change persistent state, only runtime state.
+Except for UIAction::setup
+
+This is still messy and I'm tired of grapling with it, make progress with "Starting" and "Default"
+and leave "Running" for Runtime.    The few Actions that care will have to have more complex logic
+than the purely structure parameters.
+
+So the Parameters we need are:
+
+  defaultPreset
+    changes the default preset in the MobiusConfig
+    not used in scripts or bindings
+    
+  startingPreset
+    changes the starting preset in the SetupTrack
+    not used in scripts or bindings
+
+  preset
+    changes the Running preset
+    used in scripts or bindings
+
+Yeah, I think some of the angst comes from "preset" meaning both.
+
+"setup" actually means both but it doesn't have to.  Perhaps progress would be
+be better if we called the thing in MobiusConfig the StartingSetup.  That makes sense
+in that it is what you get when you start the app.  You can then change the Active or Running
+Setup without modifying the startting setup.
+
+So let's review
+
+  MobiusConfig has a list of Setups and Presets, need accessors for those, lookup by name, etc.
+  but no concept of "selection"
+
+   defaultPreset what you start with if nothing else overrides it
+
+  at Runtime you can have an active preset, this needs to be stored outside the MobiusConfig right?  
+  "if preset = foo" and "set preset foo" do not operate on MobiusConfig.
+
+What does UnitTestSetup do
+  installs a UnitTestPreset on the preset list
+  sets UnitTestPreset as the defaultPreset
+
+  installs a UnitTestSetup on the setup list
+  sets UnitTestSetup as the defaultSetup, now calling this activeSetup
+  is that the problem?  kind of, for setups default vs active are kind of the same because
+
+Maybe in Mobius config startingSetup is better, yeah, like that.  Don't mix runtime terminoligy
+in MobiusConfig, that needs to make sense only for what is stored on that object.
+!!  yes, active implies runtime, but we are not storing runtime state in the MobiusConfig
+necessarily, what we are storing is the "starting" points.
+
+Liking this, "starting" implies more permanence.  But whether that permance has file permanence
+or session permanence can be dealt with later.
+
+MobiusConfig::getStartingSetup
+  returns the persistent starting setup
+
+Mobius::getSetup
+  returns the runtime setup, it may be the same as MobiusConfig::getStartingSetup or not
+
+Mobius::setSetup
+  changes the runtime setup, this is memory only and does not modify the MobiusConfig
+  !! this is where Kernel shell communcation breaks down we have memory state we need
+     to convey but just passing a MobiusConfig isn't enough
+  if you change the Setup in the kernel, the UI needs to see that but Shell won't have that
+  value unless we pass it back up, that's okay same is true for any other runtime parameter
+
+So I'm disliking the term "active" for anything in MobiusConfig because that suggests we're
+using that to hold the runtime state and we're not.  The "active" preset or "active" setup
+is whatever Mobius says it is, that is not necessarily what is in MobiusConfig.  This is important
+some parameters always come from the MobiusConfig model but some do not.  Runtime parameters
+may come from a COPY of the MobiusConfig model, but not everything uses copies.
+
+Action/Query make it clear that we're operating on runtime and not structure
+
+That's it "startingPreset" is a structure parameter "preset" is a runtime parameter.
+
+Many paramaeters are both but "startingSubcycles" isn't necessary because that's what Presets do,
+define the space of starting values for a bunch of parameters.
+
+
+For Setup do we even need all the verious setStarting ordinals or whatever?  No, all we need
+is the one that looks it up by name.  It is the runtime that needs to maintain object pointers.
+
+Yes, I'm liking this better, do not use MobiusConfig to cache pointers to the runtime objects,
+that belongs on a runtime object like Mobius.
+
+
+default vs. starting
+
+The only reason we need default vs. starting is because SetupTrack has to have
+something with "preset" in the name since Parameters have to live in a single namespace.
+Don't really like that but it is what it is, and makes it easier to talk about.
+
+if MobiusConfig has startingPreset then SetupTrack would need startingTrackPreset
+which is unweildy.  The default vs. starting names makes sense here what you really think
+about is "what does this track have".  And in the simple case there is only one track so
+"starting" makes more sense than "default".  Starting implies transience, default implies permanence.
+
+Same applies to setups then.
+
+What does MobiusConfig::defaultSetup mean?
+  functionally the same as startingSetup since there isn't a way to override that in a higher
+  level object unlike preset which has two levels
+
+defaultSetup implies that another config object could override that but it can't.
+
+So that feels like a difference:
+  default: what you'll use unless some other STRUCTURE overrides it
+  starting: what you'll use instead of the default
+    override would be more programmy but less obvious to users
+
+Since setup cannot be overridden by another STRUCTURE default seems funny since
+that makes it sound less authoritative than it is.  Starting is more authoritative, this
+is ALWAYS what you start with.
+
+"Starting" is what you get when you start which may not be the default.
+Starting is what you get on Reset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+ 
+control levels for those ports.  
+
+
+
+
+Further the Setup can define a default Preset that
+is further overridden in each track by the SetupTrack.  So to get the "effective"
+Preset used by a track, you first use the 

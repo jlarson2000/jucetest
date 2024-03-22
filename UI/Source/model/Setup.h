@@ -346,8 +346,8 @@ class SetupTrack {
 	void setName(const char* name);
 	const char* getName();
 
-	void setPreset(const char* preset);
-	const char* getPreset();
+	void setStartingPresetName(const char* preset);
+	const char* getStartingPresetName();
 
     void setGroup(int i);
     int getGroup();
@@ -400,7 +400,7 @@ class SetupTrack {
 
 	SetupTrack* mNext;
 	char* mName;
-	char* mPreset;
+	char* mStartingPresetName;
 	bool mFocusLock;
 	bool mMono;
     int mGroup;

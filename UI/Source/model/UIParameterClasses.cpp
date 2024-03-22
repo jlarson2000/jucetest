@@ -57,6 +57,34 @@ void UIParameterLogStatusClass::setValue(void* obj, ExValue* value)
 UIParameterLogStatusClass UIParameterLogStatusObj;
 UIParameter* UIParameterLogStatus = &UIParameterLogStatusObj;
 
+////////////// StartingSetup
+
+class UIParameterStartingSetupClass : public UIParameter
+{
+  public:
+    UIParameterStartingSetupClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterStartingSetupClass::UIParameterStartingSetupClass()
+{
+    name = "startingSetup";
+    displayName = "Starting Setup";
+    scope = ScopeGlobal;
+    type = TypeString;
+    noBinding = true;
+}
+void UIParameterStartingSetupClass::getValue(void* obj, ExValue* value)
+{
+    value->setString(((MobiusConfig*)obj)->getStartingSetupName());
+}
+void UIParameterStartingSetupClass::setValue(void* obj, ExValue* value)
+{
+    ((MobiusConfig*)obj)->setStartingSetupName(value->getString());
+}
+UIParameterStartingSetupClass UIParameterStartingSetupObj;
+UIParameter* UIParameterStartingSetup = &UIParameterStartingSetupObj;
+
 ////////////// ActiveSetup
 
 class UIParameterActiveSetupClass : public UIParameter
@@ -73,17 +101,46 @@ UIParameterActiveSetupClass::UIParameterActiveSetupClass()
     coreName = "setup";
     scope = ScopeGlobal;
     type = TypeString;
+    transient = true;
 }
 void UIParameterActiveSetupClass::getValue(void* obj, ExValue* value)
 {
-    value->setString(((MobiusConfig*)obj)->getActiveSetup());
+    value->setString(((MobiusConfig*)obj)->getStartingSetupName());
 }
 void UIParameterActiveSetupClass::setValue(void* obj, ExValue* value)
 {
-    ((MobiusConfig*)obj)->setActiveSetup(value->getString());
+    ((MobiusConfig*)obj)->setStartingSetupName(value->getString());
 }
 UIParameterActiveSetupClass UIParameterActiveSetupObj;
 UIParameter* UIParameterActiveSetup = &UIParameterActiveSetupObj;
+
+////////////// DefaultPreset
+
+class UIParameterDefaultPresetClass : public UIParameter
+{
+  public:
+    UIParameterDefaultPresetClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterDefaultPresetClass::UIParameterDefaultPresetClass()
+{
+    name = "defaultPreset";
+    displayName = "Default Preset";
+    scope = ScopeGlobal;
+    type = TypeString;
+    noBinding = true;
+}
+void UIParameterDefaultPresetClass::getValue(void* obj, ExValue* value)
+{
+    value->setString(((MobiusConfig*)obj)->getDefaultPresetName());
+}
+void UIParameterDefaultPresetClass::setValue(void* obj, ExValue* value)
+{
+    ((MobiusConfig*)obj)->setDefaultPresetName(value->getString());
+}
+UIParameterDefaultPresetClass UIParameterDefaultPresetObj;
+UIParameter* UIParameterDefaultPreset = &UIParameterDefaultPresetObj;
 
 ////////////// ActiveOverlay
 
@@ -2637,33 +2694,63 @@ void UIParameterTrackNameClass::setValue(void* obj, ExValue* value)
 UIParameterTrackNameClass UIParameterTrackNameObj;
 UIParameter* UIParameterTrackName = &UIParameterTrackNameObj;
 
-////////////// Preset
+////////////// StartingPreset
 
-class UIParameterPresetClass : public UIParameter
+class UIParameterStartingPresetClass : public UIParameter
 {
   public:
-    UIParameterPresetClass();
+    UIParameterStartingPresetClass();
     void getValue(void* obj, class ExValue* value) override;
     void setValue(void* obj, class ExValue* value) override;
 };
-UIParameterPresetClass::UIParameterPresetClass()
+UIParameterStartingPresetClass::UIParameterStartingPresetClass()
 {
-    name = "preset";
-    displayName = "Preset";
+    name = "startingPreset";
+    displayName = "Starting Preset";
     scope = ScopeTrack;
     type = TypeString;
+    noBinding = true;
+}
+void UIParameterStartingPresetClass::getValue(void* obj, ExValue* value)
+{
+    value->setString(((SetupTrack*)obj)->getStartingPresetName());
+}
+void UIParameterStartingPresetClass::setValue(void* obj, ExValue* value)
+{
+    ((SetupTrack*)obj)->setStartingPresetName(value->getString());
+}
+UIParameterStartingPresetClass UIParameterStartingPresetObj;
+UIParameter* UIParameterStartingPreset = &UIParameterStartingPresetObj;
+
+////////////// ActivePreset
+
+class UIParameterActivePresetClass : public UIParameter
+{
+  public:
+    UIParameterActivePresetClass();
+    void getValue(void* obj, class ExValue* value) override;
+    void setValue(void* obj, class ExValue* value) override;
+};
+UIParameterActivePresetClass::UIParameterActivePresetClass()
+{
+    name = "activePreset";
+    displayName = "Active Preset";
+    coreName = "preset";
+    scope = ScopeTrack;
+    type = TypeString;
+    transient = true;
     resetRetain = true;
 }
-void UIParameterPresetClass::getValue(void* obj, ExValue* value)
+void UIParameterActivePresetClass::getValue(void* obj, ExValue* value)
 {
-    value->setString(((SetupTrack*)obj)->getPreset());
+    value->setString(((SetupTrack*)obj)->getStartingPresetName());
 }
-void UIParameterPresetClass::setValue(void* obj, ExValue* value)
+void UIParameterActivePresetClass::setValue(void* obj, ExValue* value)
 {
-    ((SetupTrack*)obj)->setPreset(value->getString());
+    ((SetupTrack*)obj)->setStartingPresetName(value->getString());
 }
-UIParameterPresetClass UIParameterPresetObj;
-UIParameter* UIParameterPreset = &UIParameterPresetObj;
+UIParameterActivePresetClass UIParameterActivePresetObj;
+UIParameter* UIParameterActivePreset = &UIParameterActivePresetObj;
 
 ////////////// Focus
 

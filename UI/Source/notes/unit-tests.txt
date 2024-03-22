@@ -1,0 +1,89 @@
+ * The structure of the old test direcrory was:
+ * 
+ *     ./            script source files and output .wav files from the tests
+ *     ./expected    correct .wav files for comparision
+ *
+ * There was a global UnitTestsParameter that I think was used to specify
+ * the location of the scripts and the master files, with test runtime results
+ * being deposited in the CWD.
+ *
+ * Whatever we did, I'd like it to work so that the unit test scripts and
+ * master comparision files live in a different Git repository as they did before.
+ * To avoid CWD dependencies, this directory will contain test run results.
+ *
+ *    ./results
+ *
+ * This impacts the behavior of any Save and Load functions that might
+ * be of general use outside the unit tests, since those need to have
+ * more control over where the files go.
+ *
+ * By default these functions assume files are in the root directory
+ * which will either be the installation directory, or an OS specific
+ * folder used to contain user settings.
+ *
+ * With mobius-redirect we can now change the entire root to go somewhere
+ * else, but wondering if there should be a "unit test mode" or a parameter
+ * to point to where the unit tests are so we don't have to use
+ * redirects just to run the tests.  Because mobius.xml is accessed so
+ * early, and the unit tests need their own stable mobius.xml, there
+ * are advantages to using mobius-redirect.  Still it would be nice
+ * if the redirect could go to a folder under the main source tree for
+ * easier maintenance, but still have the test files located somewhere else.
+ *
+ * The scripts are small so I don't mind having them in the main source tree
+ * but the audio files are massive and need to go somewhere else.
+ *
+ * Scripts need a way to say "I'm a unit test" which changes the behavior
+ * of these functions:
+ *
+ *     SaveAudio, SaveLoop, SaveProject
+ *       Unless the file path is absolute it will save the file
+ *       under $UNIT_TEST_ROOT/results
+ *
+ *     Load
+ *        read the file from $UNIT_TEST_ROOT/expected
+ *
+ *     Diff, DiffAudio
+ *       first file is in $UNIT_TEST_ROOT/results
+ *       second file is in $UNIT_TEST_ROOT/expected
+ *
+ * Test scripts must call the UnitTestSetup function, which isn't really
+ * a function right now, it's a special statement wired in to the script language.
+ * This will set a flag in Mobius that can be tested here to
+ * see whether the special file handling needs to be done.
+ *
+ * Setup Notes
+ * 
+ * This used to bootstrap a Preset and Setup with a stable
+ * configuration, but I'm moving toward just using mobius-redirect for that
+ * // Think about not requiring mobius-redirect just to run tests.
+ * UnitTestSetup can just as easilly force the load of a MobiusConfig
+ * from anywhere without needing to redirect for general use.
+ * 
+ * The tests need to know the location of the "unit test root" which
+ * is different from the standard root and is where the test result
+ * files go and the expected files live.  There are a few ways this could work
+ * 
+ * UnitTestSetup argument
+ *    make the tests pass the absolute path to the directory
+ *    inconvenience for the test writer and makes different machines harder
+ * 
+ * Root relative
+ * 
+ *   test files are expected to be relative to the standard system root
+ *   putting it under the root is awkward for development since Git sees
+ *   them and you have to add .gitignores to make it stop getting excited
+ * 
+ * These are going to be in a different Git repository so unwinding
+ *   out of the development tree would look like this:
+ * 
+ *   Typical dev directory
+ *      c:/dev/mobiusrepo/mobius/Source
+ *   Relative test directory
+ *      c:/dev/mobiustest
+ * 
+ * This doesn't work so well if you want to run tests from a normal
+ * isntallation rather than the dev tree.  The root location the
+ * is something like /Library/Application Support on Mac
+ * and c:/Program Files?...  on Windows and we don't want to mess
+ * with putting test files there.

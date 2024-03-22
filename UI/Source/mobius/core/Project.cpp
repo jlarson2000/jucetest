@@ -32,17 +32,21 @@
 #include "../../util/XmlModel.h"
 #include "../../util/XmlBuffer.h"
 #include "../../util/XomParser.h"
-#include "Expr.h"
 
+#include "../../model/MobiusConfig.h"
+#include "../../model/Setup.h"
+#include "../../model/UserVariable.h"
+
+#include "../AudioPool.h"
+
+#include "Expr.h"
 #include "Loop.h"
 #include "Mobius.h"
-#include "../../model/MobiusConfig.h"
 #include "Layer.h"
-#include "Project.h"
-#include "../../model/Setup.h"
 #include "Segment.h"
 #include "Track.h"
-#include "../../model/UserVariable.h"
+
+#include "Project.h"
 
 /****************************************************************************
  *                                                                          *
@@ -888,7 +892,7 @@ ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
 
     Preset* pre = t->getPreset();
 	if (pre != NULL) {
-        const char* dflt = (st != NULL) ? st->getPreset() : NULL;
+        const char* dflt = (st != NULL) ? st->getStartingPresetName() : NULL;
         if (dflt == NULL || !StringEqual(dflt, pre->getName()))
           setPreset(pre->getName());
     }

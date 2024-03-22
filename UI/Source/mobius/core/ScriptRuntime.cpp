@@ -11,6 +11,8 @@
 
 // for TriggerEvent
 #include "../../model/Trigger.h"
+
+#include "../MobiusContainer.h"
 #include "../KernelEvent.h"
 
 #include "Action.h"

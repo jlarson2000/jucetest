@@ -289,7 +289,7 @@ void SetupPanel::initForm()
     addField("Tracks", UIParameterTrackName);
     addField("Tracks", UIParameterDefaultSyncSource);    // overrides default SyncSourceParameter
     addField("Tracks", UIParameterTrackSyncUnit);
-    addField("Tracks", UIParameterPreset);
+    addField("Tracks", UIParameterStartingPreset);
     addField("Tracks", UIParameterGroup);
     addField("Tracks", UIParameterFocus);
     addField("Tracks", UIParameterInput);

@@ -19,17 +19,26 @@
       Diagnostic option to dump periodic engine status
     </Parameter>
 
-    <Parameter name='activeSetup'
+    <Parameter name='startingSetup'
                type='structure' structureClass='Setup'
-               coreName='setup'>
-      In model context defines the starting Setup.
-      In runtime context changes the active Setup.
-      This differs from the core model in two ways.  The parameter name
-      is just "setup" but the method name is now getActiveSetup where
-      the original was getCurrentSetup.  Will need to change core for this.
-      THINK: Since we're going to have a small number of required core code
-      changes we may as well make all the parameter names be the same to so
-      we wouldn't need coreName.
+               codeName='StartingSetupName'
+               options='noBinding'>
+      This is used only in model context to define the starting Setup by name.
+    </Parameter>
+
+    <Parameter name='activeSetup' coreName='setup'
+               type='structure' structureClass='Setup'
+               options='transient'>
+      This is a runtime parameter that has no structure equivalent.
+      At runtime it is used to change the active setup.  This may
+      or may not be permanent.
+    </Parameter>
+
+    <Parameter name='defaultPreset'
+               type='structure' structureClass='Setup'
+               codeName='DefaultPresetName'
+               options='noBinding'>
+      This is used only in model context to define the default Preset by name.
     </Parameter>
 
     <!-- not well defined, research
@@ -55,7 +64,9 @@
       Potentially bindable.
       NOTE: The method named changed from core code which was
       originally getOverlayBindingConfig with a return type of BindingConfig
-      which no longer exists.  
+      which no longer exists.
+
+      This all needs a redesign.
     </Parameter>
 
     <Parameter name='fadeFrames' high='1024'>
@@ -437,8 +448,21 @@
     
     <Parameter name='trackName' codeName='Name' type='string' options='noBinding'/>
 
-    <Parameter name='preset' type='structure' structureClass='Preset'
-               options='resetRetain'/>
+    <Parameter name='startingPreset'
+               codeName='StartingPresetName'
+               type='structure' structureClass='Preset'
+               options='noBinding'>
+      In model context defined the starting preset for this track by name.
+    </Parameter>
+    
+    <!-- !!! this is generating code even though it is marked transient -->
+    
+    <Parameter name='activePreset' coreName='preset'
+               type='structure' structureClass='Preset'
+               codeName='StartingPresetName'
+               options='transient,resetRetain'>
+      In runtime context this changes the Preset a track is using.
+    </Parameter>
     
     <Parameter name='focus' codeName='FocusLock' type='bool' options='resetRetain,noBinding'/>
     <Parameter name='group' options='dynamic,resetRetain'/>

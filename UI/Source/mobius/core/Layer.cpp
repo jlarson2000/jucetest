@@ -320,6 +320,8 @@
 #include "../../util/Util.h"
 
 #include "../Audio.h"
+#include "../AudioPool.h"
+
 #include "FadeWindow.h"
 #include "Layer.h"
 #include "Loop.h"

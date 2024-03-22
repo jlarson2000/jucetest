@@ -1,3 +1,10 @@
+Mobius::propagateConfiguration
+  when we propgate the Setup, what happens if tracks are not in reset?
+  currently expect globalReset before we propgagate anything, but we could
+  do just the tracks that are in reset early
+  oh god, propagateConfigration/propagateSetup, and Track::udpateConfiguration
+  are a huge mess, sort this out
+
 Automatic script waits
   unit tests frequently want to do things that have to be pushed to the
   maintenance thread, and they always have to add a "Wait thread" after it

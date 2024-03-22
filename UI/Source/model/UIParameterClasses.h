@@ -14,7 +14,9 @@
 /*** GENERATED ***/
 
 extern class UIParameter* UIParameterLogStatus;
+extern class UIParameter* UIParameterStartingSetup;
 extern class UIParameter* UIParameterActiveSetup;
+extern class UIParameter* UIParameterDefaultPreset;
 extern class UIParameter* UIParameterActiveOverlay;
 extern class UIParameter* UIParameterFadeFrames;
 extern class UIParameter* UIParameterMaxSyncDrift;
@@ -107,7 +109,8 @@ extern class UIParameter* UIParameterRealignTime;
 extern class UIParameter* UIParameterOutRealign;
 extern class UIParameter* UIParameterActiveTrack;
 extern class UIParameter* UIParameterTrackName;
-extern class UIParameter* UIParameterPreset;
+extern class UIParameter* UIParameterStartingPreset;
+extern class UIParameter* UIParameterActivePreset;
 extern class UIParameter* UIParameterFocus;
 extern class UIParameter* UIParameterGroup;
 extern class UIParameter* UIParameterMono;

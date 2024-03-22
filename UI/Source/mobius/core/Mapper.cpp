@@ -180,39 +180,7 @@ void WriteFile(const char* path, const char* content)
  */
 Setup* GetCurrentSetup(MobiusConfig* config)
 {
-    Setup* found = nullptr;
-    const char* name = config->getActiveSetup();
-    if (name != nullptr) {
-        found = (Setup*)(Structure::find(config->getSetups(), name));
-    }
-    return found;
-}
-
-/**
- * Used by Mobius, ActionDispatcher
- *
- * Mobius uses it in doAction to "change the setup in both the external and
- * internal config".  This seems to be what you end up in when you select
- * setups from the main menu.
- *
- * ActionDispatcher uses it in doSetup which appears to do about the same thing,
- * unclear why we have the duplication.
- *
- * The expected effect in old code would be to find the Setup object within
- * the setup list, and then cache that pointer in MobiusConfig.  We did store
- * just the name in the XML but I don't see a name pointer, so we probably
- * expected a full Setup pointer and got the name from there.
- *
- * In the new model we just store the name, which is bad as mentioend elsewhere
- * because changing it requires a string copy.  Should be using ordinals.
- *
- */
-void SetCurrentSetup(class MobiusConfig* config, int number)
-{
-    Setup* setup = (Setup*)(Structure::get(config->getSetups(), number));
-    if (setup != nullptr) {
-        config->setActiveSetup(setup->getName());
-    }
+    return config->getStartingSetup();
 }
 
 /**

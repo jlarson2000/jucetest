@@ -109,7 +109,10 @@ int UIParameter::getDynamicHigh(MobiusConfig* container)
     else if (this == UIParameterGroup) {
         return container->getTrackGroups();
     }
-    else if (this == UIParameterPreset) {
+    else if (this == UIParameterDefaultPreset) {
+        return Structure::count(container->getPresets());
+    }
+    else if (this == UIParameterStartingPreset) {
         return Structure::count(container->getPresets());
     }
     else if (this == UIParameterActiveSetup) {
@@ -142,7 +145,10 @@ StringList* UIParameter::getStructureNames(MobiusConfig* container)
     StringList* names = nullptr;
     Structure* list = nullptr;
     
-    if (this == UIParameterPreset) {
+    if (this == UIParameterDefaultPreset) {
+        list = container->getPresets();
+    }
+    else if (this == UIParameterStartingPreset) {
         list = container->getPresets();
     }
     else if (this == UIParameterActiveSetup) {
@@ -170,7 +176,10 @@ int UIParameter::getStructureOrdinal(MobiusConfig* container, const char* name)
 
     // obviously could factor out and share this little dance
     // could also move this to Structure
-    if (this == UIParameterPreset) {
+    if (this == UIParameterDefaultPreset) {
+        list = container->getPresets();
+    }
+    else if (this == UIParameterStartingPreset) {
         list = container->getPresets();
     }
     else if (this == UIParameterActiveSetup) {
@@ -194,7 +203,10 @@ const char* UIParameter::getStructureName(MobiusConfig* container, int ordinal)
 
     // obviously could factor out and share this little dance
     // could also move this to Structure
-    if (this == UIParameterPreset) {
+    if (this == UIParameterDefaultPreset) {
+        list = container->getPresets();
+    }
+    else if (this == UIParameterStartingPreset) {
         list = container->getPresets();
     }
     else if (this == UIParameterActiveSetup) {

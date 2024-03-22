@@ -528,7 +528,7 @@ void XmlRenderer::render(XmlBuffer* b, MobiusConfig* c)
     // active setup name
     // old notes say if the preset has been overridden this is not
     // saved in the config
-    b->addAttribute(ATT_SETUP, c->getActiveSetup());
+    b->addAttribute(ATT_SETUP, c->getStartingSetupName());
 
     // active binding overlay name
     b->addAttribute(ATT_OVERLAY_BINDINGS, c->getOverlayBindings());
@@ -707,7 +707,7 @@ void XmlRenderer::parse(XmlElement* e, MobiusConfig* c)
 
     // formerly had to do these last after the object lists
     // were built, now they're just names
-    c->setActiveSetup(e->getAttribute(ATT_SETUP));
+    c->setStartingSetupName(e->getAttribute(ATT_SETUP));
     c->setOverlayBindings(e->getAttribute(ATT_OVERLAY_BINDINGS));
 }
 
@@ -952,7 +952,7 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
     // this was only InputPort, OutputPort, and PresetNumber
     // actually there are a lot missing and not just ones with transient
 
-    render(b, UIParameterPreset, t->getPreset());
+    render(b, UIParameterStartingPreset, t->getStartingPresetName());
     render(b, UIParameterFocus, t->isFocusLock());
     render(b, UIParameterMono, t->isMono());
     render(b, UIParameterGroup, t->getGroup());
@@ -988,7 +988,7 @@ void XmlRenderer::render(XmlBuffer* b, SetupTrack* t)
 void XmlRenderer::parse(XmlElement* e, SetupTrack* t)
 {
 	t->setName(e->getAttribute(ATT_NAME));
-    t->setPreset(parseString(e, UIParameterPreset));
+    t->setStartingPresetName(parseString(e, UIParameterStartingPreset));
     t->setFocusLock(parse(e, UIParameterFocus));
     t->setMono(parse(e, UIParameterMono));
     t->setGroup(parse(e, UIParameterGroup));

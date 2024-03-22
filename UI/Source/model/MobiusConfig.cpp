@@ -109,8 +109,13 @@ void MobiusConfig::init()
 	mAltFeedbackDisables = nullptr;
 
 	mPresets = nullptr;
+    mDefaultPresetName = nullptr;
+    mDefaultPreset = nullptr;
+    
 	mSetups = nullptr;
-    mActiveSetup = nullptr;
+    mStartingSetupName = nullptr;
+    mStartingSetup = nullptr;
+    
 	mBindings = nullptr;
     mOverlayBindings = nullptr;
     mScriptConfig = nullptr;
@@ -184,8 +189,9 @@ MobiusConfig::~MobiusConfig()
 	delete mConfirmationFunctions;
 	delete mAltFeedbackDisables;
 	delete mPresets;
+    delete mDefaultPresetName;
     delete mSetups;
-    delete mActiveSetup;
+    delete mStartingSetupName;
     delete mBindings;
     delete mOverlayBindings;
     delete mScriptConfig;
@@ -842,6 +848,75 @@ void MobiusConfig::addPreset(Preset* p)
     mPresets = (Preset*)Structure::append(mPresets, p);
 }
 
+/**
+ * Look up a preset by name.
+ */
+Preset* MobiusConfig::getPreset(const char* name)
+{
+    return (Preset*)(Structure::find(mPresets, name));
+}
+
+/**
+ * Look up a preset by ordinal.
+ */
+Preset* MobiusConfig::getPreset(int ordinal)
+{
+    return (Preset*)Structure::get(mPresets, ordinal);
+}
+
+const char* MobiusConfig::getDefaultPresetName()
+{
+    return mDefaultPresetName;
+}
+
+void MobiusConfig::setDefaultPresetName(const char* name)
+{
+    delete mDefaultPresetName;
+    mDefaultPresetName = CopyString(name);
+}
+
+/**
+ * Return the Preset object that is considered the default preset.
+ * This is a transient runtime value that is calculated by
+ * searching the Preset list using the persistent mDefaultPresetName.
+ * It is cached to avoid a linear string search very time.
+ *
+ * Like getStartingSetup we will try to fix misconfiguration so an
+ * object can always be returned.
+ */
+Preset* MobiusConfig::getDefaultPreset()
+{
+    if (mDefaultPreset == nullptr) {
+        if (mDefaultPresetName == nullptr) {
+            // misconfiguration, pick the first one
+            // note that this does memory allocation and should not
+            // be done in the kernel but it's an unusual situation
+            // still should switch to static arrays for names
+            Trace(1, "Default preset name not set, choosing the first\n"); 
+            if (mPresets == nullptr) {
+                // really raw config, bootstrap one
+                Trace(1, "Bootstrapping default preset, shouldn't be here\n");
+                mPresets = new Preset();
+                mPresets->setName("Default");
+            }
+            setDefaultPresetName(mPresets->getName());
+        }
+
+        // now the usual lookup by name
+        mDefaultPreset = getPreset(mDefaultPresetName);
+        
+        if (mDefaultPreset == nullptr) {
+            // name was misconfigured, should not happen
+            Trace(1, "Misconfigured default preset: %s does not exist, choosing the first\n",
+                  mDefaultPresetName);
+            // note that setting the name clears the cache so have to do that first
+            setDefaultPresetName(mPresets->getName());
+            mDefaultPreset = mPresets;
+        }
+    }
+    return mDefaultPreset;
+}
+
 /****************************************************************************
  *                                                                          *
  *   						   SETUP MANAGEMENT                             *
@@ -867,25 +942,76 @@ void MobiusConfig::addSetup(Setup* s)
     mSetups = (Setup*)Structure::append(mSetups, s);
 }
 
-const char*  MobiusConfig::getActiveSetup()
-{
-    return mActiveSetup;
-}
-
-void MobiusConfig::setActiveSetup(const char* name)
-{
-    delete mActiveSetup;
-    mActiveSetup = CopyString(name);
-}
-
-/**
- * Search for a Setup by name.
- * This does a linear name search and is not cached so callers
- * should do their own caching.
- */
 Setup* MobiusConfig::getSetup(const char* name)
 {
     return (Setup*)Structure::find(mSetups, name);
+}
+
+Setup* MobiusConfig::getSetup(int ordinal)
+{
+    return (Setup*)Structure::get(mSetups, ordinal);
+}
+
+//
+// Starting Setup
+//
+
+const char* MobiusConfig::getStartingSetupName()
+{
+    return mStartingSetupName;
+}
+
+void MobiusConfig::setStartingSetupName(const char* name)
+{
+    delete mStartingSetupName;
+    mStartingSetupName = CopyString(name);
+    // cache is now invalid
+    mStartingSetup = nullptr;
+}
+
+/**
+ * Return the Setup object that is considered the starting setup.
+ * This is a transient runtime value that is calculated by
+ * searching the Setup list using the persistent mStartingSetupName.
+ * It is cached to avoid a linear string search very time.
+ *
+ * So system code can depend on the return value being non-null
+ * we will boostrap an object if one cannot be found and fix misconfiguration.
+ * Not sure I like this but it would be unusual, and avoids crashes.
+ * The code here looks complex but it's mostly just handling corner
+ * cases that shouldn't happen.
+ */
+Setup* MobiusConfig::getStartingSetup()
+{
+    if (mStartingSetup == nullptr) {
+        if (mStartingSetupName == nullptr) {
+            // misconfiguration, pick the first one
+            // note that this does memory allocation and should not
+            // be done in the kernel but it's an unusual situation
+            // still should switch to static arrays for names
+            Trace(1, "Starting setup name not set, default to the first one\n"); 
+            if (mSetups == nullptr) {
+                // really raw config, bootstrap one
+                Trace(1, "Bootstrapping Setup, shouldn't be here\n");
+                mSetups = new Setup();
+                mSetups->setName("Default");
+            }
+            setStartingSetupName(mSetups->getName());
+        }
+
+        // now the usual lookup by name
+        mStartingSetup = getSetup(mStartingSetupName);
+        
+        if (mStartingSetup == nullptr) {
+            // name was misconfigured, should not happen
+            Trace(1, "Misconfigured starting setup, %s does not exist, defaulting to first\n",
+                  mStartingSetupName);
+            // note that setting the name clears the cache so have to do that first
+            setStartingSetupName(mSetups->getName());
+            mStartingSetup = mSetups;
+        }
+    }
+    return mStartingSetup;
 }
 
 /****************************************************************************

@@ -125,6 +125,12 @@ void GlobalPanel::render()
  */
 void GlobalPanel::initForm()
 {
+    // note that while activeSetup is a global parameter we defined
+    // it in the SetupPanel as a side effect of leaving it selected?
+    // do we?
+    // what about DefaultPreset shouldn't that be the same?
+    //addField("Miscellaneous", UIParameterDefaultPreset);
+    
     addField("Miscellaneous", UIParameterQuickSave);
     addField("Miscellaneous", UIParameterLongPress);
     addField("Miscellaneous", UIParameterSpreadRange);

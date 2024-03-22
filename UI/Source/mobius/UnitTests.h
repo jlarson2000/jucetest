@@ -20,10 +20,12 @@ class UnitTests
     UnitTests(class MobiusShell* shell);
     ~UnitTests();
 
-    // called in response to the UnitTestSetups script statement
-    // which will schedule an event
-    void setup(class KernelEvent* e);
+    // entry point from the UnitTestSetup script statement
+    void scriptSetup(class KernelEvent* e);
 
+    // entry point from the UnitTestMode global function
+    void functionSetup(class UIAction* a);
+    
     // called by KernelEventHandler to see if we need to
     // play games with load/save files
     bool isEnabled() {
@@ -38,6 +40,7 @@ class UnitTests
     
   private:
 
+    void setup();
     void installPresetAndSetup(class MobiusConfig* config);
     void loadConfigOverlay(MobiusConfig* main);
 
