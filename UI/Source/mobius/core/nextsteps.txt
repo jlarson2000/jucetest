@@ -1,3 +1,15 @@
+Standalone hardware config
+  need to remember audio and midi device settings
+  keep this out of mobius.xml
+  devices.xml
+  boostrap an entry for every machine it runs on
+  need to start forcing the sample rate for unit tests
+  take the device stuff out of MobiusConfig except for
+    midi devices to open as a plugin
+
+  audio devices will never change on a host but MIDI devices
+  could move around, still makes sense to save them in the host config
+  
 UnitTests
   Laptop audio device comes up with a 48k sample rate, can that be influenced?
   If the MobiusContainer sample rate doesn't match what is stored in the .wav
