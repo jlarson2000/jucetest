@@ -401,7 +401,8 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
     // needs more thought
     addOption(el, "scheduled");
     // needs a class definition for bindings, but no get/set code is generated
-    addOption(el, "noConfig");
+    // this was the same as transient, removed
+    //addOption(el, "noConfig");
     
     code.decIndent();
     code.add("}\n");
@@ -423,7 +424,7 @@ void ParameterGenerator::generateOldCode(juce::XmlElement* el)
 
     // we have to define get/set values to meet the pure virtual requirmenet
     // but can stub them out
-    bool noConfig = el->getStringAttribute("options").contains("noConfig");
+    bool noConfig = el->getStringAttribute("options").contains("transient");
 
     // getValue
 

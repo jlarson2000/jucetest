@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../model/MobiusState.h"
+#include "../model/DynamicConfig.h"
 
 #include "MobiusContainer.h"
 #include "KernelCommunicator.h"
@@ -49,7 +50,9 @@ class MobiusShell : public MobiusInterface
     void simulateInterrupt(float* input, float* output, int frames);
     void test();
 
-    // temporary for ScriptAnalyzer
+    // for a small number of things like script analysis that
+    // need to live dangerously
+    // need to start protecting these
     class MobiusKernel* getKernel() {
         return &kernel;
     }
@@ -74,20 +77,27 @@ class MobiusShell : public MobiusInterface
 
   protected:
     
+    DynamicConfig* getInternalDynamicConfig();
+
     // accessors for the Kernel only
     class AudioPool* getAudioPool();
 
+    // UnitTests
+    void loadSamples(SampleConfig* src, bool unitTestSetup);
+    
   private:
 
     class MobiusContainer* container = nullptr;
     MobiusListener* listener = nullptr;
     class MobiusConfig* configuration = nullptr;
     
+    MobiusState simulatorState;
+    DynamicConfig dynamicConfig;
+
     // kernel communication and shared state
     KernelCommunicator communicator;
     KernelEventHandler kernelEventHandler {this};
-    MobiusState state;
-
+    
     // note that AudioPool must be declared before
     // Kernel so that they are destructed in reverse
     // order and Kernel can return things to the pool
@@ -111,6 +121,17 @@ class MobiusShell : public MobiusInterface
     //
     // internal functions
     //
+
+    void initDynamicConfig();
+    void installDynamicConfig(class SampleManager* samples);
+    void installDynamicConfig(class Scriptarian* scripts);
+    void removeDynamicActions(class ActionType* type);
+
+    class SampleManager* loadSamples(class SampleConfig* src);
+    void sendSamples(class SampleManager* manager, bool safeMode);
+    
+    class Scriptarian* loadScripts(class ScriptConfig* src);
+    void sendScripts(class Scriptarian* manager, bool safeMode);
     
     void consumeCommunications();
     void sendKernelConfigure(class MobiusConfig* config);

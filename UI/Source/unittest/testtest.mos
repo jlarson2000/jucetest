@@ -11,5 +11,5 @@ Alert "Running test!"
 UnitTestSetup
 Wait thread
 
-// play one of the test samples
+# play one of the test samples
 Sample 1

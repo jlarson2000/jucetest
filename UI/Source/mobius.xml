@@ -121,14 +121,12 @@
     <Binding action='function' name='Coverage' trigger='ui' value='0'/>
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
     <Binding action='intrinsic' name='Load Scripts' trigger='ui' value='0'/>
+    <Binding action='function' name='UnitTestMode' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos'/>
     <ScripRef file='C:\dev\jucetest\UI\Source\unittest\echo.mos'/>
-    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\calltest.mos'/>
-    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\exprtest.mos'/>
-    <ScripRef file='C:\dev\jucetest\UI\Source\unittest\testtest.mos'/>
   </ScriptConfig>
   <SampleConfig>
     <Sample path='C:\dev\jucetest\UI\Source\mobius\samples\gcloop.wav'/>

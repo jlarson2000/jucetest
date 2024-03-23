@@ -1258,6 +1258,7 @@ void XmlRenderer::parse(XmlElement* e, ScriptConfig* c)
 #define ATT_SUSTAIN "sustain"
 #define ATT_LOOP "loop"
 #define ATT_CONCURRENT "concurrent"
+#define ATT_SAMPLE_BUTTON "button"
 
 void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
 {
@@ -1273,6 +1274,7 @@ void XmlRenderer::render(XmlBuffer* b, SampleConfig* c)
         b->addAttribute(ATT_SUSTAIN, s->isSustain());
         b->addAttribute(ATT_LOOP, s->isLoop());
         b->addAttribute(ATT_CONCURRENT, s->isConcurrent());
+        b->addAttribute(ATT_SAMPLE_BUTTON, s->isButton());
         // note that the data block is NOT serialized or parsed
         b->add("/>\n");
     }
@@ -1295,7 +1297,8 @@ void XmlRenderer::parse(XmlElement* e, SampleConfig* c)
         s->setSustain(child->getBoolAttribute(ATT_SUSTAIN));
         s->setLoop(child->getBoolAttribute(ATT_LOOP));
         s->setConcurrent(child->getBoolAttribute(ATT_CONCURRENT));
-
+        s->setButton(child->getBoolAttribute(ATT_SAMPLE_BUTTON));
+        
         if (last == nullptr)
 		  samples = s;
 		else

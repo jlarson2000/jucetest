@@ -268,10 +268,7 @@ void KernelEventHandler::doTimeBoundary(KernelEvent* e)
 
 /**
  * Here after the UnitTestSetup script statement.
- * Before this just did some tweaking of the Preset
- * and Setup in the audio thread, but now that we defer
- * loading of samples, it needs to be done from the shell down.
- * And the script needs to wait for it to finish.
+ * This can install complex configuration.
  */
 void KernelEventHandler::doUnitTestSetup(KernelEvent* e)
 {

@@ -62,6 +62,9 @@ ActionType* ActionScript = &ActionScriptObj;
 ActionType ActionIntrinsicObj("intrinsic", "Intrinsic");
 ActionType* ActionIntrinsic = &ActionIntrinsicObj;
 
+ActionType ActionSampleObj("sample", "Sample");
+ActionType* ActionSample = &ActionSampleObj;
+
 // should just be an enumeration or another SystemConstant
 
 ActionType ActionPresetObj("preset", "Preset");

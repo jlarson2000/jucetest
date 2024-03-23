@@ -1,0 +1,174 @@
+
+During UnitTestMode we make configuration changes within the engine
+that are not part of the UI's MobiusConfig model this includes
+
+  - SampleConfig
+  - ScriptConfig
+  - ActiveSetup
+  - DefaultPreset
+
+This is bad because it means that the preset ordinal returned in TrackState
+may be beyond the range of the Presets in the UI MobiusConfig.
+
+We don't have an activeSetup ordinal in the MobiusState, but even if we did
+it has the same problem with ordinals for these mystery Setups.
+
+Could have char buffer with the name here, but that's annoying.
+
+Could use a special ordinal like -1 meaning UnitTestMode since this is the
+only mystery objects we'll create.  That's not so bad but if we ever want
+to auto-gen Setups and Presets for other reasons that isn't enough.
+
+Could send an alert to MobiusListener when that happens so it can adjust
+the external MobiusConfig to match, but that feels like overkill.
+
+Scripts will be handled with DynamicFunctions and DynamicConfigChanged
+
+
+Samples are a problem, it sure would be nice to have a SampleElement that
+displays what the currently loaded samples are which may be more random
+than what MobiusConfig has if we start treating these as autonomous "sample packs".
+
+UGH, it's worse...
+
+If you bootstrap a Preset or Setup it better damn well be at the end of the
+list or else it messes up what the UI thinks the ordinals for the normal objects are.
+
+Knowing that we're in unittestmode alone is easy and good, could just assume
+the special object names are in place.
+
+Knowing the samples are still a problem though
+
+Hmm, DynamicConfigChanged is a good way to get samples back.  They don't have to be
+DynamicActions but they could be?
+
+DynamicConfig* MobiusShell::getDynamicConfig()
+{
+    DynamicConfig* dynconfig = new DynamicConfig();
+    
+    // keeping the messy logic in ScriptAnalyzer even though it is small
+    scriptAnalyzer.analyze(configuration->getScriptConfig(), dynconfig);
+    
+    // todo: how to say we want auto-buttons for Samples?
+    // could be in the Sample model
+
+    // intrinsic function experiment
+    Intrinsic::addIntrinsics(dynconfig);
+
+    return dynconfig;
+}
+
+If we're in UnitTestMode then shouldn't be analyzing the shell's ScriptConfig
+need to go down ot the Kernel, and we shouldn't be compiling it again, just
+pick stuff out of it.
+
+Is this safe to do anyway?
+
+Better to treat DynmaicConfig more like MobiusState.  It can be owned by MobiusShell
+who will refresh it now and then and call MobiusDynamicConfigChanged when it changes
+then UI reads it.
+
+Kind of liking this, it gets rid of the extra ScriptConfig compilation just for the binding
+UI, but
+
+Threading issues only if we allow DynamicConfig to be modified as a side effect of a script
+which is the case with UnitTestSetup.
+
+Ugh, we have issues with deleting old DynamicCOnfigs out from under the UI, if we returned a copy
+like we do now that's okay, just notify, make another copy.  THis happens so rarely not
+worth worrying about.  So we can keep an internal DynamicCOnfig but we always copy
+when it escapes.
+
+This si good....
+
+MobiusShell maintains a private DynamicConfig it builds on script or sample loading
+or when unit test mode is activated.
+
+Supervisor asks for a copy whenever DynamicConfigChanged is called.
+
+This will contain DynamicActions for each script that can be called
+
+It can also contain sample info, maybe actions maybe not.
+
+This could also be where the unit test mode flag lives.  but it isn't hard to
+put that in MobiusState either.
+
+Still have problems because MobiusShell::getDynamicConfiguration can be called from
+the UI thread and refreshing it is done in the maintenance thread.
+
+Would be better if DynamicConfigChanged sent a reference to the object and left it up to
+the UI to make the copy.  The object passed in the call is not guaranteed to remain valid
+after the call listener callback completes.  There is no getDynamicConfig.
+
+Bottom line:
+
+Maintenance Thread
+  get UnitTestSetup event
+  build out Sample and Script containers, send to Kernel
+  because this needs to recompile the scripts, build a new
+  DynamicConfig
+  Notify DynamicConfigListener
+  Supervisor copy DynamicConfig and keep it
+
+alt.
+
+Random Thread/UI Thread
+  Supervisor calls getDynamicConfig
+  maintenance thread owns the DynamicConfig
+  UI thread begins copying it at the same time
+  maintenance thread receives an event to rebuild it
+  mayhem
+
+UIThread calls installSamples
+  samples are compiled and DynamicConfig updated
+
+UIThread needs to touch it
+  initialize
+  reconfigure
+  installSamples
+  installScripts
+  reloadScripts
+  UnitTests.actionSetup
+
+
+Maintenance thread needs to touch it
+  UnitTests.kernelSetup
+  EventReloadScripts
+
+
+Passing the maineance copy in the listener notification
+doesn't solve the problem of the UI iniating a sample load
+at the same time maintenance thread is activating unit test setup
+
+If the UI thread owns it, maintenance can't "phase" since we don't
+know when the UI thread will be active again.
+
+If the maintenance thread owns it, UI thread can phase it to the
+maintenance thread for delayed notification
+
+Same is true for the MobiusShell.configuration object.  That can change
+at any time when the UI calls reconfigure().  If maintenance is running at
+the time it could access a deleted object.
+
+Need a MaintenanceCommunicator object, the only difference is that
+both sides are allowed to delete.
+
+UI will be doing the work most of the time, new configuration, new SampleTrack,
+new Scriptarian, derive a new DynamicConfig at that time.
+
+Maintenance thread needs a third copy of MobiusConfig or it blocks on access to it.
+
+Interesting handoff, Kernel create KernelMessage puts it in the send queue
+Kernel process es the message puts it in the return queue
+Maintenance proceses the return queue.
+
+So UI thread is never consuming kernel messages.  Could be used to pass
+
+UI Builds DynamicConfig passes to Kernel.  Kernel does nothing but returns it
+to the maintenance thread, that gets it from UI to maintenance.
+
+Other direction is harder Kernel gives maintenance a new DynamicConfig
+or maintenance builds a new DynamicConfig.  Maintance needs to pass
+that to ui for getDynamicConfig or other reasons.  Can't use phasing but
+could use pending.
+

@@ -43,12 +43,12 @@ class DynamicConfig
   public:
 
     DynamicConfig();
+    DynamicConfig(DynamicConfig* src);
     ~DynamicConfig();
 
     juce::OwnedArray<class DynamicAction>* getActions();
     juce::StringArray* getErrors();
     
-    // called by Mobius to export the config
     void clearActions();
     void addAction(DynamicAction* action);
 
@@ -67,6 +67,7 @@ class DynamicAction
   public:
 
     DynamicAction();
+    DynamicAction(DynamicAction* src);
     ~DynamicAction();
 
     ActionType* type = ActionScript;

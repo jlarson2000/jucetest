@@ -102,8 +102,11 @@ int UIParameter::getDynamicHigh(MobiusConfig* container)
     
     // we'll be starting to have this pattern in several places
     // move to lambdas!
-    
-    if (this == UIParameterActiveTrack) {
+
+// for santiy compiling in Mobu, don't want references to these
+// before they're actually defined
+#if 0
+    if (this == UIParameterStartingTrack) {
         return container->getTracks();
     }
     else if (this == UIParameterLoopCount) {
@@ -130,7 +133,8 @@ int UIParameter::getDynamicHigh(MobiusConfig* container)
         // must be a static parameter, just return the static high
         dynamicHigh = high;
     }
-
+#endif
+    
     return dynamicHigh;
 }
 
@@ -145,6 +149,7 @@ StringList* UIParameter::getStructureNames(MobiusConfig* container)
     StringList* names = nullptr;
     Structure* list = nullptr;
     
+#if 0
     if (this == UIParameterPreset) {
         list = container->getPresets();
     }
@@ -162,7 +167,8 @@ StringList* UIParameter::getStructureNames(MobiusConfig* container)
             list = list->getNext();
         }
     }
-
+#endif
+    
     return names;
 }
 
@@ -171,6 +177,7 @@ int UIParameter::getStructureOrdinal(MobiusConfig* container, const char* name)
     int ordinal = -1;
     Structure* list = nullptr;
 
+#if 0
     // obviously could factor out and share this little dance
     // could also move this to Structure
     if (this == UIParameterPreset) {
@@ -186,7 +193,8 @@ int UIParameter::getStructureOrdinal(MobiusConfig* container, const char* name)
     if (list != nullptr) {
         ordinal = Structure::getOrdinal(list, name);
     }
-
+#endif
+    
     return ordinal;
 }
 
@@ -194,7 +202,7 @@ const char* UIParameter::getStructureName(MobiusConfig* container, int ordinal)
 {
     const char* name = nullptr;
     Structure* list = nullptr;
-
+#if 0
     // obviously could factor out and share this little dance
     // could also move this to Structure
     if (this == UIParameterPreset) {
@@ -210,7 +218,8 @@ const char* UIParameter::getStructureName(MobiusConfig* container, int ordinal)
     Structure* s = Structure::get(list, ordinal);
     if (s != nullptr)
       name = s->getName();
-
+#endif
+    
     return name;
 }
 

@@ -1,0 +1,91 @@
+
+propagateGlobalConfig
+
+    bool allReset = true;
+    for (int i = 0 ; i < mTrackCount ; i++) {
+        Track* t = mTracks[i];
+        Loop* l = t->getLoop();
+        if (l != nullptr) {
+            if (!l->isReset()) {
+                allReset = false;
+                break;
+            }
+        }
+    }
+    
+    if (allReset) {
+        int initialTrack = mSetup->getActiveTrack();
+        setActiveTrack(initialTrack);
+    }
+
+
+This first part only changes the active track if everything
+is in reset, okay I guess
+
+    // tracks are sensitive to lots of things in the Setup
+    // they will look at Setup::loopCount and adjust the number of loops
+    // in each track, but this is done within a fixed array and won't
+    // allocate memory.  It also won't adjust tracks that are still doing
+    // something with audio
+    // !! not sure if this is correctly allowing tracks to process fade tails
+    // An track can be in Reset, but still "playing" a fade out, if we
+    // take that loop away it would click
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->updateConfiguration(mConfig);
+	}
+
+This does a shit ton of stuff, before the Setup is set
+
+    for (int i = 0 ; i < mTrackCount ; i++) {
+        Track* t = mTracks[i];
+        t->setSetup(mSetup);
+    }
+    
+    setActiveTrack(mSetup->getActiveTrack());
+
+And finally this
+
+So the tricky bits are Track::udpateConfiguration and Track::setSetup
+what order can they be done in and is it important?
+
+void Track::updateConfiguration(MobiusConfig* config)
+{
+    // propagate some of the global parameters to the Loops
+    updateGlobalParameters(config);
+      latencies
+      Loop::updateConfiguration
+        feedback, overdub mode, frames
+
+    looks for NoSetupChanges which we don't set any more
+    bunch of noise
+    setPreset(p)
+      updates the copy of the Preset in this track if it changed
+
+
+    if !NoSetupChanges
+      setSetup(setup, false)
+
+So this IS going the equivalent of setSetup and we do it AGAIN up in Mobius.
+
+So we've got a problem, udpateConfiguration thinks it is getting the entire MobiusConfig
+including the Setup, that's what you want for initialize() and reconfigure()  that should
+be self contained and handle random MobiusConfig thigns as well as the Setup
+set in the config.
+
+setActiveSetup
+  is called randomly in response to various thigns that aren't within initialize or reconfigure
+  it needs to do much the same stuff as updateConfiguration but can skip a few things since
+  the reset of MobiusConfig won't have changed
+  but does this really matter, there isn't much there
+
+Track::setSetup
+  resets parameters, ports, sets the name and group
+  if doPreset is passed gets the startingPreset and does setPreset()
+
+
+The only thing those two Track methods don't do is set the active track
+
+
+
+

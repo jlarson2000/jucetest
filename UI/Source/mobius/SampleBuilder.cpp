@@ -185,7 +185,8 @@ SamplePlayer::SamplePlayer(AudioPool* pool, Sample* src)
 	mSustain = src->isSustain();
 	mLoop = src->isLoop();
 	mConcurrent = src->isConcurrent();
-
+    mButton = src->isButton();
+    
     // this is the interesting part
     // create an Audio and fill it with the Sample data
     // I don't believe this "steals" the data, it copies
@@ -211,7 +212,8 @@ void SamplePlayer::init()
 	mSustain = false;
 	mLoop = false;
 	mConcurrent = false;
-
+    mButton = false;
+    
     mCursors = nullptr;
     mCursorPool = nullptr;
     mTriggerHead = 0;

@@ -59,6 +59,7 @@
 #include "../model/Preset.h"
 #include "../model/Setup.h"
 #include "../model/SampleConfig.h"
+#include "../model/ScriptConfig.h"
 #include "../model/XmlRenderer.h"
 
 #include "Audio.h"
@@ -144,7 +145,7 @@ void UnitTests::scriptSetup(KernelEvent* e)
  * Living dangeriously is my business, and since this is only for my unit testing
  * I'll trust you to do the right thing.
  */
-void UnitTests::functionSetup(UIAction* a)
+void UnitTests::actionSetup(UIAction* a)
 {
     // may want this to be a toggle?
     if (!enabled)
@@ -180,44 +181,32 @@ void UnitTests::setup()
     // special Preset and Setup
     installPresetAndSetup(kernelConfig);
 
-    // SampleConfig, ScriptConfig, and a few parameters
-    loadConfigOverlay(kernelConfig);
-    
-    // install the unit test samples if they aren't already there
-    SampleManager* samples = kernel->getSampleManager();
-    if (samples != nullptr) {
-        // we've already loaded them
-        // !! should diff these and replace them if they differ
+    MobiusConfig* overlay = readConfigOverlay();
+    if (overlay != nullptr) {
+        installOverlayParameters(kernelConfig, overlay);
+
+        // todo: rather than just replace the set of samples/scripts
+        // with what is in the overlay, could merge them with
+        // the active configs so we don't lose anything
+
+        // load and install the samples, note the use
+        // of the special "safe mode"
+        // shell does the hard work I want to keep in one place
+        SampleManager* manager = shell->loadSamples(overlay->getSampleConfig());
+        shell->sendSamples(manager, true);
+
+        // load and install the scripts
+        Scriptarian* scriptarian = shell->loadScripts(overlay->getScriptConfig());
+        shell->sendScripts(scriptarian, true);
+
+        // if we decide to defer DynamicConfigChanged notification
+        // this is where you would do it
+        // hmm, since all the send() functions do is updateDynamicConfig
+        // and send notifications could just do that here and
+        // avoid the kludgey "saveMode" flag
+
+        delete overlay;
     }
-    else {
-        // load the sample files
-        // The UI layer builds a "loaded" SampleConfig and passes it to
-        // MobiusShell if sample loading is iniated by the UI.
-        // Since we have to be able to build the SampleManager down here
-        // too, might as well do all sample loading in the shell so the UI
-        // doesn't have to bother with SampleReader.
-        SampleConfig* srcConfig = kernelConfig->getSampleConfig();
-
-        // take the simple config and load the data
-        // interface is weird here
-        SampleReader reader;
-        SampleConfig* loaded = reader.loadSamples(srcConfig);
-
-        // turn the loaded samples into a SampleManager
-        AudioPool* pool = shell->getAudioPool();
-        SampleManager* manager = new SampleManager(pool, loaded);
-
-        // SampleManager copied the loaded float buffers into
-        // Audio objects, it didn't actually steal the float buffers
-        delete loaded;
-        
-        // at this point we would normally send a MsgSamples
-        // down through KernelCommunicator, but we're going to play
-        // fast and loose and assume kernel was left in GlobalReset
-        kernel->setSampleManager(manager);
-    }
-
-    // similar thing could be done for ScriptConfig too
 }
 
 /**
@@ -259,23 +248,26 @@ void UnitTests::installPresetAndSetup(MobiusConfig* config)
 }
 
 /**
- * Look for a mobius-overlay.xml and merge it into the main MobiusConfig.
+ * Read the unit test overlay configuration.
+ * Within the SampleConfig and ScriptConfig, adjust the
+ * relative path names to be absolute in wherever the
+ * unit test root is.
  */
-void UnitTests::loadConfigOverlay(MobiusConfig* config)
+MobiusConfig* UnitTests::readConfigOverlay()
 {
+    MobiusConfig* overlay = nullptr;
+    
     juce::File root = getTestRoot();
     juce::File file = root.getChildFile("mobius-overlay.xml");
     if (file.existsAsFile()) {
         juce::String xml = file.loadFileAsString();
         XmlRenderer xr;
-        MobiusConfig* overlay = xr.parseMobiusConfig(xml.toUTF8());
+        overlay = xr.parseMobiusConfig(xml.toUTF8());
 
-        // install samples
+        // resolve sample paths
         SampleConfig* samples = overlay->getSampleConfig();
         if (samples != nullptr) {
             Sample* sample = samples->getSamples();
-            Sample* resolved = nullptr;
-            Sample* last = nullptr;
             while (sample != nullptr) {
                 const char* path = sample->getFilename();
                 // these are expected to be relative to UnitTestRoot
@@ -287,35 +279,50 @@ void UnitTests::loadConfigOverlay(MobiusConfig* config)
                           file.getFullPathName().toUTF8());
                 }
                 else {
-                    Sample* neu = new Sample(file.getFullPathName().toUTF8());
-                    if (resolved == nullptr)
-                      resolved = neu;
-                    else
-                      last->setNext(neu);
-                    last = neu;
+                    sample->setFilename(file.getFullPathName().toUTF8());
                 }
                 sample = sample->getNext();
             }
-
-            // can't modify what is inside overlay as that will be deleted
-            SampleConfig* newSamples = new SampleConfig();
-            newSamples->setSamples(resolved);
-
-            // since order is critical for trigger indexes, don't try to merge
-            // these, it completely replaces it
-            config->setSampleConfig(newSamples);
         }
 
-        // install scripts?
-        // if we do this, a merge might be better than an overwrite
-
-        // selected parameters, could iterate over the UIParameter::Instances
-        // list to get any of them
-        config->setInputLatency(overlay->getInputLatency());
-        config->setOutputLatency(overlay->getOutputLatency());
-
-        delete overlay;
+        // same for scripts
+        ScriptConfig* scripts = overlay->getScriptConfig();
+        if (scripts != nullptr) {
+            ScriptRef* script = scripts->getScripts();
+            while (script != nullptr) {
+                // weirdly doesn't use the same method name
+                const char* path = script->getFile();
+                file = root.getChildFile(path);
+                if (!file.existsAsFile()) {
+                    Trace(1, "Unable to resolve script file %s\n",
+                          file.getFullPathName().toUTF8());
+                }
+                else {
+                    script->setFile(file.getFullPathName().toUTF8());
+                }
+                script = script->getNext();
+            }
+        }
     }
+
+    return overlay;
+}
+
+/**
+ * Overwrite selected global parameters from the overlay config
+ * into Kernel's config.  Not that we do NOT install the
+ * full SampleConfig and ScriptConfig here, those have
+ * a more complex installation process and are handled elsewhere.
+ *
+ * We could also be doing the special Preset and Setup this way
+ * rather than building them in memory and forcing them in.
+ */
+void UnitTests::installOverlayParameters(MobiusConfig* dest, MobiusConfig* overlay)
+{
+    // just hard code them for now, could iterate over the UIParameter
+    // Instances to get anything that is found
+    dest->setInputLatency(overlay->getInputLatency());
+    dest->setOutputLatency(overlay->getOutputLatency());
 }
         
 //////////////////////////////////////////////////////////////////////

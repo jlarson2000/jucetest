@@ -93,6 +93,27 @@ FunctionDefinition::~FunctionDefinition()
 //
 //////////////////////////////////////////////////////////////////////
 
+//
+// Shell Functions
+//
+
+// this is a special Function intercepted by the shell
+// it will not have a corresponding core function because
+// core gets to the same thing with a built-in script statement
+// might want to start giving some of these an "advanced" flag to keep them
+// out of the binding UIs
+FunctionDefinition UnitTestModeDef {"UnitTestMode"};
+FunctionDefinition* UnitTestMode = &UnitTestModeDef;
+
+// thisDefinition was formerly SampleN, Sample1, etc.
+// it is now handled by Kernel and does not make it to core
+FunctionDefinition SamplePlayDef {"SamplePlay"};
+FunctionDefinition* SamplePlay = &SamplePlayDef;
+
+//
+// Core Functions
+//
+
 FunctionDefinition AutoRecordDef {"AutoRecord"};
 FunctionDefinition BackwardDef {"Backward"};
 FunctionDefinition BounceDef {"Bounce"};
@@ -169,9 +190,6 @@ FunctionDefinition RestartDef {"Restart"};
 FunctionDefinition RestartOnceDef {"RestartOnce"};
 FunctionDefinition ResumeScriptDef {"ResumeScript"};
 FunctionDefinition ReverseDef {"Reverse"};
-// thisDefinition was formerly SampleN, Sample1, etc.
-FunctionDefinition SamplePlayDef {"SamplePlay"};
-FunctionDefinition* SamplePlay = &SamplePlayDef;
 FunctionDefinition SaveCaptureDef {"SaveCapture"};
 FunctionDefinition SaveLoopDef {"SaveLoop"};
 FunctionDefinition ShuffleDef {"Shuffle"};

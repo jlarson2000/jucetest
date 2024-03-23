@@ -69,6 +69,17 @@ Sample::Sample(const char* file)
 	setFilename(file);
 }
 
+// new interface that preserves the flags
+Sample::Sample(Sample* src)
+{
+	init();
+	mFilename = CopyString(src->getFilename());
+	mSustain = src->isSustain();
+	mLoop = src->isLoop();
+	mConcurrent = src->isConcurrent();
+    mButton = src->isButton();
+}
+
 void Sample::init()
 {
 	mNext = nullptr;
@@ -78,6 +89,7 @@ void Sample::init()
 	mConcurrent = false;
     mData =  nullptr;
     mFrames = 0;
+    mButton = false;
 }
 
 Sample::~Sample()

@@ -88,6 +88,7 @@ class Sample
   public:
 
 	Sample();
+	Sample(Sample* src);
 	Sample(const char* file);
 	~Sample();
 
@@ -115,6 +116,15 @@ class Sample
     int getFrames();
     
     void setData(float* data, int frames);
+
+    // hack for testing so these can be like Scripts
+    void setButton(bool b) {
+        mButton = b;
+    }
+
+    bool isButton() {
+        return mButton;
+    }
 
   private:
 	
@@ -164,7 +174,8 @@ class Sample
      */
     float* mData;
     int mFrames;
-    
+
+    bool mButton;
 };
 
 /****************************************************************************/

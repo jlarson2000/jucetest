@@ -68,9 +68,14 @@ class FunctionDefinition : public SystemConstant {
 //
 // Constant Functions
 //
+// These are intercepted above core and since they do not
+// use the Function mapping table we need constant objects
+// to test  for.
+//
 //////////////////////////////////////////////////////////////////////
 
 extern FunctionDefinition* SamplePlay;
+extern FunctionDefinition* UnitTestMode;
 
 //////////////////////////////////////////////////////////////////////
 //

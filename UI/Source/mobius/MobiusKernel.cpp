@@ -260,6 +260,18 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 //////////////////////////////////////////////////////////////////////
 
 /**
+ * Special accessor only for MobiusShell/UnitTests to directly
+ * replace the sample library and make it available for immediate
+ * use without waiting for KernelCommunicator.
+ * Obviously to be used with care.
+ */
+void MobiusKernel::slamSampleManager(SampleManager* neu)
+{
+    delete samples;
+    samples = neu;
+}
+
+/**
  * We've just consumed the pending SampleManager from the shell.
  *
  * TODO: If samples are currently playing need to stop them gracefully
@@ -361,6 +373,17 @@ void MobiusKernel::doAction(KernelMessage* msg)
             // not handled above core, pass it down
             action->next = coreActions;
             coreActions = action;
+        }
+    }
+    else if (action->type == ActionSample) {
+        // new way to do this with DynamicAction
+        // don't like the duplication, need to decide the best path
+        // forward on these
+        if (samples != nullptr) {
+            // start one of the samples playing
+            // ordinal is properly zero based unlike the Function action above
+            samples->trigger(action->implementation.ordinal, action->down);
+            processed = true;
         }
     }
     else {

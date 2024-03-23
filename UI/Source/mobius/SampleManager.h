@@ -23,6 +23,7 @@
 //#include <stdio.h>
 
 #include "../model/SampleConfig.h"
+#include "../model/DynamicConfig.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -106,10 +107,18 @@ class SamplePlayer
 
     void setConcurrent(bool b);
     bool isConcurrent();
-    
+
 	void trigger(bool down);
 	void play(float* inbuf, float* outbuf, long frames);
 
+    // hack for testing so Samples can get buttons like scripts
+    void setButton(bool b) {
+        mButton = b;
+    }
+    bool isButton() {
+        return mButton;
+    }
+    
   protected:
 
     //
@@ -187,6 +196,8 @@ class SamplePlayer
      */
     bool mDown;
 
+    bool mButton = false;
+    
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -305,6 +316,11 @@ class SampleManager
     // called when buffers are available
     void containerAudioAvailable(class MobiusContainer* cont);
 
+    // player list only accessible for the Shell to build DynamicActions
+    SamplePlayer* getPlayers() {
+        return mPlayerList;
+    }
+    
   private:
 	
 	void init();
@@ -313,6 +329,7 @@ class SampleManager
 	SamplePlayer* mPlayers[MAX_SAMPLES];
 	int mSampleCount;
 	int mLastSample;
+    class DynamicConfig dynamicConfig;
 
 };
 

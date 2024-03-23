@@ -94,7 +94,7 @@ ActionButton::ActionButton(Binding* binding)
 /**
  * Initialie a button to trigger a DynamicAction
  * As we start evolving DynamicAction there is going to be
- * some overlap with Bindding, think about what can be shared.
+ * some overlap with Binding, think about what can be shared.
  */
 ActionButton::ActionButton(DynamicAction* src)
 {
@@ -106,8 +106,13 @@ ActionButton::ActionButton(DynamicAction* src)
     // Binding buttons use a () convention to show that there are arguments
     // we'll dispense with that
     setButtonText(src->name);
-    
+
+    // note that these use two new action types ActionScript
+    // and ActionSample
+    // ActionScript passed through okay for reasons I forgot
+    // ActionSample is new and must be caught by MobiusShell
     action.type = src->type;
+    
     // really?  it's 2024 and you're still using strcpy?
     strcpy(action.actionName, src->name.toUTF8());
     action.implementation.ordinal = src->ordinal;

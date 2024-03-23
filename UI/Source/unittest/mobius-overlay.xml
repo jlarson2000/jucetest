@@ -3,11 +3,16 @@
     inputLatency="256"
     outputLatenc="256">
   <SampleConfig>
-    <Sample path='samples/base.wav'/>
+    <Sample path='samples/base.wav' button='true'/>
     <Sample path='samples/medium.wav'/>
     <Sample path='samples/medium2.wav'/>
     <Sample path='samples/short1.wav'/>
     <Sample path='samples/short2.wav'/>
     <Sample path='samples/long.wav'/>
   </SampleConfig>
+  <ScriptConfig>
+    <ScriptRef file='calltest.mos'/>
+    <ScriptRef file='exprtest.mos'/>
+    <ScriptRef file='testtest.mos'/>
+  </ScriptConfig>
 </MobiusConfig>

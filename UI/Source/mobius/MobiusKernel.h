@@ -27,6 +27,7 @@
 
 class MobiusKernel : public MobiusContainer::AudioListener
 {
+    friend class MobiusShell;
     friend class UnitTests;
     friend class SampleFunction;
     
@@ -70,7 +71,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
 
     class MobiusState* getState();
     
-    // temporary for ScriptAnalyzer
+    // for a small number of things that live dangerously
     class Mobius* getCore() {
         return mCore;
     }
@@ -101,9 +102,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
         return samples;
     }
 
-    void setSampleManager(class SampleManager* sm) {
-        samples = sm;
-    }
+    void slamSampleManager(SampleManager* neu);
 
     // Sample function handler for the core
     void coreSampleTrigger(int index);

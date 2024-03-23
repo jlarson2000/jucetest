@@ -1,5 +1,12 @@
 /**
  * Encapsulates most of the core code related to scripts.
+ *
+ * There are two parts to this: compilation and runtime.
+ * Would like to split compilation into something more self
+ * contained that doesn't drag in runtime dependencies
+ * and defer linkage to internal objects like Function
+ * and Parameter.
+ *
  */
 
 #include "../../util/Trace.h"
@@ -12,7 +19,6 @@
 #include "Function.h"
 
 #include "Scriptarian.h"
-
 
 Scriptarian::Scriptarian(Mobius* argMobius)
 {
@@ -41,21 +47,29 @@ Function** Scriptarian::getFunctions()
 }
 
 /**
- * Called during the initialization process to set up scripts.
- * Note that this is the one place core code is allowed to do
- * complex memory allocation, like compiling scripts.
- * Once initialized, new ScriptLibrary objects must be passed
- * through KernelMessages.
+ * Compile the scripts referenced in a ScriptConfig, link
+ * them to Function and Parameter objects, and build out the
+ * combined Function array containing both static and script functions.
+ *
+ * This is used by the Shell to do all of the memory allocation and
+ * syntax analysis outside the audio thread.  It will later be passed
+ * down to the core for installation.
+ *
+ * For historical reasons, this needs a Mobius to operate for
+ * reference resolution.  The compilation process must have NO side
+ * effects on the core runtime state.  It is allowed to get the
+ * MobiusConfig from Mobius, but this may not be where this
+ * ScriptConfig came from.
+ *
  */
-void Scriptarian::initialize(MobiusConfig* config)
+void Scriptarian::compile(ScriptConfig* src)
 {
-    ScriptConfig* scriptConfig = config->getScriptConfig();
     ScriptCompiler* sc = new ScriptCompiler();
 
     // revisit the interface, rather than passing mMobius can
     // we pass ourselves intead?
     // it will want to look up Functions but also Parameters
-    mLibrary = sc->compile(mMobius, scriptConfig);
+    mLibrary = sc->compile(mMobius, src);
     delete sc;
 
     // rebuild the global Function table to include top-level scripts
@@ -66,6 +80,26 @@ void Scriptarian::initialize(MobiusConfig* config)
 
     // old code had initScriptParameters here, removed since that didn't
     // seem to do anything
+
+    // !! need a way to pass the compiler error list back up
+}    
+
+/**
+ * Called during the initialization process to set up scripts.
+ * Note that this is the one place core code is allowed to do
+ * complex memory allocation, like compiling scripts.
+ * Once initialized, new ScriptLibrary objects must be passed
+ * through KernelMessages.
+ *
+ * This is an older interface I'm not entirely happy with.
+ * Consider making scripts be more like samples and defer compilation
+ * until after the initialize() process.
+ */
+void Scriptarian::initialize(MobiusConfig* config)
+{
+    ScriptConfig* scriptConfig = config->getScriptConfig();
+    
+    compile(scriptConfig);
 }
 
 /**

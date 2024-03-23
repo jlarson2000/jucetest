@@ -105,11 +105,10 @@ UIParameterActiveSetupClass::UIParameterActiveSetupClass()
 }
 void UIParameterActiveSetupClass::getValue(void* obj, ExValue* value)
 {
-    value->setString(((MobiusConfig*)obj)->getStartingSetupName());
+    value->setNull();
 }
 void UIParameterActiveSetupClass::setValue(void* obj, ExValue* value)
 {
-    ((MobiusConfig*)obj)->setStartingSetupName(value->getString());
 }
 UIParameterActiveSetupClass UIParameterActiveSetupObj;
 UIParameter* UIParameterActiveSetup = &UIParameterActiveSetupObj;
@@ -2743,11 +2742,10 @@ UIParameterActivePresetClass::UIParameterActivePresetClass()
 }
 void UIParameterActivePresetClass::getValue(void* obj, ExValue* value)
 {
-    value->setString(((SetupTrack*)obj)->getStartingPresetName());
+    value->setNull();
 }
 void UIParameterActivePresetClass::setValue(void* obj, ExValue* value)
 {
-    ((SetupTrack*)obj)->setStartingPresetName(value->getString());
 }
 UIParameterActivePresetClass UIParameterActivePresetObj;
 UIParameter* UIParameterActivePreset = &UIParameterActivePresetObj;
@@ -3180,8 +3178,8 @@ UIParameterSpeedOctaveClass::UIParameterSpeedOctaveClass()
     high = 4;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterSpeedOctaveClass::getValue(void* obj, ExValue* value)
 {
@@ -3211,8 +3209,8 @@ UIParameterSpeedStepClass::UIParameterSpeedStepClass()
     high = 48;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterSpeedStepClass::getValue(void* obj, ExValue* value)
 {
@@ -3242,8 +3240,8 @@ UIParameterSpeedBendClass::UIParameterSpeedBendClass()
     high = 8191;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterSpeedBendClass::getValue(void* obj, ExValue* value)
 {
@@ -3273,8 +3271,8 @@ UIParameterPitchOctaveClass::UIParameterPitchOctaveClass()
     high = 4;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterPitchOctaveClass::getValue(void* obj, ExValue* value)
 {
@@ -3304,8 +3302,8 @@ UIParameterPitchStepClass::UIParameterPitchStepClass()
     high = 48;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterPitchStepClass::getValue(void* obj, ExValue* value)
 {
@@ -3335,8 +3333,8 @@ UIParameterPitchBendClass::UIParameterPitchBendClass()
     high = 8191;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterPitchBendClass::getValue(void* obj, ExValue* value)
 {
@@ -3366,8 +3364,8 @@ UIParameterTimeStretchClass::UIParameterTimeStretchClass()
     high = 8191;
     zeroCenter = true;
     control = true;
+    transient = true;
     scheduled = true;
-    noConfig = true;
 }
 void UIParameterTimeStretchClass::getValue(void* obj, ExValue* value)
 {

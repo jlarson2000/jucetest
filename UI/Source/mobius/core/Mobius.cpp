@@ -324,6 +324,21 @@ void Mobius::initializeTracks()
     }
 }
 
+/**
+ * Special accessor just for MobiusShell/UnitTests to slam in
+ * a new Scriptarian full of test scripts.
+ * Obviously must only be called from a state of GlobalReset.
+ */
+void Mobius::slamScriptarian(Scriptarian* neu)
+{
+    if (mScriptarian->isBusy()) {
+        Trace(1, "Mobius:slamScriptarian Scriptarian is busy, and you are in serious trouble son\n");
+    }
+
+    delete mScriptarian;
+    mScriptarian = neu;
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Reconfiguration
@@ -420,16 +435,23 @@ void Mobius::propagateConfiguration()
     // it owns Audio now
 	AudioFade::setRange(mConfig->getFadeFrames());
 
-	// If we were editing the Setups, then it is expected that we
-	// change the selected track if nothing else is going on
-    // !! seems like there should be more here, for every track in reset
-    // the setup changes could be immediately propagated?
+    // tracks are sensitive to lots of things in the Setup
+    // they will look at Setup::loopCount and adjust the number of loops
+    // in each track, but this is done within a fixed array and won't
+    // allocate memory.  It also won't adjust tracks that are still doing
+    // something with audio.  This also refreshes the Track's Preset
+    // copy if it isn't doing anything
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+		t->updateConfiguration(mConfig);
+	}
 
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // this is a huge mess, figure out the proper sequence of Tracks
-    // responding to Setup changes both on a full reconfigure()
-    // and after setActiveSetup
-    
+    // the only thing Track::updateConfiguration didn't
+    // do that was in the setup was set the active track
+    // not sure why, old code would now set the active track
+    // but only if all tracks were in reset
+    // seems relatively harmless to change the active track
+    // don't remember why I was anal about global reset
     bool allReset = true;
     for (int i = 0 ; i < mTrackCount ; i++) {
         Track* t = mTracks[i];
@@ -443,24 +465,14 @@ void Mobius::propagateConfiguration()
     }
     
     if (allReset) {
-        int initialTrack = mSetup->getActiveTrack();
-        setActiveTrack(initialTrack);
+        setActiveTrack(mSetup->getActiveTrack());
     }
 
-    // tracks are sensitive to lots of things in the Setup
-    // they will look at Setup::loopCount and adjust the number of loops
-    // in each track, but this is done within a fixed array and won't
-    // allocate memory.  It also won't adjust tracks that are still doing
-    // something with audio
-    // !! not sure if this is correctly allowing tracks to process fade tails
-    // An track can be in Reset, but still "playing" a fade out, if we
-    // take that loop away it would click
-	for (int i = 0 ; i < mTrackCount ; i++) {
-		Track* t = mTracks[i];
-		t->updateConfiguration(mConfig);
-	}
-
-    propagateSetup();
+    // during the early port we had this, which should not
+    // be necessary since we just did everything that should
+    // have been done in Track::updateConfiguration
+    // this calls Track::setSetup which is redundant
+    //propagateSetup();
 }
 
 /**
@@ -529,20 +541,6 @@ void Mobius::propagateFunctionPreferences()
 }
 
 /**
- * After setting the runtime setup, propgagate changes
- * to the internal components.
- */
-void Mobius::propagateSetup()
-{
-    for (int i = 0 ; i < mTrackCount ; i++) {
-        Track* t = mTracks[i];
-        t->setSetup(mSetup);
-    }
-    
-    setActiveTrack(mSetup->getActiveTrack());
-}
-
-/**
  * Unconditionally changes the active track.  
  *
  * This is not part of the public interface.  If you want to change
@@ -567,6 +565,10 @@ void Mobius::setActiveTrack(int index)
  *
  * I don't know if we do it now but we might want to be able
  * to revert this to MobiusConfig::startingSetup on GlobalReset.
+ *
+ * There is internal overlap between what Track::setSetup does
+ * and what Track::updateConfiguration does that we call
+ * when the entire MobiusConfig changes.  
  */
 void Mobius::setActiveSetup(const char* name)
 {
@@ -593,6 +595,22 @@ void Mobius::setActiveSetup(int ordinal)
         mSetup = s;
         propagateSetup();
     }
+}
+
+/**
+ * After setting the runtime setup, propgagate changes
+ * to the tracks.  This is different than propagateConfiguration
+ * because we're only changing the Setup, but internally
+ * the Track does most of the same work.
+ */
+void Mobius::propagateSetup()
+{
+    for (int i = 0 ; i < mTrackCount ; i++) {
+        Track* t = mTracks[i];
+        t->setSetup(mSetup);
+    }
+    
+    setActiveTrack(mSetup->getActiveTrack());
 }
 
 /**

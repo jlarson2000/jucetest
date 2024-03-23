@@ -109,6 +109,11 @@ class Mobius
      * handler for SaveLoop.
      */
 	class Audio* getPlaybackAudio();
+
+    /**
+     * Special interface only for UnitTests
+     */
+    void slamScriptarian(class Scriptarian* scriptarian);
     
     //////////////////////////////////////////////////////////////////////
     //

@@ -24,7 +24,7 @@ class UnitTests
     void scriptSetup(class KernelEvent* e);
 
     // entry point from the UnitTestMode global function
-    void functionSetup(class UIAction* a);
+    void actionSetup(class UIAction* a);
     
     // called by KernelEventHandler to see if we need to
     // play games with load/save files
@@ -41,8 +41,10 @@ class UnitTests
   private:
 
     void setup();
-    void installPresetAndSetup(class MobiusConfig* config);
-    void loadConfigOverlay(MobiusConfig* main);
+    void installPresetAndSetup(class MobiusConfig* dest);
+    void installOverlayParameters(class MobiusConfig* dest, class MobiusConfig* overlay);
+    class MobiusConfig* readConfigOverlay();
+    
 
     juce::File getTestRoot();
     juce::File getOutputFile(const char* name);

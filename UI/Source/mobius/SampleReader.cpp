@@ -4,6 +4,11 @@
  * keep file handling above to limit Juce and OS awareness.
  * This could also be a service provided by the MobiusContainer
  * which would fit with other things.
+ *
+ * update: I've moved toward doing file handling in MobiusShell
+ * because it's hard to avoid and lightens the load on the UI
+ * should stop using this and just send down the new
+ * LoadSamples intrinsic function in a UIAction
  * 
  */
 #include <JuceHeader.h>
@@ -27,13 +32,10 @@ SampleConfig* SampleReader::loadSamples(SampleConfig* src)
                     Trace(1, "Sample file not found: %s\n", filename);
                 }
                 else {
-                    Sample* copySample = readWaveFile(file);
-                    if (copySample == nullptr) {
-                        Trace(1, "Sample data could not be read: %s\n", filename);
-                    } 
-                    else {
-                        loaded->add(copySample);
-                    }
+                    Sample* copySample = new Sample(srcSample);
+                    bool success = readWaveFile(copySample, file);
+                    if (success)
+                      loaded->add(copySample);
                 }
             }
             srcSample = srcSample->getNext();
@@ -49,9 +51,9 @@ SampleConfig* SampleReader::loadSamples(SampleConfig* src)
  * it works and i'm not sure if it was doing stereo
  * sample interleaving in the same way.
  */
-Sample* SampleReader::readWaveFile(juce::File file)
+bool SampleReader::readWaveFile(Sample* dest, juce::File file)
 {
-    Sample* sample = nullptr;
+    bool success = false;
     float* data = nullptr;
 
     const char* filepath = file.getFullPathName().toUTF8();
@@ -62,10 +64,9 @@ Sample* SampleReader::readWaveFile(juce::File file)
 			  wav->getErrorMessage(error));
 	}
 	else {
-        sample = new Sample(filepath);
-        sample->setData(wav->stealData(), wav->getFrames());
+        dest->setData(wav->stealData(), wav->getFrames());
+        success = true;
 	}
 	delete wav;
-
-	return sample;
+    return success;
 }

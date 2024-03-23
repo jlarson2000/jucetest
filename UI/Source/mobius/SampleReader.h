@@ -21,7 +21,7 @@ class SampleReader
 
   private:
 
-    class Sample* readWaveFile(juce::File file);
+    bool readWaveFile(class Sample* dest, juce::File file);
 
 };
 
