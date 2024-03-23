@@ -1,3 +1,16 @@
+MobiusShell.loadScripts
+  consolodate this and ScriptAnalyzer so we can
+  make a DynamicConfig wheneer we send a MobiusConfig down
+  rather than have initialize() do the compilation, defer script
+  loading and let shell be in control over building the initia
+  Scriptarian, if we don't do it that way the
+  either technically kernel code in initializer would have to be
+  aware of that and pass it back up, Could have the dynconfig just
+  be another side effect of Scriptarian initialization, it would
+  be sparse but that could be merged with another one
+
+
+
 Standalone hardware config
   need to remember audio and midi device settings
   keep this out of mobius.xml

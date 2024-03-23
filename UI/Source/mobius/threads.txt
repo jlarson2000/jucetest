@@ -1,0 +1,223 @@
+
+There are three threads in play here:
+
+   UI
+     - the juce message loop
+     - action handlers from buttons, menus, keys, etc.
+     - paint requests
+     - calls MobiusShell at irregular intervals
+     
+  Maintenance
+     - private thread that runs on regular intervals
+     - calls MobiusShell/Maintainer
+
+  Audio/Kernel
+     - processes audio buffers
+     - called at rapid intervals
+
+UI sends almost all messages to the Kernel
+Maintenance reads all message from the kernel
+
+UI can ask the shell to do things, but they will have
+a delayed response
+
+UI asking for complex state is generally complicated because
+the state has to come from other threads
+
+Making an exception right now for MobiusState but may want to
+rethink that
+
+Any state shell returns in the UI thread will be stale
+State requested in the UI thread that must be accessed immediately
+will need to block
+
+The listener model works well for the UI, you don't ask a component if
+a button is clicked, you are notified when a button is clicked.  Similarly
+for complex state like DynamicConfig, UI does not ask for a dynamic config,
+it is notified when a dynamic config changes.  This should work well enough
+for most things.
+
+State shared between the UI and maintenance threads must be tightly controlled.
+Most of this is object pools which have very small touch points guarded with
+csects.
+
+Shared configuration is much more difficult since there are dozens of touch points.
+Would need to csect on the root before accessing anything.
+
+For complex objects like MobiusConfig, duplication is easier than sharing.
+Thread issues reduce to moving duplicates between threads.
+
+Object moving is hard when threads are not regularly active, the UI thread
+is not predictable, so can't "push" to a UI thread message queue.
+
+What we might be able to do is csect at the start of EVERY method that can be called
+from the UI thread, this would disable running of the maintenance thread.  This generally
+seems bad.  Better if UI thread code has as little state as possible
+
+Current MobiusShell state
+
+  MobiusContainer
+    provides services, most of it read-only and stable except for the audio thread
+    it is mostly a container for the audio thread
+
+  MobusListener
+    always called from maintenance thread?
+
+  MobiusConfig
+    currently shared with Maintenance, this is a problem
+
+  KernelCommunicator
+    shared by all three threads, csect protected
+
+  KernelEventHandler
+    accessible to Maintenance only
+
+  MobiusState
+    shared by all three threads
+       - pointer obtained in UI thread
+       - read in Maintenance
+       - updated in Audio
+
+  AudioPool
+    shared by all three, csect protected
+
+  MobiusKernel
+    owned by shell for destruction, but only called directly during initialization
+    only touched by Maintenance under controlled conditions
+
+  Simulator
+    owned and accessed mostly by UI, but simulates audio from maintenance
+
+  ScriptAnalyzer
+    autonomous
+
+  UnitTests
+    Mostly owned and operated by Maintenance
+    Activated by UI by intercepting a UIAction
+      - a general problem with any UIAction that is handled by the "shell" which
+        side of the shell is it?
+TODO
+  Break Maintaince code into an object similar to Kernel
+  Basic UI/Maintenance message passing would make things easier
+    but for things like confgiuration, we've got a two way split.  Both sides will
+    be out of sync for up to 1/10 second.  For MobiusConfig can just require that
+    they consume what they need and destroy it, that's not so bad since there is almost
+    nothing the shell needs.
+    
+Other than MobiusState which is a fragile special case, no complex object can be returned
+from MobiusShell or pushed from Maintenance without copying.
+
+DynamicConfig should be thought of as more like MobiusState, it comes from the core in at
+least one case so that path needs to be supported even though we may be able to optimize a trip
+through the core in some cases.
+
+Shell has been clean so far, it did practically nothing but allocate objects it did not keep
+and sent them to the kernel.  It was really just a light weight message passer.  Take a message
+from the UI and pass it to the kernel.
+
+Id needed nothing from MobiusConfig beyond a few things during initialization.
+The things it did need were "deferred configuration" objects, SampleConfig and ScriptConfig.
+
+Supervisor owning of MobiusConfig is actually rather dangerious.  The stuff in
+MainThread up until performMaintenance must be very careful with shared objects.  Shutting
+down the UI thread seems to be what makes this safe.  Is that our pass to do things
+to the shell structures?
+
+When Maintenance is active, it is possible to be getting any MobiusShell calls from the
+UI thread?  I think no, but not sure.  If the UI thread was allowed to be active then
+what maintenance does during the update pass would break all over.
+
+Yes, that's kind of a relief.  While performMaintenance is running it is true that:
+
+    no calls from the UI thread into MobiusShell can be in progress
+    no calls from the UI thread into MobiusShell will be inititated
+
+If the UI thread is in progress with MobiusShell when the maintenance cycle starts
+it will block waiting for the MessageManagerLock before calling peformMaintenance.
+
+So it is safe for MobiusShell to touch things that performMaintenance will also touch
+and vice versa.  Should still limit this though.
+
+In the case I hit today
+
+  UI thread receives a UIAction from a button to enable UnitTestMode
+  UI thread does a bunch of stuff like compile scripts and load Samples
+  UI thread builds a new DynamicConfig and leaves it ready for return
+  ..time passes
+  Maintenance thread blocks the UI thread
+  Maintenance thread asks for the DynamicConfig, DynamicConfig must be in a stable state
+  Maintenance thread makes a oopy of DynamicConfig for indefinite use
+
+This is fine, the UI thread was actually never calling getDynmaicConfig, it just fired
+an action and received a callback on the maintenance thread.  Almost all of what Supervisor
+does beyond initialization is in the maintenance thread.  when the UI thread is running
+it just posts actions.  The key point is that paint() and resized() should not
+be calling into MobiusShell, they probably can but there isn't a need to other than
+sending messages.
+
+So we're good, the MessageManagerLock is what keeps the UI thread and the Maintenance
+thread from stepping on each other, it is safe to share complex state.
+
+Still, should try to keep the touch points to a minimum.  For DynamicConfigChanged, oh wait, that's
+an issue.  If UI builds the DynamicConfig and calls DynamicConfigChanged, then components will be notified.  That's okay because the UI thread is in control  and we don't need the lock.
+
+Still it would be safer if the UI thread just set a flag like needsDynamicConfig event
+for the maintenance thread to pick up and then call the listeners.
+
+In general then, safest if UI thread does not call listeners though this could result
+in a 1/10 delay.  It may actually be better to defer expensive loading and compilation
+to the maintenance thread so as not to block the UI.  Most actions need to be queued anway,
+Shell can just queue them for maintenance and let it be in control of everything.
+
+Pretty sure if you use Timer this is all taken care of, only if you manage your own
+background thread is the MessageManager lock required.  If we used Timer then everything
+would be in the UI thread which is simpler but also then may have delays.
+
+Well it really doesn't matter because if the expensive code gets a MM lock, the UI
+thread will be suspended anyway.
+
+So back to the new problem
+
+  UIThread sends a UIAction to run a thread
+  UI thread sends action to kernel
+  kernel runs scripts sends KernelEvelt to enable UnitTests
+  Maintenance thread handles the UnitTest setup
+  Maintenance thread builds a DynamicConfig
+  Maintenance calls the config listener
+  listener on the maintenance thread immediately calls back to get the dynamic config
+
+This is all okay, better in some ways because the maintenance thread is control the whole time.
+
+I think we're good here it doesn't matter which thread UnitTest.setup is called from,
+it does the complex stuff rebuilds the DynamicConfig and calls the listener.
+
+All the listener does is make a copy of it for a component that might need it, but for
+test buttons it would be immediately used by the ActionButton comonents.  Thas's okay because
+we're in the UI thread.
+
+ACTION ITEMS:
+
+Build the DynamicConfig when necessary and keep it around.  Either the UI or maintenance
+thread may build it.  When the listener asks for the DynamicConfig either on
+the UI or maintenance thread it gets a copy.
+
+When Supervisor asks for the DynamicConfig it doesn't have to pass down a ScriptConfig
+it can be derived from the MobiusCOnfig that was already sent down.
+
+The only reason to have the current interface would be if you wanted to probe what might
+happen wthout actually installing it, something we don't need.
+
+Since DynamicConfig never changes, it's really just a side effect of initialize()
+reconfigure(), UIAction.loadSamples, UIAction.loadScripts, UIAction.UnitTestMode.
+
+Calling getDYnamicConfig doesn't need to trigger the generation of it.  it can be assumed to
+have already been built, and if deferred the UI needs to do something else to cause it.
+
+
+
+
+
+
+
+
+     
