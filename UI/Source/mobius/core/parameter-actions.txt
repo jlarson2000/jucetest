@@ -1,0 +1,771 @@
+Parameters that do things other than just set the MobiusConfig value
+
+----------------------------------------------------------------------
+Global
+----------------------------------------------------------------------
+
+There is a common Export/Action handler that does the obvious thing
+from/to the MobiusConfig.  Where it looks like things were done twice,
+it was the main/interrupt config.
+
+void GlobalParameter::getValue(Export* exp, ExValue* value)
+{
+	Mobius* m = (Mobius*)exp->getMobius();
+    if (m == NULL) {
+        Trace(1, "Mobius not passed in Export!\n");
+		value->setNull();
+    }
+    else {
+        // for gets use the external one
+        // !! think about this, should we consistently use the interrupt 
+        // config, it probably doesn't matter since only scripts
+        // deal with most globals 
+        MobiusConfig* config = m->getConfiguration();
+        getValue(config, value);
+    }
+}
+
+void GlobalParameter::setValue(Action* action)
+{
+	Mobius* m = (Mobius*)action->mobius;
+    if (m == NULL)
+	  Trace(1, "Mobius not passed in Action!\n");
+    else {
+        MobiusConfig* config = m->getConfiguration();
+        setValue(config, &(action->arg));
+
+        config = m->getConfiguration();
+        if (config != NULL)
+          setValue(config, &(action->arg));
+    }
+}
+
+/**
+ * For bindings, we not only update the config object, we also propagate
+ * the change through the engine.
+ * For scripts accept a name or a number.
+ * Number is 1 based like SetupNumberParameter.
+ *
+ * This is one of the rare overloads to get the Action so we
+ * can check the trigger.
+ */
+void SetupNameParameterType::setValue(Action* action)
+{
+	Mobius* m = (Mobius*)action->mobius;
+	if (m == NULL)
+	  Trace(1, "Mobius not passed in Action!\n");
+    else {
+        MobiusConfig* config = m->getConfiguration();
+
+        Setup* setup = NULL;
+        if (action->arg.getType() == EX_INT)
+          setup = config->getSetup(action->arg.getInt());
+        else 
+          setup = config->getSetup(action->arg.getString());
+
+        if (setup != NULL) {
+            // Set the external one so that if you open the setup
+            // window you'll see the one we're actually using selected.
+            // in theory we could be cloning this config at the same time
+            // while opening the setup window but worse case it just gets
+            // the wrong selection.
+
+            // !! allocates memory
+            config->setStartingSetupName(setup->getName());
+
+            // then set the one we're actually using internally
+            m->setActiveSetup(setup->ordinal);
+        }
+    }
+}
+
+void SetupNumberParameterType::setValue(Action* action)
+{
+    Mobius* m = action->mobius;
+    // validate using the external config
+    MobiusConfig* config = m->getConfiguration();
+    int index = action->arg.getInt();
+    Setup* setup = config->getSetup(index);
+
+    if (setup != NULL) {
+        // we're always in the interrupt so can set it now
+        m->setActiveSetup(index);
+    }
+}
+
+void TrackParameterType::setValue(Action* action)
+{
+    Mobius* m = (Mobius*)action->mobius;
+	// let this be 1 based in the script
+	int ivalue = action->arg.getInt() - 1;
+	m->setActiveTrack(ivalue);
+}
+
+/**
+ * Binding this is rare but we do set it in test scripts.
+ * For this to have any meaning we have to propagate it to the
+ * AudioFade class.  
+ */
+void FadeFramesParameterType::setValue(Action* action)
+{
+    int frames = action->arg.getInt();
+
+    // don't bother propagating to the interrupt config, we only
+    // need it in AudioFade
+	MobiusConfig* config = action->mobius->getConfiguration();
+	config->setFadeFrames(frames);
+
+    AudioFade::setRange(frames);
+}
+
+/**
+ * Binding this is rare but we occasionally set this in test scripts.
+ * For this to have any meaning, we also need to propagate it to the
+ * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
+ * config just so they stay in sync though that isn't used.
+ */
+void MaxSyncDriftParameterType::setValue(Action* action)
+{
+    int drift = action->arg.getInt();
+
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	config->setMaxSyncDrift(drift);
+
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setMaxSyncDrift(drift);
+        Synchronizer* sync = m->getSynchronizer();
+        sync->updateConfiguration(iconfig);
+    }
+}
+
+/**
+ * Binding this is rare but we occasionally set this in test scripts.
+ * For this to have any meaning, we also need to propagate it to the
+ * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
+ * config just so they stay in sync though that isn't used.
+ */
+void DriftCheckPointParameterType::setValue(Action* action)
+{
+    DriftCheckPoint dcp = (DriftCheckPoint)getEnum(&(action->arg));
+
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	config->setDriftCheckPoint(dcp);
+
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setDriftCheckPoint(dcp);
+        Synchronizer* sync = m->getSynchronizer();
+        sync->updateConfiguration(iconfig);
+    }
+}
+
+void CustomModeParameterType::setValue(Action* action)
+{
+    Mobius* m = (Mobius*)action->mobius;
+	m->setCustomMode(action->arg.getString());
+}
+
+/**
+ * Binding this is rare but we do set this in test scripts.
+ * For this to have any meaning we have to propagate this to the
+ * Loops via the Tracks.
+ */
+void AutoFeedbackReductionParameterType::setValue(Action* action)
+{
+    bool afr = action->arg.getBool();
+
+    Mobius* m = (Mobius*)action->mobius;
+    MobiusConfig* config = m->getConfiguration();
+    config->setAutoFeedbackReduction(afr);
+
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setAutoFeedbackReduction(afr);
+
+        for (int i = 0 ; i < m->getTrackCount() ; i++) {
+            Track* t = m->getTrack(i);
+            t->updateGlobalParameters(iconfig);
+        }
+    }
+}
+
+/**
+ * Binding this is rare, but we do set it in test scripts.
+ * For this to have any meaning we need to propagate it to the
+ * interrupt config where Track will look at it, and also 
+ * to the Recorder.
+ *
+ * UPDATE: Recorder is gone and we lost the abillity to do this.
+ * Redesign if we think it is still useful.
+ */
+void MonitorAudioParameterType::setValue(Action* action)
+{
+    bool monitor = action->arg.getBool();
+
+    Mobius* m = (Mobius*)action->mobius;
+    MobiusConfig* config = m->getConfiguration();
+	config->setMonitorAudio(monitor);
+#if 0
+    Recorder* rec = m->getRecorder();
+    if (rec != NULL)
+      rec->setEcho(monitor);
+#endif
+}
+
+/**
+ * Binding this is rare but we do set it in test scripts.
+ * For this to have any meaning we have to propagate it to the
+ * Audio class.  
+ */
+void IntegerWaveFileParameterType::setValue(Action* action)
+{
+    bool isInt = action->arg.getBool();
+    // don't bother propagating this to the interrupt config
+    Mobius* m = (Mobius*)action->mobius;
+    MobiusConfig* config = m->getConfiguration();
+	config->setIntegerWaveFile(isInt);
+
+    // this shouldn't be a parameter and we should be dealing with
+    // files at a higher level
+    Trace(1, "IntegerWaveFileParameterType: setWriteFormat!\n");
+    //Audio::setWriteFormatPCM(isInt);
+}
+
+/**
+ * Binding this is impossible but we might set it in a test script.
+ * For this to have any meaning we have to propagate it to the
+ * Funtion class.
+ *
+ * Changing this in an action was removed see also
+ * ConfirmationFunctionsParameterType
+ */
+void MuteCancelFunctionsParameterType::setValue(Action* action)
+{
+    // don't bother propagating to the interrupt
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	if (action->arg.isNull())
+	  config->setMuteCancelFunctions(NULL);
+	else
+	  config->setMuteCancelFunctions(new StringList(action->arg.getString()));
+
+    // this is normally called by installConfig when the
+    // scripts are compiled, here we track dynamic changes
+    Trace(1, "MuteCancelFunctionsParameter: Action handler wants to updateGlobalFunctionPreferences!\n");
+    //m->updateGlobalFunctionPreferences();
+}
+
+/**
+ * Binding this is impossible but we might set it in a test script.
+ * For this to have any meaning we have to propagate it to the
+ * Funtion class.
+ *
+ * UPDATE: removed Mobius::updateGlobalFunctionPreferences
+ * during the initialization redesign.  Could add something
+ * similar back, but scripts should not be needing to do this.
+ * What this did is done by initialize() and reconfigure() working
+ * from the MobiusConfig.
+ * 
+ */
+void ConfirmationFunctionsParameterType::setValue(Action* action)
+{
+    // don't bother propagating to the interrupt
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	if (action->arg.isNull())
+	  config->setConfirmationFunctions(NULL);
+	else
+	  config->setConfirmationFunctions(new StringList(action->arg.getString()));
+
+    // this is normally called by installConfig when the
+    // scripts are compiled, here we track dynamic changes
+    Trace(1, "ConfirmationFunctionsParameter: Action handler wants to updateGlobalFunctionPreferences!\n");
+    //m->updateGlobalFunctionPreferences();
+}
+/**
+ * Binding this is rare but we occasionally set this in test scripts.
+ * For this to have any meaning, we also need to propagate it to the
+ * Synchronizer which keeps a cached copy.  Also copy it to the interrupt
+ * config just so they stay in sync though that isn't used.
+ */
+void MidiRecordModeParameterType::setValue(Action* action)
+{
+    MidiRecordMode mode = (MidiRecordMode)getEnum(&(action->arg));
+
+    Mobius* m = (Mobius*)action->mobius;
+    MobiusConfig* config = m->getConfiguration();
+	config->setMidiRecordMode(mode);
+
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setMidiRecordMode(mode);
+        Synchronizer* sync = m->getSynchronizer();
+        sync->updateConfiguration(iconfig);
+    }
+}
+
+/**
+ * Binding this is rare but we do set this in test scripts.
+ * For this to have any meaning we have to propagate this to the
+ * Streams and the Loops via the Tracks.
+ */
+void InputLatencyParameterType::setValue(Action* action)
+{
+    int latency = action->arg.getInt();
+    
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	config->setInputLatency(latency);
+    
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setInputLatency(latency);
+
+        for (int i = 0 ; i < m->getTrackCount() ; i++) {
+            Track* t = m->getTrack(i);
+            t->updateGlobalParameters(iconfig);
+        }
+    }
+}
+
+/**
+ * Binding this is rare but we do set this in test scripts.
+ * For this to have any meaning we have to propagate this to the
+ * Streams and Loops via the Tracks.
+ */
+void OutputLatencyParameterType::setValue(Action* action)
+{
+    int latency = action->arg.getInt();
+
+    Mobius* m = (Mobius*)action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+	config->setOutputLatency(latency);
+
+    MobiusConfig* iconfig = m->getConfiguration();
+    if (iconfig != NULL) {
+        iconfig->setOutputLatency(latency);
+
+        for (int i = 0 ; i < m->getTrackCount() ; i++) {
+            Track* t = m->getTrack(i);
+            t->updateGlobalParameters(iconfig);
+        }
+    }
+}
+
+----------------------------------------------------------------------
+Preset
+----------------------------------------------------------------------
+
+void PresetParameter::getValue(Export* exp, ExValue* value)
+{
+    Track* track = exp->getTrack();
+    if (track != NULL)
+	  getValue(track->getPreset(), value);
+    else {
+        Trace(1, "PresetParameter:getValue track not resolved!\n");
+        value->setNull();
+    }
+}
+
+void PresetParameter::setValue(Action* action)
+{
+    Track* track = action->getResolvedTrack();
+    if (track != NULL)
+      setValue(track->getPreset(), &(action->arg));
+    else
+      Trace(1, "PresetParameter:setValue track not resolved!\n");
+}
+
+As expected, these just locate the track's active Preset and use the
+structure accessors.
+
+/**
+ * Formerly "traditional" was our old broken way and "new" was
+ * the fixed way.  "normal" is now "new", "traditional" no longer
+ * exists.  "simple" was formerly known as "overdub".
+ */
+void MultiplyModeParameterType::setValue(Preset* p, ExValue* value)
+{
+    // auto-upgrade, but don't trash the type if this is an ordinal!
+    if (value->getType() == EX_STRING) {
+        const char* str = value->getString();
+        if (StringEqualNoCase(str, "traditional") || StringEqualNoCase(str, "new"))
+          value->setString("normal");
+
+        else if (StringEqualNoCase(str, "overdub"))
+          value->setString("simple");
+    }
+
+	p->setMultiplyMode((Preset::MultiplyMode)getEnum(value));
+}
+
+void EmptyLoopActionParameterType::setValue(Preset* p, ExValue* value)
+{
+    // catch a common misspelling
+    if (value->getType() == EX_STRING && 
+        StringEqualNoCase(value->getString(), "copyTiming"))
+      p->setEmptyLoopAction(Preset::EMPTY_LOOP_TIMING);
+
+    // support for an old value
+    else if (value->getType() == EX_STRING &&
+             StringEqualNoCase(value->getString(), "copySound"))
+      p->setEmptyLoopAction(Preset::EMPTY_LOOP_COPY);
+      
+    else
+      p->setEmptyLoopAction((Preset::EmptyLoopAction)getEnum(value));
+}
+
+/**
+ * NOTE: Setting this from a script will not have any effect since
+ * Track does not watch for changes to this parameter.  We need to
+ * intercept this at a higher level, probably in setValue where
+ * it has the Action and inform the Track after we change the 
+ * Preset.
+ * 
+ * Still, I'm not sure I like having the loop count changing willy nilly.
+ * only allow it to be changed from the prest?
+ */
+void LoopCountParameterType::setValue(Preset* p, ExValue* value)
+{
+	// this will be constrained between 1 and 16
+	p->setLoops(value->getInt());
+}
+
+void MuteModeParameterType::setValue(Preset* p, ExValue* value)
+{
+    // auto-upgrade, but don't trash the type if this is an ordinal!
+    if (value->getType() == EX_STRING && 
+        StringEqualNoCase(value->getString(), "continuous"))
+      value->setString("continue");
+
+	p->setMuteMode((Preset::MuteMode)getEnum(value));
+}
+
+void RecordTransferParameterType::setValue(Preset* p, ExValue* value)
+{
+    // ignore restore mode
+    Preset::TransferMode mode = (Preset::TransferMode)getEnum(value);
+    if (mode != Preset::XFER_RESTORE)
+      p->setRecordTransfer((Preset::TransferMode)mode);
+}
+
+Presets are easy, they are almost all just structure accessors with
+a few scattered name change upgrades.  Will want to put aliases back in
+for old scripts.
+
+----------------------------------------------------------------------
+Setup
+----------------------------------------------------------------------
+
+/**
+ * Locate the target setup for the export.
+ */
+Setup* SetupParameter::getTargetSetup(Mobius* m)
+{
+    // assuming this should be the active setup, not necessarily
+    // the starting setup
+    Setup* target = m->getActiveSetup();
+
+    if (target == NULL)
+		Trace(1, "SetupParameter: Unable to resolve setup!\n");
+
+    return target;
+}
+
+void SetupParameter::getValue(Export* exp, ExValue* value)
+{
+	Setup* target = getTargetSetup(exp->getMobius());
+    if (target != NULL)
+      getValue(target, value);
+    else
+      value->setNull();
+}
+
+void SetupParameter::setValue(Action* action)
+{
+	Setup* target = getTargetSetup(action->mobius);
+    if (target != NULL)
+      setValue(target, &(action->arg));
+}
+
+Export and actons just do their thing on the active setup
+
+int DefaultSyncSourceParameterType::getOrdinalValue(Setup* s)
+{
+    // the enumeration has "Default" as the first item, we hide that
+    int index = (int)s->getSyncSource();
+    if (index > 0)
+      index--;
+    return index;
+}
+   -- that seems wrong?
+
+void DefaultSyncSourceParameterType::setValue(Setup* s, ExValue* value)
+{
+    // the enumeration has "Default" as the first item, we hide that
+    if (value->getType() == EX_INT)
+      s->setSyncSource((SyncSource)(value->getInt() + 1));
+    else {
+        int index = getEnum(value) + 1;
+        s->setSyncSource((SyncSource)index);
+    }
+}
+
+the same little "Default" dance happens in a few other places
+
+int DefaultTrackSyncUnitParameterType::getOrdinalValue(Setup* s)
+{
+    // the enumeration has "Default" as the first item, we hide that
+    int index = (int)s->getSyncTrackUnit();
+    if (index > 0)
+      index--;
+    return index;
+}
+
+void OutRealignModeParameterType::setValue(Setup* s, ExValue* value)
+{
+    // upgrade old value
+    const char* str = value->getString();
+    if (StringEqualNoCase(str, "retrigger"))
+      value->setString("restart");
+
+	s->setOutRealignMode((OutRealignMode)getEnum(value));
+}
+
+----------------------------------------------------------------------
+Track
+----------------------------------------------------------------------
+
+void TrackParameter::setValue(Action* action)
+{
+    Track* track = action->getResolvedTrack();
+    if (track != NULL)  
+      setValue(track, &action->arg);
+}
+
+/**
+ * Default getter for an Export.  This does the common
+ * work of digging out the resolved Track.
+ */
+void TrackParameter::getValue(Export* exp, ExValue* value)
+{
+    Track* track = exp->getTrack();
+    if (track != NULL)
+      getValue(track, value);
+	else
+      value->setNull();
+}
+
+/**
+ * The Speed and Pitch parameters change latency so they must be scheduled
+ * as functions rather than having an immediate effect on the track like
+ * most other parameters.
+ *
+ * This is called to convert the parameter action into a function action
+ * and invoke it.
+ */
+void TrackParameter::doFunction(Action* action, Function* func)
+{
+    // this flag must be on for ScriptInterpreter
+    if (!scheduled)
+      Trace(1, "Parameter %s is not flagged as being scheduled!\n",
+            getName());
+
+    // Convert the Action to a function
+    action->setFunction(func);
+
+    // parameter bindings don't set this, need for functions
+    action->down = true;
+    action->escapeQuantization = true;
+    action->noTrace = true;
+
+    Mobius* m = (Mobius*)action->mobius;
+    m->doActionNow(action);
+}
+
+For the most part, the only thing different about Track parameters is that the
+use Track as their underlying model in addition to SetupTrack.  So these will
+need to all be defined.  
+
+void TrackNameParameterType::getValue(Track* t, ExValue* value)
+{
+	value->setString(t->getName());
+}
+
+void TrackNameParameterType::setValue(Track* t, ExValue* value)
+{
+    t->setName(value->getString());
+}
+
+void FocusParameterType::getValue(Track* t, ExValue* value)
+{
+    value->setBool(t->isFocusLock());
+}
+
+void FocusParameterType::setValue(Track* t, ExValue* value)
+{
+	t->setFocusLock(value->getBool());
+}
+
+void GroupParameterType::setValue(Track* t, ExValue* value)
+{
+	Mobius* m = t->getMobius();
+    MobiusConfig* config = m->getConfiguration();
+	int maxGroup = config->getTrackGroups();
+
+	int g = value->getInt();
+	if (g >= 0 && g <= maxGroup)
+	  t->setGroup(g);
+    else {
+        // also allow A,B,C since that's what we display
+        const char* str = value->getString();
+        if (str != NULL && strlen(str) > 0) {
+            char letter = toupper(str[0]);
+            if (letter >= 'A' && letter <= 'Z') {
+                g = (int)letter - (int)'A';
+                if (g >= 0 && g <= maxGroup)
+                  t->setGroup(g);
+            }
+        }
+    }
+}
+
+void FeedbackLevelParameterType::setValue(Track* t, ExValue* value)
+{
+    int v = value->getInt();
+    if (v >= low && v <= high)
+      t->setFeedback(v);
+}
+   -- smattering of range checks for some reason
+
+void SpeedOctaveParameterType::setValue(Action* action)
+{
+    doFunction(action, SpeedOctave);
+}
+  -- collection of weird parameters that turn into functions
+
+/**
+ * The range is configurable for the SpeedShift spread function
+ * but mostly so that we don't claim notes that we could use
+ * for something else.  The parameter doesn't have that problem
+ * as it is bound to a single CC.  We could assume a full CC 
+ * range of 64 down and 63 up, but we've been defaulting
+ * to a 48 step up and down for so long, let's keep that so
+ * if someone binds a CC to this parameter or to the SpeedShift
+ * function they behave the same.  I don't think we need
+ * to configure a range here but it would make a pedal less
+ * twitchy and easier to control.
+ */
+SpeedStepParameterType::SpeedStepParameterType() :
+
+void TrackPresetParameterType::getValue(Track* t, ExValue* value)
+{
+    const char* name = NULL;
+
+    // You usually want the string for display.
+    // Unfortunately the private track preset did not copy
+    // the name to avoid memory allocation so we have to go back
+    // to the MobiusConfig.  Note also that Track::mPreset came 
+    // from the interrupt config but for the outside view of the
+    // parameter we need to use the master config.  This can result
+    // in a small window of inconsistency if we're in the middle of 
+    // shifting a new configuration down.  Since this is only used for the UI
+    // it should correct itself quickly.
+
+    MobiusConfig* iconfig = t->getMobius()->getConfiguration();
+    Preset* p = t->getPreset();
+    if (p != NULL) 
+      name = p->getName();
+    else {
+        // should only happen if we're shifting down a new config object
+        // and one or more of the presets were deleted
+        Trace(1, "ERROR: TrackPresetParameter: Unable to determine preset name\n");
+    }
+
+	value->setString(name);
+}
+/**
+ * This is one of the unusual ones that overloads the Action signature
+ * so we can get information about the trigger.
+ */
+void TrackPresetParameterType::setValue(Action* action)
+{
+	// accept either a name or index
+	Mobius* m = action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+
+	// value may be string or int, ints are used in the
+	// ParameterDisplay component 
+	Preset* preset = NULL;
+	if (action->arg.getType() == EX_INT)
+	  preset = config->getPreset(action->arg.getInt());
+	else 
+	  preset = config->getPreset(action->arg.getString());
+
+	if (preset != NULL) {
+        Track* t = action->getResolvedTrack();
+
+        if (action->trigger != TriggerScript) {
+            // !! assume this has to be pending for safety, though
+            // we'll always be in a script?
+            // We should be doing this with Actions now rather than
+            // yet another type of pending
+            t->setPendingPreset(preset->ordinal);
+        }
+        else {
+            // do it immediately so the reset of the script sees it
+            // !! should be getting this from the interrupt config?
+            t->setPreset(preset->ordinal);
+        }
+	}
+}
+
+void TrackPresetNumberParameterType::setValue(Action* action)
+{
+	Mobius* m = action->mobius;
+	MobiusConfig* config = m->getConfiguration();
+    int index = action->arg.getInt();
+	Preset* preset = config->getPreset(index);
+
+	if (preset != NULL) {
+        Track* t = action->getResolvedTrack();
+        if (action->trigger != TriggerScript) {
+            // !! assume this has to be pending for safety, though
+            // we'll always be in a script?
+            // Should be doing this with deferred Actions now
+            t->setPendingPreset(index);
+        }
+        else {
+            t->setPreset(index);
+        }
+	}
+}
+
+/**
+ * Given an ordinal, map it into a display label.
+ * If the value is "default", we qualify it to show what the
+ * default mode is.
+ */
+void SyncSourceParameterType::getOrdinalLabel(Mobius* m,
+                                                     int i, ExValue* value)
+{
+    // should always have these
+	if (valueLabels == NULL)
+      value->setInt(i);
+    else {
+		value->setString(valueLabels[i]);
+        if (i == 0) {
+            // add a qualifier
+            // Actually the qualifer makes this rather long so don't
+            // bother showing "Default", just wrap it
+            value->setString("(");
+            ExValue v2;
+            DefaultSyncSourceParameter->getDisplayValue(m, &v2);
+            value->addString(v2.getString());
+            value->addString(")");
+        }
+	}
+}

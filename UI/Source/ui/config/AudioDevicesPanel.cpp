@@ -215,6 +215,14 @@ void AudioDevicesPanel::dumpDeviceSetup()
     bstring = setup.useDefaultOutputChannels ? "true" : "false";
     logMessage("  useDefaultOutputChannels: " + juce::String(bstring));
     // inputChannels and outputChannels are BigIneger bit vectors
+
+    // this can return null if we just let it default
+    // this doesn't seem to be that useful as long as we can call
+    // setAudioDeviceSetup instead
+    //std::unique_ptr<juce::XmlElement> el = adm.createStateXml();
+    //logMessage("createStateXml:");
+    //logMessage(el.get()->toString());
+    
 }
 
 /**
