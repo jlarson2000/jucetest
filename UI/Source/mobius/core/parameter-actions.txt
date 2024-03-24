@@ -769,3 +769,33 @@ void SyncSourceParameterType::getOrdinalLabel(Mobius* m,
         }
 	}
 }
+
+----------------------------------------------------------------------
+
+Really not that much here.  The globals have the most weird side effects.
+
+Parameter and Setup are almost all just structure accessors.
+
+Track is the one that has a completely different model for Export/Action
+
+How to dispatch Action on a Track parameter
+
+    doAction(UIParameter* p, ExValue value)
+      Track* t = getTargetTrack()'
+
+      if (p == InputLevelParameter)
+         t->setInputLevel(value.getInt());
+
+      else if (p == OutputLevelParameter)
+         t->setOutputLevel(...
+
+If we had such a thing as a scoped parameter orginal
+
+      switch (p->actionOrdinal) {
+         case 0: t->setInputLevel(v);
+         case 1: t->setOutputLevel(v);
+
+Supposed to compile into a jump table.  Managing the enum for the ordinals
+is the awkward part, but easier than a full blown Parameter class.
+
+
