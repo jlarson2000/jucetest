@@ -174,7 +174,7 @@ class Track : public TraceContext
 	//
 
 	void loadProject(class ProjectTrack* t);
-	void setBounceRecording(Audio* a, int cycles);
+	void setBounceRecording(class Audio* a, int cycles);
 	void setMuteKludge(Function* f, bool b);
 
 	/**

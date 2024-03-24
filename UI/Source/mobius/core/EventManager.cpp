@@ -128,6 +128,7 @@
 // went missing, probably in one of the config files
 #define MAX_CUSTOM_MODE 256
 
+// MapEventType, MapFunction
 #include "Mapper.h"
 
 #include "../../util/Trace.h"

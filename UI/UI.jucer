@@ -246,8 +246,6 @@
           <FILE id="nn36LQ" name="Actionator.h" compile="0" resource="0" file="Source/mobius/core/Actionator.h"/>
           <FILE id="SJ01Nd" name="AudioConstants.h" compile="0" resource="0"
                 file="Source/mobius/core/AudioConstants.h"/>
-          <FILE id="ESvyKr" name="CriticalSection.h" compile="0" resource="0"
-                file="Source/mobius/core/CriticalSection.h"/>
           <FILE id="fBI64E" name="Event.cpp" compile="1" resource="0" file="Source/mobius/core/Event.cpp"/>
           <FILE id="FKv7IC" name="Event.h" compile="0" resource="0" file="Source/mobius/core/Event.h"/>
           <FILE id="b9JQVm" name="EventManager.cpp" compile="1" resource="0"

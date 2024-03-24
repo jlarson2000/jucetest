@@ -2683,7 +2683,6 @@
     <ClInclude Include="..\..\Source\mobius\core\Action.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Actionator.h"/>
     <ClInclude Include="..\..\Source\mobius\core\AudioConstants.h"/>
-    <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Event.h"/>
     <ClInclude Include="..\..\Source\mobius\core\EventManager.h"/>
     <ClInclude Include="..\..\Source\mobius\core\Export.h"/>

@@ -3882,9 +3882,6 @@
     <ClInclude Include="..\..\Source\mobius\core\AudioConstants.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\mobius\core\CriticalSection.h">
-      <Filter>UI\Source\mobius\core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\mobius\core\Event.h">
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>

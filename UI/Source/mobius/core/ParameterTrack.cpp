@@ -23,8 +23,6 @@
 #include <memory.h>
 #include <ctype.h>
 
-#include "Mapper.h"
-
 #include "../../util/Util.h"
 #include "../../util/List.h"
 #include "../../model/MobiusConfig.h"

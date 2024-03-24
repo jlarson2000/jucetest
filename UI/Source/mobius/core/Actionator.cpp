@@ -19,8 +19,6 @@
 #include "../../model/FunctionDefinition.h"
 #include "../../model/MobiusConfig.h"
 
-#include "Mapper.h"
-
 #include "Action.h"
 #include "Export.h"
 #include "Function.h"

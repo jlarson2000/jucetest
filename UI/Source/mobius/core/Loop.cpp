@@ -45,6 +45,7 @@
 #include <memory.h>
 #include <math.h>
 
+// MapMode
 #include "Mapper.h"
 
 #include "../../util/List.h"

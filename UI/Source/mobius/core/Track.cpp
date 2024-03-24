@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <memory.h>
 
+// MapMode
 #include "Mapper.h"
 
 #include "../../util/Util.h"

@@ -35,7 +35,6 @@
 #include "MidiEvent.h"
 #include "MidiInterface.h"
 
-#include "Mapper.h"
 #include "Action.h"
 #include "Actionator.h"
 #include "Event.h"

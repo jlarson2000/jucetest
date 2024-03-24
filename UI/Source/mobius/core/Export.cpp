@@ -15,8 +15,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "Mapper.h"
-
 #include "../../util/Util.h"
 #include "../../model/ActionType.h"
 
