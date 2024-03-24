@@ -2244,15 +2244,15 @@ ScriptStatement* ScriptSetupStatement::eval(ScriptInterpreter* si)
 
     Mobius* m = si->getMobius();
     MobiusConfig* config = m->getConfiguration();
-	Setup* s = GetSetup(config, name);
+	Setup* s = config->getSetup(name);
 
     // if a name lookup didn't work it may be a number, 
     // these will be zero based!!
     if (s == NULL)
-      s = GetSetup(config, ToInt(name));
+      s = config->getSetup(ToInt(name));
 
     if (s != NULL) {
-        // special interface for us to avoid queueing for the next interrupt
+        // could pass ordinal here too...
 		m->setActiveSetup(s->getName());
 	}
 
@@ -2294,12 +2294,12 @@ ScriptStatement* ScriptPresetStatement::eval(ScriptInterpreter* si)
 
     Mobius* m = si->getMobius();
     MobiusConfig* config = m->getConfiguration();
-    Preset* p = GetPreset(config, name);
+    Preset* p = config->getPreset(name);
 
     // if a name lookup didn't work it may be a number, 
     // these will be zero based!
     if (p == NULL)
-      p = GetPreset(config, ToInt(name));
+      p = config->getPreset(ToInt(name));
 
     if (p != NULL) {
 		Track* t = si->getTargetTrack();

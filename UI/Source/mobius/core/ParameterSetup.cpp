@@ -107,10 +107,9 @@ void SetupParameter::setObjectValue(void* obj, ExValue* value)
  */
 Setup* SetupParameter::getTargetSetup(Mobius* m)
 {
-    Setup* target = NULL;
-    MobiusConfig* iconfig = m->getConfiguration();
-    if (iconfig != NULL)
-      target = GetCurrentSetup(iconfig);
+    // assuming this should be the active setup, not necessarily
+    // the starting setup
+    Setup* target = m->getActiveSetup();
 
     if (target == NULL)
 		Trace(1, "SetupParameter: Unable to resolve setup!\n");

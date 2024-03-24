@@ -666,7 +666,9 @@ void RecordFunction::doEvent(Loop* loop, Event* event)
                 Track* track = loop->getTrack();
                 Mobius* mobius = loop->getMobius();
                 MobiusConfig* config = mobius->getConfiguration();
-                Setup* setup = GetCurrentSetup(config);
+                // !! staring setup or the one currently active?
+                // Setup* setup = GetCurrentSetup(config);
+                Setup* setup = mobius->getSetup();
                 SetupTrack* strack = setup->getTrack(track->getRawNumber());
                 if (strack != NULL)
                   feedback = strack->getFeedback();

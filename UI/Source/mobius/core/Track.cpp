@@ -746,6 +746,7 @@ void Track::getState(MobiusTrackState* s)
         // KLUDGE: If we're switching, override the percieved mode
         Event* switche = mEventManager->getSwitchEvent();
         if (switche != NULL) {
+            // MobiusState has a new model for modes
             if (switche->pending)
               lstate->mode = MapMode(ConfirmMode);
             else
@@ -1149,7 +1150,7 @@ void Track::updateConfiguration(MobiusConfig* config)
     Preset* newPreset = NULL;
     if (!config->isNoSetupChanges()) {
         // the setups either changed, or this is the first load
-        Setup* setup = GetCurrentSetup(config);
+        Setup* setup = config->getStartingSetup();
         newPreset = getStartingPreset(config, setup);
     }
     else if (!config->isNoPresetChanges()) {
@@ -1157,21 +1158,25 @@ void Track::updateConfiguration(MobiusConfig* config)
         // in all tracks and change the preset in the active track.
         // You can edit all of the presets in the configuration, but the
         // one left as "current" only applies to the active track.
-        
+
+        // !!! what does this mean?  we don't have the concept of a "current" preset
+        // it's either the default preset from MobiusConfig, the starting preset
+        // from SetupTrack, or whatever happens to have been selected at runtime
+        // which is saved where?
         if (this == mMobius->getTrack()) {
             // current track follows the lingering selection
             // newPreset = config->getCurrentPreset();
-            newPreset = GetCurrentPreset(config);
+            newPreset = config->getDefaultPreset();
         }
         else {
             // other tracks refresh the preset but retain their current
             // selection which may be different than the setup
             // newPreset = config->getPreset(mPreset->getNumber());
-            newPreset = GetPreset(config, mPreset->ordinal);
+            newPreset = config->getPreset(mPreset->ordinal);
             if (newPreset == NULL) {
                 // can this happen?  maybe if we deleted the preset
                 // the track was using?
-                newPreset = GetCurrentPreset(config);
+                newPreset = config->getDefaultPreset();
             }
         }
     }
@@ -1183,9 +1188,8 @@ void Track::updateConfiguration(MobiusConfig* config)
     // we're sure it didn't change
 
     if (!config->isNoSetupChanges()) {
-
         // doPreset flag is false here because we've already handled that above
-        Setup* setup = GetCurrentSetup(config);
+        Setup* setup = config->getStartingSetup();
         setSetup(setup, false);
     }
 }
@@ -1225,14 +1229,14 @@ Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
     Preset* preset = NULL;
 
     if (setup == NULL)
-      setup = GetCurrentSetup(config);
+      setup = config->getStartingSetup();
 
     if (setup != NULL) {
         SetupTrack* st = setup->getTrack(mRawNumber);
         if (st != NULL) {
             const char* pname = st->getStartingPresetName();
             if (pname != NULL) {
-                preset = GetPreset(config, pname);
+                preset = config->getPreset(pname);
                 if (preset == NULL)
                   Trace(this, 1, "ERROR: Unable to resolve preset from setup: %s\n",
                         pname);
@@ -1246,11 +1250,10 @@ Preset* Track::getStartingPreset(MobiusConfig* config, Setup* setup)
         // inital preset, if this isn't the initial load this
         // will have no effect unless the interrupt config changed,
         // which we should be tracking anyway
-        //preset = config->getPreset(mPreset->getNumber());
-        preset = GetPreset(config, mPreset->ordinal);
+        preset = config->getPreset(mPreset->ordinal);
         if (preset == NULL) {
             // might happen if we deleted a preset?  
-            preset = GetCurrentPreset(config);
+            preset = config->getDefaultPreset();
         }
     }
 
@@ -1282,7 +1285,7 @@ void Track::doPendingConfiguration()
 void Track::setPreset(int number)
 {
     MobiusConfig* config = mMobius->getConfiguration();
-    Preset* preset = GetPreset(config, number);
+    Preset* preset = config->getPreset(number);
     
     if (preset == NULL) {
         Trace(this, 1, "ERROR: Unable to locate preset %ld\n", (long)number);
@@ -1558,7 +1561,7 @@ void Track::loadProject(ProjectTrack* pt)
 	const char* preset = pt->getPreset();
 	if (preset != NULL) {
 		MobiusConfig* config = mMobius->getConfiguration();
-		Preset* p = GetPreset(config, preset);
+		Preset* p = config->getPreset(preset);
 		if (p != NULL)
 		  setPreset(p);
 	}
@@ -1679,7 +1682,7 @@ void Track::trackReset(Action* action)
 
 	// reset the track parameters
     MobiusConfig* config = mMobius->getConfiguration();
-	Setup* setup = GetCurrentSetup(config);
+	Setup* setup = config->getStartingSetup();
 
 	// Second arg says whether this is a global reset, in which case we
 	// unconditionally return to the Setup parameters.  If this is an
@@ -1806,7 +1809,7 @@ void Track::resetParameters(Setup* setup, bool global, bool doPreset)
 			const char* presetName = st->getStartingPresetName();
 			if (presetName != NULL) {
 				MobiusConfig* config = mMobius->getConfiguration();
-				Preset* p = GetPreset(config, presetName);
+				Preset* p = config->getPreset(presetName);
 				if (p != NULL)
 				  setPreset(p);
 			}

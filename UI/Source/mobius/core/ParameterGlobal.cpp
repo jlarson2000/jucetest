@@ -237,14 +237,13 @@ SetupNameParameterType::SetupNameParameterType() :
 
 int SetupNameParameterType::getOrdinalValue(MobiusConfig* c)
 {
-    Setup* setup = GetCurrentSetup(c);
-    // return setup->getNumber();
+    Setup* setup = c->getStartingSetup();
     return setup->ordinal;
 }
 
 void SetupNameParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = GetCurrentSetup(c);
+    Setup* setup = c->getStartingSetup();
 	value->setString(setup->getName());
 }
 
@@ -257,9 +256,9 @@ void SetupNameParameterType::setValue(MobiusConfig* c, ExValue* value)
     Setup* setup = NULL;
 
     if (value->getType() == EX_INT)
-      setup = GetSetup(c, value->getInt());
+      setup = c->getSetup(value->getInt());
     else 
-      setup = GetSetup(c, value->getString());
+      setup = c->getSetup(value->getString());
 
     // !! allocates memory
     if (setup != NULL)
@@ -285,9 +284,9 @@ void SetupNameParameterType::setValue(Action* action)
 
         Setup* setup = NULL;
         if (action->arg.getType() == EX_INT)
-          setup = GetSetup(config, action->arg.getInt());
+          setup = config->getSetup(action->arg.getInt());
         else 
-          setup = GetSetup(config, action->arg.getString());
+          setup = config->getSetup(action->arg.getString());
 
         if (setup != NULL) {
             // Set the external one so that if you open the setup
@@ -312,7 +311,7 @@ void SetupNameParameterType::setValue(Action* action)
 int SetupNameParameterType::getHigh(Mobius* m)
 {
 	MobiusConfig* config = m->getConfiguration();
-    int max = GetSetupCount(config);
+    int max = Structure::count(config->getSetups());
     // this is the number of configs, the max ordinal is zero based
     max--;
 
@@ -329,7 +328,7 @@ void SetupNameParameterType::getOrdinalLabel(Mobius* mobius,
     // use the interrupt config since that's the one we're really using
     Mobius* m = (Mobius*)mobius;
 	MobiusConfig* config = m->getConfiguration();
-	Setup* setup = GetSetup(config, i);
+	Setup* setup = config->getSetup(i);
 	if (setup != NULL)
 	  value->setString(setup->getName());
 	else
@@ -377,8 +376,7 @@ SetupNumberParameterType::SetupNumberParameterType() :
 
 void SetupNumberParameterType::getValue(MobiusConfig* c, ExValue* value)
 {
-    Setup* setup = GetCurrentSetup(c);
-    // value->setInt(setup->getNumber());
+    Setup* setup = c->getStartingSetup();
     value->setInt(setup->ordinal);
 }
 
@@ -395,7 +393,7 @@ void SetupNumberParameterType::setValue(Action* action)
     // validate using the external config
     MobiusConfig* config = m->getConfiguration();
     int index = action->arg.getInt();
-    Setup* setup = GetSetup(config, index);
+    Setup* setup = config->getSetup(index);
 
     if (setup != NULL) {
         // we're always in the interrupt so can set it now

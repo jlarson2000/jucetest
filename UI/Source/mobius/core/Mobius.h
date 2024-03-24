@@ -266,14 +266,16 @@ class Mobius
 
 	// MidiHandler interface
 	void midiEvent(class MidiEvent* e);
-    
 
-	// has to be public for NoExternalInputVarialbe
+    // has to be public for NoExternalInputVarialbe
 	bool isNoExternalInput();
 	void setNoExternalInput(bool b);
 	
     // trace
 	void logStatus();
+
+    // used only by InputPortParameter and OutputPortParameter
+    bool isPlugin();
 
   protected:
 

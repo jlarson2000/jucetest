@@ -199,8 +199,9 @@ void Mobius::shutdown()
 	}
 
 	// sleep to make sure we're not in a timer or midi interrupt
-    // MobiusContainer can do this now
-	SleepMillis(100);
+    // I don't think we need this any more, Juce should have stopped
+    // the audio devices at this point, not sure about MIDI
+	mContainer->sleep(100);
 
 	// paranioa to help catch shutdown errors
 	for (int i = 0 ; i < mTrackCount ; i++) {
@@ -1414,6 +1415,13 @@ int Mobius::getSampleRate()
 }
 
 /**
+ * Used only by the two parameters that select ports.
+ */
+bool Mobius::isPlugin() {
+    return mContainer->isPlugin();
+}
+
+/**
  * Return the effective input latency.
  * The configuration may override what the audio device reports
  * in order to fine tune actual latency.
@@ -1786,11 +1794,8 @@ void Mobius::globalReset(Action* action)
 		}
 
 		// return to the track selected int the setup
-		int initialTrack = 0;
-		Setup* setup = GetCurrentSetup(mConfig);
-		if (setup != NULL)
-		  initialTrack = setup->getActiveTrack();
-		setActiveTrack(initialTrack);
+		mSetup = mConfig->getStartingSetup();
+		setActiveTrack(mSetup->getActiveTrack());
 
 		// cancel in progress audio recordings	
 		// or should we leave the last one behind?

@@ -887,7 +887,9 @@ ProjectTrack::ProjectTrack(MobiusConfig* config, Project* p, Track* t)
     mTimeStretch = t->getTimeStretch();
 
     // include preset only if different than the setup
-    Setup* setup = GetCurrentSetup(config);
+    // !! should this be the starting setup?  What if it changed
+    // at runtime?
+    Setup* setup = config->getStartingSetup();
     SetupTrack* st = setup->getTrack(t->getRawNumber());
 
     Preset* pre = t->getPreset();

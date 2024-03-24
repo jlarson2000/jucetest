@@ -1283,9 +1283,9 @@ void TrackPresetParameterType::setValue(Action* action)
 	// ParameterDisplay component 
 	Preset* preset = NULL;
 	if (action->arg.getType() == EX_INT)
-	  preset = GetPreset(config, action->arg.getInt());
+	  preset = config->getPreset(action->arg.getInt());
 	else 
-	  preset = GetPreset(config, action->arg.getString());
+	  preset = config->getPreset(action->arg.getString());
 
 	if (preset != NULL) {
         Track* t = action->getResolvedTrack();
@@ -1312,7 +1312,7 @@ void TrackPresetParameterType::setValue(Action* action)
 int TrackPresetParameterType::getHigh(Mobius* m)
 {
 	MobiusConfig* config = m->getConfiguration();
-    int max = GetPresetCount(config);
+    int max = Structure::count(config->getPresets());
     // this is the number of presets, the max ordinal is zero based
     max--;
     return max;
@@ -1325,7 +1325,7 @@ void TrackPresetParameterType::getOrdinalLabel(Mobius* m,
 													  int i, ExValue* value)
 {
 	MobiusConfig* config = m->getConfiguration();
-	Preset* preset = GetPreset(config, i);
+	Preset* preset = config->getPreset(i);
 	if (preset != NULL)
 	  value->setString(preset->getName());
 	else
@@ -1395,7 +1395,7 @@ void TrackPresetNumberParameterType::setValue(Action* action)
 	Mobius* m = action->mobius;
 	MobiusConfig* config = m->getConfiguration();
     int index = action->arg.getInt();
-	Preset* preset = GetPreset(config, index);
+	Preset* preset = config->getPreset(index);
 
 	if (preset != NULL) {
         Track* t = action->getResolvedTrack();
@@ -2033,7 +2033,7 @@ int InputPortParameterType::getHigh(Mobius* m)
 {
     int ports = 0;
 
-    if (IsPlugin(m)) {
+    if (m->isPlugin()) {
         MobiusConfig* config = m->getConfiguration();
         ports = config->getPluginPorts();
     }
@@ -2135,7 +2135,7 @@ int OutputPortParameterType::getHigh(Mobius* m)
 
     // why would this need to be different now, the
     // container can provide it in both contexts
-    if (IsPlugin(m)) {
+    if (m->isPlugin()) {
         MobiusConfig* config = m->getConfiguration();
         ports = config->getPluginPorts();
     }

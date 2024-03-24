@@ -17,6 +17,7 @@
 #include "../../model/UIAction.h"
 #include "../../model/UIParameter.h"
 #include "../../model/FunctionDefinition.h"
+#include "../../model/MobiusConfig.h"
 
 #include "Mapper.h"
 
@@ -442,7 +443,7 @@ void Actionator::doPreset(Action* a)
         if (number < 0)
           Trace(1, "Missing action Preset\n");
         else {
-            p = GetPreset(config, number);
+            p = config->getPreset(number);
             if (p == NULL) 
               Trace(1, "Invalid preset number: %ld\n", (long)number);
         }
@@ -493,8 +494,6 @@ void Actionator::doPreset(Action* a)
 
 /**
  * Process a TargetSetup action.
- * We have to change the setup in both the external and interrupt config,
- * the first so it can be seen and the second so it can be used.
  */
 void Actionator::doSetup(Action* a)
 {
@@ -503,6 +502,7 @@ void Actionator::doSetup(Action* a)
     MobiusConfig* config = mMobius->getConfiguration();
 
     // If we're here from a Binding should have resolved
+    // new: no not any more
     Setup* s = (Setup*)a->getTargetObject();
     if (s == NULL) {
         // may be a dynamic action
@@ -510,7 +510,7 @@ void Actionator::doSetup(Action* a)
         if (number < 0)
           Trace(1, "Missing action Setup\n");
         else {
-            s = GetSetup(config, number);
+            s = config->getSetup(number);
             if (s == NULL) 
               Trace(1, "Invalid setup number: %ld\n", (long)number);
         }

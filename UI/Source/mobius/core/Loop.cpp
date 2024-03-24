@@ -1018,6 +1018,7 @@ void Loop::refreshState(MobiusLoopState* s)
 		}
 	}
 
+    // MobiusState has a new model for modes
     s->mode = MapMode(mMode);
 
 	// calculate the number of layers, the record loop is invisible
