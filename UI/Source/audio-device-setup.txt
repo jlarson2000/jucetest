@@ -1,0 +1,28 @@
+
+The main way to set the audio device seems to be AudioDeviceManager::setAudioDeviceSetup
+This takes an AudioDeviceSetup object
+that has these things:
+
+  inputDeviceName
+  outputDeviceName
+  sampleRate
+  bufferSize
+  inputChannels
+  useDefaultInputChannels
+  outputChannels
+  useDefaultOutputChannels
+  
+
+Juce has it's own XML format for this that can be passed to initialize()
+
+String 	initialise (
+int numInputChannelsNeeded,
+int numOutputChannelsNeeded,
+const XmlElement *savedState,
+bool selectDefaultDeviceOnFailure,
+const String &preferredDefaultDeviceName=String(),
+const AudioDeviceSetup *preferredSetupOptions=nullptr)
+
+  Opens a set of audio devices ready for use.
+
+
