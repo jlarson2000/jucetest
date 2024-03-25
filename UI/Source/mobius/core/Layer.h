@@ -477,7 +477,8 @@ class LayerPool {
     
     Layer* mMuteLayer;
     LayerContext* mCopyContext;
-
+    float* mCopyBuffer;
+    
 };
 
 /****************************************************************************/

@@ -80,7 +80,7 @@ Wait frame 0
 ######################################################################
 
 #Call AllTests
-Call Test2
+Call Test1
 #Call SomeTests
 
 Proc SomeTests

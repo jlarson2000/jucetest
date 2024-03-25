@@ -462,6 +462,10 @@ void LayerContext::init()
     
 LayerContext::~LayerContext()
 {
+    // we are an AudioBuffer that has a float* buffer
+    // but that is set randomly and we don't own it
+    // the oen exception is LayerPool's mCopyContest which
+    // will allocate and manage the buffer
 }
 
 void LayerContext::setReverse(bool b)
@@ -549,6 +553,11 @@ Layer::Layer(LayerPool* lpool, AudioPool* apool)
     mOverdubCursor->setAutoExtend(true);
 
 	mFade.init();
+
+    char buf[1024];
+    sprintf(buf, "Allocated layer %p", this);
+    Trace(1, buf);
+
 }
 
 /**
@@ -576,6 +585,10 @@ Layer::~Layer()
 		l->mPrev = NULL;
 		delete l;
 	}
+    
+    char buf[1024];
+    sprintf(buf, "Deleted layer %p", this);
+    Trace(1, buf);
 }
 
 /**
@@ -4767,6 +4780,7 @@ LayerPool::LayerPool(AudioPool* aupool)
     mAllocated = 0;
     mMuteLayer = NULL;
     mCopyContext = NULL;
+    mCopyBuffer = nullptr;
 }
 
 /**
@@ -4776,7 +4790,8 @@ LayerPool::LayerPool(AudioPool* aupool)
 LayerPool::~LayerPool()
 {
     delete mCopyContext;
-
+    delete mCopyBuffer;
+    
     // return to the pool first for statistics
     if (mMuteLayer != NULL) 
       freeLayer(mMuteLayer);
@@ -4794,9 +4809,9 @@ LayerContext* LayerPool::getCopyContext()
 {
 	if (mCopyContext == NULL) {
         int samples = AUDIO_MAX_FRAMES_PER_BUFFER * AUDIO_MAX_CHANNELS;
-        float* buffer = MemNewFloat("LayerPool:CopyContext", samples);
+        mCopyBuffer = MemNewFloat("LayerPool:CopyContext", samples);
 		mCopyContext = NEW(LayerContext);
-		mCopyContext->setBuffer(buffer, AUDIO_MAX_FRAMES_PER_BUFFER);
+		mCopyContext->setBuffer(mCopyBuffer, AUDIO_MAX_FRAMES_PER_BUFFER);
 	}
 	return mCopyContext;
 }
