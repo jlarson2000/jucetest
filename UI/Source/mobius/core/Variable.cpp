@@ -35,6 +35,9 @@
 // for AUDIO_FRAMES_PER_BUFFER
 #include "AudioConstants.h"
 
+// for getLastSampleFrames
+#include "../MobiusKernel.h"
+
 #include "Event.h"
 #include "EventManager.h"
 #include "Expr.h"
@@ -524,9 +527,11 @@ SampleFramesVariableType::SampleFramesVariableType()
 
 void SampleFramesVariableType::getTrackValue(Track* t, ExValue* value)
 {
-    // doesn't exist at this level any more, and why on earth was this useful
-    // value->setLong(t->getMobius()->getLastSampleFrames());
-    Trace(1, "SampleFramesVariableType touched!\n");
+    // this used to live on Mobius but it has been moved up to Kernel
+    // used only by test scripts that want to wait for the last trigger
+    // sample to finish playing
+    long frames = t->getMobius()->getKernel()->getLastSampleFrames();
+    value->setLong(frames);
 }
 
 SampleFramesVariableType SampleFramesVariableObj;
@@ -547,7 +552,6 @@ ScriptInternalVariable* SampleFramesVariable = &SampleFramesVariableObj;
 // own audio injection, and we don't want random noise comming
 // in from the sound card to pollute it.
 //
-//
 //////////////////////////////////////////////////////////////////////
 
 class NoExternalAudioVariableType : public ScriptInternalVariable {
@@ -565,14 +569,16 @@ NoExternalAudioVariableType::NoExternalAudioVariableType()
 void NoExternalAudioVariableType::getValue(ScriptInterpreter* si, ExValue* value)
 {
 	Mobius* m = si->getMobius();
-	value->setBool(m->isNoExternalInput());
+    MobiusKernel* k = m->getKernel();
+	value->setBool(k->isNoExternalInput());
 }
 
 void NoExternalAudioVariableType::setValue(ScriptInterpreter* si, 
 										   ExValue* value)
 {
 	Mobius* m = si->getMobius();
-	m->setNoExternalInput(value->getBool());
+    MobiusKernel* k = m->getKernel();
+	k->setNoExternalInput(value->getBool());
 }
 
 NoExternalAudioVariableType NoExternalAudioVariableObj;

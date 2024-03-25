@@ -58,6 +58,7 @@
 #include "../model/MobiusConfig.h"
 #include "../model/Preset.h"
 #include "../model/Setup.h"
+#include "../model/UIAction.h"
 #include "../model/SampleConfig.h"
 #include "../model/ScriptConfig.h"
 #include "../model/XmlRenderer.h"
@@ -121,9 +122,11 @@ UnitTests::~UnitTests()
  */
 void UnitTests::scriptSetup(KernelEvent* e)
 {
+    Trace(2, "UnitTests::scriptSetup");
     // only do this once so scripts can call it multiple times
     if (!enabled)
       setup();
+    Trace(2, "UnitTests::scriptSetup finished");
 }
 
 /**
@@ -147,9 +150,15 @@ void UnitTests::scriptSetup(KernelEvent* e)
  */
 void UnitTests::actionSetup(UIAction* a)
 {
-    // may want this to be a toggle?
-    if (!enabled)
-      setup();
+    // FunctionDefinitions don't have a "sustainable" flag so ActionButton
+    // will send both down and up gransitions, ignore up
+    if (a->down) {
+        Trace(2, "UnitTests::actionSetup");
+        // may want this to be a toggle?
+        if (!enabled)
+          setup();
+        Trace(2, "UnitTests::actionSetup finished");
+    }
 }
 
 /**
@@ -357,12 +366,19 @@ juce::File UnitTests::getTestRoot()
  * path name to that file from the "results" folder
  * of the unit test root where the result files will be written.
  */
-juce::File UnitTests::getOutputFile(const char* name)
+juce::File UnitTests::getResultFile(const char* name)
 {
     juce::File file = getTestRoot().getChildFile("results").getChildFile(name);
 
     // tests don't usually have an extension so add it
     // assuming a .wav file, will need more when we start dealing with projects
+    file = addExtensionWav(file);
+
+    return file;
+}
+
+juce::File UnitTests::addExtensionWav(juce::File file)
+{
     if (file.getFileExtension().length() == 0)
       file = file.withFileExtension(".wav");
 
@@ -372,21 +388,104 @@ juce::File UnitTests::getOutputFile(const char* name)
 /**
  * Given a base file name from a script, locate the full
  * path name to that file from the "master" folder
- * of the unit test root where the comparision files are read
+ * of the unit test root where the comparision files are read.
  *
  * We have historically called this "expected" rather than
  * "master" which I ususlly say in comments.
+ *
+ * Since the database of these is large and maintained in a different
+ * Github repository, we support redirection.  If the file exists under
+ * TestRoot it is used, otherwise we look for a file named "redirect" and assume
+ * the contents of that is the full path of the folder where the file can be found.
+ *
+ * I'm liking this redirect notion. Generalize this into a common utility
+ * and revisit mobius-redirect to use the same code.
+ * 
  */
-juce::File UnitTests::getInputFile(const char* name)
+juce::File UnitTests::getExpectedFile(const char* name)
 {
-    juce::File file = getTestRoot().getChildFile("expected").getChildFile(name);
+    juce::File expected = getTestRoot().getChildFile("expected");
+    juce::File file = expected.getChildFile(name);
 
-    // tests don't usually have an extension so add it
-    // assuming a .wav file, will need more when we start dealing with projects
-    if (file.getFileExtension().length() == 0)
-      file = file.withFileExtension(".wav");
+    file = addExtensionWav(file);
+
+    if (!file.existsAsFile()) {
+        // not here check for redirect
+        juce::File redirect = followRedirect(expected);
+        file = redirect.getChildFile(name);
+        file = addExtensionWav(file);
+    }
 
     return file;
+}
+
+/**
+ * This is basically the same as RootLoctor::checkRedirect
+ * find a way to share.
+ */
+juce::File UnitTests::followRedirect(juce::File root)
+{
+    juce::File redirected = root;
+
+    juce::File redirect = root.getChildFile("redirect");
+    if (redirect.existsAsFile()) {
+        
+        juce::String content = redirect.loadFileAsString().trim();
+        content = findRedirectLine(content);
+
+        if (content.length() == 0) {
+            Trace(1, "UnitTest: Redirect file found but was empty");
+        }
+        else {
+            juce::File possible;
+            if (juce::File::isAbsolutePath(content)) {
+                possible = juce::File(content);
+            }
+            else {
+                // this is the convention used by mobius-redirect
+                // if the redirect file contents is relative make it
+                // relative to the starting root
+                possible = root.getChildFile(content);
+            }
+        
+            if (possible.isDirectory()) {
+                // RootLocator allow chains of redirection, unit tests don't
+                
+                //trace("RootLocator: Redirecting to %s\n", redirect.getFullPathName());
+                // recursively redirect again
+                // todo: this can cause cycles use a Map to avoid this
+                //root = checkRedirect(redirect);
+                redirected = possible;
+            }
+            else {
+                Trace(1, "UnitTest: Redirect file found, but directory does not exist: %s\n",
+                      possible.getFullPathName().toUTF8());
+            }
+        }
+    }
+    
+    return redirected;
+}
+
+/**
+ * Helper for followRedirect()
+ * After loading the redirect file contents, look for a line
+ * that is not commented out, meaning starts with a #
+ */
+juce::String UnitTests::findRedirectLine(juce::String src)
+{
+    juce::String line;
+
+    juce::StringArray tokens;
+    tokens.addTokens(src, "\n", "");
+    for (int i = 0 ; i < tokens.size() ; i++) {
+        line = tokens[i];
+        if (!line.startsWith("#")) {
+            break;
+        }
+    }
+    
+    return line;
 }
 
 /**
@@ -406,7 +505,7 @@ juce::File UnitTests::getSaveCaptureFile(KernelEvent* e)
         name = "testcapture";
     }
     
-    return getOutputFile(name);
+    return getResultFile(name);
 }
 
 juce::File UnitTests::getSaveLoopFile(KernelEvent* e)
@@ -418,27 +517,7 @@ juce::File UnitTests::getSaveLoopFile(KernelEvent* e)
         name = "testloop";
     }
     
-    return getOutputFile(name);
-}
-
-/**
- * Locate a file to be used in one of the diff handlers.
- */
-juce::File UnitTests::getDiffFile(const char* name, bool master)
-{
-    juce::File file;
-
-    if (master)
-      file = getTestRoot().getChildFile("expected").getChildFile(name);
-    else
-      file = getTestRoot().getChildFile("results").getChildFile(name);
-      
-    // tests don't usually have an extension so add it
-    // assuming a .wav file, will need more when we start dealing with projects
-    if (file.getFileExtension().length() == 0)
-      file = file.withFileExtension(".wav");
-    
-    return file;
+    return getResultFile(name);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -461,15 +540,15 @@ void UnitTests::diffAudio(KernelEvent* e)
     bool reverse = StringEqualNoCase(e->arg3, "reverse");
 
     // the input file
-    juce::File file1 = getDiffFile(name1, false);
+    juce::File file1 = getResultFile(name1);
 
-    // output file  is optional, and if not set uses the same base file name
+    // expected file  is optional, and if not set uses the same base file name
     // as the input file, but reads from a different directory
     juce::File file2;
     if (strlen(name2) == 0)
-      file2 = getDiffFile(name1, true);
+      file2 = getExpectedFile(name1);
     else
-      file2 = getDiffFile(name2, true);
+      file2 = getExpectedFile(name2);
 
     // hmm, getFullPathName().toUTF() seems to become unstable
     // after you call anything else on the FIle, like existsAsFile
@@ -597,15 +676,15 @@ void UnitTests::diffText(KernelEvent* e)
     const char* name2 = e->arg2;
 
     // the input file
-    juce::File file1 = getDiffFile(name1, false);
+    juce::File file1 = getResultFile(name1);
 
-    // output file  is optional, and if not set uses the same base file name
+    // expected file  is optional, and if not set uses the same base file name
     // as the input file, but reads from a different directory
     juce::File file2;
     if (strlen(name2) == 0)
-      file2 = getDiffFile(name1, true);
+      file2 = getExpectedFile(name1);
     else
-      file2 = getDiffFile(name2, true);
+      file2 = getExpectedFile(name2);
 
     // see comments above for why getFullPathName is not stable
 

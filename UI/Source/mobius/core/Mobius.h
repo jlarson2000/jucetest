@@ -267,10 +267,6 @@ class Mobius
 	// MidiHandler interface
 	void midiEvent(class MidiEvent* e);
 
-    // has to be public for NoExternalInputVarialbe
-	bool isNoExternalInput();
-	void setNoExternalInput(bool b);
-	
     // trace
 	void logStatus();
 
@@ -321,7 +317,6 @@ class Mobius
     
 	class MobiusConfig *mConfig;
     class Setup* mSetup;
-	bool mNoExternalInput;
 	char mCustomMode[MAX_CUSTOM_MODE];
     
 	// state related to realtime audio capture

@@ -1,0 +1,81 @@
+
+Starting with a "unittest" directory under the dev Root.
+Using mobius-redirect to get to dev Root, but NOT to get under unittest.
+
+This is where I'd like the scripts to live, and the temporary output files
+can live there but the large expected folder would be nice to have elsewhere.
+Need a direct for reading "expected" files but don't need one for files generated
+during the tests.
+
+Biggest test is layertests.mos, it runs with 4 different argument sets.
+
+Problem one: Sample1, Sample2
+
+Old tests expect resolved functions for individual samples
+
+The new way to do this would be "Sample n" with SampleFunction implemented
+in core that just does a redirect up to Kernel.
+
+It expects args to be 1 based as before, so you just need to add a space after the number.
+
+Tests use "GeneralReset" which is the same as "TrackReset"
+
+		setName("TrackReset");
+		setKey(MSG_FUNC_TRACK_RESET);
+		setHelp("Immediately reset all loops");
+        alias1 = "GeneralReset";
+
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -289
+
+I think this is the "Wait 0" which is waiting for some number of frames to elapse,
+and this is the input latency value.
+
+"Layer 1 - Audio Insertion"
+
+Where does this come from?
+
+  Echo Layer 1 - Audio Insertion
+
+
+
+
+
+
+
+
+Layer Tests
+
+# This is designed to be called with two arguments
+#
+#    <noFlattening> <reverse>
+#
+# If any of these is non-empty string, it enables that mode for each test.
+#
+# Not specifically setting IO latency, but the master files were captured
+# using the LynxOne ASIO driver with a block size of 256, and a reported
+# input latency of 289 and reported output latency of 282.  It is critical
+# that these values be maintained.  
+
+# make sure we're starting clean
+GlobalReset
+set noExternalAudio true
+set monitorAudio false
+set quickSave unittest
+
+# All the captured test files depend on these values.  They may not
+# exactly match the latency of the audio device, but they should be close.
+set inputLatency 289
+set outputLatency 282
+
+
+The layertests.mos script takes two arguments that control its behavior,
+one to disable layer flattening and another to run everything in reverse.
+The following scripts call layertests.mos with the possible values
+for these two arguments:
+
+  testdriverflat.mos        normal flattening
+  testdriverflatrev.mos     flatting, reverse
+  testdriverseg.mos         no flattening (segments only)
+  testdriversegrev.mos      no flattening, reverse
+

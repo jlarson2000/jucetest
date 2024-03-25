@@ -14,5 +14,7 @@
     <ScriptRef file='calltest.mos'/>
     <ScriptRef file='exprtest.mos'/>
     <ScriptRef file='testtest.mos'/>
+    <ScriptRef file='layertests.mos'/>
+    <ScriptRef file='testdriverflat.mos'/>
   </ScriptConfig>
 </MobiusConfig>

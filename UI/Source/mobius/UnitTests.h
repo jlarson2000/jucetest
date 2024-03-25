@@ -47,10 +47,13 @@ class UnitTests
     
 
     juce::File getTestRoot();
-    juce::File getOutputFile(const char* name);
-    juce::File getInputFile(const char* name);
+    juce::File getResultFile(const char* name);
+    juce::File getExpectedFile(const char* name);
 
-    juce::File getDiffFile(const char* name, bool master);
+    juce::File addExtensionWav(juce::File file);
+    juce::File followRedirect(juce::File root);
+    juce::String findRedirectLine(juce::String src);
+    
 
     class MobiusShell* shell;
     bool enabled = false;

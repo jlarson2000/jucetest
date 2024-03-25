@@ -424,6 +424,11 @@ void ScriptArgument::set(ScriptInterpreter* si, ExValue* value)
               si->getTraceName(), mLiteral);
     }
 	else if (mInternalVariable != NULL) {
+        const char* name = mInternalVariable->getName();
+        char traceval[128];
+        value->getString(traceval, sizeof(traceval));
+        Trace(2, "Script %s: setting internal variable %s = %s\n", 
+              si->getTraceName(), name, traceval);
 		mInternalVariable->setValue(si, value);
     }
 	else if (mVariable != NULL) {
@@ -957,6 +962,27 @@ void ScriptStatement::parseArgs(char* line)
 }
 
 /**
+ * Clear any previously parsed arguments.
+ * Necessary to prevent leaks for the few functions that
+ * parse more than once.
+ *
+ * This is a mess, I'd like to say that if you call parseArgs
+ * more than once, then you lose any char pointers to things
+ * previously parsed but I'm concerned about statements wanting
+ * to keep the previous values and not expecting secondary parseArgs
+ * from deleting them.   Complex parsing is mostly in Wait and Function.
+ * Calling this makes it explicit that you expect to lose previously
+ * parsed values
+ */
+void ScriptStatement::clearArgs()
+{
+	for (int i = 0 ; i < MAX_ARGS ; i++) {
+        delete mArgs[i];
+        mArgs[i] = nullptr;
+    }
+}
+
+/**
  * Parse the remainder of the function line into up to 8 arguments.
  * If a maximum argument count is given, return the remainder of the
  * line after that number of arguments has been located.
@@ -1000,6 +1026,7 @@ char* ScriptStatement::parseArgs(char* line, int argOffset, int toParse)
                     // !! for a few statements this may have prior content
                     // make the caller clean this out until we can figure
                     // out the best way to safely reclaim these
+                    // won't be here if clearArgs() was called
                     if (mArgs[argOffset] != nullptr)
                       Trace(1, "ScriptStatemement::parseArgs lingering argument value from prior parse!!!!!!!!\n");
                     mArgs[argOffset] = CopyString(token);
@@ -2905,6 +2932,8 @@ ScriptFunctionStatement::ScriptFunctionStatement(ScriptCompiler* comp,
 	mFunctionName = CopyString(name);
 
 	// This is kind of a sucky reserved argument convention...
+    // new: honestly, this sort of tokenizing is better than what parseArgs
+    // does allocating new strings for each token
 	char* ptr = comp->skipToken(args, "up");
     if (ptr != NULL) {
         mUp = true;
@@ -3275,6 +3304,10 @@ const char* ScriptWaitStatement::getKeyword()
  *
  *     Wait inPause frame 1000
  *
+ * new: parseArgs is a mess, if you call it more than once it can leak
+ * previously parsed args.  Added clearArgs() to explicitly delete
+ * prior parse results, would rather this be something parseArgs does
+ * every time.
  */
 ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
 												char* args)
@@ -3289,6 +3322,8 @@ ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
     if (StringEqualNoCase(mArgs[0], "inPause")) {
         mInPause = true;
         prev = psn;
+        // tracking down memory leaks
+        clearArgs();
         psn = parseArgs(psn, 0, 1);
     }
 
@@ -3319,6 +3354,7 @@ ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
         // keyword, parse the unit now
         if (mUnit == UNIT_NONE) {
             prev = psn;
+            clearArgs();
             psn = parseArgs(psn, 0, 1);
             mUnit = getWaitUnit(mArgs[0]);
         }
@@ -3340,6 +3376,7 @@ ScriptWaitStatement::ScriptWaitStatement(ScriptCompiler* comp,
     }
 	else if (mWaitType == WAIT_FUNCTION) {
         // next arg has the function name, leave in mArgs[0]
+        clearArgs();
         parseArgs(psn, 0, 1);
 	}
 }

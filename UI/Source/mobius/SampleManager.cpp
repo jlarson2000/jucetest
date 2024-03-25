@@ -576,53 +576,38 @@ void SampleManager::updateConfiguration(MobiusConfig* config)
 
 /**
  * Trigger a sample to begin playing. Called by the SamplePlay action.
+ * This most often comes from a test script.
  *
- * There used to be some extremely contorted logic in here to do processing
- * of the AudioStream buffers early, which would possibly (always) modify the
- * input buffer to inject the sample into the input then call back to
- * Recorder::inputBufferModified for some obscure reason to cause reprocessing
- * of tracks for the new input, which shouldn't have been necessary if we were
- * processed first.  I gave up trying to understand it all, ripped it out and
- * started over.
+ * Note that this fills BOTH the input and output buffers, though
+ * technically a sample "player" should fill only the output buffer.
+ * This is because test scripts want to have tracks recording
+ * the samples being played, which is what they were originally designed for.
  *
- * Comments in old code
+ * If we evolve this to be more of a pure player may want control over that.
  *
- * !!! This feels full of race conditions.  The unit tests do this
- * in scripts so often we will be inside the interrupt.  But the
- * SampleTrigger function is declared as global so if triggered
- * from MIDI it will be run outside the interrupt.
- * 
- * If we are being run during the script pass at the start of the interrupt,
- * then the sample will be immediately played into the input/output buffers in
- * the processBufffers interrupt handler below.  This is normally done
- * for testing with scripts using the "Wait block" statement to ensure
- * that the sample is aligned with an interrupt block.
- *
- * For scripts triggered with MIDI, keys, or buttons, we will trigger them
- * but won't actually begin playing until the next interrupt when 
- * processBuffers is run again.  This means that for predictable content
- * in the unit tests you must use "Wait block" 
- *
- * KLUDGE: Originally triggering always happened during processing of a Track
- * after we had called the SamplerTrack interrupt handler.  So we could begin
- * hearing the sample in the current block we begin proactively playing it here
- * rather than waiting for the next block.  This is arguably incorrect, we should
- * just queue it up and wait for the next interrupt.  But unfortunately we have
- * a lot of captured unit tests that rely on this.  Until we're prepared
- * to recapture the test files, follow the old behavior.  But note that we have
- * to be careful *not* to do this twice in one interupt.  Now that scripts
- * are called before any tracks are processed, we may not need to begin playing, 
- * but wait for SampleManager::processBuffers below.
+ * This is assuming that samples can only be trigger at the start
+ * of an interrupt block so we are allowed to fill the entire interrupt
+ * buffer.  If we ever get to a point where sample triggers can
+ * be quantized or stacked on other events, then this will need more
+ * coordination with the Track timeline so we know the offset into the
+ * current buffer to begin depositing content.
  */
-
-void SampleManager::trigger(int index, bool down)
+void SampleManager::trigger(MobiusContainer* container, int index, bool down)
 {
 	if (index < mSampleCount) {
 		mPlayers[index]->trigger(down);
 		mLastSample = index;
+        
+        long frames = container->getInterruptFrames();
+        float* input = nullptr;
+        float* output = nullptr;
 
-        // see old code about filling buffers early if you think
-        // this is necessary again
+        container->getInterruptBuffers(0, &input, 0, &output);
+        mPlayers[index]->play(input, output, frames);
+
+        // old code has this which I never could figure out and
+        // I don't think is relevant now
+        // mRecorder->inputBufferModified(this, inbuf);
 	}
 	else {
 		// this is sometimes caused by a misconfiguration of the
@@ -653,6 +638,10 @@ long SampleManager::getLastSampleFrames()
  * on a "port" which was a set of stereo channels.  Samples were always processed
  * on port zero, which was fine for testing but would need to be more flexible
  * if this ever evolves.
+ *
+ * Note that if samples are triggered during this interrupt we'll
+ * end up in trigger() above which will start another play cursor
+ * and add even more content to the buffers.
  */
 void SampleManager::containerAudioAvailable(class MobiusContainer* container)
 {

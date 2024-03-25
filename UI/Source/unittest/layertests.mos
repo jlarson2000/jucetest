@@ -79,7 +79,20 @@ Wait frame 0
 #
 ######################################################################
 
-Call AllTests
+#Call AllTests
+#Call Test2
+Call SomeTests
+
+Proc SomeTests
+  Call Test1
+  Call Test2
+  Call Test3
+  Call Test4
+  Call Test5
+  Call Test6
+  Call Test7
+  Call Test8
+Endproc
 
 Proc AllTests
   Call Test1
@@ -167,7 +180,7 @@ Proc RecordBackground
 
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   Wait frame baseEndWait
@@ -265,7 +278,7 @@ Proc Test1
   Call SetupTest
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   # note the use of noFade to suppress leading and trailing fades
   Record noFade
   Wait frame sampleFrames
@@ -308,7 +321,7 @@ Endproc
 Proc Test3
   Echo Layer 3 - Overdub
   Call SetupTestBackground
-  Sample4
+  Sample 4
   Wait frame 30000
   Overdub
   Wait frame 30000
@@ -335,7 +348,7 @@ Proc Test4
   #Call SetupTestSilent
   # recording is 116,000 long, Sample2 about 63,000
   Wait frame 90000
-  Sample4
+  Sample 4
   Overdub
   Wait frame 60000
   Overdub
@@ -359,7 +372,7 @@ Proc Test5
   Call SetupTest
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   # wait a little less than usual so we have enough content to spill
@@ -394,7 +407,7 @@ Proc Test6
   Wait frame baseEndWait
   Record
   Wait last
-  Sample4
+  Sample 4
   Wait frame 30000
   Overdub
   Wait frame 30000
@@ -432,7 +445,7 @@ Proc Test7
   Echo Layer 7 - Overdub Undo/Redo
   Call SetupTestBackground
   Wait frame 90000
-  Sample4
+  Sample 4
   Overdub
   Wait frame 60000
   Overdub
@@ -481,7 +494,7 @@ Proc Test8
   Wait frame 20000
   Replace
   Wait last
-  Sample2
+  Sample 2
   Wait frame 20000
   Replace
   Wait frame 20000
@@ -501,7 +514,7 @@ Proc Test8-2
   Wait frame 100000
   Record
   Wait last
-  Sample2
+  Sample 2
   Wait frame 20000
   Replace
   Wait frame 20000
@@ -533,7 +546,7 @@ Proc Test9
   Wait frame 20000
   Substitute
   Wait last
-  Sample2
+  Sample 2
   Wait frame 20000
   Substitute
   Wait frame 20000
@@ -553,7 +566,7 @@ Proc Test9-2
   Wait frame 100000
   Record
   Wait last
-  Sample2
+  Sample 2
   Wait frame 20000
   Substitute
   Wait frame 20000
@@ -588,7 +601,7 @@ Proc Test10
   Echo Layer 10 - Replace over loop boundary
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
    Wait frame 60000
   Replace
@@ -625,7 +638,7 @@ Proc Test11
   Echo Layer 11 - Substitute over loop boundary
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Substitute
   Wait frame 60000
   Substitute
@@ -663,13 +676,13 @@ Proc Test12
   Echo Layer 12 - Replace occlusion fade left
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 30000
-  Sample4
+  Sample 4
   Overdub
   Wait frame 60000
   Overdub
@@ -703,13 +716,13 @@ Proc Test13
   Echo Layer 13 - Replace occlusion fade right
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 30000
-  Sample4
+  Sample 4
   Overdub
   Wait frame 60000
   Overdub
@@ -760,7 +773,7 @@ Proc Test14
   Reset
   Call SetupTestBackground
   Wait 80000
-  Sample2
+  Sample 2
   Multiply
   Wait frame sampleFrames
   Multiply
@@ -795,11 +808,11 @@ Proc Test15
   Call SetupTestBackground
   Multiply
   Wait 80000
-  Sample2
+  Sample 2
   Wait frame sampleFrames
   # wait a little more so we have something crossing the second cycle boundary
   Wait 40000
-  Sample5
+  Sample 5
   Wait cycle 2
   Multiply
   Wait until 0
@@ -839,7 +852,7 @@ Proc Test16
   Call SetupTestBackground
   Multiply
   Wait subcycle
-  Sample3
+  Sample 3
   Wait cycle 3
   Multiply
   Wait until 0
@@ -897,19 +910,19 @@ Proc Test17
   Wait frame 29000
   # this one is a little more than half as long as the cycle, 
   # so do it twice so we can fill up the insert
-  Sample2
+  Sample 2
   Wait frame 1000
   Insert
   Insert
   # since we waited another 1000, there will be a short gap, would
   # be nice to have subtraction!
   Wait frame sampleFrames
-  Sample2
+  Sample 2
   # finsh the remainder
   Wait start
   # let it play once and append
   Wait end
-  Sample2
+  Sample 2
   Insert
   Insert
   # let it complete  
@@ -920,7 +933,7 @@ Proc Test17
   Wait start
   # 4 is too loud, can mask cross fade problems 
   #Sample4
-  Sample2
+  Sample 2
   Insert
   Insert
   # let it complete and play once
@@ -957,7 +970,7 @@ Proc Test17-2
   Record
   Wait frame 20000
   Overdub
-  Sample4
+  Sample 4
   Wait frame 10000
   Insert
   Insert
@@ -987,7 +1000,7 @@ Proc Test18
   Echo Layer 18 - Insert
   Call SetupTestBackground
   Wait frame 30000
-  Sample2
+  Sample 2
   Insert
   Wait frame 10000
   Record
@@ -1029,11 +1042,11 @@ Proc Test19
   Echo Layer 19 - Stutter
   Call SetupTestBackground
   Wait end
-  Sample2
+  Sample 2
   Insert
   Insert
   Wait end
-  Sample4
+  Sample 4
   Insert
   Insert
   Wait end
@@ -1148,7 +1161,7 @@ Proc Test22
 
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   Wait frame baseEndWait
@@ -1181,7 +1194,7 @@ Proc Test22-2
   set autorecord on
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   # shorter than usual so we get some obvious spill
@@ -1223,7 +1236,7 @@ Proc Test23
   set soundCopyMode play
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   Wait frame baseEndWait
@@ -1277,7 +1290,7 @@ Proc Test24
   set timecopymode play
   Wait block
   StartAudioRecording
-  Sample1
+  Sample 1
   Wait frame baseStartWait
   Record
   Wait frame baseEndWait
@@ -1322,7 +1335,7 @@ Proc Test25
   Call SetupTestBackground
   set switchquant off
   set samplerstyle start
-  Sample2
+  Sample 2
   Wait frame 30000
   Overdub
   Wait frame 30000
@@ -1398,7 +1411,7 @@ Proc Test26-3
   Echo Layer 26-3 - Feedback with deferred fades
   Call SetupTestBackground
   Wait frame 90000
-  Sample4
+  Sample 4
   Replace
   Wait frame 60000
   Replace
@@ -1434,7 +1447,7 @@ Proc Test27
     Call SetupTest
     Wait block
     StartAudioRecording
-    Sample1
+    Sample 1
     Wait frame baseStartWait
     Record
     # wait a little less than usual so we have enough content to spill
@@ -1474,13 +1487,13 @@ Proc Test28
   Echo Layer 28 - Replace occlusion, keep deferred fade
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample3
+  Sample 3
   Replace
   Wait frame 60000
   Replace
@@ -1534,7 +1547,7 @@ Proc Test29
   Echo Layer 29 - Overdub to Replace, raise background head
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
@@ -1557,13 +1570,13 @@ Proc Test29-2
   Echo Layer 29-2 - Overdub to Replace, raise background head
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample4
+  Sample 4
   Overdub
   Wait loop
   Overdub
@@ -1616,13 +1629,13 @@ Proc Test30
   Echo Layer 30 - Overdub to feedback, background head leveling
   Call SetupTestBackground
   Wait frame 90000
-  Sample4
+  Sample 4
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample2
+  Sample 2
   Overdub
   Wait loop
   set feedback 96
@@ -1641,13 +1654,13 @@ Proc Test30-2
   Echo Layer 30-2 - Overdub to feedback, background & foreground head leveling
   Call SetupTestBackground
   Wait frame 90000
-  Sample4
+  Sample 4
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample2
+  Sample 2
   Overdub
   Wait loop
   #set feedback 64
@@ -1675,7 +1688,7 @@ Proc Test30-3
   Replace
   Wait loop
   Wait frame 80000
-  Sample2
+  Sample 2
   Overdub
   Wait loop
   #set feedback 64
@@ -1722,7 +1735,7 @@ Proc Test31
   Echo Layer 31 - Overdub to feedback, partial head raise
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
@@ -1747,13 +1760,13 @@ Proc Test31-2
   Echo Layer 31-2 - Overdub to feedback, partial head raise
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample4
+  Sample 4
   Overdub
   Wait loop
   set feedback 64
@@ -1794,7 +1807,7 @@ Proc Test32
   Echo Layer 32 - Overdub to feedback, partial head fade
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
@@ -1819,13 +1832,13 @@ Proc Test32-2
   Echo Layer 32-2 - Overdub to feedback, partial head fade
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample4
+  Sample 4
   Overdub
   Wait loop
   set feedback 96
@@ -1866,13 +1879,13 @@ Proc Test33
   Echo Layer 33 - Incomplete head fade window
   Call SetupTestBackground
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
   Wait loop
   Wait frame 80000
-  Sample4
+  Sample 4
   Overdub
   Wait loop
   set feedback 96
@@ -1909,7 +1922,7 @@ Proc Test34
   Call SetupTestBackground
   set noiseFloor 0
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
@@ -1933,7 +1946,7 @@ Proc Test34-2
   Call SetupTestBackground
   set noiseFloor 0
   Wait frame 90000
-  Sample2
+  Sample 2
   Replace
   Wait frame 60000
   Replace
@@ -1945,7 +1958,7 @@ Proc Test34-2
   # this should NOT be necessary buf fixing it may cause shifting
   # of the inserted ocntent in all the other tests?
   Wait block
-  Sample4
+  Sample 4
   # don't replace all the way so we get some backgound at the end
   Replace
   Overdub

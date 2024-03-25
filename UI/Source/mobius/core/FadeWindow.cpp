@@ -221,6 +221,7 @@
 #include "Layer.h"
 
 #include "FadeWindow.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -308,6 +309,7 @@ FadeWindow::FadeWindow()
 {
 	mBufferSize = AUDIO_MAX_FADE_FRAMES * AUDIO_MAX_CHANNELS;
 	mBuffer = new float[mBufferSize];
+    MemTrack(mBuffer, "float", mBufferSize * sizeof(float));
     reset();
 }
 
@@ -876,7 +878,7 @@ void FadeWindow::dump(const char* name)
 
 	// first the raw window
 	sprintf(filename, "%s.wav", name);
-	Audio* a = new Audio();
+	Audio* a = NEW(Audio);
 	a->append(mBuffer, mWindowFrames);
 	a->write(filename);
 	

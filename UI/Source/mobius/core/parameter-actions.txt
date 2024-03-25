@@ -1,3 +1,486 @@
+
+New way to do Parameters
+
+Fundamentally what we need to define for each parameter is:
+
+   name
+     - used in bindings, scripts
+     - that's what fundamentally defines a parameter, it is something
+       with a name that has to be located at runtime, can't be compiled in
+
+   value properties
+     - information about the types of value the parameter can have
+     - necessary for structure storage
+
+   structure/storage accessors
+     - most parameters are stored in C++ class objects
+     - class storage may be used for persistent storage, runtime access, or both
+     - need get/set functions to move values back and forth
+     - parameters that do not exist in a structure are "transient"
+       and can only be access at runtime
+
+   runtime accessors
+     - when the system is running, parameter values may be read from
+       a location other than the persistent structure storage
+     - same with changing a parameter value
+     - changing a parameter value may have side effects beyond just
+       depositing a value somewhere
+
+   editing properties
+     - characteristics of the parameter necessary to generate user interfaces
+     - displayName, allowedValues, low, high
+     - generally not necessary at runtime
+
+   runtime properties
+     - behavioral aspects of the parameter when it is used at runtime
+     - scheduled, resetRetain
+
+We are currently generating code for everything except runtime accessors because
+everything else can be implemented against the shared model.  "model" is a good name,
+a parameter has to be materialized in a model, this can be the "persistent" model
+or the "runtime" model.
+
+Runtime accessors are harder for the UI because they have dependencies on the engine
+internals that the UI should not be exposed to.  Further code generation needs
+to be done without requiring linkage to runtime code.  This can be abstracted by
+defining interfaces:
+
+   ParameterHandler
+     - interface of an object that receives requests to get or set a parameter at runtime
+     - could also be ParameterContext
+
+   ReadContext
+     - information about the way in which a parmeter is being read
+     - this is currently what Export does
+
+   WriteContext
+     - information about the way in which a parameter is being written
+     - this is UIAction or Action
+
+Without further abstraction on the read/write context, what we need to generate is:
+
+class ParameterRuntimeContext
+
+   void setSubcycles(UIAction* action)
+   ExValue getSubcycles(Export* export)
+
+structure context looks like
+
+   void setSubcycles(void* object, ExValue value)
+   ExValue getSubcycles(void* object)
+
+To compile, UIAction and Export need to have interfaces but don't need implementations.
+
+For runtime, an interface for the ParameterHandler can be generated.  This must
+be implemented by a Mobius level class that has all the imlementations.  The initial
+implementation can be generated, but this needs to be manually edited.  No, implementation
+can't be generated because we'll be designing this to eliminate redundant paths which can't
+be generated, only the few exceptiosn need per-parameter implementations.
+
+Most runtime parameter accessors reduce to the structure accessors.
+
+Damn, structure editing can do this to.  This goes back to the execution context
+or whatever I was calling it.  You're in a context (editor, runtime) that needs to
+get/set a parameter, how is that implemented.
+
+The fundamental problem that needs to be solved is name-to-implementation lookup
+everything else can be dynamic.  Well not entirely, the engine does not need
+concrete Parameter objects, because it operates against a parameter model.  The UI
+doesn't?  Hmm, instead of this
+
+    addField(SubcyclesParameter)
+
+you could do this
+
+    addField("subcyclesParameter")
+
+The name lookup happens at runtime to produce an object with parameter information
+but this doesn't have to be a static object.  Where it becomes necessary to have
+code is the dispatch from a parameter name to the code necessary to implement the
+parameter behavior.
+
+class Parameter
+  name, flags, all the current stuff
+  give parameters an "id" const int which is basically the ordinal but it is fixed
+  so code can test on it
+
+  read from XML file
+
+class ParameterHandler
+
+     void setSubcycles(ExValue)
+     ExValue getSubcycles();
+
+Need something to pass arbitrary values but the main thing is a concrete compile time
+function pointer to something that handles it
+
+class PresetParameterHandler
+  - constructed with a Preset
+  - impleemnts getSubcycles/setSubcycles against that Preset
+
+ParameterHandlers can be LAYERED
+  - XMLParameterHandler uses PresetParameterHandler internally to get/set values
+  - converts those values to/from XML
+
+Would be nice if all parameters could be fundamtally set with ordinals that's
+the only code that needs to be generated
+
+    void setSubcycles(int)
+    int getSubcycles();
+
+Only contexts that require passing complex values need to implement an ExValue
+method subset, the default just uses the ordinal methods and wraps them.
+
+Those special accessors depend on the Calling Context.  Even though a parameter
+might support String values, if the caller isn't prepared to deal with them those
+can't be used.  The caller is either unable to use those parameters (e.g. host parameter bindings)
+or it must take extra steps to call more complex accessors which may or may not be overloaded.
+
+Here is what I want:
+
+  - need to add a new parameter, define the base definition in XML
+  - implement a pair of get/set(int) methods in a class
+
+How the caller gets that integer value is defined in the calling context.
+
+So there are two things:
+
+   ParameterCallingContext
+      - where you are and what objects you have access to to convey the parameter value
+        ExValue (scripts), juce::value(UI), Export (engine), UIAction (engine)
+
+      - this is where generators can be used, you need a get/set that deals with the
+        "parameter value payload" but how those are implemented is hand generated
+
+Anyway, same is true for Functions
+
+   FunctionContext
+
+        result = doRecord(payload)
+
+The doRecord method is the fundamental name/implementation dispatch mechanism
+The return value and arguments can be abstracted
+
+       FunctionResult* doRecord(FunctionArguments* args)
+
+Action is an implementation of FunctionArguments
+ActionResult is an implementation of FunctionResult
+
+that's all you need to generate the boilerplate code, everything else is
+above (implementation of result/args) and below (implementation of what record does)
+
+Probably easiest short term to have concrete models for the args/result but those
+could be abstracted.
+
+This is what ExValue does.  It implements the get/set payload but could also be an
+interface.
+
+This is directional, what needs to be hand written?
+
+    something getValue()
+
+getValue knows where the value is stored, e.g the Preset
+
+    int value = contextPreset->getSybcycles()
+
+and it needs to make something that the caller can understand
+
+    ExValue v (implements ParameterValueInterface)
+    v.setInt(value)
+    return v;
+
+OR since this is all depending on calling context, could make the caller pass in the
+result container
+
+    void getSubcycles(ParameterValueContainer *container)
+    container->setValue(preset->getSubcycles);
+
+yeah, we're back to data types.  Container needs to implement methods that can take all possible
+data types.  Like ExValue but abstract.
+
+Think about end-to-end problems:
+
+Script:
+   set subcycles 4
+   ScriptInterpreter needs to know
+     - get me the Parameter object that defines "subcycles"
+     - place "4" in a value payload
+     - get the current runtime context that handles parameters, ParameterContext
+     - call ParameterContext::setValue(Parameter, Payload)
+     - ugh, no, this is where it breaks down for scripts, because the execution context
+       can't include compiled code have to do a name/id lookup from Parameter to
+       something that implements it, so still need a runtime dispatch
+
+MIDI/Key binding
+  - MIDI note 42 sets "subcycles" to number 4
+  - place number 4 in a payload
+  - get the ParameterContext
+  - ParameterContext::setValue(Parameter, payload)
+  - same problem a binding can't have compiled code
+
+Host parameter binding
+  - basically the same as MIDI binding
+
+Yeah, that's what isn't working, there is no situation where there can
+be compiled code on the callers side, it is always working from a parameter identifier.
+Concrete methods in an interface doesn't help:
+
+   Context
+       void setSubcycles(int)
+
+because a binding doesn't know how to call that code, it needs to pass through
+something that does the id/method dispatch.
+
+Once IN that code, there can be an abstraction for where the value goes.
+
+   void setParameter(int parameterId, int value)
+      switch (parameterId) {
+         case Subcycles:
+             handler->setSubcycles(value);
+
+Think about "interning" again.
+
+Everything has to start from a name or an id and get to something that
+has compiled code.
+
+"core" - a complex system full of compiled code
+"parameter" - data that can pass in and out of the core
+"context" - something that wants to pass data in and out of the core
+
+Context can't know anythin about the implementation of a parameter, it
+only knows a name or an id.
+
+There needs to be a way to quicly map a name/id to an object that implements
+core code to get/set the value.
+
+This mapping object must be compiled.
+
+The association of a name/id to this object may require a search, but the
+result can be "interned".
+
+What interning looks like is defined by the context, not the core.
+
+There can be many of these mapping objects, or there could be just a shared one.
+
+Currently Parameter is this mapping object.
+
+If you use a shared mapping object, you have the same dispatching problem at the
+next level.  How to you get from an id to compiled code.
+
+So really, interning does not help unless you have many mapping objects.  If you
+have a single mapping object, it's just a "handler" that internally does the mapping.
+
+The simplest mechanism for dispatch is the function table, so the mapping must
+reduce a name to an id.  There is no way to avoid id/code mapping, but this CAN be generated.
+Once you have that, the sender and receiver can be abstracted.
+
+So we're back to this:
+
+    class ParameterMapper
+
+        void setParameter(int id, ValuePayload value)
+          switch (id):
+            case 0: receiver->setSubcycles(value);
+
+
+Fundamentally all parameters must live in a "namespace" of unique ids that
+can be used in a jump table.  the receiver implements concrete compile time
+methods that can handle the value, the value must be an abstraction object
+so it can be compiled
+
+Function pointers/lambdas can be used here as long as they obey a compile time signature.
+but the implementation of this, either through function pointers or static code
+doesn't matter to the caller of ParameterMapper.
+
+Can parameters be dynamically extended?  Generally this isn't required except for
+scripts that want to declare a parameter and be sensntive to them.  They can
+register an id for lookup, but the a compiled switch statement can't be used
+for the jump table since the ids are not known at compile time.
+
+Dynamic parameters are must be "registered" at runtime with ids placed
+in an extensible array.  A mechanism exists to map a name to an id at runtime.
+When a context wants to set a dynamic parameter a destination is found in the
+dynamic jump table but this cannot be compiled code, it could however be a pointer
+to something that implements an interface.
+
+But this interface just moves the problem.  You can get from an id to an interface
+but the intererface code can't be compiled.  In the case of scripts that's fine, the
+interface is something that looks up the script to inerpret and runs it.  This works.
+Dynamic parameters can only be implemented by scripts.
+
+Ignore dynamics for awhile, starting from the bottom we must have
+
+     set of parameter ids
+       const int ParameterSubcycles = 0;
+       const int ParameterMultiplyMode = 1;
+       ...
+
+This is all you need to integrate the outside world with the core.  Complex definition
+of those parameters can be done with a dynamic data mode or static.  what maps
+between them is a jump table indexed by id whose value is a ParameterDeifnition.  Wher
+that object comes from doesn't matter.  Compiled code cannot reference those objects
+it can only use the id.  This is where Parameter constant objects is wrong.  Code
+should be using the id constant not the object, and get the object through a table.
+
+On top of that can be build something that converts symbolic names to ids.
+
+That's what you need, everything else falls from that.
+
+To define Parameters in XML, the XML needs to include the id number.  Could you have
+a symbolic name in the XML?
+
+   <Parameter name='subcycles'
+
+How to you get from "subcycles" to 0?
+You have to search a table of names that know the number.
+Who built that table if the names can't be known at runtime?  The can't the
+name comes from xml, the linkagage between the name and the number needs to then
+BE in the XML which means <Parameter> must have a number.  OR you must have a tuple:
+
+class ParameterDefinition {
+   int id;
+   const char* name;
+};
+
+So a parameter needs to be identified by name so they can be referenced by the outside.
+And they need to be defined by id so compile time jump tables can be built.  and we
+need a mapping between them.  You can't do this:
+
+        void setParameter(int id, ValuePayload value)
+          switch (id):
+            case 0: receiver->setSubcycles(value);
+
+without knowing the numbers at compile time.  So the current "ordinal" concept doesn't work
+for switch statements.  You can generate an ordinal array at runtime, but that doesn't
+get you to setSubcycles.
+
+To avoid the tuple, XML would have to know the raw id numbers.
+With the tuple, XML can just have the name, which is more convenient.
+
+Deifning a tuple is not much more complicated than just a const int, rather than this
+
+   switch (id)
+
+you would have to do this
+
+   switch (parameterContantant->id)
+
+Hmm, but the compiler might now know to optimize this because of the indirection.
+
+This gets you there but it a little ugly.
+
+
+typedef enum
+   ParameterSubcycles,
+   ParameterMultiplyMode
+   ...
+};
+
+const char* ParameterNames = [
+  "subcycles",
+  "multiplyMode"
+  ...
+  ];
+
+But most code doesn't need to care about that, it just knows it can go from ParameterSubcycles
+to an object.  Hmm, enum is probably necessary to ensure the compiler knows the range of values.
+just switching on an "int" member won't convey the range.
+
+So parameterIds must be in an enum.  Canonical parameter names must be in an array
+indexed by that enum.  Switches compile optimized.  Parameter definition objects can be
+constructed at runtime.  ParameterMappers can be generated.
+
+Same for Functions.
+
+The receiver for the core parameter mapper must implement setSubcycles, getSubcycles
+but whether that is a bunch of static objects or a single handler doesn't matter.
+
+Well it does matter for the abstraction.  If it is many objects then you need
+
+    class SubcyclesParameterInterface
+       void setSubcycles(value);
+       value = getSubcycles();
+
+vs.
+
+    class ParameterHandler
+
+       void setSubcycles(value);
+       value = getSubcycles();
+
+       void setMultiplyMode(value);
+       value = getMultiplyMode();
+
+The later is what you're trying to get to anyway.
+
+The distinction between UI and Core parameters kind of messes this up.  If they
+all live in one namespace, then the core handler implemtnations need to have
+stub methods for all the UI parameters.
+
+If they live in different namespaces, then a scope needs to be included in the
+fundamental parameter definition
+
+
+    enum {
+       SubcyclesParameter =  0;
+
+     } CoreParameters;
+
+    enum {
+       WidgetParameter = 0;
+     } UIParameters;
+
+Messy?  Maybe not.  From the outside world you start with a name, "widget"
+
+To get to a handler at runtime need to find which ParameterHandler can deal with that name.
+From that point forward you're dealing with the handler and an id.  But you can't assume
+that the same handler will be used for all parameters identified by name.
+
+So the Parameter can point to it's handler?
+
+Code can deal with different enumeration sets, but this becomes part of othe
+signature of the code there is no doSomething(int parameterId
+there is doSomethhing(UIParameterId), doSomething(CoreParameterId)
+
+Maybe or is it this
+
+   Handler = findHandler(UIParameterId);
+   Handler = findHandler(CoreParameterId);
+
+   Handler = findHandler(name);
+
+
+names must live in a unique namespace.  Ids don't but something needs to be able to
+map the unique name into an "id space" and that id space requiires different handlers.
+
+
+
+
+
+
+    
+
+
+
+
+
+    
+
+
+
+
+
+  
+
+   
+
+   
+
+
+
+**********************************************************************
+
+
 Parameters that do things other than just set the MobiusConfig value
 
 ----------------------------------------------------------------------

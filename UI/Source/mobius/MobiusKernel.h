@@ -95,6 +95,17 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // return the old one to the shell
     void returnScriptarian(class Scriptarian* old);
 
+    // test scripts need the size of the last sample triggered for waiting
+    // would make this protected but it is called by SampleFramesVariableType
+    // and I don't want to get too comfortable having all the internal variables
+    // be listed as friend classes
+    long getLastSampleFrames();
+
+    // for NoExternalAudioVariable
+    // this is not in MobiusConfig, it can only be set from a script
+    void setNoExternalInput(bool b);
+    bool isNoExternalInput();
+
   protected:
     
     // hacky shit for unit test setup
@@ -105,6 +116,7 @@ class MobiusKernel : public MobiusContainer::AudioListener
     void slamSampleManager(SampleManager* neu);
 
     // Sample function handler for the core
+    // normally called only from a script
     void coreSampleTrigger(int index);
 
   private:
@@ -125,7 +137,8 @@ class MobiusKernel : public MobiusContainer::AudioListener
     // use static members eventually
     
     class SampleManager* samples = nullptr;
-
+    bool noExternalInput = false;
+    
     // the big guy
     // make this a stack object at some point
     class Mobius* mCore = nullptr;
@@ -138,5 +151,6 @@ class MobiusKernel : public MobiusContainer::AudioListener
     void doAction(KernelMessage* msg);
     void doEvent(KernelMessage* msg);
     
+    void clearExternalInput();
 };
 

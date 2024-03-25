@@ -22,6 +22,7 @@
 #include "Parameter.h"
 
 #include "Action.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -824,7 +825,7 @@ Action* ActionPool::allocAction(Action* src)
     Action* action = mActions;
 
     if (action == NULL) {
-        action = new Action(src);
+        action = NEW1(Action, src);
         action->setPool(this);
         mAllocated++;
     }

@@ -300,18 +300,16 @@ class SampleManager
     // and adjust latency compensation
     void updateConfiguration(class MobiusConfig* config);
 
-	/**
-	 * Triggering by internal sample index.
-	 * TODO: Trigger by MIDI note with velocity!
-	 */
-    void trigger(int index, bool down);
-	long getLastSampleFrames();
+    /**
+     * Trigger a sample and deposit the first block of content
+     * in the interrupt buffer.
+     */
+    void trigger(class MobiusContainer* container, int index, bool down);
 
-	/**
-	 * Trigger a sustained sample.
-	 * Only for use by Mobius in response to function handlers.
-	 */
-    void trigger(class MobiusContainer* stream, int index, bool down);
+    /**
+     * Needed by scripts to wait for a trigger sample to finish.
+     */
+	long getLastSampleFrames();
 
     // called when buffers are available
     void containerAudioAvailable(class MobiusContainer* cont);

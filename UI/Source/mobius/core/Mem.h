@@ -3,6 +3,8 @@
  * I can figure out something better.
  */
 
+extern bool MemTraceEnabled;
+
 extern void MemTrack(void* obj, const char* className, int size);
 extern void* MemNew(void* obj, const char* className, int size);
 extern void MemDelete(void* obj, const char* name);

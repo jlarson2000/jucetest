@@ -74,7 +74,7 @@
 #include "../../model/ExValue.h"
 
 #include "Expr.h"
-
+#include "Mem.h"
 
 #if 0
 //////////////////////////////////////////////////////////////////////
@@ -852,7 +852,7 @@ void ExValue::toString(Vbuf* b)
 
 void ExValue::dump()
 {
-	Vbuf* b = new Vbuf();
+	Vbuf* b = NEW(Vbuf);
 	toString(b);
 	printf("%s\n", b->getString());
 	delete b;
@@ -1841,9 +1841,9 @@ void ExList::eval(ExContext* context, ExValue* value)
 {
     value->setNull();
     if (mChildren != NULL) {
-        ExValueList* list = new ExValueList();
+        ExValueList* list = NEW(ExValueList);
         for (ExNode* c = mChildren ; c != NULL ; c = c->getNext()) {
-            ExValue* el = new ExValue();
+            ExValue* el = NEW(ExValue);
             c->eval(context, el);   
             list->add(el);
         }
@@ -1875,9 +1875,9 @@ void ExArray::eval(ExContext* context, ExValue* value)
 {
     value->setNull();
     if (mChildren != NULL) {
-        ExValueList* list = new ExValueList();
+        ExValueList* list = NEW(ExValueList);
         for (ExNode* c = mChildren ; c != NULL ; c = c->getNext()) {
-            ExValue* el = new ExValue();
+            ExValue* el = NEW(ExValue);
             c->eval(context, el);   
             list->add(el);
         }
@@ -2358,7 +2358,7 @@ ExNode* ExParser::parse(const char* src)
                             // unbalanced block delimiters or misplaced comma
                             // auto promote to list
                             //mError = "Misplaced comma or unbalanced parenthesis";
-                            pushOperator(new ExList());
+                            pushOperator(NEW(ExList));
                         }
 
                         if (mOperators->isBlock()) {
@@ -2387,7 +2387,7 @@ ExNode* ExParser::parse(const char* src)
                         mLast = func;
 					}
 					else 
-					  pushOperator(new ExParenthesis());
+					  pushOperator(NEW(ExParenthesis));
 				}
 				else if (!strcmp(mToken, ")")) {
 					// pop until we hit a block, will either leave
@@ -2428,7 +2428,7 @@ ExNode* ExParser::parse(const char* src)
                         }
                         else {
                             // promote to a list constructor    
-                            ExList* list = new ExList();
+                            ExList* list = NEW(ExList);
                             list->setChildren(block->stealChildren());
                             if (mOperands != NULL)
                               list->addChild(popOperand());
@@ -2443,10 +2443,10 @@ ExNode* ExParser::parse(const char* src)
                     // funny operator with children for the index applied
                     // to a child providing the array...
                     if (mLast == NULL || mLast->isOperator()) {
-                        pushOperator(new ExArray());
+                        pushOperator(NEW(ExArray));
                     }
                     else {
-                        pushOperator(new ExIndex());
+                        pushOperator(NEW(ExIndex));
 					}
 				}
 				else if (!strcmp(mToken, "]")) {
@@ -2502,7 +2502,7 @@ ExNode* ExParser::parse(const char* src)
 				if (mOperands->getParent() != NULL) {
                     // formerly an error, just wrap them in a list
                     //mError = "Multiple expressions in source string";
-                    root = new ExList();
+                    root = NEW(ExList);
                     while (mOperands != NULL)
                       root->insertChild(popOperand(), 0);
                 }
@@ -2656,7 +2656,7 @@ ExNode* ExParser::nextTokenForReal()
 		if (!terminated)
 		  mError = "Unterminated string";
 		else
-		  node = new ExLiteral(mToken);
+		  node = NEW1(ExLiteral, mToken);
 	}
 	else if (mNext == '-' && !negatable) {
 		// a minus falling after a non-operator must be a subtract, 
@@ -2671,7 +2671,7 @@ ExNode* ExParser::nextTokenForReal()
         //    1- 2 means 1 - 2
         //    1 -2 means 1,-2
 		toToken();
-		node = new ExSubtract();
+		node = NEW(ExSubtract);
 	}
 	else if (mNext && 
 			 (mNext == '-' ||
@@ -2709,24 +2709,24 @@ ExNode* ExParser::nextTokenForReal()
 
 			if (!strcmp(mToken, "-")) {
 				// all we had was -, must be a negation
-				node = new ExNegate();
+				node = NEW(ExNegate);
 			}
 			else if (chars > 0 || others > 0 || dots > 1) {
 				if (mLeadingMinus < 0) 
-				  node = new ExSymbol(mToken);
+				  node = NEW1(ExSymbol, mToken);
 				else {
 					// we consumed a leading - but didn't find a number,
 					// rewind and convert it to a negation
 					mSourcePsn = mLeadingMinus;
 					mNext = mSource[mSourcePsn];
 					toToken();
-					node = new ExNegate();
+					node = NEW(ExNegate);
 				}
 			}
 			else if (dots == 1)
-			  node = new ExLiteral((float)atof(mToken));
+			  node = NEW1(ExLiteral, ((float)atof(mToken)));
 			else
-			  node = new ExLiteral(atoi(mToken));
+			  node = NEW1(ExLiteral, atoi(mToken));
 		}
 	}
 	else if (mNext && strchr(OPERATOR_CHARS, mNext)) {
@@ -2791,46 +2791,46 @@ ExNode* ExParser::newOperator(const char* name)
 	if (name != NULL) {
 
 		if (!strcmp(name, "!"))
-		  node = new ExNot();
+		  node = NEW(ExNot);
 
 		else if (!strcmp(name, "=") || !strcmp(name, "=="))
-		  node = new ExEqual();
+		  node = NEW(ExEqual);
 
 		else if (!strcmp(name, "!="))
-		  node = new ExNotEqual();
+		  node = NEW(ExNotEqual);
 
 		else if (!strcmp(name, ">"))
-		  node = new ExGreater();
+		  node = NEW(ExGreater);
 
 		else if (!strcmp(name, "<"))
-		  node = new ExLess();
+		  node = NEW(ExLess);
 
 		else if (!strcmp(name, ">="))
-		  node = new ExGreaterEqual();
+		  node = NEW(ExGreaterEqual);
 
 		else if (!strcmp(name, "<="))
-		  node = new ExLessEqual();
+		  node = NEW(ExLessEqual);
 
 		else if (!strcmp(name, "+"))
-		  node = new ExAdd();
+		  node = NEW(ExAdd);
 
 		else if (!strcmp(name, "-"))
-		  node = new ExSubtract();
+		  node = NEW(ExSubtract);
 
 		else if (!strcmp(name, "*"))
-		  node = new ExMultiply();
+		  node = NEW(ExMultiply);
 
 		else if (!strcmp(name, "/"))
-		  node = new ExDivide();
+		  node = NEW(ExDivide);
 
 		else if (!strcmp(name, "%"))
-		  node = new ExModulo();
+		  node = NEW(ExModulo);
 
 		else if (!strcmp(name, "&") || !strcmp(name, "&&"))
-		  node = new ExAnd();
+		  node = NEW(ExAnd);
 
 		else if (!strcmp(name, "|") || !strcmp(name, "||"))
-		  node = new ExOr();
+		  node = NEW(ExOr);
 	}
 
 	return node;
@@ -2844,27 +2844,27 @@ ExNode* ExParser::newFunction(const char* name)
 	ExNode* func = NULL;
 	
 	if (StringEqualNoCase(name, "abs"))
-	  func = new ExAbs();
+	  func = NEW(ExAbs);
 
 	else if (StringEqualNoCase(name, "rand"))
-	  func = new ExRand();
+	  func = NEW(ExRand);
 	
 	else if (StringEqualNoCase(name, "scale"))
-	  func = new ExScale();
+	  func = NEW(ExScale);
 
 	else if (StringEqualNoCase(name, "int"))
-	  func = new ExInt();
+	  func = NEW(ExInt);
 
 	else if (StringEqualNoCase(name, "float"))
-	  func = new ExFloat();
+	  func = NEW(ExFloat);
 
 	else if (StringEqualNoCase(name, "string"))
-	  func = new ExString();
+	  func = NEW(ExString);
 
     else {
         // formerly returned null and made it a parse error, 
         // now we'll try to resolve it lazily
-        func = new ExCustom(name);
+        func = NEW1(ExCustom, name);
     }
 
 	return func;

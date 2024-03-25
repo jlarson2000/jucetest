@@ -19,6 +19,7 @@
 #include "AudioConstants.h"
 
 #include "Stream.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -45,6 +46,7 @@ FadeTail::FadeTail()
 
 	long tailSamples = mMaxFrames * AUDIO_MAX_CHANNELS;
 	mTail = new float[tailSamples];
+    MemTrack(mTail, "float", tailSamples * sizeof(float));
 	memset(mTail, 0, tailSamples * sizeof(float));
 }
 

@@ -171,23 +171,28 @@ void KernelEventHandler::doSaveLoop(KernelEvent* e)
     Mobius* mobius = kernel->getCore();
     Audio* loop = mobius->getPlaybackAudio();
 
-    juce::File file;
-    if (UnitTests::Instance->isEnabled()) {
-        file = UnitTests::Instance->getSaveLoopFile(e);
+    if (loop == nullptr) {
+        Trace(1, "KernelEventHandler::doSaveLoop getPlaybackAudio returned nullptr");
     }
     else {
-        MobiusConfig* config = shell->getConfiguration();
-        const char* quickfile = config->getQuickSave();
-        if (quickfile == nullptr) {
-            // this is what old code used, better name might
-            // just be "quicksave" to show where it came from
-            quickfile = "mobiusloop";
+        juce::File file;
+        if (UnitTests::Instance->isEnabled()) {
+            file = UnitTests::Instance->getSaveLoopFile(e);
         }
+        else {
+            MobiusConfig* config = shell->getConfiguration();
+            const char* quickfile = config->getQuickSave();
+            if (quickfile == nullptr) {
+                // this is what old code used, better name might
+                // just be "quicksave" to show where it came from
+                quickfile = "mobiusloop";
+            }
         
-        file = getSaveFile(e->arg1, quickfile, ".wav");
-    }
+            file = getSaveFile(e->arg1, quickfile, ".wav");
+        }
 
-    AudioFile::write(file, loop);
+        AudioFile::write(file, loop);
+    }
 }
 
 /**

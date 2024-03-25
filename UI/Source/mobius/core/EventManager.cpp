@@ -157,7 +157,7 @@
 EventManager::EventManager(Track* track)
 {
     mTrack = track;
-	mEvents = new EventList();
+	mEvents = NEW(EventList);
     mSwitch = NULL;
 
     // special event we can inject at sync boundaries

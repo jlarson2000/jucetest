@@ -19,6 +19,7 @@
 #include "core/Function.h"
 #include "core/Action.h"
 #include "core/Parameter.h"
+#include "core/Mem.h"
 
 #include "MobiusKernel.h"
 
@@ -187,6 +188,45 @@ void MobiusKernel::reconfigure(KernelMessage* msg)
 //////////////////////////////////////////////////////////////////////
 
 /**
+ * Handler for the NoExternalAudioVariable which is set in scripts
+ * to to cause suppression of audio content comming in from the outside.
+ * Necessary to eliminate random noise so the tests can record clean.
+ * Note that we do the buffer clear both here when it is set for the first
+ * time and then ongoing in containerAudioAvailable.
+ */
+void MobiusKernel::setNoExternalInput(bool b)
+{
+    noExternalInput = b;
+
+    if (b) {
+        // clear the current buffers when turning it on
+        // for the first time
+        clearExternalInput();
+    }
+}
+
+bool MobiusKernel::isNoExternalInput()
+{
+    return noExternalInput;
+}
+
+/**
+ * Erase any external received in the audio stream.
+ * This has always only cared about port zero which
+ * is fine for the unit tests.
+ */
+void MobiusKernel::clearExternalInput()
+{
+    long frames = container->getInterruptFrames();
+    // !! assuming 2 channel ports
+    long samples = frames * 2;
+    float* input;
+    // has always been just port zero which is fine for the tests
+    container->getInterruptBuffers(0, &input, 0, NULL);
+    memset(input, 0, sizeof(float) * samples);
+}
+
+/**
  * Kernel installs itself as the one AudioListener in the MobiusContainer
  * to receive notifications of audio blocks.
  * What we used to call the "interrupt".
@@ -209,7 +249,21 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
 {
     // make sure this is clear
     coreActions = nullptr;
+
+    // sanity check, don't really need to pass this
+    if (cont != container) {
+        // if this happens, you're going to be getting a lot of
+        // these message, so maybe only do it once
+        Trace(1, "MobiusKernel: containerAudioAvailble with unexpected container");
+    }
+
+    // begin whining about memory allocations
+    MemTraceEnabled = true;
     
+    // if we're running tests, ignore any external input once this flag is set
+	if (noExternalInput)
+      clearExternalInput();
+
     // this may receive an updated MobiusConfig and will
     // call Mobius::reconfigure, UIActions that aren't handled at
     // this level are placed in coreActions
@@ -251,6 +305,9 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
         communicator->kernelSend(msg);
         coreActions = next;
     }
+
+    // end whining
+    MemTraceEnabled = false;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -347,26 +404,33 @@ void MobiusKernel::doAction(KernelMessage* msg)
     // todo: more flexitility in targeting tracks
     // upper tracks vs. core tracks etc.
 
+    // !! General issue
+    // we could avoid passing UIActions to core if we test the sustainable
+    // flag up here rather than having it make it's way all the way down
+    // to Actionator
+
     bool processed = false;
     if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f == SamplePlay) {
-            if (samples != nullptr) {
-                // start one of the samples playing
-                // when we had replicated Sample1, Sample2 functions the
-                // sample index was embedded in the Function object, now
-                // we require it in the action argument
-                // UIAction::init was supposed to parse bindingArgs into
-                // a number left in the ExValue arg
-                int number = action->arg.getInt();
-                // don't remember what I used to do but it is more obvious
-                // for users to enter 1 based sample numbers
-                // SampleTrack wants zero based
-                // if they didn't set an arg, then just play the first one
-                int index = (number > 0) ? number - 1 : 0;
-                // mSampleTrack->trigger(mInterruptStream, index, action->down);
-                samples->trigger(index, action->down);
-                processed = true;
+            // FunctionDefinition doesn't have a sustainable flag yet so filter up actions
+            if (action->down) {
+                if (samples != nullptr) {
+                    // start one of the samples playing
+                    // when we had replicated Sample1, Sample2 functions the
+                    // sample index was embedded in the Function object, now
+                    // we require it in the action argument
+                    // UIAction::init was supposed to parse bindingArgs into
+                    // a number left in the ExValue arg
+                    int number = action->arg.getInt();
+                    // don't remember what I used to do but it is more obvious
+                    // for users to enter 1 based sample numbers
+                    // SampleTrack wants zero based
+                    // if they didn't set an arg, then just play the first one
+                    int index = (number > 0) ? number - 1 : 0;
+                    samples->trigger(container, index, action->down);
+                    processed = true;
+                }
             }
         }
         else {
@@ -376,14 +440,16 @@ void MobiusKernel::doAction(KernelMessage* msg)
         }
     }
     else if (action->type == ActionSample) {
-        // new way to do this with DynamicAction
-        // don't like the duplication, need to decide the best path
-        // forward on these
-        if (samples != nullptr) {
-            // start one of the samples playing
-            // ordinal is properly zero based unlike the Function action above
-            samples->trigger(action->implementation.ordinal, action->down);
-            processed = true;
+        if (action->down) {
+            // new way to do this with DynamicAction
+            // don't like the duplication, need to decide the best path
+            // forward on these
+            if (samples != nullptr) {
+                // start one of the samples playing
+                // ordinal is properly zero based unlike the Function action above
+                samples->trigger(container, action->implementation.ordinal, action->down);
+                processed = true;
+            }
         }
     }
     else {
@@ -401,13 +467,26 @@ void MobiusKernel::doAction(KernelMessage* msg)
 
 /**
  * Special sample trigger entry point for the hidden SampleTrigger
- * function which can only be called from scripts.
+ * function which can only be called from scripts.  In old code
+ * SampleTrack was managed under Mobius so now we have an extra
+ * hop to get up to where the samples are managed.
  */
 void MobiusKernel::coreSampleTrigger(int index)
 {
     if (samples != nullptr) {
-        samples->trigger(index, true);
+        samples->trigger(container, index, true);
     }
+}
+
+/**
+ * Special accessor for test scripts that want to wait for the
+ * last sample triggered by coreSampleTrigger to finish.
+ * This isn't general, in an environment where samples are triggered
+ * randomly this would be unpredictable.
+ */
+long MobiusKernel::getLastSampleFrames()
+{
+    return samples->getLastSampleFrames();
 }
 
 //////////////////////////////////////////////////////////////////////

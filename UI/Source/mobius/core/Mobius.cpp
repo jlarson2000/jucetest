@@ -26,6 +26,7 @@
 #include "../../model/Setup.h"
 #include "../../model/UserVariable.h"
 #include "../../model/UIAction.h"
+#include "../../model/UIParameter.h"
 
 #include "../MobiusKernel.h"
 #include "../AudioPool.h"
@@ -98,7 +99,6 @@ Mobius::Mobius(MobiusKernel* kernel)
 	mTrack = NULL;
 	mTrackCount = 0;
 
-	mNoExternalInput = false;
 	mCaptureAudio = NULL;
 	mCapturing = false;
 	mCaptureOffset = 0;
@@ -112,6 +112,8 @@ Mobius::Mobius(MobiusKernel* kernel)
     MobiusMode::initModes();
     Function::initStaticFunctions();
     Parameter::initParameters();
+    
+    Trace(2, "Mobius::Mobius finished");
 }
 
 /**
@@ -123,6 +125,7 @@ Mobius::Mobius(MobiusKernel* kernel)
  */
 Mobius::~Mobius()
 {
+    Trace(2, "Mobius::~Mobius");
 	if (!mHalting) {
         shutdown();
     }
@@ -171,6 +174,7 @@ Mobius::~Mobius()
     // delete dynamically allocated Parameter objects to avoid
     // warning message in Visual Studio
     Parameter::deleteParameters();
+    Trace(2, "Mobius::~Mobius finished");
 }
 
 /**
@@ -262,6 +266,7 @@ void Mobius::freeStaticObjects()
  */
 void Mobius::initialize(MobiusConfig* config)
 {
+    Trace(2, "Mobius::initialize");
     // can save this until the next call to reconfigure()
     mConfig = config;
 
@@ -291,6 +296,7 @@ void Mobius::initialize(MobiusConfig* config)
     
     // common, thread safe configuration propagation
     propagateConfiguration();
+    Trace(2, "Mobius::initialize finished");
 }
 
 /**
@@ -364,6 +370,7 @@ void Mobius::slamScriptarian(Scriptarian* neu)
  */
 void Mobius::installScripts(Scriptarian* neu)
 {
+    Trace(2, "Mobius::installScripts");
     if (mPendingScriptarian != nullptr) {
         // we've apparnetly been busy and someone just keeps
         // sending them down, ignore the last one
@@ -405,10 +412,12 @@ void Mobius::installScripts(Scriptarian* neu)
  */
 void Mobius::reconfigure(class MobiusConfig* config)
 {
+    Trace(2, "Mobius::reconfigure");
     mConfig = config;
     mSetup = config->getStartingSetup();
 
     propagateConfiguration();
+    Trace(2, "Mobius::reconfigure finished");
 }
 
 /**
@@ -634,6 +643,9 @@ void Mobius::setActivePreset(int ordinal)
  */
 int Mobius::getParameter(UIParameter* p, int trackNumber)
 {
+    // can't trace these usefully since several are called every refresh
+    // cycle by ParametersElement
+    //Trace(2, "Mobius::getParameter %s", p->name);
     return mActionator->getParameter(p, trackNumber);
 }
 
@@ -663,6 +675,7 @@ void Mobius::completeAction(Action* a)
  */
 void Mobius::doAction(Action* a)
 {
+    Trace(2, "Mobius::doAction %s", a->actionName);
     mActionator->doActionNow(a);
 }
 
@@ -800,19 +813,6 @@ void Mobius::beginAudioInterrupt(UIAction* actions)
         }
     }
     
-	// Hack for testing, when this flag is set remove all external input
-	// and only pass through sample content.  Necessary for repeatable
-	// tests so we don't get random noise in the input.
-    // yes, this is necessary for the unit tests
-	if (mNoExternalInput) {
-		long frames = mContainer->getInterruptFrames();
-        // !! assuming 2 channel ports
-		long samples = frames * 2;
-		float* input;
-		mContainer->getInterruptBuffers(0, &input, 0, NULL);
-		memset(input, 0, sizeof(float) * samples);
-	}
-
 	mSynchronizer->interruptStart(mContainer);
 
 	// prepare the tracks before running scripts
@@ -1730,36 +1730,6 @@ void Mobius::cancelScripts(Action* action, Track* t)
 void Mobius::addMessage(const char* msg)
 {
     mScriptarian->addMessage(msg);
-}
-
-bool Mobius::isNoExternalInput()
-{
-	return mNoExternalInput;
-}
-
-/**
- * Called indirectly by the NoExternalAudio script variable setter.
- *
- * wtf was this?
- */
-void Mobius::setNoExternalInput(bool b)
-{
-	mNoExternalInput = b;
-
-	// test hack, if we're still in an interrupt, zero out the last 
-	// input buffer so we can begin recording immediately
-	if (b) {
-		long frames = mContainer->getInterruptFrames();
-        // !! assuming 2 channel ports
-		long samples = frames * 2;
-		float* inbuf;
-		float* outbuf;
-
-		// always port 0, any need to change?
-		mContainer->getInterruptBuffers(0, &inbuf, 0, &outbuf);
-
-		memset(inbuf, 0, sizeof(float) * samples);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////

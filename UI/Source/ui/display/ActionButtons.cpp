@@ -396,7 +396,7 @@ void ActionButtons::buttonStateChanged(juce::Button* b)
 
     switch (state) {
         case juce::Button::ButtonState::buttonNormal: {
-            Trace(2, "Button normal\n");
+            //Trace(2, "Button normal\n");
             if (ab->isDownTracker()) {
                 // this is relatively unusual, you pressed on
                 // it then moved the mouse away before releasing
@@ -406,7 +406,7 @@ void ActionButtons::buttonStateChanged(juce::Button* b)
             break;
 
         case juce::Button::ButtonState::buttonOver: {
-            Trace(2, "Button over\n");
+            //Trace(2, "Button over\n");
             if (ab->isDownTracker()) {
                 // this is the usual case, you were still
                 // over the button when it was relased
@@ -416,7 +416,7 @@ void ActionButtons::buttonStateChanged(juce::Button* b)
             break;
             
         case juce::Button::ButtonState::buttonDown: {
-            Trace(2, "Button down\n");
+            //Trace(2, "Button down\n");
             if (ab->isDownTracker()) {
                 // this could be a problem, we've already
                 // sent a down UIAction to the engine and
@@ -442,7 +442,7 @@ void ActionButtons::buttonStateChanged(juce::Button* b)
 void ActionButtons::buttonUp(ActionButton* b)
 {
     if (enableSustain) {
-        Trace(2, "ActionButtons: Sending up action\n");
+        //Trace(2, "ActionButtons: Sending up action\n");
         UIAction* action = b->getAction();
         action->down = false;
         display->doAction(action);

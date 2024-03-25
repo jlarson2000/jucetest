@@ -7,7 +7,6 @@ AudioDeviceSetup
   useDefaultOutputChannels: true
 Reading configuration file c:\dev\jucetest\UI\Source\mobius.xml
 Mobius::Mobius
-ERROR: Allocated EventList size 8 00000166AF08B000
 ERROR: Actionator::initFunctionMap Function UnitTestMode not found
 ERROR: Actionator::initFunctionMap Function DebugStatus not found
 ERROR: Actionator::initFunctionMap Function Divide4 not found
@@ -21,272 +20,53 @@ ERROR: Actionator::initParameterMap Parameter startingSetup not found
 ERROR: Actionator::initParameterMap Parameter defaultPreset not found
 ERROR: Actionator::initParameterMap Parameter activeTrack not found
 ERROR: Actionator::initParameterMap Parameter startingPreset not found
-ERROR: Allocated Actionator size 56 00000166ABA456E0
-ERROR: Allocated Scriptarian size 40 00000166AF08F070
-ERROR: Allocated Preset size 2776 00000166AF07C4E0
-ERROR: Allocated SyncState size 72 00000166AF090720
-ERROR: Allocated Preset size 2776 00000166AF07D5D0
-ERROR: Allocated Event size 272 00000166AF1F3E50
-ERROR: Allocated EventManager size 40 00000166AF08F0E0
-ERROR: Allocated InputStream size 200 00000166ABA96ED0
-ERROR: Allocated OutputStream size 264 00000166AF07D000
-ERROR: Allocated UserVariables size 8 00000166AF08B370
-ERROR: Allocated Preset size 2776 00000166AF2F5030
-ERROR: Allocated Loop size 624 00000166ABA993E0
-ERROR: Allocated Loop size 624 00000166ABA98920
-ERROR: Allocated Loop size 624 00000166ABA99690
-ERROR: Allocated Loop size 624 00000166ABA99940
-ERROR: Allocated Loop size 624 00000166ABA99EA0
-ERROR: Allocated Loop size 624 00000166ABA99BF0
-ERROR: Allocated Loop size 624 00000166AF0801B0
-ERROR: Allocated Loop size 624 00000166AF07FC50
-ERROR: Allocated Loop size 624 00000166AF081730
-ERROR: Allocated Loop size 624 00000166AF07E420
-ERROR: Allocated Loop size 624 00000166AF081480
-ERROR: Allocated Loop size 624 00000166AF080710
-ERROR: Allocated Loop size 624 00000166AF0809C0
-ERROR: Allocated Loop size 624 00000166AF0819E0
-ERROR: Allocated Loop size 624 00000166AF081C90
-ERROR: Allocated Loop size 624 00000166AF07EEE0
-ERROR: Allocated SyncState size 72 00000166AF091890
-ERROR: Allocated Preset size 2776 00000166AF079100
-ERROR: Allocated Event size 272 00000166AF078BC0
-ERROR: Allocated EventManager size 40 00000166ABA10870
-ERROR: Allocated InputStream size 200 00000166ABA970F0
-ERROR: Allocated OutputStream size 264 00000166AF078920
-ERROR: Allocated UserVariables size 8 00000166AF08B2D0
-ERROR: Allocated Preset size 2776 00000166AF0AEE10
-ERROR: Allocated Loop size 624 00000166AF07E170
-ERROR: Allocated Loop size 624 00000166AF080C70
-ERROR: Allocated Loop size 624 00000166AF07E6D0
-ERROR: Allocated Loop size 624 00000166AF080460
-ERROR: Allocated Loop size 624 00000166AF07E980
-ERROR: Allocated Loop size 624 00000166AF07EC30
-ERROR: Allocated Loop size 624 00000166AF07F190
-ERROR: Allocated Loop size 624 00000166AF080F20
-ERROR: Allocated Loop size 624 00000166AF07F440
-ERROR: Allocated Loop size 624 00000166AF07F6F0
-ERROR: Allocated Loop size 624 00000166AF07F9A0
-ERROR: Allocated Loop size 624 00000166AF07FF00
-ERROR: Allocated Loop size 624 00000166AF0811D0
-ERROR: Allocated Loop size 624 00000166AF097560
-ERROR: Allocated Loop size 624 00000166AF096540
-ERROR: Allocated Loop size 624 00000166AF0967F0
-ERROR: Allocated SyncState size 72 00000166AF08FEB0
-ERROR: Allocated Preset size 2776 00000166AF411200
-ERROR: Allocated Event size 272 00000166AF078A70
-ERROR: Allocated EventManager size 40 00000166AF0AED30
-ERROR: Allocated InputStream size 200 00000166ABA95770
-ERROR: Allocated OutputStream size 264 00000166AF078290
-ERROR: Allocated UserVariables size 8 00000166AF08B9B0
-ERROR: Allocated Preset size 2776 00000166AF16DB30
-ERROR: Allocated Loop size 624 00000166AF097810
-ERROR: Allocated Loop size 624 00000166AF095D30
-ERROR: Allocated Loop size 624 00000166AF096290
-ERROR: Allocated Loop size 624 00000166AF095FE0
-ERROR: Allocated Loop size 624 00000166AF096AA0
-ERROR: Allocated Loop size 624 00000166AF096D50
-ERROR: Allocated Loop size 624 00000166AF097000
-ERROR: Allocated Loop size 624 00000166AF0972B0
-ERROR: Allocated Loop size 624 00000166AF534560
-ERROR: Allocated Loop size 624 00000166AF536040
-ERROR: Allocated Loop size 624 00000166AF537B20
-ERROR: Allocated Loop size 624 00000166AF536DB0
-ERROR: Allocated Loop size 624 00000166AF534AC0
-ERROR: Allocated Loop size 624 00000166AF534810
-ERROR: Allocated Loop size 624 00000166AF536B00
-ERROR: Allocated Loop size 624 00000166AF5342B0
-ERROR: Allocated SyncState size 72 00000166AF091920
-ERROR: Allocated Preset size 2776 00000166AF537FC0
-ERROR: Allocated Event size 272 00000166AF078D10
-ERROR: Allocated EventManager size 40 00000166AF0AE780
-ERROR: Allocated InputStream size 200 00000166ABA95BB0
-ERROR: Allocated OutputStream size 264 00000166AF078E60
-ERROR: Allocated UserVariables size 8 00000166AF08B5A0
-ERROR: Allocated Preset size 2776 00000166AF0BCEF0
-ERROR: Allocated Loop size 624 00000166AF535AE0
-ERROR: Allocated Loop size 624 00000166AF537060
-ERROR: Allocated Loop size 624 00000166AF5352D0
-ERROR: Allocated Loop size 624 00000166AF537310
-ERROR: Allocated Loop size 624 00000166AF536850
-ERROR: Allocated Loop size 624 00000166AF534D70
-ERROR: Allocated Loop size 624 00000166AF535830
-ERROR: Allocated Loop size 624 00000166AF535020
-ERROR: Allocated Loop size 624 00000166AF535580
-ERROR: Allocated Loop size 624 00000166AF534000
-ERROR: Allocated Loop size 624 00000166AF535D90
-ERROR: Allocated Loop size 624 00000166AF5362F0
-ERROR: Allocated Loop size 624 00000166AF5365A0
-ERROR: Allocated Loop size 624 00000166AF5375C0
-ERROR: Allocated Loop size 624 00000166AF537870
-ERROR: Allocated Loop size 624 00000166AF656D70
-ERROR: Allocated SyncState size 72 00000166AF08FE20
-ERROR: Allocated Preset size 2776 00000166AF65AD30
-ERROR: Allocated Event size 272 00000166AF0783E0
-ERROR: Allocated EventManager size 40 00000166AF0AE320
-ERROR: Allocated InputStream size 200 00000166ABA95DD0
-ERROR: Allocated OutputStream size 264 00000166AF078140
-ERROR: Allocated UserVariables size 8 00000166AF08ABF0
-ERROR: Allocated Preset size 2776 00000166AF800900
-ERROR: Allocated Loop size 624 00000166AF659B20
-ERROR: Allocated Loop size 624 00000166AF657AE0
-ERROR: Allocated Loop size 624 00000166AF659310
-ERROR: Allocated Loop size 624 00000166AF6595C0
-ERROR: Allocated Loop size 624 00000166AF65A5E0
-ERROR: Allocated Loop size 624 00000166AF657830
-ERROR: Allocated Loop size 624 00000166AF659870
-ERROR: Allocated Loop size 624 00000166AF658DB0
-ERROR: Allocated Loop size 624 00000166AF65A890
-ERROR: Allocated Loop size 624 00000166AF65A080
-ERROR: Allocated Loop size 624 00000166AF658040
-ERROR: Allocated Loop size 624 00000166AF657580
-ERROR: Allocated Loop size 624 00000166AF657020
-ERROR: Allocated Loop size 624 00000166AF659DD0
-ERROR: Allocated Loop size 624 00000166AF65A330
-ERROR: Allocated Loop size 624 00000166AF659060
-ERROR: Allocated SyncState size 72 00000166AF08FF40
-ERROR: Allocated Preset size 2776 00000166AF706440
-ERROR: Allocated Event size 272 00000166AF078530
-ERROR: Allocated EventManager size 40 00000166AF0AE2B0
-ERROR: Allocated InputStream size 200 00000166ABA95EE0
-ERROR: Allocated OutputStream size 264 00000166AF078680
-ERROR: Allocated UserVariables size 8 00000166AF08B910
-ERROR: Allocated Preset size 2776 00000166AF707B60
-ERROR: Allocated Loop size 624 00000166AF6572D0
-ERROR: Allocated Loop size 624 00000166AF657D90
-ERROR: Allocated Loop size 624 00000166AF6582F0
-ERROR: Allocated Loop size 624 00000166AF6585A0
-ERROR: Allocated Loop size 624 00000166AF658850
-ERROR: Allocated Loop size 624 00000166AF658B00
-ERROR: Allocated Loop size 624 00000166AF72EB30
-ERROR: Allocated Loop size 624 00000166AF72F090
-ERROR: Allocated Loop size 624 00000166AF7318E0
-ERROR: Allocated Loop size 624 00000166AF72E5D0
-ERROR: Allocated Loop size 624 00000166AF72EDE0
-ERROR: Allocated Loop size 624 00000166AF730E20
-ERROR: Allocated Loop size 624 00000166AF72F8A0
-ERROR: Allocated Loop size 624 00000166AF72F340
-ERROR: Allocated Loop size 624 00000166AF731380
-ERROR: Allocated Loop size 624 00000166AF7310D0
-ERROR: Allocated SyncState size 72 00000166AF090F00
-ERROR: Allocated Preset size 2776 00000166AF7058B0
-ERROR: Allocated Event size 272 00000166AF0787D0
-ERROR: Allocated EventManager size 40 00000166AF0AE080
-ERROR: Allocated InputStream size 200 00000166ABA95FF0
-ERROR: Allocated OutputStream size 264 00000166AF0BF0B0
-ERROR: Allocated UserVariables size 8 00000166AF08B780
-ERROR: Allocated Preset size 2776 00000166AF701350
-ERROR: Allocated Loop size 624 00000166AF72F5F0
-ERROR: Allocated Loop size 624 00000166AF731B90
-ERROR: Allocated Loop size 624 00000166AF730360
-ERROR: Allocated Loop size 624 00000166AF72E880
-ERROR: Allocated Loop size 624 00000166AF72FE00
-ERROR: Allocated Loop size 624 00000166AF7300B0
-ERROR: Allocated Loop size 624 00000166AF72FB50
-ERROR: Allocated Loop size 624 00000166AF730610
-ERROR: Allocated Loop size 624 00000166AF731E40
-ERROR: Allocated Loop size 624 00000166AF7308C0
-ERROR: Allocated Loop size 624 00000166AF731630
-ERROR: Allocated Loop size 624 00000166AF730B70
-ERROR: Allocated Loop size 624 00000166AF7320F0
-ERROR: Allocated Loop size 624 00000166AF759080
-ERROR: Allocated Loop size 624 00000166AF759330
-ERROR: Allocated Loop size 624 00000166AF75A8B0
-ERROR: Allocated SyncState size 72 00000166AF090CC0
-ERROR: Allocated Preset size 2776 00000166AF7086F0
-ERROR: Allocated Event size 272 00000166AF0BEA20
-ERROR: Allocated EventManager size 40 00000166AF0AEB00
-ERROR: Allocated InputStream size 200 00000166AF75BEC0
-ERROR: Allocated OutputStream size 264 00000166AF0BDE50
-ERROR: Allocated UserVariables size 8 00000166AF08B3C0
-ERROR: Allocated Preset size 2776 00000166AF701EE0
-ERROR: Allocated Loop size 624 00000166AF757B00
-ERROR: Allocated Loop size 624 00000166AF75AB60
-ERROR: Allocated Loop size 624 00000166AF7585C0
-ERROR: Allocated Loop size 624 00000166AF757850
-ERROR: Allocated Loop size 624 00000166AF759890
-ERROR: Allocated Loop size 624 00000166AF75AE10
-ERROR: Allocated Loop size 624 00000166AF75B0C0
-ERROR: Allocated Loop size 624 00000166AF7595E0
-ERROR: Allocated Loop size 624 00000166AF758B20
-ERROR: Allocated Loop size 624 00000166AF757DB0
-ERROR: Allocated Loop size 624 00000166AF75B370
-ERROR: Allocated Loop size 624 00000166AF759DF0
-ERROR: Allocated Loop size 624 00000166AF75A0A0
-ERROR: Allocated Loop size 624 00000166AF75A350
-ERROR: Allocated Loop size 624 00000166AF759B40
-ERROR: Allocated Loop size 624 00000166AF758060
+Mobius::Mobius finished
+Mobius::initialize
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
-ERROR: Allocated ScriptBlock size 48 00000166AFB0DD10
 Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
-ERROR: Allocated ScriptBlock size 48 00000166AFB0E170
 Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
-ERROR: Allocated ScriptBlock size 48 00000166AFB0E1E0
+Mobius::initialize finished
 Reading configuration file c:\dev\jucetest\UI\Source\ui.xml
 Supervisor::prepareToPlay first call
 AudioDeviceSetup
-  inputDeviceName: Microphone Array (Intel® Smart Sound Technology for Digital Microphones)
-  outputDeviceName: Speakers (Realtek(R) Audio)
-  sampleRate: 48000
-  bufferSize: 480
+  inputDeviceName: ADAT (5+6) (RME Fireface UC)
+  outputDeviceName: Speakers (RME Fireface UC)
+  sampleRate: 44100
+  bufferSize: 441
   useDefaultInputChannels: true
   useDefaultOutputChannels: true
-samplesPerBlockExpected 480 sampleRate 48000
-Supervisor: audio source num samples 480
-Supervisor: audio buffer channels 4
-Supervisor: audio buffer samples 480
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button normal
-Button over
-Button down
+samplesPerBlockExpected 441 sampleRate 44100
+Supervisor: audio source num samples 441
+Supervisor: audio buffer channels 2
+Supervisor: audio buffer samples 441
+Memory: Allocated Action size 616 0000023DE5EFAAF0
+UnitTests::actionSetup
 Reading Mobius script c:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated ScriptBlock size 48 00000166B3B96070
 Reading Mobius script c:\dev\jucetest\UI\Source\unittest\exprtest.mos
-ERROR: Allocated ScriptBlock size 48 00000166B3B96620
-ERROR: Allocated ScriptBlock size 48 00000166B3B97110
-ERROR: Allocated ScriptBlock size 48 00000166B3B95C80
-ERROR: Allocated ScriptBlock size 48 00000166B3C0E1A0
-ERROR: Allocated ScriptBlock size 48 00000166AFDC3350
-ERROR: Allocated ScriptBlock size 48 00000166AFDC3F20
-ERROR: Allocated ScriptBlock size 48 00000166ABA62E30
-ERROR: Allocated ScriptBlock size 48 00000166B3C21E50
-ERROR: Allocated ScriptBlock size 48 00000166B3C21B40
-ERROR: Allocated ScriptBlock size 48 00000166B3C21980
-ERROR: Allocated ScriptBlock size 48 00000166B3C21130
-ERROR: Allocated ScriptBlock size 48 00000166B3C218A0
 Reading Mobius script c:\dev\jucetest\UI\Source\unittest\testtest.mos
-ERROR: Allocated ScriptBlock size 48 00000166B3C22080
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\layertests.mos
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\testdriverflat.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference calltest resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
 ScriptLibrary: Reference ScriptOfDestiny resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
-ERROR: Allocated RunScriptFunction size 1152 00000166ABA2DF60
-Button normal
-ActionButtons: Sending up action
-Button over
-Button normal
-Button over
-Button down
-Mobius: runScript Expression Tests
-ERROR: Allocated ScriptInterpreter size 296 00000166B3AD0710
-ERROR: Allocated ScriptCompiler size 1088 00000166B3BEBF90
-Mobius: Starting script thread 1:Expression Tests
+ScriptLibrary: Reference layertests resolved to script c:\dev\jucetest\UI\Source\unittest\layertests.mos
+UnitTests::actionSetup finished
+Mobius: runScript Layer Flattening
+Memory: Allocated ScriptInterpreter size 296 0000023DEA451E40
+Memory: Allocated ScriptCompiler size 1088 0000023DE6024300
+Mobius: Starting script thread 1:Layer Flattening
+*** Beginning Test Passes ***
+Memory: Allocated ScriptStack size 376 0000023DE55B2840
+Memory: Allocated UserVariables size 8 0000023DEA456310
+Memory: Allocated ScriptResolver size 64 0000023DEA3F4A10
+Script 1:Layer Flattening: initializing script variable isNoFlattening =  
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5290
+Script 1:Layer Flattening: initializing script variable isReverse =  
 ******************************************************************
-Expression Tests
+Layer Test pass noFlattening= reverse=
 ******************************************************************
+Script 1:Layer Flattening: initializing script variable baseStartWait = 1024
+Script 1:Layer Flattening: initializing script variable baseEndWait = 116000
 101 0: Function GlobalReset down
 101 0: Track::reset
 201 0: Track::reset
@@ -296,167 +76,850 @@ Expression Tests
 601 0: Track::reset
 701 0: Track::reset
 801 0: Track::reset
-Script 1:Expression Tests: UnitTestSetup
-101 0: Track::reset
+Script 1:Layer Flattening: setting internal variable noExternalAudio = true
+Script 1:Layer Flattening: setting global parameter monitorAudio = false
+Script 1:Layer Flattening: setting global parameter quickSave = unittest
+Script 1:Layer Flattening: setting global parameter inputLatency = 289
+Script 1:Layer Flattening: setting global parameter outputLatency = 282
+Memory: Allocated Preset size 2776 0000023DE5C21FC0
+Memory: Allocated Event size 272 0000023DEA13A680
+101 -289: EventManager: Add event Script( ) -289
+Memory: Allocated ScriptStack size 376 0000023DE55B2300
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -289
+Memory: Allocated ScriptStack size 376 0000023DE55B2D80
+Layer 1 - Audio Insertion
+Memory: Allocated ScriptStack size 376 0000023DEA466050
+Memory: Allocated Action size 616 0000023DE5EF9AD0
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
 Mobius::cancelScripts NULL action
-201 0: Track::reset
+201 -289: Track::reset
 Mobius::cancelScripts NULL action
-301 0: Track::reset
+301 -289: Track::reset
 Mobius::cancelScripts NULL action
-401 0: Track::reset
+401 -289: Track::reset
 Mobius::cancelScripts NULL action
-501 0: Track::reset
+501 -289: Track::reset
 Mobius::cancelScripts NULL action
-601 0: Track::reset
+601 -289: Track::reset
 Mobius::cancelScripts NULL action
-701 0: Track::reset
+701 -289: Track::reset
 Mobius::cancelScripts NULL action
-801 0: Track::reset
+801 -289: Track::reset
 Mobius::cancelScripts NULL action
-Script 1:Expression Tests: setting global parameter quickSave = synctest
-ERROR: Allocated UserVariables size 8 00000166B3B87280
-ERROR: Allocated Preset size 2776 00000166AF706FD0
-ERROR: Allocated Event size 272 00000166B3C2A480
-101 0: EventManager: Add event Script( ) 0
-ERROR: Allocated ScriptStack size 376 00000166ABA1FB50
-Script 1:Expression Tests: Wait
-101 0: E: Script 0
-ERROR: Allocated ScriptStack size 376 00000166ABA20410
-Expr 1 - Reference Tests
-Script 1:Expression Tests: initializing script variable local1 = a local variable
-Script 1:Expression Tests: initializing track variable track1 = a track variable
-Script 1:Expression Tests: initializing global variable global1 = a global variable
-ERROR: Allocated ScriptResolver size 64 00000166AFF4D250
-ERROR: Allocated ScriptResolver size 64 00000166AFF4D450
-ERROR: Allocated ScriptResolver size 64 00000166AFF4DC50
-ERROR: Allocated ScriptResolver size 64 00000166AFF4E650
-ERROR: Allocated ScriptResolver size 64 00000166AFF51450
-ERROR: Allocated Export size 64 00000166AFF51050
-ERROR: Allocated ScriptResolver size 64 00000166AFF51BD0
-ERROR: Allocated ScriptResolver size 64 00000166AFF50A50
-ERROR: Allocated ScriptResolver size 64 00000166AFF50AD0
-ERROR: Allocated ScriptResolver size 64 00000166AFF52650
-ERROR: Allocated ScriptResolver size 64 00000166AFF514D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51AD0
-ERROR: Allocated ScriptResolver size 64 00000166AFF50FD0
-ERROR: Allocated ScriptStack size 376 00000166ABA20090
-ERROR: Allocated ScriptResolver size 64 00000166AFF50F50
-ERROR: Allocated ScriptResolver size 64 00000166AFF523D0
-Expr 2 - Logical Expression Tests
-ERROR: Allocated ScriptResolver size 64 00000166AFF51350
-ERROR: Allocated ScriptResolver size 64 00000166AFF52250
-ERROR: Allocated ScriptResolver size 64 00000166AFF51E50
-ERROR: Allocated ScriptResolver size 64 00000166AFF52050
-ERROR: Allocated ScriptResolver size 64 00000166AFF526D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF512D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51550
-ERROR: Allocated ScriptResolver size 64 00000166AFF52750
-ERROR: Allocated ScriptResolver size 64 00000166AFF52150
-ERROR: Allocated ScriptResolver size 64 00000166AFF50B50
-ERROR: Allocated ScriptResolver size 64 00000166AFF51FD0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51B50
-Expr 3 - Math Expression Tests
-ERROR: Allocated ScriptResolver size 64 00000166AFF510D0
-Expr 4 - Set Expression Tests
-Script 1:Expression Tests: initializing script variable bogus = 103
-ERROR: Allocated ScriptResolver size 64 00000166AFF525D0
-Script 1:Expression Tests: initializing script variable calc = 6
-ERROR: Allocated ScriptResolver size 64 00000166AFF50BD0
-Script 1:Expression Tests: initializing track variable tcalc = 6
-ERROR: Allocated ScriptResolver size 64 00000166AFF513D0
-Script 1:Expression Tests: initializing global variable gcalc = 6
-ERROR: Allocated ScriptResolver size 64 00000166AFF520D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51C50
-ERROR: Allocated ScriptResolver size 64 00000166AFF50C50
-ERROR: Allocated ScriptResolver size 64 00000166AFF515D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF522D0
-Script 1:Expression Tests: setting track parameter subcycles = 6
-ERROR: Allocated ScriptResolver size 64 00000166AFF52350
-Script 1:Expression Tests: initializing script variable foo = 42
-ERROR: Allocated ScriptResolver size 64 00000166AFF527D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51ED0
-Expr 5 - Jump Tests
-ERROR: Allocated ScriptResolver size 64 00000166AFF511D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF51CD0
-Script 1:Expression Tests: initializing script variable bogus = 103
-ERROR: Allocated ScriptResolver size 64 00000166AFF517D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF50D50
-ERROR: Allocated ScriptResolver size 64 00000166AFF521D0
-ERROR: Allocated ScriptResolver size 64 00000166AFF50DD0
-Expr 6 - Call Tests
-You should see "ScriptOfDestiny called" after each test header
-*** Calling with simple name
-Script Of Destiny
-*** Calling with a file name
-Script Of Destiny
-*** Calling as a function
-Mobius: runScript ScriptOfDestiny
-ERROR: Allocated ScriptInterpreter size 296 00000166B3AD1850
-Mobius: Starting script thread 2:ScriptOfDestiny
-ERROR: Allocated Preset size 2776 00000166AF703600
-ERROR: Allocated Event size 272 00000166B3C2C010
-101 0: EventManager: Add event Script( ) 22050
-Script 1:Expression Tests: Wait
-Script Of Destiny
-Mobius: Script thread 2:ScriptOfDestiny: ending
-Button over
-ActionButtons: Sending up action
-101 0: E: Script 450
-*** End of Test6
-Expr 7 - Argument Test
-You should see lines "TestInner2 foo" and "TestInner1 foo"
-TestInner2 foo
-ERROR: Allocated ScriptResolver size 64 00000166AFF51150
-Script 1:Expression Tests: initializing script variable arg = foo
-ERROR: Allocated ScriptResolver size 64 00000166AFF50CD0
-ERROR: Allocated ScriptStack size 376 00000166ABA20250
-TestInner1 foo
-Expression Tests Complete
-Script 1:Expression Tests: end
-Mobius: Script thread 1:Expression Tests: ending
-Button normal
-Button over
-Button down
-Mobius: runScript Test Tests
-ERROR: Allocated ScriptInterpreter size 296 00000166B3AD0710
-Mobius: Starting script thread 3:Test Tests
-Function Alert down
-Script 3:Test Tests: UnitTestSetup
-101 0: Track::reset
-Mobius::cancelScripts NULL action
-201 0: Track::reset
-Mobius::cancelScripts NULL action
-301 0: Track::reset
-Mobius::cancelScripts NULL action
-401 0: Track::reset
-Mobius::cancelScripts NULL action
-501 0: Track::reset
-Mobius::cancelScripts NULL action
-601 0: Track::reset
-Mobius::cancelScripts NULL action
-701 0: Track::reset
-Mobius::cancelScripts NULL action
-801 0: Track::reset
-Mobius::cancelScripts NULL action
-ERROR: Allocated UserVariables size 8 00000166B3B870F0
-Script 3:Test Tests: Wait thread
-ERROR: Allocated ScriptStack size 376 00000166ABA1FB50
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5110
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5210
+Function StartCapture down
 Function Sample down
-Mobius: Script thread 3:Test Tests: ending
-Button over
-ActionButtons: Sending up action
-Button normal
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5A90
+Memory: Allocated Preset size 2776 0000023DE5C22B50
+Memory: Allocated Event size 272 0000023DEA13C4B0
+101 0: EventManager: Add event Script( ) 117536
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+Memory: Allocated Smoother size 40 0000023DEA125B30
+Memory: Allocated float size 2048 0000023DEA464D90
+Memory: Allocated FadeWindow size 104 0000023DEAC1DCE0
+Memory: Allocated float size 2048 0000023DEA467750
+Memory: Allocated FadeWindow size 104 0000023DEAC1E730
+Memory: Allocated AudioCursor size 72 0000023DE5580970
+Memory: Allocated AudioCursor size 72 0000023DE5580B20
+Memory: Allocated AudioCursor size 72 0000023DE5580100
+Memory: Allocated AudioCursor size 72 0000023DE5580610
+Memory: Allocated AudioCursor size 72 0000023DE5580070
+Memory: Allocated Layer size 256 0000023DE9F67A90
+101 0: Loop: Set mode record
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+101 117306: E: Script 117536
+101 117536: Function Record down
+101 117536: Loop: prepareLoop: loop frames 117536 remaining 0
+101 117536: Sync: Scheduled RecordStop at 117536
+101 117536: EventManager: Add event RecordStop(Record) 117536
+Script 1:Layer Flattening: Wait last
+101 117536: E: RecordStop(Record) 117536
+101 117536: Sync: Setting track sync master 1
+Memory: Allocated Smoother size 40 0000023DEA122170
+Memory: Allocated float size 2048 0000023DE9FC93A0
+Memory: Allocated FadeWindow size 104 0000023DEAC194B0
+Memory: Allocated float size 2048 0000023DE9FDB2B0
+Memory: Allocated FadeWindow size 104 0000023DEAC17B40
+Memory: Allocated AudioCursor size 72 0000023DE554FD20
+Memory: Allocated AudioCursor size 72 0000023DE5550BC0
+Memory: Allocated AudioCursor size 72 0000023DE55506B0
+Memory: Allocated AudioCursor size 72 0000023DE55508F0
+Memory: Allocated AudioCursor size 72 0000023DE5550AA0
+Memory: Allocated Layer size 256 0000023DE9F67BD0
+Memory: Allocated Segment size 72 0000023DE55515E0
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 117536
+Script 1:Layer Flattening: Wait
+Memory: Allocated buffer size 8 0000023DEA32C090
+Memory: Allocated LayerContext size 32 0000023DE9FA72F0
+101 211: Layer: Starting play fade in at 571
+101 117517: E: Script 117536
+101 117536: EventManager: Add event Script( ) 117792
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5551310
+101 0: E: Script 256
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5310
+Script 1:Layer Flattening: initializing script variable testname = test1
+Memory: Allocated ScriptResolver size 64 0000023DEA3F5810
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Memory: Allocated ScriptStack size 376 0000023DEA465E90
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Memory: Allocated ScriptResolver size 64 0000023DEA3F7710
+Script 1:Layer Flattening: diff ./test1loop  
+Script 1:Layer Flattening: diff ./test1rec  
+101 7037: Function Reset down
+101 7037: Layer: Capture fade tail, 128 frames at 7608
+101 -289: Sync: Disabling track sync master 1
+Layer 2 - Basic Recording
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Memory: Allocated ScriptStack size 376 0000023DEA466E50
+Function StartCapture down
+Function Sample down
+Memory: Allocated ScriptResolver size 64 0000023DEA3F6710
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+Memory: Allocated ScriptResolver size 64 0000023DEA3F7010
+Memory: Allocated Preset size 2776 0000023DE5C1DA60
+Memory: Allocated Event size 272 0000023DEA13E820
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE5550C50
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 115824: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5550C50
+101 0: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test2
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test2loop  
+Script 1:Layer Flattening: diff ./test2rec  
+101 10408: Function Reset down
+101 10408: Layer: Capture fade tail, 128 frames at 10979
+101 -289: Sync: Disabling track sync master 1
+Layer 3 - Overdub
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Function Sample down
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE5550C50
+101 0: Loop: Set mode play
+Memory: Allocated Action size 616 0000023DE5EFBB10
+Function Sample down
+101 0: EventManager: Add event Script( ) 30000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 29829: E: Script 30000
+101 30000: Function Overdub down
+101 30000: EventManager: Add event Overdub(Overdub) 30000
+101 30000: EventManager: Add event Script( ) 60000
+Script 1:Layer Flattening: Wait
+101 30000: E: Overdub(Overdub) 30000
+101 30000: Loop: Set mode overdub
+Memory: Allocated Smoother size 40 0000023DEA1232F0
+Memory: Allocated float size 2048 0000023DE2775280
+Memory: Allocated FadeWindow size 104 0000023DEAC18E80
+Memory: Allocated float size 2048 0000023DEDA80290
+Memory: Allocated FadeWindow size 104 0000023DEAC17D50
+Memory: Allocated AudioCursor size 72 0000023DE55515E0
+Memory: Allocated AudioCursor size 72 0000023DE554FDB0
+Memory: Allocated AudioCursor size 72 0000023DE5551A60
+Memory: Allocated AudioCursor size 72 0000023DE5550230
+Memory: Allocated AudioCursor size 72 0000023DE55510D0
+Memory: Allocated Layer size 256 0000023DE2725A50
+101 30000: Layer: Starting record fade in
+101 59817: E: Script 60000
+101 60000: Function Overdub down
+101 60000: EventManager: Add event Overdub(Overdub) 60000
+101 60000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+101 60000: E: Overdub(Overdub) 60000
+101 60000: Loop: Set mode play
+101 60000: Layer: Applying fade out before frame 60000
+Memory: Allocated Smoother size 40 0000023DEA122640
+Memory: Allocated float size 2048 0000023DE9FEF700
+Memory: Allocated FadeWindow size 104 0000023DEAC16CD0
+Memory: Allocated float size 2048 0000023DE9FCA660
+Memory: Allocated FadeWindow size 104 0000023DEAC19090
+Memory: Allocated AudioCursor size 72 0000023DE55511F0
+Memory: Allocated AudioCursor size 72 0000023DE5551280
+Memory: Allocated AudioCursor size 72 0000023DE5551310
+Memory: Allocated AudioCursor size 72 0000023DE5551430
+Memory: Allocated AudioCursor size 72 0000023DE5551670
+Memory: Allocated Layer size 256 0000023DEADA49D0
+Memory: Allocated Segment size 72 0000023DE554FE40
+101 115807: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5551700
+101 248: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test3
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test3loop  
+Script 1:Layer Flattening: diff ./test3rec  
+101 10391: Function Reset down
+101 10391: Layer: Capture fade tail, 128 frames at 10962
+101 -289: Sync: Disabling track sync master 1
+Layer 4 - Overdub crossing loop boundary
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Function Sample down
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+ERROR: WARNING: files differ at frame 116867: 4304 4288: ./test3rec, 
+ERROR: WARNING: files differ at frame 30001: -11856 -11854: ./test3loop, 
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE5551700
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 90000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 89805: E: Script 90000
+Function Sample down
+101 90000: Function Overdub down
+101 90000: EventManager: Add event Overdub(Overdub) 90000
+101 90000: EventManager: Add event Script( ) 150000
+Script 1:Layer Flattening: Wait
+101 90000: E: Overdub(Overdub) 90000
+101 90000: Loop: Set mode overdub
+101 90000: Layer: Starting record fade in
+Memory: Allocated Segment size 72 0000023DE5551C10
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+101 33781: E: Script 34000
+101 34000: Function Overdub down
+101 34000: EventManager: Add event Overdub(Overdub) 34000
+101 34000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+101 34000: E: Overdub(Overdub) 34000
+101 34000: Loop: Set mode play
+101 34000: Layer: Applying fade out before frame 34000
+Memory: Allocated Smoother size 40 0000023DEA123440
+Memory: Allocated float size 2048 0000023DE2748C40
+Memory: Allocated FadeWindow size 104 0000023DEAC17CA0
+Memory: Allocated float size 2048 0000023DE2755290
+Memory: Allocated FadeWindow size 104 0000023DEAC17E00
+Memory: Allocated AudioCursor size 72 0000023DE554FF60
+Memory: Allocated AudioCursor size 72 0000023DE554FFF0
+Memory: Allocated AudioCursor size 72 0000023DE5550080
+Memory: Allocated AudioCursor size 72 0000023DE5550110
+Memory: Allocated AudioCursor size 72 0000023DE55686D0
+Memory: Allocated Layer size 256 0000023DEADA4250
+Memory: Allocated Segment size 72 0000023DE5568760
+101 115790: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5569BA0
+101 231: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test4
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test4loop  
+Script 1:Layer Flattening: diff ./test4rec  
+101 11697: Function Reset down
+101 11697: Layer: Capture fade tail, 128 frames at 12268
+101 -289: Sync: Disabling track sync master 1
+Layer 5 - End record with overdub
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Function Sample down
+Memory: Allocated ScriptResolver size 64 0000023DEA3F6690
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 90000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+ERROR: WARNING: files differ at frame 206831: 3936 3920: ./test4rec, 
+ERROR: WARNING: files differ at frame 0: -16256 -45920: ./test4loop, 
+101 89822: E: Script 90000
+101 90000: Function Overdub down
+101 90000: Loop: prepareLoop: loop frames 90000 remaining 0
+101 90000: Sync: Scheduled RecordStop at 90000
+101 90000: EventManager: Add event RecordStop(Record) 90000
+101 90000: EventManager: Add event Overdub(Overdub) 90000
+Memory: Allocated Preset size 2776 0000023DE5C24E00
+Memory: Allocated Event size 272 0000023DEA13CF30
+101 90000: EventManager: Add event Script( ) 135000
+Script 1:Layer Flattening: Wait
+101 90000: E: RecordStop(Record) 90000
+101 90000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE5569330
+101 0: Loop: Set mode play
+101 0: E: Overdub(Overdub) 0
+101 0: Loop: Set mode overdub
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+101 263: Layer: Starting play fade in at 571
+101 44804: E: Script 45000
+101 45000: Function Overdub down
+101 45000: EventManager: Add event Overdub(Overdub) 45000
+101 45000: EventManager: Add event Script( ) 180000
+Script 1:Layer Flattening: Wait
+101 45000: E: Overdub(Overdub) 45000
+101 45000: Loop: Set mode play
+101 45000: Layer: Applying fade out before frame 45000
+Memory: Allocated Segment size 72 0000023DE5568760
+101 89750: E: Script 90000
+101 90000: EventManager: Add event Script( ) 90256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE55690F0
+101 191: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test5
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test5loop  
+Script 1:Layer Flattening: diff ./test5rec  
+101 8129: Function Reset down
+101 8129: Layer: Capture fade tail, 128 frames at 8700
+101 -289: Sync: Disabling track sync master 1
+Layer 6 - Overdub over silence
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Memory: Allocated ScriptResolver size 64 0000023DEA3F7290
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+Memory: Allocated ScriptResolver size 64 0000023DEA3F7E10
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE5568880
+101 0: Loop: Set mode play
+Function Sample down
+101 0: EventManager: Add event Script( ) 30000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 29829: E: Script 30000
+101 30000: Function Overdub down
+101 30000: EventManager: Add event Overdub(Overdub) 30000
+101 30000: EventManager: Add event Script( ) 60000
+Script 1:Layer Flattening: Wait
+101 30000: E: Overdub(Overdub) 30000
+101 30000: Loop: Set mode overdub
+101 30000: Layer: Starting record fade in
+101 59817: E: Script 60000
+101 60000: Function Overdub down
+101 60000: EventManager: Add event Overdub(Overdub) 60000
+101 60000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+101 60000: E: Overdub(Overdub) 60000
+101 60000: Loop: Set mode play
+101 60000: Layer: Applying fade out before frame 60000
+Memory: Allocated Segment size 72 0000023DE5569960
+101 115807: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5568B50
+101 248: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test6
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test6loop  
+Script 1:Layer Flattening: diff ./test6rec  
+101 10391: Function Reset down
+101 10391: Layer: Capture fade tail, 128 frames at 10962
+101 -289: Sync: Disabling track sync master 1
+Layer 7 - Overdub Undo/Redo
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Function Sample down
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+ERROR: WARNING: files differ at frame 116867: 16 0: ./test6rec, 
+ERROR: WARNING: files differ at frame 30001: 0 1: ./test6loop, 
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE55681C0
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 90000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 89805: E: Script 90000
+Function Sample down
+101 90000: Function Overdub down
+101 90000: EventManager: Add event Overdub(Overdub) 90000
+101 90000: EventManager: Add event Script( ) 150000
+Script 1:Layer Flattening: Wait
+101 90000: E: Overdub(Overdub) 90000
+101 90000: Loop: Set mode overdub
+101 90000: Layer: Starting record fade in
+Memory: Allocated Segment size 72 0000023DE5568E20
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+101 33781: E: Script 34000
+101 34000: Function Overdub down
+101 34000: EventManager: Add event Overdub(Overdub) 34000
+101 34000: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 34000: E: Overdub(Overdub) 34000
+101 34000: Loop: Set mode play
+101 34000: Layer: Applying fade out before frame 34000
+101 115807: E: Script 116000
+101 116000: EventManager: Add event Script( ) 174000
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5569C30
+101 57578: E: Script 58000
+Script 1:Layer Flattening: Wait last
+101 58000: Function Undo down
+101 58000: EventManager: Add event Undo(Undo) 58000
+101 58000: E: Undo(Undo) 58000
+101 58000: Layer: Capture fade tail, 128 frames at 58571
+101 58000: Layer: Performing local fade right
+Memory: Allocated Segment size 72 0000023DE5567DD0
+101 58000: Loop: Undo resuming at frame 58000 play frame 58571
+101 58000: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5569330
+101 58019: Layer: Starting play fade in at 58571
+101 115790: E: Script 116000
+101 116000: EventManager: Add event Script( ) 174000
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5568910
+101 57561: E: Script 58000
+101 58000: Function Redo down
+101 58000: EventManager: Add event Redo(Redo) 58000
+Script 1:Layer Flattening: Wait last
+101 58000: E: Redo(Redo) 58000
+101 58000: Layer: Capture fade tail, 128 frames at 58571
+Memory: Allocated Segment size 72 0000023DE5568880
+101 58000: Loop: Redo resuming at frame 58000 play frame 58571
+101 58000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5569720
+101 58002: Layer: Starting play fade in at 58571
+Memory: Allocated Segment size 72 0000023DE5568880
+101 115756: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5569330
+101 197: E: Script 256
+DiffTest2 test7
+Memory: Allocated ScriptResolver size 64 0000023DEA3F6E90
+Script 1:Layer Flattening: initializing script variable testname = test7
+Memory: Allocated ScriptResolver size 64 0000023DEA3F6E10
+Memory: Allocated ScriptResolver size 64 0000023DEA3F6B10
+Script 1:Layer Flattening: initializing script variable testname = test7
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test7loop  
+Script 1:Layer Flattening: diff ./test7rec  
+101 12104: Function Reset down
+101 12104: Layer: Capture fade tail, 128 frames at 12675
+101 -289: Sync: Disabling track sync master 1
+Layer 8 - Replace center
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Function StartCapture down
+Function Sample down
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -147
+101 -289: Function Record down
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+ERROR: WARNING: files differ at frame 206831: 3936 3920: ./test7rec, 
+ERROR: WARNING: files differ at frame 0: -16256 -45920: ./test7loop, 
+101 115841: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: Allocated Segment size 72 0000023DE55690F0
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 20000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+101 282: Layer: Starting play fade in at 571
+101 19686: E: Script 20000
+101 20000: Function Replace down
+101 20000: EventManager: Add event Replace(Replace) 20000
+101 20000: EventManager: Add event JumpPlay( ) 20000
+101 20000: EventManager: Jump frame 20000 latency loss 571
+101 20000: EventManager: Add event Script( ) 40000
+Script 1:Layer Flattening: Wait
+101 20000: E: JumpPlay 20000
+101 20000: Loop: Jump forcing mute on
+101 20000: Loop: Playback jumping from 20571 to frame 20571 of layer 0 latency loss 571
+101 20000: E: Replace(Replace) 20000
+101 20000: Loop: Set mode replace
+101 20000: Layer: Starting record fade in
+101 20127: Layer: Capture fade tail, 128 frames at 20571
+101 39972: E: Script 40000
+101 40000: Function Replace down
+101 40000: EventManager: Add event Replace(Replace) 40000
+101 40000: EventManager: Add event JumpPlay( ) 40000
+101 40000: EventManager: Jump frame 40000 latency loss 571
+Script 1:Layer Flattening: Wait last
+101 40000: E: JumpPlay 40000
+101 40000: Loop: Jump forcing mute off
+101 40000: Loop: Playback jumping from 40571 to frame 40571 of layer 0 latency loss 571
+101 40000: E: Replace(Replace) 40000
+101 40000: Loop: Set mode play
+Function Sample down
+101 40000: EventManager: Add event Script( ) 60000
+Script 1:Layer Flattening: Wait
+101 40000: Layer: Applying fade out before frame 40000
+101 40413: Layer: Starting play fade in at 40571
+101 59817: E: Script 60000
+101 60000: Function Replace down
+101 60000: EventManager: Add event Replace(Replace) 60000
+101 60000: EventManager: Add event JumpPlay( ) 60000
+101 60000: EventManager: Jump frame 60000 latency loss 571
+101 60000: EventManager: Add event Script( ) 80000
+Script 1:Layer Flattening: Wait
+101 60000: E: JumpPlay 60000
+101 60000: Loop: Jump forcing mute on
+101 60000: Loop: Playback jumping from 60571 to frame 60571 of layer 0 latency loss 571
+101 60000: E: Replace(Replace) 60000
+101 60000: Loop: Set mode replace
+101 60000: Layer: Starting record fade in
+101 60258: Layer: Capture fade tail, 128 frames at 60571
+101 79662: E: Script 80000
+101 80000: Function Replace down
+101 80000: EventManager: Add event Replace(Replace) 80000
+101 80000: EventManager: Add event JumpPlay( ) 80000
+101 80000: EventManager: Jump frame 80000 latency loss 571
+101 80000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+101 80000: E: JumpPlay 80000
+101 80000: Loop: Jump forcing mute off
+101 80000: Loop: Playback jumping from 80571 to frame 80571 of layer 0 latency loss 571
+101 80000: E: Replace(Replace) 80000
+101 80000: Loop: Set mode play
+101 80000: Layer: Applying fade out before frame 80000
+101 80103: Layer: Starting play fade in at 80571
+Memory: Allocated Segment size 72 0000023DE5568EB0
+101 115807: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 0000023DE5568EB0
+101 248: E: Script 256
+Script 1:Layer Flattening: initializing script variable testname = test8
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Script 1:Layer Flattening: diff ./test8loop  
+Script 1:Layer Flattening: diff ./test8rec  
+101 11273: Function Reset down
+101 11273: Layer: Capture fade tail, 128 frames at 11844
+101 -289: Sync: Disabling track sync master 1
+Layer Test Suite Complete
+Function Coverage down
+Script 1:Layer Flattening: end
+*** All Tests Complete ***
+Mobius: Script thread 1:Layer Flattening: ending
+ERROR: WARNING: files differ at frame 156936: 0 1: ./test8rec, 
+ERROR: WARNING: files differ at frame 60002: -2 0: ./test8loop, 
 Supervisor::releaseResources
-AudioPool: 15 buffers allocated, 0 in the pool, 15 in use
-ERROR: EventPool: 2 allocated, 2 in the pool, 0 in use
+AudioPool: 53 buffers allocated, 16 in the pool, 37 in use
+Mobius::~Mobius
+ERROR: EventPool: 4 allocated, 4 in the pool, 0 in use
+Mobius::~Mobius finished
 KernelCommunicator: statistics
   Created 20 available 0
   min pool 8
   max shell 12
   max kernel 12
-Total shell sends 19
-Total kernel sends 19
+Total shell sends 54
+Total kernel sends 54
 Supervisor ending statistics:
   prepareToPlay 1
-  getNextAudioBlock 130661
+  getNextAudioBlock 29419
   releaseResources 0

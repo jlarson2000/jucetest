@@ -1,15 +1,3 @@
-MobiusShell.loadScripts
-  consolodate this and ScriptAnalyzer so we can
-  make a DynamicConfig wheneer we send a MobiusConfig down
-  rather than have initialize() do the compilation, defer script
-  loading and let shell be in control over building the initia
-  Scriptarian, if we don't do it that way the
-  either technically kernel code in initializer would have to be
-  aware of that and pass it back up, Could have the dynconfig just
-  be another side effect of Scriptarian initialization, it would
-  be sparse but that could be merged with another one
-
-
 
 Standalone hardware config
   need to remember audio and midi device settings
@@ -50,9 +38,6 @@ Audio::~Audio()
   before general release
 
 
-Unit tests want the notion of the "current preset" which was
-not well defined.  See Mapper/GetCurrentPreset
-
 When TriggerState ends long press tracking we don't always
 want the up action propagated any further, it just cancles
 the long wait.  Verify this.
@@ -81,9 +66,6 @@ Script/WAIT_SCRIPT
 Script/WaitType/WAIT_THREAD
   should be WAIT_EVENT now
 
-Mobius::unitTestSetup
-  this is all ugly and could stand some cleanup
-  
 Mobius::logStatus
   used to be called by MobiusThread at periodic intervals, probably
   used only briefly during testing. can get rid of this, or redesign it
@@ -103,18 +85,10 @@ Mobius::addMessage
 KernelEvent
   I'm not liking how we keep a pointer to the KernelEvent in thee ScriptInterpreter for waiting, then let it escape to the UI, and the UI assumes that will remain valid indefinitely.  Engine shouldn't delete it out from under it, but the dependency is subtle and fragile.  
 
-SaveCapture is a mess
-  Mobius::getCapture has race conditions with audio thread and shell has
-  to be careful not to delete the Audio
-
-
-
 SampleManager plays into the input buffer, which causes input monitoring
 to bounce, not innacurate really, but should we do monitoring at a higher
 level and ignore what SampleManager does?
   - yes to higher level
-
-Revisit setSetupInternal tail end of propagateConfiguration is a mess
 
 For each of the major subcomponents
   ScriptInterpreter, Synchronizer, Actionator, Track
@@ -129,12 +103,6 @@ StateExporter
   specific exporters: Track, Loop, Layer, EventManager
   into one place
 
-Capture/Bounce
-  move to a subcomponent?
-
-Scriptarian
-  still enough in Mobius to warrant a subcomponent
-
 TrackManager
   is there enough to have a subcomponent?
 
@@ -142,24 +110,13 @@ Parametizer
   Handle getParameter, UIParameter mapping
   - leave in Actionator for now, there isn't much there
   
-Functionator
-  handle the combined function/script map
-  not much more here, Actionator does almost everything
-  same with Parametizer, there's not much more to add, just
-  keep everything in Actionator
-  UIQuery can evolve there too
-
 Variables
   hating these, at least condider generating but the logic
   isn't as regular as Parameter
 
 ----------------------------------------------------------------------
 
-
 Got a single 32k block leaking from somewhere
-
-Flesh out LayerElement, fix AudioMeter for input add smaller
-AudioMeter for track strip output
 
 Explore that other guy's meter
 
@@ -170,7 +127,6 @@ Unless scripts need them.
 
 Sure would be nice to  factor Action and Export handling out of them so
 we could share the model.
-
 
 Go over the stuff in new and see what was used
 

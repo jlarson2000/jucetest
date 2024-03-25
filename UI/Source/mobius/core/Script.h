@@ -609,6 +609,7 @@ class ScriptStatement {
 	void init();
     void parseArgs(char* line);
     char* parseArgs(char* line, int offset, int count);
+    void clearArgs();
 
     /**
      * The block we're in.
