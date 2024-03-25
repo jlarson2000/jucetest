@@ -1,0 +1,76 @@
+
+Sample triggers were messy, they got even worse, and now I'm trying to sort it out...
+
+In the old code what would happen is this:
+
+  recorderMonitorEnter (start of interrupt block)
+  prepare tracks
+  doInterruptActions
+  doScriptMaintenance
+
+  advance tracks with SampleTrack always first
+
+doInterruptActions is where test scripts would be started and doScriptMaintenance
+is where they would be resumed after a wait.  In both of those places a sample
+could be triggered by the test script.
+
+The SamplePlay function handler would call back to Mobius::sampleTrigger
+which would call SampleTrack::trigger
+
+SampleTrack::trigger would start the play cursor AND play the first block
+of that sample into the current interrupt block.
+
+This was so that the test scripts could immediately start recording the sample content.
+
+If the sample trigger came from outside it worked much the same, doInterruptActions
+would trigger the sample without passing through a script and the first sample
+block would be in the input buffer before the tracks started advancing.
+
+Back when SampleTrack was under Recorder this worked as long as the SampleTrack
+was marked as "priority" so it would advance before any of the others could start
+recording the input stream.
+
+There was an extremely confusing mInputBufferModified flag
+
+			// only the initial trigger needs to notify the other tracks,
+			// after ward we're the first one so we've modified it before
+			// the others start copying
+			mRecorder->inputBufferModified(this, inbuf);
+
+I still don't understand what that was before but it may have been before the notion
+of a priority track was solidified.
+
+In any case, samples started playing IMMEDIATELY at the beginning of the current interrupt.
+
+Here are some old comments that are of varying accuracy:
+
+void SampleTrack::trigger(AudioStream* stream, int index, bool down)
+
+ * !!! This feels full of race conditions.  The unit tests do this
+ * in scripts so often we will be inside the interrupt.  But the
+ * SampleTrigger function is declared as global so if triggered
+ * from MIDI it will be run outside the interrupt.
+ * 
+ * If we are being run during the script pass at the start of the interrupt,
+ * then the sample will be immediately played into the input/output buffers in
+ * the processBufffers interrupt handler below.  This is normally done
+ * for testing with scripts using the "Wait block" statement to ensure
+ * that the sample is aligned with an interrupt block.
+ *
+ * For scripts triggered with MIDI, keys, or buttons, we will trigger them
+ * but won't actually begin playing until the next interrupt when 
+ * processBuffers is run again.  This means that for predictable content
+ * in the unit tests you must use "Wait block" 
+ *
+ * KLUDGE: Originally triggering always happened during processing of a Track
+ * after we had called the SamplerTrack interrupt handler.  So we could begin
+ * hearing the sample in the current block we begin proactively playing it here
+ * rather than waiting for the next block.  This is arguably incorrect, we should
+ * just queue it up and wait for the next interrupt.  But unfortunately we have
+ * a lot of captured unit tests that rely on this.  Until we're prepared
+ * to recapture the test files, follow the old behavior.  But note that we have
+ * to be careful *not* to do this twice in one interupt.  Now that scripts
+ * are called before any tracks are processed, we may not need to begin playing, 
+ * but wait for SampleManager::processBuffers below.
+
+ 
