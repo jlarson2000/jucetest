@@ -20,6 +20,7 @@
 //#include <math.h>
 
 #include "Audio.h"
+#include "core/Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -499,7 +500,7 @@ void AudioCursor::init()
 void AudioCursor::setName(const char* name)
 {
 	delete mName;
-	mName = CopyString(name);
+	mName = MemCopyString("AudioCursor::setName", name);
 }
 
 void AudioCursor::setReverse(bool b) 

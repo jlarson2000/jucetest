@@ -43,6 +43,7 @@
 #include "../Audio.h"
 #include "StreamPlugin.h"
 #include "FadeWindow.h"
+#include "Mem.h"
 
 Audio* Kludge = NULL;
 
@@ -249,7 +250,7 @@ int SoundTouchPlugin::CachedLatencies[] = {
 SoundTouchPlugin::SoundTouchPlugin(int sampleRate)
     : PitchPlugin(sampleRate)
 {
-	mSoundTouch = new SoundTouch();
+	mSoundTouch = NEW(SoundTouch);
 
     // !! ST throws std exceptions if it is misconfigured, should
     // try to capture those and disable the plugin
@@ -283,7 +284,7 @@ SoundTouchPlugin::SoundTouchPlugin(int sampleRate)
 	mLatency = 0;
 
 	// try using a fade window for shutdown fades
-	mTailWindow = new FadeWindow();
+	mTailWindow = NEW(FadeWindow);
 
 	// doesn't seem to happen automatically for some reason?
 	flush();
@@ -563,7 +564,7 @@ long SoundTouchPlugin::process(float* input, float* output,
 
 PitchPlugin* PitchPlugin::getPlugin(int sampleRate)
 {
-	return new PseudoPlugin(0);
+	return NEW1(PseudoPlugin, 0);
 	//return new SoundTouchPlugin(sampleRate);
 }
 

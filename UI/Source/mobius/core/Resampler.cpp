@@ -23,6 +23,7 @@
 #include "../../util/Trace.h"
 
 #include "Resampler.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -613,7 +614,7 @@ float* Resampler::generateSine(int seconds, long* retsamples)
     long samples = (seconds * rate) * 2;
     double magic = (TWO_PI * frequency) / rate;
 
-    float* buffer = new float[samples];
+    float* buffer = MemNewFloat("Resampler:generateSine", samples);
     for (int i = 0 ; i < samples ; i += 2) {
         float sample = (float)(amplitude * sin((magic * i) + phase));
         buffer[i] = sample;

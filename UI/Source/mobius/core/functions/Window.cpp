@@ -40,6 +40,8 @@
 // only for CD_SAMPLE_RATE which is used by MSEC_TO_FRAMES
 #include "../AudioConstants.h"
 
+#include "../Mem.h"
+
 //////////////////////////////////////////////////////////////////////
 //
 // WindowMode
@@ -739,7 +741,7 @@ Segment* WindowFunction::buildSegments()
                 Trace(mLoop, 2, "Window: Segment for layer %ld ref offset %ld start frame %ld frames %ld\n",
                       curLayer->getNumber(), refOffset, layerFrame, take);
 
-                Segment* seg = new Segment(curLayer);
+                Segment* seg = NEW1(Segment, curLayer);
                 // keep them ordered first to last
                 if (lastSegment == NULL)
                   segments = seg;

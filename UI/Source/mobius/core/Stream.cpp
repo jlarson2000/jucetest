@@ -47,6 +47,7 @@
 #include "Stream.h"
 #include "StreamPlugin.h"
 #include "Synchronizer.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -172,7 +173,7 @@ Stream::Stream()
 	mAudioBuffer = NULL;
 	mAudioBufferFrames = 0;
 	mAudioPtr = NULL;
-	mSmoother = new Smoother();
+	mSmoother = NEW(Smoother);
 
     mCorrection = 0;
 }
@@ -600,7 +601,7 @@ OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
 {
 	mInput = in;
     mAudioPool = aupool;
-    mResampler = new Resampler(false);
+    mResampler = NEW1(Resampler, false);
 	mPitchShifter = PitchPlugin::getPlugin(in->getSampleRate());
 	mPlugin = NULL;
 	mPan = 64;
@@ -614,13 +615,13 @@ OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
 	mLayerShift = false;
 
 	// a pair of smoothers for the left/right pan levels
-	mLeft = new Smoother();
-	mRight = new Smoother();
+	mLeft = NEW(Smoother);
+	mRight = NEW(Smoother);
 
     // The "tail buffer" is used to capture fade tails when jumping th
     // playback cursor around.
-	mTail = new FadeTail();
-	mOuterTail = new FadeTail();
+	mTail = NEW(FadeTail);
+	mOuterTail = NEW(FadeTail);
 	mForceFadeIn = false;
 
     // The "loop buffer" needs to be as large as the maximum audio buffer 
@@ -633,13 +634,11 @@ OutputStream::OutputStream(InputStream* in, AudioPool* aupool)
 	long loopBufferFrames = AUDIO_MAX_FRAMES_PER_BUFFER + 16;
 	long loopBufferSamples = loopBufferFrames * AUDIO_MAX_CHANNELS;
 
-	mLoopBuffer = new float[loopBufferSamples];
-
+    mLoopBuffer = MemNewFloat("OutputStream:loopBuffer", loopBufferSamples);
     // The "rate buffer" needs to be sas large as the loop buffer times
     // the highest speed multiplier.  +8 to guard against remainders
 	long rateBufferSamples = (long)((loopBufferSamples * MAX_RATE_SHIFT) + 4);
-	mSpeedBuffer = new float[rateBufferSamples];
-
+    mSpeedBuffer = MemNewFloat("Outputstream:speedBuffer", rateBufferSamples);
 	mCapture = false;
 	mCaptureAudio = NULL;
 	mCaptureTotal = 0;
@@ -1848,7 +1847,7 @@ void OutputStream::captureTail(FadeTail* tail, Layer* src, long playFrame,
 
 InputStream::InputStream(Synchronizer* sync, int sampleRate)
 {
-    mResampler = new Resampler(true);
+    mResampler = NEW1(Resampler, true);
 	mSynchronizer = sync;
     mSampleRate= sampleRate;
     mPlugin = NULL;
@@ -1864,7 +1863,7 @@ InputStream::InputStream(Synchronizer* sync, int sampleRate)
 	// Temporary buffer used for level adjusted frames.
 	long levelBufferSamples = 	
 		((AUDIO_MAX_FRAMES_PER_BUFFER + 16) * AUDIO_MAX_CHANNELS);
-	mLevelBuffer = new float[levelBufferSamples];
+	mLevelBuffer = MemNewFloat("InputStream:levelBuffer", levelBufferSamples);
 
     // Temporary buffer used for rate transposition and level adjustment
     // for level adjustment needs to be as long as the interrupt buffer
@@ -1877,7 +1876,7 @@ InputStream::InputStream(Synchronizer* sync, int sampleRate)
         ((AUDIO_MAX_FRAMES_PER_BUFFER + 16) * AUDIO_MAX_CHANNELS) * 
         MAX_RATE_SHIFT;
 
-	mSpeedBuffer = new float[rateBufferSamples];
+	mSpeedBuffer = MemNewFloat("InputStream:speedBuffer", rateBufferSamples);
 }
 
 InputStream::~InputStream()

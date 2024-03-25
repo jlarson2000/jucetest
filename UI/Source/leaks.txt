@@ -1,0 +1,67 @@
+Detected memory leaks!
+Dumping objects ->
+{98233} normal block at 0x000001A97A914690, 524304 bytes long.
+ Data: <                > 00 00 00 00 00 00 00 00 00 00 00 00 CD CD CD CD 
+
+Memory: Allocated Audio:growIndex size 88 000001A97A659070
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A914690
+
+{98230} normal block at 0x000001A97A659070, 88 bytes long.
+ Data: <`Eqz     F z    > 60 45 71 7A A9 01 00 00 A0 46 91 7A A9 01 00 00 
+See above
+
+{98222} normal block at 0x000001A979E2F590, 7 bytes long.
+ Data: <Record > 52 65 63 6F 72 64 00 
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F590
+
+{98221} normal block at 0x000001A974FDFBC0, 72 bytes long.
+ Data: <   y     , u    > 90 F5 E2 79 A9 01 00 00 90 2C D5 75 A9 01 00 00 
+Memory: Allocated AudioCursor size 72 000001A974FDFBC0
+
+{98218} normal block at 0x000001A979E2F680, 5 bytes long.
+ Data: <Play > 50 6C 61 79 00 
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F680
+
+
+{98217} normal block at 0x000001A974FDF8F0, 72 bytes long.
+ Data: <   y     , u    > 80 F6 E2 79 A9 01 00 00 90 2C D5 75 A9 01 00 00 
+Memory: Allocated AudioCursor size 72 000001A974FDF8F0
+
+{98216} normal block at 0x000001A975D52C90, 64 bytes long.
+ Data: <x  u            > 78 8E 09 75 A9 01 00 00 80 BB 00 00 02 00 00 00 
+Memory: Allocated Audio size 64 000001A975D52C90
+
+{90819} normal block at 0x000001A97A714550, 524304 bytes long.
+ Data: <                > 00 00 00 00 00 00 00 00 00 00 00 00 CD CD CD CD 
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A714550
+
+
+{90815} normal block at 0x000001A979E8DAD0, 32768 bytes long.
+ Data: <      f         > D2 01 E9 BB CC 01 66 BC 1A 01 0D BC 07 81 83 BC 
+Object dump complete.
+
+Memory: Allocated float buffer for LayerPool:CopyContext size 32768 000001A979E8DAD0
+
+
+The Record/Play cursors are inside Audio
+
+void Audio::init() 
+{
+    mPool = NULL;
+	mSampleRate = CD_SAMPLE_RATE;
+	mChannels = BUFFER_CHANNELS;
+    mBufferSize = BUFFER_SIZE;
+
+	mVersion = 0;
+	mBuffers = NULL;
+	mBufferCount = 0;
+	mStartFrame = 0;
+	mFrames = 0;
+
+	mPlay = NEW2(AudioCursor, "Play", this);
+	mRecord = NEW2(AudioCursor, "Record", this);
+	mRecord->setAutoExtend(true);
+}
+
+
+

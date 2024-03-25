@@ -54,6 +54,7 @@
 #include "Track.h"
 
 #include "Variable.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -1249,7 +1250,7 @@ void EventSummaryVariableType::getTrackValue(Track* t, ExValue* value)
     EventManager* em = t->getEventManager();
 
     // in theory this can be large, so use a Vbuf
-    Vbuf* buf = new Vbuf();
+    Vbuf* buf = NEW(Vbuf);
 
     Event* eventList = em->getEvents();
     int ecount = 0;

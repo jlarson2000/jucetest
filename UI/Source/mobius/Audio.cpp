@@ -61,6 +61,8 @@
 #include "AudioPool.h"
 #include "Audio.h"
 
+#include "core/Mem.h"
+
 /****************************************************************************
  *                                                                          *
  *   							  CONSTANTS                                 *
@@ -134,8 +136,8 @@ void Audio::init()
 	mStartFrame = 0;
 	mFrames = 0;
 
-	mPlay = new AudioCursor("Play", this);
-	mRecord = new AudioCursor("Record", this);
+	mPlay = NEW2(AudioCursor, "Play", this);
+	mRecord = NEW2(AudioCursor, "Record", this);
 	mRecord->setAutoExtend(true);
 }
 
@@ -257,6 +259,7 @@ void Audio::initIndex()
 
 		mBufferCount = 60;			// configurable?
 		mBuffers = new float*[mBufferCount];
+        MemTrack(mBuffers, "Audio::initIndex", mBufferCount * sizeof(float*));
 		for (int i = 0 ; i < mBufferCount ; i++)
 		  mBuffers[i] = NULL;
 
@@ -303,7 +306,8 @@ void Audio::growIndex(int count, bool up)
 
 		newcount = mBufferCount + count;
 		buffers  = new float*[newcount];
-
+        MemTrack(buffers, "Audio:growIndex", newcount * sizeof(float*));
+        
 		if (up) {
 			for (i = 0 ; i < mBufferCount ; i++)
 			  buffers[i+count] = mBuffers[i];
@@ -421,6 +425,7 @@ float* Audio::allocBuffer()
         Trace(1, "Audio::allocBuffer no pool!\n");
         int bytesize = (BUFFER_SIZE * sizeof(float));
         buffer = (float*)new char[bytesize];
+        MemTrack(buffer, "Audio::allocBuffer", bytesize);
 		memset(buffer, 0, BUFFER_SIZE * sizeof(float));
     }
 

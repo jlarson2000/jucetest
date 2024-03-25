@@ -32,6 +32,7 @@
 #include "AudioPool.h"
 
 #include "SampleManager.h"
+#include "core/Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -64,7 +65,7 @@ SampleManager::SampleManager(AudioPool* pool, SampleConfig* samples)
     SamplePlayer* last = nullptr;
     if (samples != nullptr) {
         for (Sample* s = samples->getSamples() ; s != nullptr ; s = s->getNext()) {
-            SamplePlayer* p = new SamplePlayer(pool, s);
+            SamplePlayer* p = NEW2(SamplePlayer, pool, s);
             if (last == nullptr)
               mPlayerList = p;
             else
@@ -181,7 +182,7 @@ SamplePlayer::SamplePlayer(AudioPool* pool, Sample* src)
 	init();
 	
     // necessary only for isDifference, could remove when that goes
-    mFilename = CopyString(src->getFilename());
+    mFilename = MemCopyString("SamplePlayer::mFileName", src->getFilename());
 	mSustain = src->isSustain();
 	mLoop = src->isLoop();
 	mConcurrent = src->isConcurrent();
@@ -278,7 +279,7 @@ SampleCursor::SampleCursor()
 SampleCursor::SampleCursor(SamplePlayer* s)
 {
     init();
-	mRecord = new SampleCursor();
+	mRecord = NEW(SampleCursor);
 	setSample(s);
 }
 
@@ -290,7 +291,7 @@ void SampleCursor::init()
     mNext = nullptr;
     mRecord = nullptr;
     mSample = nullptr;
-	mAudioCursor = new AudioCursor();
+	mAudioCursor = NEW(AudioCursor);
     mStop = false;
     mStopped = false;
     mFrame = 0;

@@ -308,8 +308,7 @@ void FadeWindow::showCoverage()
 FadeWindow::FadeWindow()
 {
 	mBufferSize = AUDIO_MAX_FADE_FRAMES * AUDIO_MAX_CHANNELS;
-	mBuffer = new float[mBufferSize];
-    MemTrack(mBuffer, "float", mBufferSize * sizeof(float));
+    mBuffer = MemNewFloat("FadeWindow", mBufferSize);
     reset();
 }
 

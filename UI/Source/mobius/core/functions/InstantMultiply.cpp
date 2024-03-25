@@ -24,6 +24,7 @@
 #include "../Messages.h"
 #include "../Segment.h"
 #include "../Synchronizer.h"
+#include "../Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -216,7 +217,7 @@ void InstantMultiplyFunction::multiply(LayerContext* con, Layer* layer,
 		multiples--;
 
 		for (int i = 0 ; i < multiples ; i++) {
-			Segment* seg = new Segment(segments);
+			Segment* seg = NEW1(Segment, segments);
 			seg->setOffset(offset);
 			offset += startFrames;
 			layer->addSegment(seg);

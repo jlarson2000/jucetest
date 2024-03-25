@@ -261,6 +261,7 @@
 #include "Track.h"
 
 #include "SyncTracker.h"
+#include "Mem.h"
 
 /**
  * An experiment to process resizes immediately rather than waiting
@@ -291,8 +292,8 @@ SyncTracker::SyncTracker(SyncSource src)
         default: mName = "???"; break;
     }
 
-    mPulseMonitor = new PulseMonitor();
-    mDriftMonitor = new PulseMonitor();
+    mPulseMonitor = NEW(PulseMonitor);
+    mDriftMonitor = NEW(PulseMonitor);
 
     // KLUDGE: For event generation we need to know how many pulses are
     // in one beat.  This will be 24 for MIDI, 1 for host.

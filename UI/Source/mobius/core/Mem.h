@@ -9,6 +9,9 @@ extern void MemTrack(void* obj, const char* className, int size);
 extern void* MemNew(void* obj, const char* className, int size);
 extern void MemDelete(void* obj, const char* name);
 
+float* MemNewFloat(const char* context, int size);
+char* MemCopyString(const char* context, const char* src);
+
 #if 1
 
 

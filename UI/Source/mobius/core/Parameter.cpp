@@ -42,6 +42,7 @@
 #include "Synchronizer.h"
 
 #include "Parameter.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -216,6 +217,7 @@ const char** Parameter::allocLabelArray(int size)
 {
 	int fullsize = size + 1; // leave a null terminator
 	const char** labels = new const char*[fullsize];
+    MemTrack(labels, "Parameter:allocLabelArray", fullsize * sizeof(char*));
 	for (int i = 0 ; i < fullsize ; i++)
 	  labels[i] = NULL;
 

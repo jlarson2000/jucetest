@@ -17,6 +17,7 @@
 #include "Mobius.h"
 
 #include "TriggerState.h"
+#include "Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -86,7 +87,7 @@ TriggerState::TriggerState()
     // go ahead and flesh out the pool now, we can use this
     // to enforce the maximum
     for (int i = 0 ; i < MAX_TRIGGER_WATCHERS ; i++) {
-        TriggerWatcher* tw = new TriggerWatcher();
+        TriggerWatcher* tw = NEW(TriggerWatcher);
         tw->next = mPool;
         mPool = tw;
     }

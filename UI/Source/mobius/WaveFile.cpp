@@ -38,6 +38,7 @@
 #include "../util/Util.h"
 
 #include "WaveFile.h"
+#include "core/Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -177,7 +178,7 @@ WaveFile::~WaveFile()
 void WaveFile::setFile(const char* file)
 {
 	delete mFile;
-	mFile = CopyString(file);
+	mFile = MemCopyString("WaveFile::setFIle", file);
 }
 
 void WaveFile::setDebug(bool b)
@@ -329,8 +330,8 @@ void WaveFile::printError(int e)
 float* WaveFile::getChannelSamples(int channel)
 {
 	float* samples = NULL;
-	if (channel < mChannels && mFrames > 0) {
-		samples = new float[mFrames];
+	if (channel < mChannels && mFrames > 0) {   
+        samples = MemNewFloat("WaveFile::getChannelSamples", mFrames);
 		for (int i = 0 ; i < mFrames ; i++)
 		  samples[i] = mData[(i * mChannels) + channel];
 	}
@@ -347,7 +348,8 @@ void WaveFile::setSamples(float* left, float* right, long frames)
 	mData = NULL;
 
 	if (frames > 0 && (left != NULL || right != NULL)) {
-		mData = new float[frames * mChannels];
+        int samples = frames * mChannels;
+        mData = MemNewFloat("WaveFile::setSamples", samples);
 		for (int i = 0 ; i < mFrames ; i++) {
 			float* dest = &(mData[i * mChannels]);
 			dest[0] = (left != NULL) ? left[i] : 0.0f;
@@ -594,7 +596,8 @@ void WaveFile::processFormatChunk(FILE* fp, long size)
 void WaveFile::processDataChunk(FILE* fp, long size)
 {
 	unsigned char* data = (unsigned char*)new unsigned char[size];
-
+    MemTrack(data, "WaveFIle::processDataChunk", size);
+    
 	// purify giving an uninitialized memory read on the source buffer
 	// sometimes, not sure why
 	memset(data, 0, size);
@@ -648,7 +651,8 @@ void WaveFile::processPcmDataChunk(unsigned char* data, long size)
         mFrames = size / mBlockAlign;
 
         // convert everything to stereo, add other options someday
-        mData = new float[mFrames * 2];
+        int samples = mFrames * 2;
+        mData = MemNewFloat("WaveFile::processPcmDataChunk", samples);
         myuint16* src = (myuint16*)data;
         
         int srcSample = 0;
@@ -721,14 +725,14 @@ void WaveFile::processIEEEDataChunk(unsigned char* data, long size)
     }
     else {
         mFrames = size / mBlockAlign;
-
+        
         // convert everything to stereo, add other options someday
-		// optimization: if mChannels == 2 which it almost always will be, 
+		// optimization: if mChannels == 2 which it almost always will be,
 		// we don't have to allocate another block and copy, just use
 		// the original block, I want to force it through the logic though
 		// for testing
-        mData = new float[mFrames * 2];
-
+        int samples = mFrames * 2;
+        mData = MemNewFloat("WaveFile::processIEEEDataChunk", samples);
 		if (mSampleDepth == 32) {
 			float* src = (float*)data;
 			int srcSample = 0;

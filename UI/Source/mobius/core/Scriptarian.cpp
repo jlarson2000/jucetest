@@ -19,13 +19,14 @@
 #include "Function.h"
 
 #include "Scriptarian.h"
+#include "Mem.h"
 
 Scriptarian::Scriptarian(Mobius* argMobius)
 {
     mMobius = argMobius;
     mLibrary = nullptr;
     mFunctions = nullptr;
-    mRuntime = new ScriptRuntime(mMobius);
+    mRuntime = NEW1(ScriptRuntime, mMobius);
 }
 
 Scriptarian::~Scriptarian()
@@ -64,7 +65,7 @@ Function** Scriptarian::getFunctions()
  */
 void Scriptarian::compile(ScriptConfig* src)
 {
-    ScriptCompiler* sc = new ScriptCompiler();
+    ScriptCompiler* sc = NEW(ScriptCompiler);
 
     // revisit the interface, rather than passing mMobius can
     // we pass ourselves intead?
@@ -127,7 +128,7 @@ void Scriptarian::initializeFunctions()
 	for ( ; StaticFunctions[staticCount] != NULL ; staticCount++);
 
     // generate RunScriptFunctions for the scripts that can be called
-    List* scriptFunctions = new List();
+    List* scriptFunctions = NEW(List);
     
     Script* scripts = mLibrary->getScripts();
     while (scripts != nullptr) {
@@ -135,7 +136,7 @@ void Scriptarian::initializeFunctions()
             // may already have a function if we had a cross reference
             RunScriptFunction* f = scripts->getFunction();
             if (f == NULL) {
-                f = new RunScriptFunction(scripts);
+                f = NEW1(RunScriptFunction, scripts);
                 scripts->setFunction(f);
             }
             scriptFunctions->add(f);
@@ -144,8 +145,9 @@ void Scriptarian::initializeFunctions()
     }
 
     // allocate a new array
-	functions = new Function*[staticCount + scriptFunctions->size() + 1];
-
+    int total = staticCount + scriptFunctions->size() + 1;
+	functions = new Function*[total];
+    MemTrack(functions, "Scriptarian:functions", total * sizeof(Function*));
     // add statics
     int psn = 0;
     for (i = 0 ; i < staticCount ; i++)

@@ -45,8 +45,7 @@ FadeTail::FadeTail()
 	mChannels = 2;
 
 	long tailSamples = mMaxFrames * AUDIO_MAX_CHANNELS;
-	mTail = new float[tailSamples];
-    MemTrack(mTail, "float", tailSamples * sizeof(float));
+	mTail = MemNewFloat("FadeTail", tailSamples);
 	memset(mTail, 0, tailSamples * sizeof(float));
 }
 

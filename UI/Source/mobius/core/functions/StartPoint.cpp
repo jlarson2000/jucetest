@@ -27,6 +27,7 @@
 #include "../Stream.h"
 #include "../Synchronizer.h"
 #include "../Track.h"
+#include "../Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -270,7 +271,7 @@ void StartPointFunction::startPoint(LayerContext* con, Layer* layer, long startF
 		long remainder = layer->getFrames() - startFrame;
 
 		Segment* seg1 = segments;
-		Segment* seg2 = new Segment(seg1);
+		Segment* seg2 = NEW1(Segment, seg1);
 		layer->addSegment(seg2);
 
 		if (con->isReverse()) {
@@ -334,7 +335,7 @@ void Layer::startPointSpawn(LayerContext* con, long startFrame)
 	startFrame = reflectFrame(con, startFrame);
 
 	// second half moves to the front
-	Segment* seg = new Segment(inner);
+	Segment* seg = NEW1(Segment, inner);
 	long remainder = mFrames - startFrame;
 	seg->setStartFrame(startFrame);
 	seg->setOffset(0);
@@ -342,7 +343,7 @@ void Layer::startPointSpawn(LayerContext* con, long startFrame)
 	addSegment(seg);
 
 	// first half is pushed
-	seg = new Segment(inner);
+	seg = NEW1(Segment, inner);
 	seg->setStartFrame(0);
 	seg->setOffset(remainder);
 	seg->setFrames(startFrame);

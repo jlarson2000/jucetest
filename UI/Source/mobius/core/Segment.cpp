@@ -22,6 +22,7 @@
 #include "Layer.h"
 #include "Mobius.h"
 #include "Segment.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -49,7 +50,7 @@ Segment::Segment(Audio* src)
     init();
     if (src != NULL) {
         mAudio = src;
-		mCursor = new AudioCursor();
+		mCursor = NEW(AudioCursor);
         mFrames = src->getFrames();
     }
 }
@@ -146,7 +147,7 @@ void Segment::setAudio(Audio* a)
 	delete mAudio;
     mAudio = a;
 	if (mCursor == NULL)
-	  mCursor = new AudioCursor();
+	  mCursor = NEW(AudioCursor);
 }
 
 Audio* Segment::getAudio()

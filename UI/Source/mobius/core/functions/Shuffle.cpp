@@ -31,6 +31,7 @@
 #include "../Messages.h"
 #include "../Segment.h"
 #include "../Synchronizer.h"
+#include "../Mem.h"
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -395,7 +396,7 @@ void ShuffleFunction::segmentize(Loop* loop, Layer* layer,
 		}
 		else {
             // start by cloning the origianl layer segment
-            Segment* s = new Segment(original);
+            Segment* s = NEW1(Segment, original);
 			long start = granule * granuleFrames;
             s->setOffset(offset);
             s->setStartFrame(start);

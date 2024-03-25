@@ -10,6 +10,8 @@
 #include "Audio.h"
 #include "AudioPool.h"
 
+#include "core/Mem.h"
+
 /**
  * Create an initially empty audio pool.
  * There is normally only one of these in a Mobius instance.
@@ -51,7 +53,7 @@ AudioPool::~AudioPool()
  */
 Audio* AudioPool::newAudio()
 {
-    return new Audio(this);
+    return NEW1(Audio, this);
 }
 
 /**
@@ -97,6 +99,7 @@ float* AudioPool::newBuffer()
 		if (mPool == NULL) {
 			int bytesize = sizeof(OldPooledBuffer) + (BUFFER_SIZE * sizeof(float));
 			char* bytes = new char[bytesize];
+            MemTrack(bytes, "AudioPool:newBuffer", bytesize);
 			OldPooledBuffer* pb = (OldPooledBuffer*)bytes;
 			pb->next = NULL;
 			pb->pooled = 0;

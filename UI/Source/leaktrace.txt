@@ -1,0 +1,1410 @@
+AudioDeviceSetup
+  inputDeviceName: 
+  outputDeviceName: 
+  sampleRate: 0
+  bufferSize: 0
+  useDefaultInputChannels: true
+  useDefaultOutputChannels: true
+Reading configuration file c:\dev\jucetest\UI\Source\mobius.xml
+Mobius::Mobius
+Memory: Allocated EventList size 8 000001A974FFEA10
+Memory: Allocated TriggerWatcher size 48 000001A974FE8FB0
+Memory: Allocated TriggerWatcher size 48 000001A974FE8ED0
+Memory: Allocated TriggerWatcher size 48 000001A974FE9250
+Memory: Allocated TriggerWatcher size 48 000001A974FE9410
+Memory: Allocated TriggerWatcher size 48 000001A974FE9D40
+Memory: Allocated TriggerWatcher size 48 000001A974FE98E0
+Memory: Allocated TriggerWatcher size 48 000001A974FE9330
+Memory: Allocated TriggerWatcher size 48 000001A974FE9950
+Memory: Allocated TriggerWatcher size 48 000001A974FE9020
+Memory: Allocated TriggerWatcher size 48 000001A974FE9090
+Memory: Allocated TriggerWatcher size 48 000001A974FE93A0
+Memory: Allocated TriggerWatcher size 48 000001A974FE94F0
+Memory: Allocated TriggerWatcher size 48 000001A974FE9100
+Memory: Allocated TriggerWatcher size 48 000001A974FE9A30
+Memory: Allocated TriggerWatcher size 48 000001A974FE95D0
+Memory: Allocated TriggerWatcher size 48 000001A974FE9640
+ERROR: Actionator::initFunctionMap Function UnitTestMode not found
+ERROR: Actionator::initFunctionMap Function DebugStatus not found
+ERROR: Actionator::initFunctionMap Function Divide4 not found
+ERROR: Actionator::initFunctionMap Function Ignore not found
+ERROR: Actionator::initFunctionMap Function SelectLoop not found
+ERROR: Actionator::initFunctionMap Function SpeedShift not found
+ERROR: Actionator::initFunctionMap Function SUSRehearse not found
+ERROR: Actionator::initFunctionMap Function SelectTrack not found
+ERROR: Actionator::initFunctionMap Function UIRedraw not found
+ERROR: Actionator::initParameterMap Parameter startingSetup not found
+ERROR: Actionator::initParameterMap Parameter defaultPreset not found
+ERROR: Actionator::initParameterMap Parameter activeTrack not found
+ERROR: Actionator::initParameterMap Parameter startingPreset not found
+Memory: Allocated Actionator size 56 000001A9719A6CB0
+Memory: Allocated ScriptRuntime size 24 000001A974FD8E40
+Memory: Allocated Scriptarian size 40 000001A974FE8E60
+Mobius::Mobius finished
+Mobius::initialize
+Memory: Allocated PulseMonitor size 400 000001A975024830
+Memory: Allocated PulseMonitor size 400 000001A97501E0A0
+Memory: Allocated PulseMonitor size 400 000001A974FDDBB0
+Memory: Allocated PulseMonitor size 400 000001A97501E700
+Memory: Allocated PulseMonitor size 400 000001A975099DF0
+Memory: Allocated PulseMonitor size 400 000001A975099C10
+Memory: Allocated Preset size 2776 000001A974FE9E20
+Memory: Allocated SyncState size 72 000001A974FD6890
+Memory: Allocated EventList size 8 000001A974FFEFB0
+Memory: Allocated Preset size 2776 000001A974FEAB40
+Memory: Allocated Event size 272 000001A97501E8D0
+Memory: Allocated EventManager size 40 000001A974FE9B10
+Memory: Allocated Smoother size 40 000001A974FE9BF0
+Memory: Allocated Resampler size 288 000001A974FEB660
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A974FFFEA0
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975133E50
+Memory: Allocated InputStream size 200 000001A9719DB8E0
+Memory: Allocated Smoother size 40 000001A974FE9C60
+Memory: Allocated Resampler size 288 000001A974FEB910
+Memory: Allocated PseudoPlugin size 16432 000001A975007F60
+Memory: Allocated Smoother size 40 000001A9719773E0
+Memory: Allocated Smoother size 40 000001A971977610
+Memory: Allocated float buffer for FadeTail size 34816 000001A975099FC0
+Memory: Allocated FadeTail size 32 000001A974FD9500
+Memory: Allocated float buffer for FadeTail size 34816 000001A9750A2800
+Memory: Allocated FadeTail size 32 000001A974FD86C0
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A9750AB040
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9751B4690
+Memory: Allocated OutputStream size 264 000001A974FEB7C0
+Memory: Allocated UserVariables size 8 000001A974FFE790
+Memory: Allocated Preset size 2776 000001A975234EE0
+Memory: Allocated Loop size 624 000001A975235A00
+Memory: Allocated Loop size 624 000001A974FEBA70
+Memory: Allocated Loop size 624 000001A975235CB0
+Memory: Allocated Loop size 624 000001A9750B3550
+Memory: Allocated Loop size 624 000001A9750B3100
+Memory: Allocated Loop size 624 000001A9750B3800
+Memory: Allocated Loop size 624 000001A9750B3AB0
+Memory: Allocated Loop size 624 000001A9750B3D60
+Memory: Allocated Loop size 624 000001A9750B4010
+Memory: Allocated Loop size 624 000001A9750B42C0
+Memory: Allocated Loop size 624 000001A9750B4570
+Memory: Allocated Loop size 624 000001A975019A60
+Memory: Allocated Loop size 624 000001A97501A270
+Memory: Allocated Loop size 624 000001A97501A520
+Memory: Allocated Loop size 624 000001A975019D10
+Memory: Allocated Loop size 624 000001A975019FC0
+Memory: Allocated SyncState size 72 000001A974FD6EC0
+Memory: Allocated EventList size 8 000001A974FFF690
+Memory: Allocated Preset size 2776 000001A97501AA20
+Memory: Allocated Event size 272 000001A9750B33B0
+Memory: Allocated EventManager size 40 000001A971977AE0
+Memory: Allocated Smoother size 40 000001A971977680
+Memory: Allocated Resampler size 288 000001A9750B4A20
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A9750B4B80
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975235F60
+Memory: Allocated InputStream size 200 000001A9719DBC10
+Memory: Allocated Smoother size 40 000001A971977BC0
+Memory: Allocated Resampler size 288 000001A9752B68F0
+Memory: Allocated PseudoPlugin size 16432 000001A9719E8F90
+Memory: Allocated Smoother size 40 000001A97501B7C0
+Memory: Allocated Smoother size 40 000001A97501B830
+Memory: Allocated float buffer for FadeTail size 34816 000001A9752C00B0
+Memory: Allocated FadeTail size 32 000001A974FD93E0
+Memory: Allocated float buffer for FadeTail size 34816 000001A9752C88F0
+Memory: Allocated FadeTail size 32 000001A974FD8BA0
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A9752B6A50
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9752D1130
+Memory: Allocated OutputStream size 264 000001A9752B67A0
+Memory: Allocated UserVariables size 8 000001A974FFEAB0
+Memory: Allocated Preset size 2776 000001A9719ED000
+Memory: Allocated Loop size 624 000001A97500F890
+Memory: Allocated Loop size 624 000001A97500C830
+Memory: Allocated Loop size 624 000001A97500C2D0
+Memory: Allocated Loop size 624 000001A97500F5E0
+Memory: Allocated Loop size 624 000001A97500EDD0
+Memory: Allocated Loop size 624 000001A97500F080
+Memory: Allocated Loop size 624 000001A97500FB40
+Memory: Allocated Loop size 624 000001A97500F330
+Memory: Allocated Loop size 624 000001A97500C580
+Memory: Allocated Loop size 624 000001A97500E870
+Memory: Allocated Loop size 624 000001A97500EB20
+Memory: Allocated Loop size 624 000001A97500C020
+Memory: Allocated Loop size 624 000001A97500CAE0
+Memory: Allocated Loop size 624 000001A97500CD90
+Memory: Allocated Loop size 624 000001A97500D040
+Memory: Allocated Loop size 624 000001A97500D2F0
+Memory: Allocated SyncState size 72 000001A974FD6920
+Memory: Allocated EventList size 8 000001A974FFF000
+Memory: Allocated Preset size 2776 000001A97500FFE0
+Memory: Allocated Event size 272 000001A9719EE890
+Memory: Allocated EventManager size 40 000001A97501C0F0
+Memory: Allocated Smoother size 40 000001A97501BC90
+Memory: Allocated Resampler size 288 000001A9752BEB10
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A975351980
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975359A40
+Memory: Allocated InputStream size 200 000001A9719DC270
+Memory: Allocated Smoother size 40 000001A97501BD00
+Memory: Allocated Resampler size 288 000001A9719EED30
+Memory: Allocated PseudoPlugin size 16432 000001A9753DA280
+Memory: Allocated Smoother size 40 000001A97501C240
+Memory: Allocated Smoother size 40 000001A97501BD70
+Memory: Allocated float buffer for FadeTail size 34816 000001A9753DE2F0
+Memory: Allocated FadeTail size 32 000001A974FD8720
+Memory: Allocated float buffer for FadeTail size 34816 000001A9753E6B30
+Memory: Allocated FadeTail size 32 000001A974FD8300
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A9753EF370
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9753F7430
+Memory: Allocated OutputStream size 264 000001A9719EE200
+Memory: Allocated UserVariables size 8 000001A974FFE920
+Memory: Allocated Preset size 2776 000001A975010B00
+Memory: Allocated Loop size 624 000001A97500D5A0
+Memory: Allocated Loop size 624 000001A97500E5C0
+Memory: Allocated Loop size 624 000001A97500D850
+Memory: Allocated Loop size 624 000001A97500DDB0
+Memory: Allocated Loop size 624 000001A97500DB00
+Memory: Allocated Loop size 624 000001A97500E060
+Memory: Allocated Loop size 624 000001A97500E310
+Memory: Allocated Loop size 624 000001A974FD5580
+Memory: Allocated Loop size 624 000001A974FD5020
+Memory: Allocated Loop size 624 000001A974FD52D0
+Memory: Allocated Loop size 624 000001A974FD5830
+Memory: Allocated Loop size 624 000001A974FD42B0
+Memory: Allocated Loop size 624 000001A974FD4560
+Memory: Allocated Loop size 624 000001A974FD5D90
+Memory: Allocated Loop size 624 000001A974FD5AE0
+Memory: Allocated Loop size 624 000001A974FD4810
+Memory: Allocated SyncState size 72 000001A974FD8030
+Memory: Allocated EventList size 8 000001A974FFF960
+Memory: Allocated Preset size 2776 000001A975011620
+Memory: Allocated Event size 272 000001A9719EDB70
+Memory: Allocated EventManager size 40 000001A97501B600
+Memory: Allocated Smoother size 40 000001A97501BEC0
+Memory: Allocated Resampler size 288 000001A9719EEE90
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A975477C80
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A97547FD40
+Memory: Allocated InputStream size 200 000001A9719DC6B0
+Memory: Allocated Smoother size 40 000001A97501BC20
+Memory: Allocated Resampler size 288 000001A9752BEE70
+Memory: Allocated PseudoPlugin size 16432 000001A975500580
+Memory: Allocated Smoother size 40 000001A97501B980
+Memory: Allocated Smoother size 40 000001A97501B9F0
+Memory: Allocated float buffer for FadeTail size 34816 000001A9755045F0
+Memory: Allocated FadeTail size 32 000001A974FD8A20
+Memory: Allocated float buffer for FadeTail size 34816 000001A97550CE30
+Memory: Allocated FadeTail size 32 000001A974FD8F60
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A975515670
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A97551D730
+Memory: Allocated OutputStream size 264 000001A9719EDE10
+Memory: Allocated UserVariables size 8 000001A974FFEC90
+Memory: Allocated Preset size 2776 000001A97559DF80
+Memory: Allocated Loop size 624 000001A974FD4D70
+Memory: Allocated Loop size 624 000001A974FD4AC0
+Memory: Allocated Loop size 624 000001A9750BD1F0
+Memory: Allocated Loop size 624 000001A9750BE770
+Memory: Allocated Loop size 624 000001A9750BD4A0
+Memory: Allocated Loop size 624 000001A9750BCF40
+Memory: Allocated Loop size 624 000001A9750BE4C0
+Memory: Allocated Loop size 624 000001A9750BDCB0
+Memory: Allocated Loop size 624 000001A9750BD750
+Memory: Allocated Loop size 624 000001A9750BCC90
+Memory: Allocated Loop size 624 000001A9750BDF60
+Memory: Allocated Loop size 624 000001A9750BE210
+Memory: Allocated Loop size 624 000001A9750BDA00
+Memory: Allocated Loop size 624 000001A97559F050
+Memory: Allocated Loop size 624 000001A97559EDA0
+Memory: Allocated Loop size 624 000001A97559FDC0
+Memory: Allocated SyncState size 72 000001A974FD7460
+Memory: Allocated EventList size 8 000001A974FFEA60
+Memory: Allocated Preset size 2776 000001A9755A0AB0
+Memory: Allocated Event size 272 000001A9719EDF60
+Memory: Allocated EventManager size 40 000001A97501BFA0
+Memory: Allocated Smoother size 40 000001A97501C470
+Memory: Allocated Resampler size 288 000001A97501C550
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A9755A17D0
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A9755A9890
+Memory: Allocated InputStream size 200 000001A9719DC7C0
+Memory: Allocated Smoother size 40 000001A97501BDE0
+Memory: Allocated Resampler size 288 000001A9750BEE50
+Memory: Allocated PseudoPlugin size 16432 000001A97562A0D0
+Memory: Allocated Smoother size 40 000001A97501B750
+Memory: Allocated Smoother size 40 000001A97501C010
+Memory: Allocated float buffer for FadeTail size 34816 000001A97562E140
+Memory: Allocated FadeTail size 32 000001A974FD98C0
+Memory: Allocated float buffer for FadeTail size 34816 000001A975636980
+Memory: Allocated FadeTail size 32 000001A974FD9140
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A97563F1C0
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9756C00B0
+Memory: Allocated OutputStream size 264 000001A9719EE0B0
+Memory: Allocated UserVariables size 8 000001A974FFF7D0
+Memory: Allocated Preset size 2776 000001A975740900
+Memory: Allocated Loop size 624 000001A97559F5B0
+Memory: Allocated Loop size 624 000001A97559F860
+Memory: Allocated Loop size 624 000001A97559F300
+Memory: Allocated Loop size 624 000001A9755A0070
+Memory: Allocated Loop size 624 000001A9755A0320
+Memory: Allocated Loop size 624 000001A97559FB10
+Memory: Allocated Loop size 624 000001A9755A05D0
+Memory: Allocated Loop size 624 000001A97559EAF0
+Memory: Allocated Loop size 624 000001A975648040
+Memory: Allocated Loop size 624 000001A97564A080
+Memory: Allocated Loop size 624 000001A9756482F0
+Memory: Allocated Loop size 624 000001A975648B00
+Memory: Allocated Loop size 624 000001A9756472D0
+Memory: Allocated Loop size 624 000001A975649060
+Memory: Allocated Loop size 624 000001A9756485A0
+Memory: Allocated Loop size 624 000001A975647580
+Memory: Allocated SyncState size 72 000001A974FD72B0
+Memory: Allocated EventList size 8 000001A974FFED80
+Memory: Allocated Preset size 2776 000001A97564DE80
+Memory: Allocated Event size 272 000001A9719EDCC0
+Memory: Allocated EventManager size 40 000001A97501C1D0
+Memory: Allocated Smoother size 40 000001A97501B8A0
+Memory: Allocated Resampler size 288 000001A97501C6B0
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A9756552B0
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975741820
+Memory: Allocated InputStream size 200 000001A9719DC8D0
+Memory: Allocated Smoother size 40 000001A97501BE50
+Memory: Allocated Resampler size 288 000001A97501C810
+Memory: Allocated PseudoPlugin size 16432 000001A97565D370
+Memory: Allocated Smoother size 40 000001A97501B910
+Memory: Allocated Smoother size 40 000001A97501B670
+Memory: Allocated float buffer for FadeTail size 34816 000001A9756613E0
+Memory: Allocated FadeTail size 32 000001A974FD8CC0
+Memory: Allocated float buffer for FadeTail size 34816 000001A975669C20
+Memory: Allocated FadeTail size 32 000001A974FD9080
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A975672460
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9757C2060
+Memory: Allocated OutputStream size 264 000001A9719EE350
+Memory: Allocated UserVariables size 8 000001A974FFF2D0
+Memory: Allocated Preset size 2776 000001A975650CC0
+Memory: Allocated Loop size 624 000001A975649870
+Memory: Allocated Loop size 624 000001A975648850
+Memory: Allocated Loop size 624 000001A975649B20
+Memory: Allocated Loop size 624 000001A975647830
+Memory: Allocated Loop size 624 000001A975647AE0
+Memory: Allocated Loop size 624 000001A975647D90
+Memory: Allocated Loop size 624 000001A97564A890
+Memory: Allocated Loop size 624 000001A975648DB0
+Memory: Allocated Loop size 624 000001A975649310
+Memory: Allocated Loop size 624 000001A9756495C0
+Memory: Allocated Loop size 624 000001A975649DD0
+Memory: Allocated Loop size 624 000001A97564A330
+Memory: Allocated Loop size 624 000001A97564A5E0
+Memory: Allocated Loop size 624 000001A97564AB40
+Memory: Allocated Loop size 624 000001A97564ADF0
+Memory: Allocated Loop size 624 000001A97564CB10
+Memory: Allocated SyncState size 72 000001A974FD7850
+Memory: Allocated EventList size 8 000001A974FFFA00
+Memory: Allocated Preset size 2776 000001A97564EA10
+Memory: Allocated Event size 272 000001A9719EE4A0
+Memory: Allocated EventManager size 40 000001A97501BF30
+Memory: Allocated Smoother size 40 000001A97501B590
+Memory: Allocated Resampler size 288 000001A975842DC0
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A97567A720
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975843AC0
+Memory: Allocated InputStream size 200 000001A9719DCE20
+Memory: Allocated Smoother size 40 000001A97501B6E0
+Memory: Allocated Resampler size 288 000001A9758438C0
+Memory: Allocated PseudoPlugin size 16432 000001A9756827E0
+Memory: Allocated Smoother size 40 000001A97501C080
+Memory: Allocated Smoother size 40 000001A97501BA60
+Memory: Allocated float buffer for FadeTail size 34816 000001A975686850
+Memory: Allocated FadeTail size 32 000001A974FD8540
+Memory: Allocated float buffer for FadeTail size 34816 000001A97568F090
+Memory: Allocated FadeTail size 32 000001A974FD9020
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A9756978D0
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9758C4300
+Memory: Allocated OutputStream size 264 000001A9719EE5F0
+Memory: Allocated UserVariables size 8 000001A974FFF6E0
+Memory: Allocated Preset size 2776 000001A97564F5A0
+Memory: Allocated Loop size 624 000001A97564B590
+Memory: Allocated Loop size 624 000001A97564C5B0
+Memory: Allocated Loop size 624 000001A97564B840
+Memory: Allocated Loop size 624 000001A97564C050
+Memory: Allocated Loop size 624 000001A97564C300
+Memory: Allocated Loop size 624 000001A97564C860
+Memory: Allocated Loop size 624 000001A97564CDC0
+Memory: Allocated Loop size 624 000001A97564B2E0
+Memory: Allocated Loop size 624 000001A97564BAF0
+Memory: Allocated Loop size 624 000001A97564BDA0
+Memory: Allocated Loop size 624 000001A9756A04A0
+Memory: Allocated Loop size 624 000001A9756A0A00
+Memory: Allocated Loop size 624 000001A9756A01F0
+Memory: Allocated Loop size 624 000001A9756A0CB0
+Memory: Allocated Loop size 624 000001A9756A0F60
+Memory: Allocated Loop size 624 000001A9756A1210
+Memory: Allocated SyncState size 72 000001A974FD7F10
+Memory: Allocated EventList size 8 000001A974FFF280
+Memory: Allocated Preset size 2776 000001A975650130
+Memory: Allocated Event size 272 000001A9719EE740
+Memory: Allocated EventManager size 40 000001A97501C320
+Memory: Allocated Smoother size 40 000001A97501BAD0
+Memory: Allocated Resampler size 288 000001A975843760
+Memory: Allocated float buffer for InputStream:levelBuffer size 32896 000001A9756A39B0
+Memory: Allocated float buffer for InputStream:speedBuffer size 526336 000001A975944B50
+Memory: Allocated InputStream size 200 000001A9756A27C0
+Memory: Allocated Smoother size 40 000001A97501C400
+Memory: Allocated Resampler size 288 000001A975842B00
+Memory: Allocated PseudoPlugin size 16432 000001A9756ADA80
+Memory: Allocated Smoother size 40 000001A97501BB40
+Memory: Allocated Smoother size 40 000001A97501C160
+Memory: Allocated float buffer for FadeTail size 34816 000001A9756B1AF0
+Memory: Allocated FadeTail size 32 000001A974FD94A0
+Memory: Allocated float buffer for FadeTail size 34816 000001A9759C5390
+Memory: Allocated FadeTail size 32 000001A974FD8900
+Memory: Allocated float buffer for OutputStream:loopBuffer size 32896 000001A9759CDBD0
+Memory: Allocated float buffer for Outputstream:speedBuffer size 526352 000001A9759D5C90
+Memory: Allocated OutputStream size 264 000001A9756AC540
+Memory: Allocated UserVariables size 8 000001A974FFEB00
+Memory: Allocated Preset size 2776 000001A9756523E0
+Memory: Allocated Loop size 624 000001A9756A14C0
+Memory: Allocated Loop size 624 000001A97569FC90
+Memory: Allocated Loop size 624 000001A9756A0750
+Memory: Allocated Loop size 624 000001A97569F9E0
+Memory: Allocated Loop size 624 000001A97569FF40
+Memory: Allocated Loop size 624 000001A9756BD940
+Memory: Allocated Loop size 624 000001A9756BC920
+Memory: Allocated Loop size 624 000001A9756BAE40
+Memory: Allocated Loop size 624 000001A9756BB3A0
+Memory: Allocated Loop size 624 000001A9756BCBD0
+Memory: Allocated Loop size 624 000001A9756BB900
+Memory: Allocated Loop size 624 000001A9756BC3C0
+Memory: Allocated Loop size 624 000001A9756BDBF0
+Memory: Allocated Loop size 624 000001A9756BA380
+Memory: Allocated Loop size 624 000001A9756BB0F0
+Memory: Allocated Loop size 624 000001A9756BC670
+Memory: Allocated ScriptCompiler size 1088 000001A9756BE340
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\test.mos
+Memory: Allocated ScriptBlock size 48 000001A975A59E00
+Reading Mobius script C:\dev\jucetest\UI\Source\mobius\scripts\prevtrack.mos
+Memory: Allocated ScriptBlock size 48 000001A975A5A500
+Reading Mobius script C:\dev\jucetest\UI\Source\unittest\echo.mos
+Memory: Allocated ScriptBlock size 48 000001A975A59BD0
+Memory: Allocated List size 24 000001A974FD8A80
+Memory: Allocated RunScriptFunction size 1152 000001A9756BE5B0
+Memory: Allocated RunScriptFunction size 1152 000001A9756BEA70
+Memory: Allocated RunScriptFunction size 1152 000001A975A5A6C0
+Memory: Allocated Scriptarian:functions size 1144 000001A975A5AB80
+Mobius::initialize finished
+Reading configuration file c:\dev\jucetest\UI\Source\ui.xml
+Supervisor::prepareToPlay first call
+AudioDeviceSetup
+  inputDeviceName: Microphone Array (Intel® Smart Sound Technology for Digital Microphones)
+  outputDeviceName: Speakers (Realtek(R) Audio)
+  sampleRate: 48000
+  bufferSize: 480
+  useDefaultInputChannels: true
+  useDefaultOutputChannels: true
+samplesPerBlockExpected 480 sampleRate 48000
+Supervisor: audio source num samples 480
+Supervisor: audio buffer channels 4
+Supervisor: audio buffer samples 480
+Memory: Allocated Action size 616 000001A9756BA630
+UnitTests::actionSetup
+Memory: CopyString for WaveFile::setFIle size 52 000001A979BAA3F0
+Memory: Allocated WaveFIle::processDataChunk size 940288 000001A979BC5160
+Memory: Allocated float buffer for WaveFile::processIEEEDataChunk size 940288 000001A979CAAAA0
+Memory: CopyString for WaveFile::setFIle size 54 000001A975E98A40
+Memory: Allocated WaveFIle::processDataChunk size 506432 000001A979BC5160
+Memory: Allocated float buffer for WaveFile::processIEEEDataChunk size 506432 000001A979D903E0
+Memory: CopyString for WaveFile::setFIle size 55 000001A975E97AC0
+Memory: Allocated WaveFIle::processDataChunk size 565632 000001A979BC5160
+Memory: Allocated float buffer for WaveFile::processPcmDataChunk size 1131264 000001A9798DC070
+Memory: CopyString for WaveFile::setFIle size 54 000001A975E97AC0
+Memory: Allocated WaveFIle::processDataChunk size 382848 000001A979BC5160
+Memory: Allocated float buffer for WaveFile::processPcmDataChunk size 765696 000001A979E0BE60
+Memory: CopyString for WaveFile::setFIle size 54 000001A975E98A40
+Memory: Allocated WaveFIle::processDataChunk size 269536 000001A979BC5160
+Memory: Allocated float buffer for WaveFile::processPcmDataChunk size 539072 000001A979C06E80
+Memory: CopyString for WaveFile::setFIle size 52 000001A979BAAAF0
+Memory: Allocated WaveFIle::processDataChunk size 2612576 000001A97BBDD070
+Memory: Allocated float buffer for WaveFile::processIEEEDataChunk size 2612576 000001A97BE60070
+Memory: CopyString for SamplePlayer::mFileName size 52 000001A979BAA000
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC2D30
+Memory: Allocated AudioCursor size 72 000001A974FE7750
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC3370
+Memory: Allocated AudioCursor size 72 000001A974FE7900
+Memory: Allocated Audio size 64 000001A975E97DC0
+Memory: Allocated Audio:growIndex size 88 000001A975E7ABB0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979EC6DA0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979F46DF0
+Memory: Allocated SamplePlayer size 88 000001A975E79990
+Memory: CopyString for SamplePlayer::mFileName size 54 000001A975E98A40
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC28D0
+Memory: Allocated AudioCursor size 72 000001A974FE8440
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC34B0
+Memory: Allocated AudioCursor size 72 000001A974FE8710
+Memory: Allocated Audio size 64 000001A975E99840
+Memory: Allocated Audio:growIndex size 88 000001A975E790D0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979FC6E40
+Memory: Allocated SamplePlayer size 88 000001A975E79AD0
+Memory: CopyString for SamplePlayer::mFileName size 55 000001A975E97E40
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC2F10
+Memory: Allocated AudioCursor size 72 000001A974FE8560
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC38C0
+Memory: Allocated AudioCursor size 72 000001A974FE7990
+Memory: Allocated Audio size 64 000001A975E97CC0
+Memory: Allocated Audio:growIndex size 88 000001A975E79A30
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A046E90
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A0C6EE0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A146F30
+Memory: Allocated SamplePlayer size 88 000001A975E7AC50
+Memory: CopyString for SamplePlayer::mFileName size 54 000001A975E97AC0
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC2A10
+Memory: Allocated AudioCursor size 72 000001A974FE7A20
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC2FB0
+Memory: Allocated AudioCursor size 72 000001A974FE7120
+Memory: Allocated Audio size 64 000001A975E98040
+Memory: Allocated Audio:growIndex size 88 000001A975E79F30
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A1C6F80
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A246FD0
+Memory: Allocated SamplePlayer size 88 000001A975E793F0
+Memory: CopyString for SamplePlayer::mFileName size 54 000001A975E98EC0
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC3230
+Memory: Allocated AudioCursor size 72 000001A974FE88C0
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC26F0
+Memory: Allocated AudioCursor size 72 000001A974FE89E0
+Memory: Allocated Audio size 64 000001A975E994C0
+Memory: Allocated Audio:growIndex size 88 000001A975E79B70
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A2C7020
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A347070
+Memory: Allocated SamplePlayer size 88 000001A975E795D0
+Memory: CopyString for SamplePlayer::mFileName size 52 000001A979BAAA80
+Memory: CopyString for AudioCursor::setName size 5 000001A979BC2920
+Memory: Allocated AudioCursor size 72 000001A974FE8D40
+Memory: CopyString for AudioCursor::setName size 7 000001A979BC2BA0
+Memory: Allocated AudioCursor size 72 000001A974FE7AB0
+Memory: Allocated Audio size 64 000001A975E983C0
+Memory: Allocated Audio:growIndex size 88 000001A975E7ACF0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A3C70C0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A447110
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A4C7160
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A5471B0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A5C7200
+Memory: Allocated SamplePlayer size 88 000001A975E79E90
+Memory: Allocated ScriptRuntime size 24 000001A975E3FBE0
+Memory: Allocated ScriptCompiler size 1088 000001A979B6EC90
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\calltest.mos
+Memory: Allocated ScriptBlock size 48 000001A979BAAAF0
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\exprtest.mos
+Memory: Allocated ScriptBlock size 48 000001A979BA95F0
+Memory: Allocated ExSymbol size 56 000001A975E980C0
+Memory: Allocated ExSymbol size 56 000001A975E98FC0
+Memory: Allocated ExLiteral size 192 000001A975C6D8D0
+Memory: Allocated ScriptBlock size 48 000001A979BAA540
+Memory: Allocated ScriptBlock size 48 000001A979BAAF50
+Memory: Allocated ExSymbol size 56 000001A975E981C0
+Memory: Allocated ExNotEqual size 32 000001A975E40480
+Memory: Allocated ExLiteral size 192 000001A975C6DDD0
+Memory: Allocated ExSymbol size 56 000001A975E982C0
+Memory: Allocated ExNotEqual size 32 000001A975E404E0
+Memory: Allocated ExLiteral size 192 000001A975C6E9D0
+Memory: Allocated ScriptBlock size 48 000001A979BAA620
+Memory: Allocated ExLiteral size 192 000001A975C6F2D0
+Memory: Allocated ExLiteral size 192 000001A975DC6440
+Memory: Allocated ExLiteral size 192 000001A975DC7740
+Memory: Allocated ExSymbol size 56 000001A975E985C0
+Memory: Allocated ExNotEqual size 32 000001A975E40660
+Memory: Allocated ExLiteral size 192 000001A975DC8F40
+Memory: Allocated ExSymbol size 56 000001A975E990C0
+Memory: Allocated ExNotEqual size 32 000001A975E40720
+Memory: Allocated ExLiteral size 192 000001A975DC9040
+Memory: Allocated ExSymbol size 56 000001A975E99140
+Memory: Allocated ExNotEqual size 32 000001A975E41320
+Memory: Allocated ExLiteral size 192 000001A975DC6C40
+Memory: Allocated ExSymbol size 56 000001A975E98740
+Memory: Allocated ExNotEqual size 32 000001A975E40FC0
+Memory: Allocated ExLiteral size 192 000001A975E57F60
+Memory: Allocated ExSymbol size 56 000001A975E993C0
+Memory: Allocated ExNotEqual size 32 000001A975E40F00
+Memory: Allocated ExSymbol size 56 000001A975E99440
+Memory: Allocated ExSymbol size 56 000001A975E99540
+Memory: Allocated ExNotEqual size 32 000001A975E41020
+Memory: Allocated ExSymbol size 56 000001A975E995C0
+Memory: Allocated ExSymbol size 56 000001A975E99640
+Memory: Allocated ExNotEqual size 32 000001A975E41080
+Memory: Allocated ExSymbol size 56 000001A975E99740
+Memory: Allocated ExSymbol size 56 000001A975E997C0
+Memory: Allocated ExNotEqual size 32 000001A975E410E0
+Memory: Allocated ExLiteral size 192 000001A975E57A60
+Memory: Allocated ExSymbol size 56 000001A975E9B240
+Memory: Allocated ExNotEqual size 32 000001A975E41200
+Memory: Allocated ExLiteral size 192 000001A975E59060
+Memory: Allocated ExSymbol size 56 000001A975E9A440
+Memory: Allocated ExNotEqual size 32 000001A975E40F60
+Memory: Allocated ExLiteral size 192 000001A975D0C9C0
+Memory: Allocated ExSymbol size 56 000001A975E9A540
+Memory: Allocated ExNotEqual size 32 000001A975E40D80
+Memory: Allocated ExLiteral size 192 000001A975D10EC0
+Memory: Allocated ExSymbol size 56 000001A975E9A4C0
+Memory: Allocated ExLiteral size 192 000001A975B15CF0
+Memory: Allocated ExList size 32 000001A975E40EA0
+Memory: Allocated ScriptBlock size 48 000001A979BAA700
+Memory: Allocated ExSymbol size 56 000001A975E9A940
+Memory: Allocated ExEqual size 32 000001A975E411A0
+Memory: Allocated ExSymbol size 56 000001A975E99D40
+Memory: Allocated ExAnd size 32 000001A975E41260
+Memory: Allocated ExSymbol size 56 000001A975E9AAC0
+Memory: Allocated ExEqual size 32 000001A975E40D20
+Memory: Allocated ExLiteral size 192 000001A975C4A430
+Memory: Allocated ExAnd size 32 000001A975E40CC0
+Memory: Allocated ExSymbol size 56 000001A975E9B0C0
+Memory: Allocated ExEqual size 32 000001A975E40DE0
+Memory: Allocated ExSymbol size 56 000001A975E9A5C0
+Memory: Allocated ExNot size 32 000001A975E412C0
+Memory: Allocated ExParenthesis size 32 000001A975E40E40
+Memory: Allocated ExSymbol size 56 000001A975E9A640
+Memory: Allocated ExEqual size 32 000001A975E275E0
+Memory: Allocated ExSymbol size 56 000001A975E9A3C0
+Memory: Allocated ExAnd size 32 000001A975E27640
+Memory: Allocated ExSymbol size 56 000001A975E99DC0
+Memory: Allocated ExEqual size 32 000001A975E276A0
+Memory: Allocated ExLiteral size 192 000001A97A64F9C0
+Memory: Allocated ExAnd size 32 000001A975E27AC0
+Memory: Allocated ExSymbol size 56 000001A975E9A7C0
+Memory: Allocated ExEqual size 32 000001A975E29DA0
+Memory: Allocated ExSymbol size 56 000001A975E9A240
+Memory: Allocated ExSymbol size 56 000001A975E99A40
+Memory: Allocated ExEqual size 32 000001A975E40E40
+Memory: Allocated ExSymbol size 56 000001A975E99FC0
+Memory: Allocated ExAnd size 32 000001A975E28DE0
+Memory: Allocated ExSymbol size 56 000001A975E99F40
+Memory: Allocated ExEqual size 32 000001A975E29260
+Memory: Allocated ExLiteral size 192 000001A97A64F1C0
+Memory: Allocated ExAnd size 32 000001A975E2A880
+Memory: Allocated ExSymbol size 56 000001A975E9B3C0
+Memory: Allocated ExEqual size 32 000001A975E2AB80
+Memory: Allocated ExSymbol size 56 000001A975E9AFC0
+Memory: Allocated ExNot size 32 000001A975E31D20
+Memory: Allocated ExParenthesis size 32 000001A975E33340
+Memory: Allocated ExSymbol size 56 000001A975E9A140
+Memory: Allocated ExGreater size 32 000001A975E32020
+Memory: Allocated ExLiteral size 192 000001A97A64D6C0
+Memory: Allocated ExAnd size 32 000001A975E32F80
+Memory: Allocated ExSymbol size 56 000001A975E99C40
+Memory: Allocated ExLessEqual size 32 000001A975E321A0
+Memory: Allocated ExLiteral size 192 000001A97A6503C0
+Memory: Allocated ExNot size 32 000001A975E32500
+Memory: Allocated ExParenthesis size 32 000001A975E33340
+Memory: Allocated ExSymbol size 56 000001A975E9AA40
+Memory: Allocated ExEqual size 32 000001A975E32560
+Memory: Allocated ExLiteral size 192 000001A97A64EFC0
+Memory: Allocated ExOr size 32 000001A975E32680
+Memory: Allocated ExSymbol size 56 000001A975E999C0
+Memory: Allocated ExEqual size 32 000001A975E32860
+Memory: Allocated ExLiteral size 192 000001A97A64E3C0
+Memory: Allocated ScriptBlock size 48 000001A979BA9740
+Memory: Allocated ExSymbol size 56 000001A975E9AD40
+Memory: Allocated ExAbs size 32 000001A975E32AA0
+Memory: Allocated ExLiteral size 192 000001A97A64F2C0
+Memory: Allocated ExNotEqual size 32 000001A975E34540
+Memory: Allocated ExLiteral size 192 000001A97A6504C0
+Memory: Allocated ExNegate size 32 000001A975E339A0
+Memory: Allocated ExSymbol size 56 000001A975E9B640
+Memory: Allocated ExAbs size 32 000001A975E33B80
+Memory: Allocated ExLiteral size 192 000001A97A64F0C0
+Memory: Allocated ExNotEqual size 32 000001A975E34600
+Memory: Allocated ExLiteral size 192 000001A97A650CC0
+Memory: Allocated ExSymbol size 56 000001A975E9A6C0
+Memory: Allocated ExDivide size 32 000001A975E335E0
+Memory: Allocated ExLiteral size 192 000001A97A64D9C0
+Memory: Allocated ExNotEqual size 32 000001A975E33700
+Memory: Allocated ExLiteral size 192 000001A97A64ECC0
+Memory: Allocated ScriptBlock size 48 000001A979BAA3F0
+Memory: Allocated ExLiteral size 192 000001A97A64DFC0
+Memory: Allocated ExParenthesis size 32 000001A975E34180
+Memory: Allocated ExLiteral size 192 000001A97A64F3C0
+Memory: Allocated ExMultiply size 32 000001A975E33AC0
+Memory: Allocated ExLiteral size 192 000001A97A64F4C0
+Memory: Allocated ExDivide size 32 000001A975E34780
+Memory: Allocated ExLiteral size 192 000001A97A64F5C0
+Memory: Allocated ExAdd size 32 000001A975E34000
+Memory: Allocated ExParenthesis size 32 000001A975E348A0
+Memory: Allocated ExSymbol size 56 000001A975E9A740
+Memory: Allocated ExModulo size 32 000001A975E34C60
+Memory: Allocated ExLiteral size 192 000001A97A64D7C0
+Memory: Allocated ExParenthesis size 32 000001A975E33CA0
+Memory: Allocated ExLiteral size 192 000001A97A650EC0
+Memory: Allocated ExMultiply size 32 000001A975E33760
+Memory: Allocated ExLiteral size 192 000001A97A64DCC0
+Memory: Allocated ExDivide size 32 000001A975E34960
+Memory: Allocated ExLiteral size 192 000001A97A6505C0
+Memory: Allocated ExAdd size 32 000001A975E33820
+Memory: Allocated ExParenthesis size 32 000001A975E33DC0
+Memory: Allocated ExSymbol size 56 000001A975E9AB40
+Memory: Allocated ExModulo size 32 000001A975E33CA0
+Memory: Allocated ExLiteral size 192 000001A97A64F7C0
+Memory: Allocated ExParenthesis size 32 000001A975E343C0
+Memory: Allocated ExLiteral size 192 000001A97A64FCC0
+Memory: Allocated ExMultiply size 32 000001A975E33640
+Memory: Allocated ExLiteral size 192 000001A97A64E4C0
+Memory: Allocated ExDivide size 32 000001A975E34180
+Memory: Allocated ExLiteral size 192 000001A97A64F6C0
+Memory: Allocated ExAdd size 32 000001A975E34060
+Memory: Allocated ExParenthesis size 32 000001A975E33DC0
+Memory: Allocated ExSymbol size 56 000001A975E9A8C0
+Memory: Allocated ExModulo size 32 000001A975E347E0
+Memory: Allocated ExLiteral size 192 000001A97A64FDC0
+Memory: Allocated ExSymbol size 56 000001A975E9A040
+Memory: Allocated ExNotEqual size 32 000001A975E33DC0
+Memory: Allocated ExLiteral size 192 000001A97A64DDC0
+Memory: Allocated ExSymbol size 56 000001A975E99940
+Memory: Allocated ExNotEqual size 32 000001A975E343C0
+Memory: Allocated ExLiteral size 192 000001A97A650BC0
+Memory: Allocated ExSymbol size 56 000001A975E9AEC0
+Memory: Allocated ExNotEqual size 32 000001A975E34480
+Memory: Allocated ExLiteral size 192 000001A97A64DBC0
+Memory: Allocated ExSymbol size 56 000001A975E9A1C0
+Memory: Allocated ExNotEqual size 32 000001A975E34840
+Memory: Allocated ExLiteral size 192 000001A97A64F8C0
+Memory: Allocated ExParenthesis size 32 000001A975E34F60
+Memory: Allocated ExLiteral size 192 000001A97A64DEC0
+Memory: Allocated ExMultiply size 32 000001A975E35860
+Memory: Allocated ExLiteral size 192 000001A97A64FFC0
+Memory: Allocated ExDivide size 32 000001A975E36400
+Memory: Allocated ExLiteral size 192 000001A97A6506C0
+Memory: Allocated ExAdd size 32 000001A975E360A0
+Memory: Allocated ExParenthesis size 32 000001A975E34F60
+Memory: Allocated ExSymbol size 56 000001A975E9B640
+Memory: Allocated ExModulo size 32 000001A975E35140
+Memory: Allocated ExLiteral size 192 000001A97A64E0C0
+Memory: Allocated ExSymbol size 56 000001A975E9ABC0
+Memory: Allocated ExNotEqual size 32 000001A975E34F60
+Memory: Allocated ExLiteral size 192 000001A97A64FAC0
+Memory: Allocated ExLiteral size 192 000001A97A64FBC0
+Memory: Allocated ExSymbol size 56 000001A975E99CC0
+Memory: Allocated ExNotEqual size 32 000001A975E35440
+Memory: Allocated ExLiteral size 192 000001A97A64FEC0
+Memory: Allocated ExLiteral size 192 000001A97A6510C0
+Memory: Allocated ExSymbol size 56 000001A975E9B6C0
+Memory: Allocated ExNotEqual size 32 000001A975E36820
+Memory: Allocated ExLiteral size 192 000001A97A64E1C0
+Memory: Allocated ScriptBlock size 48 000001A979BAACB0
+Memory: Allocated ExParenthesis size 32 000001A975E36FA0
+Memory: Allocated ExParenthesis size 32 000001A975E36880
+Memory: Allocated ExLiteral size 192 000001A97A6500C0
+Memory: Allocated ExMultiply size 32 000001A975E37180
+Memory: Allocated ExLiteral size 192 000001A97A64DAC0
+Memory: Allocated ExDivide size 32 000001A975E37240
+Memory: Allocated ExLiteral size 192 000001A97A6501C0
+Memory: Allocated ExAdd size 32 000001A975E37AE0
+Memory: Allocated ExParenthesis size 32 000001A975E36880
+Memory: Allocated ExSymbol size 56 000001A975E9A0C0
+Memory: Allocated ExModulo size 32 000001A975E376C0
+Memory: Allocated ExLiteral size 192 000001A97A6502C0
+Memory: Allocated ExEqual size 32 000001A975E36FA0
+Memory: Allocated ExLiteral size 192 000001A97A6508C0
+Memory: Allocated ExSymbol size 56 000001A975E9ACC0
+Memory: Allocated ExNotEqual size 32 000001A975E37720
+Memory: Allocated ExLiteral size 192 000001A97A650DC0
+Memory: Allocated ExLiteral size 192 000001A97A64E2C0
+Memory: Allocated ExSymbol size 56 000001A975E9AD40
+Memory: Allocated ExEqual size 32 000001A975E38320
+Memory: Allocated ExLiteral size 192 000001A97A64D8C0
+Memory: Allocated ExSymbol size 56 000001A975E9ADC0
+Memory: Allocated ExEqual size 32 000001A975E383E0
+Memory: Allocated ExSymbol size 56 000001A975E9AE40
+Memory: Allocated ExAnd size 32 000001A975E39100
+Memory: Allocated ExSymbol size 56 000001A975E9AF40
+Memory: Allocated ExEqual size 32 000001A975E39460
+Memory: Allocated ExLiteral size 192 000001A97A64E5C0
+Memory: Allocated ExAnd size 32 000001A975E38500
+Memory: Allocated ExSymbol size 56 000001A975E9B040
+Memory: Allocated ExEqual size 32 000001A975E37EA0
+Memory: Allocated ExSymbol size 56 000001A975E9B4C0
+Memory: Allocated ScriptBlock size 48 000001A979BAA850
+Memory: Allocated ExLiteral size 192 000001A97A64E7C0
+Memory: Allocated ScriptBlock size 48 000001A979BAAD20
+Memory: Allocated ScriptBlock size 48 000001A979BAAD90
+Memory: Allocated ExSymbol size 56 000001A975E9B1C0
+Memory: Allocated ExSymbol size 56 000001A975E9B2C0
+Memory: Allocated ScriptBlock size 48 000001A979BA9A50
+Memory: Allocated ExSymbol size 56 000001A975E99E40
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\testtest.mos
+Memory: Allocated ScriptBlock size 48 000001A979BA9AC0
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\layertests.mos
+Memory: Allocated ScriptBlock size 48 000001A979BA9F20
+Memory: Allocated ExSymbol size 56 000001A975E9B440
+Memory: Allocated ExSymbol size 56 000001A975E99AC0
+Memory: Allocated ExLiteral size 192 000001A97A64E6C0
+Memory: Allocated ExLiteral size 192 000001A97A6507C0
+Memory: Allocated ExSymbol size 56 000001A975E9B840
+Memory: Allocated ExSymbol size 56 000001A975E9B5C0
+Memory: Allocated ExSymbol size 56 000001A975E99BC0
+Memory: Allocated ExLiteral size 192 000001A97A64EDC0
+Memory: Allocated ExLiteral size 192 000001A97A64E8C0
+Memory: Allocated ExLiteral size 192 000001A97A6509C0
+Memory: Allocated ScriptBlock size 48 000001A979BAA0E0
+Memory: Allocated ScriptBlock size 48 000001A979BAA150
+Memory: Allocated ScriptBlock size 48 000001A979BAA1C0
+Memory: Allocated ExLiteral size 192 000001A97A650AC0
+Memory: Allocated ExLiteral size 192 000001A97A650FC0
+Memory: Allocated ExSymbol size 56 000001A975E9B740
+Memory: Allocated ExEqual size 32 000001A975E3A900
+Memory: Allocated ExSymbol size 56 000001A975E9B7C0
+Memory: Allocated ExSymbol size 56 000001A975E99EC0
+Memory: Allocated ExSymbol size 56 000001A975E9A340
+Memory: Allocated ExEqual size 32 000001A975E39E20
+Memory: Allocated ExSymbol size 56 000001A975E9CEC0
+Memory: Allocated ScriptBlock size 48 000001A979BAA230
+Memory: Allocated ExSymbol size 56 000001A975E9CE40
+Memory: Allocated ExSymbol size 56 000001A975E9C540
+Memory: Allocated ScriptBlock size 48 000001A979BAA2A0
+Memory: Allocated ScriptBlock size 48 000001A979BAA460
+Memory: Allocated ExSymbol size 56 000001A975E9D4C0
+Memory: Allocated ExSymbol size 56 000001A975E9C4C0
+Memory: Allocated ScriptBlock size 48 000001A979BACFB0
+Memory: Allocated ExSymbol size 56 000001A975E9C440
+Memory: Allocated ExSymbol size 56 000001A975E9D2C0
+Memory: Allocated ExSymbol size 56 000001A975E9CAC0
+Memory: Allocated ExEqual size 32 000001A975E3A000
+Memory: Allocated ExSymbol size 56 000001A975E9D640
+Memory: Allocated ScriptBlock size 48 000001A979B021D0
+Memory: Allocated ExSymbol size 56 000001A975E9C5C0
+Memory: Allocated ExSymbol size 56 000001A975E9CDC0
+Memory: Allocated ExEqual size 32 000001A975E3B620
+Memory: Allocated ExSymbol size 56 000001A975E9C3C0
+Memory: Allocated ExSymbol size 56 000001A975E9C640
+Memory: Allocated ExSymbol size 56 000001A975E9BCC0
+Memory: Allocated ExList size 32 000001A975E3B740
+Memory: Allocated ExSymbol size 56 000001A975E9CF40
+Memory: Allocated ScriptBlock size 48 000001A979B03890
+Memory: Allocated ExSymbol size 56 000001A975E9D540
+Memory: Allocated ExEqual size 32 000001A975E3B500
+Memory: Allocated ExSymbol size 56 000001A975E9C740
+Memory: Allocated ExSymbol size 56 000001A975E9C6C0
+Memory: Allocated ExSymbol size 56 000001A975E9CB40
+Memory: Allocated ExList size 32 000001A975E3B7A0
+Memory: Allocated ExSymbol size 56 000001A975E9C7C0
+Memory: Allocated ScriptBlock size 48 000001A979B03580
+Memory: Allocated ExSymbol size 56 000001A975E9BC40
+Memory: Allocated ExLiteral size 192 000001A97A64D2C0
+Memory: Allocated ExSymbol size 56 000001A975E9CBC0
+Memory: Allocated ScriptBlock size 48 000001A979B02DA0
+Memory: Allocated ExLiteral size 192 000001A97A64E9C0
+Memory: Allocated ExSymbol size 56 000001A975E9BD40
+Memory: Allocated ScriptBlock size 48 000001A979B02D30
+Memory: Allocated ExLiteral size 192 000001A97A64D3C0
+Memory: Allocated ExLiteral size 192 000001A97A64EEC0
+Memory: Allocated ExLiteral size 192 000001A97A64D4C0
+Memory: Allocated ExLiteral size 192 000001A97A64EAC0
+Memory: Allocated ExSymbol size 56 000001A975E9C840
+Memory: Allocated ScriptBlock size 48 000001A979B033C0
+Memory: Allocated ExLiteral size 192 000001A97A64EBC0
+Memory: Allocated ExLiteral size 192 000001A97A64D5C0
+Memory: Allocated ExLiteral size 192 000001A97A64D1C0
+Memory: Allocated ExLiteral size 192 000001A97A64A9C0
+Memory: Allocated ExSymbol size 56 000001A975E9BFC0
+Memory: Allocated ScriptBlock size 48 000001A979B032E0
+Memory: Allocated ExSymbol size 56 000001A975E9C8C0
+Memory: Allocated ExLiteral size 192 000001A97A64CDC0
+Memory: Allocated ExLiteral size 192 000001A97A649AC0
+Memory: Allocated ExLiteral size 192 000001A97A64B9C0
+Memory: Allocated ExSymbol size 56 000001A975E9D740
+Memory: Allocated ScriptBlock size 48 000001A979B030B0
+Memory: Allocated ExSymbol size 56 000001A975E9C940
+Memory: Allocated ExSymbol size 56 000001A975E9BEC0
+Memory: Allocated ExLiteral size 192 000001A97A64BBC0
+Memory: Allocated ExLiteral size 192 000001A97A64C3C0
+Memory: Allocated ExLiteral size 192 000001A97A64BFC0
+Memory: Allocated ExLiteral size 192 000001A97A64C8C0
+Memory: Allocated ExSymbol size 56 000001A975E9CA40
+Memory: Allocated ScriptBlock size 48 000001A979B03660
+Memory: Allocated ExLiteral size 192 000001A97A64A2C0
+Memory: Allocated ExLiteral size 192 000001A97A649EC0
+Memory: Allocated ExLiteral size 192 000001A97A64B5C0
+Memory: Allocated ExLiteral size 192 000001A97A64BDC0
+Memory: Allocated ExSymbol size 56 000001A975E9BF40
+Memory: Allocated ScriptBlock size 48 000001A979B03430
+Memory: Allocated ExLiteral size 192 000001A97A64BCC0
+Memory: Allocated ExLiteral size 192 000001A97A64AAC0
+Memory: Allocated ExLiteral size 192 000001A97A64C7C0
+Memory: Allocated ExLiteral size 192 000001A97A64CCC0
+Memory: Allocated ExLiteral size 192 000001A97A64B2C0
+Memory: Allocated ExLiteral size 192 000001A97A64CEC0
+Memory: Allocated ExSymbol size 56 000001A975E9BDC0
+Memory: Allocated ScriptBlock size 48 000001A979B02320
+Memory: Allocated ExLiteral size 192 000001A97A64BEC0
+Memory: Allocated ExLiteral size 192 000001A97A649BC0
+Memory: Allocated ExLiteral size 192 000001A97A64C0C0
+Memory: Allocated ExLiteral size 192 000001A97A64D0C0
+Memory: Allocated ExLiteral size 192 000001A97A64B0C0
+Memory: Allocated ExLiteral size 192 000001A97A64CBC0
+Memory: Allocated ScriptBlock size 48 000001A979B037B0
+Memory: Allocated ExLiteral size 192 000001A97A6497C0
+Memory: Allocated ExLiteral size 192 000001A97A6499C0
+Memory: Allocated ExLiteral size 192 000001A97A6492C0
+Memory: Allocated ExLiteral size 192 000001A97A6493C0
+Memory: Allocated ExLiteral size 192 000001A97A64A3C0
+Memory: Allocated ExLiteral size 192 000001A97A64C1C0
+Memory: Allocated ExSymbol size 56 000001A975E9D840
+Memory: Allocated ScriptBlock size 48 000001A979B02860
+Memory: Allocated ExLiteral size 192 000001A97A64B3C0
+Memory: Allocated ExLiteral size 192 000001A97A64C2C0
+Memory: Allocated ExLiteral size 192 000001A97A64C4C0
+Memory: Allocated ExLiteral size 192 000001A97A64B8C0
+Memory: Allocated ExLiteral size 192 000001A97A64ACC0
+Memory: Allocated ExLiteral size 192 000001A97A64CAC0
+Memory: Allocated ScriptBlock size 48 000001A979B03A50
+Memory: Allocated ExLiteral size 192 000001A97A6494C0
+Memory: Allocated ExLiteral size 192 000001A97A64C5C0
+Memory: Allocated ExLiteral size 192 000001A97A64B7C0
+Memory: Allocated ExLiteral size 192 000001A97A64C6C0
+Memory: Allocated ExSymbol size 56 000001A975E9CC40
+Memory: Allocated ScriptBlock size 48 000001A979B02630
+Memory: Allocated ExLiteral size 192 000001A97A64BAC0
+Memory: Allocated ExLiteral size 192 000001A97A64A1C0
+Memory: Allocated ExLiteral size 192 000001A97A6495C0
+Memory: Allocated ExLiteral size 192 000001A97A649CC0
+Memory: Allocated ExSymbol size 56 000001A975E9C9C0
+Memory: Allocated ScriptBlock size 48 000001A979B02CC0
+Memory: Allocated ExLiteral size 192 000001A97A64C9C0
+Memory: Allocated ExLiteral size 192 000001A97A64B4C0
+Memory: Allocated ExLiteral size 192 000001A97A64A4C0
+Memory: Allocated ExLiteral size 192 000001A97A64CFC0
+Memory: Allocated ExSymbol size 56 000001A975E9CCC0
+Memory: Allocated ExLiteral size 192 000001A97A6498C0
+Memory: Allocated ExLiteral size 192 000001A97A6496C0
+Memory: Allocated ExSymbol size 56 000001A975E9C040
+Memory: Allocated ScriptBlock size 48 000001A979B03190
+Memory: Allocated ExLiteral size 192 000001A97A64AFC0
+Memory: Allocated ExLiteral size 192 000001A97A649DC0
+Memory: Allocated ExLiteral size 192 000001A97A649FC0
+Memory: Allocated ExLiteral size 192 000001A97A64B6C0
+Memory: Allocated ExSymbol size 56 000001A975E9CD40
+Memory: Allocated ExLiteral size 192 000001A97A64A0C0
+Memory: Allocated ExLiteral size 192 000001A97A64A6C0
+Memory: Allocated ExLiteral size 192 000001A97A64A5C0
+Memory: Allocated ExSymbol size 56 000001A975E9D440
+Memory: Allocated ScriptBlock size 48 000001A979B020F0
+Memory: Allocated ExLiteral size 192 000001A97A64A7C0
+Memory: Allocated ExLiteral size 192 000001A97A64A8C0
+Memory: Allocated ExSymbol size 56 000001A975E9CFC0
+Memory: Allocated ExLiteral size 192 000001A97A64ABC0
+Memory: Allocated ExSymbol size 56 000001A975E9D340
+Memory: Allocated ExLiteral size 192 000001A97A64ADC0
+Memory: Allocated ExLiteral size 192 000001A97A64B1C0
+Memory: Allocated ExLiteral size 192 000001A97A64AEC0
+Memory: Allocated ScriptBlock size 48 000001A979B02160
+Memory: Allocated ExLiteral size 192 000001A97A67A780
+Memory: Allocated ExSymbol size 56 000001A975E9D040
+Memory: Allocated ExLiteral size 192 000001A97A677B80
+Memory: Allocated ExLiteral size 192 000001A97A677C80
+Memory: Allocated ExLiteral size 192 000001A97A678D80
+Memory: Allocated ExLiteral size 192 000001A97A678180
+Memory: Allocated ExLiteral size 192 000001A97A677E80
+Memory: Allocated ExLiteral size 192 000001A97A67A580
+Memory: Allocated ExSymbol size 56 000001A975E9C0C0
+Memory: Allocated ScriptBlock size 48 000001A979B036D0
+Memory: Allocated ExLiteral size 192 000001A97A67A980
+Memory: Allocated ExLiteral size 192 000001A97A679380
+Memory: Allocated ExLiteral size 192 000001A97A677D80
+Memory: Allocated ExLiteral size 192 000001A97A679D80
+Memory: Allocated ExSymbol size 56 000001A975E9C140
+Memory: Allocated ScriptBlock size 48 000001A979B02390
+Memory: Allocated ExLiteral size 192 000001A97A678A80
+Memory: Allocated ExLiteral size 192 000001A97A678480
+Memory: Allocated ExSymbol size 56 000001A975E9D0C0
+Memory: Allocated ExLiteral size 192 000001A97A67AA80
+Memory: Allocated ExSymbol size 56 000001A975E9C340
+Memory: Allocated ScriptBlock size 48 000001A979B03740
+Memory: Allocated ExLiteral size 192 000001A97A677980
+Memory: Allocated ExLiteral size 192 000001A97A677380
+Memory: Allocated ExLiteral size 192 000001A97A67A680
+Memory: Allocated ExLiteral size 192 000001A97A67A080
+Memory: Allocated ExLiteral size 192 000001A97A67AB80
+Memory: Allocated ScriptBlock size 48 000001A979B03820
+Memory: Allocated ExLiteral size 192 000001A97A679480
+Memory: Allocated ExLiteral size 192 000001A97A679080
+Memory: Allocated ExLiteral size 192 000001A97A67AE80
+Memory: Allocated ExLiteral size 192 000001A97A678880
+Memory: Allocated ExLiteral size 192 000001A97A677A80
+Memory: Allocated ExLiteral size 192 000001A97A679680
+Memory: Allocated ExLiteral size 192 000001A97A679A80
+Memory: Allocated ExSymbol size 56 000001A975E9D140
+Memory: Allocated ScriptBlock size 48 000001A979B029B0
+Memory: Allocated ExLiteral size 192 000001A97A678080
+Memory: Allocated ExLiteral size 192 000001A97A677480
+Memory: Allocated ExSymbol size 56 000001A975E9D1C0
+Memory: Allocated ScriptBlock size 48 000001A979B03900
+Memory: Allocated ExLiteral size 192 000001A97A678580
+Memory: Allocated ExLiteral size 192 000001A97A67AC80
+Memory: Allocated ExLiteral size 192 000001A97A67A880
+Memory: Allocated ExSymbol size 56 000001A975E9D240
+Memory: Allocated ScriptBlock size 48 000001A979B02780
+Memory: Allocated ExLiteral size 192 000001A97A67AD80
+Memory: Allocated ExLiteral size 192 000001A97A67AF80
+Memory: Allocated ExLiteral size 192 000001A97A67B080
+Memory: Allocated ExLiteral size 192 000001A97A678280
+Memory: Allocated ExLiteral size 192 000001A97A678380
+Memory: Allocated ExLiteral size 192 000001A97A679F80
+Memory: Allocated ExLiteral size 192 000001A97A67B280
+Memory: Allocated ExSymbol size 56 000001A975E9BE40
+Memory: Allocated ScriptBlock size 48 000001A979B039E0
+Memory: Allocated ExSymbol size 56 000001A975E9C1C0
+Memory: Allocated ExSymbol size 56 000001A975E9BBC0
+Memory: Allocated ExSymbol size 56 000001A975E9D5C0
+Memory: Allocated ExNotEqual size 32 000001A975E3AD80
+Memory: Allocated ExSymbol size 56 000001A975E9D3C0
+Memory: Allocated ExSymbol size 56 000001A975E9D6C0
+Memory: Allocated ExSymbol size 56 000001A975E9D7C0
+Memory: Allocated ExSymbol size 56 000001A975E9D8C0
+Memory: Allocated ExNotEqual size 32 000001A975E3AE40
+Memory: Allocated ExSymbol size 56 000001A975E9B940
+Memory: Allocated ExSymbol size 56 000001A975E9C240
+Memory: Allocated ExNotEqual size 32 000001A975E3B080
+Memory: Allocated ExLiteral size 192 000001A97A677580
+Memory: Allocated ExLiteral size 192 000001A97A67A280
+Memory: Allocated ExSymbol size 56 000001A975E9B9C0
+Memory: Allocated ExNotEqual size 32 000001A975E3C280
+Memory: Allocated ExLiteral size 192 000001A97A678E80
+Memory: Allocated ExLiteral size 192 000001A97A677680
+Memory: Allocated ExSymbol size 56 000001A975E9C2C0
+Memory: Allocated ScriptBlock size 48 000001A979B02E10
+Memory: Allocated ExSymbol size 56 000001A975E9BA40
+Memory: Allocated ExSymbol size 56 000001A975E9BAC0
+Memory: Allocated ExLiteral size 192 000001A97A679B80
+Memory: Allocated ExSymbol size 56 000001A975E9BB40
+Memory: Allocated ExNotEqual size 32 000001A975E3AF00
+Memory: Allocated ExSymbol size 56 000001A975E9EA40
+Memory: Allocated ExLiteral size 192 000001A97A67A480
+Memory: Allocated ExLiteral size 192 000001A97A678780
+Memory: Allocated ExLiteral size 192 000001A97A677880
+Memory: Allocated ScriptBlock size 48 000001A975DD1B30
+Memory: Allocated ExSymbol size 56 000001A975E9F440
+Memory: Allocated ExSymbol size 56 000001A975E9D940
+Memory: Allocated ExSymbol size 56 000001A975E9E6C0
+Memory: Allocated ExSymbol size 56 000001A975E9F0C0
+Memory: Allocated ExSymbol size 56 000001A975E9DDC0
+Memory: Allocated ExLiteral size 192 000001A97A678680
+Memory: Allocated ExSymbol size 56 000001A975E9F5C0
+Memory: Allocated ExNotEqual size 32 000001A975D95720
+Memory: Allocated ExSymbol size 56 000001A975E9E5C0
+Memory: Allocated ExLiteral size 192 000001A97A678980
+Memory: Allocated ExSymbol size 56 000001A975E9E8C0
+Memory: Allocated ScriptBlock size 48 000001A975EAA000
+Memory: Allocated ExSymbol size 56 000001A975E9F640
+Memory: Allocated ExSymbol size 56 000001A975E9F4C0
+Memory: Allocated ExSymbol size 56 000001A975E9DAC0
+Memory: Allocated ExSymbol size 56 000001A975E9D9C0
+Memory: Allocated ExSymbol size 56 000001A975E9E340
+Memory: Allocated ExLiteral size 192 000001A97A679E80
+Memory: Allocated ExSymbol size 56 000001A975E9E140
+Memory: Allocated ExNotEqual size 32 000001A975D95E40
+Memory: Allocated ExSymbol size 56 000001A975E9F540
+Memory: Allocated ExLiteral size 192 000001A97A678F80
+Memory: Allocated ExSymbol size 56 000001A975E9DE40
+Memory: Allocated ExSymbol size 56 000001A975E9E640
+Memory: Allocated ExSymbol size 56 000001A975E9EFC0
+Memory: Allocated ExNotEqual size 32 000001A975D96740
+Memory: Allocated ExSymbol size 56 000001A975E9E740
+Memory: Allocated ScriptBlock size 48 000001A979E13530
+Memory: Allocated ExSymbol size 56 000001A975E9F6C0
+Memory: Allocated ExSymbol size 56 000001A975E9EEC0
+Memory: Allocated ExLiteral size 192 000001A97A679C80
+Memory: Allocated ExLiteral size 192 000001A97A678B80
+Memory: Allocated ExLiteral size 192 000001A97A678C80
+Memory: Allocated ExSymbol size 56 000001A975E9E1C0
+Memory: Allocated ExNotEqual size 32 000001A975D95600
+Memory: Allocated ExLiteral size 192 000001A97A679180
+Memory: Allocated ExLiteral size 192 000001A97A679280
+Memory: Allocated ExLiteral size 192 000001A97A679580
+Memory: Allocated ExSymbol size 56 000001A975E9F740
+Memory: Allocated ScriptBlock size 48 000001A979E14020
+Memory: Allocated ExLiteral size 192 000001A97A679780
+Memory: Allocated ExLiteral size 192 000001A97A679880
+Memory: Allocated ExLiteral size 192 000001A97A679980
+Memory: Allocated ExLiteral size 192 000001A97A67A180
+Memory: Allocated ExLiteral size 192 000001A97A67CE80
+Memory: Allocated ExLiteral size 192 000001A97A67E880
+Memory: Allocated ExLiteral size 192 000001A97A67D080
+Memory: Allocated ExLiteral size 192 000001A97A67ED80
+Memory: Allocated ExSymbol size 56 000001A975E9E240
+Memory: Allocated ScriptBlock size 48 000001A979E14870
+Memory: Allocated ExLiteral size 192 000001A97A67B480
+Memory: Allocated ExLiteral size 192 000001A97A67D680
+Memory: Allocated ExLiteral size 192 000001A97A67D380
+Memory: Allocated ExLiteral size 192 000001A97A67D880
+Memory: Allocated ExLiteral size 192 000001A97A67DE80
+Memory: Allocated ScriptBlock size 48 000001A979E13DF0
+Memory: Allocated ExLiteral size 192 000001A97A67B580
+Memory: Allocated ExLiteral size 192 000001A97A67C080
+Memory: Allocated ExLiteral size 192 000001A97A67EB80
+Memory: Allocated ExLiteral size 192 000001A97A67E780
+Memory: Allocated ExLiteral size 192 000001A97A67DF80
+Memory: Allocated ExLiteral size 192 000001A97A67B380
+Memory: Allocated ScriptBlock size 48 000001A979E13920
+Memory: Allocated ExSymbol size 56 000001A975E9E3C0
+Memory: Allocated ExEqual size 32 000001A975D95FC0
+Memory: Allocated ExSymbol size 56 000001A975E9E2C0
+Memory: Allocated ExSymbol size 56 000001A975E9DEC0
+Memory: Allocated ExLiteral size 192 000001A97A67BB80
+Memory: Allocated ExLiteral size 192 000001A97A67BE80
+Memory: Allocated ExLiteral size 192 000001A97A67B880
+Memory: Allocated ExLiteral size 192 000001A97A67EC80
+Memory: Allocated ExSymbol size 56 000001A975E9E940
+Memory: Allocated ScriptBlock size 48 000001A979E133E0
+Memory: Allocated ExLiteral size 192 000001A97A67B980
+Memory: Allocated ExLiteral size 192 000001A97A67EE80
+Memory: Allocated ExLiteral size 192 000001A97A67EF80
+Memory: Allocated ExLiteral size 192 000001A97A67F080
+Memory: Allocated ExLiteral size 192 000001A97A67D280
+Memory: Allocated ExLiteral size 192 000001A97A67EA80
+Memory: Allocated ExSymbol size 56 000001A975E9E7C0
+Memory: Allocated ScriptBlock size 48 000001A979E13F40
+Memory: Allocated ExLiteral size 192 000001A97A67BF80
+Memory: Allocated ExLiteral size 192 000001A97A67C780
+Memory: Allocated ExLiteral size 192 000001A97A67DD80
+Memory: Allocated ExLiteral size 192 000001A97A67F280
+Memory: Allocated ExLiteral size 192 000001A97A67D480
+Memory: Allocated ExLiteral size 192 000001A97A67D580
+Memory: Allocated ExSymbol size 56 000001A975E9DFC0
+Memory: Allocated ScriptBlock size 48 000001A979E130D0
+Memory: Allocated ExLiteral size 192 000001A97A67D780
+Memory: Allocated ExLiteral size 192 000001A97A67F180
+Memory: Allocated ExLiteral size 192 000001A97A67E080
+Memory: Allocated ExLiteral size 192 000001A97A67D980
+Memory: Allocated ExLiteral size 192 000001A97A67CA80
+Memory: Allocated ExLiteral size 192 000001A97A67BA80
+Memory: Allocated ExLiteral size 192 000001A97A67BC80
+Memory: Allocated ScriptBlock size 48 000001A979E13AE0
+Memory: Allocated ExLiteral size 192 000001A97A67DA80
+Memory: Allocated ExLiteral size 192 000001A97A67B680
+Memory: Allocated ExLiteral size 192 000001A97A67CF80
+Memory: Allocated ExLiteral size 192 000001A97A67CD80
+Memory: Allocated ExLiteral size 192 000001A97A67E580
+Memory: Allocated ExLiteral size 192 000001A97A67B780
+Memory: Allocated ExLiteral size 192 000001A97A67E180
+Memory: Allocated ExLiteral size 192 000001A97A67DB80
+Memory: Allocated ExLiteral size 192 000001A97A67E380
+Memory: Allocated ExSymbol size 56 000001A975E9E040
+Memory: Allocated ScriptBlock size 48 000001A979E13ED0
+Memory: Allocated ExLiteral size 192 000001A97A67D180
+Memory: Allocated ExLiteral size 192 000001A97A67E280
+Memory: Allocated ExLiteral size 192 000001A97A67E980
+Memory: Allocated ExLiteral size 192 000001A97A67DC80
+Memory: Allocated ExLiteral size 192 000001A97A67E480
+Memory: Allocated ExLiteral size 192 000001A97A67BD80
+Memory: Allocated ExLiteral size 192 000001A97A67C980
+Memory: Allocated ExLiteral size 192 000001A97A67C180
+Memory: Allocated ExLiteral size 192 000001A97A67C280
+Memory: Allocated ExLiteral size 192 000001A97A67C380
+Memory: Allocated ScriptBlock size 48 000001A979E14A30
+Memory: Allocated ExLiteral size 192 000001A97A67C480
+Memory: Allocated ExLiteral size 192 000001A97A67E680
+Memory: Allocated ExLiteral size 192 000001A97A67C580
+Memory: Allocated ExLiteral size 192 000001A97A67C680
+Memory: Allocated ExLiteral size 192 000001A97A67C880
+Memory: Allocated ExLiteral size 192 000001A97A67CB80
+Memory: Allocated ExLiteral size 192 000001A97A67CC80
+Memory: Allocated ExLiteral size 192 000001A97A683280
+Memory: Allocated ExLiteral size 192 000001A97A67FE80
+Memory: Allocated ExLiteral size 192 000001A97A67F380
+Memory: Allocated ScriptBlock size 48 000001A979E149C0
+Memory: Allocated ExLiteral size 192 000001A97A67F480
+Memory: Allocated ExLiteral size 192 000001A97A67F580
+Memory: Allocated ExLiteral size 192 000001A97A680480
+Memory: Allocated ExLiteral size 192 000001A97A680B80
+Memory: Allocated ExLiteral size 192 000001A97A680D80
+Memory: Allocated ExLiteral size 192 000001A97A682B80
+Memory: Allocated ExLiteral size 192 000001A97A681A80
+Memory: Allocated ExLiteral size 192 000001A97A680380
+Memory: Allocated ExLiteral size 192 000001A97A681580
+Memory: Allocated ExSymbol size 56 000001A975E9DB40
+Memory: Allocated ScriptBlock size 48 000001A979E14330
+Memory: Allocated ExLiteral size 192 000001A97A680E80
+Memory: Allocated ExLiteral size 192 000001A97A680980
+Memory: Allocated ExLiteral size 192 000001A97A67FA80
+Memory: Allocated ExLiteral size 192 000001A97A681180
+Memory: Allocated ExLiteral size 192 000001A97A67FB80
+Memory: Allocated ExLiteral size 192 000001A97A67F980
+Memory: Allocated ExLiteral size 192 000001A97A67F680
+Memory: Allocated ExLiteral size 192 000001A97A680580
+Memory: Allocated ExLiteral size 192 000001A97A680880
+Memory: Allocated ExLiteral size 192 000001A97A67F880
+Memory: Allocated ScriptBlock size 48 000001A979E142C0
+Memory: Allocated ExLiteral size 192 000001A97A67F780
+Memory: Allocated ExLiteral size 192 000001A97A680F80
+Memory: Allocated ExLiteral size 192 000001A97A681B80
+Memory: Allocated ExLiteral size 192 000001A97A680680
+Memory: Allocated ExLiteral size 192 000001A97A681080
+Memory: Allocated ExLiteral size 192 000001A97A681280
+Memory: Allocated ExLiteral size 192 000001A97A680780
+Memory: Allocated ExLiteral size 192 000001A97A682880
+Memory: Allocated ExSymbol size 56 000001A975E9E4C0
+Memory: Allocated ScriptBlock size 48 000001A979E145D0
+Memory: Allocated ExLiteral size 192 000001A97A681380
+Memory: Allocated ExLiteral size 192 000001A97A682080
+Memory: Allocated ExLiteral size 192 000001A97A682C80
+Memory: Allocated ExLiteral size 192 000001A97A680A80
+Memory: Allocated ExLiteral size 192 000001A97A67FC80
+Memory: Allocated ExLiteral size 192 000001A97A67FF80
+Memory: Allocated ExLiteral size 192 000001A97A682F80
+Memory: Allocated ExLiteral size 192 000001A97A681480
+Memory: Allocated ExLiteral size 192 000001A97A681680
+Memory: Allocated ScriptBlock size 48 000001A979E13BC0
+Memory: Allocated ExLiteral size 192 000001A97A67FD80
+Memory: Allocated ExLiteral size 192 000001A97A680080
+Memory: Allocated ExLiteral size 192 000001A97A682D80
+Memory: Allocated ExLiteral size 192 000001A97A681780
+Memory: Allocated ExLiteral size 192 000001A97A681880
+Memory: Allocated ExLiteral size 192 000001A97A682980
+Memory: Allocated ExLiteral size 192 000001A97A681C80
+Memory: Allocated ExLiteral size 192 000001A97A682A80
+Memory: Allocated ExLiteral size 192 000001A97A680C80
+Memory: Allocated ExSymbol size 56 000001A975E9F140
+Memory: Allocated ScriptBlock size 48 000001A979E13C30
+Memory: Allocated ExLiteral size 192 000001A97A680180
+Memory: Allocated ExLiteral size 192 000001A97A681980
+Memory: Allocated ExLiteral size 192 000001A97A680280
+Memory: Allocated ExLiteral size 192 000001A97A681D80
+Memory: Allocated ExLiteral size 192 000001A97A681E80
+Memory: Allocated ExLiteral size 192 000001A97A682180
+Memory: Allocated ExLiteral size 192 000001A97A682280
+Memory: Allocated ExSymbol size 56 000001A975E9F7C0
+Memory: Allocated ScriptBlock size 48 000001A979E13CA0
+Memory: Allocated ExLiteral size 192 000001A97A682480
+Memory: Allocated ExLiteral size 192 000001A97A682E80
+Memory: Allocated ExLiteral size 192 000001A97A681F80
+Memory: Allocated ExLiteral size 192 000001A97A682380
+Memory: Allocated ExLiteral size 192 000001A97A683080
+Memory: Allocated ExLiteral size 192 000001A97A682580
+Memory: Allocated ExLiteral size 192 000001A97A682780
+Memory: Allocated ExLiteral size 192 000001A97A682680
+Reading Mobius script c:\dev\jucetest\UI\Source\unittest\testdriverflat.mos
+Memory: Allocated ScriptBlock size 48 000001A979E14090
+ScriptLibrary: Reference ScriptOfDestiny resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference calltest resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
+ScriptLibrary: Reference ScriptOfDestiny resolved to script c:\dev\jucetest\UI\Source\unittest\calltest.mos
+Memory: Allocated RunScriptFunction size 1152 000001A979B97160
+ScriptLibrary: Reference layertests resolved to script c:\dev\jucetest\UI\Source\unittest\layertests.mos
+Memory: Allocated List size 24 000001A975D96320
+Memory: Allocated RunScriptFunction size 1152 000001A979B6EC90
+Memory: Allocated RunScriptFunction size 1152 000001A979B964D0
+Memory: Allocated RunScriptFunction size 1152 000001A97A693340
+Memory: Allocated Scriptarian:functions size 1152 000001A97A693800
+UnitTests::actionSetup finished
+Mobius: runScript Layer Flattening
+Memory: Allocated ScriptInterpreter size 296 000001A979E3ACA0
+Memory: Allocated ScriptCompiler size 1088 000001A979BA0F90
+Mobius: Starting script thread 1:Layer Flattening
+*** Beginning Test Passes ***
+Memory: Allocated ScriptStack size 376 000001A979A70960
+Memory: Allocated UserVariables size 8 000001A979E2E000
+Memory: Allocated ScriptResolver size 64 000001A975D50410
+Script 1:Layer Flattening: initializing script variable isNoFlattening =  
+Memory: Allocated ScriptResolver size 64 000001A975D4F810
+Script 1:Layer Flattening: initializing script variable isReverse =  
+******************************************************************
+Layer Test pass noFlattening= reverse=
+******************************************************************
+Script 1:Layer Flattening: initializing script variable baseStartWait = 1024
+Script 1:Layer Flattening: initializing script variable baseEndWait = 116000
+101 0: Function GlobalReset down
+101 0: Track::reset
+201 0: Track::reset
+301 0: Track::reset
+401 0: Track::reset
+501 0: Track::reset
+601 0: Track::reset
+701 0: Track::reset
+801 0: Track::reset
+Script 1:Layer Flattening: setting internal variable noExternalAudio = true
+Script 1:Layer Flattening: setting global parameter monitorAudio = false
+Script 1:Layer Flattening: setting global parameter quickSave = unittest
+Script 1:Layer Flattening: setting global parameter inputLatency = 289
+Script 1:Layer Flattening: setting global parameter outputLatency = 282
+Memory: Allocated Preset size 2776 000001A975652F70
+Memory: Allocated Event size 272 000001A979BB6830
+101 -289: EventManager: Add event Script( ) -289
+Memory: Allocated ScriptStack size 376 000001A979A70EA0
+Script 1:Layer Flattening: Wait
+101 -289: E: Script -289
+Layer 2 - Basic Recording
+Memory: Allocated ScriptStack size 376 000001A979A70B20
+Memory: Allocated ScriptStack size 376 000001A979A705E0
+Memory: Allocated Action size 616 000001A9756BDEA0
+101 -289: Function TrackReset down
+101 -289: Track::reset
+Script 1:Layer Flattening: UnitTestSetup
+101 -289: Track::reset
+Mobius::cancelScripts NULL action
+201 -289: Track::reset
+Mobius::cancelScripts NULL action
+301 -289: Track::reset
+Mobius::cancelScripts NULL action
+401 -289: Track::reset
+Mobius::cancelScripts NULL action
+501 -289: Track::reset
+Mobius::cancelScripts NULL action
+601 -289: Track::reset
+Mobius::cancelScripts NULL action
+701 -289: Track::reset
+Mobius::cancelScripts NULL action
+801 -289: Track::reset
+Mobius::cancelScripts NULL action
+Script 1:Layer Flattening: setting track parameter subcycles = 2
+Script 1:Layer Flattening: setting track parameter loopCount = 3
+Memory: Allocated ScriptResolver size 64 000001A975D4FF10
+Memory: Allocated ScriptResolver size 64 000001A975D4F310
+Memory: Allocated ScriptStack size 376 000001A979A71220
+UnitTests::scriptSetup
+UnitTests::scriptSetup finished
+Function StartCapture down
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F8B0
+Memory: Allocated AudioCursor size 72 000001A974FE7F30
+Memory: CopyString for AudioCursor::setName size 7 000001A979E30030
+Memory: Allocated AudioCursor size 72 000001A974FE8950
+Memory: Allocated Audio size 64 000001A975D4E810
+Function Sample down
+Memory: Allocated AudioCursor size 72 000001A974FE6EE0
+Memory: Allocated AudioCursor size 72 000001A974FE7FC0
+Memory: Allocated SampleCursor size 48 000001A979E14B10
+Memory: Allocated ScriptResolver size 64 000001A975D4F390
+101 -289: EventManager: Add event Script( ) 735
+Script 1:Layer Flattening: Wait
+Memory: Allocated Audio:growIndex size 88 000001A97A656550
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979BC5160
+101 -289: E: Script -225
+101 -289: Function Record down
+Memory: Allocated Preset size 2776 000001A975653B00
+Memory: Allocated Event size 272 000001A979BB8660
+101 -289: EventManager: Add event Record(Record) -289
+101 0: Loop: Set mode play
+Memory: Allocated ScriptResolver size 64 000001A975D50B10
+Memory: Allocated Preset size 2776 000001A97564D2F0
+Memory: Allocated Event size 272 000001A979BB76A0
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: E: Record(Record) 0
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2FE00
+Memory: Allocated AudioCursor size 72 000001A974FE7510
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F4F0
+Memory: Allocated AudioCursor size 72 000001A974FDE9C0
+Memory: Allocated Audio size 64 000001A975D50A90
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F0E0
+Memory: Allocated AudioCursor size 72 000001A974FDEAE0
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2EFF0
+Memory: Allocated AudioCursor size 72 000001A974FDF1A0
+Memory: Allocated Audio size 64 000001A975D51690
+Memory: Allocated Smoother size 40 000001A979E14B80
+Memory: Allocated float buffer for FadeWindow size 2048 000001A979A6DA40
+Memory: Allocated FadeWindow size 104 000001A979E450B0
+Memory: Allocated float buffer for FadeWindow size 2048 000001A979B98D20
+Memory: Allocated FadeWindow size 104 000001A979E45160
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F540
+Memory: Allocated AudioCursor size 72 000001A974FDEB70
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2EEB0
+Memory: Allocated AudioCursor size 72 000001A974FDE810
+Memory: CopyString for AudioCursor::setName size 9 000001A979E2F5E0
+Memory: Allocated AudioCursor size 72 000001A974FDEC90
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2FE50
+Memory: Allocated AudioCursor size 72 000001A974FDF3E0
+Memory: CopyString for AudioCursor::setName size 4 000001A9719D6940
+Memory: Allocated AudioCursor size 72 000001A974FDED20
+Memory: Allocated Layer size 256 000001A979A3E900
+101 0: Loop: Set mode record
+101 0: Layer: Starting record fade in
+Memory: Allocated Audio:growIndex size 88 000001A97A656690
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979C451B0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A979CD6850
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A693CC0
+101 115616: E: Script 116000
+101 116000: Function Record down
+101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
+101 116000: Sync: Scheduled RecordStop at 116000
+101 116000: EventManager: Add event RecordStop(Record) 116000
+Script 1:Layer Flattening: Wait last
+101 116000: E: RecordStop(Record) 116000
+101 116000: Sync: Setting track sync master 1
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F9A0
+Memory: Allocated AudioCursor size 72 000001A974FDF230
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F9F0
+Memory: Allocated AudioCursor size 72 000001A974FDFCE0
+Memory: Allocated Audio size 64 000001A975D52790
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2FA40
+Memory: Allocated AudioCursor size 72 000001A974FE01F0
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F220
+Memory: Allocated AudioCursor size 72 000001A974FDEED0
+Memory: Allocated Audio size 64 000001A975D52810
+Memory: Allocated Smoother size 40 000001A979E153D0
+Memory: Allocated float buffer for FadeWindow size 2048 000001A979A7AA00
+Memory: Allocated FadeWindow size 104 000001A979E45210
+Memory: Allocated float buffer for FadeWindow size 2048 000001A97A713D10
+Memory: Allocated FadeWindow size 104 000001A979E452C0
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F2C0
+Memory: Allocated AudioCursor size 72 000001A974FDE4B0
+Memory: CopyString for AudioCursor::setName size 5 000001A979E300D0
+Memory: Allocated AudioCursor size 72 000001A974FDF350
+Memory: CopyString for AudioCursor::setName size 9 000001A979E2F310
+Memory: Allocated AudioCursor size 72 000001A974FDFAA0
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F040
+Memory: Allocated AudioCursor size 72 000001A974FDFB30
+Memory: CopyString for AudioCursor::setName size 4 000001A97A648D70
+Memory: Allocated AudioCursor size 72 000001A974FDE540
+Memory: Allocated Layer size 256 000001A979A3F300
+Memory: Allocated Audio::initIndex size 480 000001A979A4D3B0
+Memory: Allocated Audio::initIndex size 480 000001A979A4CD50
+Memory: Allocated Segment size 72 000001A974FDF2C0
+101 0: Loop: Set mode play
+101 0: EventManager: Add event Script( ) 116000
+Script 1:Layer Flattening: Wait
+101 0: Layer: Applying fade out before frame 116000
+Memory: Allocated float buffer for LayerPool:CopyContext size 32768 000001A979E8DAD0
+Memory: Allocated LayerContext size 32 000001A975D9A0A0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A714550
+101 96: Layer: Starting play fade in at 571
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A7945A0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A8145F0
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A894640
+101 115776: E: Script 116000
+101 116000: EventManager: Add event Script( ) 116256
+Script 1:Layer Flattening: Wait
+Memory: Allocated Segment size 72 000001A974FDE5D0
+101 0: E: Script 256
+Memory: Allocated ScriptResolver size 64 000001A975D52A10
+Script 1:Layer Flattening: initializing script variable testname = test2
+Memory: Allocated ScriptResolver size 64 000001A975D53710
+Script 1:Layer Flattening: initializing script variable suffix =  
+Function StopCapture down
+Function SaveLoop down
+Script 1:Layer Flattening: Wait thread
+Memory: CopyString for AudioCursor::setName size 5 000001A979E2F680
+Memory: Allocated AudioCursor size 72 000001A974FDF8F0
+Memory: CopyString for AudioCursor::setName size 7 000001A979E2F590
+Memory: Allocated AudioCursor size 72 000001A974FDFBC0
+Memory: Allocated Audio size 64 000001A975D52C90
+Memory: CopyString for AudioCursor::setName size 8 000001A979E2FEA0
+Memory: Allocated AudioCursor size 72 000001A974FDE660
+Memory: Allocated Audio:growIndex size 88 000001A97A659070
+Memory: Allocated AudioPool:newBuffer size 524304 000001A97A914690
+Memory: CopyString for WaveFile::setFIle size 57 000001A975D52E90
+Function SaveCapture down
+Script 1:Layer Flattening: Wait thread
+Memory: CopyString for WaveFile::setFIle size 56 000001A975D52D90
+Memory: Allocated ScriptResolver size 64 000001A975D52C10
+Script 1:Layer Flattening: diff ./test2loop  
+Script 1:Layer Flattening: diff ./test2rec  
+101 8896: Function Reset down
+101 8896: Layer: Capture fade tail, 128 frames at 9467
+Memory: Allocated Audio::initIndex size 480 000001A979A4DC30
+101 -289: Sync: Disabling track sync master 1
+Layer Test Suite Complete
+Function Coverage down
+Script 1:Layer Flattening: end
+*** All Tests Complete ***
+Mobius: Script thread 1:Layer Flattening: ending
+ERROR: Diff file not found: c:\dev\jucetest\UI\Source\unittest\expected\test2rec.wav
+ERROR: Diff file not found: c:\dev\jucetest\UI\Source\unittest\expected\test2loop.wav
+Supervisor::releaseResources
+AudioPool: 24 buffers allocated, 3 in the pool, 21 in use
+Mobius::~Mobius
+ERROR: EventPool: 3 allocated, 3 in the pool, 0 in use
+Mobius::~Mobius finished
+KernelCommunicator: statistics
+  Created 20 available 0
+  min pool 8
+  max shell 12
+  max kernel 12
+Total shell sends 19
+Total kernel sends 19
+Supervisor ending statistics:
+  prepareToPlay 1
+  getNextAudioBlock 1085
+  releaseResources 0

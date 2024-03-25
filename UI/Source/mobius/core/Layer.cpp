@@ -1768,8 +1768,7 @@ void Layer::saveRegion(long startFrame, long frames, const char* name)
     Trace(1, "Layer::saveRegion  files not supported!\n");
 #if 0    
 	long samples = frames * mAudio->getChannels();
-	float* buffer = new float[samples];
-    MemTrack(buffer, "buffer", sizeof(buffer));
+    float* buffer = MemNewFloat("Layer::saveRegion", samples);
 	Audio* a = mAudioPool->newAudio();
 	
 	memset(buffer, 0, sizeof(float) * samples);
@@ -4794,8 +4793,8 @@ LayerPool::~LayerPool()
 LayerContext* LayerPool::getCopyContext()
 {
 	if (mCopyContext == NULL) {
-		float* buffer = new float[AUDIO_MAX_FRAMES_PER_BUFFER * AUDIO_MAX_CHANNELS];
-        MemTrack(buffer, "buffer", sizeof(buffer));
+        int samples = AUDIO_MAX_FRAMES_PER_BUFFER * AUDIO_MAX_CHANNELS;
+        float* buffer = MemNewFloat("LayerPool:CopyContext", samples);
 		mCopyContext = NEW(LayerContext);
 		mCopyContext->setBuffer(buffer, AUDIO_MAX_FRAMES_PER_BUFFER);
 	}

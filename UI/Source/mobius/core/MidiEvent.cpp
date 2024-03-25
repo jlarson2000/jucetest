@@ -26,6 +26,7 @@
 
 #include "MidiByte.h"
 #include "MidiEvent.h"
+#include "Mem.h"
 
 /****************************************************************************
  *                                                                          *
@@ -142,7 +143,7 @@ MidiEvent *MidiEvent::copy(void)
 	if (mManager != NULL)
 	  e = mManager->newMidiEvent();
 	else
-	  e = new MidiEvent();
+	  e = NEW(MidiEvent);
 
 	if (e != NULL) {
 
