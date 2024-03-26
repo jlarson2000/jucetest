@@ -478,7 +478,9 @@ void ScriptRuntime::cancelScripts(Action* action, Track* t)
 {
     if (action == NULL) {
         // we had been ignoring these, when can this happen?
-        Trace(2, "Mobius::cancelScripts NULL action\n");
+        // not sure why, but the unit tests do this, right
+        // after UnitTestSetup while resetting all the tracks
+        //Trace(2, "Mobius::cancelScripts NULL action\n");
     }
     else {
         // this will be the interpreter doing the action

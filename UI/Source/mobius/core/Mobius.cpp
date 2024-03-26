@@ -1321,8 +1321,11 @@ void Mobius::saveLoop(Action* action)
  * not have invalid pointers.
  *
  * !! The Rehearse test scripts can get into a race condition
- * of they SaveLoop at the exact end of the loop when we're
+ * if they SaveLoop at the exact end of the loop when we're
  * about to enter another record phase.
+ *
+ * new: Yeah that sucks, see comments above Layer::flatten for some thoughts.
+ *
  */
 Audio* Mobius::getPlaybackAudio()
 {

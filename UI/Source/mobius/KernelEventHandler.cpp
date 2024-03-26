@@ -158,11 +158,15 @@ void KernelEventHandler::doAlert(KernelEvent* e)
  * files whe're you're busy with loop building.
  *
  * No good simple solutions.
+ * See Layer::flatten for more thoughts.
  *
  * If the file name is passed through the event it will be used.  If not passed
  * it used the value of the quickSave global parameter as the base file name,
  * then added a numeric suffix to make it unique.
  * Not doing uniqueness yet but need to.
+ *
+ * Note that the Audio returned by getPlaybackAudio becomes owned by the caller
+ * and must be freed.  The blocks came from the common AudioPool.
  */
 void KernelEventHandler::doSaveLoop(KernelEvent* e)
 {
@@ -192,6 +196,9 @@ void KernelEventHandler::doSaveLoop(KernelEvent* e)
         }
 
         AudioFile::write(file, loop);
+
+        // we own this
+        delete loop;
     }
 }
 

@@ -1,7 +1,7 @@
 <MobiusConfig
   midiInput='Arturia MiniLab mkII'
   midiOutput='3- Black Box MIDI Out'
-  audioInput='Analog (3+4) (RME Fireface UC)'
+  audioInput='ADAT (5+6) (RME Fireface UC)'
   audioOutput='Speakers (RME Fireface UC)'
   quickSave='mobiusloop'
   noiseFloor='13'
@@ -122,6 +122,7 @@
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
     <Binding action='intrinsic' name='Load Scripts' trigger='ui' value='0'/>
     <Binding action='function' name='UnitTestMode' trigger='ui' value='0'/>
+    <Binding action='intrinsic' name='Test Diff' trigger='ui' value='0'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>

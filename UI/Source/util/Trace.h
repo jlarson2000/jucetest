@@ -63,9 +63,10 @@ extern class TraceListener* GlobalTraceListener;
  *                                                                          *
  ****************************************************************************/
 
-#define MAX_TRACE_RECORDS 10000
+#define MAX_TRACE_RECORDS 1000
 
 #define MAX_ARG 64
+#define MAX_MSG 256
 
 /**
  * Encapsulates the information necessary to format a trace message.
@@ -99,7 +100,7 @@ class TraceRecord {
 	long time;
 
     // an sprintf format string
-    const char* msg;
+    char msg[MAX_MSG];
 
     // optional string arguments
     char string[MAX_ARG];

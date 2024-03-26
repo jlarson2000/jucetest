@@ -37,6 +37,12 @@ class UnitTests
 
     void diffAudio(class KernelEvent* e);
     void diffText(class KernelEvent* e);
+    void testDiff();
+    
+    // needed by AudioDifferencer
+    class AudioPool* getAudioPool();
+    juce::File getResultFile(const char* name);
+    juce::File getExpectedFile(const char* name);
     
   private:
 
@@ -47,8 +53,6 @@ class UnitTests
     
 
     juce::File getTestRoot();
-    juce::File getResultFile(const char* name);
-    juce::File getExpectedFile(const char* name);
 
     juce::File addExtensionWav(juce::File file);
     juce::File followRedirect(juce::File root);

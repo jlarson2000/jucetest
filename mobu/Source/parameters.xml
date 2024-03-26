@@ -20,10 +20,17 @@
     </Parameter>
 
     <Parameter name='startingSetup'
+               coreName='setup'
                type='structure' structureClass='Setup'
                codeName='StartingSetupName'
                options='noBinding'>
       This is used only in model context to define the starting Setup by name.
+
+      Well no, in runtime context this is how we change presets on the fly.
+      I don't think this was ever used from scripts, and it doesn't seem to hurt,
+      but the UI currently changes setups by setting this in MobiusConfig
+      and passing the whole thing down to reconfigure().  May not need both.
+      
     </Parameter>
 
     <Parameter name='activeSetup' coreName='setup'
@@ -39,21 +46,11 @@
                codeName='DefaultPresetName'
                options='noBinding'>
       This is used only in model context to define the default Preset by name.
-    </Parameter>
 
-    <!-- not well defined, research
-         also have this in Setup
-    <Parameter name='activeTrack' options='dynamic'
-               coreName='selectedTrack'
-               codeName='ActiveTrack'>
-      In model context defines the initial active track, almost always zero.
-      Range depends on trackCount
-      In runtime context changes the active track for focus and display WITHOUT
-      incurrent track-copy behavior.  Compare with the TrackSelect function
-      which I'd like to start calling TrackShift.
-      Unclear if this needs core mapping.
-      </Parameter>
--->
+      This is new and has no correspondence in the old parameter mode, but Track
+      does use it at runtime.  I think this is being confused with the a transient
+      "activePreset" which doesn't exist.
+    </Parameter>
 
     <Parameter name='activeOverlay'
                type='structure' structureClass='BindingSet'
@@ -419,13 +416,15 @@
                codeName='OutRealignMode'
                enumName='OutRealignMode'/>
 
-    <Parameter name='activeTrack' high='8' options='dynamic,noBinding'>
-      This is a weird one and conflicts conceptually with activeTrack in MobiusConfig.
-      In a setup, this would define the active track when you activate a setup.
-      At runtime it could be used to change the activeTrack without "switch" behavior.
-      The same could be said of the global parameter at runtime.  At startup
-      the global parameter would define the active track unless overridden by the setup.
-      Since these are almost always zero, it's over complicated.
+    <Parameter name='activeTrack' high='8' options='dynamic,noBinding'
+               coreName='selectedTrack'>
+      In model context, defines the initial active track, almost always zero.
+      Range depends on the global trackCount parameter.
+      In runtime context, this changes the active track for focus and display
+      WITHOUT incurring Track Copy behavior.
+      todo: Compare this with the TrackSelect function which I'd like to
+      start calling TrackShift.  
+
       We also have an ordinal problem.  Internally tracks are numbered from zero but
       externally they are always numbered from 1.  Need to work this out.
     </Parameter>
@@ -448,11 +447,17 @@
     
     <Parameter name='trackName' codeName='Name' type='string' options='noBinding'/>
 
-    <Parameter name='startingPreset'
+    <Parameter name='startingPreset' coreName='preset'
                codeName='StartingPresetName'
                type='structure' structureClass='Preset'
                options='noBinding'>
       In model context defined the starting preset for this track by name.
+
+      In runtime context, this is weird.  It corresponds to the old "preset" parameter
+      which changes the active preset in the Track without modifying config, so it
+      would be lost on Reset.
+
+      todo: "active preset" is a poorly defined concept that needs thought
     </Parameter>
     
     <!-- !!! this is generating code even though it is marked transient -->

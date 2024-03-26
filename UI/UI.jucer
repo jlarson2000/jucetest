@@ -336,6 +336,10 @@
         <FILE id="wGjjQT" name="Audio.cpp" compile="1" resource="0" file="Source/mobius/Audio.cpp"/>
         <FILE id="l5fUmt" name="Audio.h" compile="0" resource="0" file="Source/mobius/Audio.h"/>
         <FILE id="uXEvtN" name="AudioCursor.cpp" compile="1" resource="0" file="Source/mobius/AudioCursor.cpp"/>
+        <FILE id="Ow5Rk1" name="AudioDifferencer.cpp" compile="1" resource="0"
+              file="Source/mobius/AudioDifferencer.cpp"/>
+        <FILE id="Rj21HM" name="AudioDifferencer.h" compile="0" resource="0"
+              file="Source/mobius/AudioDifferencer.h"/>
         <FILE id="jErnGH" name="AudioFile.cpp" compile="1" resource="0" file="Source/mobius/AudioFile.cpp"/>
         <FILE id="XCxjp6" name="AudioFile.h" compile="0" resource="0" file="Source/mobius/AudioFile.h"/>
         <FILE id="TZns7W" name="AudioPool.cpp" compile="1" resource="0" file="Source/mobius/AudioPool.cpp"/>

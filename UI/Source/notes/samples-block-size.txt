@@ -1,0 +1,64 @@
+
+Discovered an annoying problem with the unit tests being sensitive to the audio block size.
+
+Expected Test files were all captured with a block size of 256.  Normally this doesn't
+matter except for the triggering of samples.
+
+Events in test scripts that cause recording are normally sehdeuled at a speficic frame.
+When this frame is reached we start consuming the input buffers.
+
+On or before this time a sample is triggered.
+
+Both the old and new code do not accurately "start" the injection of the sample
+audio at the frame we are logically on for the triggering event.  For example with a buffer
+size of 256 a wait happens with an event that is normally not an even multiple of the block
+size.  So the event will "happen" in the middle of a block.
+
+If a sample is triggered by an event scheduled in the middle of a block it
+will begin injecting the sample from the beginning of the block.  This is normally
+not audible, but for captured tests it results in differences because the injected sample
+in a new test run may be slightly out of phase with the captured output.
+
+Assume a block size of 256 with a script wait scheduled for frame 900
+
+The blocks represent these positions
+
+0 0-255
+1 256-511
+2 512-767
+3 768-1023
+
+Frame 900 is in block 3 with an offset of 132
+
+If this had been done correctly, the triggered sample would start injecting
+at offset 132 and advance only 124 frames.  A record/overdub activated
+on frame 900 would then begin consuming the sample from frame 0 of the sample.
+
+Instead, both old and new code start injecting the sample at the beginning
+of the third block, at stream frame 768.  When the loop begins capturing
+input samples it starts at offset 132 of that block, meaning that the first 132
+frames of the trigger sample are lost.
+
+In recent testing the block size was 441, here the blocks look like this
+
+0 0-440
+1 441-881
+2 882-1322
+
+As before a sample is triggered by an event on the "stream frame" 900.  This
+lies in block 2 at an offset 18.
+
+The sample again begins injecting at the start of the block with stream frame 882
+and record starts capturing it's content at sample frame 18.  The first 18 frames
+of the sample are lost.
+
+Since 18 is different than 132, the recorded sample will be slightly out of phase
+with a loop captured with a 256 block size.
+
+
+
+
+
+
+
+

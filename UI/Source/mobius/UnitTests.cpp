@@ -78,6 +78,8 @@
 #include "WaveFile.h"
 
 #include "UnitTests.h"
+#include "AudioDifferencer.h"
+
 
 // implementation of the static declaration
 // the object will be a member object of MobiusShell
@@ -106,6 +108,12 @@ UnitTests::~UnitTests()
     Instance = nullptr;
 }
 
+// for AudioDifferencer
+AudioPool* UnitTests::getAudioPool()
+{
+    return shell->getAudioPool();
+}
+
 //////////////////////////////////////////////////////////////////////
 //
 // Setup
@@ -122,11 +130,12 @@ UnitTests::~UnitTests()
  */
 void UnitTests::scriptSetup(KernelEvent* e)
 {
-    Trace(2, "UnitTests::scriptSetup");
     // only do this once so scripts can call it multiple times
-    if (!enabled)
-      setup();
-    Trace(2, "UnitTests::scriptSetup finished");
+    if (!enabled) {
+        Trace(2, "UnitTests::scriptSetup");
+        setup();
+        Trace(2, "UnitTests::scriptSetup finished");
+    }
 }
 
 /**
@@ -527,6 +536,16 @@ juce::File UnitTests::getSaveLoopFile(KernelEvent* e)
 //////////////////////////////////////////////////////////////////////
 
 /**
+ * Special entry point for the temporary TestDiff intrinsic function
+ * so we can run AudioDifferencer tests without having to record something live.
+ */
+void UnitTests::testDiff()
+{
+    AudioDifferencer differ;
+    differ.test(this);
+}
+
+/**
  * Slightly modified version of the old diff utility for .wav files.
  * juce::File has a binary diff method, but I'd like more info on the
  * specific sampel that is different and where it is so we can look
@@ -535,133 +554,10 @@ juce::File UnitTests::getSaveLoopFile(KernelEvent* e)
  */
 void UnitTests::diffAudio(KernelEvent* e)
 {
-    const char* name1 = e->arg1;
-    const char* name2 = e->arg2;
-    bool reverse = StringEqualNoCase(e->arg3, "reverse");
+    // factored this out to AudioDifferencer
+    AudioDifferencer differ;
 
-    // the input file
-    juce::File file1 = getResultFile(name1);
-
-    // expected file  is optional, and if not set uses the same base file name
-    // as the input file, but reads from a different directory
-    juce::File file2;
-    if (strlen(name2) == 0)
-      file2 = getExpectedFile(name1);
-    else
-      file2 = getExpectedFile(name2);
-
-    // hmm, getFullPathName().toUTF() seems to become unstable
-    // after you call anything else on the FIle, like existsAsFile
-    // so can't capture those early, have to wait until needed
-    // and not expect them to live long
-
-    if (!file1.existsAsFile()) {
-        const char* path = file1.getFullPathName().toUTF8();
-        Trace(1, "Diff file not found: %s\n", path);
-    }
-    else if (!file2.existsAsFile()) {
-        // expected file not there, could bootstrap it?
-        const char* path = file2.getFullPathName().toUTF8();
-        Trace(1, "Diff file not found: %s\n", path);
-    }
-    else if (file1.getSize() != file2.getSize()) {
-        const char* path1 = file1.getFullPathName().toUTF8();
-        const char* path2 = file2.getFullPathName().toUTF8();
-        Trace(1, "Diff files differ in size: %s, %s\n", path1, path2);
-    }
-    else {
-        // reading files requires a pool
-        AudioPool* pool = shell->getAudioPool();
-        Audio* a1 = AudioFile::read(file1, pool);
-        Audio* a2 = AudioFile::read(file2, pool);
-        
-        const char* path1 = file1.getFullPathName().toUTF8();
-        const char* path2 = file2.getFullPathName().toUTF8();
-
-        if (a1->getFrames() != a2->getFrames()) {
-            Trace(1, "Diff file frame counts differ %s, %s\n", path1, path2);
-            Trace(1, "  Frames %ld %ld\n", (long)a1->getFrames(), (long)a2->getFrames());
-        }
-        else if (a1->getChannels() != 2) {
-            Trace(1, "Diff file channel count not 2: %s\n", path1);
-        }
-        else if (a2->getChannels() != 2) {
-            Trace(1, "Diff file channel count not 2: %s\n", path2);
-        }
-        else {
-            // formerly checked channel counts, which were always 2 and in
-            // newer code may be unset, so just ass
-            int channels = 2;
-            AudioBuffer b1;
-            float f1[MaxAudioChannels];
-            b1.buffer = f1;
-            b1.frames = 1;
-            b1.channels = channels;
-
-            AudioBuffer b2;
-            float f2[MaxAudioChannels];
-            b2.buffer = f2;
-            b2.frames = 1;
-            b2.channels = channels;
-
-            bool stop = false;
-            int psn2 = (reverse) ? a2->getFrames() - 1 : 0;
-
-            bool different = false;
-            bool checkFloats = false;
-            for (int i = 0 ; i < a1->getFrames() && !different ; i++) {
-
-                memset(f1, 0, sizeof(f1));
-                memset(f2, 0, sizeof(f2));
-                a1->get(&b1, i);
-                a2->get(&b2, psn2);
-			
-                for (int j = 0 ; j < channels && !different ; j++) {
-                    // sigh, due to rounding errors it is 
-                    // impossible to reliably assume that
-                    // x + y - y = x with floats, so coerce
-                    // to an integer to do the comparion
-                    if (checkFloats) {
-                        if (f1[j] != f2[j]) {
-                            // sigh, don't have Trace signatures that use floats
-                            char msg[1024];
-                            sprintf(msg, "WARNING: files differ at frame %d: %f %f: %s, %s\n",
-                                    i, f1[j], f2[j], name1, name2);
-                            Trace(1, msg);
-                        }
-                    }
-
-                    // 24 bit is too much, but 16 is too small
-                    // 16 bit signed (2^15)
-                    //float precision = 32767.0f;
-                    // 24 bit signed (2^23)
-                    //float precision = 8388608.0f;
-                    // 20 bit
-                    float precision = 524288.0f;
-								
-                    int i1 = (int)(f1[j] * precision);
-                    int i2 = (int)(f2[j] * precision);
-
-                    if (i1 != i2) {
-                        char msg[1024];
-                        sprintf(msg, "WARNING: files differ at frame %d: %d %d: %s, %s\n",
-                                i, i1, i2, name1, name2);
-                        Trace(1, msg);
-                        different = true;
-                    }
-                }
-
-                if (reverse)
-                  psn2--;
-                else
-                  psn2++;
-            }
-        }
-        
-        // deleting returns them to the pool
-        delete a1;
-        delete a2;
-    }
+    differ.diff(this, e);
 }
 
 /**

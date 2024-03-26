@@ -225,10 +225,25 @@ void SaveArgument(const char* src, char* dest)
     if (src != nullptr) {
         if (strlen(src) == 0) 
           src = " ";
-        else if ((unsigned long)src < 65535)
-          src = "INVALID";
-        CopyString(src, dest, MAX_ARG);
+
+        // wtf was this trying to do?
+        // not reliable with 64-bit
+        //else if ((unsigned long)src < 65535)
+        //src = "INVALID";
         
+        CopyString(src, dest, MAX_ARG);
+    }
+}
+
+void SaveMessage(const char* src, char* dest)
+{
+    dest[0] = 0;
+
+    if (src == nullptr || src[0] == 0)
+      src = "!!!!!! MISSING TRACE MESSAGE !!!!!!";
+    
+    if (src != nullptr) {
+        CopyString(src, dest, MAX_MSG);
     }
 }
 
@@ -250,9 +265,14 @@ void AddTrace(TraceContext* context, int level,
 	// records are initialized
 	if (!TraceInitialized) {
 		for (int i = 0 ; i < MAX_TRACE_RECORDS ; i++)
-			TraceRecords[i].msg = nullptr;
+          TraceRecords[i].msg[0] = 0;
 		TraceInitialized =  true;
 	}
+
+    // trying to detect something weird
+    if (msg == nullptr) {
+        msg = "!!!!!!!!!!! SHOULDN'T BE HERE !!!!!!!!!!!!!!";
+    }
 
 	// only queue if it falls within the interesting levels
 	if (level <= TracePrintLevel || level <= TraceDebugLevel) {
@@ -300,7 +320,6 @@ void AddTrace(TraceContext* context, int level,
             }
 
             r->level = level;
-            r->msg = msg;
             r->long1 = l1;
             r->long2 = l2;
             r->long3 = l3;
@@ -311,6 +330,7 @@ void AddTrace(TraceContext* context, int level,
             r->string3[0] = 0;
 
             try {
+                SaveMessage(msg, r->msg);
                 SaveArgument(string1, r->string);
                 SaveArgument(string2, r->string2);
                 SaveArgument(string3, r->string3);
@@ -341,7 +361,7 @@ void AddTrace(const char* msg)
 	// records are initialized
 	if (!TraceInitialized) {
 		for (int i = 0 ; i < MAX_TRACE_RECORDS ; i++)
-			TraceRecords[i].msg = nullptr;
+          TraceRecords[i].msg[0] = 0;
 		TraceInitialized =  true;
 	}
     
@@ -357,7 +377,6 @@ void AddTrace(const char* msg)
         TraceRaw("WARNING: Trace record buffer overflow!!\n");
     }
     else {
-        r->msg = msg;
         r->level = 0;
         r->context = 0;
         r->time = 0;
@@ -369,6 +388,13 @@ void AddTrace(const char* msg)
         r->string[0] = 0;
         r->string2[0] = 0;
         r->string3[0] = 0;
+
+        try {
+            SaveMessage(msg, r->msg);
+        }
+        catch (...) {
+            printf("Trace: Unable to copy string arguments!\n");
+        }
         
         // only change the tail after the record is fully initialized
         TraceTail = nextTail;
@@ -381,7 +407,7 @@ void AddTrace(const char* msg)
  */
 void RenderTrace(TraceRecord* r, char* buffer)
 {
-	if (r->msg == nullptr)
+	if (r->msg[0] == 0)
 	  sprintf(buffer, "ERROR: Invalid trace message!\n");
 	else {
         try {
@@ -434,7 +460,7 @@ void RenderTrace(TraceRecord* r, char* buffer)
 
 		// keep this clear so we can try to detect anomolies in the
 		// head/tail iteration
-		r->msg = nullptr;
+		r->msg[0] = 0;
 	}
 }
 
@@ -448,8 +474,15 @@ void WriteTrace(FILE* fp)
 {
 	char buffer[1024 * 8];
 
+	// guard against mods during the flush, really that safe?
+    int tail = TraceHead;
+    {
+        const juce::ScopedLock lock (TraceCriticalSection);
+        tail = TraceTail;
+    }
+
     fprintf(fp, "=========================================================\n");
-	while (TraceHead != TraceTail) {
+	while (TraceHead != tail) {
         TraceRecord* r = &TraceRecords[TraceHead];
 		RenderTrace(r, buffer);
 		fprintf(fp, "%s", buffer);
@@ -461,7 +494,14 @@ void WriteTrace(FILE* fp)
 
 void WriteTrace(const char* file)
 {
-	if (TraceHead != TraceTail > 0) {
+	// guard against mods during the flush, really that safe?
+    int tail = TraceHead;
+    {
+        const juce::ScopedLock lock (TraceCriticalSection);
+        tail = TraceTail;
+    }
+
+	if (TraceHead != tail) {
 		FILE* fp = fopen(file, "w");
 		if (fp != nullptr) {
 			WriteTrace(fp);
@@ -474,7 +514,14 @@ void WriteTrace(const char* file)
 
 void AppendTrace(const char* file)
 {
-	if (TraceHead != TraceTail) {
+	// guard against mods during the flush, really that safe?
+    int tail = TraceHead;
+    {
+        const juce::ScopedLock lock (TraceCriticalSection);
+        tail = TraceTail;
+    }
+    
+	if (TraceHead != tail) {
 		FILE* fp = fopen(file, "a");
 		if (fp != nullptr) {
 			WriteTrace(fp);
@@ -495,11 +542,14 @@ void FlushTrace()
 	char buffer[1024 * 8];
 	
 	// guard against mods during the flush, really that safe?
-	int head = TraceHead;
-	int tail = TraceTail;
+    int tail = TraceHead;
+    {
+        const juce::ScopedLock lock (TraceCriticalSection);
+        tail = TraceTail;
+    }
 
-	while (head != tail) {
-        TraceRecord* r = &TraceRecords[head];
+	while (TraceHead != tail) {
+        TraceRecord* r = &TraceRecords[TraceHead];
 		RenderTrace(r, buffer);
 
         // not used any more what what the heck
@@ -514,12 +564,10 @@ void FlushTrace()
 
         TraceEmit(buffer);
 
-		head++;
-		if (head >= MAX_TRACE_RECORDS)
-		  head = 0;
+		TraceHead++;
+		if (TraceHead >= MAX_TRACE_RECORDS)
+		  TraceHead = 0;
     }
-
-	TraceHead = head;
 }
 
 /**

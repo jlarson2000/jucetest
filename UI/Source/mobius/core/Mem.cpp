@@ -7,7 +7,7 @@
 // global variable to control whether we trace or not,
 // set when we're processing blocks in the audio thread
 bool MemTraceEnabled = false;
-bool MemForceTrace = true;
+bool MemForceTrace = false;
 
 void MemTrack(void* obj, const char* className, int size)
 {

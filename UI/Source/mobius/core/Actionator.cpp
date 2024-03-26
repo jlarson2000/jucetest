@@ -68,6 +68,39 @@ void Actionator::dump()
  * extra for scripts.
  *
  * Jesus vector is a fucking fight, use juce::Array, it's obvious.
+ *
+ * At the moment have these that don't have mappings:
+ *   ERROR: Actionator::initFunctionMap Function UnitTestMode not found
+ *   ERROR: Actionator::initFunctionMap Function DebugStatus not found
+ *   ERROR: Actionator::initFunctionMap Function Divide4 not found
+ *   ERROR: Actionator::initFunctionMap Function Ignore not found
+ *   ERROR: Actionator::initFunctionMap Function SelectLoop not found
+ *   ERROR: Actionator::initFunctionMap Function SpeedShift not found
+ *   ERROR: Actionator::initFunctionMap Function SUSRehearse not found
+ *   ERROR: Actionator::initFunctionMap Function SelectTrack not found
+ *   ERROR: Actionator::initFunctionMap Function UIRedraw not found
+ *
+ * UnitTestMode is a Shell level function that won't be used in scripts
+ * Probably want a shell=true flag to prevent the warning.
+ *
+ * DebugStatus was something that caused Mobius::logStatus to get called
+ * which did some marginally useful printf's .  The concept is fine
+ * but the implementation was incomplete.  It still exists but the
+ * name is just "Status".
+ *
+ * Divide4 I don't understand, it seems to exist.
+ *
+ * Ignore never existed but it had an extern so we must have copied it.
+ * Delete from FunctionDefinition
+ *
+ * SelectLoop is the new replacement for the LoopN functions and needs to be addressed.
+ *
+ * SpeedShift should be SpeedStep
+ *
+ * UIRedraw looks like it's there
+ *
+ * SelectTrack is the replacement for the TrckN functions and needs to be addressed.
+ *
  */
 void Actionator::initFunctionMap()
 {
@@ -86,6 +119,33 @@ void Actionator::initFunctionMap()
 
 /**
  * Initialize the table for mapping UIParameters to core Parameter
+ *
+ * At the moment, these don't have mappings:
+ *  ERROR: Actionator::initParameterMap Parameter startingSetup not found
+ *  ERROR: Actionator::initParameterMap Parameter defaultPreset not found
+ *  ERROR: Actionator::initParameterMap Parameter activeTrack not found
+ *  ERROR: Actionator::initParameterMap Parameter startingPreset not found
+ *
+ * startingSetup is primarily a config parameter rather than a runtime parameter
+ * but I think that is the only way to tell the engine to change setups after
+ * initialization.  So that needs to be fixed.  Unless maybe this would be handled
+ * by a full reconfigure().  In scripts the old parameter "setup" does this
+ * so maybe just add coreName='setup' to this one if you want script access.
+ *
+ * startingPreset is where tracks go after Reset, It isn't very useful to change
+ * this at runtime and should be handled by reconfigure()
+ *
+ * defaultPreset is new and has no correspondence in the old model, though it is
+ * used by Track after Reset.  I think this might be an error comments say:
+ *             // current track follows the lingering selection
+ *            // newPreset = config->getCurrentPreset();
+ *            newPreset = config->getDefaultPreset();
+ *
+ * So I think was this was tyrying to do is get the "active preset" at runtime
+ * which may not be what was in the MobiusConfig.  Need to revisit this.
+ *
+ * activeTrack is how we change tracks without Track Copy behavior
+ * The old parameter for this is "selectedTrack" so this needs a core name.
  */
 void Actionator::initParameterMap()
 {

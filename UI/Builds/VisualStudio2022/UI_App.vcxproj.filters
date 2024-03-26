@@ -1072,6 +1072,9 @@
     <ClCompile Include="..\..\Source\mobius\AudioCursor.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\mobius\AudioDifferencer.cpp">
+      <Filter>UI\Source\mobius</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\mobius\AudioFile.cpp">
       <Filter>UI\Source\mobius</Filter>
     </ClCompile>
@@ -3991,6 +3994,9 @@
       <Filter>UI\Source\mobius\core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\Audio.h">
+      <Filter>UI\Source\mobius</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\mobius\AudioDifferencer.h">
       <Filter>UI\Source\mobius</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\mobius\AudioFile.h">

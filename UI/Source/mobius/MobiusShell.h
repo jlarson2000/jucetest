@@ -26,6 +26,7 @@ class MobiusShell : public MobiusInterface
     friend class MobiusKernel;
     friend class KernelEventHandler;
     friend class UnitTests;
+    friend class AudioDifferencer;
     
   public:
 

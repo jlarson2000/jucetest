@@ -553,11 +553,6 @@ Layer::Layer(LayerPool* lpool, AudioPool* apool)
     mOverdubCursor->setAutoExtend(true);
 
 	mFade.init();
-
-    char buf[1024];
-    sprintf(buf, "Allocated layer %p", this);
-    Trace(1, buf);
-
 }
 
 /**
@@ -585,10 +580,6 @@ Layer::~Layer()
 		l->mPrev = NULL;
 		delete l;
 	}
-    
-    char buf[1024];
-    sprintf(buf, "Deleted layer %p", this);
-    Trace(1, buf);
 }
 
 /**
@@ -2908,7 +2899,28 @@ void Layer::getNoReflect(LayerContext* con, long startFrame,
  * cause the play layer to be modified including Reset.  You have
  * to be careful to wait a bit after using the Save Loop function
  * before resetting the loop!
- * 
+ *
+ * todo: State saves on the live engine are problematic and the problem
+ * is way worse for Projects.  The audio thread can't be in the business
+ * of allocating large amounts of memory.  I suppose if we use the
+ * same AudioPool, then the buffers at least won't be dynamic, but we would
+ * have to make sure Audio, AudioCursor, and other thigns are pooled as well,
+ * which you probably have to do anyway.
+ *
+ * But even if everything is pooled, this much copying could cause a glitch
+ * in the audio stream.  That's not so bad for loop/project saves since you
+ * don't generally do those while performing, still I suppose we could enter
+ * some kind of mute state, but that doesn't help other plugins running in the host.
+ *
+ * I think the best approach is probably to put the engine in some sort of "lock"
+ * state, where the maintenance thread is allowed to reach down and touch kernel
+ * structures without them getting messed up by the audio thread.  At the least this
+ * means no Functions can be processed, ESPECIALLY Reset.  But it's going to be
+ * hard to ensure that just sitting there playing a loop won't alter something that
+ * is in the process of being saved.  The most reliable would be to just disable
+ * processing of audio blocks entirely while the save takes place, but this would cause
+ * a major disruption of the audio stream, sort of like GlobalPause which has to do
+ * edge fades when it starts and when it resumes to avoid clicks.
  */
 Audio* Layer::flatten()
 {

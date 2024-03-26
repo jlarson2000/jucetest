@@ -27,5 +27,11 @@ void Intrinsic::addIntrinsics(DynamicConfig* config)
     a->name = Intrinsic::LoadSamplesName;
     a->ordinal = IntrinsicLoadSamples;
     config->addAction(a);
+    
+    a = new DynamicAction();
+    a->type = ActionIntrinsic;
+    a->name = Intrinsic::TestDiffName;
+    a->ordinal = IntrinsicTestDiff;
+    config->addAction(a);
 }
 

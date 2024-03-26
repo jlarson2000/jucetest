@@ -258,7 +258,7 @@ void MobiusKernel::containerAudioAvailable(MobiusContainer* cont)
     }
 
     // begin whining about memory allocations
-    MemTraceEnabled = true;
+    //MemTraceEnabled = true;
     
     // if we're running tests, ignore any external input once this flag is set
 	if (noExternalInput)

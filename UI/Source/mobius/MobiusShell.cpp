@@ -388,31 +388,42 @@ void MobiusShell::installSamples(SampleConfig* samples)
  */
 void MobiusShell::doIntrinsic(UIAction* action)
 {
-    int ordinal = action->implementation.ordinal;
-
-    if (ordinal < IntrinsicBase) {
-        // if an ordinal is not specified, the action must have a name
-        // doesn't seem like we can avoid a simple model for this
-        const char* actionName = action->actionName;
-
-        if (StringEqual(actionName, Intrinsic::LoadScriptsName))
-          ordinal = IntrinsicLoadScripts;
-
-        else if (StringEqual(actionName, Intrinsic::LoadSamplesName))
-          ordinal = IntrinsicLoadScripts;
+    // ignore up transitions, no intrinsics support them
+    if (action->down) {
         
-        // save it in the UIAction to avoid the name lookup next time
-        action->implementation.ordinal = ordinal;
-    }
+        int ordinal = action->implementation.ordinal;
 
-    switch (ordinal) {
-        case IntrinsicLoadScripts:
-            loadScripts(action);
-            break;
+        if (ordinal < IntrinsicBase) {
+            // if an ordinal is not specified, the action must have a name
+            // doesn't seem like we can avoid a simple model for this
+            const char* actionName = action->actionName;
 
-        case IntrinsicLoadSamples:
-            loadSamples(action);
-            break;
+            if (StringEqual(actionName, Intrinsic::LoadScriptsName))
+              ordinal = IntrinsicLoadScripts;
+
+            else if (StringEqual(actionName, Intrinsic::LoadSamplesName))
+              ordinal = IntrinsicLoadScripts;
+        
+            else if (StringEqual(actionName, Intrinsic::TestDiffName))
+              ordinal = IntrinsicTestDiff;
+        
+            // save it in the UIAction to avoid the name lookup next time
+            action->implementation.ordinal = ordinal;
+        }
+
+        switch (ordinal) {
+            case IntrinsicLoadScripts:
+                loadScripts(action);
+                break;
+
+            case IntrinsicLoadSamples:
+                loadSamples(action);
+                break;
+            
+            case IntrinsicTestDiff:
+                unitTests.testDiff();
+                break;
+        }
     }
 }
 
