@@ -308,6 +308,11 @@ void AudioDevicesContent::paint (juce::Graphics& g)
  * used 360 but that's too big, this seems to draw beyond the size you
  * give it see audio-device-selector for an annoying analysis.  Minimum
  * height seems to be 231
+ *
+ * ugh: this is quite variable depending on the available devices.
+ * There doesnot seem to be a predictable height.  Having the log below
+ * the device selector won't work, need to have them side by side and give
+ * the full height to the selector.
  * 
  */
 void AudioDevicesContent::resized()
@@ -349,6 +354,10 @@ void AudioDevicesContent::resized()
         minSelectorHeight = 200;
     }
     
+    // ugh, not enough for the Windows device on Loki
+    // I give up fighting with this
+    minSelectorHeight = 370;
+
     // probably some easier Rectangle methods to do this, but I'm tired
     int centerLeft = ((getWidth() - goodSelectorWidth) / 2) - leftShift;
     selector->setBounds(centerLeft, area.getY(), goodSelectorWidth, minSelectorHeight);

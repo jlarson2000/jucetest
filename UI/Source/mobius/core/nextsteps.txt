@@ -1,3 +1,10 @@
+UnitTests
+  - really need to get the audio device to a 256 block size every time
+  - make sure tests that do millisecond waits can deal with a 48k sample rate
+  - old files captured at 44.1 may not compare correctly?
+
+  !autoload needs to work
+
 
 Standalone hardware config
   need to remember audio and midi device settings

@@ -55,6 +55,33 @@ of the sample are lost.
 Since 18 is different than 132, the recorded sample will be slightly out of phase
 with a loop captured with a 256 block size.
 
+An attempt can be made to adjust that when a special option is set
+in the test script.
+
+Shen a sample is triggered on a frame, say 900.  The number of "lost" frames
+of the samples should be:
+
+   900 modulo 265 = 132
+
+When at frame offset 18 in block 2, the number of extra frames to lose is 114.
+
+There are two approaches to this, both requre starting sample playback from a location
+other than zero.  If samples are still deposited at the beginning of the block,
+the starting location is 132 - current offset.  If the samples can be deposited correctly
+at offset 18, then the playbac starts at 132.
+
+The desired goal is to do this correctly and not deposit samples from the start of the block,
+start where they should be at the event location.
+
+In the "correct" world, latency is also in play too.  The offsets for input buffer injection
+should be different than the offsets for output injection.  As we do with loop playback,
+sample playback should jump ahead by the amount of output latency since we're already
+"behind" on feeding the output stream.  Similarly, capture of recorded samples should
+be delayed by input latency since technially a sample triggered outside the system at this time
+won't arrive in the input buffers for awhile.
+
+
+
 
 
 

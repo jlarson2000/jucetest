@@ -26,23 +26,16 @@ Mobius::initialize finished
 Reading configuration file c:\dev\jucetest\UI\Source\ui.xml
 Supervisor::prepareToPlay first call
 AudioDeviceSetup
-  inputDeviceName: ADAT (5+6) (RME Fireface UC)
-  outputDeviceName: Speakers (RME Fireface UC)
-  sampleRate: 44100
-  bufferSize: 441
+  inputDeviceName: Microphone Array (Intel® Smart Sound Technology for Digital Microphones)
+  outputDeviceName: Speakers (Realtek(R) Audio)
+  sampleRate: 48000
+  bufferSize: 480
   useDefaultInputChannels: true
   useDefaultOutputChannels: true
-samplesPerBlockExpected 441 sampleRate 44100
-Supervisor: audio source num samples 441
-Supervisor: audio buffer channels 2
-Supervisor: audio buffer samples 441
-Supervisor::releaseResources
-Supervisor::prepareToPlay
-samplesPerBlockExpected 256 sampleRate 44100
-Supervisor: audio source num samples 256
-Supervisor: audio buffer samples 256
-Mobius::reconfigure
-Mobius::reconfigure finished
+samplesPerBlockExpected 480 sampleRate 48000
+Supervisor: audio source num samples 480
+Supervisor: audio buffer channels 4
+Supervisor: audio buffer samples 480
 UnitTests::actionSetup
 Reading Mobius script c:\dev\jucetest\UI\Source\unittest\calltest.mos
 Reading Mobius script c:\dev\jucetest\UI\Source\unittest\exprtest.mos
@@ -99,7 +92,7 @@ Function StartCapture down
 Function Sample down
 101 -289: EventManager: Add event Script( ) 735
 Script 1:Layer Flattening: Wait
-101 -289: E: Script -33
+101 -289: E: Script -225
 101 -289: Function Record down
 101 -289: EventManager: Add event Record(Record) -289
 101 0: Loop: Set mode play
@@ -108,7 +101,7 @@ Script 1:Layer Flattening: Wait
 101 0: E: Record(Record) 0
 101 0: Loop: Set mode record
 101 0: Layer: Starting record fade in
-101 115968: E: Script 116000
+101 115616: E: Script 116000
 101 116000: Function Record down
 101 116000: Loop: prepareLoop: loop frames 116000 remaining 0
 101 116000: Sync: Scheduled RecordStop at 116000
@@ -121,8 +114,8 @@ Function Sample down
 101 0: EventManager: Add event Script( ) 30000
 Script 1:Layer Flattening: Wait
 101 0: Layer: Applying fade out before frame 116000
-101 224: Layer: Starting play fade in at 571
-101 29920: E: Script 30000
+101 96: Layer: Starting play fade in at 571
+101 29856: E: Script 30000
 101 30000: Function Overdub down
 101 30000: EventManager: Add event Overdub(Overdub) 30000
 101 30000: EventManager: Add event Script( ) 60000
@@ -130,7 +123,7 @@ Script 1:Layer Flattening: Wait
 101 30000: E: Overdub(Overdub) 30000
 101 30000: Loop: Set mode overdub
 101 30000: Layer: Starting record fade in
-101 59872: E: Script 60000
+101 59616: E: Script 60000
 101 60000: Function Overdub down
 101 60000: EventManager: Add event Overdub(Overdub) 60000
 101 60000: EventManager: Add event Script( ) 232000
@@ -138,10 +131,10 @@ Script 1:Layer Flattening: Wait
 101 60000: E: Overdub(Overdub) 60000
 101 60000: Loop: Set mode play
 101 60000: Layer: Applying fade out before frame 60000
-101 115904: E: Script 116000
+101 115936: E: Script 116000
 101 116000: EventManager: Add event Script( ) 116256
 Script 1:Layer Flattening: Wait
-101 160: E: Script 256
+101 0: E: Script 256
 Script 1:Layer Flattening: initializing script variable testname = test3
 Script 1:Layer Flattening: initializing script variable suffix =  
 Function StopCapture down
@@ -151,11 +144,15 @@ Function SaveCapture down
 Script 1:Layer Flattening: Wait thread
 Script 1:Layer Flattening: diff ./test3loop  
 Script 1:Layer Flattening: diff ./test3rec  
-101 10144: Function Reset down
-101 10144: Layer: Capture fade tail, 128 frames at 10715
+101 11456: Function Reset down
+101 11456: Layer: Capture fade tail, 128 frames at 12027
 101 -289: Sync: Disabling track sync master 1
 Layer Test Suite Complete
 Function Coverage down
 Script 1:Layer Flattening: end
 *** All Tests Complete ***
 Mobius: Script thread 1:Layer Flattening: ending
+ERROR: WARNING: files differ at frame 116642: 2928 2912: c:\dev\jucetest\UI\Source\unittest\results\test3rec.wav, c:\dev\mobius-test\expected\test3rec.wav
+ERROR: WARNING: files differ at frame 116642: 2928 2912: c:\dev\jucetest\UI\Source\unittest\results\test3rec.wav, c:\dev\mobius-test\expected\test3rec.wav
+ERROR: WARNING: files differ at frame 30001: -11855 -11854: c:\dev\jucetest\UI\Source\unittest\results\test3loop.wav, c:\dev\mobius-test\expected\test3loop.wav
+ERROR: WARNING: files differ at frame 30001: -11855 -11854: c:\dev\jucetest\UI\Source\unittest\results\test3loop.wav, c:\dev\mobius-test\expected\test3loop.wav

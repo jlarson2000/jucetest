@@ -1,8 +1,8 @@
 <MobiusConfig
   midiInput='Arturia MiniLab mkII'
   midiOutput='3- Black Box MIDI Out'
-  audioInput='ADAT (5+6) (RME Fireface UC)'
-  audioOutput='Speakers (RME Fireface UC)'
+  audioInput='Microphone Array (Intel Smart Sound Technology for Digital Microphones)'
+  audioOutput='Speakers (Realtek(R) Audio)'
   quickSave='mobiusloop'
   noiseFloor='13'
   suggestedLatencyMsec='5'

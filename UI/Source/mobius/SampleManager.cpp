@@ -187,7 +187,6 @@ void SamplePlayer::trigger(bool down)
  * Recording is done accurately.  The frame counter is decremented by
  * mInputLatency, and when this goes positive we begin filling the input 
  * buffer.
- * 
  */
 void SamplePlayer::play(float* inbuf, float* outbuf, long frames)
 {
@@ -591,6 +590,22 @@ void SampleManager::updateConfiguration(MobiusConfig* config)
  * be quantized or stacked on other events, then this will need more
  * coordination with the Track timeline so we know the offset into the
  * current buffer to begin depositing content.
+ *
+ * new: see notes/samples-block-size.txt for why this was done wrong
+ * before, and was still done wrong in the initial port, and why unit tests
+ * mess up if the block size isn't 256.
+ *
+ * The blockOffset is the location within the current interrupt block where the
+ * sample playback logically starts injecting.
+ *
+ * The sampleOffset is the location within the triggered sample to start playing.
+ * This is only set when trying to compensate for old unit test block sizes.
+ *
+ * Ugh, each SamplePlayer can have multiple cursors representing previous
+ * triggers of this sample, This needs to be redesigned so that here we can
+ * "Play" all the active cursors but just do the special offset processing
+ * on the new cursor.  
+ * 
  */
 void SampleManager::trigger(MobiusContainer* container, int index, bool down)
 {
@@ -603,7 +618,23 @@ void SampleManager::trigger(MobiusContainer* container, int index, bool down)
         float* output = nullptr;
 
         container->getInterruptBuffers(0, &input, 0, &output);
-        mPlayers[index]->play(input, output, frames);
+#if 0
+        if (blockOffset > frames) {
+            // calculation error
+            Trace(1, "SampleManager::trigger block offset overflow %ld", (long)blockOffset);
+            blockOffset = 0;
+        }
+        else {
+            int samples = blockOffset * 2;
+            input += samples;
+            output += samples;
+            frames -= blockOffset;
+        }
+#endif        
+        if (frames > 0) {
+            mPlayers[index]->play(input, output, frames);
+        }
+        
 
         // old code has this which I never could figure out and
         // I don't think is relevant now
