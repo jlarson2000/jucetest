@@ -127,6 +127,10 @@ AudioPool* UnitTests::getAudioPool()
  *
  * The core will be left in a state of GlobalReset so we can modify
  * it directly.
+ *
+ * This interface isn't necessary now that we have an action button,
+ * but the old scripts call it all the time so leave it there.
+ * Since this called often, only do it once.
  */
 void UnitTests::scriptSetup(KernelEvent* e)
 {
@@ -139,9 +143,13 @@ void UnitTests::scriptSetup(KernelEvent* e)
 }
 
 /**
- * The entry point for the UnitTestMode function.
- * Here we're comming from a bound action in the UI.
- * May want this to behave as a toggle.
+ * The entry point for the UnitTestMode function when called
+ * from a binding, usually a UI action button.
+ *
+ * If this is called after the initial setup, the test scripts are reloaded.
+ * There is currently now way to turn off unit test mode, may want
+ * a function for that.  Or this could toggle but I like using
+ * secondary actions to reload the scripts after modification.
  *
  * The core is not necessarily in a state of GlobalReset.  If it isn't
  * we have two options:
@@ -162,11 +170,12 @@ void UnitTests::actionSetup(UIAction* a)
     // FunctionDefinitions don't have a "sustainable" flag so ActionButton
     // will send both down and up gransitions, ignore up
     if (a->down) {
-        Trace(2, "UnitTests::actionSetup");
-        // may want this to be a toggle?
-        if (!enabled)
-          setup();
-        Trace(2, "UnitTests::actionSetup finished");
+        if (!enabled) {
+            setup();
+        }
+        else {
+            reloadScripts();
+        }
     }
 }
 
@@ -186,9 +195,17 @@ void UnitTests::actionSetup(UIAction* a)
  * the system must be in a state of GlobalReset allowing us to directly
  * modify objects in the kernel/core safely.  We don't normally do this
  * but saves a lot of communication headaches just for the unit tests.
+ *
+ * Note that once unit test mode is active the MobiusConfig in use
+ * by the kernel/core will be different than the one used by the Shell
+ * and the UI.  This isn't usually a problem, but if you edit config
+ * in the UI or do a LoadScripts, this will push a new MobiusConfig
+ * down and changes will be lost.  
  */
 void UnitTests::setup()
 {
+    Trace(2, "UnitTests: Initializing unit test mode");
+    
     // this starts KernelEventHandler doing file system redirects
     enabled = true;
 
@@ -196,9 +213,10 @@ void UnitTests::setup()
     MobiusKernel* kernel = shell->getKernel();
     MobiusConfig* kernelConfig = kernel->getMobiusConfig();
     
-    // special Preset and Setup
+    // special Setup and Preset
     installPresetAndSetup(kernelConfig);
 
+    // test samples and scripts are defined in here
     MobiusConfig* overlay = readConfigOverlay();
     if (overlay != nullptr) {
         installOverlayParameters(kernelConfig, overlay);
@@ -224,6 +242,26 @@ void UnitTests::setup()
         // avoid the kludgey "saveMode" flag
 
         delete overlay;
+    }
+}
+
+/**
+ * Reload just the test scripts when unit test mode is activated
+ * after initialization.
+ */
+void UnitTests::reloadScripts()
+{
+    if (!enabled) {
+        setup();
+    }
+    else {
+        Trace(2, "UnitTests: Reloading scripts");
+        MobiusConfig* overlay = readConfigOverlay();
+        if (overlay != nullptr) {
+            Scriptarian* scriptarian = shell->loadScripts(overlay->getScriptConfig());
+            shell->sendScripts(scriptarian, true);
+            delete overlay;
+        }
     }
 }
 
@@ -328,12 +366,7 @@ MobiusConfig* UnitTests::readConfigOverlay()
 
 /**
  * Overwrite selected global parameters from the overlay config
- * into Kernel's config.  Not that we do NOT install the
- * full SampleConfig and ScriptConfig here, those have
- * a more complex installation process and are handled elsewhere.
- *
- * We could also be doing the special Preset and Setup this way
- * rather than building them in memory and forcing them in.
+ * into Kernel's config.
  */
 void UnitTests::installOverlayParameters(MobiusConfig* dest, MobiusConfig* overlay)
 {
@@ -547,10 +580,6 @@ void UnitTests::testDiff()
 
 /**
  * Slightly modified version of the old diff utility for .wav files.
- * juce::File has a binary diff method, but I'd like more info on the
- * specific sampel that is different and where it is so we can look
- * in a wave editor to see what's wrong.
- *
  */
 void UnitTests::diffAudio(KernelEvent* e)
 {

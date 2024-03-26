@@ -35,6 +35,7 @@ class UnitTests
     juce::File getSaveLoopFile(class KernelEvent* e);
     juce::File getSaveCaptureFile(class KernelEvent* e);
 
+    // KernelEventHandler forwards diff events here
     void diffAudio(class KernelEvent* e);
     void diffText(class KernelEvent* e);
     void testDiff();
@@ -47,17 +48,15 @@ class UnitTests
   private:
 
     void setup();
+    void reloadScripts();
     void installPresetAndSetup(class MobiusConfig* dest);
     void installOverlayParameters(class MobiusConfig* dest, class MobiusConfig* overlay);
     class MobiusConfig* readConfigOverlay();
-    
 
     juce::File getTestRoot();
-
     juce::File addExtensionWav(juce::File file);
     juce::File followRedirect(juce::File root);
     juce::String findRedirectLine(juce::String src);
-    
 
     class MobiusShell* shell;
     bool enabled = false;

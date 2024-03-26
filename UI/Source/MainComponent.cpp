@@ -76,6 +76,9 @@ MainComponent::MainComponent()
         setAudioChannels (inputChannels, outputChannels);
     }
 
+    // working out the control flow here...
+    supervisor.setupAudioDevice();
+
     // Normally you're supposed to set the size of the component after adding
     // children so the resize is triggered and cascades down.  For us,
     // we might want to let the child configuration determine the optimal

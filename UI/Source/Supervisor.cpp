@@ -47,12 +47,13 @@ Supervisor::Supervisor(juce::AudioAppComponent* main)
       Instance = this;
     
     mainComponent = main;
-//    uiThread.setSupervisor(this);
     trace("Supervisor: end construction\n");
 
     //RootLocator::whereAmI();
     rootPath = rootLocator.getRootPath();
     trace("Root path: %s\n", rootPath.toUTF8());
+
+    trace("Computer name: %s\n", juce::SystemStats::getComputerName().toUTF8());
 }
 
 juce::File Supervisor::getRoot()
@@ -97,19 +98,20 @@ void Supervisor::start()
     // so we start buffering
     //TraceClient.setEnabled(true);
 
+    // redirect the capital letter Trace functions to a file
     juce::File root = rootLocator.getRoot();
     juce::File logfile = root.getChildFile("tracelog.txt");
     TraceFile.setFile(logfile);
     TraceFile.clear();
     TraceFile.enable();
-    // can now start using capital Trace
-    
-    traceDeviceStatus();
-    
-    MobiusConfig* config = getMobiusConfig();
+    Trace(2, "Supervisor: Beginning Trace file logging to tracelog.txt");
+
+    // initialized at this point, wait till setupAudioDevice
+    //traceDeviceStatus();
 
     // todo: think more about the initialization sequence here
     // see mobius-initialization.txt
+    MobiusConfig* config = getMobiusConfig();
     MobiusInterface::startup();
     mobius = MobiusInterface::getMobius(&mobiusContainer);
     // this is where the bulk of the engine initialization happens
@@ -138,7 +140,7 @@ void Supervisor::start()
     // tell the ones that care whata we're starting with
     notifyDynamicConfigListeners();
 
-    // let the UI refresh go
+    // let the maintenance thread go
     uiThread.start();
 
     // initial display update
@@ -214,6 +216,188 @@ void Supervisor::shutdown()
     TraceFile.flush();
 }
 
+void Supervisor::traceFinalStatistics()
+{
+    Tracej("Supervisor: Ending audio callback statistics:");
+    Tracej("  prepareToPlay " + juce::String(prepareToPlayCalls));
+    Tracej("  getNextAudioBlock " + juce::String(getNextAudioBlockCalls));
+    Tracej("  releaseResources " + juce::String(releaseResourcesCalls));
+    if (audioPrepared) 
+      Tracej("  Ending with audio still prepared!");
+}
+
+//////////////////////////////////////////////////////////////////////
+//
+// Audio/MIDI Devices
+//
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Return the AudioDeviceManager owned by the MainComponent.
+ * Used only by MidiManager.
+ *
+ * This only works for a standalone audio app.  Plugins
+ * are completely different and normally do not use this.
+ */
+juce::AudioDeviceManager& Supervisor::getAudioDeviceManager()
+{
+    return mainComponent->deviceManager;
+}
+
+/**
+ * This is something only the standalone Supervisor would do,
+ * will need to refactor this once this becomes a plugin.
+ * I'm still not entirely sure how this works.  A Juce audio app
+ * comes up with an audio device already working, it may be whatever
+ * the default device is selected.
+ *
+ * At the moment on Thor, the defaut sound output in Control Panel
+ * is "Speakers : RME Fireface UC".  Format is "24 bit, 44100"
+ * but you can ask it for 16 bit.  Unclear how this interacts with
+ * what the RME control panel does, it's probably just doing what the
+ * driver says.  Does not appear to be away to influence the block
+ * size from Control Panel.
+ *
+ * In CP under Input, there is a list of all the RME devices arranged
+ * as channel pairs: Analog (5+6), ADAT (5+6), SPDIF coax. etc.
+ * 
+ * In the Windows "tray" or whatever that little hidden thing is called
+ * there is an icon for "Fireface USB Settings".  It says sample rate
+ * is 44100 and with a buffer size of 1024 samples.  The "Total Mix"
+ * application doesn't appear to have any device settings in it.
+ *
+ * When you bring up my AudioDevicesPanel which uses the built-in
+ * Juce component for configuring the AudioDeviceManager, it defaults
+ * to the same input and output devices that Windows has.  Weirdly
+ * the "Audio buffer size" shows as "441 samples (10ms)".  There is
+ * a large menu where you can select other block sizes.  256 is what
+ * I have always used for the unit tests.
+ *
+ * You do not appear to be able to open more than one set of stereo
+ * channels.  This seems to match what Windows CP displays, it organizes
+ * the channels as stereo pairs and each must be individually selected.
+ * Perhaps ASIO4All is what was required to gain access to all of them at once.
+ *
+ *
+ * AudioDeviceManager is where all things live.  It's got a strange interface,
+ * there is the AudioDeviceSetup which seems to be where you normally change
+ * things and it has createStateXML which captures state to an XML representation
+ * that can be saved to a file and reloaded.  The state XML is passed to the
+ * initialize() method, which apparently was already called by now and I think
+ * you can call it again, but it needs state XML.
+ *
+ * You can also call setAudioDeviceSetup with an AudioDeviceSetup object
+ * that contains what I would expect.  Unclear what the differences are, perhaps
+ * the state XML is just built on top of that.
+ *
+ * There is also some unclear "state" in here regarding AudioDeviceSetup and
+ * it's permanence and history.  restartLastAudioDevice "tries to reload the last
+ * audio device that was running".  setAudioDeviceSetup has a flag "treatAsChosen"
+ * which says "the next time createStateXML is called these settings will be returned".
+ *
+ * The docs for setAudioDeviceSetup say it is used for incremental changes:
+ * "If you want to change a device property, like the current sample rate or block size,
+ * you can call getAudioDeviceSetup() to retrieve the current settings, then
+ * tweak the appropriate fields in the AudioDeviceSetup structure, and pass it back
+ * into this method to apply the new settings."
+ *
+ * AudioDeviceSetup has:
+ *   outputDeviceName, inputDeviceName, sampleRate, bufferSize, inputChannels, outputChannels
+ *
+ * There is also "device type" which lives above this, you seem to select that once
+ * somewhere and can then move between the available devices of that type.  I think
+ * this is driver type, e.g. CoreAudio, Windows, ASIO, DirectSound, etc.
+ *
+ * In the Juce audio component I see possible output devices for RME, Realtek
+ * (built in speakers), Odyssey (the monitor), so you can switch among connected
+ * hardware under the same "device type".
+ *
+ * So...for me, the important things at first are device names within the default
+ * device type which is just "Windows Audio".  Then the sample rate and block size.
+ * I don't see a way to influence channel/port configurations.  You can ask for that
+ * with the inputChannels and outputChannels in AudioDeviceSetup but it seemed
+ * to have no effect, probably limited by the driver?
+ *
+ * Timing is unclear, when Supervisor is being constructed, traceDeviceStatus
+ * appears to be empty.  Later when the prepareToPlay callback is first called
+ * it is filled out:
+ * 
+ *   Supervisor::prepareToPlay first call
+ *     AudioDeviceSetup
+ *       inputDeviceName: ADAT (5+6) (RME Fireface UC)
+ *       outputDeviceName: Speakers (RME Fireface UC)
+ *       sampleRate: 44100
+ *       bufferSize: 441
+ *       useDefaultInputChannels: true
+ *       useDefaultOutputChannels: true
+ *
+ * Control flow is unclear, one potential difference is in
+ * MainComponent which does things asking for RuntimePermissions::recordAudio
+ * and calls setAudioChannels().  Is that what kick starts the initialization?
+ *
+ * Yes, after MainComponent calls setAudioChannels, traceDeviceStatus has
+ * the default RME device.  So will want to move that down here.
+ *
+ * This is the order of events I noticed:
+ *
+ *   MainComponent calls Supervisor::start
+ *
+ *   MainComponent calls setAudioChannels
+ *
+ *   Supervisor::prepareToPlay first call
+ *     called automatically, apparently by the audio thread
+ *     AudioDeviceSetup has the defaults
+ *
+ *   MainComponent calls Supervisor::setupAudioDevice
+ *     AudioDeviceSetup same as prepareToPlay
+ *     setAudioDeviceSetup to change block size
+ *
+ *   Supervisor::releaseResources
+ *     automatic call from the audio thread
+ *     appears to be in response to our changing the block size
+ * 
+ *   Supervisor::prepareToPlay
+ *     automatic call from the audio thread
+ *     telling us about the new block size
+ *
+ *   Supervisor::setupAudioDevice
+ *     control returns after calling setAudioDeviceSetup
+ *
+ *   Supervisor::getNextAudioBlock
+ *     automatic call from the audio thread
+ *     notices changes to audio source
+ *
+ * Unclear whether those releaseResources and prepreToPlay
+ * calls were synchronous with the setAudioDeviceSetup call
+ * or whether they just came in fast enough to look that way
+ * in trace.  
+ *
+ */
+void Supervisor::setupAudioDevice()
+{
+    Trace(2, "Supervisor::setupAudioDevice starting state");
+    traceDeviceStatus();
+
+    // try to force it to a 256 block size
+    juce::AudioDeviceManager& deviceManager = mainComponent->deviceManager;
+
+    juce::AudioDeviceManager::AudioDeviceSetup setup = deviceManager.getAudioDeviceSetup();
+    // docs say "size in samples" which I'm assumign means mono samples, not
+    // a pair of stereo frames, grouping into stereo channels would be done
+    // in "buffers" passed to the audio callbacks
+    setup.bufferSize = 256;
+
+    // treatAsChosen=true
+    juce::String error = deviceManager.setAudioDeviceSetup(setup, true);
+
+    if (error.length() > 0) {
+        Trace(1, "Supervisor: setDeviceSetup error: %s", error.toUTF8());
+    }
+
+    Trace(2, "Supervisor::setupAudioDeevice ending state");
+    traceDeviceStatus();
+}
+
 /**
  * Trace information about the state of the AudioDeviceManager
  */
@@ -236,28 +420,11 @@ void Supervisor::traceDeviceStatus()
     // inputChannels and outputChannels are BigIneger bit vectors
 }
 
-void Supervisor::traceFinalStatistics()
-{
-    Tracej("Supervisor ending statistics:");
-    Tracej("  prepareToPlay " + juce::String(prepareToPlayCalls));
-    Tracej("  getNextAudioBlock " + juce::String(getNextAudioBlockCalls));
-    Tracej("  releaseResources " + juce::String(releaseResourcesCalls));
-    if (audioPrepared) 
-      Tracej("  Ending with audio still prepared!");
-}
-
-/**
- * Return the AudioDeviceManager owned by the MainComponent.
- * Used only by MidiManager
- * Need to figure out how this will work if we're a plugin and
- * won't have access to AudioAppComponent.  Most of the code should
- * be okay as long as it goes through MidiManager, may need to refactor
- * this to have different MidiManagers to hide the standalone/plugin differences.
- */
-juce::AudioDeviceManager& Supervisor::getAudioDeviceManager()
-{
-    return mainComponent->deviceManager;
-}
+//////////////////////////////////////////////////////////////////////
+//
+// Maintenance Thread
+//
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Called by the MobiusThread to process events.
@@ -738,7 +905,7 @@ void Supervisor::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
     preparedSamplesPerBlock = samplesPerBlockExpected;
     preparedSampleRate = sampleRate;
     
-    Tracej("samplesPerBlockExpected " + juce::String(samplesPerBlockExpected) +
+    Tracej("Supervisor::prepareToPlay samplesPerBlockExpected " + juce::String(samplesPerBlockExpected) +
           " sampleRate "  + juce::String(sampleRate));
 
     // if we were already prepared, and no changes were made, we could
@@ -775,11 +942,11 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // stays at preparedSamplesPerBlock, and whether startSample jumps areound or
     // statys at zero
     if (audioLastSourceStartSample != bufferToFill.startSample) {
-        Tracej("Supervisor: audio source start sample " + juce::String(bufferToFill.startSample));
+        Tracej("Supervisor::getNextAudioBlock noticing audio source start sample " + juce::String(bufferToFill.startSample));
         audioLastSourceStartSample = bufferToFill.startSample;
     }
     if (audioLastSourceNumSamples != bufferToFill.numSamples) {
-        Tracej("Supervisor: audio source num samples " + juce::String(bufferToFill.numSamples));
+        Tracej("Supervisor::getNextAudioBlock noticing audio source num samples " + juce::String(bufferToFill.numSamples));
         audioLastSourceNumSamples = bufferToFill.numSamples;
     }
 
@@ -791,7 +958,7 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // works well enough for now, I alwaysd used 8 for both
     int channels = bufferToFill.buffer->getNumChannels();
     if (audioLastBufferChannels != channels) {
-        Tracej("Supervisor: audio buffer channels " + juce::String(channels));
+        Tracej("Supervisor::getNextAudioBlock noticing audio buffer channels " + juce::String(channels));
         audioLastBufferChannels = channels;
     }
 
@@ -800,13 +967,13 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
     // clearActiveBufferRegion seems to imply that
     int samples = bufferToFill.buffer->getNumSamples();
     if (audioLastBufferSamples != samples) {
-        Tracej("Supervisor: audio buffer samples " + juce::String(samples));
+        Tracej("Supervisor::getNextAudioBlock noticing audio buffer samples " + juce::String(samples));
         audioLastBufferSamples = samples;
     }
     
     // can these ever be different
     if (samples > audioLastSourceNumSamples) {
-        Tracej("Supervisor: buffer is larger than requested");
+        Tracej("Supervisor::getNextAudioBlock  buffer is larger than requested");
         // startSample should be > 0 then because we're only
         // filling a portion of the buffer
         // doesn't really matter, Juce may want to deal with larger
@@ -841,6 +1008,8 @@ void Supervisor::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferTo
 
 void Supervisor::releaseResources()
 {
+    releaseResourcesCalls++;
+
     Trace("Supervisor::releaseResources");
 
     mobiusContainer.releaseResources();

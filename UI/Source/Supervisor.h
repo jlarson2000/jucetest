@@ -69,6 +69,7 @@ class Supervisor : public MobiusListener
     juce::String getRootPath();
 
     void start();
+    void setupAudioDevice();
     void shutdown();
 
     class MobiusConfig* getMobiusConfig();
