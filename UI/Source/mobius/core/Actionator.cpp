@@ -351,7 +351,10 @@ void Actionator::doCoreAction(UIAction* action)
 {
     Action* coreAction = nullptr;
     
-    if (action->type == ActionFunction) {
+    if (action->type == nullptr) {
+        Trace(1, "Actionator::doCoreAction missing action type");
+    }
+    else if (action->type == ActionFunction) {
         FunctionDefinition* f = action->implementation.function;
         if (f != nullptr) {
             Function* cf = mFunctionMap[f->ordinal];

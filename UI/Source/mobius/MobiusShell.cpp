@@ -88,6 +88,8 @@ MobiusShell::MobiusShell(MobiusContainer* cont)
     // audioPool = new AudioPool();
 
     doSimulation = false;
+
+    Intrinsic::init();
 }
 
 /**
@@ -391,27 +393,21 @@ void MobiusShell::doIntrinsic(UIAction* action)
     // ignore up transitions, no intrinsics support them
     if (action->down) {
         
-        int ordinal = action->implementation.ordinal;
+        IntrinsicId id = (IntrinsicId)action->implementation.ordinal;
 
-        if (ordinal < IntrinsicBase) {
+        if (id < IntrinsicBase) {
             // if an ordinal is not specified, the action must have a name
-            // doesn't seem like we can avoid a simple model for this
             const char* actionName = action->actionName;
-
-            if (StringEqual(actionName, Intrinsic::LoadScriptsName))
-              ordinal = IntrinsicLoadScripts;
-
-            else if (StringEqual(actionName, Intrinsic::LoadSamplesName))
-              ordinal = IntrinsicLoadScripts;
-        
-            else if (StringEqual(actionName, Intrinsic::TestDiffName))
-              ordinal = IntrinsicTestDiff;
-        
-            // save it in the UIAction to avoid the name lookup next time
-            action->implementation.ordinal = ordinal;
+            if (actionName != nullptr) {
+                id = Intrinsic::getId(actionName);
+                // save it in the UIAction to avoid the name lookup next time
+                // if the caller reuses this object
+                if (id > IntrinsicBase)
+                  action->implementation.ordinal = id;
+            }
         }
 
-        switch (ordinal) {
+        switch (id) {
             case IntrinsicLoadScripts:
                 loadScripts(action);
                 break;
@@ -420,8 +416,8 @@ void MobiusShell::doIntrinsic(UIAction* action)
                 loadSamples(action);
                 break;
             
-            case IntrinsicTestDiff:
-                unitTests.testDiff();
+            case IntrinsicAnalyzeDiff:
+                unitTests.analyzeDiff(action);
                 break;
         }
     }

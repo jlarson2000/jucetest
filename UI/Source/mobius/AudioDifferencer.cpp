@@ -14,6 +14,7 @@
 
 #include "../util/Trace.h"
 #include "../util/Util.h"
+#include "../model/UIAction.h"
 
 #include "Audio.h"
 #include "AudioFile.h"
@@ -177,128 +178,68 @@ void AudioDifferencer::diffAudio(const char* path1, Audio* a1,
 
 //////////////////////////////////////////////////////////////////////
 //
-// Random Tests
+// Analyze
 //
 //////////////////////////////////////////////////////////////////////
 
 /**
  * Special interface for testing differencing code from an action button.
+ * Will eventually wind our way here from an action with IntrinsicAnalyzeDiff.
  */
-void AudioDifferencer::test(UnitTests* units)
+void AudioDifferencer::analyze(UnitTests* units, UIAction* action)
 {
-    // the current problem file
-    const char* name = "test3loop";
-
-    juce::File results = units->getResultFile(name);
-    juce::File expected = units->getExpectedFile(name);
-
-    if (!results.existsAsFile()) {
-        const char* path = results.getFullPathName().toUTF8();
-        Trace(1, "Results file not found: %s\n", path);
-    }
-    else if (!expected.existsAsFile()) {
-        // expected file not there, could bootstrap it?
-        const char* path = expected.getFullPathName().toUTF8();
-        Trace(1, "Expected file not found: %s\n", path);
-    }
-    else if (results.getSize() != expected.getSize()) {
-        const char* path1 = results.getFullPathName().toUTF8();
-        const char* path2 = expected.getFullPathName().toUTF8();
-        Trace(1, "Files differ in size: %s, %s\n", path1, path2);
+    const char* name = action->arg.getString();
+    if (name == nullptr) {
+        Trace(1, "AudioDifferencer::analyze no file name specified in UIAction");
     }
     else {
-        // reading files requires a pool
-        AudioPool* pool = units->getAudioPool();
-        Audio* a1 = AudioFile::read(results, pool);
-        Audio* a2 = AudioFile::read(expected, pool);
-        
-        const char* path1 = results.getFullPathName().toUTF8();
-        const char* path2 = expected.getFullPathName().toUTF8();
+        Trace(2, "Analayzing files for %s", name);
+    
+        juce::File results = units->getResultFile(name);
+        juce::File expected = units->getExpectedFile(name);
 
-        if (a1->getFrames() != a2->getFrames()) {
-            Trace(1, "Diff file frame counts differ %s, %s\n", path1, path2);
-            Trace(1, "  Frames %ld %ld\n", (long)a1->getFrames(), (long)a2->getFrames());
+        if (!results.existsAsFile()) {
+            const char* path = results.getFullPathName().toUTF8();
+            Trace(1, "Results file not found: %s\n", path);
         }
-        else if (a1->getChannels() != 2) {
-            Trace(1, "Diff file channel count not 2: %s\n", path1);
+        else if (!expected.existsAsFile()) {
+            // expected file not there, could bootstrap it?
+            const char* path = expected.getFullPathName().toUTF8();
+            Trace(1, "Expected file not found: %s\n", path);
         }
-        else if (a2->getChannels() != 2) {
-            Trace(1, "Diff file channel count not 2: %s\n", path2);
+        else if (results.getSize() != expected.getSize()) {
+            const char* path1 = results.getFullPathName().toUTF8();
+            const char* path2 = expected.getFullPathName().toUTF8();
+            Trace(1, "Files differ in size: %s, %s\n", path1, path2);
         }
         else {
-            Trace(1, "Analayzing files for %s", name);
-
-            doTest2(a1, a2);
-        }
-    }
-}
-
-void AudioDifferencer::doTest(Audio* a1, Audio* a2)
-{
-    // formerly checked channel counts, which were always 2 and in
-    // newer code may be unset, so just ass
-    int channels = 2;
-    AudioBuffer b1;
-    float f1[MaxAudioChannels];
-    b1.buffer = f1;
-    b1.frames = 1;
-    b1.channels = channels;
-
-    AudioBuffer b2;
-    float f2[MaxAudioChannels];
-    b2.buffer = f2;
-    b2.frames = 1;
-    b2.channels = channels;
-
-    // not doing reverse compare yet
-    bool reverse = false;
-    int psn2 = (reverse) ? a2->getFrames() - 1 : 0;
-
-    int maxRange = 2;
-    int rangeAlarm = 10;
-    
-    int maxDiffs = 10;
-
-    int totalDiffs = 0;
-    int totalPartialDiffs = 0;
-    
-    bool stop = false;
-
-    for (int i = 0 ; i < a1->getFrames() && !stop ; i++) {
-
-        memset(f1, 0, sizeof(f1));
-        memset(f2, 0, sizeof(f2));
-        a1->get(&b1, i);
-        a2->get(&b2, psn2);
-
-        // channel 0
-        float sample1 = f1[0];
-        float sample2 = f2[0];
+            // reading files requires a pool
+            AudioPool* pool = units->getAudioPool();
+            Audio* a1 = AudioFile::read(results, pool);
+            Audio* a2 = AudioFile::read(expected, pool);
         
-        if (sample1 != sample2) {
-            
-            // sigh, don't have Trace signatures that use floats
-            char msg[1024];
-            sprintf(msg, "WARNING: files differ at frame %d: %f %f",
-                    i, sample1, sample2);
-            Trace(1, msg);
-            totalDiffs++;
+            const char* path1 = results.getFullPathName().toUTF8();
+            const char* path2 = expected.getFullPathName().toUTF8();
 
-            double range = fabs(sample1 - sample2);
-            if (range <= maxRange) {
-                Trace(1, "Range is tolerable");
-                totalPartialDiffs++;
+            if (a1->getFrames() != a2->getFrames()) {
+                Trace(1, "Diff file frame counts differ %s, %s\n", path1, path2);
+                Trace(1, "  Frames %ld %ld\n", (long)a1->getFrames(), (long)a2->getFrames());
             }
-            else if (range > rangeAlarm) {
-                Trace(1, "Range is high");
+            else if (a1->getChannels() != 2) {
+                Trace(1, "Diff file channel count not 2: %s\n", path1);
+            }
+            else if (a2->getChannels() != 2) {
+                Trace(1, "Diff file channel count not 2: %s\n", path2);
+            }
+            else {
+
+                analyze(a1, a2);
             }
         }
-
-        stop = totalPartialDiffs >= maxDiffs;
     }
 }
 
-void AudioDifferencer::doTest2(Audio* a1, Audio* a2)
+void AudioDifferencer::analyze(Audio* a1, Audio* a2)
 {
     // formerly checked channel counts, which were always 2 and in
     // newer code may be unset, so just ass
@@ -357,12 +298,15 @@ void AudioDifferencer::doTest2(Audio* a1, Audio* a2)
             int i1 = (int)(sample1 * precision);
             int i2 = (int)(sample2 * precision);
             int delta = i1 - i2;
+
+            if (delta > 0) {
             
-            buffer += juce::String(i) + ": " + juce::String(sample1) + " "  + juce::String(sample2) + " " + 
-                juce::String(i1) + " " + juce::String(i2) + " " + juce::String(abs(delta)) + "\n";
+                buffer += juce::String(i) + ": " + juce::String(sample1) + " "  + juce::String(sample2) + " " + 
+                    juce::String(i1) + " " + juce::String(i2) + " " + juce::String(abs(delta)) + "\n";
         
-            lines++;
-            stop = (lines >= maxLines);
+                lines++;
+                stop = (lines >= maxLines);
+            }
         }
         
         if (reverse)

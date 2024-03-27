@@ -57,7 +57,7 @@ void ButtonPanel::upgradeBindings()
             // UIButton, this will be copied by BindingTable
             Binding b;
             b.trigger = TriggerUI;
-            // we could only have had Function ops
+            // could only have functions in the old bindings
             b.action = ActionFunction;
             b.setActionName(button->getName());
             b.setArguments(button->getArguments());

@@ -56,6 +56,7 @@ UIAction::UIAction(UIAction* src)
     passOscArg = src->passOscArg;
     triggerValue = src->triggerValue;
     triggerOffset = src->triggerOffset;
+    triggerOwner = src->triggerOwner;
     down = src->down;
     //repeat = src->repeat;
     longPress = src->longPress;
@@ -101,6 +102,7 @@ void UIAction::init()
     passOscArg = false;
     triggerValue = 0;
     triggerOffset = 0;
+    triggerOwner = nullptr;
     down = false;
     //repeat = false;
     longPress = false;
@@ -147,13 +149,16 @@ void UIAction::init(Binding* b)
     CopyString(b->getActionName(), actionName, sizeof(actionName));
     CopyString(b->getArguments(), bindingArgs, sizeof(bindingArgs));
 
-    // initially at least, all binding argument strings will be numbers
-    // and code to handle actions expects that in the ExValue arg
-    // need to be smarter about this and possibly make Operator do the parsing
-    if (strlen(bindingArgs) > 0)
-      arg.setInt(ToInt(bindingArgs));
-
-    // more as we bring on Binders
+    // up until we added intrinsics, most function args expected
+    // this to be a number if the argument string looked like one
+    // this should be handled by the Function!
+    
+    if (strlen(bindingArgs) > 0) {
+        if (IsInteger(bindingArgs))
+          arg.setInt(ToInt(bindingArgs));
+        else
+          arg.setString(bindingArgs);
+    }
 }
 
 /**

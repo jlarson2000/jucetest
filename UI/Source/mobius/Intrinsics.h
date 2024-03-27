@@ -42,8 +42,9 @@
  *
  */
 
-#ifndef INTRINSICS_H
-#define INTRINSICS_H
+#pragma once
+
+#include <JuceHeader.h>
 
 /**
  * Intrinsic objects have an ID defined in an enum which are
@@ -60,11 +61,12 @@
 typedef enum {
 
     IntrinsicBase = 1000,
+    IntrinsicInvalid,
     IntrinsicLoadScripts,
     IntrinsicLoadSamples,
-    IntrinsicTestDiff,
+    IntrinsicAnalyzeDiff,
 
-} IntrinsicFunctions;
+} IntrinsicId;
 
 /**
  * Mapping between intrinsic IDs and symbolic names.
@@ -96,12 +98,18 @@ class Intrinsic
 
     inline static const char* LoadScriptsName = "Load Scripts";
     inline static const char* LoadSamplesName = "Load Samples";
-    inline static const char* TestDiffName = "Test Diff";
+    inline static const char* AnalyzeDiffName = "Analyze Diff";
+
+    static void init();
+
+    static IntrinsicId Intrinsic::getId(juce::String name);
 
     // add the intrinsic functions to the list of DynamicActions
     // being returned to the UI
     static void addIntrinsics(class DynamicConfig* config);
 
-};
+  private:
 
-#endif
+    static juce::OwnedArray<class DynamicAction> actions;
+
+};

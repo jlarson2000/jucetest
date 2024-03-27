@@ -122,7 +122,7 @@
     <Binding action='function' name='Debug' trigger='ui' value='0'/>
     <Binding action='intrinsic' name='Load Scripts' trigger='ui' value='0'/>
     <Binding action='function' name='UnitTestMode' trigger='ui' value='0'/>
-    <Binding action='intrinsic' name='Test Diff' trigger='ui' value='0'/>
+    <Binding action='intrinsic' name='Analyze Diff' trigger='ui' value='0' args='test4loop'/>
   </BindingSet>
   <ScriptConfig>
     <ScripRef file='C:\dev\jucetest\UI\Source\mobius\scripts\test.mos'/>

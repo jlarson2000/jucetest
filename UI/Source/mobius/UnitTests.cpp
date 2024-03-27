@@ -572,10 +572,10 @@ juce::File UnitTests::getSaveLoopFile(KernelEvent* e)
  * Special entry point for the temporary TestDiff intrinsic function
  * so we can run AudioDifferencer tests without having to record something live.
  */
-void UnitTests::testDiff()
+void UnitTests::analyzeDiff(UIAction* action)
 {
     AudioDifferencer differ;
-    differ.test(this);
+    differ.analyze(this, action);
 }
 
 /**

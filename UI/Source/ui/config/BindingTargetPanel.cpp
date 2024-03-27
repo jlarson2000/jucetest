@@ -254,7 +254,7 @@ void BindingTargetPanel::showSelectedTarget(juce::String name)
     // won't show it?  weird and I'm too tired to figure it out
     reset();
     
-    for (int tab = 0 ; tab < tabs.getNumTabs() ; tab++) {
+    for (int tab = 0 ; tab < tabs.getNumTabs() && !found ; tab++) {
         SimpleListBox* box = boxes[tab];
         
         int numRows = box->getNumRows();

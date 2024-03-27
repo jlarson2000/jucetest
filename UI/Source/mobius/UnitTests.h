@@ -38,7 +38,9 @@ class UnitTests
     // KernelEventHandler forwards diff events here
     void diffAudio(class KernelEvent* e);
     void diffText(class KernelEvent* e);
-    void testDiff();
+
+    // handler for IntrinsicAnalyzeDiff
+    void analyzeDiff(class UIAction* a);
     
     // needed by AudioDifferencer
     class AudioPool* getAudioPool();

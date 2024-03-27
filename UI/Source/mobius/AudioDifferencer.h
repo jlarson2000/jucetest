@@ -21,12 +21,11 @@ class AudioDifferencer
 
     void diff(class UnitTests* units, class KernelEvent* e);
 
-    void test(class UnitTests* units);
+    void analyze(class UnitTests* units, class UIAction* a);
     
   private:
     
-    void doTest(class Audio* a1, class Audio* a2);
-    void doTest2(Audio* a1, Audio* a2);
+    void analyze(class Audio* a1, class Audio* a2);
 
     void diffAudio(const char* path1, Audio* a1,
                    const char* path2, Audio* a2,
