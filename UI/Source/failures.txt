@@ -1,3 +1,15 @@
+ERROR: Diff expected file not found: c:\dev\mobius-test\expected\test23-2loop.wav
+
+reverse segment
+ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test10rec.wav, c:\dev\mobius-test\expected\test10rec.wav
+ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test11rec.wav, c:\dev\mobius-test\expected\test11rec.wav
+ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test12rec.wav, c:\dev\mobius-test\expected\test12rec.wav
+ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test13rec.wav, c:\dev\mobius-test\expected\test13rec.wav
+
+Hmm, seems to be intermittent.  Sensitive to running the tests more than once, and when it
+gets into failure mode it's consistent.  Ran it again and it started failing on 7
+Always the "rec"
+
 
 Reverse Flattening
 

@@ -80,7 +80,12 @@ Wait frame 0
 ######################################################################
 
 Call AllTests
+
 #Call SomeTests
+
+# this is one of many that fail in reverse
+#Call Test6
+#Call Test8-2
 
 # This one is failing due to a missing expected file
 #Call Test23-2

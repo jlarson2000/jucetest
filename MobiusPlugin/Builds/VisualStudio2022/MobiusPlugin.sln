@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio Version 17
+
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobiusPlugin - Standalone Plugin", "MobiusPlugin_StandalonePlugin.vcxproj", "{F120606F-0849-8A3E-84C9-B0A2D5856173}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756} = {AA9BF489-9F61-4EE9-1ADC-E92AB9794756}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobiusPlugin - VST3", "MobiusPlugin_VST3.vcxproj", "{0FC56D0E-ED45-C930-E851-4CE274D11EF6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756} = {AA9BF489-9F61-4EE9-1ADC-E92AB9794756}
+		{2C8B468C-2804-007D-A443-695052166C8B} = {2C8B468C-2804-007D-A443-695052166C8B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobiusPlugin - Shared Code", "MobiusPlugin_SharedCode.vcxproj", "{AA9BF489-9F61-4EE9-1ADC-E92AB9794756}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MobiusPlugin - VST3 Manifest Helper", "MobiusPlugin_VST3ManifestHelper.vcxproj", "{2C8B468C-2804-007D-A443-695052166C8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FC56D0E-ED45-C930-E851-4CE274D11EF6}.Debug|x64.ActiveCfg = Debug|x64
+		{0FC56D0E-ED45-C930-E851-4CE274D11EF6}.Debug|x64.Build.0 = Debug|x64
+		{0FC56D0E-ED45-C930-E851-4CE274D11EF6}.Release|x64.ActiveCfg = Release|x64
+		{0FC56D0E-ED45-C930-E851-4CE274D11EF6}.Release|x64.Build.0 = Release|x64
+		{F120606F-0849-8A3E-84C9-B0A2D5856173}.Debug|x64.ActiveCfg = Debug|x64
+		{F120606F-0849-8A3E-84C9-B0A2D5856173}.Debug|x64.Build.0 = Debug|x64
+		{F120606F-0849-8A3E-84C9-B0A2D5856173}.Release|x64.ActiveCfg = Release|x64
+		{F120606F-0849-8A3E-84C9-B0A2D5856173}.Release|x64.Build.0 = Release|x64
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756}.Debug|x64.ActiveCfg = Debug|x64
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756}.Debug|x64.Build.0 = Debug|x64
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756}.Release|x64.ActiveCfg = Release|x64
+		{AA9BF489-9F61-4EE9-1ADC-E92AB9794756}.Release|x64.Build.0 = Release|x64
+		{2C8B468C-2804-007D-A443-695052166C8B}.Debug|x64.ActiveCfg = Debug|x64
+		{2C8B468C-2804-007D-A443-695052166C8B}.Debug|x64.Build.0 = Debug|x64
+		{2C8B468C-2804-007D-A443-695052166C8B}.Release|x64.ActiveCfg = Release|x64
+		{2C8B468C-2804-007D-A443-695052166C8B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
