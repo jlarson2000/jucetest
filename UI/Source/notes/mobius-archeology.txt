@@ -1,0 +1,164 @@
+Resurecting Mobius from the dead
+
+The original repositories are:
+
+git clone git@github-jlarson:jlarson2000/mobius.git 
+git clone git@github-jlarson:jlarson2000/mobius-test.git 
+
+Private repo
+jlarson2000/ha@
+
+
+That's also where "jucetest" lives.
+
+The most recent tagged branch is "2.5" I believe these were
+imported from subversion.  There is also 1.45.
+
+My local branch is named "master".  I forget where it gets this.
+
+Oh, I think this is from the mobius-looper/mobius repository which
+only has a master.  I see checkins from Chris Lunsford.
+
+Weirdly nothing from Claudio Cas.
+
+Oh, Claudio made a fork.
+
+Can't rename "mobius" to mobius-public on Thor.  Just checkout
+the original under mobius-main
+
+So...
+
+git clone git@github-jlarson:jlarson2000/mobius.git mobius-main
+git fetch origin 2.5
+git checkout 2.5
+
+The debugging info in the binaries expect the source code to be here:
+
+   c:\larson\dev\mobius\src\...
+
+Copy it there to avoid Visual Studio whining about breakpoints not matching
+the path in the binary.
+
+I somehow got VS to make a project containing the mobius.exe from here:
+
+   c:\Program Files (x86)\Mobius 2
+
+I see it made a directory there .vs that has what I assume to be the project.
+
+Initialization files were installed here, and that's where they must be modified.
+
+Let's try this again...
+
+New->Project From Existing Code
+
+brings up a Wizard
+
+"Specify Project Location...Project file location"
+
+I think this is where I browsed to Program Files.  But I don't want the project there,
+put it in c:/dev/jucetest/ogmobius
+
+On the next page say "Use external build system"
+
+Asks for some command lines, skipped.
+
+Created an empty project with what look like the usual VS skeleton files.
+
+Now, I don't know how to get the .exe in there.  Or how to add files after the project
+was created.
+
+
+Some words about debugging an app that isn't part of a VS solution:
+
+https://learn.microsoft.com/en-us/visualstudio/debugger/how-to-debug-an-executable-not-part-of-a-visual-studio-solution?view=vs-2022
+
+"For an app that doesn't exist in Visual Studio, the usual way to debug is to start the app outside of Visual Studio, and then attach to it using Attach to Process in the Visual Studio debugger. For more information, see Attach to running processes."
+
+Oh, that's interesting.
+
+
+In Visual Studio, select File > Open > Project.
+In the Open Project dialog box, select All Project Files, if not already selected, in the dropdown next to File name.
+Navigate to the .exe file, select it, and select Open.
+
+I think that's what I did and it left the .vs stuff where it was.
+
+"To import an app into an existing Visual Studio solution
+With a C++, C#, or Visual Basic solution open in Visual Studio, select File > Add > Existing Project.
+
+In the Open Project dialog box, select All Project Files, if not already selected, in the dropdown next to File name.
+
+Navigate to the .exe file, select it, and select Open.
+
+The file appears as a new project under the current solution.
+
+With the new file selected, start debugging the app by selecting an execution command, like Start Debugging, from the Debug menu."
+
+This looks more like what I want...
+
+That seemed to do it, but it created a new project named just "mobius".
+
+So the structure seems to be:
+
+   Solution: contains multiple projects
+     mobius: project created for the .exe
+     OG Mobius: project the wizard created automatically, which I shouldn't need
+
+If you run now it fails because OG Mobius isn't the startup project and has no files.  Right
+click on mobius in the Solution Explorer on the right and say "Set as startup project".
+
+It runs!
+
+I'm not sure where it created the project folder though.
+
+Oh, this is good...
+
+In Solution Explorer, there is the OG Mobius project which is where you can put files.
+
+A peer to that is the strange "mobius" project that has no substructure so you can't add files to it.
+
+But if you go to the OG Mobius project/Source Files, I added Mobius.cpp opened it, set a breakpoint
+in Mobius::start and it hit!
+
+I couldn't do a folder at a time like the wizard I used the first time I tried it, but it's a start.
+
+Let's see if we can bring in Layer....
+
+Just use the usual Ctrl-O to open a file, it was already rooted in the folder containg Mobius.cpp.
+
+Yep, it let me set a breakpoint.
+
+I got Mobius running in unit test mode before, but if I remember right the .xml files in Program Files don't
+work.  You have to put them in that annoyingly long AppData or something folder under c:/Users.
+
+God damn, this is working, hit the breakpoint in Layer.
+
+The reason I didn't get the "Seamless shift" message seems to be that finalize() was not called.
+
+Remember: the "home directory" or whatever where an installed Mobius gets the mobius.xml file is not
+Program files, it is:
+
+   c:\Users\jeff\AppData\Local\VirtualStore\Progream Files (x86)\Mobius 2
+
+Put the mobius.xml and ui.xml you want to use, the "unitmobius.xml" files from the build directory there.
+Then edit them to adjust the paths to where the tests actually are:
+
+  unitTests='c:/dev/mobius-test'
+
+  <ScriptConfig>
+    <ScripRef file='c:\dev\mobius-test'/>
+  </ScriptConfig>
+
+In the Audio Devices setup, select RME with a 256 buffer size.  That seemed to be fine and it saved.
+
+To run side-by-side tests you can now change the OG Mobius test in c:/dev/mobius-test and the new
+script in Source/unittest
+
+So back to the problem that brung us here.   Test4 in layertests was having a difference.  In trace
+I noticed the new code emitting "Layer: Seamless shift, deferring fade out\n".  This comes
+from the second time finalize() is called.
+
+In OG finalize is not called a second time.
+
+So we're getting a subtle fade difference after an Overdub at frame 90,000
+

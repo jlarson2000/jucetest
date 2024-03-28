@@ -1,0 +1,56 @@
+OG
+
+00000064	4.69086027	[31292] 101 90000: Function Overdub down	
+00000065	4.69090462	[31292] 101 90000: EventManager: Add event Overdub(Overdub) 90000	
+00000066	4.69094324	[31292] 101 90000: EventManager: Add event Script( ) 150000	
+00000067	4.69112587	[31292] 0 0: Script 1:Flattening Unit Tests: Wait	
+00000068	4.69114971	[31292] 101 90000: E: Overdub(Overdub) 90000	
+00000069	4.69119596	[31292] 101 90000: Loop: Set mode overdub	
+00000070	4.69120502	[31292] 101 90000: Layer: Starting record fade in	
+00000073	5.27121782	[31292] 101 0: Layer: Starting record fade in	
+00000074	6.06037664	[31292] 101 33984: E: Script 34000	
+00000075	6.06039953	[31292] 101 34000: Function Overdub down	
+00000076	6.06041384	[31292] 101 34000: EventManager: Add event Overdub(Overdub) 34000	
+00000077	6.06042814	[31292] 101 34000: EventManager: Add event Script( ) 232000	
+00000078	6.06044149	[31292] 0 0: Script 1:Flattening Unit Tests: Wait	
+00000079	6.06045532	[31292] 101 34000: E: Overdub(Overdub) 34000	
+00000080	6.06046867	[31292] 101 34000: Loop: Set mode play	
+00000081	6.06047630	[31292] 101 34000: Layer: Applying fade out before frame 34000	
+
+New
+
+
+101 89824: E: Script 90000
+Function Sample down
+101 90000: Function Overdub down
+101 90000: EventManager: Add event Overdub(Overdub) 90000
+101 90000: EventManager: Add event Script( ) 150000
+Script 1:Layer Flattening: Wait
+101 90000: E: Overdub(Overdub) 90000
+101 90000: Loop: Set mode overdub
+101 90000: Layer: Starting record fade in
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+101 33984: E: Script 34000
+101 34000: Function Overdub down
+101 34000: EventManager: Add event Overdub(Overdub) 34000
+101 34000: EventManager: Add event Script( ) 232000
+Script 1:Layer Flattening: Wait
+101 34000: E: Overdub(Overdub) 34000
+101 34000: Loop: Set mode play
+101 34000: Layer: Applying fade out before frame 34000
+
+OG
+00000069	4.69119596	[31292] 101 90000: Loop: Set mode overdub	
+00000070	4.69120502	[31292] 101 90000: Layer: Starting record fade in	
+00000073	5.27121782	[31292] 101 0: Layer: Starting record fade in	
+00000074	6.06037664	[31292] 101 33984: E: Script 34000	
+
+New
+
+101 90000: Loop: Set mode overdub
+101 90000: Layer: Starting record fade in
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+101 33984: E: Script 34000
+

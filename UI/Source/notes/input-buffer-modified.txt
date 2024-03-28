@@ -1,0 +1,74 @@
+
+Shedding light on this mystery from the former SampleTrack::trigger
+
+			// only the initial trigger needs to notify the other tracks,
+			// after ward we're the first one so we've modified it before
+			// the others start copying
+			mRecorder->inputBufferModified(this, inbuf);
+
+I didn't understand what this did and removed it during the SampleTrack-SampleManager reorg.
+
+The problem is this...
+
+
+When Track processes buffers at the start of every interrupt, it gives
+the input buffer to an InputStream.  InputStream COPIES this buffer to
+an internal buffer called mLevelBuffer that has the input samples adjusted
+by the track's inputLevel parameter.  This happens even if the level is 100%
+for reasons.
+
+When samples are being injected in the unit tests, we can be in the MIDDLE of
+processing the interrupt buffer.  This happens when scripts Wait for a specific frame
+and that frame is not at the start of a block.
+
+SampleTrack/SampleManager inject the sample into the original input buffer given to us by
+what old code called the AudioStream and new code calls the MobiusContainer.
+
+This works when the sample is being triggered at the start of the interrupt, before
+the track input streams have made their leveled copy.  This is the normal case
+because sample triggers come down as Actions, and all actions are processed before
+letting the track's advance.
+
+For scripts however, the track may have already advanced, they have the copy of the
+original pre-injection input buffer.  When the sample is triggered by a script,
+it modifies the original input buffer, but this change needs to be propagated
+to the leveled buffers of all tracks that were recording from that original buffer.
+
+This is what that magic flag did.
+
+Recorder::inputBufferModified did this:
+
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		RecorderTrack* t = mTracks[i];
+		if (t != track)
+		  t->inputBufferModified(buffer);
+	}
+
+For every track that is NOT the SampleTrack, call Track::inputBufferModified, passing
+the buffer we just modified.
+
+Track::inputBufferModified does this
+
+	mInput->bufferModified(buffer);
+
+It tells the InputStream containing the copied level buffer that something happened
+to this buffer.
+
+InputStream does this:
+
+PUBLIC void InputStream::bufferModified(float* buffer)
+{
+	if (buffer == mAudioBuffer) {
+
+Is the buffer that was modified, the same one I copied from?
+
+If yes, it re-copies the modified buffer.
+
+We need to preserve that!
+
+
+
+
+
+
+

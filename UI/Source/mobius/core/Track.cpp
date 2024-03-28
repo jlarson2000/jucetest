@@ -1107,6 +1107,17 @@ void Track::removeScriptReferences(ScriptInterpreter* si)
     mEventManager->removeScriptReferences(si);
 }
 
+/**
+ * Called to notify the track that an input buffer for the current interrupt
+ * has been modified due to Sample injection.  We may need to recapture
+ * some of the InputStream's leveled buffer copy.
+ */
+void Track::notifyBufferModified(float* buffer)
+{
+    // tell the InputStream it may need to do something
+	mInput->notifyBufferModified(buffer);
+}
+
 /****************************************************************************
  *                                                                          *
  *   						 CONFIGURATION UPDATE                           *

@@ -302,9 +302,11 @@ class SampleManager
 
     /**
      * Trigger a sample and deposit the first block of content
-     * in the interrupt buffer.
+     * in the interrupt buffer.  Return a pointer to the buffer
+     * we decided to modify so Tracks can be notified that
+     * something changed if they already started processing this buffer.
      */
-    void trigger(class MobiusContainer* container, int index, bool down);
+    float* trigger(class MobiusContainer* container, int index, bool down);
 
     /**
      * Needed by scripts to wait for a trigger sample to finish.

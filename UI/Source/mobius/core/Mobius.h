@@ -68,6 +68,14 @@ class Mobius
      * What we once called "the interrupt".
      */
     void containerAudioAvailable(class MobiusContainer* cont, class UIAction* actions);
+
+
+    /**
+     * Called by Kernel in the middle of an auto block to tell any
+     * tracks that an input buffer was modified due to
+     * sample injection.
+     */
+    void Mobius::notifyBufferModified(float* buffer);
     
     /**
      * Temporary until we get UIQuery to Export fleshed out.

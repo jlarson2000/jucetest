@@ -779,6 +779,37 @@ void Mobius::containerAudioAvailable(MobiusContainer* cont, UIAction* actions)
 }
 
 /**
+ * Special call from the Kernel to tell us that a script
+ * caused the modification of one of the input buffers that
+ * had been passed during the last call to containerAudioAvailable.
+ * If any of the Tracks made a copy of this buffer, it needs to
+ * make another copy of the modified content.
+ *
+ * This only happens when triggering Samples from scripts.
+ * If the sample was triggered by a UIAction, that would have
+ * happened at the start of the interrupt before the tracks
+ * did any copying.
+ *
+ * NOTE: Original code did not do this, but it is a good idea
+ * to NOT notify the tracks if we're at the beginning of an interrupt
+ * and the tracks have not advanced yet.  I'm not entirely sure
+ * InputStream will do the right thing if the buffer pointer here
+ * just happens to be the same one it used last time, and
+ * setInputBuffer hasn't been called yet to initialize it for
+ * the incomming new block.
+ *
+ * The easiest way to detect that is up in Kernel which knows
+ * the context of the sample trigger.
+ */
+void Mobius::notifyBufferModified(float* buffer)
+{
+	for (int i = 0 ; i < mTrackCount ; i++) {
+		Track* t = mTracks[i];
+        t->notifyBufferModified(buffer);
+    }
+}
+
+/**
  * Get things ready for the tracks to process the audio stream.
  * Approximately what the old code called recorderMonitorEnter.
  *

@@ -288,6 +288,8 @@ class Track : public TraceContext
     void processBuffers(MobiusContainer* stream, 
                         float* inbuf, float *outbuf, long frames);
 
+    void notifyBufferModified(float* buffer);
+    
 	void advanceControllers();
 
     //

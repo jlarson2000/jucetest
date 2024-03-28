@@ -1,0 +1,102 @@
+ERROR: Diff expected file not found: c:\dev\mobius-test\expected\test23-2loop.wav
+
+Saw this go by "Audio added 11 buffers"
+
+This should be relatively normal early in a test run, but I noticed them in the first ReverseFlattening
+tests and don't remember seeing them on the logs for the others.
+
+
+
+Things I don't like about test script trace
+
+Hard to tell what test you are in
+
+"Script 1:Layer Flattening: Wait"
+
+I guess the first one is the script thread which isn't useful.
+Second part is the outer script name which isn't useful.
+
+Event::setInvokingFunction without action
+Event::setAction already had an invoking function
+
+"Function SaveLoop down"
+
+Done above Loop trace apparently with no TraceContext
+
+"Script 1:Layer Flattening: UnitTestSetup"
+
+Necessary to trace this?
+
+101 0: Layer: Seamless shift, deferring fade out
+101 0: Layer: Seamless shift, deferring fade in
+
+Those are still not seen in the OG test runs.  Would be good to understand why.
+
+In the tests that switch loops, verify that the new loop status rendering colors
+are the same as the old ones
+
+
+Getting leaks on at least one test, need to narrow down
+
+1110111} normal block at 0x00000199DD8D7F50, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{1110110} normal block at 0x00000199DC0052F0, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{966200} normal block at 0x00000199DD8CA3A0, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{966199} normal block at 0x00000199DC0045D0, 272 bytes long.
+ Data: <         vr     > 00 00 00 00 CD CD CD CD C0 76 72 D3 F6 7F 00 00 
+{966195} normal block at 0x00000199DD8CBAC0, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{966194} normal block at 0x00000199DC007BA0, 272 bytes long.
+ Data: <         vr     > 00 00 00 00 CD CD CD CD C0 76 72 D3 F6 7F 00 00 
+{932603} normal block at 0x00000199DD8D0BB0, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{932602} normal block at 0x00000199DC0088C0, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{901090} normal block at 0x00000199DD8C9810, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{901089} normal block at 0x00000199DC006940, 272 bytes long.
+ Data: <         vr     > 00 00 00 00 CD CD CD CD C0 76 72 D3 F6 7F 00 00 
+{901067} normal block at 0x00000199DD8D0020, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{901066} normal block at 0x00000199DC0084D0, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{901063} normal block at 0x00000199DD8CDD70, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{901062} normal block at 0x00000199DC009340, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{842674} normal block at 0x00000199DD8CC650, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{842673} normal block at 0x00000199DC0051A0, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{774902} normal block at 0x00000199DD8CD1E0, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{774901} normal block at 0x00000199DC005050, 272 bytes long.
+ Data: <         Mr     > 00 00 00 00 CD CD CD CD A8 4D 72 D3 F6 7F 00 00 
+{565685} normal block at 0x00000199DD8CF490, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{565684} normal block at 0x00000199DC007A50, 272 bytes long.
+ Data: <         vr     > 00 00 00 00 CD CD CD CD C0 76 72 D3 F6 7F 00 00 
+{565682} normal block at 0x00000199DD8CAF30, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{565681} normal block at 0x00000199DC004480, 272 bytes long.
+ Data: <         "r     > 00 00 00 00 CD CD CD CD C8 22 72 D3 F6 7F 00 00 
+{149252} normal block at 0x00000199D779E3B0, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{149251} normal block at 0x00000199DC0067F0, 272 bytes long.
+ Data: <         Mr     > 00 00 00 00 CD CD CD CD A8 4D 72 D3 F6 7F 00 00 
+{98806} normal block at 0x00000199D779D820, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{98805} normal block at 0x00000199DC0066A0, 272 bytes long.
+ Data: <         Mr     > 00 00 00 00 CD CD CD CD A8 4D 72 D3 F6 7F 00 00 
+{98801} normal block at 0x00000199D77A2910, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{98800} normal block at 0x00000199DC006D30, 272 bytes long.
+ Data: <         Mr     > 00 00 00 00 CD CD CD CD A8 4D 72 D3 F6 7F 00 00 
+{98737} normal block at 0x00000199D779B570, 2776 bytes long.
+ Data: <( B             > 28 C5 42 D3 F6 7F 00 00 00 00 00 00 CD CD CD CD 
+{98736} normal block at 0x00000199D7FB5D70, 272 bytes long.
+ Data: <         Mr     > 00 00 00 00 CD CD CD CD A8 4D 72 D3 F6 7F 00 00
+
+

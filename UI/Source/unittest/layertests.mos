@@ -79,21 +79,23 @@ Wait frame 0
 #
 ######################################################################
 
-# failing tests: 4, 7, 10, 11 12 13 14-2 15
-
-#Call AllTests
-Call Test15
+Call AllTests
 #Call SomeTests
 
+# This one is failing due to a missing expected file
+#Call Test23-2
+
 Proc SomeTests
-  Call Test1
-  Call Test2
-  Call Test3
-  Call Test4
-  Call Test5
-  Call Test6
-  Call Test7
-  Call Test8
+  Call Test30
+  Call Test30-2
+  Call Test30-3
+  Call Test31
+  Call Test31-2
+  Call Test32
+  Call Test32-2
+  Call Test33
+  Call Test34
+  Call Test34-2
 Endproc
 
 Proc AllTests

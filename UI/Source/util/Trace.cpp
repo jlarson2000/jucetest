@@ -270,7 +270,7 @@ void AddTrace(TraceContext* context, int level,
 	}
 
     // trying to detect something weird
-    if (msg == nullptr) {
+    if (msg == nullptr || strlen(msg) == 0) {
         msg = "!!!!!!!!!!! SHOULDN'T BE HERE !!!!!!!!!!!!!!";
     }
 

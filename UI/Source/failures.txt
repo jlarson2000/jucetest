@@ -1,0 +1,81 @@
+
+Reverse Flattening
+
+Audio::added 11 buffers
+ERROR: Files differ at frame 56828: 0 -1: c:\dev\jucetest\UI\Source\unittest\results\test6rec.wav, c:\dev\mobius-test\expected\test6rec.wav
+
+Audio::added 11 buffers
+ERROR: Files differ at frame 0: 0 -26112: c:\dev\jucetest\UI\Source\unittest\results\test7rec.wav, c:\dev\mobius-test\expected\test7rec.wav
+
+Audio::added 11 buffers
+ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test8rec.wav, c:\dev\mobius-test\expected\test8rec.wav
+
+ERROR: Files differ at frame 60830: 0 2: c:\dev\jucetest\UI\Source\unittest\results\test8-2rec.wav, c:\dev\mobius-test\expected\test8-2rec.wav
+
+Okay, it's pretty much all of them.
+
+Something fundamental going wrong with capture when doing reverse tests
+
+Audio::Added called 123 times!!
+
+Something might be wrong with those messages, at shutdown I see this
+AudioPool: 79 buffers allocated, 55 in the pool, 24 in use
+
+!! Need GlobalReset to put everything back into the pool, why are there 24 in use?
+Might be the capture Audio
+
+Oh, it isn't audio buffers, it's index extension, see Audio::setStartFrame
+
+		// index extension on the left, unlike extending the end frame
+		// on the right, we have to keep reallocating the index so 
+		// we can maintain a positive start frame.
+
+Oh, that sucks out loud.  Audio needs a very complete redesign for memory use.
+
+
+
+
+
+    536:ERROR: Files differ at frame 56828: 0 -1: c:\dev\jucetest\UI\Source\unittest\results\test6rec.wav, c:\dev\mobius-test\expected\test6rec.wav
+    644:ERROR: Files differ at frame 0: 0 -26112: c:\dev\jucetest\UI\Source\unittest\results\test7rec.wav, c:\dev\mobius-test\expected\test7rec.wav
+    758:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test8rec.wav, c:\dev\mobius-test\expected\test8rec.wav
+    847:ERROR: Files differ at frame 60830: 0 2: c:\dev\jucetest\UI\Source\unittest\results\test8-2rec.wav, c:\dev\mobius-test\expected\test8-2rec.wav
+    937:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test9rec.wav, c:\dev\mobius-test\expected\test9rec.wav
+   1014:ERROR: Files differ at frame 60830: 0 2: c:\dev\jucetest\UI\Source\unittest\results\test9-2rec.wav, c:\dev\mobius-test\expected\test9-2rec.wav
+   1132:ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test10rec.wav, c:\dev\mobius-test\expected\test10rec.wav
+   1238:ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test11rec.wav, c:\dev\mobius-test\expected\test11rec.wav
+   1380:ERROR: Files differ at frame 0: 0 4736: c:\dev\jucetest\UI\Source\unittest\results\test12rec.wav, c:\dev\mobius-test\expected\test12rec.wav
+   1521:ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test13rec.wav, c:\dev\mobius-test\expected\test13rec.wav
+   1609:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test14rec.wav, c:\dev\mobius-test\expected\test14rec.wav
+   1700:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test14-2rec.wav, c:\dev\mobius-test\expected\test14-2rec.wav
+   1834:ERROR: Files differ at frame 0: 0 -7312: c:\dev\jucetest\UI\Source\unittest\results\test15rec.wav, c:\dev\mobius-test\expected\test15rec.wav
+   1983:ERROR: Files differ at frame 0: 0 27791: c:\dev\jucetest\UI\Source\unittest\results\test16rec.wav, c:\dev\mobius-test\expected\test16rec.wav
+   2170:ERROR: Files differ at frame 0: 0 -17712: c:\dev\jucetest\UI\Source\unittest\results\test17rec.wav, c:\dev\mobius-test\expected\test17rec.wav
+   2281:ERROR: Files differ at frame 45281: 0 -16: c:\dev\jucetest\UI\Source\unittest\results\test17-2rec.wav, c:\dev\mobius-test\expected\test17-2rec.wav
+   2457:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test18rec.wav, c:\dev\mobius-test\expected\test18rec.wav
+   2630:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test19rec.wav, c:\dev\mobius-test\expected\test19rec.wav
+   2730:ERROR: Files differ at frame 0: 0 5232: c:\dev\jucetest\UI\Source\unittest\results\test20rec.wav, c:\dev\mobius-test\expected\test20rec.wav
+   2875:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test21rec.wav, c:\dev\mobius-test\expected\test21rec.wav
+   2966:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test22rec.wav, c:\dev\mobius-test\expected\test22rec.wav
+   3054:ERROR: Files differ at frame 0: 0 1280: c:\dev\jucetest\UI\Source\unittest\results\test22-2rec.wav, c:\dev\mobius-test\expected\test22-2rec.wav
+   3144:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test23rec.wav, c:\dev\mobius-test\expected\test23rec.wav
+   3145:ERROR: Diff expected file not found: c:\dev\mobius-test\expected\test23-2loop.wav
+   3233:ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test24rec.wav, c:\dev\mobius-test\expected\test24rec.wav
+   3331:ERROR: Files differ at frame 0: 0 -2256: c:\dev\jucetest\UI\Source\unittest\results\test25rec.wav, c:\dev\mobius-test\expected\test25rec.wav
+   3411:ERROR: Files differ at frame 0: 0 -4544: c:\dev\jucetest\UI\Source\unittest\results\test26rec.wav, c:\dev\mobius-test\expected\test26rec.wav
+   3477:ERROR: Files differ at frame 0: 0 -36: c:\dev\jucetest\UI\Source\unittest\results\test26-2rec.wav, c:\dev\mobius-test\expected\test26-2rec.wav
+   3580:ERROR: Files differ at frame 0: 0 -4450: c:\dev\jucetest\UI\Source\unittest\results\test26-3rec.wav, c:\dev\mobius-test\expected\test26-3rec.wav
+   3663:ERROR: Files differ at frame 0: 0 -976: c:\dev\jucetest\UI\Source\unittest\results\test27rec.wav, c:\dev\mobius-test\expected\test27rec.wav
+   3789:ERROR: Files differ at frame 0: 0 -29024: c:\dev\jucetest\UI\Source\unittest\results\test28rec.wav, c:\dev\mobius-test\expected\test28rec.wav
+   3926:ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test29rec.wav, c:\dev\mobius-test\expected\test29rec.wav
+   4067:ERROR: Files differ at frame 0: 0 33824: c:\dev\jucetest\UI\Source\unittest\results\test29-2rec.wav, c:\dev\mobius-test\expected\test29-2rec.wav
+   4193:ERROR: Files differ at frame 0: 0 -16015: c:\dev\jucetest\UI\Source\unittest\results\test30rec.wav, c:\dev\mobius-test\expected\test30rec.wav
+   4318:ERROR: Files differ at frame 0: 0 -5228: c:\dev\jucetest\UI\Source\unittest\results\test30-2rec.wav, c:\dev\mobius-test\expected\test30-2rec.wav
+   4446:ERROR: Files differ at frame 0: 0 -778: c:\dev\jucetest\UI\Source\unittest\results\test30-3rec.wav, c:\dev\mobius-test\expected\test30-3rec.wav
+   4571:ERROR: Files differ at frame 0: 0 1202: c:\dev\jucetest\UI\Source\unittest\results\test31rec.wav, c:\dev\mobius-test\expected\test31rec.wav
+   4698:ERROR: Files differ at frame 0: 0 35026: c:\dev\jucetest\UI\Source\unittest\results\test31-2rec.wav, c:\dev\mobius-test\expected\test31-2rec.wav
+   4823:ERROR: Files differ at frame 0: 0 2706: c:\dev\jucetest\UI\Source\unittest\results\test32rec.wav, c:\dev\mobius-test\expected\test32rec.wav
+   4950:ERROR: Files differ at frame 0: 0 36530: c:\dev\jucetest\UI\Source\unittest\results\test32-2rec.wav, c:\dev\mobius-test\expected\test32-2rec.wav
+   5079:ERROR: Files differ at frame 0: 0 1202: c:\dev\jucetest\UI\Source\unittest\results\test33rec.wav, c:\dev\mobius-test\expected\test33rec.wav
+   5213:ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test34rec.wav, c:\dev\mobius-test\expected\test34rec.wav
+   5325:ERROR: Files differ at frame 1: 4 0: c:\dev\jucetest\UI\Source\unittest\results\test34-2rec.wav, c:\dev\mobius-test\expected\test34-2rec.wav

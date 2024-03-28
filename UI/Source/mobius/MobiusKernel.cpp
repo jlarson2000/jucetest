@@ -470,11 +470,36 @@ void MobiusKernel::doAction(KernelMessage* msg)
  * function which can only be called from scripts.  In old code
  * SampleTrack was managed under Mobius so now we have an extra
  * hop to get up to where the samples are managed.
+ *
+ * Trigging a sample will modify BOTH the input and output buffers.
+ * The output buffer so we can hear the sample, and the input bufffer
+ * so the sample can be recorded, which is used all over test scripts.
+ *
+ * Each Track has an InputStream which makes a COPY of the original input
+ * buffer the container gave us, to adjust for the track's input level.
+ * After the sample injects content, we have to tell the tracks that they
+ * may need to re-copy the input to include the sample.
+ *
+ * This is only necessary when the sample is triggered in the middle of
+ * a block, samples triggered with UIActions will happen before the tracks
+ * are even started during this interrupt.  Once the sample is playing
+ * content will be injected at the start of every interrupt before the
+ * tracks make their copies.
+ *
+ * Since this function is only called from scripts, we can assume that
+ * a notification needs to be made.
+ *
+ * todo: It is important to tell the track WHICH input buffer was modified
+ * so they don't do unnecessary work.  SampleManager will pass that back.
+ * It will always be the first buffer at the moment since we don't
+ * support injection into anything but the first port.
  */
 void MobiusKernel::coreSampleTrigger(int index)
 {
     if (samples != nullptr) {
-        samples->trigger(container, index, true);
+        float* modified = samples->trigger(container, index, true);
+        if (modified != nullptr)
+          mCore->notifyBufferModified(modified);
     }
 }
 

@@ -1,0 +1,121 @@
+
+Juce differences between standalone audio apps and plugins.
+
+----------------------------------------------------------------------
+MIDI Bindings
+
+The most significant for the current architecture is that standalone apps open
+MIDI devices and can register a listener for events.  The events are received
+on an unspecified thread above the audio thread and passed through Supervisor
+to the UI/Shell level.  From the UI they are converted to UIActions through
+Bindarator and given to MobiusShell.  MobiusShell schedules them through
+KernelCommunicator for the Kernel.
+
+With plugins, MidiEvents are passed in the audio thread to the processBlocks call.
+
+They are probably accumulated on another non-audio thread but it isn't clear.
+
+This changes the level at which Binderator operates and where it can potentially go.
+
+Binderator effectively becomes a Kernel object at runtime.  It can't allocate memory
+or be reconstructed to adapt to Binding changes.
+
+It would be similar to Scriptarian and SampleManager
+  note to self: rename this Samplifier !
+
+When bindings change in the UI, it rebuilds them and sends it down through shell to the kernel.
+
+Once MIDI bindings are processed in the kernel, they no longer need to pass through the shell/communicator.
+They can all be processed synchronously at the start of every block.
+
+I think Juce can timestamp these, so it would be possible now to offset them within
+the block, similar to Scripts, but this means that current assumptions about when
+UIActions happen would no longer be true.
+
+Still need shell/communicator handling of bindings for UI components and computer keyboard keys.
+
+These can be done as they are now with a shell-level Binderator that doesn't deal with MIDI
+and passed down as UIActions.  Or we could pass the raw key/button events down and handle them
+all in the same Binderator, but this complicates the data passing.  No, UIActions are already
+necessary for other reasons outside of Bindings, keep that for keyboard/button actions.
+
+So there will be two Binderators operating on different Binding models.
+
+Oh, another big difference will be Bindings for Functions or Parameters that are handled at
+the UI/Shell level.  Since they're not coming top-down, those need upward notifications.  Currently
+using KernelEvent for that, not UIActions.  Will need a MobiusListener callback doAction()
+that takes a kernel-generated action and passes it up.  Going to need easily testable scoping
+on the UIAction to know where it's supposed to go.  Or have this be implied by the FunctionDefinition
+with flags.
+
+To test this standalone, I'd like to have MIDI events pass from shell-Binderator through the communicator
+so all MIDI events can be handled the same whether standalone or plugin.  Good way to test the
+infrastructure.
+
+External MIDI sync is a whole nother deal.  We don't need the overhead of Bindings and UIActions for those.
+Might even want a specialized shell/kernel event buffer just for clocks.  Or let Kernel directly listen
+to the MIDI device thread.  I think that's what OG Mobius does, MIDI device has it's own thread and calls
+into what would be the equivalnt of the Kernel directly.
+
+If we do that, why not handle all MIDI events that way, including UIActions?
+
+Will have thread issues though, the MIDI thread can't just call Kernel methods directly.  How did I do that before?
+
+----------------------------------------------------------------------
+Who's in Control?
+
+Standalone is more Supervisor/Shell oriented.  It creates the Supervisor which creates the Shell which creates the Kernel
+and everything runs mostly top down.
+
+Plugins are backward.  They create the Kernel and the UI/Shell is only created if you ask for the plugin's editor.
+
+I think the concepts still exist but it is unclear which threads do what in Juce.
+
+In OG Mobius, if the editor window was not open, we could still receive keyboard events.  That probably no longer exists?
+If a component isn't up and visibible, can it be a KeyListener?  I would assume the Juce Message thread still exists, it just
+isn't showing anything visible.
+
+It isn't that big a deal if you lose keyboard bindings when the editor window isn't visible.  I'm the only that
+uses keyboard control to any extent, and the window is always up and has focus.
+
+I think the Supervisor concept still applies.  AudioApplication already has a set of methods that are called
+on the UI thread, and those that are in the audio thread.  But how we connect MainWindow to DisplayManager will be different.
+
+This probably has to be more dynamic.  Instead of associating MainComponent during construction, it has to do this
+at runtime whenever the editor is displayed, and behave nicely when the editor is closed.  e.g. refresh must be disabled.
+
+----------------------------------------------------------------------
+Supervisor Layers
+
+Going to need another layer of Supervisor.  One that handles Mobius, configuration files, and the maintenance
+thread much like it does now.  And an outer supervisor that deals with the audio device.  Nothing about the
+audio device can leak down except for the conditionally included AudioDevicePanel.
+
+JuceMobiusContainer will need a different implementation.  Some stuff related to buffer handling can be factored
+out and shared.
+
+So StandaloneSupervisor and PluginSupervisor.
+
+Common Supervisor is still the focal point for everything.
+
+Really, may not need StandaloneSupervisor and PluginSupervisor.  Those are just the subclasses of AudioAppComponent
+and AudioProcessor, since that's going to have the glue, otherwise we have to forward a ton of methods.
+
+
+
+
+
+----------------------------------------------------------------------
+Maintenance Thread
+
+Chatter seems to indicate that it is fine for plugins to have their own threads.
+It can't be prevented and I've done it for years.
+
+Still, the Juce Timer on the Message thread is an alternative, at least for UI refresh.
+
+
+
+
+
+
+

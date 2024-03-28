@@ -607,8 +607,10 @@ void SampleManager::updateConfiguration(MobiusConfig* config)
  * on the new cursor.  
  * 
  */
-void SampleManager::trigger(MobiusContainer* container, int index, bool down)
+float* SampleManager::trigger(MobiusContainer* container, int index, bool down)
 {
+    float* modified = nullptr;
+    
 	if (index < mSampleCount) {
 		mPlayers[index]->trigger(down);
 		mLastSample = index;
@@ -631,14 +633,12 @@ void SampleManager::trigger(MobiusContainer* container, int index, bool down)
             frames -= blockOffset;
         }
 #endif        
+
         if (frames > 0) {
             mPlayers[index]->play(input, output, frames);
+            // tell Kernel which one we modified so it can notify Tracks
+            modified = input;
         }
-        
-
-        // old code has this which I never could figure out and
-        // I don't think is relevant now
-        // mRecorder->inputBufferModified(this, inbuf);
 	}
 	else {
 		// this is sometimes caused by a misconfiguration of the
@@ -646,6 +646,7 @@ void SampleManager::trigger(MobiusContainer* container, int index, bool down)
 		Trace(1, "ERROR: No sample at index %ld\n", (long)index);
 	}
 
+    return modified;
 }
 
 long SampleManager::getLastSampleFrames()
